@@ -27,7 +27,7 @@
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="Step 6: "
-                           Status="{Binding CalibrationStepList[5].StepName}"
+                           Status="{Binding CalibrationSteps[5].StepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Productivity: "

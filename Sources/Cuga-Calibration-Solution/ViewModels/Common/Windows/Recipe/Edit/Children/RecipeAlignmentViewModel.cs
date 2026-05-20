@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
@@ -17,6 +18,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -34,9 +36,7 @@ public sealed partial class RecipeAlignmentViewModel(
     AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
     AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     FindWaferCenterByManuallyWindowViewModel findWaferCenterByManuallyWindowViewModel,
-    StageViewModel stageViewModel,
-    ApplicationCookie applicationCookie,
-    RecipeCookie recipeCookie) : ViewModelBase
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     private bool _isCircleCenterUpdatedInSession;
     private bool _isAlignmentResultUpdatedInSession;
@@ -46,19 +46,13 @@ public sealed partial class RecipeAlignmentViewModel(
     public CalibrationRecipeDTO? EditingDTO { get; set; }
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    public partial AlignmentFindCenterCache AlignmentFindCenterCache { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+    public partial Cache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
-
-    [ObservableProperty]
-    private AlignmentFindCenterCache _alignmentFindCenterCache = new();
-
-    [ObservableProperty]
-    private Cache _cache = new();
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     public required FindWaferCenterByManuallyWindowViewModel FindWaferCenterByManuallyWindowViewModel { get; set; }
 
@@ -68,9 +62,6 @@ public sealed partial class RecipeAlignmentViewModel(
 
         _isCircleCenterUpdatedInSession = false;
         _isAlignmentResultUpdatedInSession = false;
-
-        AlignmentCacheDarkFields = recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = recipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
 
         Cache = recipeCacheProvider.GetOrDefault<Cache>();
 
@@ -114,36 +105,24 @@ public sealed partial class RecipeAlignmentViewModel(
     {
         Guard.IsNotNull(EditingDTO);
 
-        messenger.Send(ToggleRecipeEventFactory.UpdateIsWaferMapEditEnable(false));
-
-        if (AlignmentCacheBrightField.IsOk == false) BrightFiledMarkSites();
-
-        await Task.Run(() =>
+        try
         {
-            try
-            {
-                var alignmentResult = stageViewModel.Alignment(
-                    AlignmentCacheBrightField.LowSite1,
-                    AlignmentCacheBrightField.LowSite2,
-                    AlignmentCacheBrightField.HighSite1,
-                    AlignmentCacheBrightField.HighSite2,
-                    AlignmentCacheBrightField.LowMag,
-                    AlignmentCacheBrightField.HighMag,
-                    AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-                EditingDTO.WaferDTO.AlignmentResultDto = alignmentResult;
+            EditingDTO.WaferDTO.AlignmentResultDto = AlignmentUserControlViewModel.AlignmentResult.Clone();
 
-                _isAlignmentResultUpdatedInSession = true;
-            }
-            catch (Exception ex)
-            {
-                dialogWindowProvider.ShowDialog("Bright field alignment failed! " + ex.Message, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            }
-            finally
-            {
-                NotifyAlignmentStatus();
-            }
-        }, cancellationToken);
+            _isAlignmentResultUpdatedInSession = true;
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog("Bright field alignment failed! " + ex.Message, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+        finally
+        {
+            NotifyAlignmentStatus();
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -151,47 +130,50 @@ public sealed partial class RecipeAlignmentViewModel(
     {
         Guard.IsNotNull(EditingDTO);
 
-        AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(
-            t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                 && t.ProductivityInformation == Cache.ProductivityInformation
-            , new AlignmentCacheDarkField());
-
-        if (AlignmentCacheDarkField.IsOk == false) DarkFiledMarkSites();
-        await Task.Run(() =>
+        try
         {
-            try
-            {
-                var alignmentResultDto = stageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-                Cache.DarkFieldAlignmentDegree = alignmentResultDto.Degrees;
-            }
-            catch (Exception ex)
-            {
-                dialogWindowProvider.ShowDialog("Dark field alignment failed! " + ex.Message, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            }
-        }, cancellationToken);
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            Cache.DarkFieldAlignmentDegree = AlignmentUserControlViewModel.AlignmentResult.Degrees;
+
+            _isAlignmentResultUpdatedInSession = true;
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog("Bright field alignment failed! " + ex.Message, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+        finally
+        {
+            NotifyAlignmentStatus();
+        }
     }
 
     [RelayCommand]
     private void BrightFiledMarkSites()
     {
-        Guard.IsTrue(windowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
+        alignmentWindowBrightFieldViewModel.Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
-        AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
+        try
+        {
+            messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(false));
+
+            Guard.IsTrue(windowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
+        }
+        finally
+        {
+            messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(true));
+        }
     }
 
     [RelayCommand]
     private void DarkFiledMarkSites()
     {
-        alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum = Cache.ProductivityInformation.OpticsIlluminationModeEnum;
         alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation = Cache.ProductivityInformation;
+        alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum = Cache.ProductivityInformation.OpticsIlluminationModeEnum;
 
         try
         {
@@ -203,19 +185,6 @@ public sealed partial class RecipeAlignmentViewModel(
         {
             messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(true));
         }
-
-
-        AlignmentCacheDarkFields =
-        [
-            .. AlignmentCacheDarkFields.Where(t => (t.ProductivityInformation == alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation
-                                                    && t.OpticsIlluminationModeEnum == alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum) == false),
-            alignmentWindowDarkFieldViewModel.Cache
-        ];
-
-        AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(
-            t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                 && t.ProductivityInformation == Cache.ProductivityInformation
-            , new AlignmentCacheDarkField());
     }
 
     // 切换到 Alignment Tab 时调用，仅重新广播通知，不重新加载数据，为了解决TabControl延迟加载UI树的问题
@@ -223,8 +192,6 @@ public sealed partial class RecipeAlignmentViewModel(
     {
         contextProvider.Post(() =>
         {
-            OnPropertyChanged(nameof(AlignmentCacheBrightField));
-            OnPropertyChanged(nameof(AlignmentCacheDarkField));
             OnPropertyChanged(nameof(AlignmentFindCenterCache));
             OnPropertyChanged(nameof(Cache));
             OnPropertyChanged(nameof(EditingDTO));

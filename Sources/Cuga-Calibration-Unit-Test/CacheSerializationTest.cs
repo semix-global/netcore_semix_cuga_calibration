@@ -1,7 +1,5 @@
 using AwesomeAssertions;
-using Core.Models.Enums.Optics;
 using Core.Models.Helper;
-using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -142,48 +140,6 @@ public sealed class CacheSerializationTest : IDisposable
         var niItem = deserialized.Items.Single(i => i.Key == _niProductivityInfo);
         niItem.Value.ImageWidth.Should().Be(2048);
         niItem.Value.FindBFMachinePosition.Should().Be(new Point(150.0, 250.0));
-
-        JsonConvert.SerializeObject(deserialized).Should().Be(json);
-    }
-
-    [Fact]
-    public void ChuckAlignmentDegreeOffsetCacheSerialization_ShouldBeConsistent()
-    {
-        // Arrange - 创建包含多个items的Cache
-        var oiCacheItem = new ChuckAlignmentDegreeOffsetCacheItem { XWidthPixel = 512 };
-        var niCacheItem = new ChuckAlignmentDegreeOffsetCacheItem { XWidthPixel = 1024 };
-
-        var cache = new ChuckAlignmentDegreeOffsetCache
-        {
-            Items = new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>
-            {
-                [(OpticsIlluminationModeEnum.OI, _oiProductivityInfo)] = oiCacheItem,
-                [(OpticsIlluminationModeEnum.NI, _niProductivityInfo)] = niCacheItem
-            }
-        };
-
-        // Act
-        ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(cache.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
-        var json = JsonConvert.SerializeObject(cache);
-        var deserialized = JsonConvert.DeserializeObject<ChuckAlignmentDegreeOffsetCache>(json);
-
-        // Assert
-        deserialized.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
-            new ConcurrentDictionary<(OpticsIlluminationModeEnum, ProductivityInformation), ChuckAlignmentDegreeOffsetCacheItem>(deserialized.Items.OrderBy(t => t.Key.Item1).ThenBy(t => t.Key.Item2)));
-
-        deserialized.Items.Should().NotBeNull();
-        deserialized.Items.Should().HaveCount(2);
-
-        // 验证OI item
-        var oiItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.OI);
-        oiItem.Key.Item2.Should().Be(_oiProductivityInfo);
-        oiItem.Value.XWidthPixel.Should().Be(512);
-
-        // 验证NI item
-        var niItem = deserialized.Items.Single(i => i.Key.Item1 == OpticsIlluminationModeEnum.NI);
-        niItem.Key.Item2.Should().Be(_niProductivityInfo);
-        niItem.Value.XWidthPixel.Should().Be(1024);
 
         JsonConvert.SerializeObject(deserialized).Should().Be(json);
     }

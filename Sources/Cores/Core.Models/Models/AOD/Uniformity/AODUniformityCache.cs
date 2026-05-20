@@ -1,11 +1,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.AOD.Uniformity;
 
-public sealed partial class AODUniformityCache : CalibrationCacheBase
+public sealed partial class AODUniformityCache : CalibrationCacheBase<AODUniformityCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -23,13 +24,9 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     public partial double CalibrateThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMin => 1 - CalibrateThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double CalibrateThresholdMax => 1 + CalibrateThreshold;
 
     [ObservableProperty]
@@ -37,25 +34,33 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase
     public partial double ReviewThreshold { get; set; } = 0.05;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMin => 1 - ReviewThreshold;
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public double ReviewThresholdMax => 1 + ReviewThreshold;
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public AODUniformityCacheItem Item => Items.GetOrAdd((ProductivityInformation, LaserLightInformation), _ => new AODUniformityCacheItem());
+
+    public override AODUniformityCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CalibratingRetryTimes = CalibratingRetryTimes,
+        CalibrateThreshold = CalibrateThreshold,
+        ReviewThreshold = ReviewThreshold,
+        Items = new ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>(Items.Select(x => new KeyValuePair<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>((x.Key.ProductivityInformation.Clone(), x.Key.LaserLightInformation.Clone()), x.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
+public sealed partial class AODUniformityCacheItem : CalibrationCacheBase<AODUniformityCacheItem>
 {
     [ObservableProperty]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
@@ -101,4 +106,27 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase
 
     [ObservableProperty]
     public partial double WaitTime { get; set; } = 5;
+
+    public override AODUniformityCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
+        ImageHorizontalProjectsSegmentCount = ImageHorizontalProjectsSegmentCount,
+        InitializeWindowLinearSpacedCount = InitializeWindowLinearSpacedCount,
+        InitializeWindowLinearSpacedRate = InitializeWindowLinearSpacedRate,
+        ImageHorizontalProjectsSkipCout = ImageHorizontalProjectsSkipCout,
+        ImageHorizontalProjectsSkipLastCout = ImageHorizontalProjectsSkipLastCout,
+        WindowLimitRate = WindowLimitRate,
+        WindowInterval = WindowInterval,
+        WaitTime = WaitTime,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

@@ -16,19 +16,17 @@ using System.ComponentModel;
 namespace Core.Models.Models.Chuck.Prealigner;
 
 [CacheVersion("1.0.0")]
-public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<ChuckPrealignerDTO>, IAdaptTo<CalibrationPrealignerObj>
+public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealignerDTO>, IAdaptTo<CalibrationPrealignerObj>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<ChuckPrealignerDTOItem> _items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<ChuckPrealignerDTOItem> Items { get; set; } = [];
 
     partial void OnItemsChanged(IReadOnlyList<ChuckPrealignerDTOItem>? oldValue, IReadOnlyList<ChuckPrealignerDTOItem> newValue)
     {
@@ -48,16 +46,14 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
     }
 
     [ObservableProperty]
-    private ChuckPrealignerDTOItem _resultItemDto = new();
+    public partial ChuckPrealignerDTOItem ResultItemDto { get; set; } = new();
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -132,10 +128,11 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
 
     #region Mapper
 
-    public ChuckPrealignerDTO Clone() => new()
+    public override ChuckPrealignerDTO Clone() => new()
     {
-        LowMicroscopeLensInformation = LowMicroscopeLensInformation,
-        HighMicroscopeLensInformation = HighMicroscopeLensInformation,
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        Items = [.. Items.Select(t => t.Clone())],
         ResultItemDto = ResultItemDto.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -160,16 +157,16 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDtoBase, ICloneable<
 public sealed partial class ChuckPrealignerDTOItem : ObservableObject, ICloneable<ChuckPrealignerDTOItem>
 {
     [ObservableProperty]
-    private Point _offsetPosition;
+    public partial Point OffsetPosition { get; set; }
 
     [ObservableProperty]
-    private Point _efemLoadWaferStagePosition;
+    public partial Point EfemLoadWaferStagePosition { get; set; }
 
     [ObservableProperty]
-    private Point _newEfemLoadWaferStagePosition;
+    public partial Point NewEfemLoadWaferStagePosition { get; set; }
 
     [ObservableProperty]
-    private double _efemLoadWaferChuckAbsoluteAngle;
+    public partial double EfemLoadWaferChuckAbsoluteAngle { get; set; }
 
     public ChuckPrealignerDTOItem Clone() => new()
     {

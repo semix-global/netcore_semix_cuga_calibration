@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
-		<UseWPF>true</UseWPF>
-		<AssemblyName>Core.Recipe</AssemblyName>
-		<RootNamespace>Core.Recipe</RootNamespace>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Core.Recipe</AssemblyName>
+        <RootNamespace>Core.Recipe</RootNamespace>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="SourceGenerator.InjectHostDI">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="SourceGenerator.InjectHostDI">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
         <Reference Include="Semix.CoreLib">
@@ -26,9 +26,10 @@
         </Reference>
     </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
-		<ProjectReference Include="..\Core.Models\04. Core.Models.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
+        <ProjectReference Include="..\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Core.Models\04. Core.Models.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -1,37 +1,36 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.Cache.Providers.Bases;
-using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Laser.BeamStabilizer;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserBeamStabilizerObjDto : CalibrationDtoBase, ICloneable<LaserBeamStabilizerObjDto>
+public sealed partial class LaserBeamStabilizerObjDto : CalibrationDTOBase<LaserBeamStabilizerObjDto>
 {
     [ObservableProperty]
-    private int _index;
+    public partial int Index { get; set; }
 
     [ObservableProperty]
-    private Point _currentPDPosition1;
+    public partial Point CurrentPDPosition1 { get; set; }
 
     [ObservableProperty]
-    private Point _currentPDPosition2;
+    public partial Point CurrentPDPosition2 { get; set; }
 
     [ObservableProperty]
-    private Point _originPosition1;
+    public partial Point OriginPosition1 { get; set; }
 
     [ObservableProperty]
-    private Point _originPosition2;
+    public partial Point OriginPosition2 { get; set; }
 
     [ObservableProperty]
-    private int _interval;
+    public partial int Interval { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     #region Mapper
 
-    public LaserBeamStabilizerObjDto Clone() => new()
+    public override LaserBeamStabilizerObjDto Clone() => new()
     {
         Index = Index,
         CurrentPDPosition1 = CurrentPDPosition1,

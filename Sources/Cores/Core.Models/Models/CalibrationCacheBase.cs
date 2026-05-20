@@ -1,21 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models;
 
-public partial class CalibrationCacheBase : ObservableCacheBase, IEntityAdd
+public partial class CalibrationCacheBase : ObservableCacheBase
 {
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
+    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
 
     [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _algorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+    public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
+}
 
-    [ObservableProperty]
-    private long _createdUserId;
+public abstract class CalibrationCacheBase<T> : CalibrationCacheBase, ICloneable<T> where T : CalibrationCacheBase<T>, new()
+{
+    public static readonly T Default = new();
 
-    [ObservableProperty]
-    private string _createdUserName = string.Empty;
+    public abstract T Clone();
 }

@@ -9,6 +9,8 @@
     <converters:PointYToStringConverter x:Key="PointYToStringConverter" />
     <converters:PointXToStringConverter x:Key="PointXToStringConverter" />
     <converters:StringToBitmapImageDrawableConverter x:Key="StringToBitmapImageDrawableConverter" />
+    <converters:CollectionEmptyToVisibilityConverter x:Key="CollectionEmptyToVisibilityConverter" />
+    <converters:CollectionNotEmptyToVisibilityConverter x:Key="CollectionNotEmptyToVisibilityConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanAllConverter" />
     <multiValueConverters:MultiValueBooleanAllConverter x:Key="MultiValueBooleanNegationAllConverter" IsNegation="True" />

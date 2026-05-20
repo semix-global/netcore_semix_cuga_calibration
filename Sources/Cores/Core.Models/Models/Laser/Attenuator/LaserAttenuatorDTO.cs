@@ -15,52 +15,50 @@ using ScottPlot.MultiplotLayouts;
 namespace Core.Models.Models.Laser.Attenuator;
 
 [CacheVersion("1.0.0")]
-public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<CalibrationAttenuatorObj>, ICloneable<LaserAttenuatorDTO>
+public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenuatorDTO>, IAdaptTo<CalibrationAttenuatorObj>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _waitTime;
+    public partial double WaitTime { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _measurePowerPoints = [];
+    public partial IReadOnlyList<Point> MeasurePowerPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _maxMeasurePower;
+    public partial double MaxMeasurePower { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _attenuatorPoints = [];
+    public partial IReadOnlyList<Point> AttenuatorPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double _p0;
+    public partial double P0 { get; set; }
 
     [ObservableProperty]
-    private double _p1;
+    public partial double P1 { get; set; }
 
     [ObservableProperty]
-    private double _p2;
+    public partial double P2 { get; set; }
 
     [ObservableProperty]
-    private double _p3;
+    public partial double P3 { get; set; }
 
     [ObservableProperty]
-    private double _rSquared;
+    public partial double RSquared { get; set; }
 
     [ObservableProperty]
-    private double _saturationCoefficient;
+    public partial double SaturationCoefficient { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _fitAttenuatorPoints = [];
+    public partial IReadOnlyList<Point> FitAttenuatorPoints { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -136,7 +134,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDtoBase, IAdaptTo<Ca
 
     #region Mapper
 
-    public LaserAttenuatorDTO Clone() => new()
+    public override LaserAttenuatorDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         WaitTime = WaitTime,

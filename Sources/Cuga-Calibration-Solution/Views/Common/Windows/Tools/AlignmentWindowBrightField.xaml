@@ -127,6 +127,9 @@
                                 <hc:Shield Subject="High Template Size: "
                                            Status="{Binding Cache.HighSizeEnum, Converter={StaticResource EnumDescriptionConverter}}"
                                            Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Cal Chip: "
+                                           Status="{Binding Cache.CalChipSiteModelEnum, Converter={StaticResource EnumDescriptionConverter}}"
+                                           Color="{StaticResource InfoBrush}" />
                             </hc:UniformSpacingPanel>
                         </hc:UniformSpacingPanel>
                     </Border>

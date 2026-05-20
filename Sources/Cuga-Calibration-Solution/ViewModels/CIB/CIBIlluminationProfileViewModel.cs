@@ -5,6 +5,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.IlluminationProfile;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
@@ -23,6 +24,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -37,7 +39,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
@@ -93,34 +95,12 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<CIBIlluminationProfileCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBIlluminationProfileDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBIlluminationProfileCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBIlluminationProfileDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
-                            && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
-                            && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
-                            && ApplicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum))
-                .Select(t =>
-                {
-                    t.Items = [..t.Items.Where(tt => ApplicationCookie.CIBInformations.Contains(tt.CIBInformation))];
-
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -199,14 +179,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 3:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
-
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -576,16 +549,96 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             Calibrations =
             [
                 dto,
-                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation
-                                           || t.OpticsApodizationModeEnum != dto.OpticsApodizationModeEnum
-                                           || t.OpticsPolarizationModeEnum != dto.OpticsPolarizationModeEnum
-                                           || t.OpticsCollectorPolarizationModeEnum != dto.OpticsCollectorPolarizationModeEnum)
+                .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation
+                                            && t.OpticsApodizationModeEnum == dto.OpticsApodizationModeEnum
+                                            && t.OpticsPolarizationModeEnum == dto.OpticsPolarizationModeEnum
+                                            && t.OpticsCollectorPolarizationModeEnum == dto.OpticsCollectorPolarizationModeEnum) == false)
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBIlluminationProfileDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.OpticsApodizationModeEnum)
+                            && ApplicationCookie.OpticsPolarizationModeEnums.Contains(t.OpticsPolarizationModeEnum)
+                            && ApplicationCookie.OpticsCollectorPolarizationModeEnums.Contains(t.OpticsCollectorPolarizationModeEnum))
+                .DistinctBy(t => (t.ProductivityInformation, t.OpticsApodizationModeEnum, t.OpticsPolarizationModeEnum, t.OpticsCollectorPolarizationModeEnum))
+                .Select(t =>
+                {
+                    t.Items = [.. t.Items.Where(i => ApplicationCookie.CIBInformations.Contains(i.CIBInformation))];
+                    if (t.IsCalibrated) t.IsCalibrated = t.Items.Count == ApplicationCookie.CIBInformations.Count;
+
+                    return t;
+                })
+        ];
+
+        foreach (var calibratingStatus in CalibratingStatuses)
+        {
+            calibratingStatus.IsCalibrated = Calibrations.Where(t => t.ProductivityInformation == calibratingStatus.SelectedItem && t.IsCalibrated)
+                    .SelectMany(t => t.Items)
+                    .Count() == ApplicationCookie.OpticsApodizationModeEnums.Count * ApplicationCookie.OpticsPolarizationModeEnums.Count * ApplicationCookie.OpticsCollectorPolarizationModeEnums.Count
+                * ApplicationCookie.CIBInformations.Count;
+        }
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count
+                                       * ApplicationCookie.OpticsApodizationModeEnums.Count * ApplicationCookie.OpticsPolarizationModeEnums.Count * ApplicationCookie.OpticsCollectorPolarizationModeEnums.Count
+                                       * ApplicationCookie.CIBInformations.Count;
+        status.CalibratedCount = Calibrations.Where(t => t.IsCalibrated)
+            .SelectMany(t => t.Items)
+            .Count();
+        status.VerifiedCount = Calibrations.Where(t => t.IsVerified)
+            .SelectMany(t => t.Items)
+            .Count();
+
+        var detailList = new List<CalibrationViewModelStatus.Detail>(status.TotalCalibrationCount);
+        foreach (var productivityInformation in ApplicationCookie.ProductivityInformations)
+        {
+            foreach (var opticsApodizationModeEnum in ApplicationCookie.OpticsApodizationModeEnums)
+            {
+                foreach (var opticsPolarizationModeEnum in ApplicationCookie.OpticsPolarizationModeEnums)
+                {
+                    foreach (var opticsCollectorPolarizationModeEnum in ApplicationCookie.OpticsCollectorPolarizationModeEnums)
+                    {
+                        var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation
+                                                                     && t.OpticsApodizationModeEnum == opticsApodizationModeEnum
+                                                                     && t.OpticsPolarizationModeEnum == opticsPolarizationModeEnum
+                                                                     && t.OpticsCollectorPolarizationModeEnum == opticsCollectorPolarizationModeEnum);
+
+                        foreach (var cibInformation in ApplicationCookie.CIBInformations)
+                        {
+                            var itemData = item?.Items?.SingleOrDefault(i => i.CIBInformation == cibInformation);
+
+                            detailList.Add(new CalibrationViewModelStatus.Detail(
+                                $"{productivityInformation}/{opticsApodizationModeEnum}/{opticsPolarizationModeEnum}/{opticsCollectorPolarizationModeEnum}/{cibInformation}",
+                                item is not null
+                                    ? item.IsCalibrated ? itemData is not null : null
+                                    : null,
+                                item is not null
+                                    ? item.IsVerified ? itemData is not null : null
+                                    : null));
+                        }
+                    }
+                }
+            }
+        }
+
+        status.Details = detailList;
+    }
 
     #endregion 校准
 }

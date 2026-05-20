@@ -2,13 +2,13 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Algorithms.Halcon;
@@ -18,6 +18,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
@@ -40,6 +41,9 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
     [ObservableProperty]
     private MicroscopeCalChipCache _microscopeCalChipCache = new();
+
+    [ObservableProperty]
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     public override string Name => "Best Focus";
 
@@ -102,17 +106,28 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(0, () =>
+        return await InvokeAsync(0, async () =>
         {
-            var alignmentResult = StageViewModel.Alignment(
-                MicroscopeCalChipCache.LowSite1,
-                MicroscopeCalChipCache.LowSite2,
-                MicroscopeCalChipCache.HighSite1,
-                MicroscopeCalChipCache.HighSite2,
-                MicroscopeCalChipCache.LowMicroscopeLensInformation,
-                MicroscopeCalChipCache.HighMicroscopeLensInformation,
-                MicroscopeCalChipCache.AlgorithmWaferTypeEnum,
-                CalChipSiteModelEnum.DswModel);
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
+            DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
+
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.CalChipSiteModelEnum,
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
 
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
 
@@ -123,7 +138,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return Task.FromResult(true);
+            return true;
         }, isSilent).ConfigureAwait(false);
     }
 

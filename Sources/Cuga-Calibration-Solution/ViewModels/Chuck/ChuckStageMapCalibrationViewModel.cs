@@ -10,7 +10,6 @@ using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -34,14 +33,13 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckStageMapCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckStageMapCalibrationViewModel(
     ApplicationCookie applicationCookie,
-    AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
-    AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
 {
     #region 属性
@@ -50,7 +48,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     public override string CalibrateFileName => $"{EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName)}-{Cache.ProductivityInformation}";
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Config" },
         new() { StepName = "BF P5", StepIndex = 1 },
@@ -67,9 +65,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     #region 界面相关
 
     #region Calibrate
-
-    [ObservableProperty]
-    private bool _isDarkFieldAlignment;
 
     [ObservableProperty]
     private ChuckStageMapDto _resultChuckStageMapDto = new();
@@ -96,15 +91,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private ChuckStageMapDto _calibration = new();
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
-
-    [ObservableProperty]
     private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
 
     [ObservableProperty]
@@ -122,6 +108,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     [ObservableProperty]
     private CIBXPixelSizeDTO[] _cIBXPixelSizeItems = [];
 
+    [ObservableProperty]
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
+
     #endregion 缓存
 
     #endregion 属性
@@ -134,27 +123,26 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        ChuckCenter = CalibrationStatusService.GetCalibration<ChuckCenterAndThetaItemDto>();
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
-        CIBXPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
+        CIBXPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
 
-        LaserPixelSizeItems = CalibrationStatusService.GetCalibrations<CIBYPixelSizeDTO>();
+        LaserPixelSizeItems = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken);
 
-        LaserLineCentricityItems = CalibrationStatusService.GetCalibrations<CIBLineCentricityDTO>();
+        LaserLineCentricityItems = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckStageMapCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckStageMapDto>();
-        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        Cache = ApplicationCookieService.GetCache<ChuckStageMapCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckStageMapDto>(cancellationToken);
+
         Cache.IsDarkField = false;
 
         Cache.ProductivityInformation = applicationCookie.NILowProductivityInformation.Clone();
 
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -207,8 +195,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 }
 
-                DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?", out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-                IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
 
             case 5:
@@ -236,8 +222,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     return false;
                 }
 
-                IsCalibrated = true;
-
                 return true;
 
             default:
@@ -258,7 +242,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             case 5:
                 Cache.IsDarkField = false;
-                IsDarkFieldAlignment = false;
                 ResultChuckStageMapDto.IsCalibrationBrightField = false;
                 Cache.GetParam();
 
@@ -298,76 +281,33 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
-            AlignmentResultDto alignmentResultDto = new();
-
-            if (IsDarkFieldAlignment)
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+            if (CalibrationStepIndex == 5)
             {
-                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                                              t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum &&
-                                              t.ProductivityInformation == Cache.ProductivityInformation)
-                                          ?? new AlignmentCacheDarkField();
-                if (AlignmentCacheDarkField.IsOk)
-                {
-                    alignmentResultDto = StageViewModel.AlignmentDarkField(
-                        AlignmentCacheDarkField.LowSite1,
-                        AlignmentCacheDarkField.LowSite2,
-                        AlignmentCacheDarkField.HighSite1,
-                        AlignmentCacheDarkField.HighSite2,
-                        Cache.ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
-                    return true;
-                }
+                DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                    out var dialogResult,
+                    DialogButtonsEnum.YesNo,
+                    DialogIconEnum.Question);
 
-                var showDialog = WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel);
-
-                if (showDialog == false)
-                {
-                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-
-                AlignmentCacheDarkField = alignmentWindowDarkFieldViewModel.Cache;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheDarkField.LowSite1.Location);
-            }
-            else
-            {
-                if (AlignmentCacheBrightField.IsOk)
-                {
-                    alignmentResultDto = StageViewModel.Alignment(
-                        AlignmentCacheBrightField.LowSite1,
-                        AlignmentCacheBrightField.LowSite2,
-                        AlignmentCacheBrightField.HighSite1,
-                        AlignmentCacheBrightField.HighSite2,
-                        AlignmentCacheBrightField.LowMag,
-                        AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-                    return true;
-                }
-
-                var showDialog = WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel);
-
-                if (showDialog == false)
-                {
-                    DialogWindowProvider.ShowDialog("Alignment Setting is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return false;
-                }
-
-                AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(AlignmentCacheBrightField.LowSite1.Location);
+                AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
             }
 
-            Cache.P5Angle = alignmentResultDto.Degrees;
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+
+            Cache.P5Angle = alignmentResult.Degrees;
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Cache.P5Angle,
-                LensName = Cache.HighMicroscopeLensInformation.LensName
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -426,8 +366,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var brightFieldPosition = StageViewModel.GetBrightFieldStagePosition();
         var centerPosition = StageViewModel.DarkFieldToMachinePosition(brightFieldPosition);
 
-        var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
-                                                                              && t.ProductivityInformation == Cache.ProductivityInformation);
+        var laserLineCentricityItemDto = GuardExtensions.IsNotNullAndReturn(
+            LaserLineCentricityItems.SingleOrDefault(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
+                                                          && t.ProductivityInformation == Cache.ProductivityInformation)
+            , "Missing LineCentricity Calibration Results");
 
         var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
             Cache.ProductivityInformation,
@@ -790,25 +732,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 Logger.LogHtmlInformation("Dark Field", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                if (IsDarkFieldAlignment == false)
-                    StageViewModel.Alignment(
-                        AlignmentCacheBrightField.LowSite1,
-                        AlignmentCacheBrightField.LowSite2,
-                        AlignmentCacheBrightField.HighSite1,
-                        AlignmentCacheBrightField.HighSite2,
-                        AlignmentCacheBrightField.LowMag,
-                        AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
-                else
-                    StageViewModel.AlignmentDarkField(
-                        AlignmentCacheDarkField.LowSite1,
-                        AlignmentCacheDarkField.LowSite2,
-                        AlignmentCacheDarkField.HighSite1,
-                        AlignmentCacheDarkField.HighSite2,
-                        Cache.ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: Cache.OpticsIlluminationModeEnum);
+                AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+                AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+                AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.IsDarkFieldAlignment;
+
+                await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
                 Logger.LogHtmlInformation("Get Stage Map", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
                 await DarkFieldGetStageMapAsync(ReviewDto.VerifyDarkFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ReviewDto.VerifyDarkFieldStageMap)), cancellationToken, true);
@@ -1267,9 +1195,22 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckStageMapDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

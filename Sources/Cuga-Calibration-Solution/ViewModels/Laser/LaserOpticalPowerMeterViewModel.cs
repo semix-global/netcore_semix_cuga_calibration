@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities.SourceGenerators.Attributes;
@@ -14,6 +15,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.Laser;
@@ -27,7 +29,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Find Machine Position" },
@@ -80,27 +82,10 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
         if (LoadDepends() == false) return false;
 
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
+        Cache = ApplicationCookieService.GetCache<LaserOpticalPowerMeterCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<LaserOpticalPowerMeterCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<LaserOpticalPowerMeterDTO>();
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -164,14 +149,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                 return true;
 
             case 2:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
-
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
 
                 return true;
 
@@ -460,9 +438,49 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<LaserOpticalPowerMeterDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
 
     #endregion 校准
 }

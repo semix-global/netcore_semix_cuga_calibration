@@ -9,38 +9,38 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Microscope.Focus;
 
 [CacheVersion("1.0.0")]
-public sealed partial class MicroscopeFocusItemDto : CalibrationDtoBase, ICloneable<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
+public sealed partial class MicroscopeFocusItemDto : CalibrationDTOBase<MicroscopeFocusItemDto>, IAdaptTo<CalibrationMicroscopeFocusItem>
 {
     [ObservableProperty]
-    private int _index;
+    public partial int Index { get; set; }
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _findPosition;
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    private double _ecsValue;
+    public partial double EcsValue { get; set; }
 
     [ObservableProperty]
-    private double _transBufferAfErrorValue;
+    public partial double TransBufferAfErrorValue { get; set; }
 
     [ObservableProperty]
-    private double _microscopeVoltage;
+    public partial double MicroscopeVoltage { get; set; }
 
     [ObservableProperty]
-    private double _quality;
+    public partial double Quality { get; set; }
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     #region Mapper
 
-    public MicroscopeFocusItemDto Clone() => new()
+    public override MicroscopeFocusItemDto Clone() => new()
     {
         Index = Index,
-        LensInformation = LensInformation,
+        LensInformation = LensInformation.Clone(),
         FindPosition = FindPosition,
         EcsValue = EcsValue,
         TransBufferAfErrorValue = TransBufferAfErrorValue,

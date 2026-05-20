@@ -8,86 +8,80 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
-public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
+public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase<ChuckGlobalScaleErrorCache>
 {
-    private double _diePitchWidth = 5100;
-    private double _diePitchHeight = 16600;
-    private int _reticleDieCountX = 1;
-    private int _reticleDieCountY = 1;
-    private double _waferRadius = 150_000;
+    [ObservableProperty]
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial StageDirectionTypeEnum SiteDirection { get; set; } = StageDirectionTypeEnum.Up;
 
     [ObservableProperty]
-    private StageDirectionTypeEnum _siteDirection = StageDirectionTypeEnum.Up;
+    public partial WaferMaskTypeEnum WaferMaskTypeEnum { get; set; } = WaferMaskTypeEnum.DieCorner_LeftBottom;
 
     [ObservableProperty]
-    private WaferMaskTypeEnum _waferMaskTypeEnum = WaferMaskTypeEnum.DieCorner_LeftBottom;
+    public partial Point Threshold { get; set; }
 
     [ObservableProperty]
-    private Point _threshold;
-
-    [ObservableProperty]
-    private double _p5Angle;
+    public partial double P5Angle { get; set; }
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Width must be greater than 0.1.")]
     public double DiePitchWidth
     {
-        get => _diePitchWidth;
-        set => SetProperty(ref _diePitchWidth, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 5100;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Die Pitch Height must be greater than 0.1.")]
     public double DiePitchHeight
     {
-        get => _diePitchHeight;
-        set => SetProperty(ref _diePitchHeight, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 16600;
 
     [Comparison(1000d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Wafer Radius: ")]
     public double WaferRadius
     {
-        get => _waferRadius;
-        set => SetProperty(ref _waferRadius, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 150_000;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Col Count must be greater than 1.")]
     public int ReticleDieCountX
     {
-        get => _reticleDieCountX;
-        set => SetProperty(ref _reticleDieCountX, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1;
 
     [Comparison(1, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "Reticle Reference Die Row Count must be greater than 1.")]
     public int ReticleDieCountY
     {
-        get => _reticleDieCountY;
-        set => SetProperty(ref _reticleDieCountY, value, true);
-    }
+        get;
+        set => SetProperty(ref field, value, true);
+    } = 1;
 
     #region position
 
     [ObservableProperty]
-    private Point _baseLowSiteFindPosition = Point.Origin;
+    public partial Point BaseLowSiteFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _baseHighSiteFindPosition = Point.Origin;
+    public partial Point BaseHighSiteFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _topLowSitePosition = Point.Origin;
+    public partial Point TopLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _leftLowSitePosition = Point.Origin;
+    public partial Point LeftLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _bottomLowSitePosition = Point.Origin;
+    public partial Point BottomLowSitePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _rightLowSitePosition = Point.Origin;
+    public partial Point RightLowSitePosition { get; set; } = Point.Origin;
 
     public Point LowToHighMagnificationOffset => BaseHighSiteFindPosition - (Vector)BaseLowSiteFindPosition;
 
@@ -98,19 +92,19 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
     #endregion position
 
     [ObservableProperty]
-    private string _lowBaseTemplateFilePath = string.Empty;
+    public partial string LowBaseTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _lowBaseTemplateImageFilePath = string.Empty;
+    public partial string LowBaseTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _highBaseTemplateFilePath = string.Empty;
+    public partial string HighBaseTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _highBaseTemplateImageFilePath = string.Empty;
+    public partial string HighBaseTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private int _times = 3;
+    public partial int Times { get; set; } = 3;
 
     public void SetPosition(Point position, StageDirectionTypeEnum? stageDirection = null)
     {
@@ -148,4 +142,34 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase
             _ => throw new ArgumentOutOfRangeException(nameof(SiteDirection), SiteDirection, null)
         };
     }
+
+    public override ChuckGlobalScaleErrorCache Clone() => new()
+    {
+        LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
+        HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
+        SiteDirection = SiteDirection,
+        WaferMaskTypeEnum = WaferMaskTypeEnum,
+        Threshold = Threshold,
+        P5Angle = P5Angle,
+        DiePitchWidth = DiePitchWidth,
+        DiePitchHeight = DiePitchHeight,
+        WaferRadius = WaferRadius,
+        ReticleDieCountX = ReticleDieCountX,
+        ReticleDieCountY = ReticleDieCountY,
+        BaseLowSiteFindPosition = BaseLowSiteFindPosition,
+        BaseHighSiteFindPosition = BaseHighSiteFindPosition,
+        TopLowSitePosition = TopLowSitePosition,
+        LeftLowSitePosition = LeftLowSitePosition,
+        BottomLowSitePosition = BottomLowSitePosition,
+        RightLowSitePosition = RightLowSitePosition,
+        LowBaseTemplateFilePath = LowBaseTemplateFilePath,
+        LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
+        HighBaseTemplateFilePath = HighBaseTemplateFilePath,
+        HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
+        Times = Times,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

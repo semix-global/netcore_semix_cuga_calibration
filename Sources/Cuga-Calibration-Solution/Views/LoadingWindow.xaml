@@ -18,7 +18,7 @@
            mc:Ignorable="d">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
-            <!--  神奇组件bug, 改为Loaded后, 调试源码发现下面Command绑定失败: 当时View上设置了Window.SizeToContent属性有概率触发bug  -->
+            <!--  todo: 神奇组件bug, 改为Loaded后, 调试源码发现下面Command绑定失败: 当时View上设置了Window.SizeToContent属性有概率触发bug  -->
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
@@ -82,17 +82,13 @@
                                           ArcThickness="16"
                                           ShowText="False"
                                           Foreground="{Binding IsFailed, Converter={StaticResource BoolNegationToBrushConverter}}" />
-                    <!--  Viewbox将TextBlock自适应文本大小  -->
-                    <!-- <Viewbox Grid.Row="1" Height="45"> -->
                     <TextBlock Grid.Row="1"
                                Text="{Binding Message, Mode=OneWay}"
                                TextWrapping="Wrap"
                                Margin="5"
-                               d:Text="TestTestTest"
                                FontSize="15"
                                Foreground="{Binding IsFailed, Converter={StaticResource BoolNegationToBrushConverter}}"
                                Style="{StaticResource TextBlockLargeBold}" />
-                    <!-- </Viewbox> -->
                     <ProgressBar Grid.Row="2"
                                  Height="20"
                                  Margin="0,5"

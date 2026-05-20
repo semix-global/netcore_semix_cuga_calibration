@@ -16,25 +16,23 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 namespace Core.Models.Models.Optics.INC;
 
 [CacheVersion("1.0.0")]
-public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
+public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsINCDTOItem> _items = [];
+    public partial IReadOnlyList<OpticsINCDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    private OpticsINCDTOItem? _maxItem;
+    public partial OpticsINCDTOItem? MaxItem { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -87,7 +85,7 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
 
     #region Mapper
 
-    public OpticsINCDTO Clone() => new()
+    public override OpticsINCDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
@@ -116,16 +114,16 @@ public sealed partial class OpticsINCDTO : CalibrationDtoBase, ICloneable<Optics
 public sealed partial class OpticsINCDTOItem : ObservableObject, ICloneable<OpticsINCDTOItem>
 {
     [ObservableProperty]
-    private double _iNCMotorAbsoluteValue;
+    public partial double INCMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    private double _pMTValue;
+    public partial double PMTValue { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     public OpticsINCDTOItem Clone() => new()
     {

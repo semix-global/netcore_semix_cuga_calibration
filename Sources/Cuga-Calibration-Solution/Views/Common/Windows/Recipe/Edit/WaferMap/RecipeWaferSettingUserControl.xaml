@@ -1,4 +1,5 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap.RecipeWaferSettingUserControl"
+<UserControl x:Name="Root"
+             x:Class="CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap.RecipeWaferSettingUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:children="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap.Children"
@@ -6,7 +7,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:children2="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children"
-             d:DataContext="{d:DesignInstance Type=children2:RecipeWaferMapViewModel,
+             d:DataContext="{d:DesignInstance Type=children2:RecipeWaferSettingUserControlViewModel,
                                               IsDesignTimeCreatable=True}"
              d:DesignHeight="1000"
              d:DesignWidth="1000"
@@ -26,7 +27,9 @@
                       Margin="10"
                       Header="Wafer Map">
                 <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
-                    <children:WaferMapCanvasView Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=ActualHeight}" />
+                    <children:WaferMapCanvasView Width="{Binding RelativeSource={RelativeSource AncestorType=GroupBox}, Path=ActualHeight}"
+                                                 DataContext="{Binding WaferMapCanvasViewModel}"
+                                                 GotoPositionCommand="{Binding DataContext.GotoPositionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
                 </Border>
             </GroupBox>
             <GroupBox Grid.Row="0" Grid.Column="1"

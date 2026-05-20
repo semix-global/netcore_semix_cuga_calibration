@@ -32,7 +32,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "P5" },
         new() { StepName = "Low Mag Base Position And Template" },
@@ -97,16 +97,16 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckCenterAndThetaCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        Cache = ApplicationCookieService.GetCache<ChuckCenterAndThetaCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -184,7 +184,6 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     }
                 }
 
-                IsCalibrated = true;
                 return true;
 
             default:
@@ -259,8 +258,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             {
                 Cache.P5Angle,
                 Cache.ThetaAngle
-            }),
-                HtmlLogUniqueId.LoggingHtml());
+            }), HtmlLogUniqueId.LoggingHtml());
             result = true;
             return result;
         });
@@ -573,7 +571,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
                 SelectCenterAndThetaItemDto = chuckCenterAndThetaItemDto.Clone();
 
-                RecipeCacheProvider.Set(Cache, cancellationToken);
+                ApplicationCookieService.SetCache(Cache, cancellationToken);
 
                 if (GetChuckCenterAndThetaScaleResult(SelectCenterAndThetaItemDto, cancellationToken) == false)
                 {
@@ -846,9 +844,22 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckCenterAndThetaItemDto>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     private void ClearCalibrationTemp()
     {

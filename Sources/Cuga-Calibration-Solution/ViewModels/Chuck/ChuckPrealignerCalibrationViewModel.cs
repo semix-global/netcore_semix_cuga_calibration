@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -27,7 +28,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 {
     #region 属性
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Center offset" },
         new() { StepName = "Low MarkSite1" },
@@ -86,19 +87,20 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         if (LoadDepends() == false) return false;
 
-        MicroscopePixelSizeItems = CalibrationStatusService.GetCalibrations<MicroscopePixelSizeItemDto>();
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
+        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<ChuckPrealignerCache>();
-        Calibration = CacheProvider.GetOrDefault<ChuckPrealignerDTO>();
+        Cache = ApplicationCookieService.GetCache<ChuckPrealignerCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<ChuckPrealignerDTO>(cancellationToken);
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
-
         Cache.AlgorithmWaferTypeEnum = AlignmentCacheBrightField.AlgorithmWaferTypeEnum;
+
+        UpdateEntryStatus(Calibration, cancellationToken);
+
         return true;
     }
 
@@ -170,7 +172,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 return true;
 
             case 6:
-                IsCalibrated = true;
                 return true;
 
             default:
@@ -704,9 +705,22 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(dto, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
-    }) && EnableDependedCalibrationItems(cancellationToken);
+        ApplicationCookieService.SetCalibration(dto, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<ChuckPrealignerDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

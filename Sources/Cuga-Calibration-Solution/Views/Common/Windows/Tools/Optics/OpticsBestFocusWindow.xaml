@@ -13,9 +13,9 @@
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
-           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:OpticsBestFocusWindowViewModel}"
@@ -287,54 +287,7 @@
                                                   ExpandDirection="Down">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                    <TextBox Text="{Binding MicroscopeCalChipCache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
-                                                             hc:TitleElement.Title="Low Site1(um): "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="150"
-                                                             IsReadOnly="True"
-                                                             Background="{StaticResource SecondaryRegionBrush}"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <TextBox Text="{Binding MicroscopeCalChipCache.LowSite2.Location, Converter={StaticResource PointToStringConverter}}"
-                                                             hc:TitleElement.Title="Low Site2(um): "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="150"
-                                                             IsReadOnly="True"
-                                                             Background="{StaticResource SecondaryRegionBrush}"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <TextBox Text="{Binding MicroscopeCalChipCache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
-                                                             hc:TitleElement.Title="High Site1(um): "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="150"
-                                                             IsReadOnly="True"
-                                                             Background="{StaticResource SecondaryRegionBrush}"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <TextBox Text="{Binding MicroscopeCalChipCache.HighSite2.Location, Converter={StaticResource PointToStringConverter}}"
-                                                             hc:TitleElement.Title="High Site2(um): "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="150"
-                                                             IsReadOnly="True"
-                                                             Background="{StaticResource SecondaryRegionBrush}"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <hc:UniformSpacingPanel Spacing="10">
-                                                        <view:CanvasView Width="100"
-                                                                         Height="100"
-                                                                         BackgroundColor="#0A0A0A"
-                                                                         AxisColor="Red"
-                                                                         Interactive="True"
-                                                                         ShowAxes="True"
-                                                                         ShowCursor="False"
-                                                                         ShowGrid="False"
-                                                                         BackgroundImage="{Binding MicroscopeCalChipCache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                                                        <view:CanvasView Width="100"
-                                                                         Height="100"
-                                                                         BackgroundColor="#0A0A0A"
-                                                                         AxisColor="Red"
-                                                                         Interactive="True"
-                                                                         ShowAxes="True"
-                                                                         ShowCursor="False"
-                                                                         ShowGrid="False"
-                                                                         BackgroundImage="{Binding MicroscopeCalChipCache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                                                    </hc:UniformSpacingPanel>
+                                                    <tools:AlignmentUserControl DataContext="{Binding .AlignmentUserControlViewModel}" />
                                                 </hc:UniformSpacingPanel>
                                             </Border>
                                         </Expander>

@@ -18,6 +18,9 @@ public sealed partial class AlignmentParamWindowBrightFieldViewModel : ViewModel
     [ObservableProperty]
     private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationList = [];
 
+    [ObservableProperty]
+    private bool _isToolsEnable = true;
+
     [RelayCommand]
     private void Close()
     {

@@ -32,7 +32,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Chuck Param" },
         new() { StepName = "Chuck AF ECS" },
@@ -91,13 +91,13 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        DarkAutoFocus = CalibrationStatusService.GetCalibration<DarkAutoFocusDTO>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        DarkAutoFocus = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AutoFocusCalChipFocusOffsetCache>();
-        Calibration = CacheProvider.GetOrDefault<AutoFocusCalChipFocusOffsetDTO>();
+        Cache = ApplicationCookieService.GetCache<AutoFocusCalChipFocusOffsetCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<AutoFocusCalChipFocusOffsetDTO>(cancellationToken);
 
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
+        UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
     }
@@ -180,8 +180,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 return true;
 
             case 9:
-                IsCalibrated = true;
-
                 return true;
 
             default:
@@ -276,8 +274,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 Cache.SpeedEcsPerSecond
             }), HtmlLogUniqueId.LoggingHtml());
 
-            CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
-            await Task.Delay(100, cancellationToken);
 
             if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
             {
@@ -285,12 +281,12 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>())
                 {
                     MicroscopeCalChip.CalChipSiteModelEnum = calChipSiteModelEnum;
-                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
-                        StageViewModel.MachineToBrightFieldPosition(
-                            calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
-                                ? Cache.Item.FindBrightMachinePosition
-                                : MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition),
-                        calChipSiteModelEnum);
+                    StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(
+                        calChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
+                            ? Cache.Item.FindBrightMachinePosition
+                            : MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition), calChipSiteModelEnum);
+
+                    CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
 
                     AfViewModel.ToggleDarkFieldEnable(true);
                     await Task.Delay(100, cancellationToken);
@@ -301,21 +297,20 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
                 if (calChipAFMotors.All(t => Math.Abs(t.afMotor - calChipAFMotors[0].afMotor) <= Constants.Tolerance) == false)
                 {
-                    Logger.LogHtmlError(
-                        "CalChip all AF motor value must be same,please check CUGA diagnosis RTFC param setting!",
-                        HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                        {
-                            AFMotor = new HtmlTable([.. calChipAFMotors.Select(t => new { t.calchip, t.afMotor })])
-                        }), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlError("CalChip all AF motor value must be same,please check CUGA diagnosis RTFC param setting!", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        AFMotor = new HtmlTable([.. calChipAFMotors.Select(t => new { t.calchip, t.afMotor })])
+                    }), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
             }
 
+            CIBViewModel.ToggleRTFCParam(Cache.ProductivityInformation);
+            await Task.Delay(100, cancellationToken);
+
             #region S曲线
 
-            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(
-                StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition),
-                Cache.CalChipSiteModelEnum);
+            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
 
             AfViewModel.ToggleDarkFieldEnable(true);
             await Task.Delay(100, cancellationToken);
@@ -413,7 +408,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                     Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                if (CalibrationStepIndex != CalibrationStepList.Count - 1)
+                if (CalibrationStepIndex != CalibrationSteps.Count - 1)
                     return true;
 
                 CalibratingItem.IsCalibrated = true;
@@ -515,9 +510,22 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         Calibration = dto.Clone();
 
-        CacheProvider.Set(Calibration, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<AutoFocusCalChipFocusOffsetDTO>(calibration);
+        var status = Entry.Status;
+
+        Calibration = temp;
+
+        status.TotalCalibrationCount = 1;
+        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
+        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.Details = [];
+    }
 
     #endregion 校准
 }

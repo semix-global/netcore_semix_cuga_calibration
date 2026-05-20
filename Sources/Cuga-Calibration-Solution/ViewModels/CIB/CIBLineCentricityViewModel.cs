@@ -7,7 +7,8 @@ using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
-using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
@@ -27,6 +28,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -40,7 +42,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     public override string CalibrateFileName => $"{Cache.ProductivityInformation.ToString()}";
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity Information" },
         new() { StepName = "Image Param" },
@@ -99,22 +101,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private CIBXPixelSizeDTO[] _cIBXPixelSizes = [];
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
-
-    [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
-
-    [ObservableProperty]
     private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
-    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
-
-    [ObservableProperty]
-    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
 
@@ -128,38 +118,18 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
-        CIBXPixelSizes = CalibrationStatusService.GetCalibrations<CIBXPixelSizeDTO>();
-        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
-        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-        ChuckCenter = CacheProvider.GetOrDefault<ChuckCenterAndThetaItemDto>();
-        MicroscopePixelSizeItems = CacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        CIBXPixelSizes = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
+        MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<CIBLineCentricityCache>();
+        Cache = ApplicationCookieService.GetCache<CIBLineCentricityCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
-        Calibrations = CacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
-
-        if (CalibratingStatuses.Count == 0)
-            CalibratingStatuses = [.. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t })];
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibratingStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         return true;
     }
@@ -243,14 +213,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 return true;
 
             case 4:
-                CalibratingStatuses
-                    .Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                    .IsCalibrated = true;
-
                 DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
 
-                IsCalibrated = CalibratingStatuses.All(s => s.IsCalibrated);
-                if (IsCalibrated == false) CalibrationStepIndex = -1;
                 return true;
 
             default:
@@ -300,79 +264,27 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
             DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question);
 
-            Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
 
-            AlignmentResultDto alignmentResult;
-            if (Cache.Item.IsDarkFieldAlignment)
-            {
-                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t => t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                                                                                        && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
-                if (AlignmentCacheDarkField.IsOk == false)
-                {
-                    var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
-                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
-                    AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
-                }
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-                alignmentResult = StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            }
-            else
-            {
-                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
-                {
-                    if (AlignmentCacheBrightField.IsOk == false)
-                    {
-                        var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
-                        Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true, nameof(alignmentWindowBrightFieldViewModel));
-                        AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-                    }
-
-                    alignmentResult = StageViewModel.Alignment(
-                        AlignmentCacheBrightField.LowSite1,
-                        AlignmentCacheBrightField.LowSite2,
-                        AlignmentCacheBrightField.HighSite1,
-                        AlignmentCacheBrightField.HighSite2,
-                        AlignmentCacheBrightField.LowMag,
-                        AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.CalChipSiteModelEnum);
-                }
-                else
-                {
-                    alignmentResult = StageViewModel.Alignment(
-                        MicroscopeCalChipCache.LowSite1,
-                        MicroscopeCalChipCache.LowSite2,
-                        MicroscopeCalChipCache.HighSite1,
-                        MicroscopeCalChipCache.HighSite2,
-                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
-                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.CalChipSiteModelEnum);
-                }
-            }
-
-            Cache.Item.AlignmentResult = alignmentResult;
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.CalChipSiteModelEnum,
-                Cache.Item.IsDarkFieldAlignment,
-                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous())
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -393,8 +305,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 Cache.Item.LaserLightInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.IsDarkFieldAlignment,
-                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -475,8 +385,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 Cache.Item.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.Item.IsDarkFieldAlignment,
-                AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
                 Cache.PmtInterval,
                 Cache.AlgorithmTemplateTypeEnum,
@@ -563,45 +471,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                                                                        && t.PmtId == CalibrationConstantsHelper.MainPmtId);
             Guard.IsNotNull(centerLineCentricityDTO);
 
-            if (Cache.Item.IsDarkFieldAlignment == false)
-            {
-                if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
-                {
-                    StageViewModel.Alignment(
-                        AlignmentCacheBrightField.LowSite1,
-                        AlignmentCacheBrightField.LowSite2,
-                        AlignmentCacheBrightField.HighSite1,
-                        AlignmentCacheBrightField.HighSite2,
-                        AlignmentCacheBrightField.LowMag,
-                        AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.CalChipSiteModelEnum);
-                }
-                else
-                {
-                    StageViewModel.Alignment(
-                        MicroscopeCalChipCache.LowSite1,
-                        MicroscopeCalChipCache.LowSite2,
-                        MicroscopeCalChipCache.HighSite1,
-                        MicroscopeCalChipCache.HighSite2,
-                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
-                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.CalChipSiteModelEnum);
-                }
-            }
-            else
-            {
-                StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            }
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment;
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
             var detectImageDirectory = ImageFileDirectory;
 
@@ -654,8 +527,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                     OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.CIBInformation,
-                    Cache.Item.IsDarkFieldAlignment,
-                    AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                     Cache.Item.ImageWidth,
                     Cache.AlgorithmTemplateTypeEnum,
                     Cache.AlgorithmTemplateSizeEnum,
@@ -795,18 +666,53 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             update(dto);
             Calibrations =
             [
+                dto,
                 .. Calibrations
                     .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
-                    .Where(t =>
-                        t.ProductivityInformation != dto.ProductivityInformation
-                        || ApplicationCookie.CIBInformations.Any(tt => tt.PMTId == t.PmtId)),
-                dto
             ];
         }
 
-        CacheProvider.SetArray(Calibrations, cancellationToken);
-        RecipeCacheProvider.Set(Cache, cancellationToken);
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<CIBLineCentricityDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.ProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.ProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.CIBInformationPMTIds.Contains(t.PmtId))
+                .DistinctBy(t => (t.ProductivityInformation, t.PmtId))
+        ];
+
+        foreach (var calibratingStatus in CalibratingStatuses) calibratingStatus.IsCalibrated = Calibrations.Count(t => t.ProductivityInformation == calibratingStatus.SelectedItem && t.IsCalibrated) == ApplicationCookie.CIBInformationPMTIds.Count;
+
+        status.TotalCalibrationCount = ApplicationCookie.ProductivityInformations.Count * ApplicationCookie.CIBInformationPMTIds.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.ProductivityInformations.SelectMany(productivityInformation =>
+                ApplicationCookie.CIBInformationPMTIds.Select(pmtId =>
+                {
+                    var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == pmtId);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{productivityInformation}/{nameof(CIBInformation.PMTId)}({pmtId})",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
+    }
 
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {

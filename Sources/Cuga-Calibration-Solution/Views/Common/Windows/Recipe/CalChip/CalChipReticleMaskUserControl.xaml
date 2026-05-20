@@ -1,0 +1,351 @@
+<UserControl x:Class="CugaCalibration.Views.Common.Windows.Recipe.CalChip.CalChipReticleMaskUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:reticleMask="clr-namespace:Core.Recipe.Models.Wafer.ReticleMask;assembly=Core.Recipe"
+             xmlns:waferEnum="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
+             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:calChip="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.CalChip.Children"
+             xmlns:reticleChildren="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.Reticle.Children"
+             d:DataContext="{d:DesignInstance Type=calChip:CalChipReticleMaskViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="1400"
+             mc:Ignorable="d">
+    <Border>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="7*" />
+            </Grid.ColumnDefinitions>
+
+            <!--  左侧：Reticle Mask 可视化区域  -->
+            <GroupBox Grid.Column="0"
+                      Margin="10"
+                      Header="Reticle Mask Visualization">
+                <Border Effect="{StaticResource EffectShadow1}" Style="{StaticResource BorderRegion}">
+                    <reticleChildren:ReticleMaskView DataContext="{Binding .RecipeReticleMarkViewUserControlViewModel}" />
+                </Border>
+            </GroupBox>
+
+            <GridSplitter Grid.Column="1" />
+
+            <!--  右侧：Reticle Mask 列表编辑区域  -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!--  ReticleMask 列表  -->
+                <Border Grid.Row="0"
+                        Margin="5"
+                        Effect="{StaticResource EffectShadow1}"
+                        Style="{StaticResource BorderRegion}">
+                    <ListView ItemsSource="{Binding EditReticleMarkList}"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              SelectedItem="{Binding SelectReticleMarkItem}"
+                              Style="{StaticResource ListView.Small}">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                        </i:Interaction.Behaviors>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+
+                                <!--  MaskIndex  -->
+                                <GridViewColumn Width="80"
+                                                DisplayMemberBinding="{Binding MaskIndex}"
+                                                Header="MaskIndex" />
+
+                                <!--  Description  -->
+                                <GridViewColumn Width="150" Header="Description">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
+                                            <TextBox Text="{Binding Remark}" MinWidth="120" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <!--  Mask Type  -->
+                                <GridViewColumn Width="200" Header="Mask Type">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
+                                            <hc:ComboBox Margin="5"
+                                                         HorizontalAlignment="Left"
+                                                         hc:InfoElement.TitlePlacement="Left"
+                                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type waferEnum:WaferMaskTypeEnum}}}"
+                                                         SelectedItem="{Binding ReticleMaskTypeEnum}">
+                                                <hc:ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                    </DataTemplate>
+                                                </hc:ComboBox.ItemTemplate>
+                                            </hc:ComboBox>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <!--  Position  -->
+                                <GridViewColumn Width="280" Header="Position">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
+                                            <Grid Width="250">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox x:Name="MasktextBox" Grid.Column="0"
+                                                         Text="{Binding MaskWaferCellPosition, Converter={StaticResource PointToStringConverter}}"
+                                                         Margin="0,0,-1,0"
+                                                         hc:BorderElement.CornerRadius="4,0,0,4"
+                                                         IsReadOnly="True" />
+                                                <Button Grid.Column="1"
+                                                        Content="Get"
+                                                        Command="{Binding DataContext.GetMaskReticlePositionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Height="{Binding Height, ElementName=MasktextBox}"
+                                                        hc:BorderElement.CornerRadius="0,0,0,0"
+                                                        Style="{StaticResource ButtonDefault}"
+                                                        ToolTip="Get current position as mask position" />
+                                                <Button Grid.Column="2"
+                                                        Content="Goto"
+                                                        Command="{Binding DataContext.GotoMaskReticlePositionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Height="{Binding Height, ElementName=MasktextBox}"
+                                                        hc:BorderElement.CornerRadius="0,4,4,0"
+                                                        Style="{StaticResource ButtonDefault}"
+                                                        ToolTip="Go to this mask position" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <!--  Bright Template  -->
+                                <GridViewColumn Width="450" Header="Bright Template">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!--  Microscope Lens Selection  -->
+                                                <hc:ComboBox Grid.Row="0"
+                                                             Margin="5"
+                                                             HorizontalAlignment="Center"
+                                                             hc:InfoElement.Title="Microscope: "
+                                                             hc:InfoElement.TitlePlacement="Left"
+                                                             ItemsSource="{Binding DataContext.ApplicationCookie.MicroscopeLensInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                             SelectedItem="{Binding RecipeBrightFieldTemplateDTO.MicroscopeLensInformation}">
+                                                    <hc:ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding LensName}" />
+                                                        </DataTemplate>
+                                                    </hc:ComboBox.ItemTemplate>
+                                                </hc:ComboBox>
+
+                                                <!--  Template Image Preview  -->
+                                                <Border Grid.Row="1"
+                                                        Width="300"
+                                                        Height="300"
+                                                        HorizontalAlignment="Center"
+                                                        Style="{StaticResource BorderRegion}">
+                                                    <view:CanvasView Margin="5"
+                                                                     AxisColor="Red"
+                                                                     BackgroundColor="#0A0A0A"
+                                                                     BackgroundImage="{Binding Text, ElementName=BrightTemplateImagePathTextbox, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                     Interactive="True"
+                                                                     ShowAxes="True"
+                                                                     ShowCursor="False"
+                                                                     ShowGrid="False" />
+                                                </Border>
+
+
+                                                <!--  Template File Path  -->
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="300" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox x:Name="BrightTemplateImagePathTextbox" Grid.Column="0"
+                                                             Text="{Binding RecipeBrightFieldTemplateDTO.TemplateImageFilePath}"
+                                                             Margin="0,0,-1,0"
+                                                             hc:BorderElement.CornerRadius="4,0,0,4"
+                                                             IsReadOnly="True"
+                                                             Style="{StaticResource TextBoxExtend}" />
+                                                    <Button Grid.Column="1"
+                                                            Command="{Binding DataContext.LoadBrightImageFilePathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            Height="{Binding Height, ElementName=BrightTemplateImagePathTextbox}"
+                                                            Padding="5"
+                                                            hc:BorderElement.CornerRadius="0,0,0,0"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                            hc:IconElement.Width="30"
+                                                            Style="{StaticResource ButtonDefault}"
+                                                            ToolTip="Load from file" />
+                                                    <Button Grid.Column="2"
+                                                            Command="{Binding DataContext.GenerateBrightTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            Height="{Binding Height, ElementName=BrightTemplateImagePathTextbox}"
+                                                            Padding="5"
+                                                            hc:BorderElement.CornerRadius="0,4,4,0"
+                                                            hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                                                            hc:IconElement.Width="30"
+                                                            Style="{StaticResource ButtonDefault}"
+                                                            ToolTip="Generate template from current view" />
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <!--  Dark Template  -->
+                                <GridViewColumn Width="450" Header="Dark Template">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type reticleMask:ReticleMarkDTOItem}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+
+                                                <!--  Dark Field Configuration  -->
+                                                <UniformGrid Grid.Row="0" Rows="2">
+                                                    <hc:ComboBox Margin="2"
+                                                                 hc:InfoElement.Title="Productivity: "
+                                                                 hc:InfoElement.TitlePlacement="Left"
+                                                                 ItemsSource="{Binding DataContext.ApplicationCookie.ProductivityInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.ProductivityInformation}" />
+                                                    <hc:ComboBox Margin="2"
+                                                                 hc:InfoElement.Title="CIB Information: "
+                                                                 hc:InfoElement.TitlePlacement="Left"
+                                                                 ItemsSource="{Binding DataContext.ApplicationCookie.CIBInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.CIBInformation}" />
+                                                    <hc:ComboBox Margin="2"
+                                                                 hc:InfoElement.Title="Laser Light: "
+                                                                 hc:InfoElement.TitlePlacement="Left"
+                                                                 ItemsSource="{Binding DataContext.ApplicationCookie.LaserLightInformations, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                 SelectedItem="{Binding RecipeDarkFieldTemplateDTO.LaserLightInformation}" />
+                                                    <Grid>
+                                                        <ToggleButton x:Name="ToggleButtonCIBConfiguration"
+                                                                      Content="CIB Configuration"
+                                                                      Margin="0,2"
+                                                                      HorizontalAlignment="Left"
+                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                        <Popup StaysOpen="False"
+                                                               PlacementTarget="{Binding ElementName=ToggleButtonCIBConfiguration}"
+                                                               Placement="Right"
+                                                               AllowsTransparency="True"
+                                                               PopupAnimation="Slide"
+                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonCIBConfiguration, Mode=TwoWay}">
+                                                            <Border Style="{StaticResource BorderRegion}">
+                                                                <pattern:CIBConfigurationUserControl DataContext="{Binding RecipeDarkFieldTemplateDTO.CIBConfiguration}" />
+                                                            </Border>
+                                                        </Popup>
+                                                    </Grid>
+                                                </UniformGrid>
+
+                                                <!--  Template Image Preview  -->
+                                                <Border Grid.Row="1"
+                                                        Width="300"
+                                                        Height="300"
+                                                        HorizontalAlignment="Center"
+                                                        Style="{StaticResource BorderRegion}">
+                                                    <view:CanvasView Margin="5"
+                                                                     AxisColor="Red"
+                                                                     BackgroundColor="#0A0A0A"
+                                                                     BackgroundImage="{Binding Text, ElementName=DarkTemplateImagePathTextbox, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                     Interactive="True"
+                                                                     ShowAxes="True"
+                                                                     ShowCursor="False"
+                                                                     ShowGrid="False" />
+                                                </Border>
+                                                <!--  Template File Path  -->
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="300" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBox x:Name="DarkTemplateImagePathTextbox" Grid.Column="0"
+                                                             Text="{Binding RecipeDarkFieldTemplateDTO.TemplateImageFilePath}"
+                                                             Margin="0,0,-1,0"
+                                                             hc:BorderElement.CornerRadius="4,0,0,4"
+                                                             IsReadOnly="True"
+                                                             Style="{StaticResource TextBoxExtend}" />
+                                                    <Button Grid.Column="1"
+                                                            Command="{Binding DataContext.LoadDarkImageFilePathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            Height="{Binding Height, ElementName=DarkTemplateImagePathTextbox}"
+                                                            Padding="5"
+                                                            hc:BorderElement.CornerRadius="0,0,0,0"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                            hc:IconElement.Width="30"
+                                                            Style="{StaticResource ButtonDefault}"
+                                                            ToolTip="Load from file" />
+                                                    <Button Grid.Column="2"
+                                                            Command="{Binding DataContext.GenerateDarkTemplateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            Height="{Binding Height, ElementName=DarkTemplateImagePathTextbox}"
+                                                            Padding="5"
+                                                            hc:BorderElement.CornerRadius="0,4,4,0"
+                                                            hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                                                            hc:IconElement.Width="30"
+                                                            Style="{StaticResource ButtonDefault}"
+                                                            ToolTip="Generate template from current PMT scan" />
+                                                </Grid>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Border>
+
+                <!--  Add / Delete 按钮  -->
+                <hc:SimplePanel Grid.Row="1" Margin="5">
+                    <Button Content="Add Mask"
+                            Command="{Binding AddMaskCommand}"
+                            Height="50"
+                            Margin="5"
+                            HorizontalAlignment="Left"
+                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                            FontSize="15"
+                            Style="{StaticResource ButtonSuccess}" />
+                    <Button Content="Delete Mask"
+                            Command="{Binding DeleteMaskCommand}"
+                            Height="50"
+                            Margin="5"
+                            HorizontalAlignment="Right"
+                            hc:IconElement.Geometry="{StaticResource RemoveGeometry}"
+                            FontSize="15"
+                            Style="{StaticResource ButtonDanger}" />
+                </hc:SimplePanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

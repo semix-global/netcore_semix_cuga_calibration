@@ -7,7 +7,7 @@
              xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
              xmlns:behaviorsCore="clr-namespace:CugaCalibration.Core.Behaviors"
              xmlns:children="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children"
-             d:DataContext="{d:DesignInstance Type=children:RecipeReticleMaskViewModel,
+             d:DataContext="{d:DesignInstance Type=children:RecipeReticleMarkViewUserControlViewModel,
                                               IsDesignTimeCreatable=True}"
              d:DesignHeight="900"
              d:DesignWidth="400"
@@ -18,7 +18,7 @@
                 Effect="{StaticResource EffectShadow1}">
             <wpf:WpfPlot Width="{Binding Width, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}" Height="{Binding Height, RelativeSource={RelativeSource AncestorType=Border, AncestorLevel=2}}">
                 <i:Interaction.Behaviors>
-                    <behaviorsCore:WpfPlotReticleMaskBehavior WaferDTO="{Binding EditingDTO.WaferDTO}" ReticleMaskList="{Binding ReticleMarkList}" />
+                    <behaviorsCore:WpfPlotReticleMaskBehavior WaferDTO="{Binding WaferDTO}" ReticleMaskList="{Binding ReticleMarkList}" />
                 </i:Interaction.Behaviors>
             </wpf:WpfPlot>
         </Border>

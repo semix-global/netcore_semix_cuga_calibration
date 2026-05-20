@@ -1,10 +1,14 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Utilities;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
@@ -29,68 +33,83 @@ public sealed partial class LoadingWindowViewModel(
     CIBViewModel cibViewModel,
     MonitorViewModel monitorViewModel,
     ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieService,
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
     CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie,
+    IOptions<ApplicationSetting> options,
     string applicationName) : ViewModelBase
 {
-    private const int ConnectCount = 10;
+    private const int ConnectCount = 11;
+    private const double ConnectMaxProgress = 30d;
+    private const double ConnectCacheProgress = 50d;
 
     [ObservableProperty]
-    private string _title = applicationName;
+    public partial string Title { get; set; } = applicationName;
 
     [ObservableProperty]
-    private string _message = "Please Wait, Connecting ...";
+    public partial string Message { get; set; } = "Please Wait, Connecting ...";
 
     [ObservableProperty]
-    private double _processValue;
+    public partial double ProcessValue { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CloseCommand))]
-    private bool _isCanClose;
+    public partial bool IsCanClose { get; set; }
 
     [ObservableProperty]
-    private bool _isFailed;
+    public partial bool IsFailed { get; set; }
 
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        try
+        await Task.Run(async () =>
         {
-            if (await ConnectAsync(afViewModel.Connect, "Connecting Auto Focus Service", 1).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(microscopeViewModel.Connect, "Connecting Microscope Service", 2).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(reviewViewModel.Connect, "Connecting Review Service", 3).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(stageViewModel.Connect, "Connecting Stage Service", 4).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(adsViewModel.Connect, "Connecting Ads Service", 5).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(laserViewModel.Connect, "Connecting Laser Service", 6).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Service", 7).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Service", 8).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Service", 9).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 10).ConfigureAwait(false) == false) return;
-            if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 11).ConfigureAwait(false) == false) return;
+            try
+            {
+                Message = "Connecting ...";
+                if (await ConnectAsync(afViewModel.Connect, "Connecting Auto Focus Service", 1).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(microscopeViewModel.Connect, "Connecting Microscope Service", 2).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(reviewViewModel.Connect, "Connecting Review Service", 3).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(stageViewModel.Connect, "Connecting Stage Service", 4).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(adsViewModel.Connect, "Connecting Ads Service", 5).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(laserViewModel.Connect, "Connecting Laser Service", 6).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(efemViewModel.Connect, "Connecting EFEM Service", 7).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(fourierViewModel.Connect, "Connecting Fourier Service", 8).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(opticsViewModel.Connect, "Connecting Optics Service", 9).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(cibViewModel.Connect, "Connecting CIB Service", 10).ConfigureAwait(false) == false) return;
+                if (await ConnectAsync(monitorViewModel.Connect, "Connecting Monitor Service", 11).ConfigureAwait(false) == false) return;
+                Message = "Connected OK!!!";
 
-            Message = "Connected OK!!!";
+                Message = "Refreshing Cookie...";
+                ProcessValue = ConnectMaxProgress;
+                Guard.IsTrue(await statusViewModel.RefreshCookieAsync(true));
+                calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
+                ProcessValue = ConnectCacheProgress;
+                Message = "Refreshing Cookie OK!!!";
 
-            Guard.IsTrue(await statusViewModel.RefreshCookieAsync(true));
+                Message = "Loading Calibration Cache...";
+                await LoadCalibrationCacheAsync();
+                Message = "Loading Calibration Cache OK!!!";
 
-            calibrationSetting.AdaptIn(cacheProvider.GetOrDefault<CalibrationSetting>());
+                contextProvider.Send(() => CloseView(true));
 
-            contextProvider.Send(() => CloseView(true));
-
-            await Task.Delay(300).ConfigureAwait(false);
-        }
-        catch (Exception ex)
-        {
-            IsFailed = true;
-            Message = $"Connecting Failed: {ex}";
-            logger.LogError(ex, "{@Name}: Connecting Failed", nameof(LoadingWindowViewModel));
-            dialogWindowProvider.ShowDialog($"Connecting Failed: {ex.Message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-        finally
-        {
-            contextProvider.Send(() => IsCanClose = true);
-        }
+                await Task.Delay(300).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                IsFailed = true;
+                Message = $"Loading Failed: {ex}";
+                logger.LogError(ex, "{@Name}: Loading Failed", nameof(LoadingWindowViewModel));
+                dialogWindowProvider.ShowDialog($"Loading Failed: {ex}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+            finally
+            {
+                contextProvider.Send(() => IsCanClose = true);
+            }
+        });
 
         return;
 
@@ -104,10 +123,39 @@ public sealed partial class LoadingWindowViewModel(
                 Message = $"{title} Failed.";
             }
 
-            ProcessValue = 100d / ConnectCount * index;
+            ProcessValue = ConnectMaxProgress / ConnectCount * index;
             await Task.Delay(300).ConfigureAwait(false);
 
             return stageConnectResult;
+        }
+
+        async Task LoadCalibrationCacheAsync()
+        {
+            var calibrationMenus = applicationCookie.CalibrationMenu.GetAllChildren();
+
+            var total = calibrationMenus.Count;
+            var progressPerItem = ConnectCacheProgress / total;
+
+            for (var i = 0; i < total; i++)
+            {
+                var menu = calibrationMenus[i];
+
+                menu.Entry.Name = menu.GetFullName(options.Value);
+
+                Message = $"Loading {menu.Entry.Name} Cache...";
+
+                applicationCookieService.GetCache(menu.Entry.CacheType);
+
+                if (menu.Entry.IsArray)
+                    applicationCookieService.GetCalibrations(menu.Entry.DTOType);
+                else
+                    applicationCookieService.GetCalibration(menu.Entry.DTOType);
+
+                Message = $"Loading {menu.Entry.Name} Cache OK!!!";
+
+                ProcessValue = ConnectCacheProgress + progressPerItem * (i + 1);
+                await Task.Delay(300).ConfigureAwait(false);
+            }
         }
     }
 

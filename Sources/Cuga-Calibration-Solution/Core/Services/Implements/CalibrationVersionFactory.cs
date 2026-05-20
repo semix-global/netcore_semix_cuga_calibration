@@ -17,7 +17,7 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
     {
         var dtos = (id is null
             ? cacheProvider.GetOrDefaultArray(type)
-            : cacheProvider.GetArray(type, id.Value)) as CalibrationDtoBase[];
+            : cacheProvider.GetArray(type, id.Value)) as CalibrationDTOBase[];
 
         var dto = dtos?.FirstOrDefault();
         if (dto is null) return null;
@@ -26,7 +26,7 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
         {
             Id = dto.Id,
             Version = SQLiteHelper.GetTableInfo(type).Version,
-            TypeFullName = type.AssemblyQualifiedName ?? string.Empty,
+            TypeFullName = type.AssemblyQualifiedName ?? string.Empty
         };
     }
 
@@ -34,13 +34,13 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
     {
         if ((id is null
                 ? cacheProvider.GetOrDefault(type)
-                : cacheProvider.Get(type, id.Value)) is not CalibrationDtoBase dto) return null;
+                : cacheProvider.Get(type, id.Value)) is not CalibrationDTOBase dto) return null;
 
         return new CalibrationVersionDTO.VersionInfo
         {
             Id = dto.Id,
             Version = SQLiteHelper.GetTableInfo(type).Version,
-            TypeFullName = type.AssemblyQualifiedName ?? string.Empty,
+            TypeFullName = type.AssemblyQualifiedName ?? string.Empty
         };
     }
 

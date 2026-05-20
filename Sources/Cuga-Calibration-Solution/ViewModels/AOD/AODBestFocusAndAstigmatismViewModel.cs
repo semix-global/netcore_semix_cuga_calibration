@@ -6,8 +6,8 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AOD.BestFocusAndAstigmatism;
 using Core.Models.Models.AOD.Delay;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
@@ -32,6 +32,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -52,7 +53,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
-    public override List<CalibrationItemStep> CalibrationStepList { get; } =
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
         new() { StepName = "Select Productivity" },
         new() { StepName = "Select Optics Apodization Mode" },
@@ -67,23 +68,23 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     #region Calibrate
 
     [ObservableProperty]
-    private AODBestFocusAndAstigmatismDTO _calibratingItem = new();
+    public partial AODBestFocusAndAstigmatismDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationAndApodizationStatus> _calibrationStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationAndApodizationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<AODBestFocusAndAstigmatismDTO> _reviews = [];
+    public partial ObservableCollection<AODBestFocusAndAstigmatismDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODBestFocusAndAstigmatismDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODBestFocusAndAstigmatismDTO> SelectedReviewItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsBestFocusResult> _bestFocusResults = [];
+    public partial IReadOnlyList<OpticsBestFocusResult> BestFocusResults { get; set; } = [];
 
     #endregion Review
 
@@ -93,34 +94,23 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    private AODBestFocusAndAstigmatismCache _cache = new();
+    public partial AODBestFocusAndAstigmatismCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODBestFocusAndAstigmatismDTO[] _calibrations = [];
-
-    private AODDelayDTO[] AODDelays { get; set; } = [];
+    public partial AODBestFocusAndAstigmatismDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    public partial AODDelayDTO[] AODDelays { get; set; } = [];
 
     [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowBrightFieldViewModel>();
-
-    [ObservableProperty]
-    private AlignmentWindowDarkFieldViewModel _alignmentWindowDarkFieldViewModel = HostApplication.GetRequiredService<AlignmentWindowDarkFieldViewModel>();
-
-    [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
-
-    [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 
@@ -134,41 +124,16 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         if (LoadDepends() == false) return false;
 
-        MicroscopeCalChip = CalibrationStatusService.GetCalibration<MicroscopeCalChipDTO>();
+        AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>(cancellationToken);
+        MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        AODDelays = CalibrationStatusService.GetCalibrations<AODDelayDTO>();
+        Cache = ApplicationCookieService.GetCache<AODBestFocusAndAstigmatismCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<AODBestFocusAndAstigmatismDTO>(cancellationToken);
 
-        AlignmentCacheDarkFields = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefault<AlignmentCacheBrightField>();
-        MicroscopeCalChipCache = RecipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
-
-        (var isHasCache, Cache) = RecipeCacheProvider.TryGetOrDefault<AODBestFocusAndAstigmatismCache>();
-        Calibrations = CacheProvider.GetOrDefaultArray<AODBestFocusAndAstigmatismDTO>();
-
-        if (CalibrationStatuses.Count == 0)
-            CalibrationStatuses =
-                ProductivityInformationAndApodizationStatus.CreateList(ApplicationCookie
-                    .OpticsMagTypeProductivityInformations);
-
-        Calibrations =
-        [
-            .. Calibrations
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
-                .Select(t =>
-                {
-                    CalibrationStatuses
-                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
-                        .OpticsApodizationModeCalibrationStatusList
-                        .Single(ttt => ttt.SelectedItem == t.ApodizationModeEnum)
-                        .IsCalibrated = t.IsCalibrated;
-
-                    return t;
-                })
-        ];
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
-
-        if (isHasCache == false) RecipeCacheProvider.Set(Cache, cancellationToken);
 
         if (Cache.Item.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
             StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
@@ -219,28 +184,9 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 return true;
 
             case 5:
-                {
-                    Calibrations =
-                    [
-                        .. Calibrations
-                        .Where(t => t.ProductivityInformation != Cache.ProductivityInformation
-                                    || t.ApodizationModeEnum != Cache.ApodizationModeEnum)
-                    ];
+                DialogWindowProvider.ShowDialog($"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} best focus and astigmatism calibration ok!");
 
-                    CalibrationStatuses.Single(t => t.SelectedItem == Cache.ProductivityInformation)
-                        .OpticsApodizationModeCalibrationStatusList
-                        .Single(t => t.SelectedItem == Cache.ApodizationModeEnum)
-                        .IsCalibrated = true;
-
-                    DialogWindowProvider.ShowDialog(
-                        $"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} " +
-                        $"best focus and astigmatism calibration ok!");
-
-                    IsCalibrated = CalibrationStatuses.All(s => s.IsCalibrated);
-                    if (IsCalibrated == false) CalibrationStepIndex = -1;
-
-                    return true;
-                }
+                return true;
             default:
                 return true;
         }
@@ -255,7 +201,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)
@@ -328,79 +274,26 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.Item.CalChipSiteModelEnum;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
             DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question);
 
-            Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
 
-            AlignmentResultDto alignmentResult;
-            if (Cache.Item.IsDarkFieldAlignment)
-            {
-                AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                    t.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                    && t.ProductivityInformation == Cache.ProductivityInformation, new AlignmentCacheDarkField());
-                if (AlignmentCacheDarkField.IsOk == false)
-                {
-                    var alignmentWindowDarkFieldViewModel = AlignmentWindowDarkFieldViewModel;
-                    Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true,
-                        nameof(alignmentWindowDarkFieldViewModel));
-                    AlignmentCacheDarkFields = [.. AlignmentCacheDarkFields, alignmentWindowDarkFieldViewModel.Cache];
-                }
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-                alignmentResult = StageViewModel.AlignmentDarkField(
-                    AlignmentCacheDarkField.LowSite1,
-                    AlignmentCacheDarkField.LowSite2,
-                    AlignmentCacheDarkField.HighSite1,
-                    AlignmentCacheDarkField.HighSite2,
-                    Cache.ProductivityInformation,
-                    AlignmentCacheDarkField.LowMag,
-                    AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                    opticsIlluminationModeEnum: Cache.ProductivityInformation.OpticsIlluminationModeEnum);
-            }
-            else
-            {
-                if (Cache.Item.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel)
-                {
-                    if (AlignmentCacheBrightField.IsOk == false)
-                    {
-                        var alignmentWindowBrightFieldViewModel = AlignmentWindowBrightFieldViewModel;
-                        Guard.IsTrue(WindowManagerService.ShowDialog(alignmentWindowBrightFieldViewModel) == true,
-                            nameof(alignmentWindowBrightFieldViewModel));
-                        AlignmentCacheBrightField = alignmentWindowBrightFieldViewModel.Cache;
-                    }
-
-                    alignmentResult = StageViewModel.Alignment(
-                        AlignmentCacheBrightField.LowSite1,
-                        AlignmentCacheBrightField.LowSite2,
-                        AlignmentCacheBrightField.HighSite1,
-                        AlignmentCacheBrightField.HighSite2,
-                        AlignmentCacheBrightField.LowMag,
-                        AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.Item.CalChipSiteModelEnum);
-                }
-                else
-                {
-                    alignmentResult = StageViewModel.Alignment(
-                        MicroscopeCalChipCache.LowSite1,
-                        MicroscopeCalChipCache.LowSite2,
-                        MicroscopeCalChipCache.HighSite1,
-                        MicroscopeCalChipCache.HighSite2,
-                        MicroscopeCalChipCache.LowMicroscopeLensInformation,
-                        MicroscopeCalChipCache.HighMicroscopeLensInformation,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
-                        Cache.Item.CalChipSiteModelEnum);
-                }
-            }
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.Item.CalChipSiteModelEnum,
-                Cache.Item.IsDarkFieldAlignment,
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -604,6 +497,11 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                     Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
                     Cache.ApodizationModeEnum = selectedReviewItem.ApodizationModeEnum;
 
+                    AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.Item.CalChipSiteModelEnum;
+                    AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+                    AlignmentUserControlViewModel.IsDarkFieldAlignment = Cache.Item.IsDarkFieldAlignment;
+                    await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
                     selectedReviewItem.Items = [];
 
                     Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -621,7 +519,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                         Cache.Item.CIBConfiguration,
                         Cache.Item.LaserLightInformation,
                         IsKeepRawImageCIBProfileModeEnum =
-                            Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTVoltage,
+                            Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTVoltage
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     // 下发默认Prescan波形
@@ -677,7 +575,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                                     })))
                         ]),
                         AstigmastimVerifyResult =
-                            new HtmlQuote(selectedReviewItem.ResultDTO.ToFlatnessHtmlAnonymous()),
+                            new HtmlQuote(selectedReviewItem.ResultDTO.ToFlatnessHtmlAnonymous())
                     });
 
                     if (selectedReviewItem.IsOk)
@@ -736,15 +634,64 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Calibrations =
                 [
                     dto,
-                    .. Calibrations.Where(t =>
-                        (t.ProductivityInformation == dto.ProductivityInformation &&
-                         t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
+                    .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
                 ];
             }
 
-            CacheProvider.SetArray(Calibrations, cancellationToken);
-            RecipeCacheProvider.Set(Cache, cancellationToken);
+            ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+            ApplicationCookieService.SetCache(Cache, cancellationToken);
         });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<AODBestFocusAndAstigmatismDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationAndApodizationStatus
+            {
+                SelectedItem = t,
+                Items = [.. ApplicationCookie.OpticsApodizationModeEnums.Select(tt => new OpticsApodizationModeStatus { SelectedItem = tt, IsCalibrated = false })]
+            })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation)
+                            && ApplicationCookie.OpticsApodizationModeEnums.Contains(t.ApodizationModeEnum))
+                .DistinctBy(t => (t.ProductivityInformation, t.ApodizationModeEnum))
+                .Select(t =>
+                {
+                    CalibratingStatuses
+                        .Single(tt => tt.SelectedItem == t.ProductivityInformation)
+                        .Items
+                        .Single(tt => tt.SelectedItem == t.ApodizationModeEnum)
+                        .IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count * ApplicationCookie.OpticsApodizationModeEnums.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.SelectMany(productivityInformation =>
+                ApplicationCookie.OpticsApodizationModeEnums.Select(opticsApodizationModeEnum =>
+                {
+                    var item = Calibrations.SingleOrDefault(tt => tt.ProductivityInformation == productivityInformation
+                                                                  && tt.ApodizationModeEnum == opticsApodizationModeEnum);
+
+                    return new CalibrationViewModelStatus.Detail(
+                        $"{productivityInformation}/ {opticsApodizationModeEnum}",
+                        item?.IsCalibrated,
+                        item?.IsVerified);
+                }))
+        ];
+    }
 
     #endregion 校准
 
@@ -786,7 +733,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
             $"spectralDensity: {spectralDensity}",
             HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                Result = new HtmlQuote(astigmatismDTOItem.ToFlatnessHtmlAnonymous()),
+                Result = new HtmlQuote(astigmatismDTOItem.ToFlatnessHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -864,7 +811,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 Logger.LogHtmlError("Best Focus Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                 {
                     darkFieldRawScanImage.RawImageFilePath,
-                    Exception = ex,
+                    Exception = ex
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 

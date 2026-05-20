@@ -1,74 +1,102 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.CIB.LineCentricity;
 
-public sealed partial class CIBLineCentricityCache : CalibrationCacheBase
+public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLineCentricityCache>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private double _pmtInterval = 320; // Pmt相机采集间隔320um
+    public partial double PmtInterval { get; set; } = 320;
 
     [ObservableProperty]
-    private Point _threshold;
+    public partial Point Threshold { get; set; }
 
-    [Newtonsoft.Json.JsonConverter(typeof(Net.Utilities.Models.Serializations.DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public CIBLineCentricityCacheItem Item => Items.GetOrAdd(ProductivityInformation, _ => new CIBLineCentricityCacheItem());
+
+    public override CIBLineCentricityCache Clone() => new()
+    {
+        ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
+        PmtInterval = PmtInterval,
+        Threshold = Threshold,
+        Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }
 
-public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase
+public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CIBLineCentricityCacheItem>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _findBFMachinePosition;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidth = 1000;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial string BrightTemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial string BrightTemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _brightTemplateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _brightTemplateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
-    [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public override CIBLineCentricityCacheItem Clone() => new()
+    {
+        MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        LaserLightInformation = LaserLightInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
+        OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
+        FindBFMachinePosition = FindBFMachinePosition,
+        ImageWidth = ImageWidth,
+        BrightTemplateFilePath = BrightTemplateFilePath,
+        BrightTemplateImageFilePath = BrightTemplateImageFilePath,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath,
+        IsDarkFieldAlignment = IsDarkFieldAlignment,
+        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        Id = Id,
+        Expiration = Expiration
+    };
 }

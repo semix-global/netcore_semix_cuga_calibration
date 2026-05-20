@@ -9,7 +9,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
-using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -63,7 +62,6 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [ObservableProperty]
     public partial AlignmentCacheDarkField Cache { get; set; } = new();
 
-    [field: RecipeCache]
     [ObservableProperty]
     public partial AlignmentCacheDarkField[] Caches { get; set; } = [];
 

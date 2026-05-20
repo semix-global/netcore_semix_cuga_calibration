@@ -19,32 +19,22 @@ public partial class AODUniformityDTO
 {
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl IsReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl MappingScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl InitializeWindowScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    [System.Text.Json.Serialization.JsonIgnore]
-    [System.Xml.Serialization.XmlIgnore]
     public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
 
     public AODUniformityDTO()
