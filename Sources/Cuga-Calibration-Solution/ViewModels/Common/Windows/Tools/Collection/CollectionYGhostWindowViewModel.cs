@@ -6,7 +6,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.View;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -39,7 +38,6 @@ public sealed partial class CollectionYGhostWindowViewModel(
     CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
     ICalibrationOpticsService calibrationOpticsService,
-    ICalibrationStatusService calibrationStatusService,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     CreateRoiWindowViewModel createRoiWindowViewModel,
     ApplicationCookie applicationCookie,

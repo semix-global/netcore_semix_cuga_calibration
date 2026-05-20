@@ -72,7 +72,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
     private readonly ISynchronizationContextProvider _contextProvider;
     private readonly IOptions<ApplicationSetting> _options;
     private readonly IDialogWindowProvider _dialogWindowProvider;
-    private readonly ICalibrationStatusService _calibrationStatusService;
     private readonly IApplicationCookieService _applicationCookieService;
     private readonly RecipeCookie _recipeCookie;
     private readonly StageViewModel _stageViewModel;
@@ -83,7 +82,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         ISynchronizationContextProvider contextProvider,
         IOptions<ApplicationSetting> options,
         IDialogWindowProvider dialogWindowProvider,
-        ICalibrationStatusService calibrationStatusService,
         IApplicationCookieService applicationCookieService,
         RecipeCookie recipeCookie,
         CalChipWaferMapViewModel calChipWaferMapViewModel,
@@ -96,7 +94,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         _contextProvider = contextProvider;
         _options = options;
         _dialogWindowProvider = dialogWindowProvider;
-        _calibrationStatusService = calibrationStatusService;
         _applicationCookieService = applicationCookieService;
         _recipeCookie = recipeCookie;
         CalChipWaferMapViewModel = calChipWaferMapViewModel;
