@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums;
 using Core.Utilities;
@@ -135,10 +136,13 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 CancelToken();
 
                 if (ViewEnum == CalibrationItemViewEnum.Calibration)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
-                                                                            $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
-                                                                            $"_Step1-Step{CalibrationStepIndex + 1}" +
-                                                                            $"_Failed"));
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml(Path.Combine(
+                        "Calibrate",
+                        $"{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
+                        $"_{FileHelper.RemoveInvalidFileName(Name)}" +
+                        $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
+                        $"_Step1-Step{CalibrationStepIndex + 1}" +
+                        $"_Cancel")));
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500).ConfigureAwait(false);
@@ -249,7 +253,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                     Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
                 }
 
-            End:
+                End:
                 Logger.LogInformation("{@Name}: Next!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }
@@ -326,11 +330,13 @@ public partial class CalibrationViewModelBase : ViewModelBase
             UpdatePreviousNextStatus();
             if (CalibrationStepIndex == CalibrationSteps.Count - 1 || result == false)
             {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}" +
-                                                                          $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
-                                                                          $"_{FileHelper.RemoveInvalidFileName(Name)}" +
-                                                                          $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
-                                                                          $"_{(result ? "OK" : "Failed")}"));
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml(Path.Combine(
+                    "Calibrate",
+                    $"{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
+                    $"_{FileHelper.RemoveInvalidFileName(Name)}" +
+                    $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
+                    $"_{(result ? "OK" : "Failed")}"
+                )));
             }
         }
     }
@@ -371,11 +377,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
         finally
         {
             UpdateReviewStatus();
-            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}" +
-                                                                    $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
-                                                                    $"_{FileHelper.RemoveInvalidFileName(Name)}" +
-                                                                    $"_{FileHelper.RemoveInvalidFileName(VerifyHtmlFileLogName)}" +
-                                                                    $"_{(result ? "OK" : "Failed")}"));
+            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml(Path.Combine(
+                "Verify",
+                $"{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
+                $"_{FileHelper.RemoveInvalidFileName(Name)}" +
+                $"_{FileHelper.RemoveInvalidFileName(VerifyHtmlFileLogName)}" +
+                $"_{(result ? "OK" : "Failed")}")));
         }
     }
 
