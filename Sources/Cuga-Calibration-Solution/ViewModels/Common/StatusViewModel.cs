@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Cuga.Data.DataStruct.Stage;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -125,6 +126,7 @@ public sealed partial class StatusViewModel(
         try
         {
             var deviceCode = configViewModel.GetDeviceCode();
+            var deviceCUGAVersion = configViewModel.GetDeviceCUGAVersion();
             var microscopeLensInformations = microscopeViewModel.GetMicroscopeLensInformations();
             var laserLightInformations = laserViewModel.GetLaserLightInformations();
             var productivityInformations = opticsViewModel.GetProductivityInformations();
@@ -132,11 +134,19 @@ public sealed partial class StatusViewModel(
             var cibInformations = cibViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
+            applicationCookie.DeviceCode = deviceCUGAVersion;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
             applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
+
+            if (new Version(applicationCookie.DeviceCUGAVersion) < new Version(ApplicationCookie.ApplicationCUGAVersion))
+            {
+                dialogWindowProvider.ShowDialog($"Refresh Cookie Failed: The current CUGA version: {applicationCookie.DeviceCUGAVersion} < The CUGA version of the application: {ApplicationCookie.ApplicationCUGAVersion}. Please update the device CUGA version!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
 
             Guard.IsNotNullOrWhiteSpace(applicationCookie.DeviceCode);
             Guard.IsNotEmpty(applicationCookie.MicroscopeLensInformations);

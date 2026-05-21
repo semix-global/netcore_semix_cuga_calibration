@@ -21,6 +21,8 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Semix.CoreLib;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
+using SourceGenerator.AssemblyMetadata;
 
 namespace Core.Services.Implements.WCF;
 
@@ -80,6 +82,11 @@ public sealed class CalibrationConfigServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, string.Empty);
 
         return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<string> GetDeviceCUGAVersion()
+    {
+        return SxExecuteRetHelper.CreateSuccess(ApplicationCookie.ApplicationCUGAVersion);
     }
 
     public SxExecuteRet<string> GetCalibrationFilePath()

@@ -17,6 +17,7 @@ using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Semix.CoreLib;
 using System.IO;
+using Core.Models.Models.Common.Cookies;
 
 namespace Core.Services.Implements.Mock;
 
@@ -44,6 +45,13 @@ public sealed class CalibrationConfigServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess("Demo");
+    }
+
+    public SxExecuteRet<string> GetDeviceCUGAVersion()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(ApplicationCookie.ApplicationCUGAVersion);
     }
 
     public SxExecuteRet<string> GetCalibrationFilePath()
