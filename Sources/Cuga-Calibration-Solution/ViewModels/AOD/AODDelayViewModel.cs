@@ -271,7 +271,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
-            CalibratingItem.MaxItem = null;
+            CalibratingItem.MaxItemAODDelay = null;
             CalibratingItem.IsCalibrated = false;
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -283,13 +283,15 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 await CatchAODDelayAsync(Generate.LinearRange(Cache.Item.StartRoughAODDelay, Cache.Item.StepRoughAODDelay, Cache.Item.StopRoughAODDelay));
-                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
+                CalibratingItem.SmoothPoints = CalibratingItem.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
+                CalibratingItem.MaxItemAODDelay = CalibratingItem.SmoothPoints.Maxima(t => t.Y).First().X;
 
                 await CatchAODDelayAsync(Generate.LinearRange(
-                    CalibratingItem.MaxItem.AODDelay - Cache.Item.RangeRefinedAODDelay,
+                    CalibratingItem.MaxItemAODDelay.Value - Cache.Item.RangeRefinedAODDelay,
                     Cache.Item.StepRefinedAODDelay,
-                    CalibratingItem.MaxItem.AODDelay + Cache.Item.RangeRefinedAODDelay));
-                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
+                    CalibratingItem.MaxItemAODDelay.Value + Cache.Item.RangeRefinedAODDelay));
+                CalibratingItem.SmoothPoints = CalibratingItem.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
+                CalibratingItem.MaxItemAODDelay = CalibratingItem.SmoothPoints.Maxima(t => t.Y).First().X;
 
                 CalibratingItem.IsCalibrated = true;
 
@@ -297,9 +299,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 {
                     CalibratingItem.PrescanAODDelay,
                     CalibratingItem.ChirpAODDelay,
-                    CalibratingItem.MaxItem.PMTValue,
-                    CalibratingItem.MaxItem.RawImageFilePath,
-                    Image = new HtmlImage(CalibratingItem.MaxItem.ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -407,11 +406,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 {
                     selectedReviewItem.PrescanAODDelay,
                     selectedReviewItem.ChirpAODDelay,
-                    selectedReviewItem.MaxItem?.PMTValue,
-                    selectedReviewItem.MaxItem?.RawImageFilePath,
-                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
-                        ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
-                        : new HtmlImage(Guard.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 

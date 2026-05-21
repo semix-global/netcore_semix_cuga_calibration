@@ -67,6 +67,12 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.WaitTime}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Smooth Window: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="200"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.SmoothWindow}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Rough Start AOD Delay(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"

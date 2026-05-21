@@ -56,6 +56,9 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
     public partial double WaitTime { get; set; } = 5;
 
     [ObservableProperty]
+    public partial int SmoothWindow { get; set; } = 21;
+
+    [ObservableProperty]
     public partial double StartRoughAODDelay { get; set; } = -1500;
 
     [ObservableProperty]
@@ -80,6 +83,7 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
         WaitTime = WaitTime,
+        SmoothWindow = SmoothWindow,
         StartRoughAODDelay = StartRoughAODDelay,
         StepRoughAODDelay = StepRoughAODDelay,
         StopRoughAODDelay = StopRoughAODDelay,

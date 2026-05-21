@@ -11,10 +11,11 @@ using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using System.ComponentModel;
+using ScottPlot;
 
 namespace Core.Models.Models.AOD.Delay;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("1.0.1")]
 public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdaptTo<CalibrationLaserAodDelayItem>
 {
     [ObservableProperty]
@@ -24,14 +25,17 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     public partial IReadOnlyList<AODDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
+    public partial IReadOnlyList<Point> SmoothPoints { get; set; }
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
-    public partial AODDelayDTOItem? MaxItem { get; set; }
+    public partial double? MaxItemAODDelay { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public double PrescanAODDelay => MaxItem is not null && MaxItem.AODDelay <= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
+    public double PrescanAODDelay => MaxItemAODDelay <= 0 ? Math.Abs(MaxItemAODDelay.Value) : 0d;
 
     [Newtonsoft.Json.JsonIgnore]
-    public double ChirpAODDelay => MaxItem is not null && MaxItem.AODDelay >= 0 ? Math.Abs(MaxItem.AODDelay) : 0d;
+    public double ChirpAODDelay => MaxItemAODDelay >= 0 ? Math.Abs(MaxItemAODDelay.Value) : 0d;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -62,7 +66,9 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnMaxItemChanged(AODDelayDTOItem? value) => RefreshPlot();
+    partial void OnSmoothPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnMaxItemAODDelayChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -77,12 +83,18 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
         {
             if (Items.Count <= 0) return;
 
+            var points = Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
+
             ScatterPlotControl.GetOrAddScatterLine(
                 "AOD Delay",
-                [.. Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
+                points,
+                Constants.Category10.GetColor(0));
+            ScatterPlotControl.GetOrAddScatterLine(
+                "Smooth",
+                SmoothPoints,
                 Constants.Category10.GetColor(0));
 
-            MaxItem = Items.Maxima(t => t.PMTValue).First();
+            if (MaxItemAODDelay is not null) ScatterPlotControl.GetOrAddXLine("Max", MaxItemAODDelay.Value, Colors.Red);
         }
         finally
         {
@@ -96,7 +108,8 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        MaxItem = MaxItem?.Clone(),
+        SmoothPoints = [.. SmoothPoints],
+        MaxItemAODDelay = MaxItemAODDelay,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
