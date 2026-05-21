@@ -42,17 +42,17 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     #region 界面相关
 
     [ObservableProperty]
-    private ChuckPrealignerDTO _calibrateDTO = new();
+    public partial ChuckPrealignerDTO CalibrateDTO { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckPrealignerDTOItem _calibrateItem = new();
+    public partial ChuckPrealignerDTOItem CalibrateItem { get; set; } = new();
 
     #endregion 界面相关
 
     #region Review
 
     [ObservableProperty]
-    private ChuckPrealignerDTO? _reviewDto;
+    public partial ChuckPrealignerDTO? ReviewDto { get; set; }
 
     #endregion Review
 
@@ -60,20 +60,20 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckPrealignerCache _cache = new();
+    public partial ChuckPrealignerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckPrealignerDTO _calibration = new();
+    public partial ChuckPrealignerDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto _chuckCenter = new();
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    public partial AlignmentCacheBrightField AlignmentCacheBrightField { get; set; } = new();
 
     #endregion 缓存
 

@@ -16,7 +16,7 @@ public sealed partial class LogWindowViewModel(
     ILogger<LogWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
 {
     [ObservableProperty]
-    private CalibrationSetting _calibrationSetting = calibrationSetting;
+    public partial CalibrationSetting CalibrationSetting { get; set; } = calibrationSetting;
 
     protected override void Loadeding(CancellationToken cancellationToken)
     {

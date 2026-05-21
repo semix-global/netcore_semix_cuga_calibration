@@ -26,13 +26,13 @@ public partial class LoginWindowViewModel(
     IApplicationCookieService applicationCookieService) : ViewModelBase
 {
     [ObservableProperty]
-    private string _title = applicationName;
+    public partial string Title { get; set; } = applicationName;
 
     [ObservableProperty]
-    private IReadOnlyList<string> _userNames = [];
+    public partial IReadOnlyList<string> UserNames { get; set; } = [];
 
     [ObservableProperty]
-    private SysUserDTO _sysUserDTO = new();
+    public partial SysUserDTO SysUserDTO { get; set; } = new();
 
     [RelayCommand]
     private async Task LoadedAsync()

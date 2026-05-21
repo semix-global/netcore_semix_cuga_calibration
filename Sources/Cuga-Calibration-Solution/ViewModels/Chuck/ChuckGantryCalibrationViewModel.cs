@@ -48,14 +48,14 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     #region Calibrate
 
     [ObservableProperty]
-    private ChuckGantryDto _resultChuckGantryDto = new();
+    public partial ChuckGantryDto ResultChuckGantryDto { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ChuckGantryDto? _reviewDto;
+    public partial ChuckGantryDto? ReviewDto { get; set; }
 
     #endregion Review
 
@@ -65,14 +65,14 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckGantryCache _cache = new();
+    public partial ChuckGantryCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckGantryDto _calibration = new();
+    public partial ChuckGantryDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

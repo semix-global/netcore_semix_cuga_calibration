@@ -42,61 +42,61 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     private AdsYGainsItemDto? _lastAdsYGainsItemDto;
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsItemDto> _yGainsItemDtoList = [];
+    public partial ObservableCollection<AdsYGainsItemDto> YGainsItemDtoList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheBestItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsCacheBestItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsCacheConverseBestItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsCacheConverseBestItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsDichotomySpeedCacheItem> AdsYGainsDichotomySpeedCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsDichotomySpeedCacheItem> _adsYGainsDichotomySpeedCacheConverseItemList = [];
+    public partial ObservableCollection<AdsYGainsDichotomySpeedCacheItem> AdsYGainsDichotomySpeedCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _adsYGainsHrpCacheConverseItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> AdsYGainsHrpCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> ResultAdsYGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _resultAdsYGainsHrpCacheConverseItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> ResultAdsYGainsHrpCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _yGainsCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> YGainsCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private AdsYGainsItemDto? _selectAdsYGainsItemDto;
+    public partial AdsYGainsItemDto? SelectAdsYGainsItemDto { get; set; }
 
     [ObservableProperty]
-    private AdsYGainsCacheItem _selectAdsYGainsCacheItem = new();
+    public partial AdsYGainsCacheItem SelectAdsYGainsCacheItem { get; set; } = new();
 
     [ObservableProperty]
-    private AdsYGainsCacheItem _selectAdsYGainsCacheConverseItem = new();
+    public partial AdsYGainsCacheItem SelectAdsYGainsCacheConverseItem { get; set; } = new();
 
     [ObservableProperty]
-    private AdsYGainsItemDto _resultAdsYGainsItemDto = new();
+    public partial AdsYGainsItemDto ResultAdsYGainsItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private List<WpfPlotModel> _plotList = [];
+    public partial List<WpfPlotModel> PlotList { get; set; } = [];
 
     [ObservableProperty]
-    private List<WpfPlotModel> _plotY1Y2Y3List = [];
+    public partial List<WpfPlotModel> PlotY1Y2Y3List { get; set; } = [];
 
     [ObservableProperty]
-    private List<WpfPlotModel> _plotY4Y5Y6List = [];
+    public partial List<WpfPlotModel> PlotY4Y5Y6List { get; set; } = [];
 
     private bool IsY1Stop;
     private bool IsY4Stop;
@@ -110,16 +110,16 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     #region Review
 
     [ObservableProperty]
-    private AdsYGainsItemDto _reviewAdsYGainsItemDto = new();
+    public partial AdsYGainsItemDto ReviewAdsYGainsItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private AdsYGainsItemDto? _selectReviewItemDto;
+    public partial AdsYGainsItemDto? SelectReviewItemDto { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _positiveAdsYGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> PositiveAdsYGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsYGainsCacheItem> _negativeAdsYGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsYGainsCacheItem> NegativeAdsYGainsHrpCacheItemList { get; set; } = [];
 
     #endregion Review
 
@@ -129,11 +129,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     [RecipeCache]
     [ObservableProperty]
-    private AdsYGainsCache _cache = new();
+    public partial AdsYGainsCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AdsYGainsItemDto _calibration = new();
+    public partial AdsYGainsItemDto Calibration { get; set; } = new();
 
     #endregion 缓存
 

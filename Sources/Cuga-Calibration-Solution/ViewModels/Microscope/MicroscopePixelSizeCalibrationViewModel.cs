@@ -45,32 +45,32 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopePixelSizeItemDto> _microscopePixelSizeItemDtoList = [];
+    public partial ObservableCollection<MicroscopePixelSizeItemDto> MicroscopePixelSizeItemDtoList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopePixelSizeItemDto> _resultMicroscopePixelSizeItemDtoList = [];
+    public partial ObservableCollection<MicroscopePixelSizeItemDto> ResultMicroscopePixelSizeItemDtoList { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto? _selectMicroscopePixelSizeItemDto;
+    public partial MicroscopePixelSizeItemDto? SelectMicroscopePixelSizeItemDto { get; set; }
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto? _resultMicroscopePixelSizeItemDto;
+    public partial MicroscopePixelSizeItemDto? ResultMicroscopePixelSizeItemDto { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<MicroscopeLensInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<MicroscopeLensInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopePixelSizeItemDto> _reviewList = [];
+    public partial ObservableCollection<MicroscopePixelSizeItemDto> ReviewList { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto? _selectReviewItemDto;
+    public partial MicroscopePixelSizeItemDto? SelectReviewItemDto { get; set; }
 
     [ObservableProperty]
-    private List<(string Microscope, Size OldPixelSize, Size NewPixelSize, Size OffsetPixelSize)> _reviewResultList = [];
+    public partial List<(string Microscope, Size OldPixelSize, Size NewPixelSize, Size OffsetPixelSize)> ReviewResultList { get; set; } = [];
 
     #endregion Review
 
@@ -80,17 +80,17 @@ public sealed partial class MicroscopePixelSizeCalibrationViewModel : Calibratio
 
     [RecipeCache]
     [ObservableProperty]
-    private MicroscopePixelSizeCache _cache = new();
+    public partial MicroscopePixelSizeCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeCacheItem _selectMicroscopePixelSizeCacheItem = new();
+    public partial MicroscopePixelSizeCacheItem SelectMicroscopePixelSizeCacheItem { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _calibrations = [];
+    public partial MicroscopePixelSizeItemDto[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 

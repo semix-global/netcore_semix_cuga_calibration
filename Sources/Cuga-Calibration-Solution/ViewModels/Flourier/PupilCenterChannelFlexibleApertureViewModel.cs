@@ -33,22 +33,22 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     #region 界面相关
 
     [ObservableProperty]
-    private Point[] _circlePointX = new Point[4];
+    public partial Point[] CirclePointX { get; set; } = new Point[4];
 
     [ObservableProperty]
-    private Point[] _circlePointY = new Point[4];
+    public partial Point[] CirclePointY { get; set; } = new Point[4];
 
     [ObservableProperty]
-    private Point _resultPointX;
+    public partial Point ResultPointX { get; set; }
 
     [ObservableProperty]
-    private Point _resultPointY;
+    public partial Point ResultPointY { get; set; }
 
     [ObservableProperty]
-    private float _resultRadiusX;
+    public partial float ResultRadiusX { get; set; }
 
     [ObservableProperty]
-    private float _resultRadiusY;
+    public partial float ResultRadiusY { get; set; }
 
     public enum PositionShowType
     {
@@ -67,80 +67,80 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     }
 
     [ObservableProperty]
-    private int _rodWidth = 100;
+    public partial int RodWidth { get; set; } = 100;
 
     [ObservableProperty]
-    private int _rodHight = 50;
+    public partial int RodHight { get; set; } = 50;
 
     [ObservableProperty]
-    private int _xStartPixel = 100;
+    public partial int XStartPixel { get; set; } = 100;
 
     [ObservableProperty]
-    private float _ch3Angle = 120;
+    public partial float Ch3Angle { get; set; } = 120;
 
     [ObservableProperty]
-    private int _ch3Angle60 = 60;
+    public partial int Ch3Angle60 { get; set; } = 60;
 
     [ObservableProperty]
-    private float _ch3TurnX = 2.0f;
+    public partial float Ch3TurnX { get; set; } = 2.0f;
 
     [ObservableProperty]
-    private float _ch3TurnY = 2.0f;
+    public partial float Ch3TurnY { get; set; } = 2.0f;
 
     [ObservableProperty]
-    private float _ch3Push = 2.0f;
+    public partial float Ch3Push { get; set; } = 2.0f;
 
     [ObservableProperty]
-    private int[] _rodHeightHorizal1 = [100, 100, 100, 100];
+    public partial int[] RodHeightHorizal1 { get; set; } = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private int[] _rodHeightHorizal2 = [100, 100, 100, 100];
+    public partial int[] RodHeightHorizal2 { get; set; } = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private Rect[] _rodRectHorizal1 = new Rect[4];
+    public partial Rect[] RodRectHorizal1 { get; set; } = new Rect[4];
 
     [ObservableProperty]
-    private Rect[] _rodRectHorizal2 = new Rect[4];
+    public partial Rect[] RodRectHorizal2 { get; set; } = new Rect[4];
 
     [ObservableProperty]
-    private int[] _rodWidthVertical1 = [100, 100, 100, 100];
+    public partial int[] RodWidthVertical1 { get; set; } = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private int[] _rodWidthVertical2 = [100, 100, 100, 100];
+    public partial int[] RodWidthVertical2 { get; set; } = [100, 100, 100, 100];
 
     [ObservableProperty]
-    private Rect[] _rodRectVertical1 = new Rect[4];
+    public partial Rect[] RodRectVertical1 { get; set; } = new Rect[4];
 
     [ObservableProperty]
-    private Rect[] _rodRectVertical2 = new Rect[4];
+    public partial Rect[] RodRectVertical2 { get; set; } = new Rect[4];
 
     [ObservableProperty]
-    private int _rodWidthHeight;
+    public partial int RodWidthHeight { get; set; }
 
     [ObservableProperty]
-    private int _pushWidthVertical1;
+    public partial int PushWidthVertical1 { get; set; }
 
     [ObservableProperty]
-    private int _pushWidthVertical2;
+    public partial int PushWidthVertical2 { get; set; }
 
     [ObservableProperty]
-    private Rect _pushRectVertical1;
+    public partial Rect PushRectVertical1 { get; set; }
 
     [ObservableProperty]
-    private Rect _pushRectVertical2;
+    public partial Rect PushRectVertical2 { get; set; }
 
     public ChartShowType[] Ch3ShowTypeValues => Enum.GetValues(typeof(ChartShowType)).Cast<ChartShowType>().ToArray();
 
     public PositionShowType[] Ch3PositionTypeValues => Enum.GetValues(typeof(PositionShowType)).Cast<PositionShowType>().ToArray();
 
     [ObservableProperty]
-    private ChartShowType _selectedCh3ShowType = (ChartShowType)(-1);
+    public partial ChartShowType SelectedCh3ShowType { get; set; } = (ChartShowType)(-1);
 
     [ObservableProperty]
-    private PositionShowType _selectedCh3PositionType = (PositionShowType)(-1);
+    public partial PositionShowType SelectedCh3PositionType { get; set; } = (PositionShowType)(-1);
 
     [ObservableProperty]
-    private Point _sxPos;
+    public partial Point SxPos { get; set; }
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -155,24 +155,24 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
     #region 缓存
 
     [ObservableProperty]
-    private PupilCenterChannelFlexibleApertureDTO _resultDto = new();
+    public partial PupilCenterChannelFlexibleApertureDTO ResultDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
+    public partial PupilCameraAlignmentDTO PupilCameraAlignmentValue { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private PupilCenterChannelFlexibleApertureCache _cache = new();
+    public partial PupilCenterChannelFlexibleApertureCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private PupilCenterChannelFlexibleApertureDTO _calibration = new();
+    public partial PupilCenterChannelFlexibleApertureDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCenterChannelFlexibleApertureDTO _review = new();
+    public partial PupilCenterChannelFlexibleApertureDTO Review { get; set; } = new();
 
     #endregion 缓存
 

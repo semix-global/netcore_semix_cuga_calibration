@@ -43,20 +43,20 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
     #region Calibration
 
     [ObservableProperty]
-    private LaserAttenuatorDTO _calibratingItem = new();
+    public partial LaserAttenuatorDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibration
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<LaserAttenuatorDTO> _reviews = [];
+    public partial IReadOnlyList<LaserAttenuatorDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<LaserAttenuatorDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<LaserAttenuatorDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -64,14 +64,14 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private LaserAttenuatorCache _cache = new();
+    public partial LaserAttenuatorCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private LaserAttenuatorDTO[] _calibrations = [];
+    public partial LaserAttenuatorDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDTO[] _laserOpticalPowerMeters = [];
+    public partial LaserOpticalPowerMeterDTO[] LaserOpticalPowerMeters { get; set; } = [];
 
     #endregion 缓存
 

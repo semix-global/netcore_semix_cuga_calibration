@@ -52,60 +52,60 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     }
 
     [ObservableProperty]
-    private int _selectedTabIndex;
+    public partial int SelectedTabIndex { get; set; }
 
     [ObservableProperty]
-    private int _rodWidth = 250;
+    public partial int RodWidth { get; set; } = 250;
 
     [ObservableProperty]
-    private int _rodHight = 50;
+    public partial int RodHight { get; set; } = 50;
 
     [ObservableProperty]
-    private int _xStartPixel = 100;
+    public partial int XStartPixel { get; set; } = 100;
 
     [ObservableProperty]
-    private int _selectRodWidth;
+    public partial int SelectRodWidth { get; set; }
 
     [ObservableProperty]
-    private int _selectRodHeight;
+    public partial int SelectRodHeight { get; set; }
 
     [ObservableProperty]
-    private float _ch3TurnY = 3.0f;
+    public partial float Ch3TurnY { get; set; } = 3.0f;
 
     [ObservableProperty]
-    private double _ch3TurnYMotorRelation = 13.0f;
+    public partial double Ch3TurnYMotorRelation { get; set; } = 13.0f;
 
     [ObservableProperty]
-    private double _ch3PushXMotorRelation = 22.0f;
+    public partial double Ch3PushXMotorRelation { get; set; } = 22.0f;
 
     [ObservableProperty]
-    private float _ch3Push = 42.0f;
+    public partial float Ch3Push { get; set; } = 42.0f;
 
     public PositionShowType[] Ch3PositionTypeValues => Enum.GetValues(typeof(PositionShowType)).Cast<PositionShowType>().ToArray();
 
     [ObservableProperty]
-    private PositionShowType _selectedCh3PositionType = (PositionShowType)(-1);
+    public partial PositionShowType SelectedCh3PositionType { get; set; } = (PositionShowType)(-1);
 
     [ObservableProperty]
-    private Point _sxPos;
+    public partial Point SxPos { get; set; }
 
     [ObservableProperty]
-    private int _imageWidthPixel = 1000;
+    public partial int ImageWidthPixel { get; set; } = 1000;
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh3 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListCh3 { get; set; } = [];
 
     [ObservableProperty]
-    private string _reviewImageShowPath = string.Empty;
+    public partial string ReviewImageShowPath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _reviewImageHidePath = string.Empty;
+    public partial string ReviewImageHidePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double[] _reviewImageGrayCh3 = new double[2];
+    public partial double[] ReviewImageGrayCh3 { get; set; } = new double[2];
 
     [ObservableProperty]
-    private double _reviewImageCompareCh3;
+    public partial double ReviewImageCompareCh3 { get; set; }
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -116,10 +116,10 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<PupilCenterChannelSpecularBlockerDTO> _resultPupilCenterChannelSpecularBlockerDTOList = [];
+    public partial ObservableCollection<PupilCenterChannelSpecularBlockerDTO> ResultPupilCenterChannelSpecularBlockerDTOList { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
@@ -128,24 +128,24 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
     #region 缓存
 
     [ObservableProperty]
-    private PupilCenterChannelSpecularBlockerDTO _resultDto = new();
+    public partial PupilCenterChannelSpecularBlockerDTO ResultDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
+    public partial PupilCameraAlignmentDTO PupilCameraAlignmentValue { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCenterChannelFlexibleApertureDTO _pupilCenterChannelFlexibleApertureValue = new();
+    public partial PupilCenterChannelFlexibleApertureDTO PupilCenterChannelFlexibleApertureValue { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private PupilCenterChannelSpecularBlockerCache _cache = new();
+    public partial PupilCenterChannelSpecularBlockerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private PupilCenterChannelSpecularBlockerDTO[] _calibrations = [];
+    public partial PupilCenterChannelSpecularBlockerDTO[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 

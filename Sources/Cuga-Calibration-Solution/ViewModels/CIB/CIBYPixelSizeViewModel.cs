@@ -50,20 +50,20 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _calibratingItems = [];
+    public partial IReadOnlyList<CIBYPixelSizeDTO> CalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _reviews = [];
+    public partial IReadOnlyList<CIBYPixelSizeDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBYPixelSizeDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBYPixelSizeDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -73,17 +73,17 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBYPixelSizeCache _cache = new();
+    public partial CIBYPixelSizeCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBYPixelSizeDTO[] _calibrations = [];
+    public partial CIBYPixelSizeDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

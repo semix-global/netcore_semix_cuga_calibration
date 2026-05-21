@@ -41,29 +41,29 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeFocusItemDto> _microscopeFocusItemDtoList = [];
+    public partial ObservableCollection<MicroscopeFocusItemDto> MicroscopeFocusItemDtoList { get; set; } = [];
 
     [ObservableProperty]
-    private Point[] _ecsPoints = [];
+    public partial Point[] EcsPoints { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeFocusItemDto? _selectedMicroscopeFocusItemDto;
+    public partial MicroscopeFocusItemDto? SelectedMicroscopeFocusItemDto { get; set; }
 
     [ObservableProperty]
-    private MicroscopeFocusItemDto? _resultMicroscopeFocusItemDto;
+    public partial MicroscopeFocusItemDto? ResultMicroscopeFocusItemDto { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<MicroscopeLensInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<MicroscopeLensInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeFocusItemDto> _reviewList = [];
+    public partial ObservableCollection<MicroscopeFocusItemDto> ReviewList { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeFocusItemDto? _selectReviewItemDto;
+    public partial MicroscopeFocusItemDto? SelectReviewItemDto { get; set; }
 
     #endregion Review
 
@@ -73,14 +73,14 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    private MicroscopeFocusCache _cache = new();
+    public partial MicroscopeFocusCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeFocusCacheItem _selectMicroscopeFocusCacheItem = new();
+    public partial MicroscopeFocusCacheItem SelectMicroscopeFocusCacheItem { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private MicroscopeFocusItemDto[] _calibrations = [];
+    public partial MicroscopeFocusItemDto[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 

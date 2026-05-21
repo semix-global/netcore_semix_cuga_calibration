@@ -41,46 +41,46 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsCacheBestItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsCacheBestItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsCacheConverseItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsCacheConverseBestItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsCacheConverseBestItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsDichotomySpeedCacheItem> _adsXGainsDichotomySpeedCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsDichotomySpeedCacheItem> AdsXGainsDichotomySpeedCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsDichotomySpeedCacheItem> _adsXGainsDichotomySpeedCacheConverseItemList = [];
+    public partial ObservableCollection<AdsXGainsDichotomySpeedCacheItem> AdsXGainsDichotomySpeedCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _adsXGainsHrpCacheConverseItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> AdsXGainsHrpCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _resultAdsXGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> ResultAdsXGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _resultAdsXGainsHrpCacheConverseItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> ResultAdsXGainsHrpCacheConverseItemList { get; set; } = [];
 
     [ObservableProperty]
-    private AdsXGainsCacheItem? _selectAdsXGainsItemDto = new();
+    public partial AdsXGainsCacheItem? SelectAdsXGainsItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private AdsXGainsCacheItem _selectAdsXGainsCacheItem = new();
+    public partial AdsXGainsCacheItem SelectAdsXGainsCacheItem { get; set; } = new();
 
     [ObservableProperty]
-    private AdsXGainsCacheItem _selectAdsXGainsCacheConverseItem = new();
+    public partial AdsXGainsCacheItem SelectAdsXGainsCacheConverseItem { get; set; } = new();
 
     [ObservableProperty]
-    private AdsXGainsItemDto _resultAdsXGainsItemDto = new();
+    public partial AdsXGainsItemDto ResultAdsXGainsItemDto { get; set; } = new();
 
     private List<(double x1, double x2)> defaultXList = [];
 
@@ -90,20 +90,20 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     private bool IsX4Stop;
 
     [ObservableProperty]
-    private List<WpfPlotModel> _plotList = [];
+    public partial List<WpfPlotModel> PlotList { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private AdsXGainsItemDto _reviewReviewItemDto = new();
+    public partial AdsXGainsItemDto ReviewReviewItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _positiveAdsXGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> PositiveAdsXGainsHrpCacheItemList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AdsXGainsCacheItem> _negativeAdsXGainsHrpCacheItemList = [];
+    public partial ObservableCollection<AdsXGainsCacheItem> NegativeAdsXGainsHrpCacheItemList { get; set; } = [];
 
     #endregion Review
 
@@ -113,11 +113,11 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
     [RecipeCache]
     [ObservableProperty]
-    private AdsXGainsCache _cache = new();
+    public partial AdsXGainsCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AdsXGainsItemDto _calibration = new();
+    public partial AdsXGainsItemDto Calibration { get; set; } = new();
 
     #endregion 缓存
 

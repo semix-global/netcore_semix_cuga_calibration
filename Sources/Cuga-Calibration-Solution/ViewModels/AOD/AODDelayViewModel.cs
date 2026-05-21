@@ -49,18 +49,18 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODDelayDTO _calibratingItem = new();
+    public partial AODDelayDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODDelayDTO> _reviews = [];
+    public partial IReadOnlyList<AODDelayDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODDelayDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODDelayDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -68,14 +68,14 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private AODDelayCache _cache = new();
+    public partial AODDelayCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODDelayDTO[] _calibrations = [];
+    public partial AODDelayDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

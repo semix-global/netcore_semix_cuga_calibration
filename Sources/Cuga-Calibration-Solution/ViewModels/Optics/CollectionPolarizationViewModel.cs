@@ -38,18 +38,18 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     #region 缓存
 
     [ObservableProperty]
-    private CollectPolarizationDTO _resultCollectItemDto = new();
+    public partial CollectPolarizationDTO ResultCollectItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private CollectPolarizationCache _cache = new();
+    public partial CollectPolarizationCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CollectPolarizationDTO _calibration = new();
+    public partial CollectPolarizationDTO Calibration { get; set; } = new();
 
     #endregion 缓存
 

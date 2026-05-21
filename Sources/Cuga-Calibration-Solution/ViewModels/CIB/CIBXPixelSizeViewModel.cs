@@ -62,20 +62,20 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private CIBXPixelSizeDTO _calibratingItem = new();
+    public partial CIBXPixelSizeDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXPixelSizeDTO> _reviews = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBXPixelSizeDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBXPixelSizeDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -84,24 +84,24 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
     #region 缓存
 
     [ObservableProperty]
-    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
+    public partial CreateDarkImageTemplateWindowViewModel CreateDarkImageTemplateWindowViewModel { get; set; } = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBXPixelSizeCache _cache = new();
+    public partial CIBXPixelSizeCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBXPixelSizeDTO[] _calibrations = [];
+    public partial CIBXPixelSizeDTO[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 
