@@ -18,8 +18,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <hc:Shield Subject="Chuck Prealigner Step 7: "
-                       Status="{Binding CalibrationSteps[6].StepName}"
+            <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                       Status="{Binding CalibrationStepName}"
                        Color="{StaticResource InfoBrush}" />
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
