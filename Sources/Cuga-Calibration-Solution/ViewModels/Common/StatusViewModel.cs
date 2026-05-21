@@ -134,7 +134,7 @@ public sealed partial class StatusViewModel(
             var cibInformations = cibViewModel.GetCIBInformations();
 
             applicationCookie.DeviceCode = deviceCode;
-            applicationCookie.DeviceCode = deviceCUGAVersion;
+            applicationCookie.DeviceCUGAVersion = deviceCUGAVersion;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
