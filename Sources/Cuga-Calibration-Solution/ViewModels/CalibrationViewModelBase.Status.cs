@@ -28,17 +28,20 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
             _ => 0d
         };
 
+    public int CalibrationDisplayStepIndex => CalibrationStepIndex + 1;
+
     public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationSteps.Count - 1
         ? CalibrationSteps[CalibrationStepIndex].StepName
         : string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
-    [NotifyPropertyChangedFor(nameof(CalibrationStepName))]
     public partial CalibrationItemViewEnum ViewEnum { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
+    [NotifyPropertyChangedFor(nameof(CalibrationDisplayStepIndex))]
+    [NotifyPropertyChangedFor(nameof(CalibrationStepName))]
     public partial int CalibrationStepIndex { get; set; } = -1;
 
     public virtual void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
