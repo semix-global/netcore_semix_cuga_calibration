@@ -12,14 +12,14 @@ public sealed partial class AODWaveformElectrodeInitializeStep0<TItem> : Observa
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeInitializeStep0Item<TItem>> _items = [];
+    public partial IReadOnlyList<AODWaveformElectrodeInitializeStep0Item<TItem>> Items { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079

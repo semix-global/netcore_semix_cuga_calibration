@@ -42,7 +42,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
     public record CalibrationCategory(string Description, IReadOnlyList<CalibrationCategoryItem> Items);
 
     [ObservableProperty]
-    private ObservableCollection<CalibrationCategory> _calibrationCategories = [];
+    public partial ObservableCollection<CalibrationCategory> CalibrationCategories { get; set; } = [];
 
     public SettingCalibrateItemsStatusViewModel(
         IMessenger messenger,
@@ -219,10 +219,10 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
 public partial class CalibrationCategoryItem : ObservableObject
 {
     [ObservableProperty]
-    private string _description = string.Empty;
+    public partial string Description { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isAnyOk;
+    public partial bool IsAnyOk { get; set; }
 
     public bool IsArray { get; init; }
     public Type? Type { get; init; }

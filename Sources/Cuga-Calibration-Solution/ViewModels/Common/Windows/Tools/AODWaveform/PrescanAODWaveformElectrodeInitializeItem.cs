@@ -6,14 +6,14 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class PrescanAODWaveformElectrodeInitializeItem : AODWaveformElectrodeInitializeItem
 {
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 }

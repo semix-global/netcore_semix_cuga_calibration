@@ -36,76 +36,76 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     #region Param
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _channelId = CalibrationConstantsHelper.MainChannelId;
+    public partial int ChannelId { get; set; } = CalibrationConstantsHelper.MainChannelId;
 
     [ObservableProperty]
-    private double _prescanFrequency;
+    public partial double PrescanFrequency { get; set; }
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private double _chirpFrequency;
+    public partial double ChirpFrequency { get; set; }
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private Point _hazeBFMachinePosition = Point.Origin;
+    public partial Point HazeBFMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private LaserLightInformation _hazeLaserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation HazeLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private Point _shinyWaferBFMachinePosition = Point.Origin;
+    public partial Point ShinyWaferBFMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private LaserLightInformation _shinyWaferLaserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation ShinyWaferLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    public partial double WaitTime { get; set; } = 5;
 
     [ObservableProperty]
-    private double _rotateAngle;
+    public partial double RotateAngle { get; set; }
 
     /// <summary>
     /// D型光斑直径(um)
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DegreePerUm))]
-    private double _centerChannelLensDiameterUm = 33_000;
+    public partial double CenterChannelLensDiameterUm { get; set; } = 33_000;
 
     /// <summary>
     /// 最大半角度(°)
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DegreePerUm))]
-    private double _centerChannelLensMaximumAngle = 41.3;
+    public partial double CenterChannelLensMaximumAngle { get; set; } = 41.3;
 
     public double DegreePerUm => CenterChannelLensMaximumAngle / CenterChannelLensDiameterUm;
 
     [ObservableProperty]
-    private double _threshold = 2;
+    public partial double Threshold { get; set; } = 2;
 
     #endregion
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private OpticsObjectiveYAngleResult _result = new();
+    public partial OpticsObjectiveYAngleResult Result { get; set; } = new();
 
     public object ToHtmlAnonymous() => new
     {
@@ -125,36 +125,36 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
 public sealed partial class OpticsObjectiveYAngleResult : ObservableObject
 {
     [ObservableProperty]
-    private bool _isOk;
+    public partial bool IsOk { get; set; }
 
     [ObservableProperty]
-    private string _hazeImageFilePath = string.Empty;
+    public partial string HazeImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _shinyWaferImageFilePath = string.Empty;
+    public partial string ShinyWaferImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _resultImageFilePath = string.Empty;
+    public partial string ResultImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private Point _centerChannelLightCenterPosition = Point.Origin;
+    public partial Point CenterChannelLightCenterPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private Point _reflectedLightCenterPosition = Point.Origin;
+    public partial Point ReflectedLightCenterPosition { get; set; } = Point.Origin;
 
     public double LightCenterXPixelOffset => ReflectedLightCenterPosition.X - CenterChannelLightCenterPosition.X;
 
     [ObservableProperty]
-    private double _centerChannelLightDiameterPixel;
+    public partial double CenterChannelLightDiameterPixel { get; set; }
 
     [ObservableProperty]
-    private double _horizontalDegree;
+    public partial double HorizontalDegree { get; set; }
 
     [ObservableProperty]
-    private double _pixelSize;
+    public partial double PixelSize { get; set; }
 
     [ObservableProperty]
-    private double _yAngleDegrees;
+    public partial double YAngleDegrees { get; set; }
 
     public object ToHtmlAnonymous() => new
     {
@@ -198,7 +198,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    private OpticsObjectiveYAngleCache _cache = new();
+    public partial OpticsObjectiveYAngleCache Cache { get; set; } = new();
 
     [RelayCommand]
     private void Loaded()

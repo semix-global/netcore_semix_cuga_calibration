@@ -10,35 +10,35 @@ public partial class AODWaveformElectrodeInitializeCache<TItem, TResult> : AODWa
     where TResult : AODWaveformElectrodeInitializeResult, new()
 {
     [ObservableProperty]
-    private int _interpolationCount = 3;
+    public partial int InterpolationCount { get; set; } = 3;
 
     [ObservableProperty]
-    private IReadOnlyList<double> _electrode2OffsetFrequencyPeriodCoefficients = [];
+    public partial IReadOnlyList<double> Electrode2OffsetFrequencyPeriodCoefficients { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _electrode4OffsetFrequencyPeriodCoefficients = [];
+    public partial IReadOnlyList<double> Electrode4OffsetFrequencyPeriodCoefficients { get; set; } = [];
 
     [ObservableProperty]
-    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode3OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode3OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
 
     [ObservableProperty]
-    private IReadOnlyList<double> _frequencies = [];
+    public partial IReadOnlyList<double> Frequencies { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _weights = [];
+    public partial IReadOnlyList<double> Weights { get; set; } = [];
 
     #region Items
 
     [ObservableProperty]
-    private AODWaveformElectrodeInitializeStep0<TItem> _step0 = new();
+    public partial AODWaveformElectrodeInitializeStep0<TItem> Step0 { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> _step1Items = [];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> Step1Items { get; set; } = [];
 
     #endregion
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurationResults { get; set; } = [];
 
     partial void OnFrequenciesChanged(IReadOnlyList<double> value) => Weights = [.. value.Select(_ => 1)];
 

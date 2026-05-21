@@ -30,17 +30,14 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
-    public override OpticsBestFocusCache Cache
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = new();
+    [ObservableProperty]
+    public override partial OpticsBestFocusCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsBestFocusResult> _results = [];
+    public new partial IReadOnlyList<OpticsBestFocusResult> Results { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

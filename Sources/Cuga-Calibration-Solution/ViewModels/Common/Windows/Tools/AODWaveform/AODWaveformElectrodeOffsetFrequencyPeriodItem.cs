@@ -7,11 +7,11 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    private IReadOnlyList<TItem> _frequencyItems = [];
+    public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _frequencyInterpolationPoints = [];
+    public partial IReadOnlyList<Point> FrequencyInterpolationPoints { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _frequencyMaximaPoints = [];
+    public partial IReadOnlyList<Point> FrequencyMaximaPoints { get; set; } = [];
 }

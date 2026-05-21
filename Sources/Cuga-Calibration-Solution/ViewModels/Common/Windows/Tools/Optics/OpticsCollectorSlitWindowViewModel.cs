@@ -45,79 +45,79 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private int _pmtId;
+    public partial int PmtId { get; set; }
 
     [ObservableProperty]
-    private int _imageWidthPixel;
+    public partial int ImageWidthPixel { get; set; }
 
     [ObservableProperty]
-    private double _rangeEcs;
+    public partial double RangeEcs { get; set; }
 
     [ObservableProperty]
-    private double _stepEcs;
+    public partial double StepEcs { get; set; }
 
     #region Haze
 
     [ObservableProperty]
-    private OpticsConfiguration _hazeOpticsConfiguration = new();
+    public partial OpticsConfiguration HazeOpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _hazeCIBConfiguration = new();
+    public partial CIBConfiguration HazeCIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _hazeLaserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation HazeLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private Point _hazeBrightFieldPosition;
+    public partial Point HazeBrightFieldPosition { get; set; }
 
     [ObservableProperty]
-    private double _hazeAverageECS;
+    public partial double HazeAverageECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<HazeResult> _hazeResults = [];
+    public partial IReadOnlyList<HazeResult> HazeResults { get; set; } = [];
 
     #endregion Haze
 
     #region DSW
 
     [ObservableProperty]
-    private OpticsConfiguration _dSWOpticsConfiguration = new();
+    public partial OpticsConfiguration DSWOpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _dSWCIBConfiguration = new();
+    public partial CIBConfiguration DSWCIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _dSWLaserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation DSWLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private Point _dSWBrightFieldPosition;
+    public partial Point DSWBrightFieldPosition { get; set; }
 
     [ObservableProperty]
-    private Rect _dSWROIRect = new(0, 0, 256, 256);
+    public partial Rect DSWROIRect { get; set; } = new(0, 0, 256, 256);
 
     [ObservableProperty]
-    private double _dSWXPixelSize;
+    public partial double DSWXPixelSize { get; set; }
 
     [ObservableProperty]
-    private double _dSWYPixelSize;
+    public partial double DSWYPixelSize { get; set; }
 
     [ObservableProperty]
-    private double _dSWPotDiameter;
+    public partial double DSWPotDiameter { get; set; }
 
     [ObservableProperty]
-    private double _dSWXPointDiameter;
+    public partial double DSWXPointDiameter { get; set; }
 
     [ObservableProperty]
-    private double _dSWYPointDiameter;
+    public partial double DSWYPointDiameter { get; set; }
 
     [ObservableProperty]
-    private double _dSWAverageECS;
+    public partial double DSWAverageECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<DSWResult> _dSWResults = [];
+    public partial IReadOnlyList<DSWResult> DSWResults { get; set; } = [];
 
     #endregion DSW
 
@@ -181,43 +181,43 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
 public sealed partial class HazeResult : ObservableObject
 {
     [ObservableProperty]
-    private double _eCS;
+    public partial double ECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<HazeResultItem> _items = [];
+    public partial IReadOnlyList<HazeResultItem> Items { get; set; } = [];
 }
 
 public sealed partial class HazeResultItem : ObservableObject
 {
     [ObservableProperty]
-    private int _channelId;
+    public partial int ChannelId { get; set; }
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _beginningAverageGray;
+    public partial double BeginningAverageGray { get; set; }
 
     [ObservableProperty]
-    private double _beginningAverageGrayNormalization;
+    public partial double BeginningAverageGrayNormalization { get; set; }
 
     [ObservableProperty]
-    private double _middleAverageGray;
+    public partial double MiddleAverageGray { get; set; }
 
     [ObservableProperty]
-    private double _middleAverageGrayNormalization;
+    public partial double MiddleAverageGrayNormalization { get; set; }
 
     [ObservableProperty]
-    private double _endAverageGray;
+    public partial double EndAverageGray { get; set; }
 
     [ObservableProperty]
-    private double _endAverageGrayNormalization;
+    public partial double EndAverageGrayNormalization { get; set; }
 
     [ObservableProperty]
-    private double _standardDeviation;
+    public partial double StandardDeviation { get; set; }
 
     [ObservableProperty]
-    private double _standardDeviationNormalization;
+    public partial double StandardDeviationNormalization { get; set; }
 
     public object ToHtmlAnonymous() => new
     {
@@ -231,31 +231,31 @@ public sealed partial class HazeResultItem : ObservableObject
 public sealed partial class DSWResult : ObservableObject
 {
     [ObservableProperty]
-    private double _eCS;
+    public partial double ECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<DSWResultItem> _items = [];
+    public partial IReadOnlyList<DSWResultItem> Items { get; set; } = [];
 }
 
 public sealed partial class DSWResultItem : ObservableObject
 {
     [ObservableProperty]
-    private int _channelId;
+    public partial int ChannelId { get; set; }
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _strehlRatioX;
+    public partial double StrehlRatioX { get; set; }
 
     [ObservableProperty]
-    private double _strehlRatioY;
+    public partial double StrehlRatioY { get; set; }
 
     [ObservableProperty]
-    private double _strehlRatioXNormalization;
+    public partial double StrehlRatioXNormalization { get; set; }
 
     [ObservableProperty]
-    private double _strehlRatioYNormalization;
+    public partial double StrehlRatioYNormalization { get; set; }
 
     public object ToHtmlAnonymous() => new
     {
@@ -292,10 +292,10 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    private OpticsCollectorSlitCache _cache = new();
+    public partial OpticsCollectorSlitCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private IDictionary<int, IScatterPlotControl> _scatterPlotControls = ImmutableDictionary<int, IScatterPlotControl>.Empty;
+    public partial IDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = ImmutableDictionary<int, IScatterPlotControl>.Empty;
 
     [RelayCommand]
     private void Loaded()

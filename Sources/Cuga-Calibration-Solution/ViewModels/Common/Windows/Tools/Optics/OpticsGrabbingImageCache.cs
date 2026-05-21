@@ -12,76 +12,76 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public partial class OpticsGrabbingImageCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private StageCoordinateSystemEnum _stageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
+    public partial StageCoordinateSystemEnum StageCoordinateSystemEnum { get; set; } = StageCoordinateSystemEnum.Bright;
 
     [ObservableProperty]
-    private int _imageWidth = 800;
+    public partial int ImageWidth { get; set; } = 800;
 
     [ObservableProperty]
-    private double _scanLength = 5100;
+    public partial double ScanLength { get; set; } = 5100;
 
     [ObservableProperty]
-    private int _columnCount = 5;
+    public partial int ColumnCount { get; set; } = 5;
 
     [ObservableProperty]
-    private double _columnWidth = 15300;
+    public partial double ColumnWidth { get; set; } = 15300;
 
     [ObservableProperty]
-    private double _centerECS;
+    public partial double CenterECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeECS;
+    public partial double RangeECS { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<CIBInformation> _cIBInformations = [];
+    public partial IReadOnlyList<CIBInformation> CIBInformations { get; set; } = [];
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = null!;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = null!;
 
     [ObservableProperty]
-    private bool _isForward = true;
+    public partial bool IsForward { get; set; } = true;
 
     [ObservableProperty]
-    private bool _isAutoFocus = true;
+    public partial bool IsAutoFocus { get; set; } = true;
 
     [ObservableProperty]
-    private double _eCS = 6000;
+    public partial double ECS { get; set; } = 6000;
 
     [ObservableProperty]
-    private bool _isKeepRawImageCIBProfileModeEnum;
+    public partial bool IsKeepRawImageCIBProfileModeEnum { get; set; }
 
     [ObservableProperty]
-    private bool _isGenerateAODWaveform;
+    public partial bool IsGenerateAODWaveform { get; set; }
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     public object ToHtmlAnonymous(OpticsGrabbingImageTypeEnum opticsGrabbingImageTypeEnum) =>
         opticsGrabbingImageTypeEnum switch

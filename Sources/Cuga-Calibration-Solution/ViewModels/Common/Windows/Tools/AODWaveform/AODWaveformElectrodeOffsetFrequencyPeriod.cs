@@ -18,25 +18,25 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
-    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
+    public partial IReadOnlyList<OpticsAODElectrodeEnum> Electrodes { get; set; } = [];
 
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> _items = [];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> Items { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<Point> _closestMaximaPoints = [];
+    public partial IReadOnlyList<Point> ClosestMaximaPoints { get; set; } = [];
 
     [ObservableProperty]
-    private double? _offsetFrequencyPeriodCoefficient;
+    public partial double? OffsetFrequencyPeriodCoefficient { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    private IScatterPlotControl _scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079

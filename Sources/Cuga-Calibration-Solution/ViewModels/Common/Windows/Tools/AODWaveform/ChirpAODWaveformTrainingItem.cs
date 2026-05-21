@@ -8,49 +8,49 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject, IEquatable<ChirpAODWaveformTrainingItem>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private string _prescanAODWaveformResultFilePath = string.Empty;
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<PrescanAODWaveformProfile> _prescanAODWaveformProfiles = [];
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    private double _p2Coefficient;
+    public partial double P2Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p3Coefficient;
+    public partial double P3Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p4Coefficient;
+    public partial double P4Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p5Coefficient;
+    public partial double P5Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p6Coefficient;
+    public partial double P6Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p7Coefficient;
+    public partial double P7Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p8Coefficient;
+    public partial double P8Coefficient { get; set; }
 
     [ObservableProperty]
-    private BestFocus _bestFocus = new();
+    public partial BestFocus BestFocus { get; set; } = new();
 
     public object ToHtmlAnonymous() => new
     {
