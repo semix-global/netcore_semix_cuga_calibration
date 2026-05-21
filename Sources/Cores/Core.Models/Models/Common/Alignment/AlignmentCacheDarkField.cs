@@ -11,13 +11,13 @@ public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase, IClone
     /// HighSite产率
     /// </summary>
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     /// <summary>
     /// HighSite照明方式(todo:NI方案待定)
     /// </summary>
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
 
     public AlignmentCacheDarkField Clone() => new()
     {

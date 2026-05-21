@@ -11,19 +11,19 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     /// 通用参数
     /// </summary>
     [ObservableProperty]
-    private SettingCommonParam _settingCommonParam = new();
+    public partial SettingCommonParam SettingCommonParam { get; set; } = new();
 
     /// <summary>
     /// 模板匹配参数
     /// </summary>
     [ObservableProperty]
-    private SettingTemplateMatchParam _settingTemplateMatchParam = new();
+    public partial SettingTemplateMatchParam SettingTemplateMatchParam { get; set; } = new();
 
     /// <summary>
     /// 配置Cuga自检使用的配置参数
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<SettingRequiredCalibrationParam> _settingRequiredCalibrationParamList = [];
+    public partial ObservableCollection<SettingRequiredCalibrationParam> SettingRequiredCalibrationParamList { get; set; } = [];
 
     #region Mapper
 

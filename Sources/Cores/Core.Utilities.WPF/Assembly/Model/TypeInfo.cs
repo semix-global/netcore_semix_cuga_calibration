@@ -5,7 +5,7 @@ namespace Core.Utilities.WPF.Assembly.Model;
 public partial class TypeInfo : ObservableObject
 {
     [ObservableProperty]
-    private string _description = string.Empty;
+    public partial string Description { get; set; } = string.Empty;
 
     public string AssemblyQualifiedName { get; set; } = string.Empty;
 

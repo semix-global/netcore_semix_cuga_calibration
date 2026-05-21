@@ -49,7 +49,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     public IReadOnlyList<int> AvailableChannelIds => ApplicationCookie.CIBInformationChannelIds;
 
     [ObservableProperty]
-    private int _selectedChannelId = -1;
+    public partial int SelectedChannelId { get; set; } = -1;
 
     private const string DSW = nameof(DSW);
     private const string Haze = nameof(Haze);
@@ -62,167 +62,166 @@ public sealed partial class CollectionYGhostWindowViewModel(
     public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _brightFieldPosition;
+    public partial Point BrightFieldPosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidthPixel = 1000;
+    public partial int ImageWidthPixel { get; set; } = 1000;
 
     [ObservableProperty]
-    private float _moveDownThreshold = -0.3f;
+    public partial float MoveDownThreshold { get; set; } = -0.3f;
 
     [ObservableProperty]
-    private string[] _pMT8Ch1ImagePath = new string[7];
+    public partial string[] PMT8Ch1ImagePath { get; set; } = new string[7];
 
     [ObservableProperty]
-    private string[] _pMT8Ch2ImagePath = new string[7];
+    public partial string[] PMT8Ch2ImagePath { get; set; } = new string[7];
 
     [ObservableProperty]
-    private string[] _pMT8Ch3ImagePath = new string[7];
+    public partial string[] PMT8Ch3ImagePath { get; set; } = new string[7];
 
     [ObservableProperty]
-    private string[] _pMT8ChImagePath = new string[7];
+    public partial string[] PMT8ChImagePath { get; set; } = new string[7];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH11 = [];
+    public partial Point[] YGhostListCH11 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH12 = [];
+    public partial Point[] YGhostListCH12 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH13 = [];
+    public partial Point[] YGhostListCH13 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH14 = [];
+    public partial Point[] YGhostListCH14 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH15 = [];
+    public partial Point[] YGhostListCH15 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH16 = [];
+    public partial Point[] YGhostListCH16 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH17 = [];
+    public partial Point[] YGhostListCH17 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH21 = [];
+    public partial Point[] YGhostListCH21 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH22 = [];
+    public partial Point[] YGhostListCH22 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH23 = [];
+    public partial Point[] YGhostListCH23 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH24 = [];
+    public partial Point[] YGhostListCH24 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH25 = [];
+    public partial Point[] YGhostListCH25 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH26 = [];
+    public partial Point[] YGhostListCH26 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH27 = [];
+    public partial Point[] YGhostListCH27 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH31 = [];
+    public partial Point[] YGhostListCH31 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH32 = [];
+    public partial Point[] YGhostListCH32 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH33 = [];
+    public partial Point[] YGhostListCH33 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH34 = [];
+    public partial Point[] YGhostListCH34 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH35 = [];
+    public partial Point[] YGhostListCH35 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH36 = [];
+    public partial Point[] YGhostListCH36 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH37 = [];
+    public partial Point[] YGhostListCH37 { get; set; } = [];
 
     [ObservableProperty]
-    public Point[] _yGhostListCH = [];
+    public partial Point[] YGhostListCH { get; set; } = [];
 
     [ObservableProperty]
-    private float _pMT8Ch1PixselCompare;
+    public partial float PMT8Ch1PixselCompare { get; set; }
 
     [ObservableProperty]
-    private float _pMT8Ch2PixselCompare;
+    public partial float PMT8Ch2PixselCompare { get; set; }
 
     [ObservableProperty]
-    private float _pMT8Ch3PixselCompare;
+    public partial float PMT8Ch3PixselCompare { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<double> _yValueListCH = [];
+    public partial ObservableCollection<double> YValueListCH { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH12 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH12 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH13 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH13 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH14 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH14 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH15 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH15 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH16 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH16 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH17 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH17 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH22 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH22 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH23 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH23 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH24 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH24 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH25 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH25 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH26 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH26 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH27 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH27 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH32 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH32 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH33 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH33 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH34 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH34 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH35 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH35 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH36 = [];
+    public partial ObservableCollection<Point> AlignedYGhostListCH36 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Point> _alignedYGhostListCH37 = [];
-
+    public partial ObservableCollection<Point> AlignedYGhostListCH37 { get; set; } = [];
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 

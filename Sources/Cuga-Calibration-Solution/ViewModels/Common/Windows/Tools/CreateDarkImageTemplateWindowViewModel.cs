@@ -20,22 +20,22 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
     ReviewViewModel reviewViewModel) : ViewModelBase
 {
     [ObservableProperty]
-    private Rect _rect;
+    public partial Rect Rect { get; set; }
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum;
+    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; }
 
     [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _algorithmTemplateSizeEnum;
+    public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; }
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     partial void OnAlgorithmTemplateSizeEnumChanged(AlgorithmTemplateSizeEnum value)
     {

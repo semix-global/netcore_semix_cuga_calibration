@@ -7,8 +7,8 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class MicroscopeLensInformationStatus : ObservableObject, IStatus<MicroscopeLensInformation>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _selectedItem = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation SelectedItem { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial bool IsCalibrated { get; set; }
 }

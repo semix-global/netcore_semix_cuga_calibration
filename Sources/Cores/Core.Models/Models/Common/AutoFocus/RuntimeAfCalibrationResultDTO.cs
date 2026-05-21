@@ -12,28 +12,28 @@ public sealed partial class RuntimeAfCalibrationResultDTO : ObservableCacheBase,
     public static readonly RuntimeAfCalibrationResultDTO Default = new();
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.ChuckModel;
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private bool _isAFServo = true;
+    public partial bool IsAFServo { get; set; } = true;
 
     [ObservableProperty]
-    private double _eCSValue;
+    public partial double ECSValue { get; set; }
 
     [ObservableProperty]
-    private double _motorValue;
+    public partial double MotorValue { get; set; }
 
     [ObservableProperty]
-    private double _darkFieldQuality;
+    public partial double DarkFieldQuality { get; set; }
 
     [ObservableProperty]
-    private string _rawImageFilePath = string.Empty;
+    public partial string RawImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _darkFieldFilePath = string.Empty;
+    public partial string DarkFieldFilePath { get; set; } = string.Empty;
 
     public RuntimeAfCalibrationResultDTO Clone() => new()
     {

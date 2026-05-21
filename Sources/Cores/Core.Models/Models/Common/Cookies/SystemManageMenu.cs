@@ -8,17 +8,17 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed partial class SystemManageMenu : ObservableObject
 {
     [ObservableProperty]
-    private int _id;
+    public partial int Id { get; set; }
 
     [ObservableProperty]
-    private string _displayName = "NaA";
+    public partial string DisplayName { get; set; } = "NaA";
 
     [ObservableProperty]
-    private int _orderNum;
+    public partial int OrderNum { get; set; }
 
     [ObservableProperty]
-    private string _component = "NaA";
+    public partial string Component { get; set; } = "NaA";
 
     [ObservableProperty]
-    private List<SystemManageMenu> _childList = [];
+    public partial List<SystemManageMenu> ChildList { get; set; } = [];
 }

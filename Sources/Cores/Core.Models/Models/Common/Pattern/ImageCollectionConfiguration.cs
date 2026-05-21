@@ -7,23 +7,23 @@ namespace Core.Models.Models.Common.Pattern;
 public partial class ImageCollectionConfiguration : ObservableObject, ICloneable<ImageCollectionConfiguration>
 {
     [ObservableProperty]
-    private bool _isAutoFocus = true;
+    public partial bool IsAutoFocus { get; set; } = true;
 
     [ObservableProperty]
-    private bool _isForward = true;
+    public partial bool IsForward { get; set; } = true;
 
     #region X Axis
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ZEcsPerXWidthUm))]
-    private Point _startPoint = Point.Origin;
+    public partial Point StartPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ZEcsPerXWidthUm))]
-    private Point _endPoint = Point.Origin;
+    public partial Point EndPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private double _xSpeedValue;
+    public partial double XSpeedValue { get; set; }
 
     public double XUniformTime => Math.Abs(StartPoint.X - EndPoint.X) / XSpeedValue;
 
