@@ -46,9 +46,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     #region 界面显示属性
 
     [ObservableProperty]
-    public partial string Title { get; set; }
-
-    [ObservableProperty]
     public partial ApplicationCookie ApplicationCookie { get; set; }
 
     [ObservableProperty]
@@ -119,7 +116,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         ApplicationCookie = applicationCookie;
         RecipeCookie = recipeCookie;
         StatusViewModel = statusViewModel;
-        Title = applicationCookie.Title;
         _messenger.RegisterAll(this);
     }
 
@@ -150,8 +146,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
             {
                 return;
             }
-
-            Title = ApplicationCookie.Title;
 
             _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
             _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
@@ -189,8 +183,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
         await (ActiveItem?.CancelAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
         if (ActiveItem is not null) ActiveItem = null;
-
-        Title = ApplicationCookie.Title;
     }
 
     [RelayCommand(CanExecute = nameof(IsPreviousEnable))]
@@ -216,16 +208,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
                 if (ActiveItem?.GetType().FullName == viewModel) return;
 
                 var abstractCalibrationViewModel = HostApplication.GetRequiredService<CalibrationViewModelBase>(viewModel);
-                if (abstractCalibrationViewModel is not null)
-                {
-                    ActiveItem = abstractCalibrationViewModel;
-                    Title = $"{ApplicationCookie.Title} {ActiveItem.Name}";
-                }
-                else
-                {
-                    ActiveItem = null;
-                    Title = ApplicationCookie.Title;
-                }
+
+                ActiveItem = abstractCalibrationViewModel ?? null;
             }
             catch (Exception ex)
             {

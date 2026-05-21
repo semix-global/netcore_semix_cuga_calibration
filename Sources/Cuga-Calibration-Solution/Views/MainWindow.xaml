@@ -42,14 +42,32 @@
                    HorizontalAlignment="Left"
                    FontSize="13"
                    FontWeight="Bold"
-                   Foreground="White"
-                   Style="{StaticResource TextBlockDefault}">
-            <TextBlock.Text>
-                <MultiBinding StringFormat="{}{0} [{1}]">
-                    <Binding Path="ApplicationCookie.Title" Mode="OneWay" />
-                    <Binding Path="RecipeCookie.SysRecipeInformationDTO.RecipeDbName" Mode="OneWay" />
-                </MultiBinding>
-            </TextBlock.Text>
+                   Foreground="White">
+            <TextBlock.Style>
+                <Style BasedOn="{StaticResource TextBlockDefault}" TargetType="TextBlock">
+                    <Setter Property="Text">
+                        <Setter.Value>
+                            <MultiBinding StringFormat="{}{0} Calibration[{1}] Recipe[{2}]">
+                                <Binding Path="ApplicationCookie.Title" Mode="OneWay" />
+                                <Binding Path="ActiveItem.Name" Mode="OneWay" />
+                                <Binding Path="RecipeCookie.SysRecipeInformationDTO.RecipeDbName" Mode="OneWay" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ActiveItem}" Value="{x:Null}">
+                            <Setter Property="Text">
+                                <Setter.Value>
+                                    <MultiBinding StringFormat="{}{0} Recipe[{1}]">
+                                        <Binding Path="ApplicationCookie.Title" Mode="OneWay" />
+                                        <Binding Path="RecipeCookie.SysRecipeInformationDTO.RecipeDbName" Mode="OneWay" />
+                                    </MultiBinding>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
         </TextBlock>
     </hc:Window.NonClientAreaContent>
     <i:Interaction.Triggers>
@@ -115,17 +133,13 @@
                                     <wpf:CircleProgressButton x:Name="StatusButton"
                                                               Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                               CommandParameter="{Binding}"
-                                                              Width="16"
-                                                              Height="16"
+                                                              Width="14"
+                                                              Height="14"
                                                               Foreground="{StaticResource SuccessBrush}"
                                                               Background="{StaticResource BorderBrush}"
                                                               EffectBackground="{StaticResource InfoBrush}"
                                                               Progress="{Binding Entry.Status.Progress}"
-                                                              IsOk="{Binding Entry.Status.IsOk}">
-                                        <wpf:CircleProgressButton.ToolTip>
-                                            <TextBlock Text="{Binding Entry.Status.Progress, Mode=OneWay, StringFormat={}Percentage of Completion: {0:0.###}%}" />
-                                        </wpf:CircleProgressButton.ToolTip>
-                                    </wpf:CircleProgressButton>
+                                                              IsOk="{Binding Entry.Status.IsOk}" />
                                     <TextBlock Text="{Binding SysMenu.Name}" />
                                 </hc:UniformSpacingPanel>
                             </Grid>

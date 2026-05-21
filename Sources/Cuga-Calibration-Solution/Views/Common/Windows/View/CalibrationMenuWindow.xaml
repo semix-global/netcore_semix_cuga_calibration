@@ -185,10 +185,8 @@
                                     <GridViewColumn Width="100" Header="Calibration">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
-                                                <Ellipse Width="16"
-                                                         Height="16"
-                                                         HorizontalAlignment="Center"
-                                                         VerticalAlignment="Center"
+                                                <Ellipse Width="14"
+                                                         Height="14"
                                                          Cursor="Hand">
                                                     <Ellipse.Style>
                                                         <Style TargetType="Ellipse">
@@ -215,10 +213,8 @@
                                     <GridViewColumn Width="100" Header="Verify">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate DataType="{x:Type cookies:CalibrationViewModelStatus+Detail}">
-                                                <Ellipse Width="16"
-                                                         Height="16"
-                                                         HorizontalAlignment="Center"
-                                                         VerticalAlignment="Center"
+                                                <Ellipse Width="14"
+                                                         Height="14"
                                                          Cursor="Hand">
                                                     <Ellipse.Style>
                                                         <Style TargetType="Ellipse">
