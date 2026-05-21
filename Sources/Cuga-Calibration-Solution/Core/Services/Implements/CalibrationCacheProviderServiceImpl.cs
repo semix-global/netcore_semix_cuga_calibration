@@ -163,7 +163,7 @@ public class CalibrationCacheProviderServiceImpl(
             try
             {
                 messageBuilder.AppendLine("=== Default Cache Export ===");
-                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
+                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -204,7 +204,7 @@ public class CalibrationCacheProviderServiceImpl(
                         recipeCacheDatabaseProvider.ChangeDatabase(recipeInfo.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
                         var recipeCaches = new JObject();
-                        foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
+                        foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches))
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
@@ -281,7 +281,7 @@ public class CalibrationCacheProviderServiceImpl(
                 // Import Default Caches
                 messageBuilder.AppendLine("=== Default Cache Import ===");
                 var defaultCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(importData[nameof(CugaCalibrationSolutionCacheCollector.DefaultCaches)]);
-                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
+                foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.DefaultCaches.Concat(CoreRecipeCacheCollector.DefaultCaches))
                 {
                     try
                     {
@@ -360,7 +360,7 @@ public class CalibrationCacheProviderServiceImpl(
 
                             recipeCacheDatabaseProvider.ChangeDatabase(recipe.RecipeNosqlRecipeDbDataSource, cancellationToken);
 
-                            foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches.Select(t => new CugaCalibrationSolutionCacheCollector.CacheItem(t.Type, t.IsArray))))
+                            foreach (var cacheItem in CugaCalibrationSolutionCacheCollector.RecipeCaches.Concat(CoreRecipeCacheCollector.RecipeCaches))
                             {
                                 try
                                 {
