@@ -81,11 +81,13 @@ public partial class CalibrationViewModelBase
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
 
-        ViewEnum = CalibrationItemViewEnum.Error;
+        ViewEnum = CalibrationItemViewEnum.Failed;
     }
 
     private void UpdateCancelStatus()
     {
+        CalibrationStepIndex = int.MinValue;
+
         UpdateDisableAll();
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
 

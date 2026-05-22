@@ -7,5 +7,5 @@ public enum CalibrationItemViewEnum
     Calibration,
     Review,
     Cancel,
-    Error
+    Failed
 }

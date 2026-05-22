@@ -171,12 +171,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 try
                 {
                     isSuccess = await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    if (isSuccess == false) Logger.LogHtmlCritical("Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess == false) Logger.LogHtmlCritical("Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
                 catch (Exception ex)
                 {
                     isSuccess = false;
-                    Logger.LogHtmlCritical(ex, "Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlCritical(ex, "Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 if (isSuccess == false)
@@ -215,12 +215,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 try
                 {
                     isSuccess = await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    if (isSuccess == false) Logger.LogHtmlCritical("Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess == false) Logger.LogHtmlCritical("Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
                 catch (Exception ex)
                 {
                     isSuccess = false;
-                    Logger.LogHtmlCritical(ex, "Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlCritical(ex, "Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 if (isSuccess == false)
