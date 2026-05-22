@@ -117,8 +117,5 @@ public partial class CalibrationViewModelBase
     {
         Logger = (ILogger<CalibrationViewModelBase>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         Entry = ApplicationCookie.CalibrationViewModelEntries[GetType()];
-        
-        Messenger.RegisterAll(this);
-        WeakReferenceMessenger.Default.RegisterAll(this);
     }
 }

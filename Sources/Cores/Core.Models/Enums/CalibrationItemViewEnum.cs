@@ -6,5 +6,6 @@ public enum CalibrationItemViewEnum
     Welcome,
     Calibration,
     Review,
+    Cancel,
     Error
 }
