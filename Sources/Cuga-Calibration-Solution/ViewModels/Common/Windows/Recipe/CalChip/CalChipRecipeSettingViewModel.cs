@@ -282,7 +282,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         CalChipAlignmentViewModel.Dispose();
         CalChipWaferMapViewModel.Dispose();
         CloseView(null);
-        _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true));
         _messenger.Send(ToggleRecipeEventFactory.RefreshRecipeManagementView(true));
     }
 

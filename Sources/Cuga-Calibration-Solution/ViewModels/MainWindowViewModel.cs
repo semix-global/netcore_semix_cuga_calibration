@@ -339,12 +339,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase, IRecipient<Valu
     {
         _contextProvider.Post(() =>
         {
-            if (message.Value.IsRefreshWindow.HasValue)
-            {
-                if (message.Value.IsRefreshWindow.Value == false) return;
-                OnPropertyChanged(nameof(ApplicationCookie));
-            }
-
             if (message.Value.IsCalibrateEnable.HasValue)
                 IsCalibrateEnable = message.Value.IsCalibrateEnable.Value;
             if (message.Value.IsReviewEnable.HasValue)

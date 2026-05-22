@@ -31,12 +31,11 @@ public partial class CalibrationViewModelBase : ViewModelBase
         {
             Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
 
+            ViewEnum = CalibrationItemViewEnum.Loading;
+            UpdateDisableAll();
             RefreshToken();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
@@ -61,12 +60,11 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            ViewEnum = CalibrationItemViewEnum.Loading;
+            UpdateDisableAll();
             CheckStatus();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateWelcomeStatus();
@@ -96,12 +94,11 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            ViewEnum = CalibrationItemViewEnum.Loading;
+            UpdateDisableAll();
             CheckStatus();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await ReviewingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateWelcomeStatus();
@@ -128,7 +125,9 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            ViewEnum = CalibrationItemViewEnum.Loading;
             UpdateDisableAll();
+            CheckStatus();
             await Task.Run(async () =>
             {
                 CancelToken();
@@ -141,9 +140,6 @@ public partial class CalibrationViewModelBase : ViewModelBase
                                                                             $"_Step1-Step{CalibrationStepIndex + 1}" +
                                                                             "_Cancel"));
 
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500).ConfigureAwait(false);
-
                 if (await CancelingAsync().ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
@@ -154,7 +150,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
                 UpdateCancelStatus();
                 Logger.LogInformation("{@Name}: Cancel!", Name);
-            }).ConfigureAwait(false);
+            }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -168,13 +164,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            ViewEnum = CalibrationItemViewEnum.Loading;
+            UpdateDisableAll();
             CheckStatus();
             await Task.Run(async () =>
             {
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
-
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
 
                 bool isSuccess;
                 try
@@ -213,14 +208,13 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            ViewEnum = CalibrationItemViewEnum.Loading;
+            UpdateDisableAll();
             CheckStatus();
             await Task.Run(async () =>
             {
                 var oldStepIsNextEnable = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable;
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
-
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
 
                 bool isSuccess;
                 try
@@ -275,7 +269,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                     Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
                 }
 
-            End:
+                End:
                 Logger.LogInformation("{@Name}: Next!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }

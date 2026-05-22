@@ -203,7 +203,6 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
             else
                 _dialogWindowProvider.ShowDialog("Save Failed! Please save it again.", DialogButtonsEnum.OK, DialogIconEnum.Error);
 
-            _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true)); // 刷新界面
             return true;
         });
     }
