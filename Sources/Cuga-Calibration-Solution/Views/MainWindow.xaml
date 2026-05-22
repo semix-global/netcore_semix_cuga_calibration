@@ -81,7 +81,7 @@
     <Grid>
         <DockPanel IsEnabled="{Binding StatusViewModel.IsEnable}">
             <Menu DockPanel.Dock="Top"
-                  IsEnabled="{Binding IsEnable}"
+                  IsEnabled="{Binding IsMenuEnable}"
                   ItemsSource="{Binding ApplicationCookie.TitleMenu.ChildList}">
                 <Menu.ItemContainerStyle>
                     <Style BasedOn="{StaticResource {x:Type MenuItem}}" TargetType="MenuItem">
@@ -167,22 +167,27 @@
                         <Button Content="Calibrate"
                                 Command="{Binding CalibrateCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                IsEnabled="{Binding IsCalibrateEnable, Mode=OneWay}"
                                 Style="{StaticResource ButtonSuccess}" />
                         <Button Content="Review"
                                 Command="{Binding ReviewCommand}"
                                 hc:IconElement.Geometry="{StaticResource SearchGeometry}"
+                                IsEnabled="{Binding IsReviewEnable, Mode=OneWay}"
                                 Style="{StaticResource ButtonSuccess}" />
                         <Button Content="Cancel"
                                 Command="{Binding CancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                IsEnabled="{Binding IsCancelEnable, Mode=OneWay}"
                                 Style="{StaticResource ButtonWarning}" />
                         <Button Content="Previous"
                                 Command="{Binding PreviousCommand}"
                                 hc:IconElement.Geometry="{StaticResource LeftGeometry}"
+                                IsEnabled="{Binding IsPreviousEnable, Mode=OneWay}"
                                 Style="{StaticResource ButtonPrimary}" />
                         <Button Content="Next"
                                 Command="{Binding NextCommand}"
                                 hc:IconElement.Geometry="{StaticResource RightGeometry}"
+                                IsEnabled="{Binding IsNextEnable, Mode=OneWay}"
                                 Style="{StaticResource ButtonPrimary}" />
                     </hc:UniformSpacingPanel>
                     <ContentControl Grid.Row="2">
