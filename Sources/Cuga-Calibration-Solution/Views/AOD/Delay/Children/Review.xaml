@@ -97,8 +97,8 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding MaxItem.AODDelay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="PMT Value" DisplayMemberBinding="{Binding MaxItem.PMTValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Prescan AOD Delay(sa)" DisplayMemberBinding="{Binding PrescanAODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Chirp AOD Delay(sa)" DisplayMemberBinding="{Binding ChirpAODDelay, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

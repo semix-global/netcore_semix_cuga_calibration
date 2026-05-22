@@ -232,7 +232,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                         goto End;
                     }
 
-                    if (DialogWindowProvider.TryShowDialog("Please complete all of calibration!", out var dialogResultEnum, DialogButtonsEnum.OKCancel, DialogIconEnum.Question) != true || dialogResultEnum != DialogResultEnum.OK)
+                    if (DialogWindowProvider.TryShowDialog("Do you want to continue with calibration?", out var dialogResultEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Question) != true || dialogResultEnum != DialogResultEnum.Yes)
                     {
                         UpdateWelcomeStatus();
 

@@ -25,7 +25,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     public partial IReadOnlyList<AODDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<Point> SmoothPoints { get; set; }
+    public partial IReadOnlyList<Point> SmoothPoints { get; set; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
@@ -81,18 +81,17 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         try
         {
-            if (Items.Count <= 0) return;
+            if (Items.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    "AOD Delay",
+                    [..Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
+                    Constants.Category10.GetColor(0));
 
-            var points = Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
-
-            ScatterPlotControl.GetOrAddScatterLine(
-                "AOD Delay",
-                points,
-                Constants.Category10.GetColor(0));
-            ScatterPlotControl.GetOrAddScatterLine(
-                "Smooth",
-                SmoothPoints,
-                Constants.Category10.GetColor(0));
+            if (SmoothPoints.Count > 0)
+                ScatterPlotControl.GetOrAddScatterLine(
+                    "Smooth",
+                    SmoothPoints,
+                    Constants.Category10.GetColor(0));
 
             if (MaxItemAODDelay is not null) ScatterPlotControl.GetOrAddXLine("Max", MaxItemAODDelay.Value, Colors.Red);
         }

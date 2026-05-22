@@ -30,7 +30,7 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
     public int CalibrationDisplayStepIndex => CalibrationStepIndex + 1;
 
-    public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationSteps.Count - 1
+    public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
         ? CalibrationSteps[CalibrationStepIndex].StepName
         : string.Empty;
 

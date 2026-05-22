@@ -238,13 +238,13 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Smooth Log Gain Window: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.SmoothLogGainMul128U12BitWindow}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Smooth Gain Window: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.SmoothGainS16BitWindow}" />
                                     <Expander Header="MMD Configurations"
