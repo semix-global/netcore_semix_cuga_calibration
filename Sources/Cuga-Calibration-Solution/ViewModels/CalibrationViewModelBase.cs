@@ -216,6 +216,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             CheckStatus();
             await Task.Run(async () =>
             {
+                var oldStepIsNextEnable = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable;
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
                 ViewEnum = CalibrationItemViewEnum.Loading;
@@ -235,6 +236,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
                 if (isSuccess == false)
                 {
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = oldStepIsNextEnable; // 失败恢复会原始的值
                     UpdatePreviousNextStatus();
 
                     return;
