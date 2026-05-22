@@ -60,6 +60,13 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
         if (_cancellationTokenSource.IsCancellationRequested) ThrowHelper.ThrowOperationCanceledException();
     }
 
+    private void UpdateLoadingStatus()
+    {
+        UpdateDisableAll();
+        Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
+        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
+    }
+
     private void UpdateFailedStatus()
     {
         CalibrationStepIndex = int.MinValue;

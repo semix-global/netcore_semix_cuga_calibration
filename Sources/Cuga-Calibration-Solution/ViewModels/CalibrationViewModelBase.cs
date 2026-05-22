@@ -32,7 +32,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
 
             ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateLoadingStatus();
             RefreshToken();
             await Task.Run(async () =>
             {
@@ -61,7 +61,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         try
         {
             ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
@@ -95,7 +95,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         try
         {
             ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
@@ -165,7 +165,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         try
         {
             ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
@@ -209,7 +209,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         try
         {
             ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
