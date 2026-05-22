@@ -1,0 +1,230 @@
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.CIB.CIBAgingWindow"
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
+           xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+           xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
+           xmlns:cib="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
+           Width="1500"
+           Height="1000"
+           d:DataContext="{d:DesignInstance Type=viewModels:CIBAgingWindowViewModel}"
+           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
+           BorderBrush="{StaticResource PrimaryBrush}"
+           BorderThickness="2"
+           ResizeMode="NoResize"
+           ShowInTaskbar="False"
+           WindowStartupLocation="CenterScreen"
+           WindowStyle="None"
+           mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
+            <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
+                        VerticalAlignment="Center"
+                        Background="Transparent">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                        <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <TextBlock Text="{Binding Name}"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
+            </StackPanel>
+            <Button Command="{Binding CloseCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource ErrorGeometry}"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style BasedOn="{StaticResource ButtonIcon}" TargetType="Button">
+                        <Setter Property="Foreground" Value="White" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </hc:SimplePanel>
+        <Border Grid.Row="1"
+                Margin="1"
+                Padding="2"
+                Effect="{StaticResource EffectShadow1}"
+                Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="500" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource BorderRegion}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <GroupBox Header="Aging Params">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:NumericUpDown hc:TitleElement.Title="Coefficient Step: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Minimum="0.001"
+                                                          Maximum="1"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.CoefficientStep}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Find Coefficient Retry Times: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Minimum="1"
+                                                          Maximum="50"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.FindCoefficientRetryTimes}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Measure Power Threshold Ratio: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Minimum="0.001"
+                                                          Maximum="1"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.MeasurePowerThreshold}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Sample Count: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Minimum="1"
+                                                          Maximum="1000"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.SampleCount}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Aging Threshold: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Minimum="0.001"
+                                                          Maximum="1"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.AgingThreshold}" />
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Agings: "
+                                                       Width="160"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" />
+                                            <ListBox Grid.Column="1"
+                                                     Height="300"
+                                                     ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                                     ItemsSource="{Binding Cache.Agings}"
+                                                     SelectionMode="Extended">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                                    <wpf:ListBoxSelectedItemsBehavior Type="{x:Type viewModels:CIBAgingSelectItem}" BindableSelectedItems="{Binding Cache.SelectedAgings}" />
+                                                </i:Interaction.Behaviors>
+                                            </ListBox>
+                                        </Grid>
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </GroupBox>
+                            <GroupBox Header="Actions">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:UniformSpacingPanel Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding ActionCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                                            <Button Content="Cancel"
+                                                    Command="{Binding ActionCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </GroupBox>
+                        </hc:UniformSpacingPanel>
+                    </ScrollViewer>
+                </Border>
+                <GridSplitter Grid.Column="1" Width="5" />
+                <GroupBox Grid.Column="2" Header="Aging Data">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="2*" />
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="ListView"
+                                  ItemsSource="{Binding Result.Items}"
+                                  Style="{StaticResource ListView.Small}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn Header="CIB Information" DisplayMemberBinding="{Binding CIBInformation}" />
+                                    <GridViewColumn Header="Original Items" DisplayMemberBinding="{Binding Items.Count}" />
+                                    <GridViewColumn Header="SelectItems Items" DisplayMemberBinding="{Binding SelectItems.Count}" />
+                                    <GridViewColumn Header="IsOk" DisplayMemberBinding="{Binding IsOk}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Row="1" Height="5" />
+                        <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                            <TabControl ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                                <i:Interaction.Behaviors>
+                                    <wpf:SelectorAutoSelectFirstBehavior />
+                                </i:Interaction.Behaviors>
+                                <TabControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
+                                        <TextBlock Text="{Binding CIBInformation}" />
+                                    </DataTemplate>
+                                </TabControl.ItemTemplate>
+                                <TabControl.ContentTemplate>
+                                    <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
+                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </TabControl.ContentTemplate>
+                            </TabControl>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </Border>
+    </Grid>
+</hc:Window>

@@ -16,6 +16,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
 using Humanizer;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -952,6 +953,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
+            var agingData = CacheProvider.GetOrDefault<CIBAgingResult>();
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.CIBInformation))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -970,6 +972,22 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
+                if (selectedReviewItem.IsVerified)
+                {
+                    var existingItem = agingData.Items.FirstOrDefault(t => t.CIBInformation == selectedReviewItem.CIBInformation);
+                    if (existingItem is null)
+                    {
+                        agingData.Items =
+                        [
+                            .. agingData.Items, new CIBAgingItem
+                            {
+                                CIBInformation = selectedReviewItem.CIBInformation.Clone(),
+                                Items = [.. selectedReviewItem.Items.Select(t => t.Clone())]
+                            }
+                        ];
+                    }
+                }
+
                 var htmlBullet = new HtmlBullet(new
                 {
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
@@ -983,6 +1001,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
             }
+
+            CacheProvider.Set(agingData, CancellationToken.None);
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
