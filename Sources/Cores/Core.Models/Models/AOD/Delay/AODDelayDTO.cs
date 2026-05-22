@@ -10,8 +10,8 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
-using System.ComponentModel;
 using ScottPlot;
+using System.ComponentModel;
 
 namespace Core.Models.Models.AOD.Delay;
 
@@ -84,7 +84,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
             if (Items.Count > 0)
                 ScatterPlotControl.GetOrAddScatterLine(
                     "AOD Delay",
-                    [..Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
+                    [.. Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
                     Constants.Category10.GetColor(0));
 
             if (SmoothPoints.Count > 0)

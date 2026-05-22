@@ -27,7 +27,7 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <returns>设备编码</returns>
     SxExecuteRet<string> GetDeviceCode();
-    
+
     /// <summary>
     /// 读取设备CUGA版本
     /// </summary>

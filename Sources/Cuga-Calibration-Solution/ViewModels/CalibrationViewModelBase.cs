@@ -1,7 +1,5 @@
-using System.IO;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums;
-using Core.Utilities;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -11,6 +9,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels;
 
@@ -253,7 +252,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                     Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
                 }
 
-                End:
+            End:
                 Logger.LogInformation("{@Name}: Next!", Name);
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }

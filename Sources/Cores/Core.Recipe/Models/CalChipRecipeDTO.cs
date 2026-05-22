@@ -5,9 +5,9 @@ using Core.Recipe.Models.Wafer.ReticleMask;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using Net.Utilities.Models.Serializations;
 
 namespace Core.Recipe.Models;
 
