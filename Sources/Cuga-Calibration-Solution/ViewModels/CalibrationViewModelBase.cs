@@ -176,10 +176,21 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
 
-                if (await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                bool isSuccess;
+                try
+                {
+                    isSuccess = await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    if (isSuccess == false) Logger.LogHtmlCritical("Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    Logger.LogHtmlCritical(ex, "Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+
+                if (isSuccess == false)
                 {
                     UpdatePreviousNextStatus();
-                    Logger.LogWarning("{@Name}: Previous Failed", Name);
 
                     return;
                 }
@@ -210,10 +221,22 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 ViewEnum = CalibrationItemViewEnum.Loading;
                 await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
 
-                if (await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                bool isSuccess;
+                try
+                {
+                    isSuccess = await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    if (isSuccess == false) Logger.LogHtmlCritical("Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    Logger.LogHtmlCritical(ex, "Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+
+                if (isSuccess == false)
                 {
                     UpdatePreviousNextStatus();
-                    Logger.LogWarning("{@Name}: Next Failed", Name);
+
                     return;
                 }
 
@@ -318,7 +341,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlCritical(ex, "Calibrate Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
@@ -365,7 +388,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlCritical(ex, "Verify Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
