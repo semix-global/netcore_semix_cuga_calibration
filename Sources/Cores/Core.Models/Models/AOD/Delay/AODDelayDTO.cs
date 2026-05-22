@@ -12,6 +12,7 @@ using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 
 namespace Core.Models.Models.AOD.Delay;
 
@@ -81,19 +82,20 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         try
         {
-            if (Items.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
-                    "AOD Delay",
-                    [.. Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
-                    Constants.Category10.GetColor(0));
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + SmoothPoints.Count > 0 ? 1 : 0);
+            var xLines = ScatterPlotControl.GetOrAddXLines(MaxItemAODDelay is not null ? 1 : 0);
 
-            if (SmoothPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
-                    "Smooth",
-                    SmoothPoints,
-                    Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                "AOD Delay",
+                [.. Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
+                Constants.Category10.GetColor(0));
 
-            if (MaxItemAODDelay is not null) ScatterPlotControl.GetOrAddXLine("Max", MaxItemAODDelay.Value, Colors.Red);
+            scatterLines.ElementAtOrDefault(1)?.Update(
+                "Smooth",
+                SmoothPoints,
+                Constants.Category10.GetColor(0));
+
+            xLines.ElementAtOrDefault(0)?.Update("Max", Guard.IsNotNullAndReturn(MaxItemAODDelay), Colors.Red);
         }
         finally
         {

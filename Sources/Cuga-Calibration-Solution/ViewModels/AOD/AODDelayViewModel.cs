@@ -283,16 +283,16 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 await CatchAODDelayAsync(Generate.LinearRange(Cache.Item.StartRoughAODDelay, Cache.Item.StepRoughAODDelay, Cache.Item.StopRoughAODDelay));
-                CalibratingItem.SmoothPoints = CalibratingItem.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
-                CalibratingItem.MaxItemAODDelay = CalibratingItem.SmoothPoints.Maxima(t => t.Y).First().X;
+
+                Algorithm(CalibratingItem);
+                Guard.IsNotNull(CalibratingItem.MaxItemAODDelay);
 
                 await CatchAODDelayAsync(Generate.LinearRange(
                     CalibratingItem.MaxItemAODDelay.Value - Cache.Item.RangeRefinedAODDelay,
                     Cache.Item.StepRefinedAODDelay,
                     CalibratingItem.MaxItemAODDelay.Value + Cache.Item.RangeRefinedAODDelay));
-                CalibratingItem.SmoothPoints = CalibratingItem.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
-                CalibratingItem.MaxItemAODDelay = CalibratingItem.SmoothPoints.Maxima(t => t.Y).First().X;
 
+                Algorithm(CalibratingItem);
                 CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -367,6 +367,44 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task AlgorithmAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        await InvokeVerifyAsync(async () =>
+        {
+            Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.SmoothWindow
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            await Task.WhenAll(SelectedReviewItems.Select(aodDelay => Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(aodDelay);
+                aodDelay.IsVerified = false;
+                aodDelay.IsCalibrated = true;
+
+                Logger.LogHtmlInformation($"{aodDelay.ProductivityInformation}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    aodDelay.PrescanAODDelay,
+                    aodDelay.ChirpAODDelay,
+                    ScatterPlotControl = new HtmlContainer([.. aodDelay.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                }), HtmlLogUniqueId.LoggingHtml());
+            }, cancellationToken)));
+
+            var result = SelectedReviewItems.All(t => t.IsCalibrated);
+
+            DialogWindowProvider.ShowDialog($"Algorithm {(result ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
@@ -431,6 +469,12 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private static void Algorithm(AODDelayDTO aodDelay)
+    {
+        aodDelay.SmoothPoints = aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
+        aodDelay.MaxItemAODDelay = aodDelay.SmoothPoints.Maxima(t => t.Y).First().X;
     }
 
     private bool Save(IReadOnlyList<AODDelayDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
