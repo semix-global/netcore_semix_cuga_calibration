@@ -132,13 +132,15 @@ public partial class CalibrationViewModelBase : ViewModelBase
             {
                 CancelToken();
 
-                if (ViewEnum == CalibrationItemViewEnum.Calibration)
+                if (0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1)
+                {
                     Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml("Calibrate" +
                                                                             $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
                                                                             $"_{FileHelper.RemoveInvalidFileName(Name)}" +
                                                                             $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
                                                                             $"_Step1-Step{CalibrationStepIndex + 1}" +
                                                                             "_Cancel"));
+                }
 
                 if (await CancelingAsync().ConfigureAwait(false) == false)
                 {
@@ -213,7 +215,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             CheckStatus();
             await Task.Run(async () =>
             {
-                var oldStepIsNextEnable = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable;
+                var lastStepIsNextEnable = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable;
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
                 bool isSuccess;
@@ -230,7 +232,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
                 if (isSuccess == false)
                 {
-                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = oldStepIsNextEnable; // 失败恢复会原始的值
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = lastStepIsNextEnable; // 失败恢复会原始的值
                     UpdatePreviousNextStatus();
 
                     return;
@@ -255,10 +257,11 @@ public partial class CalibrationViewModelBase : ViewModelBase
                         goto End;
                     }
 
-                    CalibrationStepIndex = -1;
+                    CalibrationStepIndex = 0;
                 }
+                else
+                    CalibrationStepIndex++;
 
-                CalibrationStepIndex++;
                 UpdatePreviousNextStatus();
 
                 if (CalibrationStepIndex == 0)

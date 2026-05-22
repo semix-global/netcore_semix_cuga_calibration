@@ -14,21 +14,22 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 {
     public virtual IReadOnlyList<CalibrationItemStep> CalibrationSteps => [];
 
-    public double CalibrationProgress =>
-        ViewEnum switch
-        {
-            CalibrationItemViewEnum.Welcome => 0d,
-            CalibrationItemViewEnum.Review => 100d,
-            CalibrationItemViewEnum.Loading or CalibrationItemViewEnum.Calibration =>
-                0 <= CalibrationStepIndex && CalibrationStepIndex < CalibrationSteps.Count - 1
-                    ? CalibrationSteps[CalibrationStepIndex].StepIsNextEnable
-                        ? (CalibrationStepIndex + 1d) / CalibrationSteps.Count * 100d
-                        : (CalibrationStepIndex + 0d) / CalibrationSteps.Count * 100d
-                    : 0,
-            _ => 0d
-        };
+    public double CalibrationProgress => ViewEnum switch
+    {
+        CalibrationItemViewEnum.Welcome => 0d,
+        CalibrationItemViewEnum.Review => 100d,
+        CalibrationItemViewEnum.Loading or CalibrationItemViewEnum.Calibration =>
+            0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
+                ? CalibrationSteps[CalibrationStepIndex].StepIsNextEnable
+                    ? (CalibrationStepIndex + 1d) / CalibrationSteps.Count * 100d
+                    : (CalibrationStepIndex + 0d) / CalibrationSteps.Count * 100d
+                : 0,
+        _ => 0d
+    };
 
-    public int CalibrationDisplayStepIndex => CalibrationStepIndex + 1;
+    public int CalibrationDisplayStepIndex => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
+        ? CalibrationStepIndex + 1
+        : int.MinValue;
 
     public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
         ? CalibrationSteps[CalibrationStepIndex].StepName
@@ -69,8 +70,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
     private void UpdateFailedStatus()
     {
-        CalibrationStepIndex = int.MinValue;
-
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCancelEnable(true));
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
@@ -80,8 +79,6 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
     private void UpdateCancelStatus()
     {
-        CalibrationStepIndex = int.MinValue;
-
         UpdateDisableAll();
         Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
 
@@ -103,7 +100,7 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
     private void UpdateCalibrateStatus()
     {
-        CalibrationStepIndex = int.MinValue;
+        CalibrationStepIndex = 0;
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
@@ -113,13 +110,12 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
         ViewEnum = CalibrationItemViewEnum.Calibration;
 
-        if (CalibrationStepIndex < 0) CalibrationStepIndex = 0;
         UpdatePreviousNextStatus();
     }
 
     private void UpdateReviewStatus()
     {
-        CalibrationStepIndex = CalibrationSteps.Count - 1;
+        CalibrationStepIndex = int.MinValue;
 
         UpdateDisableAll();
         Messenger.Send(ToggleCalibrateEventFactory.UpdateIsCalibrateEnable(false));
@@ -140,6 +136,7 @@ public partial class CalibrationViewModelBase : IRecipient<PropertyChangedMessag
 
         UpdatePreviousStatus();
         UpdateNextStatus();
+        OnPropertyChanged(nameof(CalibrationProgress));
 
         ViewEnum = CalibrationItemViewEnum.Calibration;
     }
