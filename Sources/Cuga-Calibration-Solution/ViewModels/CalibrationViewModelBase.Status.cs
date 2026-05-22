@@ -67,6 +67,14 @@ public partial class CalibrationViewModelBase
         ViewEnum = CalibrationItemViewEnum.Loading;
     }
 
+    private void UpdateCancelLoadingStatus()
+    {
+        UpdateDisableAll();
+        Messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
+
+        ViewEnum = CalibrationItemViewEnum.Loading;
+    }
+
     private void UpdateFailedStatus()
     {
         UpdateDisableAll();

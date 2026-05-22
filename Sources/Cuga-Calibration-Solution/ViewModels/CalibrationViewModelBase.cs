@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -122,8 +121,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
-            ViewEnum = CalibrationItemViewEnum.Loading;
-            UpdateDisableAll();
+            UpdateCancelLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
