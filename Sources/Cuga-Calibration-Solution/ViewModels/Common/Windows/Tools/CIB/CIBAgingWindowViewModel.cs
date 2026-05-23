@@ -232,24 +232,24 @@ public sealed partial class CIBAgingWindowViewModel(
                             }
 
                             var diff = currentMeasurePower - targetMeasurePower;
-                            var measurePowerRate = Math.Abs(diff) / targetMeasurePower;
+                            var measurePowerRatio = Math.Abs(diff) / targetMeasurePower;
 
                             logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                             {
                                 times,
                                 diff,
-                                measurePowerRate,
+                                measurePowerRatio,
                                 currentCoefficient,
                                 currentMeasurePower,
                                 targetMeasurePower
                             }), htmlLogUniqueId.LoggingHtml());
 
-                            if (measurePowerRate <= Cache.MeasurePowerRatioThreshold)
+                            if (measurePowerRatio <= Cache.MeasurePowerRatioThreshold)
                             {
                                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
                                 {
                                     diff,
-                                    measurePowerRate,
+                                    measurePowerRatio,
                                     currentCoefficient,
                                     currentMeasurePower,
                                     targetMeasurePower
