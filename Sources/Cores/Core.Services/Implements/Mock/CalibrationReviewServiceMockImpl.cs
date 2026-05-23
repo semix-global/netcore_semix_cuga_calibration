@@ -7,7 +7,7 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Enums.Files;
 using Semix.CoreLib;
 using System.IO;
-using Size = Net.Utilities.Models.Geometries.Size;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Services.Implements.Mock;
 
