@@ -11,6 +11,7 @@ using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -23,7 +24,6 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Net.Utilities.Algorithms.Modules;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -476,7 +476,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
     private void Algorithm(AODDelayDTO aodDelay)
     {
-        aodDelay.SmoothPoints = Filter.MovMean([..aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue))], Cache.SmoothWindowSize);
+        aodDelay.SmoothPoints = Filter.MovMean([.. aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue))], Cache.SmoothWindowSize);
         aodDelay.MaxItemAODDelay = aodDelay.SmoothPoints.Maxima(t => t.Y).First().X;
     }
 

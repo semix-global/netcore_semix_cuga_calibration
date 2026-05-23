@@ -1333,12 +1333,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     private (List<Point> pointZ1, List<Point> pointSmoothZ1, List<double> smoothZ1, List<Point> pointZ2, List<Point> pointSmoothZ2, List<double> smoothZ2) GetadsYGainsValueTwo(List<double> PonitZ1, List<double> PonitZ2, int pointCount, int pointEnd)
     {
-        var sgolayfiltListZ = Filter.MovMean([..PonitZ1], 501);
+        var sgolayfiltListZ = Filter.MovMean([.. PonitZ1], 501);
         var x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Length).Select(t => (double)t));
         List<double> smoothZ1 = [.. sgolayfiltListZ];
         smoothZ1 = smoothZ1.Take(pointEnd).ToList();
 
-        sgolayfiltListZ = Filter.MovMean([..PonitZ2], 501);
+        sgolayfiltListZ = Filter.MovMean([.. PonitZ2], 501);
         x = MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Length).Select(t => (double)t));
         List<double> smoothZ2 = [.. sgolayfiltListZ];
         smoothZ2 = smoothZ2.Take(pointEnd).ToList();
@@ -1412,7 +1412,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
     private (List<Point> pointZ, List<Point> pointSmoothZ, List<double> smoothZ) GetadsYGainsValue(List<double> PonitZ, int pointCount, int pointEnd)
     {
-        var sgolayfiltListZ = Filter.MovMean([..PonitZ], 501);
+        var sgolayfiltListZ = Filter.MovMean([.. PonitZ], 501);
 
         MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(1, sgolayfiltListZ.Length).Select(x => (double)x));
 
