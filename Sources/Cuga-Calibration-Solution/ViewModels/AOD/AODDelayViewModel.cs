@@ -485,7 +485,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             return;
         }
 
-        var (_, results) = Extremumor.FindMinima(aodDelay.SmoothPoints);
+        var (_, results) = Extremumor.FindMaxima(aodDelay.SmoothPoints);
         aodDelay.MaxItemAODDelay = results.Maxima(t => t.Y).First().X;
     }
 
