@@ -82,7 +82,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         try
         {
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + SmoothPoints.Count > 0 ? 1 : 0);
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
             var xLines = ScatterPlotControl.GetOrAddXLines(MaxItemAODDelay is not null ? 1 : 0);
 
             scatterLines.ElementAtOrDefault(0)?.Update(
