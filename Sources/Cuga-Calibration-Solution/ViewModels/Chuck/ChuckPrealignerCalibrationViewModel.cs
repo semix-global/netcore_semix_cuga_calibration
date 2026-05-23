@@ -506,9 +506,9 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             if (CalibrateDTO.Items.Count >= 3)
             {
                 // 去除背景
-                List<double> offsetXMovMeans = [.. MovMeanFilter.Smooth(3, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(CalibrateDTO.Items.Select(t => t.OffsetPosition.X)))];
-                List<double> offsetYMovMeans = [.. MovMeanFilter.Smooth(3, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(CalibrateDTO.Items.Select(t => t.OffsetPosition.Y)))];
-                List<double> angleMovMeans = [.. MovMeanFilter.Smooth(3, MathNet.Numerics.LinearAlgebra.Vector<double>.Build.DenseOfEnumerable(CalibrateDTO.Items.Select(t => t.EfemLoadWaferChuckAbsoluteAngle)))];
+                List<double> offsetXMovMeans = [.. Filter.MovMean([..CalibrateDTO.Items.Select(t => t.OffsetPosition.X)], 3)];
+                List<double> offsetYMovMeans = [.. Filter.MovMean([..CalibrateDTO.Items.Select(t => t.OffsetPosition.Y)], 3)];
+                List<double> angleMovMeans = [.. Filter.MovMean([..CalibrateDTO.Items.Select(t => t.EfemLoadWaferChuckAbsoluteAngle)], 3)];
 
                 var offsetPositionAverage = new Point(offsetXMovMeans.Average(), offsetYMovMeans.Average());
                 var offsetAngleAverage = angleMovMeans.Average();

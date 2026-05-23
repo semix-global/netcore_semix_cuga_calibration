@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.Algorithms.Modules;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -473,9 +474,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    private static void Algorithm(AODDelayDTO aodDelay)
+    private void Algorithm(AODDelayDTO aodDelay)
     {
-        aodDelay.SmoothPoints = aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue)).ToArray();
+        aodDelay.SmoothPoints = Filter.MovMean([..aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue))], Cache.SmoothWindowSize);
         aodDelay.MaxItemAODDelay = aodDelay.SmoothPoints.Maxima(t => t.Y).First().X;
     }
 
