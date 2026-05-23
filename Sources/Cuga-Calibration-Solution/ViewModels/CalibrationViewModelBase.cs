@@ -37,7 +37,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
-                    Logger.LogWarning("{@Name}: Loaded Failed", Name);
+                    Logger.LogError("{@Name}: Loadeding Failed", Name);
 
                     return;
                 }
@@ -48,7 +48,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Loaded Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Loaded Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -65,7 +65,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateWelcomeStatus();
-                    Logger.LogWarning("{@Name}: Calibrate Failed", Name);
+                    Logger.LogError("{@Name}: Calibrating Failed", Name);
 
                     return;
                 }
@@ -81,7 +81,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Calibrate Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Calibrate Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -111,7 +111,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Review Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Review Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -140,7 +140,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 if (await CancelingAsync().ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
-                    Logger.LogError("{@Name}: Cancel Failed", Name);
+                    Logger.LogError("{@Name}: Canceling Failed", Name);
 
                     return;
                 }
@@ -151,7 +151,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Cancel Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Cancel Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -171,12 +171,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 try
                 {
                     isSuccess = await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    if (isSuccess == false) Logger.LogHtmlCritical("Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess == false) Logger.LogHtmlError("Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
                 catch (Exception ex)
                 {
                     isSuccess = false;
-                    Logger.LogHtmlCritical(ex, "Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlError(ex, "Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 if (isSuccess == false)
@@ -194,8 +194,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Previous Exception", Name);
-            UpdateFailedStatus();
+            if (ex is OperationCanceledException)
+            {
+                DialogWindowProvider.ShowDialog($"Calibrate {Name} Canceled!");
+
+                return;
+            }
+
+            Logger.LogHtmlCritical(ex, "Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         }
     }
 
@@ -215,12 +221,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 try
                 {
                     isSuccess = await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
-                    if (isSuccess == false) Logger.LogHtmlCritical("Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess == false) Logger.LogHtmlError("Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
                 catch (Exception ex)
                 {
                     isSuccess = false;
-                    Logger.LogHtmlCritical(ex, "Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlError(ex, "Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 if (isSuccess == false)
@@ -271,8 +277,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Next Exception", Name);
-            UpdateFailedStatus();
+            if (ex is OperationCanceledException)
+            {
+                DialogWindowProvider.ShowDialog($"Calibrate {Name} Canceled!");
+
+                return;
+            }
+
+            Logger.LogHtmlCritical(ex, "Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         }
     }
 
@@ -333,7 +345,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Calibrate Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlError(ex, "Calibrate Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
@@ -380,7 +392,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Verify Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlError(ex, "Verify Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
@@ -407,7 +419,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Save Exception", Name);
+                Logger.LogCritical(ex, "{@Name}: Save Exception", Name);
 
                 DialogWindowProvider.TryShowDialog("Save Failed!", out var dialogResultEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
                 if (dialogResultEnum == DialogResultEnum.Retry) continue;
