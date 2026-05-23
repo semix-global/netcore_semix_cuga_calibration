@@ -24,13 +24,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -719,6 +717,28 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
+            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
+            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
+            if (Calibratings.Select(t => t.CIBInformation).All(t => cibAgingResult.Items.Select(tt => tt.CIBInformation).Contains(t)) == false)
+            {
+                cibAgingCache.Id = 0;
+                cibAgingCache.CIBMMDCache = Cache.Clone();
+
+                cibAgingResult.Id = 0;
+                cibAgingResult.Items =
+                [
+                    .. Calibratings
+                        .Select(t => new CIBAgingItem
+                        {
+                            CIBInformation = t.CIBInformation.Clone(),
+                            Items = [.. t.Items.Select(tt => tt.Clone())]
+                        })
+                ];
+
+                CacheProvider.Set(cibAgingResult, cancellationToken);
+                CacheProvider.Set(cibAgingResult, cancellationToken);
+            }
+
             await Task.WhenAll(Calibratings.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -956,7 +976,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             var errorMessageStringBuilder = new StringBuilder();
 
-            var agingData = CacheProvider.GetOrDefault<CIBAgingResult>();
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.CIBInformation))
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -975,22 +994,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
 
-                if (selectedReviewItem.IsVerified)
-                {
-                    var existingItem = agingData.Items.FirstOrDefault(t => t.CIBInformation == selectedReviewItem.CIBInformation);
-                    if (existingItem is null)
-                    {
-                        agingData.Items =
-                        [
-                            .. agingData.Items, new CIBAgingItem
-                            {
-                                CIBInformation = selectedReviewItem.CIBInformation.Clone(),
-                                Items = [.. selectedReviewItem.Items.Select(t => t.Clone())]
-                            }
-                        ];
-                    }
-                }
-
                 var htmlBullet = new HtmlBullet(new
                 {
                     SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
@@ -1005,7 +1008,27 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 }
             }
 
-            CacheProvider.Set(agingData, CancellationToken.None);
+            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
+            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
+            if (Reviews.Select(t => t.CIBInformation).All(t => cibAgingResult.Items.Select(tt => tt.CIBInformation).Contains(t)) == false)
+            {
+                cibAgingCache.Id = 0;
+                cibAgingCache.CIBMMDCache = Cache.Clone();
+
+                cibAgingResult.Id = 0;
+                cibAgingResult.Items =
+                [
+                    .. Reviews
+                        .Select(t => new CIBAgingItem
+                        {
+                            CIBInformation = t.CIBInformation.Clone(),
+                            Items = [.. t.Items.Select(tt => tt.Clone())]
+                        })
+                ];
+
+                CacheProvider.Set(cibAgingResult, cancellationToken);
+                CacheProvider.Set(cibAgingResult, cancellationToken);
+            }
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
 
@@ -1241,11 +1264,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.GainS16BitPoints = gainS16BitPoints;
             item.SmoothGainS16BitPoints = [.. gainS16BitPoints.Index().Select(t => new Point(t.Item.X, gainS16BitFilter[t.Index]))];
 
-            htmlList.Add(new HtmlBullet(new
-            {
-                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-            }));
-
             isSuccess = true;
         }
         catch (Exception ex)
@@ -1254,12 +1272,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlQuote(new
             {
-                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 Exception = ex
             }));
         }
         finally
         {
+            htmlList.Add(new HtmlBullet(new
+            {
+                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+            }));
+
             item.IsCalibrated = isSuccess;
             item.IsVerified = false;
 

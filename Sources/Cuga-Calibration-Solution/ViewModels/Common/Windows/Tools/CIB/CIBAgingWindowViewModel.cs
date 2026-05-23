@@ -21,6 +21,8 @@ using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -58,6 +60,9 @@ public sealed partial class CIBAgingWindowViewModel(
     [ObservableProperty]
     public partial CIBAgingResult Result { get; set; } = new();
 
+    [ObservableProperty]
+    public partial IReadOnlyList<CIBAgingItem> SelectedResultItems { get; set; } = [];
+
     [RelayCommand]
     private async Task LoadedAsync()
     {
@@ -72,15 +77,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 return;
             }
 
-            Cache.CIBMMDCache = applicationCookieService.GetCache<CIBMMDCache>();
-            Cache.Agings =
-            [
-                ..Result.Items[0].Items
-                    .Where(t => Cache.CIBMMDCache.NotUseODFilterMeasurePowerPoints
-                        .Select(tt => tt.X)
-                        .Contains(t.Coefficient))
-                    .Select(t => new CIBAgingSelectItem(t.Coefficient, t.MeasurePower))
-            ];
+            Cache.Agings = [..Cache.CIBMMDCache.NotUseODFilterMeasurePowerPoints.Select(t => new CIBAgingSelectItem(t.X, t.Y))];
         }).ConfigureAwait(false);
     }
 
@@ -187,6 +184,20 @@ public sealed partial class CIBAgingWindowViewModel(
                 ];
             }
 
+            Cache.CoefficientFindItems =
+            [
+                .. Cache.SelectedAgings.Select(t => new CIBAgingCoefficientFindItem
+                {
+                    SelectItem = t,
+                    FindMeasurePowerPoints = [],
+                    TargetMeasurePower = t.MeasurePower,
+                    UpperMeasurePower = t.MeasurePower * (1 + Cache.MeasurePowerRatioThreshold),
+                    LowerMeasurePower = t.MeasurePower * (1 - Cache.MeasurePowerRatioThreshold),
+                    AnswerMeasurePowerPoint = null,
+                    AnswerMeasurePowerRatio = null
+                })
+            ];
+
             try
             {
                 foreach (var (coefficientIndex, cibAgingSelectItem) in Cache.SelectedAgings.Index())
@@ -204,7 +215,7 @@ public sealed partial class CIBAgingWindowViewModel(
                     double currentMeasurePower;
                     var targetMeasurePower = cibAgingSelectItem.MeasurePower;
                     var step = Cache.CoefficientStep;
-
+                    var isSuccess = false;
                     try
                     {
                         currentCoefficient = cibAgingSelectItem.Coefficient;
@@ -231,8 +242,10 @@ public sealed partial class CIBAgingWindowViewModel(
                                 laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
                             }
 
+                            Cache.CoefficientFindItems[coefficientIndex].FindMeasurePowerPoints = [.. ((IReadOnlyList<Point>)[.. Cache.CoefficientFindItems[coefficientIndex].FindMeasurePowerPoints, new Point(currentCoefficient, currentMeasurePower)]).OrderBy(t => t.X)];
+
                             var diff = currentMeasurePower - targetMeasurePower;
-                            var measurePowerRatio = Math.Abs(diff) / targetMeasurePower;
+                            var measurePowerRatio = diff / targetMeasurePower;
 
                             logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
                             {
@@ -244,8 +257,13 @@ public sealed partial class CIBAgingWindowViewModel(
                                 targetMeasurePower
                             }), htmlLogUniqueId.LoggingHtml());
 
-                            if (measurePowerRatio <= Cache.MeasurePowerRatioThreshold)
+                            if (Math.Abs(measurePowerRatio) <= Cache.MeasurePowerRatioThreshold)
                             {
+                                isSuccess = true;
+
+                                Cache.CoefficientFindItems[coefficientIndex].AnswerMeasurePowerPoint = new Point(currentCoefficient, currentMeasurePower);
+                                Cache.CoefficientFindItems[coefficientIndex].AnswerMeasurePowerRatio = measurePowerRatio;
+
                                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
                                 {
                                     diff,
@@ -273,12 +291,7 @@ public sealed partial class CIBAgingWindowViewModel(
                                 if (currentCoefficient > 1) ThrowHelper.ThrowInvalidOperationException();
                             }
 
-                            if (++times > Cache.FindCoefficientRetryTimes - 1)
-                            {
-                                ThrowHelper.ThrowInvalidOperationException($"Failed to find suitable coefficient for target power {targetMeasurePower:0.###} within {Cache.FindCoefficientRetryTimes} attempts");
-
-                                break;
-                            }
+                            if (++times > Cache.FindCoefficientRetryTimes - 1) ThrowHelper.ThrowInvalidOperationException($"Failed to find suitable coefficient for target power {targetMeasurePower:0.###} within {Cache.FindCoefficientRetryTimes} attempts");
 
                             prevDiff = diff;
                         }
@@ -286,12 +299,21 @@ public sealed partial class CIBAgingWindowViewModel(
                     catch (Exception ex)
                     {
                         logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
+
                         continue;
+                    }
+                    finally
+                    {
+                        var htmlContainer = new HtmlContainer([.. Cache.CoefficientFindItems[coefficientIndex].ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]);
+                        if (isSuccess)
+                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                        else
+                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlContainer, htmlLogUniqueId.LoggingHtml());
                     }
 
                     #endregion
 
-                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
                     foreach (var cibAgingItem in Result.Items)
                     {
@@ -303,6 +325,8 @@ public sealed partial class CIBAgingWindowViewModel(
 
                     stageViewModel.SetAbsoluteStageTheta(0d);
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
+                    isSuccess = false;
                     try
                     {
                         cibViewModel.SetGain(allCibInformations, Cache.CIBMMDCache.StartGain);
@@ -313,7 +337,7 @@ public sealed partial class CIBAgingWindowViewModel(
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            logger.LogHtmlInformation($"{gain:0.###}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlInformation($"{gain:0.###}", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
 
                             var noProtectedCIBMMDDtos = (IReadOnlyList<CIBAgingItem>)[.. Result.Items.Where(t => t.NewItems[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.CIBMMDCache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
                             if (noProtectedCIBMMDDtos.All(t => double.IsNaN(t.NewItems[coefficientIndex].Items[gainIndex].PMTValue) == false)) continue;
@@ -336,7 +360,7 @@ public sealed partial class CIBAgingWindowViewModel(
                                 true,
                                 cancellationToken);
 
-                            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header6, htmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -380,10 +404,18 @@ public sealed partial class CIBAgingWindowViewModel(
                                 }
                             }, cancellationToken)));
                         }
+
+                        isSuccess = true;
                     }
                     finally
                     {
                         laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+
+                        var htmlContainer = new HtmlContainer([.. Result.Items.Select(t => new HtmlExpand(t.CIBInformation.ToString(), new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]);
+                        if (isSuccess)
+                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                        else
+                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlContainer, htmlLogUniqueId.LoggingHtml());
                     }
                 }
             }
@@ -395,8 +427,125 @@ public sealed partial class CIBAgingWindowViewModel(
                 stageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
 
+            logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+
+            foreach (var cibAgingItem in Result.Items)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(cibAgingItem, htmlLogUniqueId);
+            }
+
             return true;
         }, cancellationToken);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task<bool> AlgorithmAsync(CancellationToken cancellationToken)
+    {
+        return InvokeAsync("Algorithm", htmlLogUniqueId =>
+        {
+            try
+            {
+                if (SelectedResultItems.Count == 0)
+                {
+                    dialogWindowProvider.ShowDialog("Please select aging items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                    return Task.FromResult(false);
+                }
+
+                foreach (var cibAgingItem in SelectedResultItems)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Algorithm(cibAgingItem, htmlLogUniqueId);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch (Exception exception)
+            {
+                return Task.FromException<bool>(exception);
+            }
+        }, cancellationToken);
+    }
+
+    private void Algorithm(CIBAgingItem item, Guid htmlLogUniqueId)
+    {
+        var htmlList = new List<BaseHtmlElement>();
+
+        var htmlContainer = new HtmlContainer(htmlList);
+
+        item.SampleItems = [];
+        item.IsOk = false;
+
+        try
+        {
+            foreach (var (coefficientIndex, selectItem) in item.SelectItems.Index())
+            {
+                var cibAgingSampleItem = new CIBAgingSampleItem
+                {
+                    Coefficient = selectItem.Coefficient,
+                    MeasurePower = selectItem.MeasurePower,
+                    Items = [],
+                    IsOk = false
+                };
+
+                item.SampleItems = [.. item.SampleItems, cibAgingSampleItem];
+
+                var newItem = item.NewItems[coefficientIndex];
+
+                var validIndices = Generate.LinearRangeInt32(0, selectItem.Items.Count - 1)
+                    .Where(i => double.IsNaN(selectItem.Items[i].PMTValue) == false
+                                && double.IsNaN(newItem.Items[i].PMTValue) == false)
+                    .ToArray();
+                if (validIndices.Length == 0) continue;
+
+                foreach (var index in SampleEvenly(validIndices, Cache.SampleCount))
+                {
+                    var oldPMTValue = selectItem.Items[index].PMTValue;
+                    var newPMTValue = newItem.Items[index].PMTValue;
+                    var decayRate = oldPMTValue == 0 ? double.PositiveInfinity : (newPMTValue - oldPMTValue) / oldPMTValue;
+                    var isOk = Math.Abs(decayRate) <= Cache.AgingThreshold;
+
+                    cibAgingSampleItem.Items =
+                    [
+                        ..cibAgingSampleItem.Items, new CIBAgingSampleItem.Item
+                        {
+                            Index = index,
+                            OldPMTValue = oldPMTValue,
+                            NewPMTValue = newPMTValue,
+                            DecayRate = decayRate,
+                            IsOk = isOk
+                        }
+                    ];
+                }
+
+                cibAgingSampleItem.IsOk = cibAgingSampleItem.Items.All(t => t.IsOk);
+            }
+
+            item.IsOk = item.SampleItems.Count > 0 && item.SampleItems.All(t => t.IsOk);
+        }
+        catch (Exception ex)
+        {
+            htmlList.Add(new HtmlQuote(new
+            {
+                Exception = ex
+            }));
+        }
+        finally
+        {
+            htmlList.Add(new HtmlBullet(new
+            {
+                item.IsOk,
+                SampleItems = new HtmlTable([.. item.SampleItems.Select(t => t.ToHtmlAnonymous())])
+            }));
+
+            if (item.IsOk)
+                logger.LogHtmlInformation($"OK: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
+            else
+                logger.LogHtmlError($"Error: {item.CIBInformation.ToString()}", HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
+        }
     }
 
     [RelayCommand]
@@ -417,6 +566,24 @@ public sealed partial class CIBAgingWindowViewModel(
         }
 
         CloseView(null);
+    }
+
+    private static IReadOnlyList<T> SampleEvenly<T>(IReadOnlyList<T> items, int sampleCount)
+    {
+        if (items.Count <= sampleCount) return items;
+
+        var result = new List<T>();
+        var binSize = (double)items.Count / sampleCount;
+
+        for (var i = 0; i < sampleCount; i++)
+        {
+            var startIndex = (int)(i * binSize);
+            var endIndex = (int)((i + 1) * binSize);
+            var randomIndex = Random.Shared.Next(startIndex, Math.Min(endIndex, items.Count));
+            result.Add(items[randomIndex]);
+        }
+
+        return result;
     }
 
     private async Task<bool> InvokeAsync(string title, Func<Guid, Task<bool>> func, CancellationToken cancellationToken)

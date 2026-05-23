@@ -5,6 +5,7 @@ using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
@@ -38,6 +39,9 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
 
     [ObservableProperty]
     public partial bool IsOk { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CIBAgingSampleItem> SampleItems { get; set; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
     public IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
@@ -123,4 +127,62 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
         NewItems = [.. NewItems.Select(t => t.Clone())],
         IsOk = IsOk
     };
+}
+
+public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CIBAgingSampleItem>
+{
+    [ObservableProperty]
+    public partial double Coefficient { get; set; }
+
+    [ObservableProperty]
+    public partial double MeasurePower { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<Item> Items { get; set; } = [];
+
+    [ObservableProperty]
+    public partial bool IsOk { get; set; }
+
+    public CIBAgingSampleItem Clone() => new()
+    {
+        Coefficient = Coefficient,
+        MeasurePower = MeasurePower,
+        Items = [.. Items.Select(t => t.Clone())],
+        IsOk = IsOk
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        Coefficient,
+        MeasurePower,
+        IsOk,
+        Items = new HtmlTable([.. Items])
+    };
+
+    public sealed partial class Item : ObservableObject, ICloneable<Item>
+    {
+        [ObservableProperty]
+        public partial int Index { get; set; }
+
+        [ObservableProperty]
+        public partial double OldPMTValue { get; set; }
+
+        [ObservableProperty]
+        public partial double NewPMTValue { get; set; }
+
+        [ObservableProperty]
+        public partial double DecayRate { get; set; }
+
+        [ObservableProperty]
+        public partial bool IsOk { get; set; }
+
+        public Item Clone() => new()
+        {
+            Index = Index,
+            OldPMTValue = OldPMTValue,
+            NewPMTValue = NewPMTValue,
+            DecayRate = DecayRate,
+            IsOk = IsOk
+        };
+    }
 }

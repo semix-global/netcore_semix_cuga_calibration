@@ -298,6 +298,18 @@
                                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                     Style="{StaticResource ButtonWarning}" />
                                         </hc:UniformSpacingPanel>
+                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                VerticalAlignment="Top"
+                                                                Spacing="10">
+                                            <Button Content="Algorithm"
+                                                    Command="{Binding AlgorithmCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                                    Style="{StaticResource ButtonInfo.Loading}" />
+                                            <Button Content="Cancel"
+                                                    Command="{Binding AlgorithmCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
                                         <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
                                                       Content="Prescan AOD Waveform Profiles"
                                                       HorizontalAlignment="Left"
@@ -330,6 +342,38 @@
                                                 <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.CIBMMDCache.ChirpAODWaveformProfiles}" />
                                             </Border>
                                         </Popup>
+                                        <ToggleButton x:Name="ToggleButtonCoefficientFindPlots"
+                                                      Content="Coefficient Find Plots"
+                                                      HorizontalAlignment="Left"
+                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                        <Popup Width="800"
+                                               Height="800"
+                                               StaysOpen="False"
+                                               PlacementTarget="{Binding ElementName=ToggleButtonCoefficientFindPlots}"
+                                               Placement="Right"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Slide"
+                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonCoefficientFindPlots, Mode=TwoWay}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <TabControl ItemsSource="{Binding Cache.CoefficientFindItems}">
+                                                    <i:Interaction.Behaviors>
+                                                        <wpf:SelectorAutoSelectFirstBehavior />
+                                                    </i:Interaction.Behaviors>
+                                                    <TabControl.ItemTemplate>
+                                                        <DataTemplate DataType="{x:Type cib:CIBAgingCoefficientFindItem}">
+                                                            <TextBlock Text="{Binding SelectItem}" />
+                                                        </DataTemplate>
+                                                    </TabControl.ItemTemplate>
+                                                    <TabControl.ContentTemplate>
+                                                        <DataTemplate DataType="{x:Type cib:CIBAgingCoefficientFindItem}">
+                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </TabControl.ContentTemplate>
+                                                </TabControl>
+                                            </Border>
+                                        </Popup>
                                     </hc:UniformSpacingPanel>
                                 </Border>
                             </GroupBox>
@@ -344,11 +388,14 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="2*" />
                         </Grid.RowDefinitions>
-                        <ListView x:Name="ListView"
-                                  ItemsSource="{Binding Result.Items}"
+                        <ListView ItemsSource="{Binding Result.Items}"
                                   Style="{StaticResource ListView.Small}"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                <wpf:ListBoxSelectedItemsBehavior Type="{x:Type cib:CIBAgingItem}" BindableSelectedItems="{Binding SelectedResultItems}" />
+                            </i:Interaction.Behaviors>
                             <ListView.ItemContainerStyle>
                                 <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -383,7 +430,7 @@
                         </ListView>
                         <GridSplitter Grid.Row="1" Height="5" />
                         <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                            <TabControl ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                            <TabControl ItemsSource="{Binding SelectedResultItems}">
                                 <i:Interaction.Behaviors>
                                     <wpf:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -394,9 +441,79 @@
                                 </TabControl.ItemTemplate>
                                 <TabControl.ContentTemplate>
                                     <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
-                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
-                                        </Border>
+                                        <TabControl>
+                                            <i:Interaction.Behaviors>
+                                                <wpf:SelectorAutoSelectFirstBehavior />
+                                            </i:Interaction.Behaviors>
+                                            <TabItem Header="Plot">
+                                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                </Border>
+                                            </TabItem>
+                                            <TabItem Header="Sample Data">
+                                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                    <ListView ItemsSource="{Binding SampleItems}"
+                                                              Style="{StaticResource ListView.Small}"
+                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                        <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.View>
+                                                            <GridView>
+                                                                <GridView.ColumnHeaderContainerStyle>
+                                                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                    </Style>
+                                                                </GridView.ColumnHeaderContainerStyle>
+                                                                <GridViewColumn Header="Coefficient" DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:0.###}}" />
+                                                                <GridViewColumn Header="MeasurePower" DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
+                                                                <GridViewColumn Header="Items">
+                                                                    <GridViewColumn.CellTemplate>
+                                                                        <DataTemplate DataType="{x:Type viewModels:CIBAgingSampleItem}">
+                                                                            <DataGrid MaxHeight="200"
+                                                                                      ItemsSource="{Binding Items}"
+                                                                                      Style="{StaticResource DataGrid.Small}"
+                                                                                      AutoGenerateColumns="False"
+                                                                                      IsReadOnly="True">
+                                                                                <DataGrid.RowStyle>
+                                                                                    <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
+                                                                                        <Style.Triggers>
+                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                                                                                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                                                <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                                                            </DataTrigger>
+                                                                                        </Style.Triggers>
+                                                                                    </Style>
+                                                                                </DataGrid.RowStyle>
+                                                                                <DataGrid.Columns>
+                                                                                    <DataGridTextColumn Header="Index" Binding="{Binding Index}" />
+                                                                                    <DataGridTextColumn Header="Old PMT" Binding="{Binding OldPMTValue, StringFormat={}{0:0.###}}" />
+                                                                                    <DataGridTextColumn Header="New PMT" Binding="{Binding NewPMTValue, StringFormat={}{0:0.###}}" />
+                                                                                    <DataGridTextColumn Header="Decay Rate" Binding="{Binding DecayRate, StringFormat={}{0:0.###}}" />
+                                                                                </DataGrid.Columns>
+                                                                            </DataGrid>
+                                                                        </DataTemplate>
+                                                                    </GridViewColumn.CellTemplate>
+                                                                </GridViewColumn>
+                                                            </GridView>
+                                                        </ListView.View>
+                                                    </ListView>
+                                                </Border>
+                                            </TabItem>
+                                        </TabControl>
                                     </DataTemplate>
                                 </TabControl.ContentTemplate>
                             </TabControl>
