@@ -51,15 +51,15 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
     #region Calibrate
 
     [ObservableProperty]
-    private AutoFocusCalChipFocusOffsetDTO _calibratingItem = new();
+    public partial AutoFocusCalChipFocusOffsetDTO CalibratingItem { get; set; } = new();
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private AutoFocusCalChipFocusOffsetDTO _review = new();
+    public partial AutoFocusCalChipFocusOffsetDTO Review { get; set; } = new();
 
     [ObservableProperty]
-    private AutoFocusCalChipFocusOffsetDTO? _selectReview;
+    public partial AutoFocusCalChipFocusOffsetDTO? SelectReview { get; set; }
 
     #endregion 界面相关
 
@@ -67,17 +67,17 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     [RecipeCache]
     [ObservableProperty]
-    private AutoFocusCalChipFocusOffsetCache _cache = new();
+    public partial AutoFocusCalChipFocusOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AutoFocusCalChipFocusOffsetDTO _calibration = new();
+    public partial AutoFocusCalChipFocusOffsetDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private DarkAutoFocusDTO _darkAutoFocus = new();
+    public partial DarkAutoFocusDTO DarkAutoFocus { get; set; } = new();
 
     #endregion 缓存
 

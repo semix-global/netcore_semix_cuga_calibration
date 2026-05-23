@@ -11,71 +11,71 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     /// 算法匹配类型
     /// </summary>
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
+    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
 
     /// <summary>
     /// 晶圆类型
     /// </summary>
     [ObservableProperty]
-    private AlgorithmWaferTypeEnum _algorithmWaferTypeEnum = AlgorithmWaferTypeEnum.D300;
+    public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
 
     /// <summary>
     /// 对准低倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMag = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMag { get; set; } = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 对准低倍率模板尺寸
     /// </summary>
     [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _lowSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+    public partial AlgorithmTemplateSizeEnum LowSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 
     /// <summary>
     /// 对准高倍率
     /// </summary>
     [ObservableProperty]
-    private MicroscopeLensInformation _highMag = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMag { get; set; } = MicroscopeLensInformation.Default;
 
     /// <summary>
     /// 对准高倍率模板尺寸
     /// </summary>
     [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _highSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+    public partial AlgorithmTemplateSizeEnum HighSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 
     /// <summary>
     /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
     /// </summary>
     [ObservableProperty]
-    private AlignmentSiteDto _lowSite1 = new();
+    public partial AlignmentSiteDto LowSite1 { get; set; } = new();
 
     /// <summary>
     /// 低倍率mark点2位置(mark点1的相邻掩模版芯粒左上角)[没有模板, 用低倍率mark点1模板匹配]
     /// </summary>
     [ObservableProperty]
-    private AlignmentSiteDto _lowSite2 = new();
+    public partial AlignmentSiteDto LowSite2 { get; set; } = new();
 
     /// <summary>
     /// 高倍率mark点1位置(低倍率mark点1的精细位置)
     /// </summary>
     [ObservableProperty]
-    private AlignmentSiteDto _highSite1 = new();
+    public partial AlignmentSiteDto HighSite1 { get; set; } = new();
 
     /// <summary>
     /// 高倍率mark点2位置(低倍率mark点2的精细位置)[没有模板, 用高倍率mark点1模板匹配]
     /// </summary>
     [ObservableProperty]
-    private AlignmentSiteDto _highSite2 = new();
+    public partial AlignmentSiteDto HighSite2 { get; set; } = new();
 
     /// <summary>
     /// 对准结果
     /// </summary>
     [ObservableProperty]
-    private AlignmentResultDto _result = new();
+    public partial AlignmentResultDto Result { get; set; } = new();
 
     [ObservableProperty]
-    private bool _isVerified;
+    public partial bool IsVerified { get; set; }
 
     [ObservableProperty]
-    private bool _isOk;
+    public partial bool IsOk { get; set; }
 }

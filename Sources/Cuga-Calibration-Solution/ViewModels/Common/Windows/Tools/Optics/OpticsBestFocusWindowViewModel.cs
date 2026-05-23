@@ -30,17 +30,14 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
-    public override OpticsBestFocusCache Cache
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = new();
+    [ObservableProperty]
+    public override partial OpticsBestFocusCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsBestFocusResult> _results = [];
+    public new partial IReadOnlyList<OpticsBestFocusResult> Results { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -189,7 +186,16 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
             var task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(GetPMTImagesByXZSyncCommand.ExecuteAsync(true));
 
-            return await task.ConfigureAwait(false);
+            try
+            {
+                if (await task.ConfigureAwait(false) == false) return false;
+            }
+            finally
+            {
+                LogDetails();
+            }
+
+            return true;
         }, isSilent).ConfigureAwait(false);
     }
 
@@ -263,8 +269,57 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 boolList.Add(InvokeDarkFieldImageDTO(new DarkFieldImageDTO().AdaptIn(darkFieldRawScanImage)));
             }
 
-            return Task.FromResult(boolList.All(t => t));
+            try
+            {
+                if (boolList.All(t => t) == false) return Task.FromResult(false);
+            }
+            finally
+            {
+                LogDetails();
+            }
+
+            return Task.FromResult(true);
         }, false).ConfigureAwait(false);
+    }
+
+    private void LogDetails()
+    {
+        var dictionary = new Dictionary<(string ContainerTitle, string PlotTitle), IReadOnlyList<Point>>();
+        foreach (var (channelId, bestFocuses) in Results
+                     .GroupBy(t => t.DarkFieldImage.CIBInformation.ChannelId)
+                     .OrderBy(t => t.Key)
+                     .Select(t => (t.Key, t.OrderBy(tt => tt.DarkFieldImage.CIBInformation).ToArray())))
+        {
+            dictionary[($"{nameof(BestFocus.BestXStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio")] =
+            [
+                ..bestFocuses
+                    .Where(t => t.BestFocus.IsAlgorithmOk)
+                    .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioPoint.Y))
+            ];
+            dictionary[($"{nameof(BestFocus.BestXStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio ECS")] =
+            [
+                ..bestFocuses
+                    .Where(t => t.BestFocus.IsAlgorithmOk)
+                    .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioECS))
+            ];
+            dictionary[($"{nameof(BestFocus.BestYStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio")] =
+            [
+                ..bestFocuses
+                    .Where(t => t.BestFocus.IsAlgorithmOk)
+                    .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestYStrehlRatioPoint.Y))
+            ];
+            dictionary[($"{nameof(BestFocus.BestYStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio ECS")] =
+            [
+                ..bestFocuses
+                    .Where(t => t.BestFocus.IsAlgorithmOk)
+                    .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestYStrehlRatioECS))
+            ];
+        }
+
+        Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        {
+            Result = new HtmlContainer([.. dictionary.Select(t => new HtmlExpand(t.Key.ContainerTitle, new HtmlPlot2DLinesChart([(string.Empty, t.Value)], t.Key.PlotTitle)))])
+        }), HtmlLogUniqueId.LoggingHtml());
     }
 
     private async Task<bool> InvokeAsync(

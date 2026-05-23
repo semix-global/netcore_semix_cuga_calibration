@@ -275,8 +275,6 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                 RecipeCookie.CalChipRecipeDTO.AdaptIn(calchipRecipeDTO);
 
                 Close();
-
-                _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true)); // 刷新界面
             }
             catch (Exception ex)
             {

@@ -13,19 +13,19 @@ public partial class OperatingSystemInfo : ObservableObject
     /// 操作系统
     /// </summary>
     [ObservableProperty]
-    public string _operatingSystem = String.Empty;
+    public partial string OperatingSystem { get; set; } = string.Empty;
 
     /// <summary>
     /// 操作系统版本
     /// </summary>
     [ObservableProperty]
-    public string _operatingSystemVersion = String.Empty;
+    public partial string OperatingSystemVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// 物理内存
     /// </summary>
     [ObservableProperty]
-    private string _totalPhysicalMemory = String.Empty;
+    public partial string TotalPhysicalMemory { get; set; } = string.Empty;
 
     /// <summary>
     /// 处理器个数

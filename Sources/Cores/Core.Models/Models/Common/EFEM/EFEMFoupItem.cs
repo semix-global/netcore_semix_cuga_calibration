@@ -13,23 +13,23 @@ public sealed partial class EFEMFoupItem : ObservableObject
     /// 站点
     /// </summary>
     [ObservableProperty]
-    private EFEMStationEnum _stationEnum;
+    public partial EFEMStationEnum StationEnum { get; set; }
 
     /// <summary>
     /// 层数 1 - 25
     /// </summary>
     [ObservableProperty]
-    private int _slotId;
+    public partial int SlotId { get; set; }
 
     /// <summary>
     /// 是否有料
     /// </summary>
     [ObservableProperty]
-    private bool _isHasWafer;
+    public partial bool IsHasWafer { get; set; }
 
     /// <summary>
     /// 是否上料
     /// </summary>
     [ObservableProperty]
-    private bool _isLoadWafer;
+    public partial bool IsLoadWafer { get; set; }
 }

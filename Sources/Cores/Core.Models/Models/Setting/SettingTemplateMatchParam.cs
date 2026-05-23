@@ -12,13 +12,13 @@ public sealed partial class SettingTemplateMatchParam : ObservableObject, IAdapt
     /// Sharpe匹配得分阈值
     /// </summary>
     [ObservableProperty]
-    private double _sharpeTypeTemplateMatchScoreThreshold = 0.5;
+    public partial double SharpeTypeTemplateMatchScoreThreshold { get; set; } = 0.5;
 
     /// <summary>
     /// Ncc匹配得分阈值
     /// </summary>
     [ObservableProperty]
-    private double _nccTypeTemplateMatchScoreThreshold = 0.8;
+    public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
 
     #region Mapper
 

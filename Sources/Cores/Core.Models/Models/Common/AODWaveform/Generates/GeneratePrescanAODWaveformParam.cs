@@ -11,7 +11,7 @@ public sealed partial class GeneratePrescanAODWaveformParam :
     ICloneable<GeneratePrescanAODWaveformParam>
 {
     [ObservableProperty]
-    private double _flatnessTime = 4300;
+    public partial double FlatnessTime { get; set; } = 4300;
 
     public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
     {

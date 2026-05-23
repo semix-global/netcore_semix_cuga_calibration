@@ -48,18 +48,18 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private OpticsSCDTO _calibratingItem = new();
+    public partial OpticsSCDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<OpticsIlluminationModeStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsSCDTO> _reviews = [];
+    public partial IReadOnlyList<OpticsSCDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsSCDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<OpticsSCDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -67,17 +67,17 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private OpticsSCCache _cache = new();
+    public partial OpticsSCCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private OpticsSCDTO[] _calibrations = [];
+    public partial OpticsSCDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

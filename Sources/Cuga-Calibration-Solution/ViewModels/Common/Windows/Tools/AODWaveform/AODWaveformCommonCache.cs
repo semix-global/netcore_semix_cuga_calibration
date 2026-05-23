@@ -13,33 +13,33 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     where TResult : AODWaveformCommonResult, new()
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private double _defaultAmplitude = 1;
+    public partial double DefaultAmplitude { get; set; } = 1;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _flatnessGeneratePrescanAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    public partial GeneratePrescanAODWaveformParam FlatnessGeneratePrescanAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _flatnessGenerateChirpAODWaveformParam = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
+    public partial GenerateChirpAODWaveformParam FlatnessGenerateChirpAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _scanGeneratePrescanAODWaveformParam = new();
+    public partial GeneratePrescanAODWaveformParam ScanGeneratePrescanAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _scanGenerateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam ScanGenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private Point _measureMaxPowerMachinePosition = Point.Origin;
+    public partial Point MeasureMaxPowerMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private double _waitTime = 5;
+    public partial double WaitTime { get; set; } = 5;
 
     #region Result
 
     [ObservableProperty]
-    private IReadOnlyList<TResult> _results = [];
+    public partial IReadOnlyList<TResult> Results { get; set; } = [];
 
     #endregion Result
 

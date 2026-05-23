@@ -1,5 +1,5 @@
-using Core.Models.Models.Ads.PressureGains;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Ads;
 
@@ -9,9 +9,10 @@ public sealed partial class AdsXGainsCalibrationViewModel
     {
         if (ApplicationCookie.SysUser.IsAdmin) return true;
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
+        var adsPressureGainsViewModel = HostApplication.GetRequiredService<AdsPressureGainsCalibrationViewModel>();
+        if (adsPressureGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsPressureGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

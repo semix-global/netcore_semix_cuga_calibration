@@ -37,7 +37,6 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     private readonly CalibrationSetting _calibrationSetting;
     private readonly ApplicationCookie _applicationCookie;
     private readonly ICalibrationCacheProvider _calibrationCacheProvider;
-    private readonly ICalibrationStatusService _calibrationStatusService;
     private readonly IApplicationCookieService _applicationCookieService;
     private CancellationTokenSource? _cancellationTokenSource;
 
@@ -133,14 +132,12 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
         ICalibrationCacheProvider calibrationCacheProvider,
-        ICalibrationStatusService calibrationStatusService,
         IApplicationCookieService applicationCookieService)
     {
         _dialogWindowProvider = dialogWindowProvider;
         _cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
         _calibrationCacheProvider = calibrationCacheProvider;
-        _calibrationStatusService = calibrationStatusService;
         _applicationCookieService = applicationCookieService;
         _logger = logger;
         _contextProvider = contextProvider;

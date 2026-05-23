@@ -14,21 +14,21 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 public sealed partial class AlignmentParamWindowDarkFieldViewModel(ApplicationCookie applicationCookie) : ViewModelBase
 {
     [ObservableProperty]
-    private AlignmentCacheDarkField _cache = new();
+    public partial AlignmentCacheDarkField Cache { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationList = [];
+    public partial ObservableCollection<MicroscopeLensInformation> MicroscopeLensInformationList { get; set; } = [];
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
     [ObservableProperty]
-    private bool _isToolsEnable = true;
+    public partial bool IsToolsEnable { get; set; } = true;
 
     [RelayCommand]
     private void Close()

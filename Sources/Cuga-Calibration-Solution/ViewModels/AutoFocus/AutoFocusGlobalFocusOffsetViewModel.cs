@@ -41,18 +41,18 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
     #region Calibrate
 
     [ObservableProperty]
-    private AutoFocusGlobalFocusOffsetDTO _calibratingItem = new();
+    public partial AutoFocusGlobalFocusOffsetDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> _reviews = [];
+    public partial IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AutoFocusGlobalFocusOffsetDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -60,14 +60,14 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    private AutoFocusGlobalFocusOffsetCache _cache = new();
+    public partial AutoFocusGlobalFocusOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AutoFocusGlobalFocusOffsetDTO[] _calibrations = [];
+    public partial AutoFocusGlobalFocusOffsetDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

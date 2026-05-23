@@ -25,16 +25,16 @@ public sealed partial class SettingWindowViewModel(
 {
     [DefaultCache]
     [ObservableProperty]
-    private CalibrationSetting _calibrationSetting = calibrationSetting;
+    public partial CalibrationSetting CalibrationSetting { get; set; } = calibrationSetting;
 
     [ObservableProperty]
-    private ApplicationCookie _applicationCookie = applicationCookie;
+    public partial ApplicationCookie ApplicationCookie { get; set; } = applicationCookie;
 
     [ObservableProperty]
-    private SettingCalibrateItemsStatusViewModel _settingCalibrateItemsStatusViewModel = HostApplication.GetRequiredService<SettingCalibrateItemsStatusViewModel>();
+    public partial SettingCalibrateItemsStatusViewModel SettingCalibrateItemsStatusViewModel { get; set; } = HostApplication.GetRequiredService<SettingCalibrateItemsStatusViewModel>();
 
     [ObservableProperty]
-    private SettingRequiredCalibrationViewModel _settingRequiredCalibrationViewModel = HostApplication.GetRequiredService<SettingRequiredCalibrationViewModel>();
+    public partial SettingRequiredCalibrationViewModel SettingRequiredCalibrationViewModel { get; set; } = HostApplication.GetRequiredService<SettingRequiredCalibrationViewModel>();
 
     [RelayCommand]
     private void Restore()

@@ -37,6 +37,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<string> GetDeviceCUGAVersion()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<string> GetCalibrationFilePath()
     {
         throw new NotImplementedException();

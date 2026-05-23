@@ -7,34 +7,34 @@ namespace Core.Models.Models.Common.StageMap;
 public sealed partial class StageMapItemDto : ObservableObject, ICloneable<StageMapItemDto>
 {
     [ObservableProperty]
-    private int _row;
+    public partial int Row { get; set; }
 
     [ObservableProperty]
-    private int _column;
+    public partial int Column { get; set; }
 
     [ObservableProperty]
-    private Point _point;
+    public partial Point Point { get; set; }
 
     [ObservableProperty]
-    private bool _isInWafer;
+    public partial bool IsInWafer { get; set; }
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _filePath = string.Empty;
+    public partial string FilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _templateScore;
+    public partial double TemplateScore { get; set; }
 
     [ObservableProperty]
-    private double _templateAngle;
+    public partial double TemplateAngle { get; set; }
 
     [ObservableProperty]
-    private bool _isMatchOk;
+    public partial bool IsMatchOk { get; set; }
 
     public void Reset()
     {

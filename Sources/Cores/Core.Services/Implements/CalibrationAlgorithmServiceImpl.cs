@@ -33,8 +33,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
 {
     private readonly Algorithm _algorithm = new();
 
-    public string Version => Algorithm.Version;
-
     public double GetQuality(BitmapImage image)
     {
         // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
@@ -181,6 +179,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
         bestFocus.BestYStrehlRatioECS = startECS + bestFocus.BestYStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+        bestFocus.IsAlgorithmOk = true;
 
         return bestFocus;
     }

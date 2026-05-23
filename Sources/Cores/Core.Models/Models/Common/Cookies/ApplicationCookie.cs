@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Pattern;
+using Cuga.Data.DataStruct.Stage;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
 
@@ -11,6 +12,7 @@ namespace Core.Models.Models.Common.Cookies;
 public sealed partial class ApplicationCookie : ObservableObject
 {
     public static readonly Dictionary<Type, CalibrationViewModelEntry> CalibrationViewModelEntries = new();
+    public static readonly string ApplicationCUGAVersion = (typeof(CgPoint).Assembly.GetName().Version ?? new System.Version()).ToString();
 
     /// <summary>
     /// 设备编码
@@ -18,6 +20,13 @@ public sealed partial class ApplicationCookie : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
     public partial string DeviceCode { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 设备CUGA版本
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
+    public partial string DeviceCUGAVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// 程序名称
@@ -36,7 +45,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// 标题
     /// </summary>
-    public string Title => $"{DeviceCode} - {ApplicationName} [{SysUser.NickName}]";
+    public string Title => $"{DeviceCode} V{DeviceCUGAVersion} - {ApplicationName} [{SysUser.NickName}]";
 
     /// <summary>
     /// 当前权限菜单集合

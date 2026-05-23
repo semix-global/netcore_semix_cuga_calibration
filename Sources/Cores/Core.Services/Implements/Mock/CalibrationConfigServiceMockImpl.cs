@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Config;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
@@ -44,6 +45,13 @@ public sealed class CalibrationConfigServiceMockImpl(
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess("Demo");
+    }
+
+    public SxExecuteRet<string> GetDeviceCUGAVersion()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(ApplicationCookie.ApplicationCUGAVersion);
     }
 
     public SxExecuteRet<string> GetCalibrationFilePath()

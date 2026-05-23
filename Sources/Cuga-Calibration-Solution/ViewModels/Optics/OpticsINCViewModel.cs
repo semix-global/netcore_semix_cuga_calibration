@@ -51,18 +51,18 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private OpticsINCDTO _calibratingItem = new();
+    public partial OpticsINCDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsINCDTO> _reviews = [];
+    public partial IReadOnlyList<OpticsINCDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsINCDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<OpticsINCDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -70,14 +70,14 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private OpticsINCCache _cache = new();
+    public partial OpticsINCCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private OpticsINCDTO[] _calibrations = [];
+    public partial OpticsINCDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

@@ -52,21 +52,21 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTO> _calibratings = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTO> Calibratings { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTO> _selectedCalibratingItems = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTO> SelectedCalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTO> _reviews = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBIlluminationProfileDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBIlluminationProfileDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -74,14 +74,14 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBIlluminationProfileCache _cache = new();
+    public partial CIBIlluminationProfileCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBIlluminationProfileDTO[] _calibrations = [];
+    public partial CIBIlluminationProfileDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

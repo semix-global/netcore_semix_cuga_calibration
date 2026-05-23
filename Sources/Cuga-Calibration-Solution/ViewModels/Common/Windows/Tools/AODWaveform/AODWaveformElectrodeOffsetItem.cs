@@ -7,16 +7,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
 {
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    private double _frequency;
+    public partial double Frequency { get; set; }
 
     [ObservableProperty]
-    private double _amplitude;
+    public partial double Amplitude { get; set; }
 
     [ObservableProperty]
-    private double _offsetFrequencyPeriodCoefficient;
+    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
 
     public override object ToHtmlAnonymous() => new
     {

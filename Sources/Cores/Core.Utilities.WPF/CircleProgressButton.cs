@@ -92,5 +92,7 @@ public class CircleProgressButton : Button
             _progressEllipse.Visibility = Visibility.Visible;
             _checkMarkImage.Visibility = Visibility.Collapsed;
         }
+
+        ToolTip = $"Percentage of Completion: {Progress:0.###}%";
     }
 }

@@ -5,5 +5,5 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class PrescanAODWaveformElectrodeInitializeCache : AODWaveformElectrodeInitializeCache<PrescanAODWaveformElectrodeInitializeItem, PrescanAODWaveformElectrodeInitializeResult>
 {
     [ObservableProperty]
-    private double _chirpFrequency;
+    public partial double ChirpFrequency { get; set; }
 }

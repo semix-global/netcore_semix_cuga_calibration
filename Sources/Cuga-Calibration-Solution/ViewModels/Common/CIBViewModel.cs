@@ -657,8 +657,7 @@ public sealed class CIBViewModel(
         var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
         var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId);
 
-        var cartesianCIBLineCentricityOffset = Vector.Zero;
-
+        Vector cartesianCIBLineCentricityOffset;
         if (centerCIBLineCentricity is not null && currentCIBLineCentricity is not null)
         {
             var offset = currentCIBLineCentricity.DFMachineCenterPosition - centerCIBLineCentricity.DFMachineCenterPosition;
@@ -666,6 +665,12 @@ public sealed class CIBViewModel(
                                                - (isLineCentricityOffset
                                                    ? new Vector(0, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * calibrationSetting.SettingCommonParam.PMTInterval)
                                                    : Vector.Zero);
+        }
+        else
+        {
+            cartesianCIBLineCentricityOffset = isLineCentricityOffset
+                ? Vector.Zero
+                : new Vector(0, (cibInformation.PMTId - calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) * calibrationSetting.SettingCommonParam.PMTInterval);
         }
 
         var cartesianOffset = cartesianCIBLineCentricityOffset

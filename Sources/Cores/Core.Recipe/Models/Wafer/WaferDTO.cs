@@ -28,8 +28,6 @@ public sealed partial class WaferDTO : ObservableObject, ICloneable<WaferDTO>, I
 
     [ObservableProperty]
     [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
     private WaferMapCanvasDocument _waferMapCanvasDocument = new();
 
     public bool IsAlignmentResultLegal()

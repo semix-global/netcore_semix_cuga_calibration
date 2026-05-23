@@ -142,7 +142,6 @@ public sealed partial class RecipeSettingViewModel : ViewModelBase, IRecipient<V
 
         CloseView(null);
 
-        _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true));
         _messenger.Send(ToggleRecipeEventFactory.RefreshRecipeManagementView(true));
         _messenger.Send(ToggleRecipeEventFactory.UpdateIsRecipeAlignment(false));
     }

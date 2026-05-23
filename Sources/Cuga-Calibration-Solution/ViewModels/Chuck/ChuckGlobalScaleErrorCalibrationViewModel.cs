@@ -48,20 +48,20 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
     #region Calibrate
 
     [ObservableProperty]
-    private ChuckGlobalScaleErrorDto? _resultGlobalScaleErrorDto = new();
+    public partial ChuckGlobalScaleErrorDto? ResultGlobalScaleErrorDto { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<ChuckGlobalScaleErrorDto> _globalScaleErrorDtoItemDtoList = [];
+    public partial ObservableCollection<ChuckGlobalScaleErrorDto> GlobalScaleErrorDtoItemDtoList { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ChuckGlobalScaleErrorDto? _selectGlobalScaleErrorDto = new();
+    public partial ChuckGlobalScaleErrorDto? SelectGlobalScaleErrorDto { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckGlobalScaleErrorDto _reviewDto = new();
+    public partial ChuckGlobalScaleErrorDto ReviewDto { get; set; } = new();
 
     #endregion Review
 
@@ -71,14 +71,14 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckGlobalScaleErrorCache _cache = new();
+    public partial ChuckGlobalScaleErrorCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckGlobalScaleErrorDto _calibration = new();
+    public partial ChuckGlobalScaleErrorDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

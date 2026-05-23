@@ -8,8 +8,8 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class OpticsIlluminationModeStatus : ObservableObject, IStatus<OpticsIlluminationModeEnum>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _selectedItem = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
+    public partial OpticsIlluminationModeEnum SelectedItem { get; set; } = CalibrationConstantsHelper.MainOpticsIlluminationModeEnum;
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial bool IsCalibrated { get; set; }
 }

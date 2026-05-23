@@ -6,16 +6,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodParam : ObservableObject
 {
     [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    private double _startOffsetFrequencyPeriodCoefficient;
+    public partial double StartOffsetFrequencyPeriodCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepOffsetFrequencyPeriodCoefficient;
+    public partial double StepOffsetFrequencyPeriodCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _stopOffsetFrequencyPeriodCoefficient;
+    public partial double StopOffsetFrequencyPeriodCoefficient { get; set; }
 
     public object ToHtmlAnonymous() => new
     {

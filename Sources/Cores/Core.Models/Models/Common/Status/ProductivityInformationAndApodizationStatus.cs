@@ -9,10 +9,10 @@ namespace Core.Models.Models.Common.Status;
 public partial class ProductivityInformationAndApodizationStatus : ObservableObject, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
-    private ProductivityInformation _selectedItem = ProductivityInformation.Default;
+    public partial ProductivityInformation SelectedItem { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsApodizationModeStatus> _items = [];
+    public partial IReadOnlyList<OpticsApodizationModeStatus> Items { get; set; } = [];
 
     public bool IsCalibrated => Items.All(c => c.IsCalibrated);
 
@@ -37,8 +37,8 @@ public partial class ProductivityInformationAndApodizationStatus : ObservableObj
 public partial class OpticsApodizationModeStatus : ObservableObject, IStatus<OpticsApodizationModeEnum>
 {
     [ObservableProperty]
-    private OpticsApodizationModeEnum _selectedItem;
+    public partial OpticsApodizationModeEnum SelectedItem { get; set; }
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial bool IsCalibrated { get; set; }
 }

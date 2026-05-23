@@ -6,16 +6,16 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityParam : ObservableObject
 {
     [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    private double _startAmplitude = 1;
+    public partial double StartAmplitude { get; set; } = 1;
 
     [ObservableProperty]
-    private double _stepAmplitude = 1;
+    public partial double StepAmplitude { get; set; } = 1;
 
     [ObservableProperty]
-    private double _stopAmplitude = 1;
+    public partial double StopAmplitude { get; set; } = 1;
 
     public object ToHtmlAnonymous() => new
     {
