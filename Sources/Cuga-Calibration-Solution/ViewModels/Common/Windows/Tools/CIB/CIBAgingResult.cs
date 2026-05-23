@@ -93,7 +93,7 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
                     where itemItems.Length > 0
                     select new
                     {
-                        LegendText = $"{item.Coefficient:0.###}",
+                        LegendText = $"{item.Coefficient:0.###} - Aging",
                         Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
                     }
                 ).ToArray();

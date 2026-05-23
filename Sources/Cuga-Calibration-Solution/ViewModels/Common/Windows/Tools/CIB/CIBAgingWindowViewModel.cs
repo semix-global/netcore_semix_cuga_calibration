@@ -76,7 +76,7 @@ public sealed partial class CIBAgingWindowViewModel(
             Cache.Agings =
             [
                 ..Result.Items[0].Items
-                    .Where(t => Cache.CIBMMDCache.UseODFilterMeasurePowerPoints
+                    .Where(t => Cache.CIBMMDCache.NotUseODFilterMeasurePowerPoints
                         .Select(tt => tt.X)
                         .Contains(t.Coefficient))
                     .Select(t => new CIBAgingSelectItem(t.Coefficient, t.MeasurePower))
@@ -247,10 +247,14 @@ public sealed partial class CIBAgingWindowViewModel(
                         if (currentMeasurePower > cibAgingSelectItem.MeasurePower)
                         {
                             currentCoefficient -= Cache.CoefficientStep;
+                            
+                            if (currentCoefficient < 0) ThrowHelper.ThrowInvalidOperationException();
                         }
                         else
                         {
                             currentCoefficient += Cache.CoefficientStep;
+
+                            if (currentCoefficient > 1) ThrowHelper.ThrowInvalidOperationException();
                         }
 
                         if (++times > Cache.FindCoefficientRetryTimes - 1)
@@ -287,8 +291,8 @@ public sealed partial class CIBAgingWindowViewModel(
 
                             logger.LogHtmlInformation($"{gain:0.###}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
-                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBAgingItem>)[.. Result.Items.Where(t => t.Items[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.CIBMMDCache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
-                            if (noProtectedCIBMMDDtos.All(t => double.IsNaN(t.Items[coefficientIndex].Items[gainIndex].PMTValue) == false)) continue;
+                            var noProtectedCIBMMDDtos = (IReadOnlyList<CIBAgingItem>)[.. Result.Items.Where(t => t.NewItems[coefficientIndex].ProtectedOverflowProtectedPMTValueCount < Cache.CIBMMDCache.ProtectedOverflowProtectedPMTValueCount /* 不超过保护次数 */)];
+                            if (noProtectedCIBMMDDtos.All(t => double.IsNaN(t.NewItems[coefficientIndex].Items[gainIndex].PMTValue) == false)) continue;
 
                             var cibInformations = (IReadOnlyList<CIBInformation>)[.. noProtectedCIBMMDDtos.Select(t => t.CIBInformation)];
                             cibViewModel.SetGain(allCibInformations, gain);
@@ -319,7 +323,7 @@ public sealed partial class CIBAgingWindowViewModel(
                                 var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
                                 var item = noProtectedCIBMMDDtos[index];
-                                var itemItem = item.Items[coefficientIndex];
+                                var itemItem = item.NewItems[coefficientIndex];
                                 var itemItemData = itemItem.Items[gainIndex];
                                 itemItemData.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
