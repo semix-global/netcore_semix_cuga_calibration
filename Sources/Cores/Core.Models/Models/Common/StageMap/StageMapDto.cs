@@ -16,40 +16,40 @@ namespace Core.Models.Models.Common.StageMap;
 public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapDto>, IAdaptTo<Wcf.Models.Chuck.StageMap>
 {
     [ObservableProperty]
-    private StageMapItemDto[][] _idealStageMapItemMatrix = [];
+    public partial StageMapItemDto[][] IdealStageMapItemMatrix { get; set; } = [];
 
     [ObservableProperty]
-    private Point[][] _realMatrix = [];
+    public partial Point[][] RealMatrix { get; set; } = [];
 
     [ObservableProperty]
-    private Point[][] _errorMatrix = [];
+    public partial Point[][] ErrorMatrix { get; set; } = [];
 
     [ObservableProperty]
-    private int _rowNumber;
+    public partial int RowNumber { get; set; }
 
     [ObservableProperty]
-    private int _columnNumber;
+    public partial int ColumnNumber { get; set; }
 
     [ObservableProperty]
-    private double _columnCellWidth;
+    public partial double ColumnCellWidth { get; set; }
 
     [ObservableProperty]
-    private double _rowCellHeight;
+    public partial double RowCellHeight { get; set; }
 
     [ObservableProperty]
-    private string _idealCsvFilePath = string.Empty;
+    public partial string IdealCsvFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _realCsvFilePath = string.Empty;
+    public partial string RealCsvFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _realIsInWaferOkCsvFilePath = string.Empty;
+    public partial string RealIsInWaferOkCsvFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _realIsMatchOkCsvFilePath = string.Empty;
+    public partial string RealIsMatchOkCsvFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _errorCsvFilePath = string.Empty;
+    public partial string ErrorCsvFilePath { get; set; } = string.Empty;
 
     public StageMapDto() : this(0, 0, 0, 0)
     {

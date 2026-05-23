@@ -18,22 +18,22 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
-    private OpticsAODElectrodeEnum _opticsAODElectrodeEnum;
+    public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    private double _offsetFrequency;
+    public partial double OffsetFrequency { get; set; }
 
     [ObservableProperty]
-    private double _offsetFrequencyPeriodCoefficient;
+    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _amplitude = 1d;
+    public partial double Amplitude { get; set; } = 1d;
 
     [ObservableProperty]
-    private bool _isGenerateAODWaveformZero;
+    public partial bool IsGenerateAODWaveformZero { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformUniformityConfiguration> _uniformityConfigurations = [];
+    public partial IReadOnlyList<GenerateAODWaveformUniformityConfiguration> UniformityConfigurations { get; set; } = [];
 
     partial void OnUniformityConfigurationsChanged(IReadOnlyList<GenerateAODWaveformUniformityConfiguration>? oldValue, IReadOnlyList<GenerateAODWaveformUniformityConfiguration> newValue)
     {

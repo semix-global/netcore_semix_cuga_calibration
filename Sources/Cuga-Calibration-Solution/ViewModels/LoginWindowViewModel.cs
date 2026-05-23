@@ -26,13 +26,13 @@ public partial class LoginWindowViewModel(
     IApplicationCookieService applicationCookieService) : ViewModelBase
 {
     [ObservableProperty]
-    private string _title = applicationName;
+    public partial string Title { get; set; } = applicationName;
 
     [ObservableProperty]
-    private IReadOnlyList<string> _userNames = [];
+    public partial IReadOnlyList<string> UserNames { get; set; } = [];
 
     [ObservableProperty]
-    private SysUserDTO _sysUserDTO = new();
+    public partial SysUserDTO SysUserDTO { get; set; } = new();
 
     [RelayCommand]
     private async Task LoadedAsync()
@@ -45,7 +45,7 @@ public partial class LoginWindowViewModel(
 
             UserNames = [.. users.OrderBy(t => t.Id).Select(t => t.UserName)];
 
-            if (users.Count > 0) SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = users[0].UserName, Password = "t5sne0yd" } : new SysUserDTO { UserName = users[0].UserName, Password = "666666" };
+            if (users.Count > 0) SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = users[0].UserName, Password = "YW6GUTNv" } : new SysUserDTO { UserName = users[0].UserName, Password = "666666" };
         }
         catch (Exception ex)
         {

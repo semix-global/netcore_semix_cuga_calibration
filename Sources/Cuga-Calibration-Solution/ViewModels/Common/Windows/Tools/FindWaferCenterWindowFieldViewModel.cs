@@ -1,10 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -12,35 +10,21 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(FindWaferCenterWindowFieldViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class FindWaferCenterWindowFieldViewModel : ViewModelBase
+public sealed partial class FindWaferCenterWindowFieldViewModel(
+    IDialogWindowProvider dialogWindowProvider,
+    FindWaferCenterByManuallyWindowViewModel findWaferCenterByManuallyWindowViewModel) : ViewModelBase
 {
-    private readonly ISynchronizationContextProvider _contextProvider;
-    private readonly ILogger<FindWaferCenterWindowFieldViewModel> _logger;
-    private readonly IDialogWindowProvider _dialogWindowProvider;
-    public FindWaferCenterByManuallyWindowViewModel FindWaferCenterByManuallyWindowViewModel { get; }
+    public FindWaferCenterByManuallyWindowViewModel FindWaferCenterByManuallyWindowViewModel { get; } = findWaferCenterByManuallyWindowViewModel;
 
     #region 界面
 
     [ObservableProperty]
-    private AlignmentFindCenterCache _alignmentFindCenterCache = new();
+    public partial AlignmentFindCenterCache AlignmentFindCenterCache { get; set; } = new();
 
     [ObservableProperty]
-    private bool isFindWaferCenterOffsetPositionEnabled = true;
+    public partial bool IsFindWaferCenterOffsetPositionEnabled { get; set; } = true;
 
     #endregion 界面
-
-    public FindWaferCenterWindowFieldViewModel(
-        IDialogWindowProvider dialogWindowProvider,
-        ILogger<FindWaferCenterWindowFieldViewModel> logger,
-        ISynchronizationContextProvider contextProvider,
-        FindWaferCenterByManuallyWindowViewModel findWaferCenterByManuallyWindowViewModel)
-    {
-        _dialogWindowProvider = dialogWindowProvider;
-        _logger = logger;
-        _contextProvider = contextProvider;
-
-        FindWaferCenterByManuallyWindowViewModel = findWaferCenterByManuallyWindowViewModel;
-    }
 
     [RelayCommand]
     private void Loaded()
@@ -57,7 +41,7 @@ public sealed partial class FindWaferCenterWindowFieldViewModel : ViewModelBase
         else
         {
             IsFindWaferCenterOffsetPositionEnabled = false;
-            _dialogWindowProvider.ShowDialog("Find Wafer Center failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            dialogWindowProvider.ShowDialog("Find Wafer Center failed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
 

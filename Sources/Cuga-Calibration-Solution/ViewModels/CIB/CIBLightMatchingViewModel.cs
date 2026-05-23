@@ -53,21 +53,21 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTO> _calibratings = [];
+    public partial IReadOnlyList<CIBLightMatchingDTO> Calibratings { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTO> _selectedCalibratingItems = [];
+    public partial IReadOnlyList<CIBLightMatchingDTO> SelectedCalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTO> _reviews = [];
+    public partial IReadOnlyList<CIBLightMatchingDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLightMatchingDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBLightMatchingDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -75,14 +75,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBLightMatchingCache _cache = new();
+    public partial CIBLightMatchingCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBLightMatchingDTO[] _calibrations = [];
+    public partial CIBLightMatchingDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

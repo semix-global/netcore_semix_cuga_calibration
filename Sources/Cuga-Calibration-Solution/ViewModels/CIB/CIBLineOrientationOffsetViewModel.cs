@@ -50,20 +50,20 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineOrientationOffsetDTO> _calibratingItems = [];
+    public partial IReadOnlyList<CIBLineOrientationOffsetDTO> CalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineOrientationOffsetDTO> _reviews = [];
+    public partial IReadOnlyList<CIBLineOrientationOffsetDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineOrientationOffsetDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBLineOrientationOffsetDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -73,17 +73,17 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBLineOrientationOffsetCache _cache = new();
+    public partial CIBLineOrientationOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBLineOrientationOffsetDTO[] _calibrations = [];
+    public partial CIBLineOrientationOffsetDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizes = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
-    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
+    public partial CreateDarkImageTemplateWindowViewModel CreateDarkImageTemplateWindowViewModel { get; set; } = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

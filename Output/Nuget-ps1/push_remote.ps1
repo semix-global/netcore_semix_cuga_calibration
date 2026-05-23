@@ -3,7 +3,11 @@ if (-not $currentDir) {
     $currentDir = Get-Location
 }
 
-$nupkgFiles = Get-ChildItem -Path $currentDir -Filter "*.nupkg" -File
+$parentDir = Split-Path -Parent $currentDir
+
+$filterDir = Join-Path -Path $parentDir -ChildPath "Nuget"
+
+$nupkgFiles = Get-ChildItem -Path $filterDir -Filter "*.nupkg" -File
 
 if ($nupkgFiles.Count -eq 0) {
     Write-Host "The .nupkg file was not found in the current directory" -ForegroundColor Red
@@ -16,9 +20,9 @@ $source = "http://192.168.60.201:8081/repository/semix-nuget/index.json"
 foreach ($file in $nupkgFiles) {
     try {
         Write-Host "Push Remote: $($file.Name) ..."
-        
+
         dotnet nuget push $file.FullName --api-key $apiKey --source $source --force-english-output --skip-duplicate
-        
+
         Write-Host "Push Remote OK: $($file.Name)"
     }
     catch {

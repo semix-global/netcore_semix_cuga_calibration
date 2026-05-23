@@ -20,7 +20,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
     ILogger<SettingRequiredCalibrationViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
-    private ObservableCollection<SettingRequiredCalibrationParam> _settingRequiredCalibrationParamList = [];
+    public partial ObservableCollection<SettingRequiredCalibrationParam> SettingRequiredCalibrationParamList { get; set; } = [];
 
     [RelayCommand]
     private async Task LoadedAsync()

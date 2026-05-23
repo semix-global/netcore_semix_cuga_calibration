@@ -14,7 +14,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
-using SourceGenerator.AssemblyMetadata;
 using System.IO;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
@@ -32,8 +31,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     private readonly string _shinyImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3ShinyTestImg.jpg");
 
     public bool IsUseMock { get; set; } = true;
-
-    public string Version => CoreServicesAssemblyMetadata.Version;
 
     public double GetQuality(BitmapImage image)
     {

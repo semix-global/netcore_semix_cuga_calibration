@@ -111,10 +111,6 @@
                 <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Calibration}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
             </valueConverters:ValueConverterGroup>
-            <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsAutoCalibrationToVisibilityConverter">
-                <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Auto}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
-                <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
-            </valueConverters:ValueConverterGroup>
             <valueConverters:ValueConverterGroup x:Key="CalibrationItemViewEnumIsReviewToVisibilityConverter">
                 <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Review}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />

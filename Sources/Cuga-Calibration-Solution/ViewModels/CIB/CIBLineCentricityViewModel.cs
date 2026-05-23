@@ -56,20 +56,20 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     #region Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineCentricityDTO> _calibratingItems = [];
+    public partial IReadOnlyList<CIBLineCentricityDTO> CalibratingItems { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineCentricityDTO> _reviews = [];
+    public partial IReadOnlyList<CIBLineCentricityDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<CIBLineCentricityDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<CIBLineCentricityDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -79,29 +79,29 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     [RecipeCache]
     [ObservableProperty]
-    private CIBLineCentricityCache _cache = new();
+    public partial CIBLineCentricityCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private CIBLineCentricityDTO[] _calibrations = [];
+    public partial CIBLineCentricityDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto _chuckCenter = new();
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
-    private CIBXPixelSizeDTO[] _cIBXPixelSizes = [];
+    public partial CIBXPixelSizeDTO[] CIBXPixelSizes { get; set; } = [];
 
     [ObservableProperty]
-    private CreateDarkImageTemplateWindowViewModel _createDarkImageTemplateWindowViewModel = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
+    public partial CreateDarkImageTemplateWindowViewModel CreateDarkImageTemplateWindowViewModel { get; set; } = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

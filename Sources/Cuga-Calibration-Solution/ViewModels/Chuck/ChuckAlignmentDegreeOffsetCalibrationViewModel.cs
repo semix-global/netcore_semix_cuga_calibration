@@ -39,23 +39,23 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
     #region 界面相关
 
     [ObservableProperty]
-    private ChuckAlignmentDegreeOffsetItemDto _calibratingItem = new();
+    public partial ChuckAlignmentDegreeOffsetItemDto CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<ChuckAlignmentDegreeOffsetItemDto> _reviews = [];
+    public partial ObservableCollection<ChuckAlignmentDegreeOffsetItemDto> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<ChuckAlignmentDegreeOffsetItemDto> _selectReviews = [];
+    public partial ObservableCollection<ChuckAlignmentDegreeOffsetItemDto> SelectReviews { get; set; } = [];
 
     #endregion Review
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     #endregion 界面相关
 
@@ -63,14 +63,14 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckAlignmentDegreeOffsetCache _cache = new();
+    public partial ChuckAlignmentDegreeOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckAlignmentDegreeOffsetItemDto[] _calibrations = [];
+    public partial ChuckAlignmentDegreeOffsetItemDto[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

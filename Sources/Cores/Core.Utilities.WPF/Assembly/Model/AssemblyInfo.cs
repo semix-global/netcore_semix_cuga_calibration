@@ -12,67 +12,67 @@ public partial class AssemblyInfo : ObservableObject, ICloneable<AssemblyInfo>
     /// 文件名
     /// </summary>
     [ObservableProperty]
-    private string _fileName = string.Empty;
+    public partial string FileName { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件完整路径
     /// </summary>
     [ObservableProperty]
-    private string _fullPath = string.Empty;
+    public partial string FullPath { get; set; } = string.Empty;
 
     /// <summary>
     /// 程序集版本
     /// </summary>
     [ObservableProperty]
-    private string _assemblyVersion = string.Empty;
+    public partial string AssemblyVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// 产品版本
     /// </summary>
     [ObservableProperty]
-    private string _productVersion = string.Empty;
+    public partial string ProductVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// 公司名称
     /// </summary>
     [ObservableProperty]
-    private string _company = string.Empty;
+    public partial string Company { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件描述
     /// </summary>
     [ObservableProperty]
-    private string _description = string.Empty;
+    public partial string Description { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件大小（字节）
     /// </summary>
     [ObservableProperty]
-    private long _sizeBytes;
+    public partial long SizeBytes { get; set; }
 
     /// <summary>
     /// 文件大小（KB）
     /// </summary>
     [ObservableProperty]
-    private double _sizeKB;
+    public partial double SizeKB { get; set; }
 
     /// <summary>
     /// 文件大小（MB）
     /// </summary>
     [ObservableProperty]
-    private double _sizeMB;
+    public partial double SizeMB { get; set; }
 
     /// <summary>
     /// 最后修改时间
     /// </summary>
     [ObservableProperty]
-    private string _lastModified = string.Empty;
+    public partial string LastModified { get; set; } = string.Empty;
 
     /// <summary>
     /// 最后修改时间（UTC）
     /// </summary>
     [ObservableProperty]
-    private string _lastModifiedUTC = string.Empty;
+    public partial string LastModifiedUTC { get; set; } = string.Empty;
 
     public AssemblyInfo Clone() => new()
     {

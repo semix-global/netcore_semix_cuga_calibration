@@ -6,16 +6,16 @@ namespace Core.Utilities.WPF.ApplicationAbout.Model;
 public partial class ApplicationInfo : ObservableObject
 {
     [ObservableProperty]
-    private VersionInfo _versionInfo = new();
+    public partial VersionInfo VersionInfo { get; set; } = new();
 
     [ObservableProperty]
-    private string _outPutPath = string.Empty;
+    public partial string OutPutPath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _frameworkVersion = string.Empty;
+    public partial string FrameworkVersion { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _runtimeVersion = string.Empty;
+    public partial string RuntimeVersion { get; set; } = string.Empty;
 
     /// <summary>
     /// Version of .NET currently used by application.

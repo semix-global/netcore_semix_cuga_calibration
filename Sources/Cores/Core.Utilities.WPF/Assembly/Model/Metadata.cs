@@ -12,79 +12,79 @@ public partial class Metadata : ObservableObject, ICloneable<Metadata>
     /// 生成时间
     /// </summary>
     [ObservableProperty]
-    private string _generatedAt = string.Empty;
+    public partial string GeneratedAt { get; set; } = string.Empty;
 
     /// <summary>
     /// 项目名称
     /// </summary>
     [ObservableProperty]
-    private string _projectName = string.Empty;
+    public partial string ProjectName { get; set; } = string.Empty;
 
     /// <summary>
     /// 配置模式
     /// </summary>
     [ObservableProperty]
-    private string _configuration = string.Empty;
+    public partial string Configuration { get; set; } = string.Empty;
 
     /// <summary>
     /// 目标框架
     /// </summary>
     [ObservableProperty]
-    private string _framework = string.Empty;
+    public partial string Framework { get; set; } = string.Empty;
 
     /// <summary>
     /// 目标运行时
     /// </summary>
     [ObservableProperty]
-    private string _runtime = string.Empty;
+    public partial string Runtime { get; set; } = string.Empty;
 
     /// <summary>
     /// 总文件数
     /// </summary>
     [ObservableProperty]
-    private int _totalFiles;
+    public partial int TotalFiles { get; set; }
 
     /// <summary>
     /// 程序集总数
     /// </summary>
     [ObservableProperty]
-    private int _assemblyCount;
+    public partial int AssemblyCount { get; set; }
 
     /// <summary>
     /// DLL文件数
     /// </summary>
     [ObservableProperty]
-    private int _dLLCount;
+    public partial int DLLCount { get; set; }
 
     /// <summary>
     /// 可执行文件数
     /// </summary>
     [ObservableProperty]
-    private int _executableCount;
+    public partial int ExecutableCount { get; set; }
 
     /// <summary>
     ///  App 版本
     /// </summary>
     [ObservableProperty]
-    private string _version = string.Empty;
+    public partial string Version { get; set; } = string.Empty;
 
     /// <summary>
     /// Assembly Metadata: NeutralResourcesLanguage
     /// </summary>
     [ObservableProperty]
-    private string _neutralResourcesLanguage = string.Empty;
+    public partial string NeutralResourcesLanguage { get; set; } = string.Empty;
 
     /// <summary>
     /// Assembly Metadata: InformationalVersion
     /// </summary>
     [ObservableProperty]
-    private string _informationalVersion = string.Empty;
+    public partial string InformationalVersion { get; set; } = string.Empty;
 
     /// <summary>
     ///  编译器符号
     /// </summary>
     [ObservableProperty]
-    private string _defineConstants = string.Empty;
+    public partial string DefineConstants { get; set; } = string.Empty;
 
     public Metadata Clone() => new()
     {

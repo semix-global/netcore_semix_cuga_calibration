@@ -7,8 +7,8 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class CIBInformationStatus : ObservableObject, IStatus<CIBInformation>
 {
     [ObservableProperty]
-    private CIBInformation _selectedItem = CIBInformation.Default;
+    public partial CIBInformation SelectedItem { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial bool IsCalibrated { get; set; }
 }

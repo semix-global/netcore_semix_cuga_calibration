@@ -1,6 +1,4 @@
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums;
-using Core.Utilities;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -32,16 +30,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
         {
             Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
 
+            UpdateLoadingStatus();
             RefreshToken();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
-                    Logger.LogWarning("{@Name}: Loaded Failed", Name);
+                    Logger.LogError("{@Name}: Loadeding Failed", Name);
 
                     return;
                 }
@@ -52,7 +48,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Loaded Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Loaded Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -62,16 +58,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await CalibratingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateWelcomeStatus();
-                    Logger.LogWarning("{@Name}: Calibrate Failed", Name);
+                    Logger.LogError("{@Name}: Calibrating Failed", Name);
 
                     return;
                 }
@@ -87,7 +81,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Calibrate Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Calibrate Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -97,12 +91,10 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
                 if (await ReviewingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateWelcomeStatus();
@@ -119,7 +111,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Review Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Review Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -129,35 +121,37 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
-            UpdateDisableAll();
+            UpdateCancelLoadingStatus();
+            CheckStatus();
             await Task.Run(async () =>
             {
                 CancelToken();
 
-                if (ViewEnum == CalibrationItemViewEnum.Calibration)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
+                if (0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1)
+                {
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml("Calibrate" +
+                                                                            $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
+                                                                            $"_{FileHelper.RemoveInvalidFileName(Name)}" +
                                                                             $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
                                                                             $"_Step1-Step{CalibrationStepIndex + 1}" +
-                                                                            $"_Failed"));
-
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500).ConfigureAwait(false);
+                                                                            "_Cancel"));
+                }
 
                 if (await CancelingAsync().ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();
-                    Logger.LogError("{@Name}: Cancel Failed", Name);
+                    Logger.LogError("{@Name}: Canceling Failed", Name);
 
                     return;
                 }
 
                 UpdateCancelStatus();
                 Logger.LogInformation("{@Name}: Cancel!", Name);
-            }).ConfigureAwait(false);
+            }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Cancel Exception", Name);
+            Logger.LogCritical(ex, "{@Name}: Cancel Exception", Name);
             UpdateFailedStatus();
         }
     }
@@ -167,18 +161,27 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
+                bool isSuccess;
+                try
+                {
+                    isSuccess = await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    if (isSuccess == false) Logger.LogHtmlError("Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    Logger.LogHtmlError(ex, "Previousing Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
 
-                if (await PreviousingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                if (isSuccess == false)
                 {
                     UpdatePreviousNextStatus();
-                    Logger.LogWarning("{@Name}: Previous Failed", Name);
 
                     return;
                 }
@@ -191,8 +194,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Previous Exception", Name);
-            UpdateFailedStatus();
+            if (ex is OperationCanceledException)
+            {
+                DialogWindowProvider.ShowDialog($"Calibrate {Name} Canceled!");
+
+                return;
+            }
+
+            Logger.LogHtmlCritical(ex, "Previous Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         }
     }
 
@@ -201,18 +210,30 @@ public partial class CalibrationViewModelBase : ViewModelBase
     {
         try
         {
+            UpdateLoadingStatus();
             CheckStatus();
             await Task.Run(async () =>
             {
+                var lastStepIsNextEnable = CalibrationSteps[CalibrationStepIndex].StepIsNextEnable;
                 CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = CalibrationSteps[CalibrationStepIndex].DefaultIsNextEnable; // 恢复默认值
 
-                ViewEnum = CalibrationItemViewEnum.Loading;
-                await Task.Delay(500, _cancellationTokenSource.Token).ConfigureAwait(false);
-
-                if (await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                bool isSuccess;
+                try
                 {
+                    isSuccess = await NextingAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
+                    if (isSuccess == false) Logger.LogHtmlError("Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+                catch (Exception ex)
+                {
+                    isSuccess = false;
+                    Logger.LogHtmlError(ex, "Nexting Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                }
+
+                if (isSuccess == false)
+                {
+                    CalibrationSteps[CalibrationStepIndex].StepIsNextEnable = lastStepIsNextEnable; // 失败恢复会原始的值
                     UpdatePreviousNextStatus();
-                    Logger.LogWarning("{@Name}: Next Failed", Name);
+
                     return;
                 }
 
@@ -228,17 +249,18 @@ public partial class CalibrationViewModelBase : ViewModelBase
                         goto End;
                     }
 
-                    if (DialogWindowProvider.TryShowDialog("Please complete all of calibration!", out var dialogResultEnum, DialogButtonsEnum.OKCancel, DialogIconEnum.Question) != true || dialogResultEnum != DialogResultEnum.OK)
+                    if (DialogWindowProvider.TryShowDialog("Do you want to continue with calibration?", out var dialogResultEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Question) != true || dialogResultEnum != DialogResultEnum.Yes)
                     {
                         UpdateWelcomeStatus();
 
                         goto End;
                     }
 
-                    CalibrationStepIndex = -1;
+                    CalibrationStepIndex = 0;
                 }
+                else
+                    CalibrationStepIndex++;
 
-                CalibrationStepIndex++;
                 UpdatePreviousNextStatus();
 
                 if (CalibrationStepIndex == 0)
@@ -255,8 +277,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "{@Name}: Next Exception", Name);
-            UpdateFailedStatus();
+            if (ex is OperationCanceledException)
+            {
+                DialogWindowProvider.ShowDialog($"Calibrate {Name} Canceled!");
+
+                return;
+            }
+
+            Logger.LogHtmlCritical(ex, "Next Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         }
     }
 
@@ -317,7 +345,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlError(ex, "Calibrate Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
@@ -326,7 +354,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             UpdatePreviousNextStatus();
             if (CalibrationStepIndex == CalibrationSteps.Count - 1 || result == false)
             {
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{nameof(CalibrationTypeEnum.HandleCalibration)}" +
+                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml("Calibrate" +
                                                                           $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
                                                                           $"_{FileHelper.RemoveInvalidFileName(Name)}" +
                                                                           $"_{FileHelper.RemoveInvalidFileName(CalibrateHtmlLogFileName)}" +
@@ -364,14 +392,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
                 return result;
             }
 
-            Logger.LogHtmlCritical(ex, "Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlError(ex, "Verify Critical", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             return result;
         }
         finally
         {
             UpdateReviewStatus();
-            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{nameof(CalibrationTypeEnum.HandleVerify)}" +
+            Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml("Verify" +
                                                                     $"_{FileHelper.RemoveInvalidFileName(ApplicationCookie.DeviceCode)}" +
                                                                     $"_{FileHelper.RemoveInvalidFileName(Name)}" +
                                                                     $"_{FileHelper.RemoveInvalidFileName(VerifyHtmlFileLogName)}" +
@@ -391,7 +419,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "{@Name}: Save Exception", Name);
+                Logger.LogCritical(ex, "{@Name}: Save Exception", Name);
 
                 DialogWindowProvider.TryShowDialog("Save Failed!", out var dialogResultEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
                 if (dialogResultEnum == DialogResultEnum.Retry) continue;

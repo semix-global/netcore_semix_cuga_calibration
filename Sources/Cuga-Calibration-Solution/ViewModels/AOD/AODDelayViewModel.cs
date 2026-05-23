@@ -11,6 +11,7 @@ using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -23,6 +24,7 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.Extensions.Hosting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;
@@ -49,18 +51,18 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODDelayDTO _calibratingItem = new();
+    public partial AODDelayDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODDelayDTO> _reviews = [];
+    public partial IReadOnlyList<AODDelayDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODDelayDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODDelayDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -68,14 +70,14 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private AODDelayCache _cache = new();
+    public partial AODDelayCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODDelayDTO[] _calibrations = [];
+    public partial AODDelayDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 
@@ -254,6 +256,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
+                Cache.SmoothWindowSize,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
@@ -271,7 +274,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
-            CalibratingItem.MaxItem = null;
+            CalibratingItem.MaxItemAODDelay = null;
             CalibratingItem.IsCalibrated = false;
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -283,23 +286,22 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                 await CatchAODDelayAsync(Generate.LinearRange(Cache.Item.StartRoughAODDelay, Cache.Item.StepRoughAODDelay, Cache.Item.StopRoughAODDelay));
-                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
+
+                Algorithm(CalibratingItem);
+                Guard.IsNotNull(CalibratingItem.MaxItemAODDelay);
 
                 await CatchAODDelayAsync(Generate.LinearRange(
-                    CalibratingItem.MaxItem.AODDelay - Cache.Item.RangeRefinedAODDelay,
+                    CalibratingItem.MaxItemAODDelay.Value - Cache.Item.RangeRefinedAODDelay,
                     Cache.Item.StepRefinedAODDelay,
-                    CalibratingItem.MaxItem.AODDelay + Cache.Item.RangeRefinedAODDelay));
-                Guard.IsNotNullAndReturn(CalibratingItem.MaxItem);
+                    CalibratingItem.MaxItemAODDelay.Value + Cache.Item.RangeRefinedAODDelay));
 
+                Algorithm(CalibratingItem);
                 CalibratingItem.IsCalibrated = true;
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     CalibratingItem.PrescanAODDelay,
                     CalibratingItem.ChirpAODDelay,
-                    CalibratingItem.MaxItem.PMTValue,
-                    CalibratingItem.MaxItem.RawImageFilePath,
-                    Image = new HtmlImage(CalibratingItem.MaxItem.ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -368,6 +370,44 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private async Task AlgorithmAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        await InvokeVerifyAsync(async () =>
+        {
+            Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.SmoothWindowSize
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            await Task.WhenAll(SelectedReviewItems.Select(aodDelay => Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(aodDelay);
+                aodDelay.IsVerified = false;
+                aodDelay.IsCalibrated = true;
+
+                Logger.LogHtmlInformation($"{aodDelay.ProductivityInformation}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    aodDelay.PrescanAODDelay,
+                    aodDelay.ChirpAODDelay,
+                    ScatterPlotControl = new HtmlContainer([.. aodDelay.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                }), HtmlLogUniqueId.LoggingHtml());
+            }, cancellationToken)));
+
+            var result = SelectedReviewItems.All(t => t.IsCalibrated);
+
+            DialogWindowProvider.ShowDialog($"Algorithm {(result ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         if (SelectedReviewItems.Count == 0)
@@ -398,7 +438,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Cache.ProductivityInformation
+                    Cache.ProductivityInformation,
+                    Cache.SmoothWindowSize
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
@@ -407,11 +448,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
                 {
                     selectedReviewItem.PrescanAODDelay,
                     selectedReviewItem.ChirpAODDelay,
-                    selectedReviewItem.MaxItem?.PMTValue,
-                    selectedReviewItem.MaxItem?.RawImageFilePath,
-                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
-                        ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
-                        : new HtmlImage(Guard.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -437,6 +473,20 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private void Algorithm(AODDelayDTO aodDelay)
+    {
+        aodDelay.SmoothPoints = Filter.MovMean([.. aodDelay.Items.Select(t => new Point(t.AODDelay, t.PMTValue))], Cache.SmoothWindowSize);
+
+        if (HostEnvironment.IsDevelopment())
+        {
+            aodDelay.MaxItemAODDelay = aodDelay.SmoothPoints.Maxima(t => t.Y).First().X;
+            return;
+        }
+
+        var (_, results) = Extremumor.FindMinima(aodDelay.SmoothPoints);
+        aodDelay.MaxItemAODDelay = results.Maxima(t => t.Y).First().X;
     }
 
     private bool Save(IReadOnlyList<AODDelayDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>

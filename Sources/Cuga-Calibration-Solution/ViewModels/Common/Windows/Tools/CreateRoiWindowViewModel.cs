@@ -18,13 +18,13 @@ public sealed partial class CreateRoiWindowViewModel(
     ILogger<CreateRoiWindowViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
-    private Rect _rect;
+    public partial Rect Rect { get; set; }
 
     [ObservableProperty]
-    private string _imageFilePath = string.Empty;
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _algorithmTemplateSizeEnum;
+    public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; }
 
     partial void OnAlgorithmTemplateSizeEnumChanged(AlgorithmTemplateSizeEnum value)
     {

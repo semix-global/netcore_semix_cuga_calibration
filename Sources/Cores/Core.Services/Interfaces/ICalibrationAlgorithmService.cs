@@ -9,11 +9,6 @@ namespace Core.Services.Interfaces;
 
 public interface ICalibrationAlgorithmService
 {
-    /// <summary>
-    /// 算法版本
-    /// </summary>
-    string Version { get; }
-
     #region 清晰度
 
     /// <summary>

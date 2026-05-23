@@ -17,13 +17,13 @@ public partial class GenerateAODWaveformCache<TParam, TProfile> : ObservableCach
     where TProfile : AbstractAODWaveformProfile
 {
     [ObservableProperty]
-    private TParam _param = new();
+    public partial TParam Param { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<TProfile> _profiles = [];
+    public partial IReadOnlyList<TProfile> Profiles { get; set; } = [];
 
     [ObservableProperty]
-    private string _aODWaveformResultFilePath = string.Empty;
+    public partial string AODWaveformResultFilePath { get; set; } = string.Empty;
 }
 
 public abstract partial class AbstractGenerateAODWaveformWindowViewModel<TCache, TParam, TProfile> : ViewModelBase

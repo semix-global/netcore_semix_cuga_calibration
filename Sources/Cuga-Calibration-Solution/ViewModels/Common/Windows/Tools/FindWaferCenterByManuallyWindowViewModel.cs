@@ -15,21 +15,17 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(FindWaferCenterByManuallyWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FindWaferCenterByManuallyWindowViewModel(
-    StageViewModel stageViewModel,
     ILogger<FindWaferCenterByManuallyWindowViewModel> logger,
     ISynchronizationContextProvider contextProvider) : CalibrationViewModelBase
 {
     [ObservableProperty]
-    private StageViewModel _stageViewModel = stageViewModel;
+    public partial AlignmentFindCenterCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentFindCenterCache _cache = new();
+    public partial AlignmentFindCenterCache? AlignmentFindCenterCache { get; set; }
 
     [ObservableProperty]
-    private AlignmentFindCenterCache? _alignmentFindCenterCache;
-
-    [ObservableProperty]
-    private bool _isEnable = true;
+    public partial bool IsEnable { get; set; } = true;
 
     [RelayCommand]
     public Task FindWaferCenterLoadedAsync()
@@ -71,7 +67,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
 
             var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin, waferEdgeOffsets);
             Cache.OffsetPosition = offsetPosition;
-            if (bitmapMemoryBytes is not null && bitmapMemoryBytes.Count > 0)
+            if (bitmapMemoryBytes.Count > 0)
             {
                 Cache.WaferCenterThumb1 = bitmapMemoryBytes[0];
                 Cache.WaferCenterThumb2 = bitmapMemoryBytes[1];

@@ -51,8 +51,8 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Status="{Binding CalibrationSteps[1].StepName}"
-                           Subject="Step 2: "
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Status="{Binding Cache.Item.ProductivityInformation}"

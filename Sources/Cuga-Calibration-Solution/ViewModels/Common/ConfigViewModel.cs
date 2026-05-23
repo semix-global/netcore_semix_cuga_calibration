@@ -34,6 +34,13 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public string GetDeviceCUGAVersion()
+    {
+        var ret = calibrationConfigService.GetDeviceCUGAVersion();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public string GetAppliedCalibrateResultFilePath()
     {
         var ret = calibrationConfigService.GetCalibrationFilePath();

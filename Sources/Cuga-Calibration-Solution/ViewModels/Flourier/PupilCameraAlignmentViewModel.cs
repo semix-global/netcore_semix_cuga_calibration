@@ -24,7 +24,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     #region 界面相关
 
     [ObservableProperty]
-    private Point _sxPos;
+    public partial Point SxPos { get; set; }
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -39,21 +39,21 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     #region 缓存
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _resultDto = new();
+    public partial PupilCameraAlignmentDTO ResultDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private PupilCameraAlignmentCache _cache = new();
+    public partial PupilCameraAlignmentCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _calibration = new();
+    public partial PupilCameraAlignmentDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _review = new();
+    public partial PupilCameraAlignmentDTO Review { get; set; } = new();
 
     #endregion 缓存
 

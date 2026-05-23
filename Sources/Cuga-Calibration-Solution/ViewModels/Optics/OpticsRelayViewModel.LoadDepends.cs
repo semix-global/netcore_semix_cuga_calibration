@@ -1,18 +1,9 @@
-using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Ads.YGains;
-using Core.Models.Models.Chuck.CenterAndTheta;
-using Core.Models.Models.Chuck.Gantry;
-using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Laser.Attenuator;
-using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Microscope.Centricity;
-using Core.Models.Models.Microscope.Focus;
-using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.ViewModels.Ads;
+using CugaCalibration.ViewModels.Chuck;
+using CugaCalibration.ViewModels.Laser;
+using CugaCalibration.ViewModels.Microscope;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Optics;
 
@@ -22,87 +13,101 @@ public sealed partial class OpticsRelayViewModel
     {
         if (ApplicationCookie.SysUser.IsAdmin) return true;
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
+        var adsPressureGainsViewModel = HostApplication.GetRequiredService<AdsPressureGainsCalibrationViewModel>();
+        if (adsPressureGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsPressureGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsXGainsItemDto>(out _, out errorMessage) == false)
+        var adsXGainsViewModel = HostApplication.GetRequiredService<AdsXGainsCalibrationViewModel>();
+        if (adsXGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsXGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsYGainsItemDto>(out _, out errorMessage) == false)
+        var adsYGainsViewModel = HostApplication.GetRequiredService<AdsYGainsCalibrationViewModel>();
+        if (adsYGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsYGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeFocusItemDto>(out _, out errorMessage) == false)
+        var microscopeFocusViewModel = HostApplication.GetRequiredService<MicroscopeFocusCalibrationViewModel>();
+        if (microscopeFocusViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {microscopeFocusViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<MicroscopeCalChipDTO>(out _, out errorMessage) == false)
+        var microscopeCalChipViewModel = HostApplication.GetRequiredService<MicroscopeCalChipViewModel>();
+        if (microscopeCalChipViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {microscopeCalChipViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopePixelSizeItemDto>(out _, out errorMessage) == false)
+        var microscopePixelSizeViewModel = HostApplication.GetRequiredService<MicroscopePixelSizeCalibrationViewModel>();
+        if (microscopePixelSizeViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {microscopePixelSizeViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<MicroscopeCentricityItemDto>(out _, out errorMessage) == false)
+        var microscopeCentricityViewModel = HostApplication.GetRequiredService<MicroscopeCentricityCalibrationViewModel>();
+        if (microscopeCentricityViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {microscopeCentricityViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGantryDto>(out _, out errorMessage) == false)
+        var chuckGantryViewModel = HostApplication.GetRequiredService<ChuckGantryCalibrationViewModel>();
+        if (chuckGantryViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {chuckGantryViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckGlobalScaleErrorDto>(out _, out errorMessage) == false)
+        var chuckGlobalScaleErrorViewModel = HostApplication.GetRequiredService<ChuckGlobalScaleErrorCalibrationViewModel>();
+        if (chuckGlobalScaleErrorViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {chuckGlobalScaleErrorViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckCenterAndThetaItemDto>(out _, out errorMessage) == false)
+        var chuckCenterAndThetaViewModel = HostApplication.GetRequiredService<ChuckCenterAndThetaCalibrationViewModel>();
+        if (chuckCenterAndThetaViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {chuckCenterAndThetaViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<ChuckPrealignerDTO>(out _, out errorMessage) == false)
+        var chuckPrealignerViewModel = HostApplication.GetRequiredService<ChuckPrealignerCalibrationViewModel>();
+        if (chuckPrealignerViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {chuckPrealignerViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<LaserBeamStabilizerObjDto>(out _, out errorMessage) == false)
+        var laserBeamStabilizerViewModel = HostApplication.GetRequiredService<LaserBeamStabilizerCalibrationViewModel>();
+        if (laserBeamStabilizerViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {laserBeamStabilizerViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserOpticalPowerMeterDTO>(out _, out errorMessage) == false)
+        var laserOpticalPowerMeterViewModel = HostApplication.GetRequiredService<LaserOpticalPowerMeterViewModel>();
+        if (laserOpticalPowerMeterViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {laserOpticalPowerMeterViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoItemsIsOKStatus<LaserAttenuatorDTO>(out _, out errorMessage) == false)
+        var laserAttenuatorViewModel = HostApplication.GetRequiredService<LaserAttenuatorViewModel>();
+        if (laserAttenuatorViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog($"precondition is Failure,Error:{errorMessage}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {laserAttenuatorViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

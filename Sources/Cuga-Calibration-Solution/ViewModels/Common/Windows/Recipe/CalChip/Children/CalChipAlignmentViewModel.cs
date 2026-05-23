@@ -32,7 +32,6 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
     private readonly IWindowManagerService _windowManagerService;
     private readonly IMessenger _messenger;
     private readonly ISynchronizationContextProvider _contextProvider;
-    private readonly ICalibrationStatusService _calibrationStatusService;
     private readonly IApplicationCookieService _applicationCookieService;
     private readonly AlignmentWindowBrightFieldViewModel _alignmentWindowBrightFieldViewModel;
     private readonly StageViewModel _stageViewModel;
@@ -44,7 +43,6 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         IWindowManagerService windowManagerService,
         IMessenger messenger,
         ISynchronizationContextProvider contextProvider,
-        ICalibrationStatusService calibrationStatusService,
         IApplicationCookieService applicationCookieService,
         AlignmentWindowBrightFieldViewModel alignmentWindowBrightFieldViewModel,
         StageViewModel stageViewModel,
@@ -55,7 +53,6 @@ public sealed partial class CalChipAlignmentViewModel : ViewModelBase
         _windowManagerService = windowManagerService;
         _messenger = messenger;
         _contextProvider = contextProvider;
-        _calibrationStatusService = calibrationStatusService;
         _applicationCookieService = applicationCookieService;
         _alignmentWindowBrightFieldViewModel = alignmentWindowBrightFieldViewModel;
         _stageViewModel = stageViewModel;

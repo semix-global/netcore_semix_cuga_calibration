@@ -58,18 +58,18 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
     #region Calibrate
 
     [ObservableProperty]
-    private GlobalFieldTiltDTO _calibratingItem = new();
+    public partial GlobalFieldTiltDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<OpticsIlluminationModeStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<GlobalFieldTiltDTO> _reviews = [];
+    public partial IReadOnlyList<GlobalFieldTiltDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<GlobalFieldTiltDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<GlobalFieldTiltDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -77,17 +77,17 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
     [RecipeCache]
     [ObservableProperty]
-    private GlobalFieldTiltCache _cache = new();
+    public partial GlobalFieldTiltCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private GlobalFieldTiltDTO[] _calibrations = [];
+    public partial GlobalFieldTiltDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipCache _microscopeCalChipCache = new();
+    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

@@ -13,61 +13,61 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     IAdaptIn<AbstractGenerateAODWaveformParam, AbstractGenerateAODWaveformParam>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private bool _isHeaderAndFooter;
+    public partial bool IsHeaderAndFooter { get; set; }
 
     [ObservableProperty]
-    private double _headerFrequency;
+    public partial double HeaderFrequency { get; set; }
 
     [ObservableProperty]
-    private double _footerFrequency;
+    public partial double FooterFrequency { get; set; }
 
     [ObservableProperty]
-    private double _bandWidth;
+    public partial double BandWidth { get; set; }
 
     [ObservableProperty]
-    private double _centerFrequency;
+    public partial double CenterFrequency { get; set; }
 
     [ObservableProperty]
-    private FunctionMonotonicTypeEnum _functionMonotonicTypeEnum;
+    public partial FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum { get; set; }
 
     [ObservableProperty]
-    private double _sampleRate = 1064d;
+    public partial double SampleRate { get; set; } = 1064d;
 
     [ObservableProperty]
-    private string _directoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
+    public partial string DirectoryPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
 
     [ObservableProperty]
-    private int _zeroSampleCount;
+    public partial int ZeroSampleCount { get; set; }
 
     [ObservableProperty]
-    private int _endpointSampleCount;
+    public partial int EndpointSampleCount { get; set; }
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurations = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    private double _p2CompensationCoefficient;
+    public partial double P2CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p3CompensationCoefficient;
+    public partial double P3CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p4CompensationCoefficient;
+    public partial double P4CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p5CompensationCoefficient;
+    public partial double P5CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p6CompensationCoefficient;
+    public partial double P6CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p7CompensationCoefficient;
+    public partial double P7CompensationCoefficient { get; set; }
 
     [ObservableProperty]
-    private double _p8CompensationCoefficient;
+    public partial double P8CompensationCoefficient { get; set; }
 
     partial void OnHeaderFrequencyChanged(double value)
     {

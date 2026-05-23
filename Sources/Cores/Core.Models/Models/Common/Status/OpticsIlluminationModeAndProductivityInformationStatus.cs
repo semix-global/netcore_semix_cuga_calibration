@@ -8,10 +8,10 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class OpticsIlluminationModeAndProductivityInformationStatus : ObservableObject, IStatus<OpticsIlluminationModeEnum>
 {
     [ObservableProperty]
-    private OpticsIlluminationModeEnum _selectedItem;
+    public partial OpticsIlluminationModeEnum SelectedItem { get; set; }
 
     [ObservableProperty]
-    private BindingList<ProductivityInformationStatus> _productivityInformationStatusList = [];
+    public partial BindingList<ProductivityInformationStatus> ProductivityInformationStatusList { get; set; } = [];
 
     public bool IsCalibrated => ProductivityInformationStatusList.All(c => c.IsCalibrated);
 

@@ -8,30 +8,28 @@ namespace Core.Models.Models.Common.Alignment;
 [ObservableRecipient]
 public sealed partial class AlignmentItemStep : ObservableObject
 {
-    private readonly bool _defaultIsNextEnable;
-
     /// <summary>
     /// 步骤名称
     /// </summary>
     [ObservableProperty]
-    private string _stepName = string.Empty;
+    public partial string StepName { get; set; } = string.Empty;
 
     /// <summary>
     /// 下一步是否可用
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedRecipients]
-    private bool _stepIsNextEnable;
+    public partial bool StepIsNextEnable { get; set; }
 
     /// <summary>
     /// 下一步是否可用默认值
     /// </summary>
     public bool DefaultIsNextEnable
     {
-        get => _defaultIsNextEnable;
+        get;
         init
         {
-            SetProperty(ref _defaultIsNextEnable, value);
+            SetProperty(ref field, value);
             StepIsNextEnable = value;
         }
     }

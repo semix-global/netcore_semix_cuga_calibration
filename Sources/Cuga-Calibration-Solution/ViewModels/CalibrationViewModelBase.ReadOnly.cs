@@ -45,8 +45,6 @@ public partial class CalibrationViewModelBase
 
     public ICacheProvider RecipeCacheProvider { get; } = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
 
-    public ICalibrationStatusService CalibrationStatusService { get; } = HostApplication.GetRequiredService<ICalibrationStatusService>();
-
     public IApplicationCookieService ApplicationCookieService { get; } = HostApplication.GetRequiredService<IApplicationCookieService>();
 
     public ICalibrationRecipeService CalibrationRecipeService { get; } = HostApplication.GetRequiredService<ICalibrationRecipeService>();
@@ -119,7 +117,5 @@ public partial class CalibrationViewModelBase
     {
         Logger = (ILogger<CalibrationViewModelBase>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         Entry = ApplicationCookie.CalibrationViewModelEntries[GetType()];
-
-        Messenger.RegisterAll(this);
     }
 }

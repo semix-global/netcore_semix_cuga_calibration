@@ -31,14 +31,14 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     #region Calibrate
 
     [ObservableProperty]
-    private AdsPressureGainsDto _resultAdsPressureGainsDto = new();
+    public partial AdsPressureGainsDto ResultAdsPressureGainsDto { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private AdsPressureGainsDto? _reviewDto;
+    public partial AdsPressureGainsDto? ReviewDto { get; set; }
 
     #endregion Review
 
@@ -48,11 +48,11 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
     [RecipeCache]
     [ObservableProperty]
-    private AdsPressureGainsCache _cache = new();
+    public partial AdsPressureGainsCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AdsPressureGainsDto _calibration = new();
+    public partial AdsPressureGainsDto Calibration { get; set; } = new();
 
     #endregion 缓存
 

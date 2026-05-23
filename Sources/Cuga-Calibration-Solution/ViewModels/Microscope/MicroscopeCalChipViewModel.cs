@@ -55,17 +55,17 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     #region Calibrate
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _calibratingItem = new();
+    public partial MicroscopeCalChipDTO CalibratingItem { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _review = new();
+    public partial MicroscopeCalChipDTO Review { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO? _selectReviewItem;
+    public partial MicroscopeCalChipDTO? SelectReviewItem { get; set; }
 
     #endregion Review
 
@@ -75,14 +75,14 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     [RecipeCache]
     [ObservableProperty]
-    private MicroscopeCalChipCache _cache = new();
+    public partial MicroscopeCalChipCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private MicroscopeCalChipDTO _calibration = new();
+    public partial MicroscopeCalChipDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizes = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -91,7 +91,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(GotoBrightFieldPositionCommand))]
-    private bool _isWindowEnable = true;
+    public partial bool IsWindowEnable { get; set; } = true;
 
     #endregion 属性
 

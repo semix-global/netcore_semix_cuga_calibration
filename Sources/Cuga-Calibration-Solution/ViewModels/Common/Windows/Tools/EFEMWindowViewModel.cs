@@ -27,25 +27,25 @@ public sealed partial class EFEMWindowViewModel(
 {
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CloseCommand))]
-    private bool _isEnable = true;
+    public partial bool IsEnable { get; set; } = true;
 
     [ObservableProperty]
-    private EFEMAngleEnum _angleEnum = EFEMAngleEnum.Down;
+    public partial EFEMAngleEnum AngleEnum { get; set; } = EFEMAngleEnum.Down;
 
     [ObservableProperty]
-    private EFEMFoupItem? _selectedFoupItem;
+    public partial EFEMFoupItem? SelectedFoupItem { get; set; }
 
     [ObservableProperty]
-    private bool _isPrealigner;
+    public partial bool IsPrealigner { get; set; }
 
     [ObservableProperty]
-    private bool _prealignerIsOk;
+    public partial bool PrealignerIsOk { get; set; }
 
     [ObservableProperty]
-    private Point _offsetPoint;
+    public partial Point OffsetPoint { get; set; }
 
     [ObservableProperty]
-    private double _offsetAngle;
+    public partial double OffsetAngle { get; set; }
 
     /// <summary>
     /// 花篮载具1

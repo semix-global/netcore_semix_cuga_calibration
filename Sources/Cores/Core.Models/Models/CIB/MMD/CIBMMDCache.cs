@@ -109,10 +109,10 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
     public partial double VerifyMaxLogGain { get; set; } = 14d;
 
     [ObservableProperty]
-    public partial int SmoothLogGainMul128U12BitWindow { get; set; } = 201;
+    public partial int SmoothLogGainMul128U12BitWindowSize { get; set; } = 201;
 
     [ObservableProperty]
-    public partial int SmoothGainS16BitWindow { get; set; } = 51;
+    public partial int SmoothGainS16BitWindowSize { get; set; } = 51;
 
     [ObservableProperty]
     public partial IReadOnlyList<MMDConfiguration> MMDConfigurations { get; set; } = [];
@@ -258,8 +258,8 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
         MaxValidFraction = MaxValidFraction,
         VerifyMinLogGain = VerifyMinLogGain,
         VerifyMaxLogGain = VerifyMaxLogGain,
-        SmoothLogGainMul128U12BitWindow = SmoothLogGainMul128U12BitWindow,
-        SmoothGainS16BitWindow = SmoothGainS16BitWindow,
+        SmoothLogGainMul128U12BitWindowSize = SmoothLogGainMul128U12BitWindowSize,
+        SmoothGainS16BitWindowSize = SmoothGainS16BitWindowSize,
         MMDConfigurations = [.. MMDConfigurations.Select(t => t.Clone())],
         PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],

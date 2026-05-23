@@ -29,16 +29,16 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
     private readonly ILogger<ApplicationAboutWindowViewModel> _logger;
 
     [ObservableProperty]
-    private ApplicationInfo _applicationInfo = new();
+    public partial ApplicationInfo ApplicationInfo { get; set; } = new();
 
     [ObservableProperty]
-    private OperatingSystemInfo _operatingSystemInfo = new();
+    public partial OperatingSystemInfo OperatingSystemInfo { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<SystemInfo> _systemInfoList = [];
+    public partial ObservableCollection<SystemInfo> SystemInfoList { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<AssemblyInfo> _assemblyList = [];
+    public partial ObservableCollection<AssemblyInfo> AssemblyList { get; set; } = [];
 
     public ApplicationAboutWindowViewModel(IDialogWindowProvider dialogWindowProvider, IOptions<ApplicationSetting> options, ILogger<ApplicationAboutWindowViewModel> logger)
     {
@@ -147,9 +147,9 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
     public partial class SystemInfo : ObservableObject
     {
         [ObservableProperty]
-        private string _systemName = string.Empty;
+        public partial string SystemName { get; set; } = string.Empty;
 
         [ObservableProperty]
-        private string _systemInformation = string.Empty;
+        public partial string SystemInformation { get; set; } = string.Empty;
     }
 }
