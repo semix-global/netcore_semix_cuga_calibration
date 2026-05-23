@@ -328,6 +328,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -375,6 +377,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
+                Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition,
                 Cache.ProductivityInformation,
@@ -661,8 +665,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                using var hImage = darkFieldImage.Image.ToHImage();
-                                var pmtValue = hImage.GetIntensity().Average;
+                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
                                 var item = noProtectedCIBMMDDtos[index];
                                 var itemItem = item.Items[coefficientIndex];

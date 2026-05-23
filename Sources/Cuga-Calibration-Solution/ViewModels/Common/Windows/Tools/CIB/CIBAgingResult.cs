@@ -5,6 +5,7 @@ using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
@@ -30,7 +31,6 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
     public partial IReadOnlyList<CIBMMDDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<CIBMMDDTOItem> SelectItems { get; set; } = [];
 
     [ObservableProperty]
@@ -42,7 +42,7 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
     [Newtonsoft.Json.JsonIgnore]
     public IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
-    partial void OnItemsChanged(IReadOnlyList<CIBMMDDTOItem>? oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
+    partial void OnSelectItemsChanged(IReadOnlyList<CIBMMDDTOItem>? oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -72,46 +72,42 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
 
     public CIBAgingItem()
     {
-        ScatterPlotControl.SetTitle(0, "Origin(Y: mW - X: Coefficient)");
-        ScatterPlotControl.SetTitle(1, "Origin(Y: PMT Value(DC) - X: V)");
+        ScatterPlotControl.SetTitle("Origin(Y: PMT Value(DC) - X: V)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var scatterMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count > 0 ? 1 : 0);
-            scatterMarkerses.ElementAtOrDefault(0)?.Update(
-                string.Empty,
-                [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))],
-                Constants.Category10.GetColor(0));
-
-            var temps = (from item in Items
+            var tempSelectItems = (from item in SelectItems
                     let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
                     where itemItems.Length > 0
                     select new
                     {
-                        LegendText = $"Origin {item.Coefficient:0.###}",
+                        LegendText = $"{item.Coefficient:0.###}",
+                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                    }
+                ).ToArray();
+            var tempNewItems = (from item in NewItems
+                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                    where itemItems.Length > 0
+                    select new
+                    {
+                        LegendText = $"{item.Coefficient:0.###}",
                         Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
                     }
                 ).ToArray();
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length + NewItems.Count);
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(tempSelectItems.Length + tempNewItems.Length);
 
-            foreach (var (index, temp) in temps.Index())
+            foreach (var (index, temp) in tempSelectItems.Index())
             {
                 scatterLines[index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index));
             }
 
-            foreach (var (index, newItem) in NewItems.Index())
+            foreach (var (index, temp) in tempNewItems.Index())
             {
-                var newItemItems = newItem.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray();
-                if (newItemItems.Length == 0) continue;
-
-                scatterLines[temps.Length + index]?.Update(
-                    $"New {newItem.Coefficient:0.###}",
-                    newItemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray(),
-                    Constants.Category10.GetColor(temps.Length + index));
+                scatterLines[tempSelectItems.Length + index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index).Lighten(0.7));
             }
         }
         finally

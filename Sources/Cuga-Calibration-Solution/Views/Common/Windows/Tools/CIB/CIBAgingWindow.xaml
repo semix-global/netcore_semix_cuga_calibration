@@ -10,6 +10,9 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
            xmlns:cib="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
+           xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CIBAgingWindowViewModel}"
@@ -77,6 +80,156 @@
                 <Border Style="{StaticResource BorderRegion}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <GroupBox Header="Aging Params">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <Expander Header="Default"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="190"
+                                                              Style="{StaticResource ComboBoxExtend}"
+                                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                                        <i:Interaction.Behaviors>
+                                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                                        </i:Interaction.Behaviors>
+                                                    </ComboBox>
+                                                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="190"
+                                                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                                                              Style="{StaticResource ComboBoxExtend}">
+                                                        <i:Interaction.Behaviors>
+                                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                        </i:Interaction.Behaviors>
+                                                    </ComboBox>
+                                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.CIBMMDCache.OpticsConfiguration}" />
+                                                    <TextBox Text="{Binding Cache.CIBMMDCache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                                             hc:TitleElement.Title="Position(um): "
+                                                             hc:TitleElement.TitlePlacement="Left"
+                                                             Style="{StaticResource TextBoxExtend}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <Expander Header="Prescan AOD Waveform"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                                            Orientation="Vertical"
+                                                                            Spacing="2">
+                                                        <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
+                                                                          hc:TitleElement.TitlePlacement="Left"
+                                                                          hc:TitleElement.TitleWidth="200"
+                                                                          Minimum="0"
+                                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                                          Value="{Binding Cache.CIBMMDCache.PrescanFrequency}" />
+                                                    </hc:UniformSpacingPanel>
+                                                    <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                          IsVisibleFrequency="False"
+                                                                                                          IsVisibleDirectoryPath="False"
+                                                                                                          IsVisibleUniformityConfiguration="False"
+                                                                                                          IsVisibleCompensation="False"
+                                                                                                          DataContext="{Binding Cache.CIBMMDCache.GeneratePrescanAODWaveformParam}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <Expander Header="Chirp AOD Waveform"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                                            Orientation="Vertical"
+                                                                            Spacing="2">
+                                                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
+                                                                          hc:TitleElement.TitlePlacement="Left"
+                                                                          hc:TitleElement.TitleWidth="200"
+                                                                          Minimum="0"
+                                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                                          Value="{Binding Cache.CIBMMDCache.ChirpFrequency}" />
+                                                    </hc:UniformSpacingPanel>
+                                                    <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                        IsVisibleFrequency="False"
+                                                                                                        IsVisibleDirectoryPath="False"
+                                                                                                        IsVisibleUniformityConfiguration="False"
+                                                                                                        IsVisibleCompensation="False"
+                                                                                                        DataContext="{Binding Cache.CIBMMDCache.GenerateChirpAODWaveformParam}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <Expander Header="MMD"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Noises Count: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="1"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.MeasurePowerNoisesCount}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.MeasurePowerWaitTime}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="PMT Value Wait Time(s): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.PMTValueWaitTime}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Gain(V): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="-10"
+                                                                      Maximum="10"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.StartGain}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Gain(V): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="-10"
+                                                                      Maximum="10"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.StepGain}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Gain(V): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="-10"
+                                                                      Maximum="10"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.StopGain}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Protected PMT Value(Voltage): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.ProtectedPMTValue}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Protected Count: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.ProtectedOverflowProtectedPMTValueCount}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.CIBMMDCache.ImageWidth}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </GroupBox>
                             <GroupBox Header="Aging Params">
                                 <Border Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -151,6 +304,38 @@
                                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                     Style="{StaticResource ButtonWarning}" />
                                         </hc:UniformSpacingPanel>
+                                        <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                      Content="Prescan AOD Waveform Profiles"
+                                                      HorizontalAlignment="Left"
+                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                        <Popup Width="800"
+                                               Height="800"
+                                               StaysOpen="False"
+                                               PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                               Placement="Right"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Slide"
+                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding Cache.CIBMMDCache.PrescanAODWaveformProfiles}" />
+                                            </Border>
+                                        </Popup>
+                                        <ToggleButton x:Name="ToggleButtonChirpAODWaveformProfiles"
+                                                      Content="Chirp AOD Waveform Profiles"
+                                                      HorizontalAlignment="Left"
+                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                        <Popup Width="800"
+                                               Height="800"
+                                               StaysOpen="False"
+                                               PlacementTarget="{Binding ElementName=ToggleButtonChirpAODWaveformProfiles}"
+                                               Placement="Right"
+                                               AllowsTransparency="True"
+                                               PopupAnimation="Slide"
+                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonChirpAODWaveformProfiles, Mode=TwoWay}">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <ui:ChirpAODWaveformProfilesUserControl DataContext="{Binding Cache.CIBMMDCache.ChirpAODWaveformProfiles}" />
+                                            </Border>
+                                        </Popup>
                                     </hc:UniformSpacingPanel>
                                 </Border>
                             </GroupBox>

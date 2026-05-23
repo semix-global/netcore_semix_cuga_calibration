@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -5,24 +6,24 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.CIB.MMD;
+using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities;
+using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.IO;
-using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Laser.OpticalPowerMeter;
-using CugaCalibration.Core.Services.Interfaces;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -30,6 +31,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBAgingWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class CIBAgingWindowViewModel(
+    ApplicationCookie applicationCookie,
     LaserViewModel laserViewModel,
     CIBViewModel cibViewModel,
     StageViewModel stageViewModel,
@@ -46,6 +48,9 @@ public sealed partial class CIBAgingWindowViewModel(
     public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CIBAgingWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", nameof(CIBAgingWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
+    [ObservableProperty]
+    public partial ApplicationCookie ApplicationCookie { get; set; } = applicationCookie;
 
     [ObservableProperty]
     public partial CIBAgingCache Cache { get; set; } = new();
@@ -96,14 +101,29 @@ public sealed partial class CIBAgingWindowViewModel(
                              && t.ProductivityInformation.OpticsMagType == Cache.CIBMMDCache.ProductivityInformation.OpticsMagType
                              && t.IsOk);
             var allCibInformations = Result.Items.Select(t => t.CIBInformation).ToArray();
-            var hazeBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.CIBMMDCache.HazeFindBFMachinePosition);
 
             logger.LogHtmlInformation("Aging Test Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 detectImageDirectory,
                 MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
+                CIBMMDCache = new HtmlQuote(new
+                {
+                    Cache.CIBMMDCache.MicroscopeLensInformation,
+                    OpticsConfiguration = new HtmlQuote(Cache.CIBMMDCache.OpticsConfiguration.ToHtmlAnonymous()),
+                    Cache.CIBMMDCache.HazeFindBFMachinePosition,
+                    Cache.CIBMMDCache.ProductivityInformation,
+                    GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                    GenerateChirpAODWaveformParam = new HtmlQuote(Cache.CIBMMDCache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                    Cache.CIBMMDCache.MeasurePowerWaitTime,
+                    Cache.CIBMMDCache.PMTValueWaitTime,
+                    Cache.CIBMMDCache.StartGain,
+                    Cache.CIBMMDCache.StepGain,
+                    Cache.CIBMMDCache.StopGain,
+                    Cache.CIBMMDCache.ProtectedPMTValue,
+                    Cache.CIBMMDCache.ProtectedOverflowProtectedPMTValueCount,
+                    Cache.CIBMMDCache.ImageWidth
+                }),
                 allCibInformations,
-                hazeBFPosition,
                 Cache.CoefficientStep,
                 CalibratingRetryTimes = Cache.FindCoefficientRetryTimes,
                 Cache.MeasurePowerThreshold,
@@ -113,36 +133,70 @@ public sealed partial class CIBAgingWindowViewModel(
                 Cache.SelectedAgings
             }), htmlLogUniqueId.LoggingHtml());
 
+            microscopeViewModel.SwitchMicroscopeLensInformation(Cache.CIBMMDCache.MicroscopeLensInformation);
+
+            var hazeBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.CIBMMDCache.HazeFindBFMachinePosition);
+            stageViewModel.SetAbsoluteStageTheta(0d);
+            stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+
+            Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.CIBMMDCache.ProductivityInformation;
+            Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+            var prescanAODWaveformResult = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+            Cache.CIBMMDCache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
+            Cache.CIBMMDCache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
+
+            Cache.CIBMMDCache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.CIBMMDCache.ProductivityInformation;
+            Cache.CIBMMDCache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+            var chirpAODWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.CIBMMDCache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+            Cache.CIBMMDCache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
+            Cache.CIBMMDCache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
+
+            laserViewModel.SetPrescanAODWaveProfiles(Cache.CIBMMDCache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.CIBMMDCache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.CIBMMDCache.StartCoefficient))]);
             laserViewModel.SetChirpAODWaveProfiles(Cache.CIBMMDCache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.CIBMMDCache.ChirpAODWaveformProfiles);
+
             cibViewModel.SetCIBProfileModeEnum(allCibInformations, CIBProfileModeEnum.PMTVoltage);
+            cibViewModel.SetGain(allCibInformations, Cache.CIBMMDCache.StartGain);
             opticsViewModel.ToggleODFilter(false);
+
+            logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                Cache.CIBMMDCache.PrescanAODWaveformResultFilePath,
+                PrescanAODWaveformProfiles = new HtmlTable([.. Cache.CIBMMDCache.PrescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                GenerateChirpAODWaveformParam = new HtmlQuote(Cache.CIBMMDCache.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
+                Cache.CIBMMDCache.ChirpAODWaveformResultFilePath,
+                ChirpAODWaveformProfiles = new HtmlTable([.. Cache.CIBMMDCache.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+            }), htmlLogUniqueId.LoggingHtml());
 
             var gains = Generate.LinearRange(Cache.CIBMMDCache.StartGain, Cache.CIBMMDCache.StepGain, Cache.CIBMMDCache.StopGain);
             Guard.IsNotEmpty(gains);
 
+            foreach (var cibAgingItem in Result.Items)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                cibAgingItem.SelectItems = [..cibAgingItem.Items.Where(t => Cache.SelectedAgings.Contains(new CIBAgingSelectItem(t.Coefficient, t.MeasurePower)))];
+                cibAgingItem.NewItems =
+                [
+                    .. Cache.SelectedAgings.Select(t => new CIBMMDDTOItem
+                    {
+                        Coefficient = t.Coefficient,
+                        MeasurePower = t.MeasurePower,
+                        Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
+                    })
+                ];
+            }
+
             try
             {
-                foreach (var cibAgingItem in Result.Items)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    cibAgingItem.SelectItems = [..cibAgingItem.Items.Where(t => Cache.SelectedAgings.Contains(new CIBAgingSelectItem(t.Coefficient, t.MeasurePower)))];
-                    cibAgingItem.NewItems =
-                    [
-                        .. Cache.SelectedAgings.Select(t => new CIBMMDDTOItem
-                        {
-                            Coefficient = t.Coefficient,
-                            MeasurePower = t.MeasurePower,
-                            Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
-                        })
-                    ];
-                }
-
                 foreach (var (coefficientIndex, cibAgingSelectItem) in Cache.SelectedAgings.Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     logger.LogHtmlInformation(cibAgingSelectItem.ToString(), HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+
+                    #region 获取功率
+
                     logger.LogHtmlInformation("Find Coefficient", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
@@ -215,9 +269,10 @@ public sealed partial class CIBAgingWindowViewModel(
                         cibAgingItem.NewItems[coefficientIndex].MeasurePower = currentMeasurePower;
                     }
 
+                    #endregion
+
                     logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
-                    microscopeViewModel.SwitchMicroscopeLensInformation(Cache.CIBMMDCache.MicroscopeLensInformation);
                     stageViewModel.SetAbsoluteStageTheta(0d);
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
                     try
@@ -261,8 +316,7 @@ public sealed partial class CIBAgingWindowViewModel(
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                using var hImage = darkFieldImage.Image.ToHImage();
-                                var pmtValue = hImage.GetIntensity().Average;
+                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
                                 var item = noProtectedCIBMMDDtos[index];
                                 var itemItem = item.Items[coefficientIndex];
