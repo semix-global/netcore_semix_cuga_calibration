@@ -13,7 +13,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial int SmoothWindow { get; set; } = 21;
+    public partial int SmoothWindowSize { get; set; } = 21;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, AODDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem> Items { get; init; } = [];
@@ -24,7 +24,7 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
     public override AODDelayCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        SmoothWindow = SmoothWindow,
+        SmoothWindowSize = SmoothWindowSize,
         Items = new ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODDelayCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

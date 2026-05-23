@@ -401,8 +401,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MaxValidFraction,
                 Cache.VerifyMinLogGain,
                 Cache.VerifyMaxLogGain,
-                Cache.SmoothLogGainMul128U12BitWindow,
-                Cache.SmoothGainS16BitWindow,
+                Cache.SmoothLogGainMul128U12BitWindowSize,
+                Cache.SmoothGainS16BitWindowSize,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations])),
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -744,8 +744,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MaxValidFraction,
                 Cache.VerifyMinLogGain,
                 Cache.VerifyMaxLogGain,
-                Cache.SmoothLogGainMul128U12BitWindow,
-                Cache.SmoothGainS16BitWindow,
+                Cache.SmoothLogGainMul128U12BitWindowSize,
+                Cache.SmoothGainS16BitWindowSize,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -792,8 +792,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 Cache.MaxValidFraction,
                 Cache.VerifyMinLogGain,
                 Cache.VerifyMaxLogGain,
-                Cache.SmoothLogGainMul128U12BitWindow,
-                Cache.SmoothGainS16BitWindow,
+                Cache.SmoothLogGainMul128U12BitWindowSize,
+                Cache.SmoothGainS16BitWindowSize,
                 MMDConfigurations = new HtmlExpand(string.Empty, new HtmlTable([.. Cache.MMDConfigurations]))
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -1210,11 +1210,11 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 for (var j = startIndex; j <= endIndex; j++) gainS16BitPoints[j] = new Point(j, yValue);
             }
 
-            var logGainMul128U12BitFilter = MovMeanFilter.Smooth(Cache.SmoothLogGainMul128U12BitWindow, Vector<double>.Build.Dense([.. logGainMul128U12BitPoints.Select(t => t.Y)]));
+            var logGainMul128U12BitFilter = MovMeanFilter.Smooth(Cache.SmoothLogGainMul128U12BitWindowSize, Vector<double>.Build.Dense([.. logGainMul128U12BitPoints.Select(t => t.Y)]));
             item.LogGainMul128U12BitPoints = logGainMul128U12BitPoints;
             item.SmoothLogGainMul128U12BitPoints = [.. logGainMul128U12BitPoints.Index().Select(t => new Point(t.Item.X, logGainMul128U12BitFilter[t.Index]))];
 
-            var gainS16BitFilter = MovMeanFilter.Smooth(Cache.SmoothGainS16BitWindow, Vector<double>.Build.Dense([.. gainS16BitPoints.Select(t => t.Y)]));
+            var gainS16BitFilter = MovMeanFilter.Smooth(Cache.SmoothGainS16BitWindowSize, Vector<double>.Build.Dense([.. gainS16BitPoints.Select(t => t.Y)]));
             item.GainS16BitPoints = gainS16BitPoints;
             item.SmoothGainS16BitPoints = [.. gainS16BitPoints.Index().Select(t => new Point(t.Item.X, gainS16BitFilter[t.Index]))];
 

@@ -254,6 +254,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
+                Cache.SmoothWindowSize,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
                 Cache.Item.CIBInformation,
@@ -375,7 +376,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
         {
             Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
-                Cache.SmoothWindow
+                Cache.SmoothWindowSize
             }), HtmlLogUniqueId.LoggingHtml());
 
             await Task.WhenAll(SelectedReviewItems.Select(aodDelay => Task.Run(() =>
@@ -435,7 +436,8 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    Cache.ProductivityInformation
+                    Cache.ProductivityInformation,
+                    Cache.SmoothWindowSize
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
