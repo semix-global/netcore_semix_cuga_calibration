@@ -181,6 +181,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / size.Width * (stopECS - startECS);
         bestFocus.BestYStrehlRatioECS = startECS + bestFocus.BestYStrehlRatioPoint.X / size.Width * (stopECS - startECS);
+        bestFocus.IsAlgorithmOk = true;
 
         return bestFocus;
     }
