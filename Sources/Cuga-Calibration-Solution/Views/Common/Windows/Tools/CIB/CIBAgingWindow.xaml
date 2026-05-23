@@ -80,7 +80,7 @@
                 <Border Style="{StaticResource BorderRegion}">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <GroupBox Header="Aging Params">
+                            <GroupBox Header="CIB MMD Params">
                                 <Border Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                         <Expander Header="Default"
@@ -167,12 +167,6 @@
                                                   ExpandDirection="Down">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Noises Count: "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Minimum="1"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.CIBMMDCache.MeasurePowerNoisesCount}" />
                                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Wait Time(s): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
@@ -247,13 +241,13 @@
                                                           Maximum="50"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.FindCoefficientRetryTimes}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Measure Power Threshold Ratio: "
+                                        <hc:NumericUpDown hc:TitleElement.Title="Measure Power Ratio Threshold: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"
                                                           Minimum="0.001"
                                                           Maximum="1"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.MeasurePowerThreshold}" />
+                                                          Value="{Binding Cache.MeasurePowerRatioThreshold}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Sample Count: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"

@@ -17,7 +17,7 @@ public sealed partial class CIBAgingCache : ObservableCacheBase
     public partial int FindCoefficientRetryTimes { get; set; } = 7;
 
     [ObservableProperty]
-    public partial double MeasurePowerThreshold { get; set; } = 0.1;
+    public partial double MeasurePowerRatioThreshold { get; set; } = 0.1;
 
     [ObservableProperty]
     public partial int SampleCount { get; set; } = 10;

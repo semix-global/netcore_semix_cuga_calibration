@@ -125,8 +125,8 @@ public sealed partial class CIBAgingWindowViewModel(
                 }),
                 allCibInformations,
                 Cache.CoefficientStep,
-                CalibratingRetryTimes = Cache.FindCoefficientRetryTimes,
-                Cache.MeasurePowerThreshold,
+                Cache.FindCoefficientRetryTimes,
+                Cache.MeasurePowerRatioThreshold,
                 Cache.SampleCount,
                 Cache.AgingThreshold,
                 Cache.Agings,
@@ -193,77 +193,105 @@ public sealed partial class CIBAgingWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation(cibAgingSelectItem.ToString(), HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation(cibAgingSelectItem.ToString(), HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     #region 获取功率
 
-                    logger.LogHtmlInformation("Find Coefficient", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Find Coefficient", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
                     stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
-
-                    var times = 0;
-                    var currentCoefficient = cibAgingSelectItem.Coefficient;
+                    double currentCoefficient;
                     double currentMeasurePower;
-                    while (true)
+                    var targetMeasurePower = cibAgingSelectItem.MeasurePower;
+                    var step = Cache.CoefficientStep;
+
+                    try
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
+                        currentCoefficient = cibAgingSelectItem.Coefficient;
+                        double? prevDiff = null;
 
-                        logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
-
-                        var temp = currentCoefficient;
-                        laserViewModel.SetPrescanAODWaveProfiles(Cache.CIBMMDCache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.CIBMMDCache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(temp))]);
-                        laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
-                        await Task.Delay(TimeSpan.FromSeconds(Cache.CIBMMDCache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
-
-                        try
+                        var times = 0;
+                        while (true)
                         {
-                            currentMeasurePower = laserViewModel.GetOpticalMeasurePower();
-                        }
-                        finally
-                        {
-                            laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
-                        }
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                        logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
-                        {
-                            times,
-                            currentCoefficient,
-                            currentMeasurePower
-                        }), htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
 
-                        if (Math.Abs(currentMeasurePower - cibAgingSelectItem.MeasurePower) / cibAgingSelectItem.MeasurePower <= Cache.MeasurePowerThreshold)
-                        {
-                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                            var temp = currentCoefficient;
+                            laserViewModel.SetPrescanAODWaveProfiles(Cache.CIBMMDCache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.CIBMMDCache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(temp))]);
+                            laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+                            await Task.Delay(TimeSpan.FromSeconds(Cache.CIBMMDCache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
+
+                            try
                             {
-                                cibAgingSelectItem.MeasurePower,
-                                currentMeasurePower,
+                                currentMeasurePower = laserViewModel.GetOpticalMeasurePower();
+                            }
+                            finally
+                            {
+                                laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+                            }
+
+                            var diff = currentMeasurePower - targetMeasurePower;
+                            var measurePowerRate = Math.Abs(diff) / targetMeasurePower;
+
+                            logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                            {
+                                times,
+                                diff,
+                                measurePowerRate,
                                 currentCoefficient,
-                                Cache.MeasurePowerThreshold
+                                currentMeasurePower,
+                                targetMeasurePower
                             }), htmlLogUniqueId.LoggingHtml());
 
-                            break;
-                        }
+                            if (measurePowerRate <= Cache.MeasurePowerRatioThreshold)
+                            {
+                                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                                {
+                                    diff,
+                                    measurePowerRate,
+                                    currentCoefficient,
+                                    currentMeasurePower,
+                                    targetMeasurePower
+                                }), htmlLogUniqueId.LoggingHtml());
 
-                        if (currentMeasurePower > cibAgingSelectItem.MeasurePower)
-                        {
-                            currentCoefficient -= Cache.CoefficientStep;
-                            
-                            if (currentCoefficient < 0) ThrowHelper.ThrowInvalidOperationException();
-                        }
-                        else
-                        {
-                            currentCoefficient += Cache.CoefficientStep;
+                                break;
+                            }
 
-                            if (currentCoefficient > 1) ThrowHelper.ThrowInvalidOperationException();
-                        }
+                            if (prevDiff.HasValue && Math.Sign(diff) != Math.Sign(prevDiff.Value)) step /= 2;
 
-                        if (++times > Cache.FindCoefficientRetryTimes - 1)
-                        {
-                            ThrowHelper.ThrowInvalidOperationException($"Failed to find suitable coefficient for target power {cibAgingSelectItem.MeasurePower:0.###} within {Cache.FindCoefficientRetryTimes} attempts");
+                            if (currentMeasurePower > targetMeasurePower)
+                            {
+                                currentCoefficient -= step;
 
-                            break;
+                                if (currentCoefficient < 0) ThrowHelper.ThrowInvalidOperationException();
+                            }
+                            else
+                            {
+                                currentCoefficient += step;
+
+                                if (currentCoefficient > 1) ThrowHelper.ThrowInvalidOperationException();
+                            }
+
+                            if (++times > Cache.FindCoefficientRetryTimes - 1)
+                            {
+                                ThrowHelper.ThrowInvalidOperationException($"Failed to find suitable coefficient for target power {targetMeasurePower:0.###} within {Cache.FindCoefficientRetryTimes} attempts");
+
+                                break;
+                            }
+
+                            prevDiff = diff;
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
+                        continue;
+                    }
+
+                    #endregion
+
+                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     foreach (var cibAgingItem in Result.Items)
                     {
@@ -272,10 +300,6 @@ public sealed partial class CIBAgingWindowViewModel(
                         cibAgingItem.NewItems[coefficientIndex].Coefficient = currentCoefficient;
                         cibAgingItem.NewItems[coefficientIndex].MeasurePower = currentMeasurePower;
                     }
-
-                    #endregion
-
-                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     stageViewModel.SetAbsoluteStageTheta(0d);
                     stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
