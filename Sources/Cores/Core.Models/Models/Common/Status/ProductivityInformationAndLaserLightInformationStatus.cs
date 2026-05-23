@@ -8,10 +8,10 @@ namespace Core.Models.Models.Common.Status;
 public sealed partial class ProductivityInformationAndLaserLightInformationStatus : ObservableObject, IStatus<ProductivityInformation>
 {
     [ObservableProperty]
-    private ProductivityInformation _selectedItem = ProductivityInformation.Default;
+    public partial ProductivityInformation SelectedItem { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private IReadOnlyList<LaserLightInformationStatus> _items = [];
+    public partial IReadOnlyList<LaserLightInformationStatus> Items { get; set; } = [];
 
     public bool IsCalibrated => Items.All(c => c.IsCalibrated);
 
@@ -36,8 +36,8 @@ public sealed partial class ProductivityInformationAndLaserLightInformationStatu
 public sealed partial class LaserLightInformationStatus : ObservableObject, IStatus<LaserLightInformation>
 {
     [ObservableProperty]
-    private LaserLightInformation _selectedItem = LaserLightInformation.Default;
+    public partial LaserLightInformation SelectedItem { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private bool _isCalibrated;
+    public partial bool IsCalibrated { get; set; }
 }

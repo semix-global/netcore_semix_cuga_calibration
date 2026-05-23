@@ -24,34 +24,9 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Color="{StaticResource InfoBrush}">
-                    <hc:Shield.Style>
-                        <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
-                                    <Setter Property="Subject" Value="Microscope Centricity Step 2:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[1].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="2">
-                                    <Setter Property="Subject" Value="Microscope Centricity Step 3:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[2].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="3">
-                                    <Setter Property="Subject" Value="Microscope Centricity Step 4:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[3].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="4">
-                                    <Setter Property="Subject" Value="Microscope Centricity Step 5:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[4].StepName}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="5">
-                                    <Setter Property="Subject" Value="Microscope Centricity Step 6:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[5].StepName}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:Shield.Style>
-                </hc:Shield>
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Microscope Centricity Step : "
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />

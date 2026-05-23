@@ -1,7 +1,6 @@
-using Core.Models.Models.Ads.PressureGains;
-using Core.Models.Models.Ads.XGains;
-using Core.Models.Models.Ads.YGains;
+using CugaCalibration.ViewModels.Ads;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Microscope;
 
@@ -11,21 +10,24 @@ public sealed partial class MicroscopeFocusCalibrationViewModel
     {
         if (ApplicationCookie.SysUser.IsAdmin) return true;
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsPressureGainsDto>(out _, out var errorMessage) == false)
+        var adsPressureGainsViewModel = HostApplication.GetRequiredService<AdsPressureGainsCalibrationViewModel>();
+        if (adsPressureGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsPressureGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsXGainsItemDto>(out _, out errorMessage) == false)
+        var adsXGainsViewModel = HostApplication.GetRequiredService<AdsXGainsCalibrationViewModel>();
+        if (adsXGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsXGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 
-        if (CalibrationStatusService.GetCalibrationDtoIsOKStatus<AdsYGainsItemDto>(out _, out errorMessage) == false)
+        var adsYGainsViewModel = HostApplication.GetRequiredService<AdsYGainsCalibrationViewModel>();
+        if (adsYGainsViewModel.Entry.Status.IsOk == false)
         {
-            DialogWindowProvider.ShowDialog("The ADS precondition is Failure", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"The {adsYGainsViewModel.Name} precondition is Not Ok", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return false;
         }
 

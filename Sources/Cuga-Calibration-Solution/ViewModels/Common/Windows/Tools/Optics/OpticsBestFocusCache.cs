@@ -9,13 +9,13 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public sealed partial class OpticsBestFocusCache : OpticsGrabbingImageCache
 {
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private Point _dSWFindBFMachinePosition;
+    public partial Point DSWFindBFMachinePosition { get; set; }
 
     public OpticsBestFocusCache()
     {

@@ -11,25 +11,25 @@ namespace Core.Models.Models.Setting;
 public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<SettingCommonParam, SettingCommonParam>
 {
     [ObservableProperty]
-    private LogLevelEnum _minLogLevelEnum = LogLevelEnum.Info;
+    public partial LogLevelEnum MinLogLevelEnum { get; set; } = LogLevelEnum.Info;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _lowMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation LowMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _highMicroscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _mainLaserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation MainLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private double _pMTInterval = 320d;
+    public partial double PMTInterval { get; set; } = 320d;
 
     [ObservableProperty]
-    private CIBInformation _mainCIBInformation = CIBInformation.Default;
+    public partial CIBInformation MainCIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private double _measurePowerMeasurementMinValue = 0.1d;
+    public partial double MeasurePowerMeasurementMinValue { get; set; } = 0.1d;
 
     #region Mapper
 

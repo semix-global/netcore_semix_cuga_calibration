@@ -13,13 +13,13 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 public sealed partial class AlignmentParamWindowBrightFieldViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private AlignmentCacheBrightField _cache = new();
+    public partial AlignmentCacheBrightField Cache { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeLensInformation> _microscopeLensInformationList = [];
+    public partial ObservableCollection<MicroscopeLensInformation> MicroscopeLensInformationList { get; set; } = [];
 
     [ObservableProperty]
-    private bool _isToolsEnable = true;
+    public partial bool IsToolsEnable { get; set; } = true;
 
     [RelayCommand]
     private void Close()

@@ -38,26 +38,26 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeCentricityItemDto> _microscopeCentricityItemDtoList = [];
+    public partial ObservableCollection<MicroscopeCentricityItemDto> MicroscopeCentricityItemDtoList { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCentricityItemDto? _selectMicroscopeCentricityItemDto;
+    public partial MicroscopeCentricityItemDto? SelectMicroscopeCentricityItemDto { get; set; }
 
     [ObservableProperty]
-    private MicroscopeCentricityItemDto? _resultMicroscopeCentricityItemDto;
+    public partial MicroscopeCentricityItemDto? ResultMicroscopeCentricityItemDto { get; set; }
 
     [ObservableProperty]
-    private MicroscopeCentricityItemDto _microscopeCentricityItemDto150X = new();
+    public partial MicroscopeCentricityItemDto MicroscopeCentricityItemDto150X { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ObservableCollection<MicroscopeCentricityItemDto> _reviewList = [];
+    public partial ObservableCollection<MicroscopeCentricityItemDto> ReviewList { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCentricityItemDto? _selectReviewItemDto;
+    public partial MicroscopeCentricityItemDto? SelectReviewItemDto { get; set; }
 
     #endregion Review
 
@@ -67,20 +67,20 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     [RecipeCache]
     [ObservableProperty]
-    private MicroscopeCentricityCache _cache = new();
+    public partial MicroscopeCentricityCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCentricityCacheItem _selectMicroscopeCentricityCacheItem = new();
+    public partial MicroscopeCentricityCacheItem SelectMicroscopeCentricityCacheItem { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private MicroscopeCentricityItemDto[] _calibrations = [];
+    public partial MicroscopeCentricityItemDto[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     #endregion 缓存
 

@@ -41,17 +41,17 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     #region Calibrate
 
     [ObservableProperty]
-    private DarkAutoFocusDTO _calibratingItem = new();
+    public partial DarkAutoFocusDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private DarkAutoFocusNSCDTO? _nscStandardSelected;
+    public partial DarkAutoFocusNSCDTO? NscStandardSelected { get; set; }
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private DarkAutoFocusDTO _review = new();
+    public partial DarkAutoFocusDTO Review { get; set; } = new();
 
     #endregion Review
 
@@ -61,14 +61,14 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    private DarkAutoFocusCache _cache = new();
+    public partial DarkAutoFocusCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private DarkAutoFocusDTO _calibration = new();
+    public partial DarkAutoFocusDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

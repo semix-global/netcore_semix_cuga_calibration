@@ -12,10 +12,10 @@ public sealed partial class GenerateChirpAODWaveformParam :
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SpectralDensity))]
-    private double _soundPacketLength = 3.2;
+    public partial double SoundPacketLength { get; set; } = 3.2;
 
     [ObservableProperty]
-    private double _soundSpeed = 5.742;
+    public partial double SoundSpeed { get; set; } = 5.742;
 
     public double SpectralDensity => SoundPacketLength != 0 ? BandWidth / SoundPacketLength : 0;
 

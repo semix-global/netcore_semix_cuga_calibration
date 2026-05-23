@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
@@ -13,17 +12,13 @@ namespace Core.Utilities.WPF.ApplicationAbout.ViewModel;
 
 [IOCAppService(ServiceType = typeof(ShowMarkDownWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
 public partial class ShowMarkDownWindowViewModel(
-    IDialogWindowProvider dialogWindowProvider,
-    ILogger<ShowMarkDownWindowViewModel> logger) : ViewModelBase
+    IDialogWindowProvider dialogWindowProvider) : ViewModelBase
 {
-    private readonly IDialogWindowProvider dialogWindowProvider = dialogWindowProvider;
-    private readonly ILogger<ShowMarkDownWindowViewModel> logger = logger;
+    [ObservableProperty]
+    public partial string MarkdownPath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _markdownPath = string.Empty;
-
-    [ObservableProperty]
-    private string _markdownContent = string.Empty;
+    public partial string MarkdownContent { get; set; } = string.Empty;
 
     [RelayCommand]
     private void Loaded()

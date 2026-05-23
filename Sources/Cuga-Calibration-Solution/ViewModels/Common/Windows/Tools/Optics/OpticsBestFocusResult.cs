@@ -8,10 +8,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public sealed partial class OpticsBestFocusResult : ObservableObject
 {
     [ObservableProperty]
-    private DarkFieldImageDTO _darkFieldImage = new();
+    public partial DarkFieldImageDTO DarkFieldImage { get; set; } = new();
 
     [ObservableProperty]
-    private BestFocus _bestFocus = new();
+    public partial BestFocus BestFocus { get; set; } = new();
 
     public object ToHtmlAnonymous() => new
     {

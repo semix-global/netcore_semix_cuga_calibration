@@ -28,25 +28,25 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     #region Review
 
     [ObservableProperty]
-    private LaserBeamStabilizerObjDto? _reviewDto;
+    public partial LaserBeamStabilizerObjDto? ReviewDto { get; set; }
 
     #endregion Review
 
     [ObservableProperty]
-    private LaserBeamStabilizerObjDto _firstLaserBeamStabilizerObjDto = new();
+    public partial LaserBeamStabilizerObjDto FirstLaserBeamStabilizerObjDto { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<LaserBeamStabilizerObjDto> _laserBeamStabilizerObjDtoList = [];
+    public partial ObservableCollection<LaserBeamStabilizerObjDto> LaserBeamStabilizerObjDtoList { get; set; } = [];
 
     #region 缓存
 
     [RecipeCache]
     [ObservableProperty]
-    private LaserBeamStabilizerCache _cache = new();
+    public partial LaserBeamStabilizerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private LaserBeamStabilizerObjDto _calibration = new();
+    public partial LaserBeamStabilizerObjDto Calibration { get; set; } = new();
 
     #endregion 缓存
 

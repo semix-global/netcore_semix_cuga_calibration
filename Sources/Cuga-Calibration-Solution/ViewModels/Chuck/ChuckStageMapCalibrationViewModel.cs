@@ -67,14 +67,14 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     #region Calibrate
 
     [ObservableProperty]
-    private ChuckStageMapDto _resultChuckStageMapDto = new();
+    public partial ChuckStageMapDto ResultChuckStageMapDto { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private ChuckStageMapDto? _reviewDto;
+    public partial ChuckStageMapDto? ReviewDto { get; set; }
 
     #endregion Review
 
@@ -84,29 +84,29 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckStageMapCache _cache = new();
+    public partial ChuckStageMapCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckStageMapDto _calibration = new();
+    public partial ChuckStageMapDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto _chuckCenter = new();
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckGlobalScaleErrorDto _chuckGlobalScaleError = new();
+    public partial ChuckGlobalScaleErrorDto ChuckGlobalScaleError { get; set; } = new();
 
     [ObservableProperty]
-    private CIBYPixelSizeDTO[] _laserPixelSizeItems = [];
+    public partial CIBYPixelSizeDTO[] LaserPixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
-    private CIBLineCentricityDTO[] _laserLineCentricityItems = [];
+    public partial CIBLineCentricityDTO[] LaserLineCentricityItems { get; set; } = [];
 
     [ObservableProperty]
-    private CIBXPixelSizeDTO[] _cIBXPixelSizeItems = [];
+    public partial CIBXPixelSizeDTO[] CIBXPixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();

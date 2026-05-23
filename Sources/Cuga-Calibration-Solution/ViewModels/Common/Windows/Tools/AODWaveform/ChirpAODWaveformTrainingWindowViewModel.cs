@@ -49,7 +49,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    private ChirpAODWaveformTrainingCache _cache = new();
+    public partial ChirpAODWaveformTrainingCache Cache { get; set; } = new();
 
     [RelayCommand]
     private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<ChirpAODWaveformTrainingCache>());

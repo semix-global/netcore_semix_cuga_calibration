@@ -41,20 +41,20 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     #region Calibrate
 
     [ObservableProperty]
-    private LaserOpticalPowerMeterDTO _calibratingItem = new();
+    public partial LaserOpticalPowerMeterDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTO> _reviews = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<LaserOpticalPowerMeterDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<LaserOpticalPowerMeterDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion Review
 
@@ -64,11 +64,11 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    private LaserOpticalPowerMeterCache _cache = new();
+    public partial LaserOpticalPowerMeterCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private LaserOpticalPowerMeterDTO[] _calibrations = [];
+    public partial LaserOpticalPowerMeterDTO[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 

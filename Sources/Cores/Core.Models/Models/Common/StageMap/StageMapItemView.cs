@@ -5,11 +5,11 @@ namespace Core.Models.Models.Common.StageMap;
 public sealed partial class StageMapItemView : ObservableObject
 {
     [ObservableProperty]
-    private StageMapItemDto _ideal = new();
+    public partial StageMapItemDto Ideal { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapItemDto _real = new();
+    public partial StageMapItemDto Real { get; set; } = new();
 
     [ObservableProperty]
-    private StageMapItemDto _error = new();
+    public partial StageMapItemDto Error { get; set; } = new();
 }

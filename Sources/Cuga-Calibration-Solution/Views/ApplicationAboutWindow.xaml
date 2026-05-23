@@ -9,7 +9,7 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
            Title="About"
            Width="500"
-           Height="1000"
+           Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:ApplicationAboutWindowViewModel}"
            Icon="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/CugaCalibration.ico"
            WindowStyle="None"
@@ -65,171 +65,161 @@
         <!--#endregion-->
         <!--#region Body-->
         <Border Grid.Row="1"
-                Margin="1"
+                Margin="0"
+                CornerRadius="0"
                 Style="{StaticResource BorderRegion}"
                 Effect="{StaticResource EffectShadow1}">
-            <hc:ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid Margin="30,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="30" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="20" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="1" Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <Image Margin="0,5,0,0"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Top"
-                               Source="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/CugaCalibration2.ico" />
-                        <Grid Grid.Column="1" Margin="10,0,0,5">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0"
-                                       Text="Cuga Calibration"
+            <Grid Margin="30,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="1.5*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="60" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Image Margin="0,5,0,0"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Top"
+                           Source="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/CugaCalibration2.ico" />
+                    <Grid Grid.Column="1" Margin="10,0,0,5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0"
+                                   Text="Cuga Calibration"
+                                   HorizontalAlignment="Left"
+                                   FontSize="30"
+                                   Foreground="#3099c5" />
+                        <hc:UniformSpacingPanel Grid.Row="1">
+                            <TextBlock Text="{Binding ApplicationInfo.VersionInfo.Metadata.Version, StringFormat='{}{0} |'}"
+                                       Padding="5,5,0,0"
                                        HorizontalAlignment="Left"
-                                       FontSize="30"
-                                       Foreground="#3099c5" />
-                            <hc:UniformSpacingPanel Grid.Row="1">
-                                <TextBlock Text="{Binding ApplicationInfo.VersionInfo.Metadata.Version, StringFormat='{}{0} |'}"
-                                           Padding="5,5,0,0"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" />
-                                <TextBlock Padding="5,5,0,0" HorizontalAlignment="Right">
-                                    <Hyperlink Command="{Binding ShowUpdateMarkDownCommand}">
-                                        <Hyperlink.Style>
-                                            <Style TargetType="Hyperlink">
-                                                <Setter Property="TextDecorations" Value="None" />
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" Value="{StaticResource SecondaryRegionBrush}" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Hyperlink.Style>
-                                        Update Document
-                                    </Hyperlink>
-                                </TextBlock>
-                                <TextBlock Text="|"
-                                           Padding="5,5,0,0"
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Center" />
-                                <TextBlock Padding="5,5,0,0" HorizontalAlignment="Right">
-                                    <Hyperlink Command="{Binding OutputAssemblyInfoFileCommand}">
-                                        <Hyperlink.Style>
-                                            <Style TargetType="Hyperlink">
-                                                <Setter Property="TextDecorations" Value="None" />
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Foreground" Value="{StaticResource SecondaryRegionBrush}" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Hyperlink.Style>
-                                        Assemblies Download
-                                    </Hyperlink>
-                                </TextBlock>
-                            </hc:UniformSpacingPanel>
-                        </Grid>
+                                       VerticalAlignment="Center" />
+                            <TextBlock Padding="5,5,0,0" HorizontalAlignment="Right">
+                                <Hyperlink Command="{Binding ShowUpdateMarkDownCommand}">
+                                    <Hyperlink.Style>
+                                        <Style TargetType="Hyperlink">
+                                            <Setter Property="TextDecorations" Value="None" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource SecondaryRegionBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Hyperlink.Style>
+                                    Update Document
+                                </Hyperlink>
+                            </TextBlock>
+                            <TextBlock Text="|"
+                                       Padding="5,5,0,0"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Padding="5,5,0,0" HorizontalAlignment="Right">
+                                <Hyperlink Command="{Binding OutputAssemblyInfoFileCommand}">
+                                    <Hyperlink.Style>
+                                        <Style TargetType="Hyperlink">
+                                            <Setter Property="TextDecorations" Value="None" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource SecondaryRegionBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Hyperlink.Style>
+                                    Assemblies Download
+                                </Hyperlink>
+                            </TextBlock>
+                        </hc:UniformSpacingPanel>
                     </Grid>
-
-                    <RichTextBox x:Name="RichTextBox" Grid.Row="2"
-                                 FontSize="15"
-                                 IsReadOnly="True"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 BorderBrush="Transparent">
-                        <FlowDocument>
-                            <Paragraph>
-                                <Run Text="Cuga-Calibration it's a application used for defect inspection equipment system calibration." />
-                            </Paragraph>
-                            <Paragraph>
-                                <Run Text="This software is supported by .NET" />
-                            </Paragraph>
-                            <Paragraph>
-                                <Run Text="{Binding ApplicationInfo.CLRVersion, StringFormat='CLR Version {0}', Mode=OneWay}" />
-                                <LineBreak />
-                            </Paragraph>
-                            <Paragraph>
-                                <Run Text="Copyright Reserved ©2020-2025 Semix" />
-                                <LineBreak />
-                                <Hyperlink>https://www.semixchina.com</Hyperlink>
-                            </Paragraph>
-                        </FlowDocument>
-                    </RichTextBox>
-
-                    <TextBlock Grid.Row="4"
-                               Text="System"
-                               Margin="0,0,0,5"
-                               HorizontalAlignment="Left"
-                               Style="{StaticResource BoldTextStyle}" />
-                    <Border Grid.Row="5" BorderBrush="Transparent">
-                        <ListBox ItemsSource="{Binding SystemInfoList}"
-                                 Style="{StaticResource ListBox.Small}"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                            <i:Interaction.Behaviors>
-                                <behaviors:ListBoxScrollToCurrentBehavior />
-                            </i:Interaction.Behaviors>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <hc:UniformSpacingPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding SystemName}"
-                                                   Width="300"
-                                                   HorizontalAlignment="Left"
-                                                   VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding SystemInformation}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="None" />
-                                    </hc:UniformSpacingPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
-
-                    <TextBlock Grid.Row="7"
-                               Text="Components"
-                               Margin="0,0,0,5"
-                               HorizontalAlignment="Left"
-                               Style="{StaticResource BoldTextStyle}" />
-                    <Border x:Name="Border" Grid.Row="8"
-                            BorderBrush="Transparent">
-                        <ListBox ItemsSource="{Binding AssemblyList}"
-                                 Style="{StaticResource ListBox.Small}"
-                                 ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                            <i:Interaction.Behaviors>
-                                <behaviors:ListBoxScrollToCurrentBehavior />
-                            </i:Interaction.Behaviors>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <hc:UniformSpacingPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding FileName}"
-                                                   Width="300"
-                                                   HorizontalAlignment="Left"
-                                                   VerticalAlignment="Center" />
-                                        <TextBlock Text="{Binding AssemblyVersion}"
-                                                   Width="120"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="None" />
-                                    </hc:UniformSpacingPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
                 </Grid>
-            </hc:ScrollViewer>
+                <RichTextBox Grid.Row="1"
+                             FontSize="15"
+                             IsReadOnly="True"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             BorderBrush="Transparent">
+                    <FlowDocument>
+                        <Paragraph>
+                            <Run Text="Cuga-Calibration it's a application used for defect inspection equipment system calibration." />
+                        </Paragraph>
+                        <Paragraph>
+                            <Run Text="This software is supported by .NET" />
+                        </Paragraph>
+                        <Paragraph>
+                            <Run Text="{Binding ApplicationInfo.CLRVersion, StringFormat='CLR Version {0}', Mode=OneWay}" />
+                        </Paragraph>
+                        <Paragraph>
+                            <Run Text="Copyright Reserved ©2020-2026 Semix" />
+                            <LineBreak />
+                            <Hyperlink>https://www.semixchina.com</Hyperlink>
+                        </Paragraph>
+                    </FlowDocument>
+                </RichTextBox>
+                <TextBlock Grid.Row="2"
+                           Text="System"
+                           Margin="0,10,0,5"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BoldTextStyle}" />
+                <Border Grid.Row="3" BorderBrush="Transparent">
+                    <ListBox ItemsSource="{Binding SystemInfoList}"
+                             Style="{StaticResource ListBox.Small}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                        </i:Interaction.Behaviors>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <hc:UniformSpacingPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding SystemName}"
+                                               Width="300"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SystemInformation}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="None" />
+                                </hc:UniformSpacingPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <TextBlock Grid.Row="4"
+                           Text="Components"
+                           Margin="0,5"
+                           HorizontalAlignment="Left"
+                           Style="{StaticResource BoldTextStyle}" />
+                <Border Grid.Row="5" BorderBrush="Transparent">
+                    <ListBox ItemsSource="{Binding AssemblyList}"
+                             Style="{StaticResource ListBox.Small}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                        </i:Interaction.Behaviors>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <hc:UniformSpacingPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding FileName}"
+                                               Width="300"
+                                               HorizontalAlignment="Left"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding AssemblyVersion}"
+                                               Width="120"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="None" />
+                                </hc:UniformSpacingPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+            </Grid>
         </Border>
         <!--#endregion-->
         <hc:UniformSpacingPanel Grid.Row="2"

@@ -15,83 +15,79 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #region Param
 
     [ObservableProperty]
-    private double _offsetFrequency;
+    public partial double OffsetFrequency { get; set; }
 
     [ObservableProperty]
-    private int _interpolationCount = 3;
+    public partial int InterpolationCount { get; set; } = 3;
 
     [ObservableProperty]
-    private IReadOnlyList<double> _frequencies = [];
+    public partial IReadOnlyList<double> Frequencies { get; set; } = [];
 
     [ObservableProperty]
-    private double _stepFrequency;
+    public partial double StepFrequency { get; set; }
 
     [ObservableProperty]
-    private bool _isOnlyElectrode4 = true;
+    public partial bool IsOnlyElectrode4 { get; set; } = true;
 
     #region 方式一逐步遍历
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> _electrodeOffsetFrequencyPeriodParams = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam> _electrodeOffsetFrequencyWeightParams = [];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam> ElectrodeOffsetFrequencyWeightParams { get; set; } = [];
 
     #endregion
 
     #region 方式二两两之间遍历
 
     [ObservableProperty]
-    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode2OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2 };
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode2OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2 };
 
     [ObservableProperty]
-    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode3OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode3OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
 
     [ObservableProperty]
-    private AODWaveformElectrodeOffsetFrequencyPeriodParam _electrode4OffsetFrequencyPeriodParam = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode4OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
 
     [ObservableProperty]
-    private IReadOnlyList<double> _electrode2Weights = [];
+    public partial IReadOnlyList<double> Electrode2Weights { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _electrode3Weights = [];
+    public partial IReadOnlyList<double> Electrode3Weights { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<double> _electrode4Weights = [];
+    public partial IReadOnlyList<double> Electrode4Weights { get; set; } = [];
 
     #endregion
 
     [ObservableProperty]
-    private bool _isConfirmAODWaveformElectrodeOffsetResult = true;
+    public partial bool IsConfirmAODWaveformElectrodeOffsetResult { get; set; } = true;
 
     [ObservableProperty]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> _electrodeOffsetFrequencyUniformityParams = [];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
 
     [ObservableProperty]
-    private int _electrodeOffsetFrequencyUniformityParamChunkSize;
+    public partial int ElectrodeOffsetFrequencyUniformityParamChunkSize { get; set; }
 
     #endregion Param
 
     #region Items
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> _step0Items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> Step0Items { get; set; } = [];
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> _step1Items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> Step1Items { get; set; } = [];
 
     #endregion Items
 
     #region Result
 
     [ObservableProperty]
-    private IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> _electrodeConfigurationResults = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurationResults { get; set; } = [];
 
     #endregion Result
 

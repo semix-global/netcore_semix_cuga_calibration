@@ -7,7 +7,7 @@ namespace Core.Models.Models.Setting;
 public sealed partial class SettingRequiredCalibrationParam : ObservableObject, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
     [ObservableProperty]
-    private string _description = string.Empty;
+    public partial string Description { get; set; } = string.Empty;
 
     public IReadOnlyList<SettingRequiredCalibrationCategoryItem> CategoryItems { get; set; } = [];
 
@@ -28,7 +28,7 @@ public sealed partial class SettingRequiredCalibrationParam : ObservableObject, 
 public partial class SettingRequiredCalibrationCategoryItem : TypeInfo, ICloneable<SettingRequiredCalibrationCategoryItem>, IAdaptIn<SettingRequiredCalibrationCategoryItem, SettingRequiredCalibrationCategoryItem>
 {
     [ObservableProperty]
-    private bool _isRequired;
+    public partial bool IsRequired { get; set; }
 
     public SettingRequiredCalibrationCategoryItem Clone() => new()
     {

@@ -21,18 +21,9 @@
         <!--#region Left-->
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Color="{StaticResource InfoBrush}">
-                    <hc:Shield.Style>
-                        <Style BasedOn="{StaticResource ShieldBaseStyle}" TargetType="hc:Shield">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CalibrationStepIndex}" Value="1">
-                                    <Setter Property="Subject" Value="Ads Y Gains Step 2:" />
-                                    <Setter Property="Status" Value="{Binding CalibrationSteps[1].StepName}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </hc:Shield.Style>
-                </hc:Shield>
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
 
                 <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
                            DockPanel.Dock="Bottom"

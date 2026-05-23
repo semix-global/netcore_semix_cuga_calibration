@@ -8,10 +8,10 @@ public sealed partial class AODWaveformElectrodeInitializeStep0Item<TItem> : Obs
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    private IReadOnlyList<OpticsAODElectrodeEnum> _electrodes = [];
+    public partial IReadOnlyList<OpticsAODElectrodeEnum> Electrodes { get; set; } = [];
 
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    private IReadOnlyList<TItem> _items = [];
+    public partial IReadOnlyList<TItem> Items { get; set; } = [];
 }

@@ -14,6 +14,9 @@ namespace Core.Models.Models.Common.DarkField;
 public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 {
     [ObservableProperty]
+    public partial bool IsAlgorithmOk { get; set; }
+
+    [ObservableProperty]
     public partial string RawImageFilePath { get; set; } = string.Empty;
 
     #region X
@@ -274,6 +277,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
     public BestFocus Clone() => new()
     {
+        IsAlgorithmOk = IsAlgorithmOk,
         RawImageFilePath = RawImageFilePath,
         XStrehlRatioPoints = [.. XStrehlRatioPoints],
         XStrehlRatioFitPoints = [.. XStrehlRatioFitPoints],

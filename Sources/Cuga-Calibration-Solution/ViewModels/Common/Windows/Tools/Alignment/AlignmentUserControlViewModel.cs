@@ -21,31 +21,31 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 public sealed partial class AlignmentUserControlViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    public partial AlignmentCacheBrightField AlignmentCacheBrightField { get; set; } = new();
 
     [DefaultCache]
     [RecipeCache]
     [ObservableProperty]
-    private AlignmentCacheBrightField[] _alignmentCacheBrightFields = [];
+    public partial AlignmentCacheBrightField[] AlignmentCacheBrightFields { get; set; } = [];
 
     [ObservableProperty]
-    private AlignmentCacheDarkField _alignmentCacheDarkField = new();
+    public partial AlignmentCacheDarkField AlignmentCacheDarkField { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private AlignmentCacheDarkField[] _alignmentCacheDarkFields = [];
+    public partial AlignmentCacheDarkField[] AlignmentCacheDarkFields { get; set; } = [];
 
     [ObservableProperty]
-    private bool _isDarkFieldAlignment;
+    public partial bool IsDarkFieldAlignment { get; set; }
 
     [ObservableProperty]
-    private CalChipSiteModelEnum _calChipSiteModelEnum;
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private AlignmentResultDto _alignmentResult = new();
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;

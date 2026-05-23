@@ -10,10 +10,10 @@ public sealed partial class GenerateAODWaveformUniformityConfiguration :
     ICloneable<GenerateAODWaveformUniformityConfiguration>
 {
     [ObservableProperty]
-    private double _frequency;
+    public partial double Frequency { get; set; }
 
     [ObservableProperty]
-    private double _coefficient;
+    public partial double Coefficient { get; set; }
 
     public AODWaveformGenerator.AODWaveformUniformityConfiguration AdaptTo() => new(Frequency, Coefficient);
 

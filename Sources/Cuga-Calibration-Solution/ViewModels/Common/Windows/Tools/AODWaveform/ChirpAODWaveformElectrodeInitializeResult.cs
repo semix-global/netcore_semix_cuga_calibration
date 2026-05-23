@@ -7,11 +7,11 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class ChirpAODWaveformElectrodeInitializeResult : AODWaveformElectrodeInitializeResult
 {
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private string _chirpAODWaveformResultFilePath = string.Empty;
+    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private IReadOnlyList<ChirpAODWaveformProfile> _chirpAODWaveformProfiles = [];
+    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 }

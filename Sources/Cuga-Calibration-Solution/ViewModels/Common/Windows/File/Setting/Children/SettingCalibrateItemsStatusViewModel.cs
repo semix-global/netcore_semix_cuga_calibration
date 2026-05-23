@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Wcf.Models;
@@ -42,7 +41,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
     public record CalibrationCategory(string Description, IReadOnlyList<CalibrationCategoryItem> Items);
 
     [ObservableProperty]
-    private ObservableCollection<CalibrationCategory> _calibrationCategories = [];
+    public partial ObservableCollection<CalibrationCategory> CalibrationCategories { get; set; } = [];
 
     public SettingCalibrateItemsStatusViewModel(
         IMessenger messenger,
@@ -203,7 +202,6 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
             else
                 _dialogWindowProvider.ShowDialog("Save Failed! Please save it again.", DialogButtonsEnum.OK, DialogIconEnum.Error);
 
-            _messenger.Send(ToggleCalibrateEventFactory.RefreshWindow(true)); // 刷新界面
             return true;
         });
     }
@@ -219,10 +217,10 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
 public partial class CalibrationCategoryItem : ObservableObject
 {
     [ObservableProperty]
-    private string _description = string.Empty;
+    public partial string Description { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool _isAnyOk;
+    public partial bool IsAnyOk { get; set; }
 
     public bool IsArray { get; init; }
     public Type? Type { get; init; }

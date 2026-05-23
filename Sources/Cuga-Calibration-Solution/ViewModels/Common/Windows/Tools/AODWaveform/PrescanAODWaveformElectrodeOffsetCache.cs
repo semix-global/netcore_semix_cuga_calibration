@@ -5,5 +5,5 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class PrescanAODWaveformElectrodeOffsetCache : AODWaveformElectrodeOffsetCache<PrescanAODWaveformElectrodeOffsetItem, PrescanAODWaveformElectrodeOffsetResult>
 {
     [ObservableProperty]
-    private double _chirpFrequency;
+    public partial double ChirpFrequency { get; set; }
 }

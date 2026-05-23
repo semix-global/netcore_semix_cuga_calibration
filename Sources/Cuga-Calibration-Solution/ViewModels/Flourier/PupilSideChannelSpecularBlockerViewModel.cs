@@ -44,31 +44,40 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
 
     [ObservableProperty]
-    private int _selectedTabIndex;
+    public partial int SelectedTabIndex { get; set; }
 
     [ObservableProperty]
-    private int _rodNum = 23;
+    public partial int RodNum { get; set; } = 23;
 
     [ObservableProperty]
-    private int _rodWidth = 35;
+    public partial int RodWidth { get; set; } = 35;
 
     [ObservableProperty]
-    private int _rodHight = 350;
+    public partial int RodHight { get; set; } = 350;
 
     [ObservableProperty]
-    private int _xStartPixel = 100;
+    public partial int XStartPixel { get; set; } = 100;
 
     [ObservableProperty]
-    private double _ch12Percentage = 0.5;
+    public partial double Ch12Percentage { get; set; } = 0.5;
 
     [ObservableProperty]
-    private int _imageWidthPixel = 1000;
+    public partial int ImageWidthPixel { get; set; } = 1000;
 
     [ObservableProperty]
-    private bool _isSyncingFromDrag;
+    public partial bool IsSyncingFromDrag { get; set; }
 
     [ObservableProperty]
-    private HTuple _meanGrayOld1 = new(), _meanGrayOld2 = new(), _meanGrayNew1 = new(), _meanGrayNew2 = new();
+    public partial HTuple MeanGrayOld1 { get; set; } = new();
+
+    [ObservableProperty]
+    public partial HTuple MeanGrayOld2 { get; set; } = new();
+
+    [ObservableProperty]
+    public partial HTuple MeanGrayNew1 { get; set; } = new();
+
+    [ObservableProperty]
+    public partial HTuple MeanGrayNew2 { get; set; } = new();
 
     // 当 RodNum/ RodWidth/ XStartPixel 改变时自动重建矩形集合
     partial void OnRodNumChanged(int value)
@@ -90,46 +99,46 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     }
 
     [ObservableProperty]
-    private int _imageWidth = 2048;
+    public partial int ImageWidth { get; set; } = 2048;
 
     [ObservableProperty]
-    private int _imageHeight = 2048;
+    public partial int ImageHeight { get; set; } = 2048;
 
     [ObservableProperty]
-    private int _imageX;
+    public partial int ImageX { get; set; }
 
     [ObservableProperty]
-    private int _imageY;
+    public partial int ImageY { get; set; }
 
     [ObservableProperty]
-    private Point _sxPos;
+    public partial Point SxPos { get; set; }
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageAxis = [];
+    public partial ObservableCollection<Rect> CurrentImageAxis { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectListCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectListCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private string[] _reviewImageShowPath = new string[2];
+    public partial string[] ReviewImageShowPath { get; set; } = new string[2];
 
     [ObservableProperty]
-    private string[] _reviewImageHidePath = new string[2];
+    public partial string[] ReviewImageHidePath { get; set; } = new string[2];
 
     [ObservableProperty]
-    private double[] _reviewImageGrayCh1 = new double[2];
+    public partial double[] ReviewImageGrayCh1 { get; set; } = new double[2];
 
     [ObservableProperty]
-    private double[] _reviewImageGrayCh2 = new double[2];
+    public partial double[] ReviewImageGrayCh2 { get; set; } = new double[2];
 
     [ObservableProperty]
-    private double _reviewImageCompareCh1;
+    public partial double ReviewImageCompareCh1 { get; set; }
 
     [ObservableProperty]
-    private double _reviewImageCompareCh2;
+    public partial double ReviewImageCompareCh2 { get; set; }
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -139,7 +148,7 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     ];
 
     [ObservableProperty]
-    private ObservableCollection<RodInformation> _setAllRods =
+    public partial ObservableCollection<RodInformation> SetAllRods { get; set; } =
     [
         new("Rod1", 0), new("Rod2", 0), new("Rod3", 0), new("Rod4", 0), new("Rod5", 0), new("Rod6", 0),
         new("Rod7", 0), new("Rod8", 0), new("Rod9", 0), new("Rod10", 0), new("Rod11", 0), new("Rod12", 0),
@@ -154,10 +163,10 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     #region Calibrate
 
     [ObservableProperty]
-    private ObservableCollection<PupilSideChannelSpecularBlockerDTO> _resultPupilSideChannelSpecularBlockerDTOList = [];
+    public partial ObservableCollection<PupilSideChannelSpecularBlockerDTO> ResultPupilSideChannelSpecularBlockerDTOList { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<OpticsIlluminationModeAndProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
@@ -166,24 +175,24 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
     #region 缓存
 
     [ObservableProperty]
-    private PupilSideChannelSpecularBlockerDTO _resultDto = new();
+    public partial PupilSideChannelSpecularBlockerDTO ResultDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
+    public partial PupilCameraAlignmentDTO PupilCameraAlignmentValue { get; set; } = new();
 
     [ObservableProperty]
-    private PupilSideChannelFlexibleApertureDTO _pupilSideChannelFlexibleApertureValue = new();
+    public partial PupilSideChannelFlexibleApertureDTO PupilSideChannelFlexibleApertureValue { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private PupilSideChannelSpecularBlockerCache _cache = new();
+    public partial PupilSideChannelSpecularBlockerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private PupilSideChannelSpecularBlockerDTO[] _calibrations = [];
+    public partial PupilSideChannelSpecularBlockerDTO[] Calibrations { get; set; } = [];
 
     #endregion 缓存
 

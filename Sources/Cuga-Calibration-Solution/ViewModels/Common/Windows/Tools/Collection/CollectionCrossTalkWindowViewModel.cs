@@ -55,43 +55,43 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
 
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _brightFieldPosition;
+    public partial Point BrightFieldPosition { get; set; }
 
     [ObservableProperty]
-    private int _imageWidthPixel = 1000;
+    public partial int ImageWidthPixel { get; set; } = 1000;
 
     [ObservableProperty]
-    private double[] _pMT8ChPixselBefore = new double[3];
+    public partial double[] PMT8ChPixselBefore { get; set; } = new double[3];
 
     [ObservableProperty]
-    private double[] _pMT8ChPixselAfter = new double[3];
+    public partial double[] PMT8ChPixselAfter { get; set; } = new double[3];
 
     [ObservableProperty]
-    private string[] _pMT8ChCenterOpticsImagePath = new string[3];
+    public partial string[] PMT8ChCenterOpticsImagePath { get; set; } = new string[3];
 
     [ObservableProperty]
-    private string[] _pMT8ChAllOpticsImagePath = new string[3];
+    public partial string[] PMT8ChAllOpticsImagePath { get; set; } = new string[3];
 
     [ObservableProperty]
-    private double _pMT8Ch1PixselCompare;
+    public partial double PMT8Ch1PixselCompare { get; set; }
 
     [ObservableProperty]
-    private double _pMT8Ch2PixselCompare;
+    public partial double PMT8Ch2PixselCompare { get; set; }
 
     [ObservableProperty]
-    private double _pMT8Ch3PixselCompare;
+    public partial double PMT8Ch3PixselCompare { get; set; }
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 

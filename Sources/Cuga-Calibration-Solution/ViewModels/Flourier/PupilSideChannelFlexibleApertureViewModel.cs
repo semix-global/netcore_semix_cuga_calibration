@@ -33,49 +33,49 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     #region 界面相关
 
     [ObservableProperty]
-    private int _selectedTabIndex;
+    public partial int SelectedTabIndex { get; set; }
 
     [ObservableProperty]
-    private int _rodNum;
+    public partial int RodNum { get; set; }
 
     [ObservableProperty]
-    private int _rodBegin = 1;
+    public partial int RodBegin { get; set; } = 1;
 
     [ObservableProperty]
-    private int _rodEnd;
+    public partial int RodEnd { get; set; }
 
     [ObservableProperty]
-    private int _rodWidth = 50;
+    public partial int RodWidth { get; set; } = 50;
 
     [ObservableProperty]
-    private int _rodHight = 350;
+    public partial int RodHight { get; set; } = 350;
 
     [ObservableProperty]
-    private int _xStartPixel = 100;
+    public partial int XStartPixel { get; set; } = 100;
 
     [ObservableProperty]
-    private double _ch12Percentage = 0.5;
+    public partial double Ch12Percentage { get; set; } = 0.5;
 
     [ObservableProperty]
-    private double _ch12Percentage1 = 0.5;
+    public partial double Ch12Percentage1 { get; set; } = 0.5;
 
     [ObservableProperty]
-    private double _ch12Percentage2 = 0.8;
+    public partial double Ch12Percentage2 { get; set; } = 0.8;
 
     [ObservableProperty]
-    private bool _isSyncingFromDrag;
+    public partial bool IsSyncingFromDrag { get; set; }
 
     [ObservableProperty]
-    private string _heightRelationPercentCh1Text = "";
+    public partial string HeightRelationPercentCh1Text { get; set; } = "";
 
     [ObservableProperty]
-    private string _heightRelationPercentCh2Text = "";
+    public partial string HeightRelationPercentCh2Text { get; set; } = "";
 
     [ObservableProperty]
-    private string _heightBeginPercentCh1Text = "";
+    public partial string HeightBeginPercentCh1Text { get; set; } = "";
 
     [ObservableProperty]
-    private string _heightBeginPercentCh2Text = "";
+    public partial string HeightBeginPercentCh2Text { get; set; } = "";
 
     // 当 RodNum/ RodWidth/ XStartPixel 改变时自动重建矩形集合
     partial void OnRodNumChanged(int value)
@@ -97,10 +97,10 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     }
 
     [ObservableProperty]
-    private Point _sxPos;
+    public partial Point SxPos { get; set; }
 
     [ObservableProperty]
-    private int _rodNumber;
+    public partial int RodNumber { get; set; }
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -112,7 +112,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     ];
 
     [ObservableProperty]
-    private ObservableCollection<RodInformation> _setAllRods =
+    public partial ObservableCollection<RodInformation> SetAllRods { get; set; } =
     [
         new("Rod1", 0), new("Rod2", 0), new("Rod3", 0), new("Rod4", 0), new("Rod5", 0), new("Rod6", 0),
         new("Rod7", 0), new("Rod8", 0), new("Rod9", 0), new("Rod10", 0), new("Rod11", 0), new("Rod12", 0),
@@ -126,85 +126,85 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
 
     // 所有电线杆集合（绑定到 ListBox）
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh1Percent1 = [];
+    public partial ObservableCollection<Pole> AllOddRodsCh1Percent1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh1Percent2 = [];
+    public partial ObservableCollection<Pole> AllOddRodsCh1Percent2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh1Percent1 = [];
+    public partial ObservableCollection<Pole> AllEvenRodsCh1Percent1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh1Percent2 = [];
+    public partial ObservableCollection<Pole> AllEvenRodsCh1Percent2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh2Percent1 = [];
+    public partial ObservableCollection<Pole> AllOddRodsCh2Percent1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allOddRodsCh2Percent2 = [];
+    public partial ObservableCollection<Pole> AllOddRodsCh2Percent2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh2Percent1 = [];
+    public partial ObservableCollection<Pole> AllEvenRodsCh2Percent1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Pole> _allEvenRodsCh2Percent2 = [];
+    public partial ObservableCollection<Pole> AllEvenRodsCh2Percent2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageAxis = [];
+    public partial ObservableCollection<Rect> CurrentImageAxis { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddFirstCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectOddFirstCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddSecondCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectOddSecondCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenFirstCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectEvenFirstCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenSecondCh1 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectEvenSecondCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddFirstCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectOddFirstCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectOddSecondCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectOddSecondCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenFirstCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectEvenFirstCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<Rect> _currentImageRectEvenSecondCh2 = [];
+    public partial ObservableCollection<Rect> CurrentImageRectEvenSecondCh2 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _allRodsBeginPercentCh1 = [];
+    public partial ObservableCollection<double> AllRodsBeginPercentCh1 { get; set; } = [];
 
     [ObservableProperty]
-    private ObservableCollection<double> _allRodsBeginPercentCh2 = [];
+    public partial ObservableCollection<double> AllRodsBeginPercentCh2 { get; set; } = [];
 
     #endregion 界面相关
 
     #region 缓存
 
     [ObservableProperty]
-    private PupilSideChannelFlexibleApertureDTO _resultDto = new();
+    public partial PupilSideChannelFlexibleApertureDTO ResultDto { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    private PupilCameraAlignmentDTO _pupilCameraAlignmentValue = new();
+    public partial PupilCameraAlignmentDTO PupilCameraAlignmentValue { get; set; } = new();
 
     [RecipeCache]
     [ObservableProperty]
-    private PupilSideChannelFlexibleApertureCache _cache = new();
+    public partial PupilSideChannelFlexibleApertureCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private PupilSideChannelFlexibleApertureDTO _calibration = new();
+    public partial PupilSideChannelFlexibleApertureDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private PupilSideChannelFlexibleApertureDTO _review = new();
+    public partial PupilSideChannelFlexibleApertureDTO Review { get; set; } = new();
 
     #endregion 缓存
 
@@ -2437,21 +2437,21 @@ public partial class RodInformation : ObservableObject
     }
 
     [ObservableProperty]
-    private string _number = string.Empty;
+    public partial string Number { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private double _percent;
+    public partial double Percent { get; set; }
 };
 
 // Pole.cs
 public partial class Pole : ObservableObject
 {
     [ObservableProperty]
-    private int _id = 1;
+    public partial int Id { get; set; } = 1;
 
     [ObservableProperty]
-    private int _width = 20;
+    public partial int Width { get; set; } = 20;
 
     [ObservableProperty]
-    private int _height = 80;
+    public partial int Height { get; set; } = 80;
 }

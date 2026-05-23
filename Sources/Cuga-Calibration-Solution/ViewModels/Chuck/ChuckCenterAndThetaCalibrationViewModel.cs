@@ -47,41 +47,41 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     #region Calibration
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto? _resultCenterAndThetaItemDto = new();
+    public partial ChuckCenterAndThetaItemDto? ResultCenterAndThetaItemDto { get; set; } = new();
 
     [ObservableProperty]
-    private ObservableCollection<ChuckCenterAndThetaItemDto> _chuckCenterAndThetaItemDtoList = [];
+    public partial ObservableCollection<ChuckCenterAndThetaItemDto> ChuckCenterAndThetaItemDtoList { get; set; } = [];
 
     #endregion Calibration
 
     #region Review
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto? _reviewDto;
+    public partial ChuckCenterAndThetaItemDto? ReviewDto { get; set; }
 
     #endregion Review
 
     #region 缓存
 
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto? _selectCenterAndThetaItemDto;
+    public partial ChuckCenterAndThetaItemDto? SelectCenterAndThetaItemDto { get; set; }
 
     [RecipeCache]
     [ObservableProperty]
-    private ChuckCenterAndThetaCache _cache = new();
+    public partial ChuckCenterAndThetaCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private ChuckCenterAndThetaItemDto _calibration = new();
+    public partial ChuckCenterAndThetaItemDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    private AlignmentCacheBrightField _alignmentCacheBrightField = new();
+    public partial AlignmentCacheBrightField AlignmentCacheBrightField { get; set; } = new();
 
     [ObservableProperty]
-    private ChuckGantryDto _chuckGantry = new();
+    public partial ChuckGantryDto ChuckGantry { get; set; } = new();
 
     [ObservableProperty]
-    private MicroscopePixelSizeItemDto[] _microscopePixelSizeItems = [];
+    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
 
     #endregion 缓存
 

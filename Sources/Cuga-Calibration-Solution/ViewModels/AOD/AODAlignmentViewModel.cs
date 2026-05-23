@@ -55,18 +55,18 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
     #region Calibrate
 
     [ObservableProperty]
-    private AODAlignmentDTO _calibratingItem = new();
+    public partial AODAlignmentDTO CalibratingItem { get; set; } = new();
 
     [ObservableProperty]
-    private IReadOnlyList<ProductivityInformationStatus> _calibratingStatuses = [];
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     #endregion Calibrate
 
     [ObservableProperty]
-    private IReadOnlyList<AODAlignmentDTO> _reviews = [];
+    public partial IReadOnlyList<AODAlignmentDTO> Reviews { get; set; } = [];
 
     [ObservableProperty]
-    private IReadOnlyList<AODAlignmentDTO> _selectedReviewItems = [];
+    public partial IReadOnlyList<AODAlignmentDTO> SelectedReviewItems { get; set; } = [];
 
     #endregion 界面相关
 
@@ -74,14 +74,14 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    private AODAlignmentCache _cache = new();
+    public partial AODAlignmentCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    private AODAlignmentDTO[] _calibrations = [];
+    public partial AODAlignmentDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    private MicroscopeCalChipDTO _microscopeCalChip = new();
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
 

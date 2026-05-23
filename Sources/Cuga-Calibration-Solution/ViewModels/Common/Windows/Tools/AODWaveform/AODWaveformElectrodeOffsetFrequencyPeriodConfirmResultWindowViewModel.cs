@@ -10,7 +10,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private double _offsetFrequencyPeriodCoefficient;
+    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
 
     [RelayCommand]
     private void Close()

@@ -10,142 +10,138 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private GeneratePrescanAODWaveformParam _generatePrescanAODWaveformParam = new();
+    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private GenerateChirpAODWaveformParam _generateChirpAODWaveformParam = new();
+    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private Point _dSWMachinePosition = Point.Origin;
+    public partial Point DSWMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    private double _scanLength;
+    public partial double ScanLength { get; set; }
 
     [ObservableProperty]
-    private double _centerECS;
+    public partial double CenterECS { get; set; }
 
     [ObservableProperty]
-    private double _rangeECS;
+    public partial double RangeECS { get; set; }
 
     [ObservableProperty]
-    private bool _isConfirmBestYStrehlRatioResult = true;
+    public partial bool IsConfirmBestYStrehlRatioResult { get; set; } = true;
 
     [ObservableProperty]
-    private double _p2Coefficient;
+    public partial double P2Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p3Coefficient;
+    public partial double P3Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p4Coefficient;
+    public partial double P4Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p5Coefficient;
+    public partial double P5Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p6Coefficient;
+    public partial double P6Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p7Coefficient;
+    public partial double P7Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _p8Coefficient;
+    public partial double P8Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP2Coefficient;
+    public partial double StartP2Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP2Coefficient = 0.02;
+    public partial double StepP2Coefficient { get; set; } = 0.02;
 
     [ObservableProperty]
-    private double _stopP2Coefficient;
+    public partial double StopP2Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP3Coefficient;
+    public partial double StartP3Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP3Coefficient = 0.02;
+    public partial double StepP3Coefficient { get; set; } = 0.02;
 
     [ObservableProperty]
-    private double _stopP3Coefficient;
+    public partial double StopP3Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP4Coefficient;
+    public partial double StartP4Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP4Coefficient = 0.02;
+    public partial double StepP4Coefficient { get; set; } = 0.02;
 
     [ObservableProperty]
-    private double _stopP4Coefficient;
+    public partial double StopP4Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP5Coefficient;
+    public partial double StartP5Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP5Coefficient = 0.001;
+    public partial double StepP5Coefficient { get; set; } = 0.001;
 
     [ObservableProperty]
-    private double _stopP5Coefficient;
+    public partial double StopP5Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP6Coefficient;
+    public partial double StartP6Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP6Coefficient = 0.001;
+    public partial double StepP6Coefficient { get; set; } = 0.001;
 
     [ObservableProperty]
-    private double _stopP6Coefficient;
+    public partial double StopP6Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP7Coefficient;
+    public partial double StartP7Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP7Coefficient = 0.0001;
+    public partial double StepP7Coefficient { get; set; } = 0.0001;
 
     [ObservableProperty]
-    private double _stopP7Coefficient;
+    public partial double StopP7Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _startP8Coefficient;
+    public partial double StartP8Coefficient { get; set; }
 
     [ObservableProperty]
-    private double _stepP8Coefficient = 0.0001;
+    public partial double StepP8Coefficient { get; set; } = 0.0001;
 
     [ObservableProperty]
-    private double _stopP8Coefficient;
+    public partial double StopP8Coefficient { get; set; }
 
     [ObservableProperty]
-    private int _retryTimes = 10;
+    public partial int RetryTimes { get; set; } = 10;
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private ChirpAODWaveformTrainingItem _selectedItem = new();
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ChirpAODWaveformTrainingItem SelectedItem { get; set; } = new();
 
     [ObservableProperty]
-    private ChirpAODWaveformTrainingItem _item = new();
+    public partial ChirpAODWaveformTrainingItem Item { get; set; } = new();
 
     [ObservableProperty]
-    [property: Newtonsoft.Json.JsonIgnore]
-    [property: System.Text.Json.Serialization.JsonIgnore]
-    [property: System.Xml.Serialization.XmlIgnore]
-    private IReadOnlyList<ChirpAODWaveformTrainingItem> _items = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IReadOnlyList<ChirpAODWaveformTrainingItem> Items { get; set; } = [];
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
     {
