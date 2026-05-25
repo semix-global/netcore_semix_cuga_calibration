@@ -655,7 +655,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 true,
                                 cancellationToken);
 
-                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -681,7 +680,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                     CIBViewModel.SetGain([item.CIBInformation], Cache.StartGain);
                                 }
 
-                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                                 {
                                     itemItemData.Gain,
                                     itemItemData.PMTValue,
@@ -737,6 +736,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
         await InvokeVerifyAsync(() =>
         {
+            VerifyFileName = nameof(SaveAgingTemplateCommand);
+
             var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
             var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
 
@@ -746,7 +747,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             cibAgingResult.Id = 0;
             cibAgingResult.Items =
             [
-                .. Calibratings
+                .. SelectedReviewItems
+                    .OrderBy(t => t.CIBInformation)
                     .Select(t => new CIBAgingItem
                     {
                         CIBInformation = t.CIBInformation.Clone(),
@@ -758,10 +760,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     })
             ];
 
-            CacheProvider.Set(cibAgingResult, cancellationToken);
+            CacheProvider.Set(cibAgingCache, cancellationToken);
             CacheProvider.Set(cibAgingResult, cancellationToken);
 
-            var message = string.Join(Environment.NewLine, SelectedReviewItems.Select(t => t.CIBInformation));
+            var message = string.Join(", ", SelectedReviewItems.OrderBy(t => t.CIBInformation).Select(t => t.CIBInformation));
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlComment(message), HtmlLogUniqueId.LoggingHtml());
 

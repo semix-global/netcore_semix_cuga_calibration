@@ -103,7 +103,7 @@ public sealed partial class CIBAgingCoefficientFindItem : ObservableObject
             var scatterLines = ScatterPlotControl.GetOrAddScatterLines(FindMeasurePowerPoints.Count > 0 ? 1 : 0);
             scatterLines.ElementAtOrDefault(0)?.Update("Search Measure Power Points", FindMeasurePowerPoints, Constants.Category10.GetColor(0));
 
-            var yLines = ScatterPlotControl.GetOrAddYLines(3 + (AnswerMeasurePowerPoint is null ? 1 : 0));
+            var yLines = ScatterPlotControl.GetOrAddYLines(3 + (AnswerMeasurePowerPoint is not null ? 1 : 0));
             yLines[0].Update("Target Measure Power", TargetMeasurePower, Colors.DarkRed);
             yLines[1].Update("Upper Measure Power", UpperMeasurePower, Colors.OrangeRed);
             yLines[1].LinePattern = LinePattern.Dashed;
@@ -111,7 +111,7 @@ public sealed partial class CIBAgingCoefficientFindItem : ObservableObject
             yLines[2].LinePattern = LinePattern.Dashed;
             yLines.ElementAtOrDefault(3)?.Update($"Answer Measure Power{(AnswerMeasurePowerRatio is not null ? $": {AnswerMeasurePowerRatio:0.###}" : string.Empty)}", Guard.IsNotNullAndReturn(AnswerMeasurePowerPoint).Y, Colors.Green);
 
-            var xLines = ScatterPlotControl.GetOrAddXLines(AnswerMeasurePowerPoint is null ? 1 : 0);
+            var xLines = ScatterPlotControl.GetOrAddXLines(AnswerMeasurePowerPoint is not null ? 1 : 0);
             xLines.ElementAtOrDefault(0)?.Update($"Answer Coefficient{(AnswerMeasurePowerRatio is not null ? $": {AnswerMeasurePowerRatio:0.###}" : string.Empty)}", Guard.IsNotNullAndReturn(AnswerMeasurePowerPoint).X, Colors.Green);
         }
         finally

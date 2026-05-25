@@ -85,13 +85,15 @@ public sealed partial class CIBAgingWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> ActionAsync(CancellationToken cancellationToken)
     {
-        return await InvokeAsync("Action", async htmlLogUniqueId =>
+        return await InvokeAsync(string.Empty, async htmlLogUniqueId =>
         {
             if (Cache.SelectedAgings.Count == 0)
             {
                 dialogWindowProvider.ShowDialog("Please select agings!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return false;
             }
+
+            Cache.SelectedAgings = Cache.SelectedAgings.OrderBy(t => t.Coefficient).ToArray();
 
             var detectImageDirectory = ImageFileDirectory;
             var laserOpticalPowerMeter = applicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken)
@@ -100,7 +102,7 @@ public sealed partial class CIBAgingWindowViewModel(
                              && t.IsOk);
             var allCibInformations = Result.Items.Select(t => t.CIBInformation).ToArray();
 
-            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header2, new HtmlQuote(new
             {
                 detectImageDirectory,
                 MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
@@ -157,7 +159,7 @@ public sealed partial class CIBAgingWindowViewModel(
             cibViewModel.SetGain(allCibInformations, Cache.CIBMMDCache.StartGain);
             opticsViewModel.ToggleODFilter(false);
 
-            logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
             {
                 GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
                 Cache.CIBMMDCache.PrescanAODWaveformResultFilePath,
@@ -177,6 +179,8 @@ public sealed partial class CIBAgingWindowViewModel(
 
                 cibAgingItem.SelectItems = [];
                 cibAgingItem.NewItems = [];
+                cibAgingItem.SampleItems = [];
+                cibAgingItem.IsOk = false;
                 foreach (var cibAgingSelectItem in Cache.SelectedAgings)
                 {
                     cibAgingItem.SelectItems =
@@ -217,12 +221,13 @@ public sealed partial class CIBAgingWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation(cibAgingSelectItem.ToString(), HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation(cibAgingSelectItem.ToString(), HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
 
                     #region 获取功率
 
-                    logger.LogHtmlInformation("Find Coefficient", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Find Coefficient", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
+                    logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
                     stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(laserOpticalPowerMeter.MaxMeasurePowerPosition);
                     double currentCoefficient;
                     double currentMeasurePower;
@@ -277,7 +282,7 @@ public sealed partial class CIBAgingWindowViewModel(
                                 Cache.CoefficientFindItems[coefficientIndex].AnswerMeasurePowerPoint = new Point(currentCoefficient, currentMeasurePower);
                                 Cache.CoefficientFindItems[coefficientIndex].AnswerMeasurePowerRatio = measurePowerRatio;
 
-                                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
+                                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                                 {
                                     diff,
                                     measurePowerRatio,
@@ -311,6 +316,8 @@ public sealed partial class CIBAgingWindowViewModel(
                     }
                     catch (Exception ex)
                     {
+                        if (ex is OperationCanceledException) throw;
+
                         logger.LogHtmlError(ex, "Error", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
 
                         continue;
@@ -319,15 +326,16 @@ public sealed partial class CIBAgingWindowViewModel(
                     {
                         var htmlContainer = new HtmlContainer([.. Cache.CoefficientFindItems[coefficientIndex].ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]);
                         if (isSuccess)
-                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                         else
-                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                     }
 
                     #endregion
 
-                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation("Agings", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
+                    logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
                     foreach (var cibAgingItem in Result.Items)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
@@ -373,7 +381,6 @@ public sealed partial class CIBAgingWindowViewModel(
                                 true,
                                 cancellationToken);
 
-                            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header6, htmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -426,9 +433,9 @@ public sealed partial class CIBAgingWindowViewModel(
 
                         var htmlContainer = new HtmlContainer([.. Result.Items.Select(t => new HtmlExpand(t.CIBInformation.ToString(), new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]);
                         if (isSuccess)
-                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                         else
-                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                     }
                 }
             }
@@ -440,7 +447,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 stageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
 
-            logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
 
             foreach (var cibAgingItem in Result.Items)
             {
@@ -449,12 +456,12 @@ public sealed partial class CIBAgingWindowViewModel(
                 Algorithm(cibAgingItem, htmlLogUniqueId);
             }
 
-            var result = SelectedResultItems.All(t => t.IsOk);
+            var result = Result.Items.All(t => t.IsOk);
 
             var errorMessageStringBuilder = new StringBuilder();
-            foreach (var selectedResultItem in SelectedResultItems)
+            foreach (var resultItem in Result.Items)
             {
-                errorMessageStringBuilder.AppendLine($"{selectedResultItem.CIBInformation}: {(selectedResultItem.IsOk ? "OK" : "Already aged")}");
+                errorMessageStringBuilder.AppendLine($"{resultItem.CIBInformation}: {(resultItem.IsOk ? "OK" : "Already aged")}");
             }
 
             dialogWindowProvider.ShowDialog($"""
@@ -490,7 +497,22 @@ public sealed partial class CIBAgingWindowViewModel(
                 Algorithm(cibAgingItem, htmlLogUniqueId);
             }
 
-            return Task.FromResult(SelectedResultItems.All(t => t.IsOk));
+            var result = SelectedResultItems.All(t => t.IsOk);
+
+            var errorMessageStringBuilder = new StringBuilder();
+            foreach (var selectedResultItem in SelectedResultItems)
+            {
+                errorMessageStringBuilder.AppendLine($"{selectedResultItem.CIBInformation}: {(selectedResultItem.IsOk ? "OK" : "Already aged")}");
+            }
+
+            dialogWindowProvider.ShowDialog($"""
+                                             Algorithm : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return Task.FromResult(result);
         }, cancellationToken);
     }
 
@@ -625,7 +647,7 @@ public sealed partial class CIBAgingWindowViewModel(
 
             var htmlLogUniqueId = Guid.NewGuid();
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            if (string.IsNullOrWhiteSpace(title) == false) logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
 
             try
             {
@@ -648,7 +670,7 @@ public sealed partial class CIBAgingWindowViewModel(
             }
             finally
             {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_{title.Replace(" ", string.Empty)}_{(isSuccess ? "OK" : "Failed")}"));
+                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}{(string.IsNullOrWhiteSpace(title) ? string.Empty : $"_{title.Replace(" ", string.Empty)}")}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)

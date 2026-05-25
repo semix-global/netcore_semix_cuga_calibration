@@ -192,7 +192,16 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
         Coefficient,
         MeasurePower,
         IsOk,
-        Items = new HtmlTable([.. Items])
+        Items = new HtmlTable([
+            .. Items.Select(t => new
+            {
+                t.IsOk,
+                t.Gain,
+                t.DecayRate,
+                t.OldPMTValue,
+                t.NewPMTValue
+            })
+        ])
     };
 
     public sealed partial class Item : ObservableObject, ICloneable<Item>
