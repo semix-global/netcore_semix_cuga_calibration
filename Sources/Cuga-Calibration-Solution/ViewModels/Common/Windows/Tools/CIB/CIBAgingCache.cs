@@ -26,20 +26,21 @@ public sealed partial class CIBAgingCache : ObservableCacheBase
     public partial double MeasurePowerRatioThreshold { get; set; } = 0.1;
 
     [ObservableProperty]
-    public partial int SampleCount { get; set; } = 10;
+    public partial double AgingPMTValueNoises { get; set; } = 20;
 
     [ObservableProperty]
-    public partial double AgingThreshold { get; set; } = 0.1;
+    public partial int AgingSampleCount { get; set; } = 10;
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
+    public partial double AgingRatioThreshold { get; set; } = 0.1;
+
+    [ObservableProperty]
     public partial IReadOnlyList<CIBAgingSelectItem> Agings { get; set; } = [];
 
     [ObservableProperty]
     public partial IReadOnlyList<CIBAgingSelectItem> SelectedAgings { get; set; } = [];
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<CIBAgingCoefficientFindItem> CoefficientFindItems { get; set; } = [];
 }
 

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -99,7 +100,7 @@ public sealed partial class CIBAgingWindowViewModel(
                              && t.IsOk);
             var allCibInformations = Result.Items.Select(t => t.CIBInformation).ToArray();
 
-            logger.LogHtmlInformation("Aging Test Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 detectImageDirectory,
                 MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
@@ -124,8 +125,9 @@ public sealed partial class CIBAgingWindowViewModel(
                 Cache.CoefficientStep,
                 Cache.FindCoefficientRetryTimes,
                 Cache.MeasurePowerRatioThreshold,
-                Cache.SampleCount,
-                Cache.AgingThreshold,
+                Cache.AgingPMTValueNoises,
+                Cache.AgingSampleCount,
+                Cache.AgingRatioThreshold,
                 Cache.Agings,
                 Cache.SelectedAgings
             }), htmlLogUniqueId.LoggingHtml());
@@ -172,16 +174,26 @@ public sealed partial class CIBAgingWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                cibAgingItem.SelectItems = [..cibAgingItem.Items.Where(t => Cache.SelectedAgings.Contains(new CIBAgingSelectItem(t.Coefficient, t.MeasurePower)))];
-                cibAgingItem.NewItems =
-                [
-                    .. Cache.SelectedAgings.Select(t => new CIBMMDDTOItem
-                    {
-                        Coefficient = t.Coefficient,
-                        MeasurePower = t.MeasurePower,
-                        Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
-                    })
-                ];
+                cibAgingItem.SelectItems = [];
+                cibAgingItem.NewItems = [];
+                foreach (var cibAgingSelectItem in Cache.SelectedAgings)
+                {
+                    cibAgingItem.SelectItems =
+                    [
+                        ..cibAgingItem.SelectItems,
+                        cibAgingItem.Items.Single(t => cibAgingSelectItem == new CIBAgingSelectItem(t.Coefficient, t.MeasurePower)).Clone()
+                    ];
+                    cibAgingItem.NewItems =
+                    [
+                        .. cibAgingItem.NewItems,
+                        new CIBMMDDTOItem
+                        {
+                            Coefficient = cibAgingSelectItem.Coefficient,
+                            MeasurePower = cibAgingSelectItem.MeasurePower,
+                            Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
+                        }
+                    ];
+                }
             }
 
             Cache.CoefficientFindItems =
@@ -436,7 +448,22 @@ public sealed partial class CIBAgingWindowViewModel(
                 Algorithm(cibAgingItem, htmlLogUniqueId);
             }
 
-            return true;
+            var result = SelectedResultItems.All(t => t.IsOk);
+
+            var errorMessageStringBuilder = new StringBuilder();
+            foreach (var selectedResultItem in SelectedResultItems)
+            {
+                errorMessageStringBuilder.AppendLine($"{selectedResultItem.CIBInformation}: {(selectedResultItem.IsOk ? "OK" : "Already aged")}");
+            }
+
+            dialogWindowProvider.ShowDialog($"""
+                                             Algorithm : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
         }, cancellationToken);
     }
 
@@ -445,28 +472,23 @@ public sealed partial class CIBAgingWindowViewModel(
     {
         return InvokeAsync("Algorithm", htmlLogUniqueId =>
         {
-            try
+            if (SelectedResultItems.Count == 0) return Task.FromResult(false);
+
+            logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                if (SelectedResultItems.Count == 0)
-                {
-                    dialogWindowProvider.ShowDialog("Please select aging items!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Cache.AgingPMTValueNoises,
+                Cache.AgingSampleCount,
+                Cache.AgingRatioThreshold
+            }), htmlLogUniqueId.LoggingHtml());
 
-                    return Task.FromResult(false);
-                }
-
-                foreach (var cibAgingItem in SelectedResultItems)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    Algorithm(cibAgingItem, htmlLogUniqueId);
-                }
-
-                return Task.FromResult(true);
-            }
-            catch (Exception exception)
+            foreach (var cibAgingItem in SelectedResultItems)
             {
-                return Task.FromException<bool>(exception);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(cibAgingItem, htmlLogUniqueId);
             }
+
+            return Task.FromResult(SelectedResultItems.All(t => t.IsOk));
         }, cancellationToken);
     }
 
@@ -483,6 +505,16 @@ public sealed partial class CIBAgingWindowViewModel(
         {
             foreach (var (coefficientIndex, selectItem) in item.SelectItems.Index())
             {
+                var newItem = item.NewItems[coefficientIndex];
+                var validIndices = Generate.LinearRangeInt32(0, selectItem.Items.Count - 1)
+                    .Where(i => double.IsNaN(selectItem.Items[i].PMTValue) == false
+                                && double.IsNaN(newItem.Items[i].PMTValue) == false
+                                && selectItem.Items[i].PMTValue >= Cache.AgingPMTValueNoises
+                                && newItem.Items[i].PMTValue >= Cache.AgingPMTValueNoises)
+                    .ToArray();
+
+                if (validIndices.Length == 0) continue;
+
                 var cibAgingSampleItem = new CIBAgingSampleItem
                 {
                     Coefficient = selectItem.Coefficient,
@@ -493,26 +525,18 @@ public sealed partial class CIBAgingWindowViewModel(
 
                 item.SampleItems = [.. item.SampleItems, cibAgingSampleItem];
 
-                var newItem = item.NewItems[coefficientIndex];
-
-                var validIndices = Generate.LinearRangeInt32(0, selectItem.Items.Count - 1)
-                    .Where(i => double.IsNaN(selectItem.Items[i].PMTValue) == false
-                                && double.IsNaN(newItem.Items[i].PMTValue) == false)
-                    .ToArray();
-                if (validIndices.Length == 0) continue;
-
-                foreach (var index in SampleEvenly(validIndices, Cache.SampleCount))
+                foreach (var index in SampleEvenly(validIndices, Cache.AgingSampleCount))
                 {
                     var oldPMTValue = selectItem.Items[index].PMTValue;
                     var newPMTValue = newItem.Items[index].PMTValue;
                     var decayRate = oldPMTValue == 0 ? double.PositiveInfinity : (newPMTValue - oldPMTValue) / oldPMTValue;
-                    var isOk = Math.Abs(decayRate) <= Cache.AgingThreshold;
+                    var isOk = decayRate > 0 || Math.Abs(decayRate) <= Cache.AgingRatioThreshold;
 
                     cibAgingSampleItem.Items =
                     [
                         ..cibAgingSampleItem.Items, new CIBAgingSampleItem.Item
                         {
-                            Index = index,
+                            Gain = selectItem.Items[index].Gain,
                             OldPMTValue = oldPMTValue,
                             NewPMTValue = newPMTValue,
                             DecayRate = decayRate,

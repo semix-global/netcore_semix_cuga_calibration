@@ -717,28 +717,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
-            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
-            if (Calibratings.Select(t => t.CIBInformation).All(t => cibAgingResult.Items.Select(tt => tt.CIBInformation).Contains(t)) == false)
-            {
-                cibAgingCache.Id = 0;
-                cibAgingCache.CIBMMDCache = Cache.Clone();
-
-                cibAgingResult.Id = 0;
-                cibAgingResult.Items =
-                [
-                    .. Calibratings
-                        .Select(t => new CIBAgingItem
-                        {
-                            CIBInformation = t.CIBInformation.Clone(),
-                            Items = [.. t.Items.Select(tt => tt.Clone())]
-                        })
-                ];
-
-                CacheProvider.Set(cibAgingResult, cancellationToken);
-                CacheProvider.Set(cibAgingResult, cancellationToken);
-            }
-
             await Task.WhenAll(Calibratings.Select(t => Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -750,6 +728,91 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             return Calibratings.All(t => t.IsCalibrated);
         });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task SaveAgingTemplateAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        await InvokeVerifyAsync(() =>
+        {
+            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
+            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
+
+            cibAgingCache.Id = 0;
+            cibAgingCache.CIBMMDCache = Cache.Clone();
+
+            cibAgingResult.Id = 0;
+            cibAgingResult.Items =
+            [
+                .. Calibratings
+                    .Select(t => new CIBAgingItem
+                    {
+                        CIBInformation = t.CIBInformation.Clone(),
+                        Items = [.. t.Items.Select(tt => tt.Clone())],
+                        SelectItems = [],
+                        NewItems = [],
+                        SampleItems = [],
+                        IsOk = false
+                    })
+            ];
+
+            CacheProvider.Set(cibAgingResult, cancellationToken);
+            CacheProvider.Set(cibAgingResult, cancellationToken);
+
+            var message = string.Join(Environment.NewLine, SelectedReviewItems.Select(t => t.CIBInformation));
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlComment(message), HtmlLogUniqueId.LoggingHtml());
+
+            DialogWindowProvider.ShowDialog($"Save Aging OK: {message}");
+
+            return Task.FromResult(true);
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void SetCIBMMDs()
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        try
+        {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems)
+            {
+                var title = selectedReviewItem.CIBInformation.ToString();
+
+                if (selectedReviewItem.IsCalibrated == false)
+                {
+                    stringBuilder.AppendLine($"Error: {title} calibrated is failed.");
+                    isSuccess = false;
+
+                    continue;
+                }
+
+                CIBViewModel.SetMMD(
+                    selectedReviewItem.CIBInformation,
+                    [.. selectedReviewItem.SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
+                    [.. selectedReviewItem.SmoothGainS16BitPoints.Select(t => t.Y)]);
+                stringBuilder.AppendLine($"Success: {title} Set OK.");
+            }
+
+            DialogWindowProvider.ShowDialog(stringBuilder.ToString(),
+                DialogButtonsEnum.OK,
+                isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, nameof(SetCIBMMDs));
+            DialogWindowProvider.ShowDialog($"""
+                                             {nameof(SetCIBMMDs)} Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -919,50 +982,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         }).ConfigureAwait(false);
     }
 
-    [RelayCommand]
-    private void SetCIBMMDs()
-    {
-        if (SelectedReviewItems.Count == 0) return;
-
-        try
-        {
-            var isSuccess = true;
-
-            var stringBuilder = new StringBuilder();
-
-            foreach (var selectedReviewItem in SelectedReviewItems)
-            {
-                var title = selectedReviewItem.CIBInformation.ToString();
-
-                if (selectedReviewItem.IsCalibrated == false)
-                {
-                    stringBuilder.AppendLine($"Error: {title} calibrated is failed.");
-                    isSuccess = false;
-
-                    continue;
-                }
-
-                CIBViewModel.SetMMD(
-                    selectedReviewItem.CIBInformation,
-                    [.. selectedReviewItem.SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
-                    [.. selectedReviewItem.SmoothGainS16BitPoints.Select(t => t.Y)]);
-                stringBuilder.AppendLine($"Success: {title} Set OK.");
-            }
-
-            DialogWindowProvider.ShowDialog(stringBuilder.ToString(),
-                DialogButtonsEnum.OK,
-                isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, nameof(SetCIBMMDs));
-            DialogWindowProvider.ShowDialog($"""
-                                             {nameof(SetCIBMMDs)} Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-    }
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
     {
@@ -1006,28 +1025,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                     errorMessageStringBuilder.AppendLine($"{title}: Error");
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
-            }
-
-            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
-            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
-            if (Reviews.Select(t => t.CIBInformation).All(t => cibAgingResult.Items.Select(tt => tt.CIBInformation).Contains(t)) == false)
-            {
-                cibAgingCache.Id = 0;
-                cibAgingCache.CIBMMDCache = Cache.Clone();
-
-                cibAgingResult.Id = 0;
-                cibAgingResult.Items =
-                [
-                    .. Reviews
-                        .Select(t => new CIBAgingItem
-                        {
-                            CIBInformation = t.CIBInformation.Clone(),
-                            Items = [.. t.Items.Select(tt => tt.Clone())]
-                        })
-                ];
-
-                CacheProvider.Set(cibAgingResult, cancellationToken);
-                CacheProvider.Set(cibAgingResult, cancellationToken);
             }
 
             Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));

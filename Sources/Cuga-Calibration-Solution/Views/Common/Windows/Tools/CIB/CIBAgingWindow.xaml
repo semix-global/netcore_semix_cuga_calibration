@@ -13,6 +13,7 @@
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+           xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CIBAgingWindowViewModel}"
@@ -227,48 +228,55 @@
                             <GroupBox Header="Aging Params">
                                 <Border Style="{StaticResource BorderRegion}">
                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <hc:NumericUpDown hc:TitleElement.Title="Coefficient Step: "
+                                        <hc:NumericUpDown hc:TitleElement.Title="Find Coefficient Step: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="190"
                                                           Minimum="0.001"
                                                           Maximum="1"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.CoefficientStep}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Find Coefficient Retry Times: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="190"
                                                           Minimum="1"
                                                           Maximum="50"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.FindCoefficientRetryTimes}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Measure Power Ratio Threshold: "
+                                        <hc:NumericUpDown hc:TitleElement.Title="Find Coefficient Ratio Threshold: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="190"
                                                           Minimum="0.001"
                                                           Maximum="1"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.MeasurePowerRatioThreshold}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Sample Count: "
+                                        <hc:NumericUpDown hc:TitleElement.Title="Aging PMT Value Noises: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="190"
                                                           Minimum="1"
                                                           Maximum="1000"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.SampleCount}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Aging Threshold: "
+                                                          Value="{Binding Cache.AgingPMTValueNoises}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Aging Sample Count: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="190"
+                                                          Minimum="1"
+                                                          Maximum="1000"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.AgingSampleCount}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Aging Ratio Threshold: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="190"
                                                           Minimum="0.001"
                                                           Maximum="1"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.AgingThreshold}" />
+                                                          Value="{Binding Cache.AgingRatioThreshold}" />
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="Agings: "
-                                                       Width="160"
+                                                       Width="190"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center" />
                                             <ListBox Grid.Column="1"
@@ -404,10 +412,10 @@
                                         <Trigger Property="IsSelected" Value="True">
                                             <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                         </Trigger>
-                                        <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                        <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.True}">
                                             <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                        <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.False}">
                                             <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -441,7 +449,7 @@
                                 </TabControl.ItemTemplate>
                                 <TabControl.ContentTemplate>
                                     <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
-                                        <TabControl>
+                                        <TabControl Margin="5">
                                             <i:Interaction.Behaviors>
                                                 <wpf:SelectorAutoSelectFirstBehavior />
                                             </i:Interaction.Behaviors>
@@ -459,11 +467,14 @@
                                                         <ListView.ItemContainerStyle>
                                                             <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsOk}" Value="True">
-                                                                        <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                    <Trigger Property="IsSelected" Value="True">
+                                                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                                    </Trigger>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.True}">
                                                                         <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.False}">
+                                                                        <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -476,35 +487,64 @@
                                                                         <Setter Property="VerticalContentAlignment" Value="Center" />
                                                                     </Style>
                                                                 </GridView.ColumnHeaderContainerStyle>
-                                                                <GridViewColumn Header="Coefficient" DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:0.###}}" />
-                                                                <GridViewColumn Header="MeasurePower" DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
-                                                                <GridViewColumn Header="Items">
+                                                                <GridViewColumn Width="100"
+                                                                                Header="Coefficient"
+                                                                                DisplayMemberBinding="{Binding Coefficient, StringFormat={}{0:0.###}}" />
+                                                                <GridViewColumn Width="100"
+                                                                                Header="MeasurePower(mW)"
+                                                                                DisplayMemberBinding="{Binding MeasurePower, StringFormat={}{0:0.###}}" />
+                                                                <GridViewColumn Width="100"
+                                                                                Header="IsOk"
+                                                                                DisplayMemberBinding="{Binding IsOk}" />
+                                                                <GridViewColumn Width="520" Header="Items">
                                                                     <GridViewColumn.CellTemplate>
                                                                         <DataTemplate DataType="{x:Type viewModels:CIBAgingSampleItem}">
-                                                                            <DataGrid MaxHeight="200"
+                                                                            <ListView MaxHeight="300"
                                                                                       ItemsSource="{Binding Items}"
-                                                                                      Style="{StaticResource DataGrid.Small}"
-                                                                                      AutoGenerateColumns="False"
-                                                                                      IsReadOnly="True">
-                                                                                <DataGrid.RowStyle>
-                                                                                    <Style BasedOn="{StaticResource {x:Type DataGridRow}}" TargetType="DataGridRow">
+                                                                                      Style="{StaticResource ListView.Small}"
+                                                                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                                                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                                                                <ListView.ItemContainerStyle>
+                                                                                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                                                                         <Style.Triggers>
-                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="True">
-                                                                                                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
-                                                                                            </DataTrigger>
-                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                                            <Trigger Property="IsSelected" Value="True">
+                                                                                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                                                            </Trigger>
+                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.True}">
                                                                                                 <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                                                            </DataTrigger>
+                                                                                            <DataTrigger Binding="{Binding IsOk}" Value="{x:Static constants:Constants.False}">
+                                                                                                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
                                                                                             </DataTrigger>
                                                                                         </Style.Triggers>
                                                                                     </Style>
-                                                                                </DataGrid.RowStyle>
-                                                                                <DataGrid.Columns>
-                                                                                    <DataGridTextColumn Header="Index" Binding="{Binding Index}" />
-                                                                                    <DataGridTextColumn Header="Old PMT" Binding="{Binding OldPMTValue, StringFormat={}{0:0.###}}" />
-                                                                                    <DataGridTextColumn Header="New PMT" Binding="{Binding NewPMTValue, StringFormat={}{0:0.###}}" />
-                                                                                    <DataGridTextColumn Header="Decay Rate" Binding="{Binding DecayRate, StringFormat={}{0:0.###}}" />
-                                                                                </DataGrid.Columns>
-                                                                            </DataGrid>
+                                                                                </ListView.ItemContainerStyle>
+                                                                                <ListView.View>
+                                                                                    <GridView>
+                                                                                        <GridView.ColumnHeaderContainerStyle>
+                                                                                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                                            </Style>
+                                                                                        </GridView.ColumnHeaderContainerStyle>
+                                                                                        <GridViewColumn Width="80"
+                                                                                                        Header="Gain(V)"
+                                                                                                        DisplayMemberBinding="{Binding Gain, StringFormat={}{0:0.###}}" />
+                                                                                        <GridViewColumn Width="100"
+                                                                                                        Header="Old PMT"
+                                                                                                        DisplayMemberBinding="{Binding OldPMTValue, StringFormat={}{0:0.###}}" />
+                                                                                        <GridViewColumn Width="100"
+                                                                                                        Header="New PMT"
+                                                                                                        DisplayMemberBinding="{Binding NewPMTValue, StringFormat={}{0:0.###}}" />
+                                                                                        <GridViewColumn Width="100"
+                                                                                                        Header="Decay Rate"
+                                                                                                        DisplayMemberBinding="{Binding DecayRate, StringFormat={}{0:0.###}}" />
+                                                                                        <GridViewColumn Width="80"
+                                                                                                        Header="IsOk"
+                                                                                                        DisplayMemberBinding="{Binding IsOk}" />
+                                                                                    </GridView>
+                                                                                </ListView.View>
+                                                                            </ListView>
                                                                         </DataTemplate>
                                                                     </GridViewColumn.CellTemplate>
                                                                 </GridViewColumn>

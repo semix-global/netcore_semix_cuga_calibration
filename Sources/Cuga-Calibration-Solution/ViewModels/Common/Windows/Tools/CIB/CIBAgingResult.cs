@@ -38,10 +38,10 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
     public partial IReadOnlyList<CIBMMDDTOItem> NewItems { get; set; } = [];
 
     [ObservableProperty]
-    public partial bool IsOk { get; set; }
+    public partial IReadOnlyList<CIBAgingSampleItem> SampleItems { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<CIBAgingSampleItem> SampleItems { get; set; } = [];
+    public partial bool IsOk { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
     public IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
@@ -72,6 +72,19 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
         RefreshPlot();
     }
 
+    partial void OnSampleItemsChanged(IReadOnlyList<CIBAgingSampleItem>? oldValue, IReadOnlyList<CIBAgingSampleItem> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshPlot();
+    }
+
     private void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
 
     public CIBAgingItem()
@@ -88,30 +101,49 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
                     where itemItems.Length > 0
                     select new
                     {
-                        LegendText = $"{item.Coefficient:0.###}",
-                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
-                    }
-                ).ToArray();
-            var tempNewItems = (from item in NewItems
-                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
-                    where itemItems.Length > 0
-                    select new
-                    {
-                        LegendText = $"{item.Coefficient:0.###} - Aging",
+                        Item = new CIBAgingSelectItem(item.Coefficient, item.MeasurePower),
                         Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
                     }
                 ).ToArray();
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(tempSelectItems.Length + tempNewItems.Length);
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(tempSelectItems.Length * 2);
+            var xLines = ScatterPlotControl.GetOrAddXLines(SampleItems.Count > 0
+                ? SampleItems.Select(t => t.Items.Count).Aggregate((t1, t2) => t1 + t2)
+                : 0);
 
+            var xLineIndex = 0;
             foreach (var (index, temp) in tempSelectItems.Index())
             {
-                scatterLines[index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index));
-            }
+                var color = Constants.Category10.GetColor(2 * index);
 
-            foreach (var (index, temp) in tempNewItems.Index())
-            {
-                scatterLines[tempSelectItems.Length + index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index).Lighten(0.7));
+                scatterLines[2 * index].Update(temp.Item.ToString(), temp.Points, color.Lighten(0.6));
+
+                var newItem = NewItems.ElementAtOrDefault(index);
+                if (newItem is not null)
+                {
+                    var newItemPoints = newItem.Items
+                        .Where(t => double.IsNaN(t.PMTValue) == false)
+                        .Select(t => new Point(t.Gain, t.PMTValue))
+                        .ToArray();
+
+                    if (newItemPoints.Length > 0)
+                    {
+                        scatterLines[2 * index + 1].Update($"{temp.Item} - Aging: {new CIBAgingSelectItem(newItem.Coefficient, newItem.MeasurePower)}", newItemPoints, color);
+                        scatterLines[2 * index + 1].IsVisible = true;
+                    }
+                    else scatterLines[2 * index + 1].IsVisible = false;
+                }
+
+                var sampleItem = SampleItems.SingleOrDefault(t => temp.Item == new CIBAgingSelectItem(t.Coefficient, t.MeasurePower));
+                if (sampleItem is not null)
+                {
+                    foreach (var item in sampleItem.Items)
+                    {
+                        xLines[xLineIndex].Update(string.Empty, item.Gain, color.Lighten(0.6));
+
+                        xLineIndex++;
+                    }
+                }
             }
         }
         finally
@@ -162,7 +194,7 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
     public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
         [ObservableProperty]
-        public partial int Index { get; set; }
+        public partial double Gain { get; set; }
 
         [ObservableProperty]
         public partial double OldPMTValue { get; set; }
@@ -178,7 +210,7 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
 
         public Item Clone() => new()
         {
-            Index = Index,
+            Gain = Gain,
             OldPMTValue = OldPMTValue,
             NewPMTValue = NewPMTValue,
             DecayRate = DecayRate,
