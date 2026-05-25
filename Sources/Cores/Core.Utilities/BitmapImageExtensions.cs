@@ -39,5 +39,12 @@ public static class BitmapImageExtensions
 
             return temp2.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
+
+        public (double Average, double Deviation) GetIntensity()
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            return hImage.GetIntensity();
+        }
     }
 }

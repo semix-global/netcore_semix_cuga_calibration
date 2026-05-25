@@ -16,6 +16,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
 using Humanizer;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -23,13 +24,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -327,6 +326,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
@@ -374,6 +375,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 MeasureMaxPowerPosition = laserOpticalPowerMeter.MaxMeasurePowerPosition,
+                Cache.MicroscopeLensInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
                 Cache.CIBInformations,
                 Cache.HazeFindBFMachinePosition,
                 Cache.ProductivityInformation,
@@ -652,7 +655,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 true,
                                 cancellationToken);
 
-                            Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {
                                 cancellationToken.ThrowIfCancellationRequested();
@@ -660,8 +662,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                 var (index, darkFieldImage) = t;
                                 using var _ = darkFieldImage;
 
-                                using var hImage = darkFieldImage.Image.ToHImage();
-                                var pmtValue = hImage.GetIntensity().Average;
+                                var pmtValue = darkFieldImage.Image.GetIntensity().Average;
 
                                 var item = noProtectedCIBMMDDtos[index];
                                 var itemItem = item.Items[coefficientIndex];
@@ -679,7 +680,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                                     CIBViewModel.SetGain([item.CIBInformation], Cache.StartGain);
                                 }
 
-                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+                                Logger.LogHtmlInformation(item.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                                 {
                                     itemItemData.Gain,
                                     itemItemData.PMTValue,
@@ -726,6 +727,94 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             return Calibratings.All(t => t.IsCalibrated);
         });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task SaveAgingTemplateAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        await InvokeVerifyAsync(() =>
+        {
+            VerifyFileName = nameof(SaveAgingTemplateCommand);
+
+            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
+            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
+
+            cibAgingCache.Id = 0;
+            cibAgingCache.CIBMMDCache = Cache.Clone();
+
+            cibAgingResult.Id = 0;
+            cibAgingResult.Items =
+            [
+                .. SelectedReviewItems
+                    .OrderBy(t => t.CIBInformation)
+                    .Select(t => new CIBAgingItem
+                    {
+                        CIBInformation = t.CIBInformation.Clone(),
+                        Items = [.. t.Items.Select(tt => tt.Clone())],
+                        SelectItems = [],
+                        NewItems = [],
+                        SampleItems = [],
+                        IsOk = false
+                    })
+            ];
+
+            CacheProvider.Set(cibAgingCache, cancellationToken);
+            CacheProvider.Set(cibAgingResult, cancellationToken);
+
+            var message = string.Join(", ", SelectedReviewItems.OrderBy(t => t.CIBInformation).Select(t => t.CIBInformation));
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlComment(message), HtmlLogUniqueId.LoggingHtml());
+
+            DialogWindowProvider.ShowDialog($"Save Aging OK: {message}");
+
+            return Task.FromResult(true);
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void SetCIBMMDs()
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        try
+        {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems)
+            {
+                var title = selectedReviewItem.CIBInformation.ToString();
+
+                if (selectedReviewItem.IsCalibrated == false)
+                {
+                    stringBuilder.AppendLine($"Error: {title} calibrated is failed.");
+                    isSuccess = false;
+
+                    continue;
+                }
+
+                CIBViewModel.SetMMD(
+                    selectedReviewItem.CIBInformation,
+                    [.. selectedReviewItem.SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
+                    [.. selectedReviewItem.SmoothGainS16BitPoints.Select(t => t.Y)]);
+                stringBuilder.AppendLine($"Success: {title} Set OK.");
+            }
+
+            DialogWindowProvider.ShowDialog(stringBuilder.ToString(),
+                DialogButtonsEnum.OK,
+                isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, nameof(SetCIBMMDs));
+            DialogWindowProvider.ShowDialog($"""
+                                             {nameof(SetCIBMMDs)} Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -893,50 +982,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             return result;
         }).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
-    private void SetCIBMMDs()
-    {
-        if (SelectedReviewItems.Count == 0) return;
-
-        try
-        {
-            var isSuccess = true;
-
-            var stringBuilder = new StringBuilder();
-
-            foreach (var selectedReviewItem in SelectedReviewItems)
-            {
-                var title = selectedReviewItem.CIBInformation.ToString();
-
-                if (selectedReviewItem.IsCalibrated == false)
-                {
-                    stringBuilder.AppendLine($"Error: {title} calibrated is failed.");
-                    isSuccess = false;
-
-                    continue;
-                }
-
-                CIBViewModel.SetMMD(
-                    selectedReviewItem.CIBInformation,
-                    [.. selectedReviewItem.SmoothLogGainMul128U12BitPoints.Select(t => t.Y)],
-                    [.. selectedReviewItem.SmoothGainS16BitPoints.Select(t => t.Y)]);
-                stringBuilder.AppendLine($"Success: {title} Set OK.");
-            }
-
-            DialogWindowProvider.ShowDialog(stringBuilder.ToString(),
-                DialogButtonsEnum.OK,
-                isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, nameof(SetCIBMMDs));
-            DialogWindowProvider.ShowDialog($"""
-                                             {nameof(SetCIBMMDs)} Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -1218,11 +1263,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             item.GainS16BitPoints = gainS16BitPoints;
             item.SmoothGainS16BitPoints = [.. gainS16BitPoints.Index().Select(t => new Point(t.Item.X, gainS16BitFilter[t.Index]))];
 
-            htmlList.Add(new HtmlBullet(new
-            {
-                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-            }));
-
             isSuccess = true;
         }
         catch (Exception ex)
@@ -1231,12 +1271,16 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
             htmlList.Add(new HtmlQuote(new
             {
-                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 Exception = ex
             }));
         }
         finally
         {
+            htmlList.Add(new HtmlBullet(new
+            {
+                Plot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+            }));
+
             item.IsCalibrated = isSuccess;
             item.IsVerified = false;
 

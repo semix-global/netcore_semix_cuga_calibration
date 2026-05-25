@@ -70,6 +70,9 @@
         <Compile Update="ViewModels\*\*.LoadDepends.cs">
             <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.LoadDepends', '.cs'))</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\CIB\CIBAging*.cs">
+            <DependentUpon>CIBAgingWindowViewModel.cs</DependentUpon>
+        </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsGrabbingImage*.cs">
             <DependentUpon>OpticsGrabbingImageWindowViewModel.cs</DependentUpon>
         </Compile>

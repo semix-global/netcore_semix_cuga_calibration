@@ -316,10 +316,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             ];
         }
 
-        Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            Result = new HtmlContainer([.. dictionary.Select(t => new HtmlExpand(t.Key.ContainerTitle, new HtmlPlot2DLinesChart([(string.Empty, t.Value)], t.Key.PlotTitle)))])
-        }), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlContainer([.. dictionary.Select(t => new HtmlExpand(t.Key.ContainerTitle, new HtmlPlot2DLinesChart([(string.Empty, t.Value)], t.Key.PlotTitle)))]), HtmlLogUniqueId.LoggingHtml());
     }
 
     private async Task<bool> InvokeAsync(

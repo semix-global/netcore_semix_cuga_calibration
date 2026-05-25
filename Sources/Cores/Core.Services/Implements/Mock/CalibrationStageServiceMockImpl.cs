@@ -17,8 +17,9 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 {
-    private static readonly Point BrightFieldStagePosition = new(89911.095473606, -20812.22680077);
-    private static readonly Point DarkFieldStagePosition = new(-81180.630005259, -21457.871246671);
+    private static readonly (double XDirection, double YDirection) XYDirection = (-1, 1);
+    private static readonly Point BrightFieldStagePosition = new(88661.791, -1263.795);
+    private static readonly Point DarkFieldStagePosition = new(-80971.341, -21275.932);
 
     private Point _curPosition = BrightFieldStagePosition;
     private double _curTheta;
@@ -75,35 +76,35 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         switch (dir)
         {
             case StageDirectionTypeEnum.UpLeft:
-                _curPosition += new Vector(-step, step);
+                _curPosition += new Vector(XYDirection.XDirection * -step, XYDirection.YDirection * step);
                 break;
 
             case StageDirectionTypeEnum.Up:
-                _curPosition += new Vector(0, step);
+                _curPosition += new Vector(XYDirection.XDirection * 0, XYDirection.YDirection * step);
                 break;
 
             case StageDirectionTypeEnum.UpRight:
-                _curPosition += new Vector(step, step);
+                _curPosition += new Vector(XYDirection.XDirection * step, XYDirection.YDirection * step);
                 break;
 
             case StageDirectionTypeEnum.Left:
-                _curPosition += new Vector(-step, 0);
+                _curPosition += new Vector(XYDirection.XDirection * -step, XYDirection.YDirection * 0);
                 break;
 
             case StageDirectionTypeEnum.Right:
-                _curPosition += new Vector(step, 0);
+                _curPosition += new Vector(XYDirection.XDirection * step, XYDirection.YDirection * 0);
                 break;
 
             case StageDirectionTypeEnum.DownLeft:
-                _curPosition += new Vector(-step, -step);
+                _curPosition += new Vector(XYDirection.XDirection * -step, XYDirection.YDirection * -step);
                 break;
 
             case StageDirectionTypeEnum.Down:
-                _curPosition += new Vector(0, -step);
+                _curPosition += new Vector(XYDirection.XDirection * 0, XYDirection.YDirection * -step);
                 break;
 
             case StageDirectionTypeEnum.DownRight:
-                _curPosition += new Vector(step, -step);
+                _curPosition += new Vector(XYDirection.XDirection * step, XYDirection.YDirection * -step);
                 break;
         }
 
@@ -112,50 +113,32 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<Point> GetBrightFieldStagePosition()
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(_curPosition - (Vector)BrightFieldStagePosition);
-    }
+    public SxExecuteRet<Point> GetBrightFieldStagePosition() => MachineToBrightFieldPosition(_curPosition);
 
     public SxExecuteRet<bool> SetBrightFieldAbsoluteStageXy(Point point)
     {
-        _curPosition = point + (Vector)BrightFieldStagePosition;
-
-        Thread.Sleep(100);
+        _curPosition = BrightFieldToMachinePosition(point).Anything;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<Point> GetDarkFieldStagePosition()
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(_curPosition - (Vector)DarkFieldStagePosition);
-    }
+    public SxExecuteRet<Point> GetDarkFieldStagePosition() => MachineToDarkFieldPosition(_curPosition);
 
     public SxExecuteRet<bool> SetDarkFieldAbsoluteStageXy(Point point)
     {
-        _curPosition = point + (Vector)DarkFieldStagePosition;
-
-        Thread.Sleep(100);
+        _curPosition = DarkFieldToMachinePosition(point).Anything;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<Point> GetMachineStagePosition()
     {
-        Thread.Sleep(100);
-
         return SxExecuteRetHelper.CreateSuccess(_curPosition);
     }
 
     public SxExecuteRet<bool> SetMachineAbsoluteStageXy(Point point)
     {
         _curPosition = point;
-
-        Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -164,8 +147,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         _curPosition = point;
 
-        Thread.Sleep(100);
-
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -173,7 +154,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess<(double XDirection, double YDirection)>((-1, 1));
+        return SxExecuteRetHelper.CreateSuccess(XYDirection);
     }
 
     public SxExecuteRet<bool> InitYAxis()
@@ -188,30 +169,30 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     public SxExecuteRet<Point> BrightFieldToMachinePosition(Point point)
     {
-        Thread.Sleep(100);
+        var temp = new Point(XYDirection.XDirection * point.X, XYDirection.YDirection * point.Y);
 
-        return SxExecuteRetHelper.CreateSuccess(point + (Vector)BrightFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(temp + (Vector)BrightFieldStagePosition);
     }
 
     public SxExecuteRet<Point> DarkFieldToMachinePosition(Point point)
     {
-        Thread.Sleep(100);
+        var temp = new Point(XYDirection.XDirection * point.X, XYDirection.YDirection * point.Y);
 
-        return SxExecuteRetHelper.CreateSuccess(point + (Vector)DarkFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(temp + (Vector)DarkFieldStagePosition);
     }
 
     public SxExecuteRet<Point> MachineToBrightFieldPosition(Point point)
     {
-        Thread.Sleep(100);
+        var temp = point - (Vector)BrightFieldStagePosition;
 
-        return SxExecuteRetHelper.CreateSuccess(point - (Vector)BrightFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(new Point(XYDirection.XDirection * temp.X, XYDirection.YDirection * temp.Y));
     }
 
     public SxExecuteRet<Point> MachineToDarkFieldPosition(Point point)
     {
-        Thread.Sleep(100);
+        var temp = point - (Vector)DarkFieldStagePosition;
 
-        return SxExecuteRetHelper.CreateSuccess(point - (Vector)DarkFieldStagePosition);
+        return SxExecuteRetHelper.CreateSuccess(new Point(XYDirection.XDirection * temp.X, XYDirection.YDirection * temp.Y));
     }
 
     public SxExecuteRet<Point> FindWaferCenterByAutomatic(int offsetThreshold = 100)
