@@ -562,7 +562,8 @@ public sealed partial class CIBAgingWindowViewModel(
             htmlList.Add(new HtmlBullet(new
             {
                 item.IsOk,
-                SampleItems = new HtmlTable([.. item.SampleItems.Select(t => t.ToHtmlAnonymous())])
+                SampleItems = new HtmlTable([.. item.SampleItems.Select(t => t.ToHtmlAnonymous())]),
+                Plot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             if (item.IsOk)
