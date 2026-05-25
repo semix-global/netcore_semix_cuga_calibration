@@ -369,6 +369,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
         Logger.LogHtmlInformation($"1. {Name}", HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
         Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
+        var lastVerifyFileName = VerifyFileName;
         var result = false;
         try
         {
@@ -404,6 +405,8 @@ public partial class CalibrationViewModelBase : ViewModelBase
                                                                     $"_{FileHelper.RemoveInvalidFileName(Name)}" +
                                                                     $"_{FileHelper.RemoveInvalidFileName(VerifyHtmlFileLogName)}" +
                                                                     $"_{(result ? "OK" : "Failed")}"));
+
+            VerifyFileName = lastVerifyFileName;
         }
     }
 
