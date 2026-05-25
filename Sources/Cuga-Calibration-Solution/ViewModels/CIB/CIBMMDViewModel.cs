@@ -1276,7 +1276,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
         {
             htmlList.Add(new HtmlBullet(new
             {
-                SuccessPlot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                Plot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             item.IsCalibrated = isSuccess;
