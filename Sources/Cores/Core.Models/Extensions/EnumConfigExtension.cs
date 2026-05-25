@@ -6,7 +6,6 @@ namespace Core.Models.Extensions;
 public static class EnumConfigExtension
 {
 #if NETFRAMEWORK
-
     extension(CgCommonType @this)
     {
         public HardwareMotorTypeEnum? ToHardwareMotorTypeEnum() => @this switch

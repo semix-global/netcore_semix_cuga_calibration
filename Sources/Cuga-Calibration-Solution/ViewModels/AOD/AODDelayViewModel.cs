@@ -10,6 +10,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using MathNet.Numerics;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
@@ -24,7 +25,6 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Microsoft.Extensions.Hosting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.AOD;

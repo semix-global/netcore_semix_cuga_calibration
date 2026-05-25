@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.CIB.MMD;
 using Core.Models.Models.Common.Pattern;
@@ -9,6 +8,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
+using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
@@ -23,7 +23,7 @@ public sealed partial class CIBAgingResult : ObservableCacheBase, ICloneable<CIB
 
     public CIBAgingResult Clone() => new()
     {
-        Items = [..Items.Select(t => t.Clone())]
+        Items = [.. Items.Select(t => t.Clone())]
     };
 }
 
@@ -101,13 +101,13 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
         try
         {
             var tempSelectItems = (from item in SelectItems
-                    let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
-                    where itemItems.Length > 0
-                    select new
-                    {
-                        Item = new CIBAgingSelectItem(item.Coefficient, item.MeasurePower),
-                        Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
-                    }
+                                   let itemItems = item.Items.Where(t => double.IsNaN(t.PMTValue) == false).ToArray()
+                                   where itemItems.Length > 0
+                                   select new
+                                   {
+                                       Item = new CIBAgingSelectItem(item.Coefficient, item.MeasurePower),
+                                       Points = itemItems.Select(t => new Point(t.Gain, t.PMTValue)).ToArray()
+                                   }
                 ).ToArray();
 
             var scatterLines = ScatterPlotControl.GetOrAddScatterLines(tempSelectItems.Length * 2);
