@@ -170,6 +170,7 @@ public sealed partial class CIBAgingWindowViewModel(
             var gains = Generate.LinearRange(Cache.CIBMMDCache.StartGain, Cache.CIBMMDCache.StepGain, Cache.CIBMMDCache.StopGain);
             Guard.IsNotEmpty(gains);
 
+            Result.IsModify = true;
             foreach (var cibAgingItem in Result.Items)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -481,6 +482,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 Cache.AgingRatioThreshold
             }), htmlLogUniqueId.LoggingHtml());
 
+            Result.IsModify = true;
             foreach (var cibAgingItem in SelectedResultItems)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -581,9 +583,13 @@ public sealed partial class CIBAgingWindowViewModel(
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
             Cache.Id = 0;
-            Result.Id = 0;
             cacheProvider.Set(Cache, cancellationTokenSource.Token);
-            cacheProvider.Set(Result, cancellationTokenSource.Token);
+
+            if (Result.IsModify)
+            {
+                Result.Id = 0;
+                cacheProvider.Set(Result, cancellationTokenSource.Token);
+            }
         }
         catch (Exception ex)
         {

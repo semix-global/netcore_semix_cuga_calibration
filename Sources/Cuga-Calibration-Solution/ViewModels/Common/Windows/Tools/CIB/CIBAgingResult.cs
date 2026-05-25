@@ -13,8 +13,12 @@ using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
 
-public sealed class CIBAgingResult : ObservableCacheBase, ICloneable<CIBAgingResult>
+public sealed partial class CIBAgingResult : ObservableCacheBase, ICloneable<CIBAgingResult>
 {
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial bool IsModify { get; set; }
+
     public IReadOnlyList<CIBAgingItem> Items { get; set; } = [];
 
     public CIBAgingResult Clone() => new()
