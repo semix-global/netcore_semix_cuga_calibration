@@ -31,8 +31,8 @@ CIB (Confocal Image Brightfield / Mixed Mode Detection) 是光学检测系统中
     CIBAgingWindowViewModel.Algorithm 对比原始数据与重新测量数据：
     1. 对每一对 coefficient（原始 vs 新测量），找出有效的数据点索引
     2. 使用 SampleEvenly 分层随机采样，从中选取固定数量的样本点
-    3. 计算每个样本点的衰减率 DecayRate = (NewPMT - OldPMT) / OldPMT
-    4. 判定每个样本点是否通过（decayRate > 0 或 |DecayRate| <= AgingRatioThreshold）
+    3. 计算每个样本点的衰减率 DecayRatio = (NewPMT - OldPMT) / OldPMT
+    4. 判定每个样本点是否通过（decayRatio > 0 或 |DecayRatio| <= AgingRatioThreshold）
     5. 汇总结果，判定每个 CIB 是否整体通过
 ```
 
@@ -87,7 +87,7 @@ CIB (Confocal Image Brightfield / Mixed Mode Detection) 是光学检测系统中
 - `Gain`: 数据点对应的 Gain 值
 - `OldPMTValue`: 原始 PMT 值
 - `NewPMTValue`: 重新测量的 PMT 值
-- `DecayRate`: 衰减率
+- `DecayRatio`: 衰减率
 - `IsOk`: 该采样点是否通过
 
 ### 3.4 CIBAgingCoefficientFindItem
@@ -291,25 +291,25 @@ CIB (Confocal Image Brightfield / Mixed Mode Detection) 是光学检测系统中
 
 对每个采样点：
 ```
-DecayRate = (NewPMTValue - OldPMTValue) / OldPMTValue
+DecayRatio = (NewPMTValue - OldPMTValue) / OldPMTValue
 ```
 
 特殊情况：
-- 如果 `OldPMTValue == 0`，`DecayRate = +Infinity`（必定不通过）
+- 如果 `OldPMTValue == 0`，`DecayRatio = +Infinity`（必定不通过）
 
 ### 6.4 老化判定
 
 ```
-IsOk = decayRate > 0 || Math.Abs(decayRate) <= AgingRatioThreshold
+IsOk = decayRatio > 0 || Math.Abs(decayRatio) <= AgingRatioThreshold
 ```
 
 判定逻辑说明：
-- **decayRate > 0**: PMT 响应增强（New > Old），不算老化，直接通过
-- **Math.Abs(decayRate) <= AgingRatioThreshold**: 衰减率在允许范围内，通过
+- **decayRatio > 0**: PMT 响应增强（New > Old），不算老化，直接通过
+- **Math.Abs(decayRatio) <= AgingRatioThreshold**: 衰减率在允许范围内，通过
 - **否则**: PMT 响应衰减且超过阈值，判定为老化，不通过
 
 示例（AgingRatioThreshold = 0.1）：
-| OldPMT | NewPMT | DecayRate | 判定 |
+| OldPMT | NewPMT | DecayRatio | 判定 |
 |--------|--------|-----------|------|
 | 100 | 105 | +0.05 | 通过（增强） |
 | 100 | 95 | -0.05 | 通过（衰减 5% <= 10%） |

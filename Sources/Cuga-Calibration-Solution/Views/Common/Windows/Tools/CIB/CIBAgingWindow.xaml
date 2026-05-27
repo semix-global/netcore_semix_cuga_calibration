@@ -537,8 +537,8 @@
                                                                                                         Header="New PMT"
                                                                                                         DisplayMemberBinding="{Binding NewPMTValue, StringFormat={}{0:0.###}}" />
                                                                                         <GridViewColumn Width="100"
-                                                                                                        Header="Decay Rate"
-                                                                                                        DisplayMemberBinding="{Binding DecayRate, StringFormat={}{0:0.###}}" />
+                                                                                                        Header="Decay Ratio"
+                                                                                                        DisplayMemberBinding="{Binding DecayRatio, StringFormat={}{0:0.###}}" />
                                                                                         <GridViewColumn Width="80"
                                                                                                         Header="IsOk"
                                                                                                         DisplayMemberBinding="{Binding IsOk}" />
