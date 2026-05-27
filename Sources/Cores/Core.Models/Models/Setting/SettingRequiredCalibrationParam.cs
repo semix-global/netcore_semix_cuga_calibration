@@ -1,39 +1,71 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Utilities.WPF.Assembly.Model;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Setting;
 
-public sealed partial class SettingRequiredCalibrationParam : ObservableObject, ICloneable<SettingRequiredCalibrationParam>, IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
+public sealed partial class SettingRequiredCalibrationParam :
+    ObservableObject,
+    ICloneable<SettingRequiredCalibrationParam>,
+    IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
     [ObservableProperty]
-    public partial string Description { get; set; } = string.Empty;
+    public partial SysMenuDTO SysMenu { get; set; } = new();
 
-    public IReadOnlyList<SettingRequiredCalibrationCategoryItem> CategoryItems { get; set; } = [];
+    [ObservableProperty]
+    private SettingRequiredCalibrationCategoryItem _categoryItem = new();
+
+    [ObservableProperty]
+    public partial IReadOnlyList<SettingRequiredCalibrationParam> Children { get; set; } = [];
+
+    public string Name => SysMenu.Name;
+
+    public IReadOnlyList<SettingRequiredCalibrationParam> GetAllChildren()
+    {
+        var result = new List<SettingRequiredCalibrationParam>();
+
+        RecursionFn(this);
+
+        return result;
+
+        void RecursionFn(SettingRequiredCalibrationParam item)
+        {
+            if (item.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu) result.Add(item);
+
+            foreach (var child in item.Children) RecursionFn(child);
+        }
+    }
 
     public SettingRequiredCalibrationParam Clone() => new()
     {
-        Description = Description,
-        CategoryItems = CategoryItems.Select(t => t.Clone()).ToList().AsReadOnly()
+        SysMenu = SysMenu,
+        CategoryItem = CategoryItem.Clone(),
+        Children = Children.Select(t => t.Clone()).ToList().AsReadOnly()
     };
 
     public SettingRequiredCalibrationParam AdaptIn(SettingRequiredCalibrationParam obj)
     {
-        Description = obj.Description;
-        CategoryItems = obj.CategoryItems.Select(t => t.AdaptIn(t)).ToList().AsReadOnly();
+        SysMenu = obj.SysMenu;
+        CategoryItem = obj.CategoryItem.AdaptIn(obj.CategoryItem);
+        Children = obj.Children.Select(t => t.AdaptIn(t)).ToList().AsReadOnly();
         return obj;
     }
 }
 
-public partial class SettingRequiredCalibrationCategoryItem : TypeInfo, ICloneable<SettingRequiredCalibrationCategoryItem>, IAdaptIn<SettingRequiredCalibrationCategoryItem, SettingRequiredCalibrationCategoryItem>
+public partial class SettingRequiredCalibrationCategoryItem :
+    TypeInfo,
+    ICloneable<SettingRequiredCalibrationCategoryItem>,
+    IAdaptIn<SettingRequiredCalibrationCategoryItem, SettingRequiredCalibrationCategoryItem>
 {
     [ObservableProperty]
     public partial bool IsRequired { get; set; }
 
     public SettingRequiredCalibrationCategoryItem Clone() => new()
     {
-        Description = Description,
         IsRequired = IsRequired,
+        Description = Description,
         AssemblyQualifiedName = AssemblyQualifiedName
     };
 
