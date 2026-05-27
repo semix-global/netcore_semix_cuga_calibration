@@ -45,7 +45,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// <summary>
     /// 标题
     /// </summary>
-    public string Title => $"{DeviceCode} V{DeviceCUGAVersion} - {ApplicationName} [{SysUser.NickName}]";
+    public string Title => $"{ApplicationName} - {DeviceCode} V{DeviceCUGAVersion} [{SysUser.NickName}]";
 
     /// <summary>
     /// 当前权限菜单集合

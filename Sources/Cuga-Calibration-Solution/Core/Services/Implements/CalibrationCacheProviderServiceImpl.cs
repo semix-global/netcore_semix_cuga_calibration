@@ -19,6 +19,7 @@ using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -52,6 +53,7 @@ public class CalibrationCacheProviderServiceImpl(
     ILogger<CalibrationCacheProviderServiceImpl> logger,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
+    IApplicationCookieService applicationCookieService,
     RecipeCookie recipeCookie,
     CalibrationSetting calibrationSetting) : ICalibrationCacheProvider
 {
@@ -71,63 +73,12 @@ public class CalibrationCacheProviderServiceImpl(
                     CalibrationPupilFourierObj = new CalibrationPupilFourierObj()
                 };
 
-                var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+                // 使用 CalibrationMenu 作为数据源
+                var calibrationMenu = applicationCookie.CalibrationMenu;
                 var wcfObjProperties = calibrationObj.GetType().GetProperties();
-                foreach (var calibrationCategory in calibrationCategoryList)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
 
-                    var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList.Single(t => t.Description == calibrationCategory.Description);
-
-                    var wcfCategoryPropertyInfo = wcfObjProperties.Single(t => t.PropertyType == calibrationCategory.WcfCategoryType);
-                    foreach (var calibrationCategoryItem in calibrationCategory.Items)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        var versionInfo = calibrationVersionDTO.GetVersionInfo(calibrationCategoryItem.CalibrationDtoType);
-
-                        var version = SQLiteHelper.GetTableInfo(calibrationCategoryItem.CalibrationDtoType).Version;
-
-                        var childCalibrationRequiredCache = parentCalibrationRequiredCache.CategoryItems.First(t => t.TypeInstance == calibrationCategoryItem.CalibrationDtoType);
-                        if (calibrationCategoryItem.IsArray)
-                        {
-                            var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType.GetElementType() == calibrationCategoryItem.WcfModelType);
-
-                            var dtoItems = versionInfo is null
-                                ? cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType)
-                                : cacheProvider.GetArray(calibrationCategoryItem.CalibrationDtoType, versionInfo.Id);
-                            if (dtoItems is null || dtoItems.Length == 0)
-                                dtoItems = [Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType))];
-                            var wcfItems = dtoItems.Select(t =>
-                            {
-                                var value = Guard.IsNotNullAndReturn(calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(t, null));
-                                Guard.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, childCalibrationRequiredCache.IsRequired);
-                                Guard.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.Version))).SetValue(value, version);
-                                return value;
-                            }).ToArray();
-
-                            var values = ObjectHelper.ConvertToArray(wcfItems, calibrationCategoryItem.WcfModelType);
-                            childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
-                        }
-                        else
-                        {
-                            var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().Single(t => t.PropertyType == calibrationCategoryItem.WcfModelType);
-
-                            var dto = (versionInfo is null
-                                ? cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType)
-                                : cacheProvider.Get(calibrationCategoryItem.CalibrationDtoType, versionInfo.Id)) ?? Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationCategoryItem.CalibrationDtoType));
-                            var wcfModel = calibrationCategoryItem.CalibrationDtoToWcfModelMethodInfo.Invoke(dto, null);
-                            if (wcfModel is not null)
-                            {
-                                Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, childCalibrationRequiredCache.IsRequired);
-                                Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.Version))).SetValue(wcfModel, version);
-                                childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
-                            }
-                        }
-                    }
-
-                    wcfCategoryPropertyInfo.SetValue(calibrationObj, wcfCategoryPropertyInfo.GetValue(calibrationObj));
-                }
+                // 递归处理所有校准菜单节点
+                ProcessCalibrationMenuNode(calibrationMenu, calibrationObj, wcfObjProperties, cancellationToken);
 
                 cacheProvider.Set(calibrationVersionDTO, CancellationToken.None);
 
@@ -149,6 +100,127 @@ public class CalibrationCacheProviderServiceImpl(
                 return false;
             }
         }, cancellationToken);
+
+        void ProcessCalibrationMenuNode(CalibrationMenu node, CalibrationObj calibrationObj, PropertyInfo[] wcfObjProperties, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // 递归处理子节点
+            foreach (var child in node.Children)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // 如果是叶子节点（Menu 类型）且有有效的 Entry
+                if (child.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu && child.Entry != CalibrationViewModelEntry.Default)
+                {
+                    ProcessCalibrationEntry(child, calibrationObj, wcfObjProperties, cancellationToken);
+                }
+
+                // 递归处理子节点
+                ProcessCalibrationMenuNode(child, calibrationObj, wcfObjProperties, cancellationToken);
+            }
+        }
+
+        void ProcessCalibrationEntry(CalibrationMenu menuNode, CalibrationObj calibrationObj, PropertyInfo[] wcfObjProperties, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var entry = menuNode.Entry;
+
+                // 获取对应的父级节点（类别）名称
+                var parentCategoryName = menuNode.SysMenu.Parent?.Name ?? string.Empty;
+
+                // 查找对应的必需校准配置
+                var parentCalibrationRequiredCache = calibrationSetting.SettingRequiredCalibrationParamList
+                    .FirstOrDefault(t => t.SysMenu.Name == parentCategoryName);
+
+                if (parentCalibrationRequiredCache is null)
+                {
+                    logger.LogWarning("Required calibration cache not found for category: {Category}", parentCategoryName);
+                    return;
+                }
+
+                // 获取 DTO 类型信息
+                var calibrationDtoType = entry.DTOType;
+                var wcfModelType = entry.AdaptToCUGAType;
+
+                if (wcfModelType == null)
+                {
+                    logger.LogWarning("WCF model type is null for: {EntryName}", entry.Name);
+                    return;
+                }
+
+                // 找到对应的 WCF 类别属性
+                var wcfCategoryPropertyInfo = wcfObjProperties.FirstOrDefault(t => t.GetValue(calibrationObj)?.GetType().GetProperties()
+                    .Any(p => p.PropertyType == wcfModelType || p.PropertyType == wcfModelType.MakeArrayType()) == true);
+
+                if (wcfCategoryPropertyInfo == null)
+                {
+                    logger.LogWarning("WCF category property not found for: {WcfModelType}", wcfModelType.Name);
+                    return;
+                }
+
+                var versionInfo = calibrationVersionDTO.GetVersionInfo(calibrationDtoType);
+                var version = SQLiteHelper.GetTableInfo(calibrationDtoType).Version;
+
+                var childCalibrationRequiredCache = parentCalibrationRequiredCache.GetAllChildren().SingleOrDefault(t => t.CategoryItem.TypeInstance == calibrationDtoType);
+                var isRequired = childCalibrationRequiredCache?.CategoryItem.IsRequired ?? false;
+
+                // 获取转换方法
+                var toWcfMethod = CalibrationReflectionHelper.WcfModelTypeToCalibrationDtoType(wcfModelType).MethodInfo;
+                if (toWcfMethod == null)
+                {
+                    logger.LogWarning("ToCuga/ToWcf method not found for: {DtoType}", calibrationDtoType.Name);
+                    return;
+                }
+
+                var childWcfCategoryPropertyInfo = wcfCategoryPropertyInfo.PropertyType.GetProperties().SingleOrDefault(t => (entry.IsArray ? t.PropertyType.GetElementType() : t.PropertyType) == entry.AdaptToCUGAType);
+                if (childWcfCategoryPropertyInfo == null)
+                {
+                    logger.LogWarning("WCF child array property not found for: {WcfModelType}", wcfModelType.Name);
+                    return;
+                }
+
+                if (entry.IsArray)
+                {
+                    var dtoItems = versionInfo is null
+                        ? applicationCookieService.GetCalibrations(calibrationDtoType, cancellationToken)
+                        : cacheProvider.GetArray(calibrationDtoType, versionInfo.Id, cancellationToken);
+                    if (dtoItems is null || dtoItems.Length == 0)
+                        dtoItems = [Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationDtoType))];
+
+                    var wcfItems = dtoItems.Select(t =>
+                    {
+                        var value = Guard.IsNotNullAndReturn(toWcfMethod.Invoke(t, null));
+                        Guard.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(value, isRequired);
+                        Guard.IsNotNullAndReturn(value.GetType().GetProperty(nameof(CalibrationBase.Version))).SetValue(value, version);
+                        return value;
+                    }).ToArray();
+
+                    var values = ObjectHelper.ConvertToArray(wcfItems, wcfModelType);
+                    childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), values);
+                }
+                else
+                {
+                    var dto = (versionInfo is null
+                        ? applicationCookieService.GetCalibration(calibrationDtoType, cancellationToken)
+                        : cacheProvider.Get(calibrationDtoType, versionInfo.Id, cancellationToken)) ?? Guard.IsNotNullAndReturn(Activator.CreateInstance(calibrationDtoType));
+
+                    var wcfModel = toWcfMethod.Invoke(dto, null);
+                    if (wcfModel is not null)
+                    {
+                        Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.IsRequiredCalibrate))).SetValue(wcfModel, isRequired);
+                        Guard.IsNotNullAndReturn(wcfModel.GetType().GetProperty(nameof(CalibrationBase.Version))).SetValue(wcfModel, version);
+                        childWcfCategoryPropertyInfo.SetValue(wcfCategoryPropertyInfo.GetValue(calibrationObj), wcfModel);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to process calibration entry: {EntryName}", menuNode.Entry.Name);
+                ThrowHelper.ThrowArgumentException($"Failed to process calibration entry: {menuNode.Entry.Name}", ex);
+            }
+        }
     }
 
     public async Task<(bool IsSuccess, string Message)> TryExportAsync(string filePath, CancellationToken cancellationToken)

@@ -1,5 +1,5 @@
-using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Version;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Extensions;
@@ -11,7 +11,9 @@ using Net.Utilities.Helpers.Helpers.Files;
 namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationVersionFactory), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrationVersionFactory
+public class CalibrationVersionFactory(
+    ICacheProvider cacheProvider,
+    ApplicationCookie applicationCookie) : ICalibrationVersionFactory
 {
     public CalibrationVersionDTO.VersionInfo? CalibrationDTOItemsConvertToVersionInfo(Type type, long? id = null)
     {
@@ -46,18 +48,20 @@ public class CalibrationVersionFactory(ICacheProvider cacheProvider) : ICalibrat
 
     public CalibrationVersionDTO CreateInstanceFromCurrentDatabase(string filePath)
     {
-        var calibrationVersionDTO = new CalibrationVersionDTO { ResultFilePath = filePath };
-        var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+        var calibrationVersionDTO = new CalibrationVersionDTO
+        {
+            ResultFilePath = filePath,
+            CalibrationVersionInfos =
+            [
+                .. applicationCookie.CalibrationMenu.GetAllChildren()
+                    .Select(tt => tt.Entry.IsArray
+                        ? CalibrationDTOItemsConvertToVersionInfo(tt.Entry.DTOType)
+                        : CalibrationDTOConvertToVersionInfo(tt.Entry.DTOType))
+                    .Where(t => t is not null)
+                    .Select(tt => tt!)
+            ]
+        };
 
-        calibrationVersionDTO.CalibrationVersionInfos =
-        [
-            .. calibrationCategoryList.SelectMany(t => t.Items)
-                .Select(tt => tt.IsArray
-                    ? CalibrationDTOItemsConvertToVersionInfo(tt.CalibrationDtoType)
-                    : CalibrationDTOConvertToVersionInfo(tt.CalibrationDtoType))
-                .Where(t => t is not null)
-                .Select(tt => tt!)
-        ];
         return calibrationVersionDTO;
     }
 }
