@@ -78,6 +78,9 @@ public sealed partial class App
             // todo: 等后续ScottPlot改造好移动到static中
             CalibrationViewModelEntriesCollector.Init();
 
+#pragma warning disable IDE0079
+#pragma warning disable VSTHRD101
+
             // ReSharper disable AccessToDisposedClosure
 
             app.Startup += async (_, _) =>
@@ -98,6 +101,9 @@ public sealed partial class App
             };
 
             // ReSharper restore AccessToDisposedClosure
+
+#pragma warning restore VSTHRD101
+#pragma warning restore IDE0079
 
             app.Run();
         }
