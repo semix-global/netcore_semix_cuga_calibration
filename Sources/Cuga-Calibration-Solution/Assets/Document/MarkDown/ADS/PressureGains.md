@@ -13,37 +13,37 @@
 ```bash
 Properties/launchSettings.json                                          # 项目启动文件：同asp.net core web api
 Converters/                                                             # 存储和Cuga-Calibration-Solution相关（非通用）的Converter
-Helper/ 																# 存储和Cuga-Calibration-Solution相关（非通用）Helper，比如常量
-Resources/															    # 存储资源的（Resources/Images/：图片)（Resouces/*.xaml：资源文件）
+Helper/                                                                 # 存储和Cuga-Calibration-Solution相关（非通用）Helper，比如常量
+Resources/                                                                # 存储资源的（Resources/Images/：图片)（Resouces/*.xaml：资源文件）
 
-ViewModels/ 															# 存储和界面绑定的ViewModels
-ViewModels/LoadingWindowViewModel.cs									# 无需更改，首次加载界面ViewModel
-ViewModels/LogoViewModel.cs												# 无需更改，Logo界面ViewModel
-ViewModels/MainWindowViewModel.cs										# 无需更改，主窗体ViewModel
-ViewModels/NLogViewModel.cs												# 无需更改，Log日志界面ViewModel
-ViewModels/CalibrationViewModelBase.cs									# 无需更改，所有校准ViewModel基类
-ViewModels/Common/														# 可以新建，所有和Cuga2.0交互的ViewModel（例如平移台、显微镜）
-ViewModels/*/*/															# 可以新建，所有校准ViewModel继承自CalibrationViewModelBase.cs 
-																		# 校准项目：格式：校准大类/校准小类/(例如/Microscope/Focus/*.cs)	
+ViewModels/                                                             # 存储和界面绑定的ViewModels
+ViewModels/LoadingWindowViewModel.cs                                    # 无需更改，首次加载界面ViewModel
+ViewModels/LogoViewModel.cs                                                # 无需更改，Logo界面ViewModel
+ViewModels/MainWindowViewModel.cs                                        # 无需更改，主窗体ViewModel
+ViewModels/NLogViewModel.cs                                                # 无需更改，Log日志界面ViewModel
+ViewModels/CalibrationViewModelBase.cs                                    # 无需更改，所有校准ViewModel基类
+ViewModels/Common/                                                        # 可以新建，所有和Cuga2.0交互的ViewModel（例如平移台、显微镜）
+ViewModels/*/*/                                                            # 可以新建，所有校准ViewModel继承自CalibrationViewModelBase.cs 
+                                                                        # 校准项目：格式：校准大类/校准小类/(例如/Microscope/Focus/*.cs)    
 
-Views/ 																	# 界面
-Views/LoadingWindow.xaml												# 无需更改，首次加载界面
-Views/LogoUserControl.xaml												# 无需更改，Logo界面
-Views/MainWindow.xaml													# 无需更改，主窗体
-Views/NLogUserControl.xaml												# 无需更改，Log日志界面
-Views/Common/															# 可以新建，所有和Cuga2.0交互的通用界面（例如平移台、显微镜）
-Views/*/*/																# 可以新建，校准大类/校准小类/(例如/Microscope/Focus/)	
-																		# 里面规定/*/*/Children/Review.xaml为复查界面
-																		# /*/*/Children/Step0View.xaml ... /*/*/Children/Step5View.xaml 为校准步骤界面
-																		# /*/*/*.xaml 为校准主窗体
-																		
-App.xaml 															    # 启动类, 里面可以设置合并资源添加IOC注入：例如如下方法中添加`private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)`
-																		# services.AddSingleton<MicroscopeFocusCalibrationViewModel>();
-        																# services.AddSingleton<MicroscopeFocusCalibrationUserControl>();
-        																
+Views/                                                                     # 界面
+Views/LoadingWindow.xaml                                                # 无需更改，首次加载界面
+Views/LogoUserControl.xaml                                                # 无需更改，Logo界面
+Views/MainWindow.xaml                                                    # 无需更改，主窗体
+Views/NLogUserControl.xaml                                                # 无需更改，Log日志界面
+Views/Common/                                                            # 可以新建，所有和Cuga2.0交互的通用界面（例如平移台、显微镜）
+Views/*/*/                                                                # 可以新建，校准大类/校准小类/(例如/Microscope/Focus/)    
+                                                                        # 里面规定/*/*/Children/Review.xaml为复查界面
+                                                                        # /*/*/Children/Step0View.xaml ... /*/*/Children/Step5View.xaml 为校准步骤界面
+                                                                        # /*/*/*.xaml 为校准主窗体
+
+App.xaml                                                                 # 启动类, 里面可以设置合并资源添加IOC注入：例如如下方法中添加`private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)`
+                                                                        # services.AddSingleton<MicroscopeFocusCalibrationViewModel>();
+                                                                        # services.AddSingleton<MicroscopeFocusCalibrationUserControl>();
+
 appsetting.*.json                                                       # 项目配置文件：同asp.net core web api 类似于WinformApp.config
 
-Nlog.config																# 日志配置文件
+Nlog.config                                                                # 日志配置文件
 ```
 
 ### 1.2 Utilities
@@ -53,12 +53,12 @@ Nlog.config																# 日志配置文件
 #### Net.Utilities 通用项目（与界面WPF无关，可以接入所有项目）
 
 ```bash
-Properties/ 															# 项目通用的的多语言环境
-Attributes/																# 通用的特性 [Localization]设置多语言环境
-Enums/ 																	# 通用枚举
-Helper/ 																# 所有通用帮助类（包含算法的、枚举的、文件的、IOC的、Object）
-Models/																	# 所有通用模型类
-LangVersionFixer.cs														# 高版本语言支持类（现在通过PolySharp解决）
+Properties/                                                             # 项目通用的的多语言环境
+Attributes/                                                                # 通用的特性 [Localization]设置多语言环境
+Enums/                                                                     # 通用枚举
+Helper/                                                                 # 所有通用帮助类（包含算法的、枚举的、文件的、IOC的、Object）
+Models/                                                                    # 所有通用模型类
+LangVersionFixer.cs                                                        # 高版本语言支持类（现在通过PolySharp解决）
 ```
 
 #### Net.Utilities.Nlog（见http://192.168.0.28:8099/kaizhi.xuan/NlogMarkdownTest/-/blob/main/README.md）
@@ -66,24 +66,24 @@ LangVersionFixer.cs														# 高版本语言支持类（现在通过PolySh
 #### Net.Utilities.WPF 通用WPF界面库（与界面WPF相关，但是与MVVM无关，接入所有WPF项目）
 
 ```bash
-AttachedHelper/															# 通用附加属性帮助类
-Behaviors/																# 通用Microsoft.Xaml.Behaviors.Wpf行为类
-Converters/																# 通用的Converter
-Enums/																	# 通用的枚举（包含所有自定义弹窗枚举）
-Extensions/																# 通用的扩展类、xaml Markup扩展类
-Helper/																	# 通用的界面帮助类（包含操作界面元素）
-Triggers/																# 通用Microsoft.Xaml.Behaviors.Wpf触发器
+AttachedHelper/                                                            # 通用附加属性帮助类
+Behaviors/                                                                # 通用Microsoft.Xaml.Behaviors.Wpf行为类
+Converters/                                                                # 通用的Converter
+Enums/                                                                    # 通用的枚举（包含所有自定义弹窗枚举）
+Extensions/                                                                # 通用的扩展类、xaml Markup扩展类
+Helper/                                                                    # 通用的界面帮助类（包含操作界面元素）
+Triggers/                                                                # 通用Microsoft.Xaml.Behaviors.Wpf触发器
 ```
 
 #### Net.Utilities.WPF.MVVM 通用WPFMVVM界面库
 
 ```bash
-AttachedHelper/															# 通用MVVM附加属性帮助类
-Converters/																# 通用MVVM Converter
-Providers/ 																# 通用MVVM IOC提供服务
-Services/ 																# 通用MVVM IOC服务
-ViewModels/																# 通用MVVM ViewModel基类、弹窗类
-Views/ 																	# 通用弹窗
+AttachedHelper/                                                            # 通用MVVM附加属性帮助类
+Converters/                                                                # 通用MVVM Converter
+Providers/                                                                 # 通用MVVM IOC提供服务
+Services/                                                                 # 通用MVVM IOC服务
+ViewModels/                                                                # 通用MVVM ViewModel基类、弹窗类
+Views/                                                                     # 通用弹窗
 ```
 
 #### WPF.CanvasViewer Canvas项目
@@ -93,13 +93,11 @@ Views/ 																	# 通用弹窗
 ---
 
 ```bash
-.csharpierrc.json														# https://csharpier.com/ 格式化工具配置项
-Directory.Packages.props												# 中央包管理
-README.md																# 项目架构文档
-Settings.XamlStyler														# https://github.com/Xavalon/XamlStyler 格式化工具配置项
+.csharpierrc.json                                                        # https://csharpier.com/ 格式化工具配置项
+Directory.Packages.props                                                # 中央包管理
+README.md                                                                # 项目架构文档
+Settings.XamlStyler                                                        # https://github.com/Xavalon/XamlStyler 格式化工具配置项
 ```
-
-
 
 ### 1.4 Cores
 
@@ -108,33 +106,33 @@ Settings.XamlStyler														# https://github.com/Xavalon/XamlStyler 格式�
 #### Core.Wcf （所有和CUGA 2.0交互的类）
 
 ```bash
-Models/																	# 校准完成后序列化的类
-																		# 格式：/校准大类/.cs(例如 /Microscope/CalibrationMicroscopeObj.cs)
-Wcf/* 																	# 通过 SDK 风格的项目文件 Compile link引入所有调用CUGA2.0对外暴露的类
-GlobalSuppressions.cs													# 屏蔽Wcf/*中不规范的警告
+Models/                                                                    # 校准完成后序列化的类
+                                                                        # 格式：/校准大类/.cs(例如 /Microscope/CalibrationMicroscopeObj.cs)
+Wcf/*                                                                     # 通过 SDK 风格的项目文件 Compile link引入所有调用CUGA2.0对外暴露的类
+GlobalSuppressions.cs                                                    # 屏蔽Wcf/*中不规范的警告
 ```
 
 #### Core.Services（包装一层Core.Wcf项目提供给校准使用的服务）
 
 ```bash
-Extensions/																# CUGA2.0 类的扩展类方法
-Helper/																	# CUGA2.0 类的帮助类
-Interfaces/																# 包装一层Core.Wcf项目提供给校准使用的服务
-Interfaces/I*.cs														# IOC注入接口提供给校准使用的服务
-Interfaces/Impl/*.cs													# IOC注入接口提供给校准使用的服务的【真】实现
-Interfaces/Impl/Mock/*.cs												# IOC注入接口提供给校准使用的服务的【假】实现、用于测试
+Extensions/                                                                # CUGA2.0 类的扩展类方法
+Helper/                                                                    # CUGA2.0 类的帮助类
+Interfaces/                                                                # 包装一层Core.Wcf项目提供给校准使用的服务
+Interfaces/I*.cs                                                        # IOC注入接口提供给校准使用的服务
+Interfaces/Impl/*.cs                                                    # IOC注入接口提供给校准使用的服务的【真】实现
+Interfaces/Impl/Mock/*.cs                                                # IOC注入接口提供给校准使用的服务的【假】实现、用于测试
 ```
 
 #### Core.Models（和Cuga-Calibration-Solution相关的模型类）
 
 ```
-Enums/																	# 与校准相关的枚举 比如 显微镜倍率
-Events/																	# 与校准相关的MVVM 中事件参数
-Exceptions/																# 与校准相关的异常
-Models/																	# 与校准界面相关的模型类（DTO) 
-Models/*.cs																# 与校准界面相关的通用类：appserring.*.json配置类、校准项目类、校准步骤类、
-Models/*/*/*.cs															# 与校准项目相关的DTO和cache以及界面相关类
-																		# 规则：校准大类/校准小类/*.cs （Microscope/Focus/*.cs
+Enums/                                                                    # 与校准相关的枚举 比如 显微镜倍率
+Events/                                                                    # 与校准相关的MVVM 中事件参数
+Exceptions/                                                                # 与校准相关的异常
+Models/                                                                    # 与校准界面相关的模型类（DTO) 
+Models/*.cs                                                                # 与校准界面相关的通用类：appserring.*.json配置类、校准项目类、校准步骤类、
+Models/*/*/*.cs                                                            # 与校准项目相关的DTO和cache以及界面相关类
+                                                                        # 规则：校准大类/校准小类/*.cs （Microscope/Focus/*.cs
 ```
 
 ## 2. IOC非常重要的Service和Provider
@@ -206,8 +204,6 @@ private static void ConfigureServices(HostBuilderContext context, IServiceCollec
 ---
 
 > 注入`appserring.*.json`的配置项，同**Asp.Net Core Web Api**
-
-
 
 ### 2.2 `services.AddSingleton<Frame>`、`services.AddSingleton<INavigationService, NavigationService>`
 
@@ -304,9 +300,7 @@ public MainWindowViewModel(string applicationName, NLogViewModel nLogViewModel, 
 
 ### 3.2 方法获取
 
-1. 
-
-> `CugaCalibration.App.xaml.cs` 通过全局的静态属性获取
+1. > `CugaCalibration.App.xaml.cs` 通过全局的静态属性获取
 
 ```csharp
 /// <summary>
@@ -321,9 +315,7 @@ public static T GetService<T>() where T : class;
 public static object GetService(Type type);
 ```
 
-2. 
-
-> `Net.Utilities.WPF.MVVM.Providers.MVVMLocatorProvider.cs`
+2. > `Net.Utilities.WPF.MVVM.Providers.MVVMLocatorProvider.cs`
 
 ```csharp
 #region IOC
@@ -374,9 +366,7 @@ public static object GetService(Type type)
 
 ### 4.1 Locator
 
-1. 
-
-> IOC注入方式`IViewLocatorService`
+1. > IOC注入方式`IViewLocatorService`
 
 2. 
 
@@ -418,11 +408,9 @@ public static Type? ViewType2ViewModelType(Type? viewType)
 
 ### 4.2 Bind View ViewModel
 
-1. 
-
-> `Net.Utilities.WPF.MVVM.AttachedHelper.AutoWireViewModelHelper` 自动 Bind
->
-> `wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"`
+1. > `Net.Utilities.WPF.MVVM.AttachedHelper.AutoWireViewModelHelper` 自动 Bind
+   > 
+   > `wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"`
 
 2. 
 
@@ -448,58 +436,58 @@ if (dataContext is ViewModelBase viewModelBase && frameworkElement is Window or 
 
 ```xml
 <Project>
-	<PropertyGroup>
-		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-	</PropertyGroup>
-	<ItemGroup>
-		<!-- System -->
-		<PackageVersion Include="System.Drawing.Common" Version="8.0.3" />
-		<PackageVersion Include="System.Threading.Channels" Version="8.0.0" />
-		<PackageVersion Include="System.Reactive" Version="6.0.0" />
-		<PackageVersion Include="System.Text.Json" Version="8.0.2" />
-		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageVersion Include="PolySharp" Version="1.14.1" />
-		<!-- IOC -->
-		<PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-		<!-- CommunityToolkit -->
-		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-		<PackageVersion Include="CommunityToolkit.Common" Version="8.2.2" />
-		<PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
-		<PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
-		<!-- WPF -->
-		<PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
-		<PackageVersion Include="ValueConverters" Version="3.0.26" />
-		<PackageVersion Include="HandyControl" Version="3.5.1" />
-		<PackageVersion Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
-		<!-- Utilities -->
-		<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageVersion Include="IndexRange" Version="1.0.3" />
-		<PackageVersion Include="MiniExcel" Version="1.31.3" />
-		<PackageVersion Include="Mapster" Version="7.3.0" />
-		<!-- Log -->
-		<PackageVersion Include="NLog" Version="5.2.8" />
-		<PackageVersion Include="NLog.Schema" Version="5.2.8" />
-		<PackageVersion Include="NLog.Web.AspNetCore" Version="5.3.8" />
-		<PackageVersion Include="Sentinel.NLogViewer" Version="2.0.1" />
-		<PackageVersion Include="Exceptionless.NLog" Version="6.0.4" />
-		<!-- ORM -->
-		<PackageVersion Include="SqlSugarCore" Version="5.1.4.137" />
-		<PackageVersion Include="SqlSugar" Version="5.1.4.137" />
-		<!-- Opencv -->
-		<PackageVersion Include="OpenCvSharp4" Version="4.7.0.20230115" />
-		<PackageVersion Include="OpenCvSharp4.runtime.win" Version="4.7.0.20230115" />
-		<PackageVersion Include="OpenCvSharp4.WpfExtensions" Version="4.7.0.20230115" />
-		<!-- Halcon -->
-		<PackageVersion Include="MVTec.HalconDotNet" Version="22050.0.0" />
-		<PackageVersion Include="MVTec.HalconDotNetXL" Version="22050.0.0" />
-		<!-- 扩展库: 用作超大图片 -->
-		<!-- Markdown -->
-		<PackageVersion Include="Grynwald.MarkdownGenerator" Version="3.0.106" />
-		<PackageVersion Include="Markdig" Version="0.37.0" />
-	</ItemGroup>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    </PropertyGroup>
+    <ItemGroup>
+        <!-- System -->
+        <PackageVersion Include="System.Drawing.Common" Version="8.0.3" />
+        <PackageVersion Include="System.Threading.Channels" Version="8.0.0" />
+        <PackageVersion Include="System.Reactive" Version="6.0.0" />
+        <PackageVersion Include="System.Text.Json" Version="8.0.2" />
+        <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+        <PackageVersion Include="PolySharp" Version="1.14.1" />
+        <!-- IOC -->
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+        <!-- CommunityToolkit -->
+        <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageVersion Include="CommunityToolkit.Common" Version="8.2.2" />
+        <PackageVersion Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
+        <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
+        <!-- WPF -->
+        <PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+        <PackageVersion Include="ValueConverters" Version="3.0.26" />
+        <PackageVersion Include="HandyControl" Version="3.5.1" />
+        <PackageVersion Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+        <!-- Utilities -->
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageVersion Include="IndexRange" Version="1.0.3" />
+        <PackageVersion Include="MiniExcel" Version="1.31.3" />
+        <PackageVersion Include="Mapster" Version="7.3.0" />
+        <!-- Log -->
+        <PackageVersion Include="NLog" Version="5.2.8" />
+        <PackageVersion Include="NLog.Schema" Version="5.2.8" />
+        <PackageVersion Include="NLog.Web.AspNetCore" Version="5.3.8" />
+        <PackageVersion Include="Sentinel.NLogViewer" Version="2.0.1" />
+        <PackageVersion Include="Exceptionless.NLog" Version="6.0.4" />
+        <!-- ORM -->
+        <PackageVersion Include="SqlSugarCore" Version="5.1.4.137" />
+        <PackageVersion Include="SqlSugar" Version="5.1.4.137" />
+        <!-- Opencv -->
+        <PackageVersion Include="OpenCvSharp4" Version="4.7.0.20230115" />
+        <PackageVersion Include="OpenCvSharp4.runtime.win" Version="4.7.0.20230115" />
+        <PackageVersion Include="OpenCvSharp4.WpfExtensions" Version="4.7.0.20230115" />
+        <!-- Halcon -->
+        <PackageVersion Include="MVTec.HalconDotNet" Version="22050.0.0" />
+        <PackageVersion Include="MVTec.HalconDotNetXL" Version="22050.0.0" />
+        <!-- 扩展库: 用作超大图片 -->
+        <!-- Markdown -->
+        <PackageVersion Include="Grynwald.MarkdownGenerator" Version="3.0.106" />
+        <PackageVersion Include="Markdig" Version="0.37.0" />
+    </ItemGroup>
 </Project>
 ```
 
@@ -514,11 +502,11 @@ if (dataContext is ViewModelBase viewModelBase && frameworkElement is Window or 
 ### 5.3 LOG
 
 > 1. 使用的抽象类
->
+> 
 > `<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />` 
->
+> 
 > 2. 具体实现类：Nlog
->
+> 
 > `<PackageVersion Include="NLog" Version="5.2.8" />
 > <PackageVersion Include="NLog.Schema" Version="5.2.8" />
 > <PackageVersion Include="NLog.Web.AspNetCore" Version="5.3.8" />
@@ -536,7 +524,7 @@ if (dataContext is ViewModelBase viewModelBase && frameworkElement is Window or 
 ### 5.6 UI
 
 > `<PackageVersion Include="HandyControl" Version="3.5.1" />` https://github.com/HandyOrg/HandyControl https://handyorg.github.io/handycontrol/
->
+> 
 > `<PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />`
 
 ### 5.7 Reactive
@@ -611,7 +599,7 @@ private bool _isCalibrated;
 /// 校准步骤名称列表
 /// </summary>
 [ObservableProperty]
-private IReadOnlyList<CalibrationItemStep> _calibrationStepList = [];
+private List<CalibrationItemStep> _calibrationStepList = [];
 ```
 
 ```csharp
@@ -654,7 +642,7 @@ private CalibrationItemViewEnum _viewEnum;
 #### 界面切换原理
 
 > 1. 主界面：`ViewEnum`通过修改`Visibility={Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsLoadingToVisibilityConverter}}`解决的
->
+> 
 > 2. 下一步上一步切换是用：`CalibrationStepIndex`校准所在步骤控制解决`Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}"`
 
 ```xml
@@ -701,7 +689,7 @@ private CalibrationItemViewEnum _viewEnum;
 ```csharp
 protected virtual void Monitor()
 {
-	CheckStatus();
+    CheckStatus();
 }
 
 var subscribe = Observable.Interval(TimeSpan.FromMilliseconds(MonitorMilliseconds)).Subscribe(_ =>
@@ -717,14 +705,19 @@ cancellationToken.Register(subscribe.Dispose);
 ### 6.8 `MainWindow`主界面功能按钮状态更新
 
 - `CheckStatus` 检查是否能够校准 用于报错弹窗
+
 - `UpdateFailedStatus` 校准失败 功能按钮状态
+
 - `UpdateLoadingStatus` 正在加载 功能按钮状态
 
 - `UpdateWelcomeStatus` 欢迎界面 功能按钮状态
 
 - `UpdateCalibrateStatus` 校准状态 功能按钮状态
+
 - `UpdateReviewStatus` 复查状态 功能按钮状态
+
 - `UpdatePreviousNextStatus` 正在校准状态，上一步下一步状态 功能按钮状态
+
 - `UpdateDisableAll` 全部禁用 功能按钮状态
 
 > `UpdatePreviousStatus` `UpdateNextStatus` 可以重写自定义上一步下一步按钮状态
@@ -738,19 +731,19 @@ cancellationToken.Register(subscribe.Dispose);
 - `InvokeCalibrate`包含了开始记录和结局记录html
 
 - 校准中记录示例：
-
-    ```csharp
-    Logger.LogInformation("{@Name} Param: {@Markdown}{@Unique}", Name, new MarkdownQuoteList(new
-    {
-        Cache.MicroscopeMagnificationEnum,
-        Cache.FindFocusPosition,
-        ImageFileDirectory = detectImageDirectory
-    }), guid.LogMarkdown());
-    ```
+  
+  ```csharp
+  Logger.LogInformation("{@Name} Param: {@Markdown}{@Unique}", Name, new MarkdownQuoteList(new
+  {
+      Cache.MicroscopeMagnificationEnum,
+      Cache.FindFocusPosition,
+      ImageFileDirectory = detectImageDirectory
+  }), guid.LogMarkdown());
+  ```
 
 ### 6.10 校准界面操作流程
 
-![Clip_2024-04-23_15-09-13](./Documents/assets/Clip_2024-04-23_15-09-13.png)
+![Clip_2024-04-23_15-09-13](C:\Users\Administrator\Desktop\ADS\Clip_2024-04-23_15-15-44.png)
 
 1. 双击画面左侧[校准项目]菜单，画面显示[Welcome to calibration]。
 2. 点击画面右侧[Calibrate]按钮开始进行校准。
@@ -758,28 +751,28 @@ cancellationToken.Register(subscribe.Dispose);
 4. 点击[Action]按钮执行校准。
 5. 校准执行完成之后，生成html和校准文件
 
-| 组件名称       | 类型              | 位置                     | 功能                                                         |
-| -------------- | ----------------- | ------------------------ | ------------------------------------------------------------ |
-| Calibrtion     | 菜单              | 画面左侧                 | 双击后开始准备校准                                           |
-| Calibrate      | 按钮              | 画面右上，菜单栏下       | 点击后开始校准                                               |
-| Review         | 按钮              | 画面右上，菜单栏下       | 点击后显示最新的chuck角度偏移量和XY方向上的位置偏移量，提供给用户检查校准结果是否合格 |
-| Cancel         | 按钮              | 画面右上，菜单栏下       | 点击后取消当前校准流程                                       |
-| Previous       | 按钮              | 画面右上，菜单栏下       | 点击后返回校准流程的上一步                                   |
-| Next           | Next按钮          | 画面右上，菜单栏下       | 点击后进入校准的下一步流程                                   |
-| Action         | 按钮              | Next画面中               | 点击后开始执行校准                                           |
-| Cancel         | 按钮              | Next画面中               | 点击后取消执行校准                                           |
-| Instructions   | TextBlock文本块   | 画面右侧                 | 显示校准流程的详细步骤和相关介绍                             |
-| StepProcessBar | StepBar步骤进度条 | 画面右侧，Instructions下 | 显示校准进度。                                               |
-| LogMessage     | NLogUserControl   | 画面下侧                 | LogMessage实施显示                                           |
+| 组件名称           | 类型              | 位置                 | 功能                                             |
+| -------------- | --------------- | ------------------ | ---------------------------------------------- |
+| Calibrtion     | 菜单              | 画面左侧               | 双击后开始准备校准                                      |
+| Calibrate      | 按钮              | 画面右上，菜单栏下          | 点击后开始校准                                        |
+| Review         | 按钮              | 画面右上，菜单栏下          | 点击后显示最新的chuck角度偏移量和XY方向上的位置偏移量，提供给用户检查校准结果是否合格 |
+| Cancel         | 按钮              | 画面右上，菜单栏下          | 点击后取消当前校准流程                                    |
+| Previous       | 按钮              | 画面右上，菜单栏下          | 点击后返回校准流程的上一步                                  |
+| Next           | Next按钮          | 画面右上，菜单栏下          | 点击后进入校准的下一步流程                                  |
+| Action         | 按钮              | Next画面中            | 点击后开始执行校准                                      |
+| Cancel         | 按钮              | Next画面中            | 点击后取消执行校准                                      |
+| Instructions   | TextBlock文本块    | 画面右侧               | 显示校准流程的详细步骤和相关介绍                               |
+| StepProcessBar | StepBar步骤进度条    | 画面右侧，Instructions下 | 显示校准进度。                                        |
+| LogMessage     | NLogUserControl | 画面下侧               | LogMessage实施显示                                 |
 
-![Clip_2024-04-23_15-15-44](./Documents/assets/Clip_2024-04-23_15-15-44.png)
+![Clip_2024-04-23_15-15-44](C:\Users\Administrator\Desktop\ADS\Clip_2024-04-23_15-09-13.png)
 
 1. 主菜单区
 2. 校准菜单区
 3. 校准功能按钮区
 4. 校准区
-    6. 校准操作区
-    7. 校准提示去
+   6. 校准操作区
+   7. 校准提示去
 5. 日志区
 
 ## 7. 开发步骤
@@ -791,9 +784,9 @@ cancellationToken.Register(subscribe.Dispose);
 3. 拷贝Model模型副本，修改为你需要的名称
 4. 在这个基础上再修改为你想要的界面样式和业务
 
-![image-20240423143053232](./Documents/assets/image-20240423143053232.png)
+![image-20240423143053232](C:\Users\Administrator\Desktop\ADS\image-20240423143053232.png)
 
-![image-20240423143210926](./Documents/assets/image-20240423143210926.png)
+![image-20240423143210926](C:\Users\Administrator\Desktop\ADS\image-20240423143210926.png)
 
 ### 注意事项
 
@@ -1070,7 +1063,6 @@ public static class ConstantsHelper
 
     #endregion 方法
 }
-
 ```
 
 ```csharp
@@ -1176,13 +1168,13 @@ public sealed partial class ChuckPrealignerCalibrationViewModel : CalibrationVie
 
     protected override Task<bool> CalibratingAsync()
     {
-        
+
         return Task.FromResult(AfViewModel.ToggleEnableEcs(true));
     }
 
     protected override Task<bool> ReviewingAsync()
     {
-        
+
         // todo: 获取缓存
         var (isSuccessOfPositionReview, reviewPoint) = StageViewModel.GetStageOffsetPosition();
         var (isSuccessForOfAngleReview, reviewAngle) = StageViewModel.GetStageOffsetAngle();
@@ -1205,11 +1197,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel : CalibrationVie
         {
             case 0:
                 // todo: 保存第一遍累加
-                
+
                 return true;
 
             case 1:
-                
+
                 CalibrationPrealignerObj = SecondChuckPrealignerObjDto.ToCalibrationPrealignerObj();
                 if (_fileCache.Set(CalibrationPrealignerObj) == false)
                 {
@@ -1337,6 +1329,4 @@ public sealed partial class ChuckPrealignerCalibrationViewModel : CalibrationVie
 
     #endregion 校准
 }
-
 ```
-

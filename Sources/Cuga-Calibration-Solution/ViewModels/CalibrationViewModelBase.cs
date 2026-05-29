@@ -19,6 +19,11 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     public virtual string VerifyFileName { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 校准文档的 HTML 文件路径
+    /// </summary>
+    public string HtmlPath { get; set; } = string.Empty;
+
     public Guid HtmlLogUniqueId { get; set; }
 
     #region 公开

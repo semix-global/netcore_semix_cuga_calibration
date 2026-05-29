@@ -21,8 +21,6 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="500" />
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderRegion}">
             <Grid>
@@ -54,55 +52,6 @@
                 <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                     <childrenView:Review />
                 </Grid>
-            </Grid>
-        </Border>
-        <GridSplitter Grid.Column="1" Width="5" />
-        <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Instructions"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Style="{StaticResource TextBlockLargeBold}" />
-                <RichTextBox Grid.Row="1"
-                             Margin="5"
-                             Padding="5"
-                             FontSize="14"
-                             IsReadOnly="True"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <FlowDocument>
-                        <Paragraph>
-                            <Run Text="1. Switch the mode so that the wafer on the cal chip can use the microscope servo and autofocus servo modes;" />
-                            <LineBreak />
-                            <Run Text="2. Chuck moves the four corners to the center of the bright field in the order of upper left, upper right, lower left, and lower right. After each move, switch to microscope servo mode, move the cross mark to the die corner of the DSW wafer, click to confirm, and record The translation stage coordinates and ECS height value at this time. For Haze and shiny wafer, confirm whether the wafer is in the bright field, then click Confirm to record the coordinates of the translation stage and the ECS height value at this time;" />
-                            <LineBreak />
-                            <Run Text="3. Generate a calibration file, which includes the translation stage coordinates and ECS values of each wafer in bright field." />
-                            <LineBreak />
-                        </Paragraph>
-                        <Paragraph>
-                            <Hyperlink>https://www.semixchina.com</Hyperlink>
-                        </Paragraph>
-                    </FlowDocument>
-                </RichTextBox>
-                <hc:StepBar Grid.Row="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="10"
-                            StepIndex="{Binding CalibrationStepIndex}"
-                            ItemsSource="{Binding CalibrationSteps}">
-                    <hc:StepBar.ItemTemplate>
-                        <DataTemplate />
-                    </hc:StepBar.ItemTemplate>
-                </hc:StepBar>
-                <ProgressBar Grid.Row="3"
-                             Margin="5"
-                             Style="{StaticResource ProgressBarSuccess}"
-                             Value="{Binding CalibrationProgress, Mode=OneWay}" />
             </Grid>
         </Border>
     </Grid>

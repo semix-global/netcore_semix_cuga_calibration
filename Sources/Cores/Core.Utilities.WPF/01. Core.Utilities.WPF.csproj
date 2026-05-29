@@ -19,6 +19,13 @@
         <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.8.1-preview22.0-xuan" />
 
         <PackageReference Include="WPF.CustomControl" VersionOverride="2.8.1-preview22.0-xuan" />
+        <PackageReference Include="Markdig" />
+        <PackageReference Include="Microsoft.Web.WebView2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Assets\Css\*.css" />
+        <EmbeddedResource Include="Assets\Js\*.js" />
     </ItemGroup>
 
     <ItemGroup>

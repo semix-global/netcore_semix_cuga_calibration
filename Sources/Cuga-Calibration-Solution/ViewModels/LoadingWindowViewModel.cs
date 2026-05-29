@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Core.Utilities;
+using Core.Utilities.WPF.Entities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.Cache.Providers.Services.Interfaces;
@@ -13,8 +14,10 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels;
 
@@ -151,6 +154,8 @@ public sealed partial class LoadingWindowViewModel(
                 else
                     applicationCookieService.GetCalibration(menu.Entry.DTOType);
 
+                PreparationHtml(menu);
+
                 Message = $"Loading {menu.Entry.Name} Cache OK!!!";
 
                 ProcessValue = ConnectCacheProgress + progressPerItem * (i + 1);
@@ -163,5 +168,52 @@ public sealed partial class LoadingWindowViewModel(
     private void Close()
     {
         CloseView(false);
+    }
+
+    private static void PreparationHtml(CalibrationMenu menu)
+    {
+        // 清理文件名中的非法字符
+        var sanitizedMenuName = SanitizeForPath(menu.SysMenu.Parent?.Name ?? "Default");
+        var sanitizedEntryName = SanitizeForPath(menu.SysMenu.Name);
+
+        // Markdown 使用项目目录的相对路径（Assets\Document\MarkDown）
+        var projectRoot = AppDomain.CurrentDomain.BaseDirectory;
+        var markdownPath = Path.Combine(projectRoot, "Assets", "Document", "MarkDown", sanitizedMenuName, $"{sanitizedEntryName}.md");
+
+        // Markdown 副本保存到输出目录，保持和源相同的文件夹结构
+        var markdownCopyPath = Path.Combine(projectRoot, "Assets", "Document", "MarkDown", sanitizedMenuName, $"{sanitizedEntryName}.md");
+
+        // HTML 保存到单独的 Html 文件夹，保持和 Markdown 相同的子文件夹结构
+        var htmlPath = Path.Combine(projectRoot, "Assets", "Document", "Html", sanitizedMenuName, $"{sanitizedEntryName}.html");
+
+        // 智能缓存转换：只在首次或 Markdown 更新时转换
+        var resultHtmlPath = MarkdownHtmlBuilder.ConvertAndSaveHtml(markdownPath, markdownCopyPath, htmlPath, forceRebuild: false);
+
+        // 获取 ViewModel 实例并设置 HtmlPath
+        if (string.IsNullOrEmpty(resultHtmlPath)) return;
+        if (HostApplication.GetRequiredService(menu.Entry.ViewModelType) is CalibrationViewModelBase viewModel)
+        {
+            viewModel.HtmlPath = resultHtmlPath;
+        }
+
+        return;
+
+        // 本地辅助方法：清理路径中的非法字符
+        string SanitizeForPath(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var result = name;
+            foreach (var c in invalidChars)
+            {
+                result = result.Replace(c, '_');
+            }
+
+            // 同时替换空格和点号
+            result = result.Replace(" ", "");
+            return result;
+        }
     }
 }
