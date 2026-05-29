@@ -21,8 +21,6 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="500" />
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderRegion}">
             <Grid>
@@ -48,54 +46,6 @@
                 <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                     <children:Review />
                 </Grid>
-            </Grid>
-        </Border>
-        <GridSplitter Grid.Column="1" Width="5" />
-        <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="80" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Instructions"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Style="{StaticResource TextBlockLargeBold}" />
-                <RichTextBox Grid.Row="1"
-                             Margin="5"
-                             Padding="5"
-                             FontSize="14"
-                             IsReadOnly="True"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <FlowDocument>
-                        <Paragraph>
-                            <Run Text="1. Move the DSW wafer to the 10um square area;" />
-                            <LineBreak />
-                            <Run Text="2. Collect the corresponding dark field image, the scanning speed is 100mm/s, and obtain the image of the 8th PMT in CH3. The image is multiple bright stripes. After adding the gray value of the image along the X axis, you can get a gray value. Curve, similar to the figure below." />
-                            <LineBreak />
-                        </Paragraph>
-                        <Paragraph>
-                            <Hyperlink>https://www.semixchina.com</Hyperlink>
-                        </Paragraph>
-                    </FlowDocument>
-                </RichTextBox>
-                <hc:StepBar Grid.Row="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="10"
-                            StepIndex="{Binding CalibrationStepIndex}"
-                            ItemsSource="{Binding CalibrationSteps}">
-                    <hc:StepBar.ItemTemplate>
-                        <DataTemplate />
-                    </hc:StepBar.ItemTemplate>
-                </hc:StepBar>
-                <ProgressBar Grid.Row="3"
-                             Margin="5"
-                             Style="{StaticResource ProgressBarSuccess}"
-                             Value="{Binding CalibrationProgress, Mode=OneWay}" />
-
             </Grid>
         </Border>
     </Grid>

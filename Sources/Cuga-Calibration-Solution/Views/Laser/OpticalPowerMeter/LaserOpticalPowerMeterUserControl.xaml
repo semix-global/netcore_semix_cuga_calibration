@@ -21,8 +21,6 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="500" />
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderRegion}">
             <Grid>
@@ -44,58 +42,6 @@
                 <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                     <childrenView:Review />
                 </Grid>
-            </Grid>
-        </Border>
-
-        <GridSplitter Grid.Column="1" Width="5" />
-        <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="50" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Instructions"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Style="{StaticResource TextBlockLargeBold}" />
-                <RichTextBox Grid.Row="1"
-                             Margin="5"
-                             Padding="5"
-                             FontSize="14"
-                             IsReadOnly="True"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <FlowDocument>
-                        <Paragraph>
-                            <Run Text="1. Manually move the wafer to a specific pattern, the DSW calibration pattern is as follows;" />
-                            <LineBreak />
-                            <Run Text="2. Change the microscope objective lens to 5X magnification and put it in the best focal position, and take pictures 10 times;" />
-                            <LineBreak />
-                            <Run Text="3. Use an image processing algorithm to obtain the pixel positions of all intersections of the central horizontal line (the intersection of the red line in the middle image of Figure 5.1), and calculate the pixel difference between the leftmost intersection and the rightmost intersection, pixel size_x=(number of intersections-1)*100um /pixel x-direction difference. The average of 10 times of pixel size_x is the pixel size_x of 5X magnification.;" />
-                            <LineBreak />
-                            <Run Text="4. Use an image processing algorithm to obtain the pixel positions of all intersections of the central vertical line (the red line intersection in the right picture of Figure 5.1), and calculate the pixel difference between the uppermost intersection and the lowermost intersection, pixel size_y=(number of intersections-1)*100um /pixel y direction difference. The average of 10 pixel size_y times is the pixel size_y of 5X magnification.." />
-                            <LineBreak />
-                        </Paragraph>
-                        <Paragraph>
-                            <Hyperlink>https://www.semixchina.com</Hyperlink>
-                        </Paragraph>
-                    </FlowDocument>
-                </RichTextBox>
-                <hc:StepBar Grid.Row="2"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            FontSize="10"
-                            StepIndex="{Binding CalibrationStepIndex}"
-                            ItemsSource="{Binding CalibrationSteps}">
-                    <hc:StepBar.ItemTemplate>
-                        <DataTemplate />
-                    </hc:StepBar.ItemTemplate>
-                </hc:StepBar>
-                <ProgressBar Grid.Row="3"
-                             Margin="5"
-                             Style="{StaticResource ProgressBarSuccess}"
-                             Value="{Binding CalibrationProgress, Mode=OneWay}" />
             </Grid>
         </Border>
     </Grid>
