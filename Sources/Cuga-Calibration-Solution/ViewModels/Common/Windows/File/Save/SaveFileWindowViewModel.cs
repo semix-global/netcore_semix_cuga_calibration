@@ -1,15 +1,19 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Version;
+using Core.Utilities.WPF.Assembly.Model;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.File.Setting;
 using Local.SQL.Cache.Providers.Extensions;
 using Local.SQL.Cache.Providers.Services.Interfaces;
+using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
@@ -25,10 +29,11 @@ public partial class SaveFileWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     ILogger<SettingWindowViewModel> logger,
     ICalibrationCacheProvider calibrationCacheProvider,
-    ICalibrationVersionFactory calibrationVersionFactory) : ViewModelBase
+    ICalibrationVersionFactory calibrationVersionFactory,
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     [ObservableProperty]
-    public partial IReadOnlyList<CalibrationVersionCategoryGroup> CalibrationVersionCategories { get; set; } = [];
+    public partial IReadOnlyList<CalibrationVersionCategory> CalibrationVersionCategories { get; set; } = [];
 
     [RelayCommand]
     private async Task LoadingAsync()
@@ -38,33 +43,11 @@ public partial class SaveFileWindowViewModel(
             try
             {
                 var calibrationVersionHistories = cacheProvider.Gets<CalibrationVersionDTO>(10)
-                    .Where(t => t.ResultFilePath != string.Empty);
-
-                var calibrationCategoryList = CalibrationReflectionHelper.GetCalibrationDescriptionList();
+                    .Where(t => t.ResultFilePath != string.Empty)
+                    .DistinctBy(t => t.ResultFilePath);
 
                 // Build Categories with hierarchy
-                CalibrationVersionCategories =
-                [
-                    .. calibrationCategoryList.Select(t => new CalibrationVersionCategoryGroup(
-                        t.Description,
-                        [
-                            .. t.Items.Select(tt =>
-                            {
-                                return new CalibrationVersionCategory(
-                                    tt.Description.Split('.').Last(),
-                                    tt.CalibrationDtoType,
-                                    tt.IsArray,
-                                    [
-                                        .. calibrationVersionHistories
-                                            .Select(o => (dto: o, info: o.GetVersionInfo(tt.CalibrationDtoType)))
-                                            .Where(x => x.info != null)
-                                            .Where(v => SQLiteHelper.GetTableInfo(tt.CalibrationDtoType).Version == GuardExtensions.IsNotNullAndReturn(v.info).Version)
-                                            .Select(o => o.dto)
-                                    ],
-                                    null);
-                            })
-                        ]))
-                ];
+                CalibrationVersionCategories = BuildCategoryTree(applicationCookie.CalibrationMenu, [.. calibrationVersionHistories]);
             }
             catch (Exception ex)
             {
@@ -75,6 +58,51 @@ public partial class SaveFileWindowViewModel(
                 logger.LogError(ex, "Restore Setting");
             }
         }).ConfigureAwait(false);
+    }
+
+    private IReadOnlyList<CalibrationVersionCategory> BuildCategoryTree(CalibrationMenu menuNode, IReadOnlyList<CalibrationVersionDTO> calibrationVersionHistories)
+    {
+        var categories = new List<CalibrationVersionCategory>();
+
+        foreach (var child in menuNode.Children)
+        {
+            var category = new CalibrationVersionCategory
+            {
+                SysMenu = child.SysMenu
+            };
+
+            if (child.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu && child.Entry != CalibrationViewModelEntry.Default)
+            {
+                var entry = child.Entry;
+
+                category.CategoryItem = new CalibrationVersionCategoryItem
+                {
+                    Description = child.SysMenu.Name,
+                    IsArray = entry.IsArray,
+                    AssemblyQualifiedName = entry.DTOType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
+                    Items =
+                    [
+                        .. calibrationVersionHistories
+                            .Select(o => (dto: o, info: o.GetVersionInfo(entry.DTOType)))
+                            .Where(x => x.info != null)
+                            .Where(v => SQLiteHelper.GetTableInfo(entry.DTOType).Version == GuardExtensions.IsNotNullAndReturn(v.info).Version)
+                            .Select(o => o.dto)
+                    ],
+                };
+            }
+            else
+            {
+                category.CategoryItem = new CalibrationVersionCategoryItem
+                {
+                    Description = child.SysMenu.Name
+                };
+            }
+
+            category.Children = BuildCategoryTree(child, calibrationVersionHistories);
+            categories.Add(category);
+        }
+
+        return categories.AsReadOnly();
     }
 
     [RelayCommand]
@@ -92,7 +120,7 @@ public partial class SaveFileWindowViewModel(
                     [
                         ..
                         CalibrationVersionCategories
-                            .SelectMany(g => g.Items)
+                            .SelectMany(g => g.GetAllChildren())
                             .Select(ResolveVersionInfo)
                             .Where(t => t != null)
                             .Select(t => GuardExtensions.IsNotNullAndReturn(t))
@@ -133,32 +161,56 @@ public partial class SaveFileWindowViewModel(
     /// <returns></returns>
     private CalibrationVersionDTO.VersionInfo? ResolveVersionInfo(CalibrationVersionCategory category)
     {
-        var selected = category.SelectItem?.GetVersionInfo(category.Type);
+        var selected = category.CategoryItem.SelectItem?.GetVersionInfo(Guard.IsNotNullAndReturn(category.CategoryItem.TypeInstance));
         if (selected is not null) return selected;
 
         // 界面如果未选择，则使用数据库最新一条数据
-        var versionInfo = category.IsArray
-            ? calibrationVersionFactory.CalibrationDTOItemsConvertToVersionInfo(category.Type)
-            : calibrationVersionFactory.CalibrationDTOConvertToVersionInfo(category.Type);
+        var versionInfo = category.CategoryItem.IsArray
+            ? calibrationVersionFactory.CalibrationDTOItemsConvertToVersionInfo(Guard.IsNotNullAndReturn(category.CategoryItem.TypeInstance))
+            : calibrationVersionFactory.CalibrationDTOConvertToVersionInfo(Guard.IsNotNullAndReturn(category.CategoryItem.TypeInstance));
 
         return versionInfo;
     }
 }
 
-public record CalibrationVersionCategoryGroup(string Description, IReadOnlyList<CalibrationVersionCategory> Items);
-
-public partial class CalibrationVersionCategory(
-    string description,
-    Type type,
-    bool isArray,
-    IReadOnlyList<CalibrationVersionDTO> items,
-    CalibrationVersionDTO? selectItem) : ObservableObject
+public sealed partial class CalibrationVersionCategory : ObservableObject
 {
-    public string Description { get; } = description;
-    public Type Type { get; } = type;
-    public bool IsArray { get; } = isArray;
-    public IReadOnlyList<CalibrationVersionDTO> Items { get; } = items;
+    [ObservableProperty]
+    public partial SysMenuDTO SysMenu { get; set; } = new();
 
     [ObservableProperty]
-    public partial CalibrationVersionDTO? SelectItem { get; set; } = selectItem;
+    private CalibrationVersionCategoryItem _categoryItem = new();
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CalibrationVersionCategory> Children { get; set; } = [];
+
+    public string Name => SysMenu.Name;
+
+    public IReadOnlyList<CalibrationVersionCategory> GetAllChildren()
+    {
+        var result = new List<CalibrationVersionCategory>();
+
+        RecursionFn(this);
+
+        return result;
+
+        void RecursionFn(CalibrationVersionCategory item)
+        {
+            if (item.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu) result.Add(item);
+
+            foreach (var child in item.Children) RecursionFn(child);
+        }
+    }
+}
+
+public partial class CalibrationVersionCategoryItem : TypeInfo
+{
+    [ObservableProperty]
+    public partial bool IsArray { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CalibrationVersionDTO> Items { get; set; } = [];
+
+    [ObservableProperty]
+    public partial CalibrationVersionDTO? SelectItem { get; set; }
 }

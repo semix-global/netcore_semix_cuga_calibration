@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.File.Setting.Children.SettingDisableCalibrateConfigUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
+             d:DataContext="{d:DesignInstance Type=viewModels:SettingDisableCalibrationConfigViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="800"
+             mc:Ignorable="d">
+    <Border>
+        <Grid Margin="10">
+            <!--  使用TreeView展示树状结构的校准配置  -->
+            <TreeView ItemsSource="{Binding ConfigItem.CalibrationItems}">
+                <TreeView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="True" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <Grid x:Name="Grid">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Spacing="10"
+                                                    Orientation="Horizontal">
+                                <!--  CheckBox 用于切换禁用状态  -->
+                                <CheckBox x:Name="DisableCheckBox"
+                                          IsChecked="{Binding CategoryItem.IsDisable}"
+                                          VerticalAlignment="Center"
+                                          ToolTip="Check to disable this calibration">
+                                    <CheckBox.Style>
+                                        <Style BasedOn="{StaticResource CheckBoxBaseStyle}" TargetType="CheckBox">
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </CheckBox.Style>
+                                </CheckBox>
+
+                                <TextBlock Text="{Binding SysMenu.Name}"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource TextBlockDefault}" />
+                            </hc:UniformSpacingPanel>
+                        </Grid>
+                        <HierarchicalDataTemplate.Triggers>
+                            <!--  目录节点不显示 CheckBox  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                                <Setter TargetName="DisableCheckBox" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <!--  叶子节点（Menu 类型）缩进显示  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Menu}">
+                                <Setter TargetName="Grid" Property="Margin" Value="-20,0,0,0" />
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </Grid>
+    </Border>
+</UserControl>

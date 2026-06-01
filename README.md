@@ -180,7 +180,7 @@ private static void ConfigureServices(HostBuilderContext context, IServiceCollec
 
     #region Sevices
 
-        services.AddSingleton<ICalibrationStageService, CalibrationStageServiceMock>();
+    services.AddSingleton<ICalibrationStageService, CalibrationStageServiceMock>();
     services.AddSingleton<ICalibrationReviewService, CalibrationReviewService>();
     services.AddSingleton<ICalibrationMicroscopeService, CalibrationMicroscopeServiceMock>();
     services.AddSingleton<ICalibrationAfService, CalibrationAfServiceMock>();
@@ -188,9 +188,9 @@ private static void ConfigureServices(HostBuilderContext context, IServiceCollec
 
     #endregion Sevices
 
-        #endregion Caliburation
+    #endregion Caliburation
 
-        services.AddSingleton<FileCache>(_ => new FileCache(ConstantsHelper.CugaCalibrationDirectory));
+    services.AddSingleton<FileCache>(_ => new FileCache(ConstantsHelper.CugaCalibrationDirectory));
     services.AddSingleton<IDialogWindowProvider, DialogWindowProvider>();
     services.AddSingleton<IViewLocatorService, ViewLocatorService>();
     services.AddSingleton<INavigationService, NavigationService>();
@@ -428,7 +428,7 @@ public static Type? ViewType2ViewModelType(Type? viewType)
 
 > `Net.Utilities.WPF.MVVM.Providers.MVVMLocatorProvider.cs`
 
-```
+```cs
 /// <summary>
 /// 将View与ViewModel数据上下文绑定
 /// </summary>
@@ -549,7 +549,7 @@ if (dataContext is ViewModelBase viewModelBase && frameworkElement is Window or 
 
 ### 6.1. 必须重写Name，用于日志提示和显示，名称要有意义
 
-```
+```cs
 /// <summary>
 /// 校准名称
 /// </summary>
@@ -657,7 +657,7 @@ private CalibrationItemViewEnum _viewEnum;
 >
 > 2. 下一步上一步切换是用：`CalibrationStepIndex`校准所在步骤控制解决`Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}"`
 
-```xaml
+```xml
 <Border Margin="5"
         Style="{StaticResource BorderRegion}"
         Effect="{StaticResource EffectShadow2}">
@@ -904,7 +904,7 @@ public interface ICalibrationStageService
 }
 ```
 
-```
+```csharp
 using System;
 
 namespace Core.Wcf.Models.Chuck
@@ -944,7 +944,7 @@ namespace Core.Wcf.Models.Chuck
 }
 ```
 
-```
+```csharp
 using Core.Models.Enums;
 using Core.Models.Exceptions;
 using Core.Models.Models;
@@ -1073,8 +1073,8 @@ public static class ConstantsHelper
 
 ```
 
-```
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+```csharp
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Enums;

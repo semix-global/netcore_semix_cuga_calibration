@@ -7,6 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Save"
         xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+        xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
         Width="800"
         Height="900"
         d:DataContext="{d:DesignInstance Type=viewModels:SaveFileWindowViewModel}"
@@ -32,6 +33,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <!--#region Title-->
         <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
@@ -67,132 +69,58 @@
             </Button>
         </hc:SimplePanel>
         <!--#endregion-->
-        <Border Grid.Row="1"
-                Margin="1"
-                Padding="2">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Border Grid.Row="0"
-                        Margin="1"
-                        Padding="2"
-                        BorderBrush="{StaticResource PrimaryBrush}">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding CalibrationVersionCategories}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type viewModels:CalibrationVersionCategoryGroup}">
-                                    <Border Margin="0,0,0,8"
-                                            BorderBrush="{StaticResource BorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="4">
-                                        <Expander IsExpanded="True">
-                                            <Expander.Style>
-                                                <Style TargetType="Expander">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Expander">
-                                                                <StackPanel>
-                                                                    <!--  Group header toggle  -->
-                                                                    <ToggleButton x:Name="HeaderToggle"
-                                                                                  IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                                                                  Padding="8,5"
-                                                                                  HorizontalContentAlignment="Stretch"
-                                                                                  Background="{StaticResource BorderBrush}"
-                                                                                  BorderThickness="0"
-                                                                                  Cursor="Hand">
-                                                                        <ToggleButton.Style>
-                                                                            <Style TargetType="ToggleButton">
-                                                                                <Setter Property="Template">
-                                                                                    <Setter.Value>
-                                                                                        <ControlTemplate TargetType="ToggleButton">
-                                                                                            <Border Padding="8,5"
-                                                                                                    Background="{StaticResource BorderBrush}"
-                                                                                                    CornerRadius="3,3,0,0">
-                                                                                                <Grid>
-                                                                                                    <Grid.ColumnDefinitions>
-                                                                                                        <ColumnDefinition Width="*" />
-                                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                                    </Grid.ColumnDefinitions>
-                                                                                                    <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
-                                                                                                    <Path x:Name="Arrow" Grid.Column="1"
-                                                                                                          Margin="8,0,0,0"
-                                                                                                          VerticalAlignment="Center"
-                                                                                                          Fill="{TemplateBinding Foreground}"
-                                                                                                          Data="M 0,0 L 4,4 L 8,0 Z" />
-                                                                                                </Grid>
-                                                                                            </Border>
-                                                                                            <ControlTemplate.Triggers>
-                                                                                                <Trigger Property="IsChecked" Value="False">
-                                                                                                    <Setter TargetName="Arrow" Property="Data" Value="M 0,4 L 4,0 L 8,4 Z" />
-                                                                                                </Trigger>
-                                                                                            </ControlTemplate.Triggers>
-                                                                                        </ControlTemplate>
-                                                                                    </Setter.Value>
-                                                                                </Setter>
-                                                                            </Style>
-                                                                        </ToggleButton.Style>
-                                                                        <TextBlock Text="{Binding Description}" />
-                                                                    </ToggleButton>
-                                                                    <!--  Children  -->
-                                                                    <ContentPresenter x:Name="ContentName"
-                                                                                      Content="{TemplateBinding Content}"
-                                                                                      Visibility="Visible" />
-                                                                </StackPanel>
-                                                                <ControlTemplate.Triggers>
-                                                                    <Trigger Property="IsExpanded" Value="False">
-                                                                        <Setter TargetName="ContentName" Property="Visibility" Value="Collapsed" />
-                                                                    </Trigger>
-                                                                </ControlTemplate.Triggers>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </Expander.Style>
-                                            <!--  Children  -->
-                                            <ItemsControl Margin="0" ItemsSource="{Binding Items}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate DataType="{x:Type viewModels:CalibrationVersionCategory}">
-                                                        <Grid MinWidth="600" Margin="8,6">
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="2*" />
-                                                                <ColumnDefinition Width="3*" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0"
-                                                                       Text="{Binding Description}"
-                                                                       VerticalAlignment="Center" />
-                                                            <ComboBox Grid.Column="1"
-                                                                      Margin="10,0,0,0"
-                                                                      ItemsSource="{Binding Items}"
-                                                                      SelectedItem="{Binding SelectItem, Mode=TwoWay}">
-                                                                <ComboBox.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <TextBlock Text="{Binding ResultFilePath}" />
-                                                                    </DataTemplate>
-                                                                </ComboBox.ItemTemplate>
-                                                            </ComboBox>
-                                                        </Grid>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </Expander>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
 
-                </Border>
-
-                <hc:SimplePanel Grid.Row="1" Margin="0,10">
-                    <Button Content="Save"
-                            Command="{Binding SavingCommand}"
-                            HorizontalAlignment="Right"
-                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                            Style="{StaticResource ButtonPrimary}" />
-                </hc:SimplePanel>
-            </Grid>
-        </Border>
+        <Grid Margin="10" Grid.Row="1">
+            <TreeView ItemsSource="{Binding CalibrationVersionCategories}">
+                <TreeView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="True" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <Grid x:Name="Grid">
+                            <Grid MinWidth="600" Margin="5,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="3*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding .Name}"
+                                           VerticalAlignment="Center" />
+                                <ComboBox Grid.Column="1" x:Name="ComboBoxName"
+                                          Margin="10,0,0,0"
+                                          ItemsSource="{Binding .CategoryItem.Items}"
+                                          SelectedItem="{Binding .CategoryItem.SelectItem, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding ResultFilePath}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </Grid>
+                        </Grid>
+                        <HierarchicalDataTemplate.Triggers>
+                            <!--  目录节点不显示 CheckBox  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                                <Setter TargetName="ComboBoxName" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <!--  叶子节点（Menu 类型）缩进显示  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Menu}">
+                                <Setter TargetName="Grid" Property="Margin" Value="-20,0,0,0" />
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </Grid>
+        <hc:SimplePanel Margin="0,10" Grid.Row="2">
+            <Button Content="Save"
+                    Command="{Binding SavingCommand}"
+                    HorizontalAlignment="Right"
+                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                    Style="{StaticResource ButtonPrimary}" />
+        </hc:SimplePanel>
     </Grid>
+
 </Window>

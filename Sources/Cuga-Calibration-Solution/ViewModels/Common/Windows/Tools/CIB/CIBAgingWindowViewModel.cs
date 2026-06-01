@@ -553,8 +553,8 @@ public sealed partial class CIBAgingWindowViewModel(
                 {
                     var oldPMTValue = selectItem.Items[index].PMTValue;
                     var newPMTValue = newItem.Items[index].PMTValue;
-                    var decayRate = oldPMTValue == 0 ? double.PositiveInfinity : (newPMTValue - oldPMTValue) / oldPMTValue;
-                    var isOk = decayRate > 0 || Math.Abs(decayRate) <= Cache.AgingRatioThreshold;
+                    var decayRatio = oldPMTValue == 0 ? double.PositiveInfinity : (newPMTValue - oldPMTValue) / oldPMTValue;
+                    var isOk = decayRatio > 0 || Math.Abs(decayRatio) <= Cache.AgingRatioThreshold;
 
                     cibAgingSampleItem.Items =
                     [
@@ -563,7 +563,7 @@ public sealed partial class CIBAgingWindowViewModel(
                             Gain = selectItem.Items[index].Gain,
                             OldPMTValue = oldPMTValue,
                             NewPMTValue = newPMTValue,
-                            DecayRate = decayRate,
+                            DecayRatio = decayRatio,
                             IsOk = isOk
                         }
                     ];

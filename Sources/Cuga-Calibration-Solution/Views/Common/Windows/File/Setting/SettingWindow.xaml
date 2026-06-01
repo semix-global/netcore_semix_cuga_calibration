@@ -7,6 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            Width="1500"
            Height="900"
            d:DataContext="{d:DesignInstance Type=viewModels:SettingWindowViewModel}"
@@ -18,6 +19,9 @@
            WindowStyle="None"
            mc:Ignorable="d">
     <Grid>
+        <attachedHelper:LoadingHelper.IsShow>
+            <Binding Path="IsTabControlEnabled" Converter="{StaticResource Boolean2BooleanReConverter}" />
+        </attachedHelper:LoadingHelper.IsShow>
         <Grid.Resources>
             <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
                 <Setter Property="CornerRadius" Value="0" />
@@ -71,12 +75,20 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <TabControl>
+                <TabControl IsEnabled="{Binding IsTabControlEnabled}">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding HandleTabSelectionChangedCommand}" PassEventArgsToCommand="True" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
                     <TabItem Header="Common">
                         <children:SettingCommonUserControl DataContext="{Binding .}" />
                     </TabItem>
                     <TabItem Header="Template">
                         <children:SettingTemplateMatchUserControl DataContext="{Binding .}" />
+                    </TabItem>
+                    <TabItem Header="Configure One-Click Disable">
+                        <children:SettingDisableCalibrateConfigUserControl DataContext="{Binding SettingDisableCalibrationConfigViewModel}" IsEnabled="{Binding DataContext.IsDisableConfigEnabled, RelativeSource={RelativeSource AncestorType=Window}}" />
                     </TabItem>
                     <TabItem Header="Configure Calibration Status">
                         <children:SettingCalibrateItemsStatusUserControl DataContext="{Binding SettingCalibrateItemsStatusViewModel}" />

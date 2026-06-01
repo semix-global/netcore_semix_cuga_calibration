@@ -1,81 +1,58 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.File.Setting.Children.SettingRequiredCalibrationUserControl"
+<UserControl x:Class="CugaCalibration.Views.Common.Windows.File.Setting.Children.SettingRequiredCalibrationUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingRequiredCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <ControlTemplate x:Key="CustomItemsControlTemplate" TargetType="ItemsControl">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <ItemsPresenter />
-            </ScrollViewer>
-        </ControlTemplate>
-    </UserControl.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
             <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Border>
-        <Grid>
-            <Grid.Resources>
-                <Style BasedOn="{StaticResource GroupBoxBaseStyle}" TargetType="GroupBox">
-                    <Style.Setters>
-                        <Setter Property="Margin" Value="5" />
-                        <Setter Property="Padding" Value="10" />
-                    </Style.Setters>
-                </Style>
-            </Grid.Resources>
-
-            <!--  使用ItemsControl展示所有类别  -->
-            <ItemsControl ItemsSource="{Binding SettingRequiredCalibrationParamList}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <UniformGrid Columns="4" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <!--  每个类别显示为一个GroupBox  -->
-                        <GroupBox Header="{Binding Description}">
-                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                <!--  类别内的项目使用ItemsControl显示  -->
-                                <ItemsControl ItemsSource="{Binding CategoryItems}" Template="{StaticResource CustomItemsControlTemplate}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <StackPanel />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter" />
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <hc:SimplePanel Height="30" Margin="8">
-                                                <TextBlock Text="{Binding Path=Description}"
-                                                           MinWidth="300"
-                                                           HorizontalAlignment="Left"
-                                                           VerticalAlignment="Center" />
-                                                <ToggleButton IsChecked="{Binding IsRequired}"
-                                                              HorizontalAlignment="Right"
-                                                              VerticalAlignment="Center"
-                                                              Background="{StaticResource DangerBrush}"
-                                                              Style="{StaticResource ToggleButtonSwitch}" />
-                                            </hc:SimplePanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+        <Grid Margin="10">
+            <TreeView ItemsSource="{Binding SettingRequiredCalibrationParamList}">
+                <TreeView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="True" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <Grid x:Name="Grid">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Spacing="10"
+                                                    Orientation="Horizontal">
+                                <!--  CheckBox 用于切换校准状态  -->
+                                <CheckBox x:Name="StatusCheckBox"
+                                          IsChecked="{Binding CategoryItem.IsRequired}"
+                                          VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding Name}"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource TextBlockDefault}" />
                             </hc:UniformSpacingPanel>
-                        </GroupBox>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                        </Grid>
+                        <HierarchicalDataTemplate.Triggers>
+                            <!--  目录节点不显示 CheckBox  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
+                                <Setter TargetName="StatusCheckBox" Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                            <!--  叶子节点（Menu 类型）缩进显示  -->
+                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Menu}">
+                                <Setter TargetName="Grid" Property="Margin" Value="-20,0,0,0" />
+                            </DataTrigger>
+                        </HierarchicalDataTemplate.Triggers>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
         </Grid>
     </Border>
 </UserControl>
