@@ -197,7 +197,7 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
             {
                 t.IsOk,
                 t.Gain,
-                t.DecayRate,
+                t.DecayRatio,
                 t.OldPMTValue,
                 t.NewPMTValue
             })
@@ -216,7 +216,7 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
         public partial double NewPMTValue { get; set; }
 
         [ObservableProperty]
-        public partial double DecayRate { get; set; }
+        public partial double DecayRatio { get; set; }
 
         [ObservableProperty]
         public partial bool IsOk { get; set; }
@@ -226,7 +226,7 @@ public sealed partial class CIBAgingSampleItem : ObservableObject, ICloneable<CI
             Gain = Gain,
             OldPMTValue = OldPMTValue,
             NewPMTValue = NewPMTValue,
-            DecayRate = DecayRate,
+            DecayRatio = DecayRatio,
             IsOk = IsOk
         };
     }

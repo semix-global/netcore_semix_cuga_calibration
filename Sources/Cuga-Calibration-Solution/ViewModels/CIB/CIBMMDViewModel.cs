@@ -216,13 +216,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 if (dialog == false) return;
 
                 var rows = (await MiniExcel.QueryAsync(filePath, useHeaderRow: true, cancellationToken: cancellationToken))
-                    .Cast<IDictionary<string, object>>()
+                    .Cast<IDictionary<string, object?>>()
                     .ToArray();
 
                 var values = rows
                     .Select(t =>
                     {
-                        var match = CIBInformation.Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)].ToString());
+                        var match = CIBInformation.Regex.Match(t[nameof(CIBMMDCache.MMDConfiguration.CIBInformation)]?.ToString() ?? string.Empty);
                         Guard.IsTrue(match.Success);
                         var cibInformation = ApplicationCookie.CIBInformations.SingleOrDefault(tt => tt.PMTId == int.Parse(match.Groups[1].Value)
                                                                                                      && tt.ChannelId == int.Parse(match.Groups[2].Value), CIBInformation.Default);
@@ -908,7 +908,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
             var cibMMDGainRelationships = (await MiniExcel.QueryAsync<CIBMMDGainRelationshipDTO>(Path.Combine(directoryPath, $"{nameof(CIBMMDGainRelationshipDTO)}.xlsx"), cancellationToken: cancellationToken)).ToArray();
 
             var rows = (await MiniExcel.QueryAsync(Path.Combine(directoryPath, cibMMDFilePath), useHeaderRow: false, cancellationToken: cancellationToken))
-                .Cast<IDictionary<string, object>>()
+                .Cast<IDictionary<string, object?>>()
                 .ToArray();
 
             var cibMMD = new CIBMMDDTO
@@ -938,7 +938,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                         ..cibMMDItem.Items, new CIBMMDDTOItem.Item
                         {
                             Gain = Convert.ToDouble(dictionary[keys[0]]),
-                            PMTValue = string.IsNullOrWhiteSpace(value.ToString()) == false ? Convert.ToDouble(value) : double.NaN
+                            PMTValue = string.IsNullOrWhiteSpace(value?.ToString()) == false ? Convert.ToDouble(value) : double.NaN
                         }
                     ];
                 }
@@ -1214,8 +1214,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
                 .Select(t => (
                     Gain: t.Item.X,
                     LogGainMultiplication128: (int)Math.Round(t.Item.Y * 128 /* KLA写死128 */, MidpointRounding.AwayFromZero),
-                    item.GainRelationships[t.Index].SenseU14Bit,
-                    item.GainRelationships[t.Index].GainS16Bit
+                    item.GainRelationships.Single(tt => Math.Abs(Math.Round(tt.Gain, 2) - Math.Round(t.Item.X, 2)) < 0.001).SenseU14Bit,
+                    item.GainRelationships.Single(tt => Math.Abs(Math.Round(tt.Gain, 2) - Math.Round(t.Item.X, 2)) < 0.001).GainS16Bit
                 ))
                 .ToArray();
 
