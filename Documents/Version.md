@@ -422,5 +422,61 @@
 >   1.   校准
 >
 >        #171 MMD暗电流校准的优化
->
->        
+
+## 2.5.3.0601
+
+>   1. 校准
+>      
+>      #172 MMD优化拟合、报警。添加手动导入mmd数据执行mmd算法并导出txt。模板的导出。修改raw图算法的转换
+>      
+>      #174 校准优化项目
+>      
+>      - 添加平滑算法（解决平滑算法 Point）
+>      
+>      - 校准做完最后异步可以进入review（弹窗是否直接review还是继续做下去）
+>      
+>      - 校准添加版本校验，必须大于cuga哪个版本才能启动
+>      
+>      - 修改日志目录（校准）
+>      
+>      - 校准body页面 step Shield显示改为bindign，不写固定
+>      
+>      - 移除ICalibrationStatusService类，将所有 LoadDepends 中的 CalibrationStatusService.GetCalibrationDtoIsOKStatus 调用改为直接获取对应 ViewModel 并检查 Entry.Status.IsOk
+>      
+>      - MainWindow partial 架构
+>      
+>      - Main窗体优化、自定义控件 tooltip、关于界面滚动条优化
+>      
+>      - 修复CIB MMD密度不变
+>      
+>      - 通用类库中 tableinfo.version 有概率被sql注入修复
+>      
+>      - 自动化架构中 校准base方法的状态的编写以及优化一些按钮状态控制 日志记录等
+>      
+>      - 将校准所有字段类型的全部改为partial property
+>      
+>      - aod delay改为movmean加最大的极大值方案
+>      
+>      #176 CIB老化
+>      
+>      - CIB老化
+>      
+>      - 修改stage mock bf df center position, x y direction， bf <=> stage , df <=> stage
+>      
+>      - aod delay bug fix
+>      
+>      - review保存日志的时候文件名架构设计OK
+>   
+>   2. 架构
+>      
+>      #169 CalChip Recipe
+>      
+>      #170 状态架构, 以及loading状态架构
+>      
+>      #173 简介架构
+>      
+>      #175 一键禁用校准结果架构（管理&配置&应用）
+>   
+>   3. Bug修复
+>      
+>      #179 校准自动化文档，MMD文档修复
