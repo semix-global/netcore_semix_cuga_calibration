@@ -3,6 +3,7 @@ using Core.Models.Helper;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using CugaCalibration.Core.Services.Interfaces;
@@ -28,7 +29,8 @@ public sealed partial class ApplicationCookieServiceImpl(
     ICacheProvider recipeCacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
-    ILogger<ApplicationCookieServiceImpl> logger) : IApplicationCookieService
+    ILogger<ApplicationCookieServiceImpl> logger,
+    CalibrationSetting calibrationSetting) : IApplicationCookieService
 {
     public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
     {
@@ -135,8 +137,6 @@ public sealed partial class ApplicationCookieServiceImpl(
     {
         var (xDirection, yDirection) = calibrationStageServiceImpl.GetMachineDirection().Anything;
 
-        var cache = Guard.IsNotNullAndReturn(cacheProvider.GetOrDefault<CIBLineCentricityCache>());
-
         var resultList = result.Where(t => t.ProductivityInformation == productivityInformation)
             .OrderBy(t => t.PmtId)
             .ToList();
@@ -147,7 +147,7 @@ public sealed partial class ApplicationCookieServiceImpl(
             .Select(t =>
             {
                 var centerOffset = t.DFMachineCenterPosition - (Vector)centerItemDto.DFMachineCenterPosition;
-                return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, cache.PmtInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
+                return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, calibrationSetting.SettingCommonParam.PMTInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
             })
             .ToList();
 
