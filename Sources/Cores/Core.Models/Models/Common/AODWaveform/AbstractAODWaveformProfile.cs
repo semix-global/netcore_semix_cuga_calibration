@@ -76,27 +76,27 @@ public abstract class AbstractAODWaveformProfile :
 
     #region 波形
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.Signals"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.Signals"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> Signals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FFTSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FFTSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FFTSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FrequencyCoefficients"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FrequencyCoefficients"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FrequencyCoefficients { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalFrequencySignals"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FlatnessTotalFrequencySignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalPhaseSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FlatnessTotalPhaseSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
+    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessTotalCompensationPhaseSignals"/>
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FlatnessTotalCompensationPhaseSignals { get; internal set; } = [];
 

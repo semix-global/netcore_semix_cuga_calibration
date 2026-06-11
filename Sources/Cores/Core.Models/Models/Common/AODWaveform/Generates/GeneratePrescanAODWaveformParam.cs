@@ -7,13 +7,13 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GeneratePrescanAODWaveformParam :
     AbstractGenerateAODWaveformParam,
-    IAdaptTo<AODWaveformGenerator.PrescanAODWaveformParam>,
+    IAdaptTo<AODWaveformGenerator1.PrescanAODWaveformParam>,
     ICloneable<GeneratePrescanAODWaveformParam>
 {
     [ObservableProperty]
     public partial double FlatnessTime { get; set; } = 4300;
 
-    public AODWaveformGenerator.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
+    public AODWaveformGenerator1.PrescanAODWaveformParam AdaptTo() => new(FlatnessTime)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -24,6 +24,7 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
         P2CompensationCoefficient = P2CompensationCoefficient,
         P3CompensationCoefficient = P3CompensationCoefficient,
         P4CompensationCoefficient = P4CompensationCoefficient,

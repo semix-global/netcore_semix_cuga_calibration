@@ -310,6 +310,40 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
+                <Expander Header="Slope ΔK Configurations"
+                          IsExpanded="False"
+                          ExpandDirection="Down"
+                          Visibility="{Binding IsVisibleSlopeDeltaKConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                <Button Content="Add"
+                                        Command="{Binding AddSlopeDeltaKConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                        Style="{StaticResource ButtonInfo}" />
+                                <Button Content="Delete"
+                                        Command="{Binding RemoveSlopeDeltaKConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridSlopeDeltaKConfigurations}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                        Style="{StaticResource ButtonDanger}" />
+                            </hc:UniformSpacingPanel>
+                            <DataGrid x:Name="DataGridSlopeDeltaKConfigurations"
+                                      MaxHeight="500"
+                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      Style="{StaticResource DataGrid.Small}"
+                                      HeadersVisibility="All"
+                                      RowHeaderWidth="60"
+                                      AutoGenerateColumns="False"
+                                      ItemsSource="{Binding SlopeDeltaKConfigurations}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="300"
+                                                        Header="Delta K Rate"
+                                                        Binding="{Binding DeltaKRate}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </Expander>
                 <Expander Header="Compensation"
                           IsExpanded="False"
                           ExpandDirection="Down"

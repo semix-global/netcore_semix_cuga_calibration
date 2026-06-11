@@ -7,7 +7,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateChirpAODWaveformParam :
     AbstractGenerateAODWaveformParam,
-    IAdaptTo<AODWaveformGenerator.ChirpAODWaveformParam>,
+    IAdaptTo<AODWaveformGenerator1.ChirpAODWaveformParam>,
     ICloneable<GenerateChirpAODWaveformParam>
 {
     [ObservableProperty]
@@ -26,7 +26,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         OnPropertyChanged(nameof(SpectralDensity));
     }
 
-    public AODWaveformGenerator.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
+    public AODWaveformGenerator1.ChirpAODWaveformParam AdaptTo() => new(SoundPacketLength, SoundSpeed)
     {
         BandWidth = BandWidth,
         CenterFrequency = CenterFrequency,
@@ -37,6 +37,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())],
         P2CompensationCoefficient = P2CompensationCoefficient,
         P3CompensationCoefficient = P3CompensationCoefficient,
         P4CompensationCoefficient = P4CompensationCoefficient,
