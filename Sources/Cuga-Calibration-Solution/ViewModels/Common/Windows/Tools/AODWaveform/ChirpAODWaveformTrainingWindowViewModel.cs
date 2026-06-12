@@ -1,3 +1,4 @@
+using System.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
@@ -24,6 +25,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
 using System.Text;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using Net.Utilities.Algorithms.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -54,6 +56,46 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     [RelayCommand]
     private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<ChirpAODWaveformTrainingCache>());
+
+    [RelayCommand]
+    private void AddSlopeDeltaKConfiguration()
+    {
+        var configurationList = Cache.SlopeDeltaKConfigurations.ToList();
+        configurationList.Add(new GenerateAODWaveformSlopeDeltaKConfiguration());
+
+        Cache.SlopeDeltaKConfigurations = configurationList;
+    }
+
+    [RelayCommand]
+    private void RemoveSlopeDeltaKConfiguration(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var configurationList = Cache.SlopeDeltaKConfigurations.ToList();
+        foreach (GenerateAODWaveformSlopeDeltaKConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
+
+        Cache.SlopeDeltaKConfigurations = configurationList;
+    }
+
+    [RelayCommand]
+    private void AddChirpAODWaveformTrainingDeltaK()
+    {
+        var trainingList = Cache.ChirpAODWaveformTrainingDeltaKs.ToList();
+        trainingList.Add(new ChirpAODWaveformTrainingDeltaK());
+
+        Cache.ChirpAODWaveformTrainingDeltaKs = trainingList;
+    }
+
+    [RelayCommand]
+    private void RemoveChirpAODWaveformTrainingDeltaK(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var trainingList = Cache.ChirpAODWaveformTrainingDeltaKs.ToList();
+        foreach (ChirpAODWaveformTrainingDeltaK selectItem in selectItems) trainingList.Remove(selectItem);
+
+        Cache.ChirpAODWaveformTrainingDeltaKs = trainingList;
+    }
 
     [RelayCommand]
     private void ImportAODWaveformParams()
@@ -111,14 +153,84 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingAsync(CancellationToken cancellationToken)
+    private async Task TrainingAllAsync(CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
+            if (Cache.ChirpAODWaveformTrainingDeltaKs.Count <= 0)
+            {
+                dialogWindowProvider.ShowDialog("DeltaKs is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return;
+            }
+
+            if ((Cache.ChirpAODWaveformTrainingDeltaKs.Count & 1) == 0)
+            {
+                dialogWindowProvider.ShowDialog("DeltaKs count must be odd.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return;
+            }
+
+            Cache.SlopeDeltaKConfigurations =
+            [
+                ..Cache.ChirpAODWaveformTrainingDeltaKs.Select(_ => new GenerateAODWaveformSlopeDeltaKConfiguration
+                {
+                    DeltaKRate = 0d,
+                    Coefficient = 0d
+                })
+            ];
+
+            foreach (var index in EnumerateFromCenter(Cache.ChirpAODWaveformTrainingDeltaKs.Count))
+            {
+                if (await TrainingAsync(Cache.ChirpAODWaveformTrainingDeltaKs[index], cancellationToken) == false) return;
+            }
+
+            return;
+
+            static IEnumerable<int> EnumerateFromCenter(int length)
+            {
+                if (length <= 0) yield break;
+
+                var center = length / 2;
+                yield return center;
+
+                for (var offset = 1;; offset++)
+                {
+                    var hasValue = false;
+
+                    var left = center - offset;
+                    if (left >= 0)
+                    {
+                        yield return left;
+
+                        hasValue = true;
+                    }
+
+                    var right = center + offset;
+                    if (right < length)
+                    {
+                        yield return right;
+
+                        hasValue = true;
+                    }
+
+                    if (!hasValue) yield break;
+                }
+            }
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> TrainingAsync(ChirpAODWaveformTrainingDeltaK chirpAODWaveformTrainingDeltaK, CancellationToken cancellationToken)
+    {
+        return await Task.Run(async () =>
+        {
             var htmlLogUniqueId = Guid.NewGuid();
 
+            var index = Cache.ChirpAODWaveformTrainingDeltaKs.Index().Single(t => ReferenceEquals(t.Item, chirpAODWaveformTrainingDeltaK)).Index;
+
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation("Training", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation($"Training: {index + 1}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
@@ -127,34 +239,41 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 Cache.Items = [];
 
                 cancellationToken.ThrowIfCancellationRequested();
-
-                foreach (var val in Generate.LinearRange(start, step, stop))
+                isSuccess = true;
+                var deltaKRates = Generate.LinearRangeContainsEdge(chirpAODWaveformTrainingDeltaK.StartDeltaKRate, chirpAODWaveformTrainingDeltaK.StepDeltaKRate, chirpAODWaveformTrainingDeltaK.StopDeltaKRate);
+                if (deltaKRates.Length <= 0)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    logger.LogHtmlInformation($"P{p}: {val:0.######}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
-
-                    var currentItem = await CatchImagesAsync(
-                        p == 2 ? val : Cache.P2Coefficient,
-                        p == 3 ? val : Cache.P3Coefficient,
-                        p == 4 ? val : Cache.P4Coefficient,
-                        p == 5 ? val : Cache.P5Coefficient,
-                        p == 6 ? val : Cache.P6Coefficient,
-                        p == 7 ? val : Cache.P7Coefficient,
-                        p == 8 ? val : Cache.P8Coefficient,
-                        htmlLogUniqueId,
-                        cancellationToken);
-
-                    if (Cache.IsConfirmBestYStrehlRatioResult)
+                    Cache.SlopeDeltaKConfigurations[index].DeltaKRate = 0d;
+                    Cache.SlopeDeltaKConfigurations[index].Coefficient = 1d;
+                }
+                else
+                {
+                    foreach (var deltaKRate in deltaKRates)
                     {
-                        dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                        await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                        Cache.Item = Cache.SelectedItem;
-                    }
-                    else
-                    {
-                        if (currentItem.BestFocus.BestYStrehlRatioPoint.Y > Cache.Item.BestFocus.BestYStrehlRatioPoint.Y) Cache.Item = currentItem;
+                        logger.LogHtmlInformation($"{index + 1}: {deltaKRate:0.######}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+
+                        var temp = Cache.SlopeDeltaKConfigurations.ToArray();
+                        temp[index] = new GenerateAODWaveformSlopeDeltaKConfiguration
+                        {
+                            DeltaKRate = deltaKRate,
+                            Coefficient = 1d
+                        };
+
+                        var currentItem = await CatchImagesAsync(temp, htmlLogUniqueId, cancellationToken);
+
+                        if (Cache.IsConfirmBestYStrehlRatioResult)
+                        {
+                            dialogWindowProvider.ShowDialog("Please review the result and click Continue to proceed.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                            await _asyncAutoResetEvent.WaitAsync(cancellationToken);
+
+                            Cache.Item = Cache.SelectedItem;
+                        }
+                        else
+                        {
+                            if (currentItem.BestFocus.BestYStrehlRatioPoint.Y > Cache.Item.BestFocus.BestYStrehlRatioPoint.Y) Cache.Item = currentItem;
+                        }
                     }
                 }
 
@@ -171,30 +290,30 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), htmlLogUniqueId.LoggingHtml());
 
-                isSuccess = true;
-
-                dialogWindowProvider.ShowDialog($"Training P{p} Success");
+                dialogWindowProvider.ShowDialog($"Training {index + 1} Success");
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    dialogWindowProvider.ShowDialog($"{Name}: Training P{p} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    dialogWindowProvider.ShowDialog($"{Name}: Training {index + 1} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
-                    return;
+                    return false;
                 }
 
                 dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Training P{p} Failed
+                                                 {Name}: Training {index + 1} Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_P{p}_{(isSuccess ? "OK" : "Failed")}"));
+                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_{index + 1}_{(isSuccess ? "OK" : "Failed")}"));
             }
+
+            return isSuccess;
         }, cancellationToken).ConfigureAwait(false);
     }
 
@@ -297,13 +416,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     {
         try
         {
-            TrainingP2CancelCommand.Execute(null);
-            TrainingP3CancelCommand.Execute(null);
-            TrainingP4CancelCommand.Execute(null);
-            TrainingP5CancelCommand.Execute(null);
-            TrainingP6CancelCommand.Execute(null);
-            TrainingP7CancelCommand.Execute(null);
-            TrainingP8CancelCommand.Execute(null);
+            TrainingCancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 

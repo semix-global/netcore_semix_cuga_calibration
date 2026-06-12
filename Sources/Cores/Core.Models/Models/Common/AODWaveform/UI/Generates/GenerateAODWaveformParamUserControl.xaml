@@ -336,10 +336,12 @@
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding SlopeDeltaKConfigurations}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="300"
+                                    <DataGridTextColumn Width="200"
                                                         Header="Delta K Rate"
                                                         Binding="{Binding DeltaKRate, StringFormat='0.##################'}" />
-                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Width="100"
+                                                        Header="Coefficient"
+                                                        Binding="{Binding Coefficient, StringFormat='0.###'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>

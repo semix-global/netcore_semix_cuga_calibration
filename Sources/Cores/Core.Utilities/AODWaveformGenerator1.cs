@@ -578,6 +578,7 @@ public static class AODWaveformGenerator1
             {
                 var centerMiddleIndex = (totalLength - 1) / 2;
                 frequencies[centerMiddleIndex] = centerFrequency;
+                uniformities[centerMiddleIndex] = 1d;
                 for (var i = centerMiddleIndex - 1; i >= 0; i--)
                 {
                     frequencies[i] = frequencies[i + 1] - standardSlope;
@@ -601,6 +602,7 @@ public static class AODWaveformGenerator1
                 // 中心
                 var (centerStartIndex, centerMiddleIndex, centerStopIndex) = regions[centerSegmentIndex];
                 frequencies[centerMiddleIndex] = centerFrequency;
+                uniformities[centerMiddleIndex] = param.SlopeDeltaKConfigurations[centerSegmentIndex].Coefficient;
                 var centerSlope = standardSlope * (1 + param.SlopeDeltaKConfigurations[centerSegmentIndex].DeltaKRate);
                 for (var i = centerMiddleIndex - 1; i >= centerStartIndex; i--)
                 {
