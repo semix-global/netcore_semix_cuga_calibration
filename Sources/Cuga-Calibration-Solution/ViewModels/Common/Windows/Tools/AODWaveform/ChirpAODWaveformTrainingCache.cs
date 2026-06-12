@@ -66,7 +66,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<ChirpAODWaveformTrainingItem> Items { get; set; } = [];
 
-    partial void OnSlopeDeltaKConfigurationsChanged(IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> value)
+    partial void OnChirpAODWaveformTrainingDeltaKsChanged(IReadOnlyList<ChirpAODWaveformTrainingDeltaK> value)
     {
         SlopeDeltaKConfigurations =
         [
