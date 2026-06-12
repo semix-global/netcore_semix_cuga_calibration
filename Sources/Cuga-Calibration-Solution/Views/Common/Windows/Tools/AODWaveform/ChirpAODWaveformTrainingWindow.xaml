@@ -294,14 +294,7 @@
                                                                                 Command="{Binding Path=DataContext.TrainingCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
                                                                                 CommandParameter="{Binding}"
                                                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                                                Style="{StaticResource ButtonPrimary.Loading}">
-                                                                            <Button.IsEnabled>
-                                                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                                    <Binding Path="DataContext.TrainingCommand.IsRunning" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=hc:Window}" />
-                                                                                    <Binding Path="DataContext.TrainingAllCommand.IsRunning" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=hc:Window}" />
-                                                                                </MultiBinding>
-                                                                            </Button.IsEnabled>
-                                                                        </Button>
+                                                                                Style="{StaticResource ButtonPrimary.Loading}" />
                                                                         <Button Content="Cancel"
                                                                                 Command="{Binding Path=DataContext.TrainingCancelCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
                                                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -319,14 +312,7 @@
                                         <Button Content="All Action"
                                                 Command="{Binding TrainingAllCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}">
-                                            <Button.IsEnabled>
-                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                    <Binding Path="TrainingCommand.IsRunning" />
-                                                    <Binding Path="TrainingAllCommand.IsRunning" />
-                                                </MultiBinding>
-                                            </Button.IsEnabled>
-                                        </Button>
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
                                                 Command="{Binding TrainingCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
