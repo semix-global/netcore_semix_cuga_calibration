@@ -338,7 +338,8 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="300"
                                                         Header="Delta K Rate"
-                                                        Binding="{Binding DeltaKRate}" />
+                                                        Binding="{Binding DeltaKRate, StringFormat='0.##################'}" />
+                                    <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </hc:UniformSpacingPanel>

@@ -12,7 +12,10 @@ public sealed partial class GenerateAODWaveformSlopeDeltaKConfiguration :
     [ObservableProperty]
     public partial double DeltaKRate { get; set; }
 
-    public AODWaveformGenerator1.AODWaveformSlopeDeltaKConfiguration AdaptTo() => new(DeltaKRate);
+    [ObservableProperty]
+    public partial double Coefficient { get; set; } = 1d;
+
+    public AODWaveformGenerator1.AODWaveformSlopeDeltaKConfiguration AdaptTo() => new(DeltaKRate, Coefficient);
 
     public GenerateAODWaveformSlopeDeltaKConfiguration Clone() => new()
     {
@@ -21,6 +24,7 @@ public sealed partial class GenerateAODWaveformSlopeDeltaKConfiguration :
 
     public object ToHtmlAnonymous() => new
     {
-        DeltaKRate
+        DeltaKRate,
+        Coefficient
     };
 }
