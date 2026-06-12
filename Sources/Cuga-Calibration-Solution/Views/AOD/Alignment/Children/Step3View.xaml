@@ -71,7 +71,7 @@
                                                                                       IsVisibleFrequency="False"
                                                                                       IsVisibleDirectoryPath="False"
                                                                                       IsVisibleUniformityConfiguration="False"
-                                                                                      IsVisibleCompensation="False"
+                                                                                      IsVisibleSlopeDeltaKConfiguration="False"
                                                                                       DataContext="{Binding Cache.Item.FlatnessGeneratePrescanAODWaveformParam}" />
                             </Border>
                         </Expander>

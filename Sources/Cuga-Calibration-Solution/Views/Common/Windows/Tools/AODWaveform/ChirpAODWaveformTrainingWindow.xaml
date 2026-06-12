@@ -126,7 +126,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                               IsVisibleDirectoryPath="False"
-                                                                                              IsVisibleCompensation="False"
+                                                                                              IsVisibleSlopeDeltaKConfiguration="False"
                                                                                               DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                         </Border>
                                     </Expander>

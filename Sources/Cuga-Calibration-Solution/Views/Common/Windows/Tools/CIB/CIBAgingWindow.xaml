@@ -134,7 +134,7 @@
                                                                                                           IsVisibleFrequency="False"
                                                                                                           IsVisibleDirectoryPath="False"
                                                                                                           IsVisibleUniformityConfiguration="False"
-                                                                                                          IsVisibleCompensation="False"
+                                                                                                          IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                           DataContext="{Binding Cache.CIBMMDCache.GeneratePrescanAODWaveformParam}" />
                                                 </hc:UniformSpacingPanel>
                                             </Border>
@@ -158,7 +158,7 @@
                                                                                                         IsVisibleFrequency="False"
                                                                                                         IsVisibleDirectoryPath="False"
                                                                                                         IsVisibleUniformityConfiguration="False"
-                                                                                                        IsVisibleCompensation="False"
+                                                                                                        IsVisibleSlopeDeltaKConfiguration="False"
                                                                                                         DataContext="{Binding Cache.CIBMMDCache.GenerateChirpAODWaveformParam}" />
                                                 </hc:UniformSpacingPanel>
                                             </Border>

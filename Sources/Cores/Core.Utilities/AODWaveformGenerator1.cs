@@ -154,41 +154,6 @@ public static class AODWaveformGenerator1
         public IReadOnlyList<AODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; init; } = [];
 
         /// <summary>
-        /// 二次补偿系数t^2
-        /// </summary>
-        public double P2CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 三次补偿系数t^3
-        /// </summary>
-        public double P3CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 四次补偿系数t^4
-        /// </summary>
-        public double P4CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 五次补偿系数t^5
-        /// </summary>
-        public double P5CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 六次补偿系数t^6
-        /// </summary>
-        public double P6CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 七次补偿系数t^7
-        /// </summary>
-        public double P7CompensationCoefficient { get; init; }
-
-        /// <summary>
-        /// 八次补偿系数t^8
-        /// </summary>
-        public double P8CompensationCoefficient { get; init; }
-
-        /// <summary>
         /// 低频
         /// </summary>
         public double LowFrequency => FunctionMonotonicTypeEnum switch
@@ -396,14 +361,6 @@ public static class AODWaveformGenerator1
         [System.Text.Json.Serialization.JsonIgnore]
         [System.Xml.Serialization.XmlIgnore]
         public IReadOnlyList<Point> FlatnessPhaseSignals { get; internal set; } = [];
-
-        /// <summary>
-        /// AOD波形总补偿相位信号(P3-P8)
-        ///</summary>
-        [Newtonsoft.Json.JsonIgnore]
-        [System.Text.Json.Serialization.JsonIgnore]
-        [System.Xml.Serialization.XmlIgnore]
-        public IReadOnlyList<Point> FlatnessCompensationPhaseSignals { get; internal set; } = [];
     }
 
     #endregion 结果
@@ -478,8 +435,7 @@ public static class AODWaveformGenerator1
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var (flatnessCompensationPhases, flatnessFrequencies, flatnessUniformities, flatnessPhases)
-                = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+            var (flatnessFrequencies, flatnessUniformities, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
 
             var frequencyCoefficientList = new List<Point>();
 
@@ -563,9 +519,6 @@ public static class AODWaveformGenerator1
             item.FlatnessPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                 : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessPhases[tuple.Index]))];
-            item.FlatnessCompensationPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
-                ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
-                : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessCompensationPhases[tuple.Index]))];
         }
 
         DirectoryHelper.CreateFileDirectoryIfNotExists(result.FilePath);
@@ -574,7 +527,7 @@ public static class AODWaveformGenerator1
 
         return result;
 
-        (Vector<double> FlatnessCompensationPhases, Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
+        (Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -607,7 +560,7 @@ public static class AODWaveformGenerator1
 
             #endregion 傅里叶
 
-            return (Vector<double>.Build.Dense(t.Count, 0d), dFlatnessFrequencies, flatnessUniformities, flatnessPhases);
+            return (dFlatnessFrequencies, flatnessUniformities, flatnessPhases);
         }
 
         (Vector<double> Frequencies, Vector<double> Uniformities) BuildFlatnessFrequencies()

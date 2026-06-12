@@ -23,6 +23,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
 using System.Text;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -45,7 +46,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
-    public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", nameof(ChirpAODWaveformTrainingWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     [DefaultCache]
     [ObservableProperty]
@@ -110,34 +111,14 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP2Async(CancellationToken cancellationToken) => await TrainingPAsync(2, Cache.StartP2Coefficient, Cache.StepP2Coefficient, Cache.StopP2Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP3Async(CancellationToken cancellationToken) => await TrainingPAsync(3, Cache.StartP3Coefficient, Cache.StepP3Coefficient, Cache.StopP3Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP4Async(CancellationToken cancellationToken) => await TrainingPAsync(4, Cache.StartP4Coefficient, Cache.StepP4Coefficient, Cache.StopP4Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP5Async(CancellationToken cancellationToken) => await TrainingPAsync(5, Cache.StartP5Coefficient, Cache.StepP5Coefficient, Cache.StopP5Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP6Async(CancellationToken cancellationToken) => await TrainingPAsync(6, Cache.StartP6Coefficient, Cache.StepP6Coefficient, Cache.StopP6Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP7Async(CancellationToken cancellationToken) => await TrainingPAsync(7, Cache.StartP7Coefficient, Cache.StepP7Coefficient, Cache.StopP7Coefficient, cancellationToken);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingP8Async(CancellationToken cancellationToken) => await TrainingPAsync(8, Cache.StartP8Coefficient, Cache.StepP8Coefficient, Cache.StopP8Coefficient, cancellationToken);
-
-    private async Task TrainingPAsync(int p, double start, double step, double stop, CancellationToken cancellationToken)
+    private async Task TrainingAsync(CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
             var htmlLogUniqueId = Guid.NewGuid();
 
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation($"Training P{p}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation("Training", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
@@ -224,13 +205,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     private async Task<ChirpAODWaveformTrainingItem> CatchImagesAsync(
-        double p2Coefficient,
-        double p3Coefficient,
-        double p4Coefficient,
-        double p5Coefficient,
-        double p6Coefficient,
-        double p7Coefficient,
-        double p8Coefficient,
+        IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> slopeDeltaKConfigurations,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
     {
@@ -239,13 +214,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             ProductivityInformation = Cache.ProductivityInformation,
             LaserLightInformation = Cache.LaserLightInformation,
             CIBInformation = Cache.CIBInformation,
-            P2Coefficient = p2Coefficient,
-            P3Coefficient = p3Coefficient,
-            P4Coefficient = p4Coefficient,
-            P5Coefficient = p5Coefficient,
-            P6Coefficient = p6Coefficient,
-            P7Coefficient = p7Coefficient,
-            P8Coefficient = p8Coefficient
+            SlopeDeltaKConfigurations = [..slopeDeltaKConfigurations.Select(t => t.Clone())]
         };
 
         try
@@ -264,13 +233,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            Cache.GenerateChirpAODWaveformParam.P2CompensationCoefficient = item.P2Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P3CompensationCoefficient = item.P3Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P4CompensationCoefficient = item.P4Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P5CompensationCoefficient = item.P5Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P6CompensationCoefficient = item.P6Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P7CompensationCoefficient = item.P7Coefficient;
-            Cache.GenerateChirpAODWaveformParam.P8CompensationCoefficient = item.P8Coefficient;
+            Cache.GenerateChirpAODWaveformParam.SlopeDeltaKConfigurations = [..item.SlopeDeltaKConfigurations.Select(t => t.Clone())];
 
             var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 

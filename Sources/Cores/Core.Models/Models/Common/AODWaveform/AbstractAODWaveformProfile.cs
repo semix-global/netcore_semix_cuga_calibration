@@ -96,10 +96,6 @@ public abstract class AbstractAODWaveformProfile :
     [Newtonsoft.Json.JsonIgnore]
     public IReadOnlyList<Point> FlatnessPhaseSignals { get; internal set; } = [];
 
-    /// <inheritdoc cref="AODWaveformGenerator1.AODWaveformResultItem.FlatnessCompensationPhaseSignals"/>
-    [Newtonsoft.Json.JsonIgnore]
-    public IReadOnlyList<Point> FlatnessCompensationPhaseSignals { get; internal set; } = [];
-
     #endregion 波形
 
     private void OnFilePathChanged(string value)
@@ -223,7 +219,6 @@ public abstract class AbstractAODWaveformProfile :
         FrequencyCoefficients = [.. obj.FrequencyCoefficients];
         FlatnessFrequencySignals = [.. obj.FlatnessFrequencySignals];
         FlatnessPhaseSignals = [.. obj.FlatnessPhaseSignals];
-        FlatnessCompensationPhaseSignals = [.. obj.FlatnessCompensationPhaseSignals];
 
         return this;
     }
@@ -255,8 +250,7 @@ public abstract class AbstractAODWaveformProfile :
             SpectrumFFTAnalysis = new HtmlPlot2DLinesChart([(string.Empty, [.. FFTSignals])], string.Empty),
             DynamicFrequencyCoefficient = new HtmlPlot2DLinesChart([(string.Empty, [.. FrequencyCoefficients])], string.Empty),
             FlatnessFrequency = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessFrequencySignals])], string.Empty),
-            FlatnessPhase = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessPhaseSignals])], string.Empty),
-            FlatnessCompensationPhase = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessCompensationPhaseSignals])], string.Empty)
+            FlatnessPhase = new HtmlPlot2DLinesChart([(string.Empty, [.. FlatnessPhaseSignals])], string.Empty)
         })
     };
 }

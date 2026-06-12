@@ -84,7 +84,6 @@ public static class AODWaveformProfileFactory
             if (item.FrequencyCoefficients.Count > 0) prescanAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
             if (item.FlatnessFrequencySignals.Count > 0) prescanAODWaveformProfile.FlatnessFrequencySignals = [.. item.FlatnessFrequencySignals];
             if (item.FlatnessPhaseSignals.Count > 0) prescanAODWaveformProfile.FlatnessPhaseSignals = [.. item.FlatnessPhaseSignals];
-            if (item.FlatnessCompensationPhaseSignals.Count > 0) prescanAODWaveformProfile.FlatnessCompensationPhaseSignals = [.. item.FlatnessCompensationPhaseSignals];
 
             result.Add(prescanAODWaveformProfile);
         }
@@ -105,7 +104,6 @@ public static class AODWaveformProfileFactory
             if (item.FrequencyCoefficients.Count > 0) chirpAODWaveformProfile.FrequencyCoefficients = [.. item.FrequencyCoefficients];
             if (item.FlatnessFrequencySignals.Count > 0) chirpAODWaveformProfile.FlatnessFrequencySignals = [.. item.FlatnessFrequencySignals];
             if (item.FlatnessPhaseSignals.Count > 0) chirpAODWaveformProfile.FlatnessPhaseSignals = [.. item.FlatnessPhaseSignals];
-            if (item.FlatnessCompensationPhaseSignals.Count > 0) chirpAODWaveformProfile.FlatnessCompensationPhaseSignals = [.. item.FlatnessCompensationPhaseSignals];
 
             result.Add(chirpAODWaveformProfile);
         }

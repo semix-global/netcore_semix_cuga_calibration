@@ -93,7 +93,6 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <controls:ScatterMultiPlotControl Grid.Column="0"
                                                                           Title="Flatness Frequency"
@@ -101,9 +100,6 @@
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
                                                                           Title="Flatness Phase"
                                                                           ScatterLine0Points="{Binding FlatnessPhaseSignals}" />
-                                        <controls:ScatterMultiPlotControl Grid.Column="2"
-                                                                          Title="Flatness Compensation Phase"
-                                                                          ScatterLine0Points="{Binding FlatnessCompensationPhaseSignals}" />
                                     </Grid>
                                 </TabItem>
                             </TabControl>
