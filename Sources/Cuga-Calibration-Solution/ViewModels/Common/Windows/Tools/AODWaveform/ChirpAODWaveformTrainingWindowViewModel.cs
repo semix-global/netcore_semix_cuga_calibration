@@ -26,6 +26,7 @@ using System.IO;
 using System.Text;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Algorithms.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -35,7 +36,9 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     CIBViewModel cibViewModel,
     LaserViewModel laserViewModel,
+    MicroscopeViewModel microscopeViewModel,
     StageViewModel stageViewModel,
+    AlignmentUserControlViewModel alignmentUserControlViewModel,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
@@ -45,9 +48,21 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 {
     private readonly AsyncAutoResetEvent _asyncAutoResetEvent = new(false);
 
+    public ApplicationCookie ApplicationCookie => applicationCookie;
+
+    [ObservableProperty]
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = alignmentUserControlViewModel;
+
     public string Name => "Chirp AOD Waveform Training";
 
-    public ApplicationCookie ApplicationCookie => applicationCookie;
+    public IReadOnlyList<string> Steps { get; } =
+    [
+        "Step 1 Alignment",
+        "Step 2 Mark",
+        "Step 3 Training"
+    ];
+
+    public Guid HtmlLogUniqueId { get; set; }
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, "AODWaveform", nameof(ChirpAODWaveformTrainingWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -134,7 +149,59 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task TrainingAllAsync(CancellationToken cancellationToken)
+    private async Task Step0Async(bool isSilent, CancellationToken cancellationToken)
+    {
+        await Task.Run(async () =>
+        {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
+            dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
+
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
+
+            Cache.AlignmentResult = alignmentResult;
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step1Async(bool isSilent, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            Cache.MicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+            Cache.DSWFindBFMachinePosition = stageViewModel.GetMachineStagePosition();
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.MicroscopeLensInformation,
+                Cache.DSWFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+        }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step2Async(CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
@@ -216,9 +283,17 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             var index = Cache.ChirpAODWaveformTrainingSlopes.Index().Single(t => ReferenceEquals(t.Item, chirpAODWaveformTrainingSlope)).Index;
 
+            microscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            var dswBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
+            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+
             logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation($"Training: {index + 1}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache = new HtmlQuote(Cache.ToHtmlAnonymous()),
+                dswBFPosition
+            }), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
@@ -245,7 +320,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                         Coefficient = 1d
                     };
 
-                    var currentItem = await CatchImagesAsync(temp, htmlLogUniqueId, cancellationToken);
+                    var currentItem = await CatchImagesAsync(dswBFPosition, temp, htmlLogUniqueId, cancellationToken);
 
                     pointXStrehlRatioList.Add(new Point(deltaKRate, currentItem.BestFocus.BestXStrehlRatioPoint.Y));
                     pointXECSList.Add(new Point(deltaKRate, currentItem.BestFocus.BestXStrehlRatioECS));
@@ -305,6 +380,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             finally
             {
                 logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_{index + 1}_{(isSuccess ? "OK" : "Failed")}"));
+                stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
             }
 
             return isSuccess;
@@ -318,6 +394,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     }
 
     private async Task<ChirpAODWaveformTrainingItem> CatchImagesAsync(
+        Point dswBFPosition,
         IReadOnlyList<GenerateAODWaveformSlopeConfiguration> slopeConfigurations,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
@@ -358,15 +435,21 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var startPositon = stageViewModel.MachineToBrightFieldPosition(Cache.DSWMachinePosition);
+            var currentStartPosition = cibViewModel.GetCIBInformationPosition(
+                StageCoordinateSystemEnum.Dark,
+                Cache.ProductivityInformation,
+                Cache.CIBInformation,
+                dswBFPosition,
+                Cache.MicroscopeLensInformation);
+            var currentStopPosition = currentStartPosition + new Vector(Cache.ScanLength, 0);
 
             var startECS = Cache.CenterECS - Cache.RangeECS;
             var stopECS = Cache.CenterECS + Cache.RangeECS;
             using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
                 item.ProductivityInformation,
                 StageCoordinateSystemEnum.Dark,
-                startPositon,
-                startPositon + new Vector(Cache.ScanLength, 0),
+                currentStartPosition,
+                currentStopPosition,
                 startECS,
                 stopECS,
                 item.CIBInformation,
@@ -414,6 +497,10 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     {
         try
         {
+            Step0CancelCommand.Execute(null);
+            Step1CancelCommand.Execute(null);
+            Step2CancelCommand.Execute(null);
+
             TrainingCancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
@@ -32,7 +33,13 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial Point DSWMachinePosition { get; set; } = Point.Origin;
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
+
+    [ObservableProperty]
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
+
+    [ObservableProperty]
+    public partial Point DSWFindBFMachinePosition { get; set; }
 
     [ObservableProperty]
     public partial double ScanLength { get; set; }
@@ -51,9 +58,6 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     [ObservableProperty]
     public partial IReadOnlyList<ChirpAODWaveformTrainingSlope> ChirpAODWaveformTrainingSlopes { get; set; } = [];
-
-    [ObservableProperty]
-    public partial int RetryTimes { get; set; } = 10;
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -92,14 +96,15 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         CIBInformation = new HtmlQuote(CIBInformation.ToHtmlAnonymous()),
         OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
         CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
-        DSWMachinePosition,
+        AlignmentResult = new HtmlQuote(AlignmentResult.ToHtmlAnonymous()),
+        MicroscopeLensInformation,
+        DSWFindBFMachinePosition,
         ScanLength,
         CenterECS,
         RangeECS,
         IsConfirmBestYStrehlRatioResult,
         SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
         ChirpAODWaveformTrainingSlopes = new HtmlTable([.. ChirpAODWaveformTrainingSlopes.Select(t => t.ToHtmlAnonymous())]),
-        RetryTimes
     };
 }
 
