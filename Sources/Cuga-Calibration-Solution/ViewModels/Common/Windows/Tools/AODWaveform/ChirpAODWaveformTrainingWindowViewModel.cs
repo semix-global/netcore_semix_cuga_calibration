@@ -167,6 +167,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 if (await TrainingAsync((Cache.ChirpAODWaveformTrainingSlopes[index], true), cancellationToken) == false) return;
             }
 
+            dialogWindowProvider.ShowDialog($"Training Success");
+
             return;
 
             static IEnumerable<int> EnumerateFromCenter(int length)

@@ -253,19 +253,19 @@
                                                     <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingSlope}">
                                                         <Border Margin="0,2" Style="{StaticResource BorderRegion}">
                                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
+                                                                <hc:NumericUpDown hc:TitleElement.Title="Start: "
                                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                                   hc:TitleElement.TitleWidth="200"
                                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                                   ValueFormat="0.##################"
                                                                                   Value="{Binding StartDeltaKRate}" />
-                                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
+                                                                <hc:NumericUpDown hc:TitleElement.Title="Step: "
                                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                                   hc:TitleElement.TitleWidth="200"
                                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                                   ValueFormat="0.##################"
                                                                                   Value="{Binding StepDeltaKRate}" />
-                                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
+                                                                <hc:NumericUpDown hc:TitleElement.Title="Stop: "
                                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                                   hc:TitleElement.TitleWidth="200"
                                                                                   Style="{StaticResource NumericUpDownExtend}"

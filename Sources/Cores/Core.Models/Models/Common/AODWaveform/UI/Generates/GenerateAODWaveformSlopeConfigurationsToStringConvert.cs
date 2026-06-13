@@ -9,7 +9,7 @@ public sealed class GenerateAODWaveformSlopeConfigurationsToStringConvert : Abst
 {
     public override object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is IEnumerable<GenerateAODWaveformSlopeConfiguration> slopeConfigurations
-            ? slopeConfigurations.Index().Select(t => $"{t.Index + 1}:({t.Item.DeltaKRate:0.##################}, {t.Item.Coefficient:0.###})").Aggregate((a, b) => $"{a}; {b}")
+            ? string.Join(", ", slopeConfigurations.Index().Select(t => $"{t.Index + 1}: ({t.Item.DeltaKRate:0.##################}, {t.Item.Coefficient:0.###})"))
             : ThrowHelper.ThrowNotSupportedException<object>();
 
     public override object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
