@@ -74,6 +74,12 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     private async Task LoadedAsync() => await Task.Run(() => Cache = cacheProvider.GetOrDefault<ChirpAODWaveformTrainingCache>());
 
     [RelayCommand]
+    private void Continue()
+    {
+        _asyncAutoResetEvent.Set();
+    }
+
+    [RelayCommand]
     private void AddChirpAODWaveformTrainingSlope()
     {
         var trainingList = Cache.ChirpAODWaveformTrainingSlopes.ToList();
@@ -141,17 +147,17 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
-                                             Import Parameters Failed
+                                             {Name}: Import Parameters Failed
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            logger.LogError(ex, "Import Parameters Failed");
+            logger.LogError(ex, "{@Name}: Import Parameters Failed", Name);
         }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step0Async(bool isSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {
-        await Task.Run(async () =>
+        return await InvokeAsync(0, async () =>
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
             AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
@@ -169,6 +175,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                CalChipSiteModelEnum.DswModel,
                 AlignmentUserControlViewModel.IsDarkFieldAlignment,
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
@@ -181,13 +188,15 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             {
                 AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-        }, cancellationToken).ConfigureAwait(false);
+
+            return true;
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(bool isSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken)
     {
-        await Task.Run(() =>
+        return await InvokeAsync(1, () =>
         {
             Cache.MicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
             Cache.DSWFindBFMachinePosition = stageViewModel.GetMachineStagePosition();
@@ -197,27 +206,41 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 Cache.MicroscopeLensInformation,
                 Cache.DSWFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-        }, cancellationToken).ConfigureAwait(false);
+
+            return Task.FromResult(true);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step2Async(CancellationToken cancellationToken)
+    private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken)
     {
-        await Task.Run(async () =>
+        return await InvokeAsync(2, async () =>
         {
             if (Cache.ChirpAODWaveformTrainingSlopes.Count <= 0)
             {
-                dialogWindowProvider.ShowDialog("DeltaKs is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Slopes is Empty", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-                return;
+                return false;
             }
 
             if ((Cache.ChirpAODWaveformTrainingSlopes.Count & 1) == 0)
             {
-                dialogWindowProvider.ShowDialog("DeltaKs count must be odd.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Slopes count must be odd.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-                return;
+                return false;
             }
+
+            Cache.Items = [];
+
+            microscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            var dswBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
+            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+
+            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache = new HtmlQuote(Cache.ToHtmlAnonymous()),
+                dswBFPosition
+            }), HtmlLogUniqueId.LoggingHtml());
 
             Cache.Item = new ChirpAODWaveformTrainingItem();
             Cache.SlopeConfigurations =
@@ -229,14 +252,16 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 })
             ];
 
-            foreach (var index in EnumerateFromCenter(Cache.ChirpAODWaveformTrainingSlopes.Count))
+            try
             {
-                if (await TrainingAsync((Cache.ChirpAODWaveformTrainingSlopes[index], true), cancellationToken) == false) return;
+                foreach (var index in EnumerateFromCenter(Cache.ChirpAODWaveformTrainingSlopes.Count)) await TrainingAsync(dswBFPosition, index, cancellationToken);
+            }
+            finally
+            {
+                stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
             }
 
-            dialogWindowProvider.ShowDialog($"Training Success");
-
-            return;
+            return true;
 
             static IEnumerable<int> EnumerateFromCenter(int length)
             {
@@ -268,49 +293,88 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     if (!hasValue) yield break;
                 }
             }
-        }, cancellationToken).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
+
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> TrainingAsync((ChirpAODWaveformTrainingSlope ChirpAODWaveformTrainingSlope, bool isSilent)? valueTuple, CancellationToken cancellationToken)
+    private async Task AllAsync(CancellationToken cancellationToken)
     {
-        return await Task.Run(async () =>
+#if NET
+        await
+#endif
+        using var _ = cancellationToken.Register(() =>
         {
-            Guard.IsNotNull(valueTuple);
-            var (chirpAODWaveformTrainingSlope, isSilent) = valueTuple.Value;
+            if (Step0Command.CanBeCanceled) Step0Command.Cancel();
+            if (Step2Command.CanBeCanceled) Step2Command.Cancel();
+        });
 
-            var htmlLogUniqueId = Guid.NewGuid();
+        var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
+        var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
-            var index = Cache.ChirpAODWaveformTrainingSlopes.Index().Single(t => ReferenceEquals(t.Item, chirpAODWaveformTrainingSlope)).Index;
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync(true));
+        if (await step0Task.ConfigureAwait(true) == false) return;
 
-            microscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-            var dswBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
-            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+        var newMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
+        var newMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
-            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation($"Training: {index + 1}", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                Cache = new HtmlQuote(Cache.ToHtmlAnonymous()),
-                dswBFPosition
-            }), HtmlLogUniqueId.LoggingHtml());
+        var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
+        var oldDSWFindBFMachinePosition = Cache.DSWFindBFMachinePosition;
+        Cache.DSWFindBFMachinePosition += offset;
+
+        logger.LogHtmlInformation(Steps[1], HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+        {
+            offset,
+            oldDSWFindBFMachinePosition,
+            Cache.DSWFindBFMachinePosition
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        await Step2Command.ExecuteAsync(true).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void Close()
+    {
+        try
+        {
+            AllCancelCommand.Execute(null);
+
+            Step2CancelCommand.Execute(null);
+            Step1CancelCommand.Execute(null);
+            Step0CancelCommand.Execute(null);
+
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            cacheProvider.Set(Cache, cancellationTokenSource.Token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to save cache");
+        }
+
+        CloseView(null);
+    }
+
+    private async Task TrainingAsync(Point dswBFPosition, int index, CancellationToken cancellationToken)
+    {
+        await Task.Run(async () =>
+        {
+            var chirpAODWaveformTrainingSlope = Cache.ChirpAODWaveformTrainingSlopes[index];
+
+            logger.LogHtmlInformation($"Training: {index + 1}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
+            var pointXStrehlRatioList = new List<Point>();
+            var pointXECSList = new List<Point>();
+            var pointYStrehlRatioList = new List<Point>();
+            var pointYECSList = new List<Point>();
             try
             {
-                Cache.Items = [];
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var pointXStrehlRatioList = new List<Point>();
-                var pointXECSList = new List<Point>();
-                var pointYStrehlRatioList = new List<Point>();
-                var pointYECSList = new List<Point>();
                 foreach (var deltaKRate in Generate.LinearRangeContainsEdge(chirpAODWaveformTrainingSlope.StartDeltaKRate, chirpAODWaveformTrainingSlope.StepDeltaKRate, chirpAODWaveformTrainingSlope.StopDeltaKRate))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    logger.LogHtmlInformation($"{index + 1}: {deltaKRate:0.######}", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation($"{index + 1}: {deltaKRate:0.######}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                     var temp = Cache.SlopeConfigurations.ToArray();
                     Cache.SlopeConfigurations = temp;
@@ -320,7 +384,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                         Coefficient = 1d
                     };
 
-                    var currentItem = await CatchImagesAsync(dswBFPosition, temp, htmlLogUniqueId, cancellationToken);
+                    var currentItem = await CatchImagesAsync(dswBFPosition, temp, cancellationToken);
 
                     pointXStrehlRatioList.Add(new Point(deltaKRate, currentItem.BestFocus.BestXStrehlRatioPoint.Y));
                     pointXECSList.Add(new Point(deltaKRate, currentItem.BestFocus.BestXStrehlRatioECS));
@@ -340,7 +404,11 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     }
                 }
 
-                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                isSuccess = true;
+            }
+            finally
+            {
+                var htmlQuote = new HtmlQuote(new
                 {
                     Base = new HtmlQuote(Cache.Item.ToHtmlAnonymous()),
                     GeneratePrescanAODWaveformParam = new HtmlQuote(Cache.GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
@@ -353,50 +421,17 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                     ReultStrehlRatio = new HtmlPlot2DLinesChart([("X", pointXStrehlRatioList), ("Y", pointYStrehlRatioList)], "X: PMT Id - Y: Best Strehl Ratio"),
                     ReultECS = new HtmlPlot2DLinesChart([("X", pointXECSList), ("Y", pointYECSList)], "X: PMT Id - Y: ECS"),
-                }), htmlLogUniqueId.LoggingHtml());
+                });
 
-                isSuccess = true;
-
-                if (isSilent == false) dialogWindowProvider.ShowDialog($"Training {index + 1} Success");
+                if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
             }
-            catch (Exception ex)
-            {
-                isSuccess = false;
-
-                if (ex is OperationCanceledException)
-                {
-                    dialogWindowProvider.ShowDialog($"{Name}: Training {index + 1} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
-
-                    return isSuccess;
-                }
-
-                dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Training {index + 1} Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
-            }
-            finally
-            {
-                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name.Replace(" ", string.Empty)}_{index + 1}_{(isSuccess ? "OK" : "Failed")}"));
-                stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
-            }
-
-            return isSuccess;
         }, cancellationToken).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
-    private void Continue()
-    {
-        _asyncAutoResetEvent.Set();
     }
 
     private async Task<ChirpAODWaveformTrainingItem> CatchImagesAsync(
         Point dswBFPosition,
         IReadOnlyList<GenerateAODWaveformSlopeConfiguration> slopeConfigurations,
-        Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
     {
         var item = new ChirpAODWaveformTrainingItem
@@ -488,30 +523,62 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 ChirpAODWaveformProfiles = new HtmlTable([.. item.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())]),
                 XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                 YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
-            }), htmlLogUniqueId.LoggingHtml());
+            }), HtmlLogUniqueId.LoggingHtml());
         }
     }
 
-    [RelayCommand]
-    private void Close()
+    private async Task<bool> InvokeAsync(
+        int stepIndex,
+        Func<Task<bool>> func,
+        bool isSilent)
     {
-        try
+        return await Task.Run(async () =>
         {
-            Step0CancelCommand.Execute(null);
-            Step1CancelCommand.Execute(null);
-            Step2CancelCommand.Execute(null);
+            var isInitHtmlLog = isSilent == false || stepIndex == 0;
+            var isEndHtml = isSilent == false || stepIndex == Steps.Count - 1;
 
-            TrainingCancelCommand.Execute(null);
+            HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
 
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            if (isInitHtmlLog) logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
-            cacheProvider.Set(Cache, cancellationTokenSource.Token);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to save cache");
-        }
+            var isSuccess = false;
+            try
+            {
+                isSuccess = await func().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (isSilent) isEndHtml = true;
 
-        CloseView(null);
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    return false;
+                }
+
+                dialogWindowProvider.ShowDialog($"""
+                                                 {Name}: {Steps[stepIndex]} Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            }
+            finally
+            {
+                if (isEndHtml)
+                    logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSilent ? "All" : Steps[stepIndex].Replace(" ", string.Empty))}_{(isSuccess ? "OK" : "Failed")}"));
+            }
+
+            if (isSuccess)
+            {
+                if (isEndHtml) dialogWindowProvider.ShowDialog($"{Name}: {(isSilent ? "All" : Steps[stepIndex])} Success");
+            }
+            else
+                dialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+            return isSuccess;
+        }).ConfigureAwait(false);
     }
 }

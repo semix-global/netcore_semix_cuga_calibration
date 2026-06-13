@@ -13,7 +13,6 @@
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
-           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Width="1500"
@@ -230,7 +229,7 @@
                                                 <Border Style="{StaticResource BorderRegion}">
                                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                         <StackPanel>
-                                                            <TextBlock Text="Params"
+                                                            <TextBlock Text="Slopes Params"
                                                                        HorizontalAlignment="Center"
                                                                        FontSize="13"
                                                                        FontWeight="Bold"
@@ -243,58 +242,31 @@
                                                                     Style="{StaticResource ButtonInfo}" />
                                                             <Button Content="Delete"
                                                                     Command="{Binding RemoveChirpAODWaveformTrainingSlopeCommand}"
-                                                                    CommandParameter="{Binding Path=SelectedItems, ElementName=ListBoxChirpAODWaveformTrainingSlopes}"
+                                                                    CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridChirpAODWaveformTrainingSlopes}"
                                                                     hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                                     Style="{StaticResource ButtonDanger}" />
                                                         </hc:UniformSpacingPanel>
-                                                        <ListBox x:Name="ListBoxChirpAODWaveformTrainingSlopes"
-                                                                 HorizontalContentAlignment="Stretch"
-                                                                 SelectionMode="Extended"
-                                                                 ItemsSource="{Binding Cache.ChirpAODWaveformTrainingSlopes}">
-                                                            <ListBox.ItemTemplate>
-                                                                <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingSlope}">
-                                                                    <Border Margin="0,2" Style="{StaticResource BorderRegion}">
-                                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                                            <hc:NumericUpDown hc:TitleElement.Title="Start: "
-                                                                                              hc:TitleElement.TitlePlacement="Left"
-                                                                                              hc:TitleElement.TitleWidth="200"
-                                                                                              Style="{StaticResource NumericUpDownExtend}"
-                                                                                              ValueFormat="0.##################"
-                                                                                              Value="{Binding StartDeltaKRate}" />
-                                                                            <hc:NumericUpDown hc:TitleElement.Title="Step: "
-                                                                                              hc:TitleElement.TitlePlacement="Left"
-                                                                                              hc:TitleElement.TitleWidth="200"
-                                                                                              Style="{StaticResource NumericUpDownExtend}"
-                                                                                              ValueFormat="0.##################"
-                                                                                              Value="{Binding StepDeltaKRate}" />
-                                                                            <hc:NumericUpDown hc:TitleElement.Title="Stop: "
-                                                                                              hc:TitleElement.TitlePlacement="Left"
-                                                                                              hc:TitleElement.TitleWidth="200"
-                                                                                              Style="{StaticResource NumericUpDownExtend}"
-                                                                                              ValueFormat="0.##################"
-                                                                                              Value="{Binding StopDeltaKRate}" />
-                                                                            <hc:UniformSpacingPanel Spacing="10">
-                                                                                <Button Content="Action"
-                                                                                        Command="{Binding Path=DataContext.TrainingCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
-                                                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                                                        Style="{StaticResource ButtonPrimary.Loading}">
-                                                                                    <Button.CommandParameter>
-                                                                                        <MultiBinding Converter="{aodWaveform:ChirpAODWaveformTrainingConvert}">
-                                                                                            <Binding />
-                                                                                            <Binding Source="{x:Static models:Constants.False}" />
-                                                                                        </MultiBinding>
-                                                                                    </Button.CommandParameter>
-                                                                                </Button>
-                                                                                <Button Content="Cancel"
-                                                                                        Command="{Binding Path=DataContext.TrainingCancelCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
-                                                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                                                        Style="{StaticResource ButtonWarning}" />
-                                                                            </hc:UniformSpacingPanel>
-                                                                        </hc:UniformSpacingPanel>
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ListBox.ItemTemplate>
-                                                        </ListBox>
+                                                        <DataGrid x:Name="DataGridChirpAODWaveformTrainingSlopes"
+                                                                  MaxHeight="500"
+                                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                  HeadersVisibility="All"
+                                                                  RowHeaderWidth="60"
+                                                                  CanUserSortColumns="False"
+                                                                  AutoGenerateColumns="False"
+                                                                  ItemsSource="{Binding Cache.ChirpAODWaveformTrainingSlopes}">
+                                                            <DataGrid.Columns>
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Start"
+                                                                                    Binding="{Binding StartDeltaKRate, StringFormat='0.##################'}" />
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Step"
+                                                                                    Binding="{Binding StepDeltaKRate, StringFormat='0.##################'}" />
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Stop"
+                                                                                    Binding="{Binding StopDeltaKRate, StringFormat='0.##################'}" />
+                                                            </DataGrid.Columns>
+                                                        </DataGrid>
                                                     </hc:UniformSpacingPanel>
                                                 </Border>
                                             </hc:UniformSpacingPanel>
@@ -344,6 +316,7 @@
                                                         <Binding Path="Step0Command.IsRunning" />
                                                         <Binding Path="Step1Command.IsRunning" />
                                                         <Binding Path="Step2Command.IsRunning" />
+                                                        <Binding Path="AllCommand.IsRunning" />
                                                     </MultiBinding>
                                                 </Button.IsEnabled>
                                             </Button>
@@ -365,6 +338,7 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -385,11 +359,32 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Cancel"
                                                 Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="One-click start" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding AllCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="All Cancel"
+                                                Command="{Binding AllCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -528,21 +523,20 @@
                                             </Hyperlink>
                                         </TextBlock>
                                     </StackPanel>
-                                    <DataGrid x:Name="DataGridSlopeConfigurations"
-                                              MaxHeight="500"
+                                    <DataGrid MaxHeight="500"
                                               hc:DataGridAttach.ShowRowNumber="True"
                                               Style="{StaticResource DataGrid.Small}"
                                               HeadersVisibility="All"
                                               RowHeaderWidth="60"
+                                              IsReadOnly="True"
+                                              CanUserSortColumns="False"
                                               AutoGenerateColumns="False"
                                               ItemsSource="{Binding Cache.Item.SlopeConfigurations}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Width="100"
-                                                                IsReadOnly="True"
                                                                 Header="Delta K Rate"
                                                                 Binding="{Binding DeltaKRate, StringFormat='0.##################'}" />
                                             <DataGridTextColumn Width="100"
-                                                                IsReadOnly="True"
                                                                 Header="Coefficient"
                                                                 Binding="{Binding Coefficient, StringFormat='0.###'}" />
                                         </DataGrid.Columns>

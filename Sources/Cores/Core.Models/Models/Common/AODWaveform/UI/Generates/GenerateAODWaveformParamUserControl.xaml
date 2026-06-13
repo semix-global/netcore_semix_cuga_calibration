@@ -215,6 +215,7 @@
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="Column"
                                       RowHeaderWidth="60"
+                                      CanUserSortColumns="False"
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding ElectrodeConfigurations}">
                                 <DataGrid.Columns>
@@ -333,6 +334,7 @@
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="All"
                                       RowHeaderWidth="60"
+                                      CanUserSortColumns="False"
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding SlopeConfigurations}">
                                 <DataGrid.Columns>
