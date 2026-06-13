@@ -290,25 +290,25 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                      .OrderBy(t => t.Key)
                      .Select(t => (t.Key, t.OrderBy(tt => tt.DarkFieldImage.CIBInformation).ToArray())))
         {
-            dictionary[($"{nameof(BestFocus.BestXStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio")] =
+            dictionary[($"{nameof(BestFocus.BestXStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio X")] =
             [
                 ..bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioPoint.Y))
             ];
-            dictionary[($"{nameof(BestFocus.BestXStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio ECS")] =
+            dictionary[($"{nameof(BestFocus.BestXStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio X ECS")] =
             [
                 ..bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioECS))
             ];
-            dictionary[($"{nameof(BestFocus.BestYStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio")] =
+            dictionary[($"{nameof(BestFocus.BestYStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio Y")] =
             [
                 ..bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestYStrehlRatioPoint.Y))
             ];
-            dictionary[($"{nameof(BestFocus.BestYStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id, Y: Best Strehl Ratio ECS")] =
+            dictionary[($"{nameof(BestFocus.BestYStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio Y ECS")] =
             [
                 ..bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)

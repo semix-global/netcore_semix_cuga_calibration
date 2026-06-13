@@ -31,7 +31,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject
     public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; set; } = [];
+    public partial IReadOnlyList<GenerateAODWaveformSlopeConfiguration> SlopeConfigurations { get; set; } = [];
 
     [ObservableProperty]
     public partial BestFocus BestFocus { get; set; } = new();
@@ -41,7 +41,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject
         ProductivityInformation,
         LaserLightInformation,
         CIBInformation,
-        SlopeDeltaKConfigurations = new HtmlTable([..SlopeDeltaKConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        SlopeConfigurations = new HtmlTable([..SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
         BestFocus.RawImageFilePath,
         BestFocus.BestYStrehlRatioPoint
     };

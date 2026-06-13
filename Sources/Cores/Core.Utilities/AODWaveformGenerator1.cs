@@ -68,7 +68,7 @@ public static class AODWaveformGenerator1
     /// </summary>
     /// <param name="DeltaKRate">每一段的频率变换率的百分比</param>
     /// <param name="Coefficient">均匀性</param>
-    public sealed record AODWaveformSlopeDeltaKConfiguration(double DeltaKRate, double Coefficient);
+    public sealed record AODWaveformSlopeConfiguration(double DeltaKRate, double Coefficient);
 
     /// <inheritdoc cref="AbstractAODWaveformParam"/>
     /// <remarks>
@@ -151,7 +151,7 @@ public static class AODWaveformGenerator1
         /// <summary>
         /// AOD波形的斜率变化率分段的配置项集合
         /// </summary>
-        public IReadOnlyList<AODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; init; } = [];
+        public IReadOnlyList<AODWaveformSlopeConfiguration> SlopeConfigurations { get; init; } = [];
 
         /// <summary>
         /// 低频
@@ -196,9 +196,9 @@ public static class AODWaveformGenerator1
                 item.Validate();
             }
 
-            if (SlopeDeltaKConfigurations.Count > 0)
+            if (SlopeConfigurations.Count > 0)
             {
-                Guard.IsTrue((SlopeDeltaKConfigurations.Count & 1) == 1, nameof(SlopeDeltaKConfigurations), "SlopeDeltaKConfigurations count must be odd.");
+                Guard.IsTrue((SlopeConfigurations.Count & 1) == 1, nameof(SlopeConfigurations), "Slope Configurations count must be odd.");
             }
 
             if (FunctionMonotonicTypeEnum is FunctionMonotonicTypeEnum.Flatness)
@@ -570,7 +570,7 @@ public static class AODWaveformGenerator1
 
             var standardSlope = (footerFrequency - headerFrequency) / (t.Count - 1);
             var totalLength = t.Count;
-            var segmentCount = param.SlopeDeltaKConfigurations.Count;
+            var segmentCount = param.SlopeConfigurations.Count;
 
             var uniformities = new double[totalLength];
             var frequencies = new double[totalLength];
@@ -602,29 +602,29 @@ public static class AODWaveformGenerator1
                 // 中心
                 var (centerStartIndex, centerMiddleIndex, centerStopIndex) = regions[centerSegmentIndex];
                 frequencies[centerMiddleIndex] = centerFrequency;
-                uniformities[centerMiddleIndex] = param.SlopeDeltaKConfigurations[centerSegmentIndex].Coefficient;
-                var centerSlope = standardSlope * (1 + param.SlopeDeltaKConfigurations[centerSegmentIndex].DeltaKRate);
+                uniformities[centerMiddleIndex] = param.SlopeConfigurations[centerSegmentIndex].Coefficient;
+                var centerSlope = standardSlope * (1 + param.SlopeConfigurations[centerSegmentIndex].DeltaKRate);
                 for (var i = centerMiddleIndex - 1; i >= centerStartIndex; i--)
                 {
                     frequencies[i] = frequencies[i + 1] - centerSlope;
-                    uniformities[i] = param.SlopeDeltaKConfigurations[centerSegmentIndex].Coefficient;
+                    uniformities[i] = param.SlopeConfigurations[centerSegmentIndex].Coefficient;
                 }
 
                 for (var i = centerMiddleIndex + 1; i <= centerStopIndex; i++)
                 {
                     frequencies[i] = frequencies[i - 1] + centerSlope;
-                    uniformities[i] = param.SlopeDeltaKConfigurations[centerSegmentIndex].Coefficient;
+                    uniformities[i] = param.SlopeConfigurations[centerSegmentIndex].Coefficient;
                 }
 
                 // 往左
                 for (var segmentIndex = centerSegmentIndex - 1; segmentIndex >= 0; segmentIndex--)
                 {
                     var (startIndex, _, stopIndex) = regions[segmentIndex];
-                    var slope = standardSlope * (1 + param.SlopeDeltaKConfigurations[segmentIndex].DeltaKRate);
+                    var slope = standardSlope * (1 + param.SlopeConfigurations[segmentIndex].DeltaKRate);
                     for (var i = stopIndex; i >= startIndex; i--)
                     {
                         frequencies[i] = frequencies[i + 1] - slope;
-                        uniformities[i] = param.SlopeDeltaKConfigurations[segmentIndex].Coefficient;
+                        uniformities[i] = param.SlopeConfigurations[segmentIndex].Coefficient;
                     }
                 }
 
@@ -632,11 +632,11 @@ public static class AODWaveformGenerator1
                 for (var segmentIndex = centerSegmentIndex + 1; segmentIndex <= regions.Length - 1; segmentIndex++)
                 {
                     var (startIndex, _, stopIndex) = regions[segmentIndex];
-                    var slope = standardSlope * (1 + param.SlopeDeltaKConfigurations[segmentIndex].DeltaKRate);
+                    var slope = standardSlope * (1 + param.SlopeConfigurations[segmentIndex].DeltaKRate);
                     for (var i = startIndex; i <= stopIndex; i++)
                     {
                         frequencies[i] = frequencies[i - 1] + slope;
-                        uniformities[i] = param.SlopeDeltaKConfigurations[segmentIndex].Coefficient;
+                        uniformities[i] = param.SlopeConfigurations[segmentIndex].Coefficient;
                     }
                 }
             }

@@ -49,7 +49,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; set; } = [];
+    public partial IReadOnlyList<GenerateAODWaveformSlopeConfiguration> SlopeConfigurations { get; set; } = [];
 
     partial void OnHeaderFrequencyChanged(double value)
     {
@@ -158,7 +158,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         BandWidth = 0d;
         CenterFrequency = frequency;
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
-        SlopeDeltaKConfigurations = [];
+        SlopeConfigurations = [];
     }
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
@@ -175,7 +175,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount = obj.ZeroSampleCount;
         EndpointSampleCount = obj.EndpointSampleCount;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
-        SlopeDeltaKConfigurations = [.. obj.SlopeDeltaKConfigurations.Select(t => t.Clone())];
+        SlopeConfigurations = [.. obj.SlopeConfigurations.Select(t => t.Clone())];
 
         return this;
     }
@@ -210,6 +210,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount,
         EndpointSampleCount,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        SlopeDeltaKConfigurations = new HtmlTable([.. SlopeDeltaKConfigurations.Select(t => t.ToHtmlAnonymous())])
+        SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())])
     };
 }

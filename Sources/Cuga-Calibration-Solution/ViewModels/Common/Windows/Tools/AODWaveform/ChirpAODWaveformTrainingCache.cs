@@ -47,10 +47,10 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     public partial bool IsConfirmBestYStrehlRatioResult { get; set; } = true;
 
     [ObservableProperty]
-    public partial IReadOnlyList<GenerateAODWaveformSlopeDeltaKConfiguration> SlopeDeltaKConfigurations { get; set; } = [];
+    public partial IReadOnlyList<GenerateAODWaveformSlopeConfiguration> SlopeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<ChirpAODWaveformTrainingDeltaK> ChirpAODWaveformTrainingDeltaKs { get; set; } = [];
+    public partial IReadOnlyList<ChirpAODWaveformTrainingSlope> ChirpAODWaveformTrainingSlopes { get; set; } = [];
 
     [ObservableProperty]
     public partial int RetryTimes { get; set; } = 10;
@@ -66,11 +66,11 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<ChirpAODWaveformTrainingItem> Items { get; set; } = [];
 
-    partial void OnChirpAODWaveformTrainingDeltaKsChanged(IReadOnlyList<ChirpAODWaveformTrainingDeltaK> value)
+    partial void OnChirpAODWaveformTrainingSlopesChanged(IReadOnlyList<ChirpAODWaveformTrainingSlope> value)
     {
-        SlopeDeltaKConfigurations =
+        SlopeConfigurations =
         [
-            ..value.Select(t => new GenerateAODWaveformSlopeDeltaKConfiguration
+            ..value.Select(_ => new GenerateAODWaveformSlopeConfiguration
             {
                 DeltaKRate = 0d,
                 Coefficient = 0d
@@ -80,7 +80,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
     {
-        SlopeDeltaKConfigurations = [..value.SlopeDeltaKConfigurations.Select(t => t.Clone())];
+        SlopeConfigurations = [..value.SlopeConfigurations.Select(t => t.Clone())];
     }
 
     public object ToHtmlAnonymous() => new
@@ -97,12 +97,13 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         CenterECS,
         RangeECS,
         IsConfirmBestYStrehlRatioResult,
-        ChirpAODWaveformTrainingDeltaKs = new HtmlTable([.. ChirpAODWaveformTrainingDeltaKs.Select(t => t.ToHtmlAnonymous())]),
+        SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        ChirpAODWaveformTrainingSlopes = new HtmlTable([.. ChirpAODWaveformTrainingSlopes.Select(t => t.ToHtmlAnonymous())]),
         RetryTimes
     };
 }
 
-public sealed partial class ChirpAODWaveformTrainingDeltaK : ObservableObject, ICloneable<ChirpAODWaveformTrainingDeltaK>
+public sealed partial class ChirpAODWaveformTrainingSlope : ObservableObject, ICloneable<ChirpAODWaveformTrainingSlope>
 {
     [ObservableProperty]
     public partial double StartDeltaKRate { get; set; }
@@ -113,7 +114,7 @@ public sealed partial class ChirpAODWaveformTrainingDeltaK : ObservableObject, I
     [ObservableProperty]
     public partial double StopDeltaKRate { get; set; }
 
-    public ChirpAODWaveformTrainingDeltaK Clone() => new()
+    public ChirpAODWaveformTrainingSlope Clone() => new()
     {
         StartDeltaKRate = StartDeltaKRate,
         StepDeltaKRate = StepDeltaKRate,

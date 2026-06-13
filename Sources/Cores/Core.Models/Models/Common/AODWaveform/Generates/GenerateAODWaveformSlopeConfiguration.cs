@@ -4,10 +4,10 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
-public sealed partial class GenerateAODWaveformSlopeDeltaKConfiguration :
+public sealed partial class GenerateAODWaveformSlopeConfiguration :
     ObservableObject,
-    IAdaptTo<AODWaveformGenerator1.AODWaveformSlopeDeltaKConfiguration>,
-    ICloneable<GenerateAODWaveformSlopeDeltaKConfiguration>
+    IAdaptTo<AODWaveformGenerator1.AODWaveformSlopeConfiguration>,
+    ICloneable<GenerateAODWaveformSlopeConfiguration>
 {
     [ObservableProperty]
     public partial double DeltaKRate { get; set; }
@@ -15,9 +15,9 @@ public sealed partial class GenerateAODWaveformSlopeDeltaKConfiguration :
     [ObservableProperty]
     public partial double Coefficient { get; set; } = 1d;
 
-    public AODWaveformGenerator1.AODWaveformSlopeDeltaKConfiguration AdaptTo() => new(DeltaKRate, Coefficient);
+    public AODWaveformGenerator1.AODWaveformSlopeConfiguration AdaptTo() => new(DeltaKRate, Coefficient);
 
-    public GenerateAODWaveformSlopeDeltaKConfiguration Clone() => new()
+    public GenerateAODWaveformSlopeConfiguration Clone() => new()
     {
         DeltaKRate = DeltaKRate,
         Coefficient= Coefficient

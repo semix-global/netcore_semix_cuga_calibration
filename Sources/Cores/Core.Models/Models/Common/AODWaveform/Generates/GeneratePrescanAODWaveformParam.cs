@@ -24,7 +24,7 @@ public sealed partial class GeneratePrescanAODWaveformParam :
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())]
+        SlopeConfigurations = [.. SlopeConfigurations.Select(t => t.AdaptTo())]
     };
 
     public GeneratePrescanAODWaveformParam Clone()

@@ -37,7 +37,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
         OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
-        SlopeDeltaKConfigurations = [.. SlopeDeltaKConfigurations.Select(t => t.AdaptTo())]
+        SlopeConfigurations = [.. SlopeConfigurations.Select(t => t.AdaptTo())]
     };
 
     public GenerateChirpAODWaveformParam Clone()
