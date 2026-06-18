@@ -49,25 +49,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    public partial double P2CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P3CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P4CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P5CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P6CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P7CompensationCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double P8CompensationCoefficient { get; set; }
+    public partial IReadOnlyList<GenerateAODWaveformSlopeConfiguration> SlopeConfigurations { get; set; } = [];
 
     partial void OnHeaderFrequencyChanged(double value)
     {
@@ -176,13 +158,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         BandWidth = 0d;
         CenterFrequency = frequency;
         foreach (var electrodeConfiguration in ElectrodeConfigurations) electrodeConfiguration.UniformityConfigurations = [];
-        P2CompensationCoefficient = 0d;
-        P3CompensationCoefficient = 0d;
-        P4CompensationCoefficient = 0d;
-        P5CompensationCoefficient = 0d;
-        P6CompensationCoefficient = 0d;
-        P7CompensationCoefficient = 0d;
-        P8CompensationCoefficient = 0d;
+        SlopeConfigurations = [];
     }
 
     public AbstractGenerateAODWaveformParam AdaptIn(AbstractGenerateAODWaveformParam obj)
@@ -199,13 +175,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount = obj.ZeroSampleCount;
         EndpointSampleCount = obj.EndpointSampleCount;
         ElectrodeConfigurations = [.. obj.ElectrodeConfigurations.Select(t => t.Clone())];
-        P2CompensationCoefficient = obj.P2CompensationCoefficient;
-        P3CompensationCoefficient = obj.P3CompensationCoefficient;
-        P4CompensationCoefficient = obj.P4CompensationCoefficient;
-        P5CompensationCoefficient = obj.P5CompensationCoefficient;
-        P6CompensationCoefficient = obj.P6CompensationCoefficient;
-        P7CompensationCoefficient = obj.P7CompensationCoefficient;
-        P8CompensationCoefficient = obj.P8CompensationCoefficient;
+        SlopeConfigurations = [.. obj.SlopeConfigurations.Select(t => t.Clone())];
 
         return this;
     }
@@ -240,12 +210,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
         ZeroSampleCount,
         EndpointSampleCount,
         ElectrodeConfigurations = new HtmlTable([.. ElectrodeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        P2CompensationCoefficient,
-        P3CompensationCoefficient,
-        P4CompensationCoefficient,
-        P5CompensationCoefficient,
-        P6CompensationCoefficient,
-        P7CompensationCoefficient,
-        P8CompensationCoefficient
+        SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())])
     };
 }

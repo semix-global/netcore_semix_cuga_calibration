@@ -139,7 +139,7 @@ public sealed class CalibrationConfigServiceImpl(
     public SxExecuteRet<bool> SetPrescanAODWaveformConfiguration(ProductivityInformation productivityInformation,
         string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.PrescanAODWaveformFileExtension,
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator1.PrescanAODWaveformFileExtension,
             "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 
@@ -155,7 +155,7 @@ public sealed class CalibrationConfigServiceImpl(
     public SxExecuteRet<bool> SetChirpAODWaveformConfiguration(ProductivityInformation productivityInformation,
         string filePath)
     {
-        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator.ChirpAODWaveformFileExtension,
+        Guard.IsEqualTo(Path.GetExtension(filePath), AODWaveformGenerator1.ChirpAODWaveformFileExtension,
             "File Extension is not valid.");
         Guard.IsTrue(File.Exists(filePath), "File is not exists.");
 

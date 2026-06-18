@@ -6,7 +6,7 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformUniformityConfiguration :
     ObservableObject,
-    IAdaptTo<AODWaveformGenerator.AODWaveformUniformityConfiguration>,
+    IAdaptTo<AODWaveformGenerator1.AODWaveformUniformityConfiguration>,
     ICloneable<GenerateAODWaveformUniformityConfiguration>
 {
     [ObservableProperty]
@@ -15,7 +15,7 @@ public sealed partial class GenerateAODWaveformUniformityConfiguration :
     [ObservableProperty]
     public partial double Coefficient { get; set; }
 
-    public AODWaveformGenerator.AODWaveformUniformityConfiguration AdaptTo() => new(Frequency, Coefficient);
+    public AODWaveformGenerator1.AODWaveformUniformityConfiguration AdaptTo() => new(Frequency, Coefficient);
 
     public GenerateAODWaveformUniformityConfiguration Clone() => new()
     {

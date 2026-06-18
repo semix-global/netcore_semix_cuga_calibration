@@ -93,17 +93,13 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <controls:ScatterMultiPlotControl Grid.Column="0"
-                                                                          Title="Total Compensation Phase"
-                                                                          ScatterLine0Points="{Binding FlatnessTotalCompensationPhaseSignals}" />
+                                                                          Title="Flatness Frequency"
+                                                                          ScatterLine0Points="{Binding FlatnessFrequencySignals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
-                                                                          Title="Total Phase"
-                                                                          ScatterLine0Points="{Binding FlatnessTotalPhaseSignals}" />
-                                        <controls:ScatterMultiPlotControl Grid.Column="2"
-                                                                          Title="Total Frequency"
-                                                                          ScatterLine0Points="{Binding FlatnessTotalFrequencySignals}" />
+                                                                          Title="Flatness Phase"
+                                                                          ScatterLine0Points="{Binding FlatnessPhaseSignals}" />
                                     </Grid>
                                 </TabItem>
                             </TabControl>

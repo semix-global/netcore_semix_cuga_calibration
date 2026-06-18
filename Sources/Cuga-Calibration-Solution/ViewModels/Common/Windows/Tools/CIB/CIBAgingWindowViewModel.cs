@@ -142,13 +142,13 @@ public sealed partial class CIBAgingWindowViewModel(
 
             Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.CIBMMDCache.ProductivityInformation;
             Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            var prescanAODWaveformResult = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+            var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
             Cache.CIBMMDCache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
             Cache.CIBMMDCache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
             Cache.CIBMMDCache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.CIBMMDCache.ProductivityInformation;
             Cache.CIBMMDCache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            var chirpAODWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.CIBMMDCache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+            var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.CIBMMDCache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
             Cache.CIBMMDCache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
             Cache.CIBMMDCache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 

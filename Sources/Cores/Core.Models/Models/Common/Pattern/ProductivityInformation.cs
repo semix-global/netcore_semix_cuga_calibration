@@ -10,7 +10,6 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
