@@ -20,7 +20,7 @@ public sealed partial class GenerateAODWaveformSlopeConfiguration :
     public GenerateAODWaveformSlopeConfiguration Clone() => new()
     {
         DeltaKRate = DeltaKRate,
-        Coefficient= Coefficient
+        Coefficient = Coefficient
     };
 
     public object ToHtmlAnonymous() => new

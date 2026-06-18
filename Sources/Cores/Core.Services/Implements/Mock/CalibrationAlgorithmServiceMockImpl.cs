@@ -5,18 +5,18 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
+using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using MathNet.Numerics;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 
 namespace Core.Services.Implements.Mock;
 
@@ -59,24 +59,24 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
 
         var xStrehlRatioPoints = Generate.LinearRangeInt32(0, 10, 300).Select(i => new Point(i, i is > 100 and < 200 ? Random.Shared.RandomDouble(0.8, 1d) : Random.Shared.RandomDouble(0, 0.3))).ToArray();
 
-        var (_, _, _, _, xStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xStrehlRatioPoints.Select(t => t.Y)]));
+        var (_, _, _, _, xStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([.. xStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. xStrehlRatioPoints.Select(t => t.Y)]));
         var xStrehlRatioFitPoints = xStrehlRatioPoints.Index().Select(t => new Point(t.Item.X, xStrehlRatioFitYPredicted[t.Index])).ToArray();
         var xStrehlRatioColumnPoints = xStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.1), new Point(t.X, t.Y + 0.1)]).ToArray();
-        var xIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [..xStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
+        var xIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [.. xStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
 
         var xFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
-        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..xFieldTiltPoints.Select(t => t.Y)]));
+        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.Y)]));
         var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
 
         var yStrehlRatioPoints = Generate.LinearRangeInt32(0, 10, 300).Select(i => new Point(i, i is > 100 and < 200 ? Random.Shared.RandomDouble(0.8, 1d) : Random.Shared.RandomDouble(0, 0.3))).ToArray();
 
-        var (_, _, _, _, yStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([..yStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yStrehlRatioPoints.Select(t => t.Y)]));
+        var (_, _, _, _, yStrehlRatioFitYPredicted) = PolynomialCurve.Fit2(Vector<double>.Build.Dense([.. yStrehlRatioPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. yStrehlRatioPoints.Select(t => t.Y)]));
         var yStrehlRatioFitPoints = yStrehlRatioPoints.Index().Select(t => new Point(t.Item.X, yStrehlRatioFitYPredicted[t.Index])).ToArray();
         var yStrehlRatioColumnPoints = yStrehlRatioFitPoints.Select<Point, IReadOnlyList<Point>>(t => [new Point(t.X, t.Y - 0.5), new Point(t.X, t.Y + 0.5)]).ToArray();
-        var yIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [..yStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
+        var yIntraRibbonFieldsPoints = Generate.LinearRange(-0.5, 0.1, 0.5).Select<double, IReadOnlyList<Point>>(t => [.. yStrehlRatioFitPoints.Select(tt => new Point(tt.X, tt.Y + t))]).ToArray();
 
         var yFieldTiltPoints = Enumerable.Range(0, 10).Select(i => new Point(i, Random.Shared.NextDouble())).ToArray();
-        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([..yFieldTiltPoints.Select(t => t.Y)]));
+        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.Y)]));
         var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
         var bestFocus = new BestFocus

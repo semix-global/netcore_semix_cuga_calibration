@@ -123,9 +123,9 @@ public partial class MarkdownViewer
             if (IsPopupEnabled)
             {
                 MarkdownWebView.ExecuteScriptAsync("""
-                    var btn = document.getElementById('popup-btn');
-                    if (btn) btn.style.display = 'block';
-                    """);
+                                                   var btn = document.getElementById('popup-btn');
+                                                   if (btn) btn.style.display = 'block';
+                                                   """);
             }
         }
     }

@@ -84,7 +84,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 
     partial void OnItemChanged(ChirpAODWaveformTrainingItem value)
     {
-        SlopeConfigurations = [..value.SlopeConfigurations.Select(t => t.Clone())];
+        SlopeConfigurations = [.. value.SlopeConfigurations.Select(t => t.Clone())];
     }
 
     public object ToHtmlAnonymous() => new

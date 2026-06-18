@@ -1,16 +1,19 @@
-using System.Collections;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -22,12 +25,9 @@ using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Collections;
 using System.IO;
 using System.Text;
-using CommunityToolkit.Diagnostics;
-using Core.Models.Models.Common.AODWaveform.Generates;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Net.Utilities.Algorithms.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -270,7 +270,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 var center = length / 2;
                 yield return center;
 
-                for (var offset = 1;; offset++)
+                for (var offset = 1; ; offset++)
                 {
                     var hasValue = false;
 
@@ -439,7 +439,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             ProductivityInformation = Cache.ProductivityInformation,
             LaserLightInformation = Cache.LaserLightInformation,
             CIBInformation = Cache.CIBInformation,
-            SlopeConfigurations = [..slopeConfigurations.Select(t => t.Clone())]
+            SlopeConfigurations = [.. slopeConfigurations.Select(t => t.Clone())]
         };
 
         try
@@ -458,7 +458,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
             Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-            Cache.GenerateChirpAODWaveformParam.SlopeConfigurations = [..item.SlopeConfigurations.Select(t => t.Clone())];
+            Cache.GenerateChirpAODWaveformParam.SlopeConfigurations = [.. item.SlopeConfigurations.Select(t => t.Clone())];
 
             var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 

@@ -53,7 +53,7 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         typeof(bool),
         typeof(AbstractGenerateAODWaveformParamUserControl),
         new PropertyMetadata(true, OnIsVisibleUniformityConfigurationChanged));
-    
+
     public static readonly DependencyProperty IsVisibleSlopeConfigurationProperty = DependencyProperty.Register(
         nameof(IsVisibleSlopeConfiguration),
         typeof(bool),
@@ -99,7 +99,7 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleUniformityConfiguration = value;
     }
-    
+
     private static void OnIsVisibleSlopeConfigurationsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is AbstractGenerateAODWaveformParamUserControl control && e.NewValue is bool value) control.InnerControl.IsVisibleSlopeConfiguration = value;
@@ -152,7 +152,7 @@ public abstract class AbstractGenerateAODWaveformParamUserControl : System.Windo
         get => (bool)GetValue(IsVisibleElectrodeConfigurationProperty);
         set => SetValue(IsVisibleElectrodeConfigurationProperty, value);
     }
-    
+
     public bool IsVisibleSlopeConfiguration
     {
         get => (bool)GetValue(IsVisibleSlopeConfigurationProperty);

@@ -65,7 +65,6 @@ public sealed partial class ManageDisableCalibrationWindowViewModel(
                 {
                     SettingDisableCalibrationConfigList = [.. Caches];
                 }
-
             });
         }
         catch (Exception ex)

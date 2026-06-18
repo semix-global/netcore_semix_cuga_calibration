@@ -149,7 +149,7 @@ public sealed partial class GenerateAODWaveformParamUserControl
 
         valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
     });
-    
+
     [RelayCommand]
     private void AddSlopeConfiguration() => Invoke(param =>
     {

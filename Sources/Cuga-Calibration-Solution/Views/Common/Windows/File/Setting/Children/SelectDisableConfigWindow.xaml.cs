@@ -7,4 +7,3 @@ public partial class SelectDisableConfigWindow
         InitializeComponent();
     }
 }
-

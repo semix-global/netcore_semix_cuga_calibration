@@ -41,7 +41,7 @@ public sealed partial class ChirpAODWaveformTrainingItem : ObservableObject
         ProductivityInformation,
         LaserLightInformation,
         CIBInformation,
-        SlopeConfigurations = new HtmlTable([..SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
+        SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
         BestFocus.RawImageFilePath,
         BestFocus.BestYStrehlRatioPoint
     };
