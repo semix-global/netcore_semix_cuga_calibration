@@ -22,7 +22,6 @@
 
         <PackageReference Include="WPF.CustomControl" />
 
-        <PackageReference Include="Markdig" />
         <PackageReference Include="Microsoft.Web.WebView2" />
     </ItemGroup>
 
