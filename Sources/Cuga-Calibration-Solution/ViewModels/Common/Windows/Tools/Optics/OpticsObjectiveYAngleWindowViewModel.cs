@@ -299,13 +299,13 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                     Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-                    var prescanAODWaveformResult = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+                    var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
                     Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
                     Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
                     Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
                     Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
-                    var chirpAODWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+                    var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
                     Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
                     Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 

@@ -215,6 +215,7 @@
                                       Style="{StaticResource DataGrid.Small}"
                                       HeadersVisibility="Column"
                                       RowHeaderWidth="60"
+                                      CanUserSortColumns="False"
                                       AutoGenerateColumns="False"
                                       ItemsSource="{Binding ElectrodeConfigurations}">
                                 <DataGrid.Columns>
@@ -310,47 +311,41 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Compensation"
+                <Expander Header="Slope ΔK Configurations"
                           IsExpanded="False"
                           ExpandDirection="Down"
-                          Visibility="{Binding IsVisibleCompensation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                          Visibility="{Binding IsVisibleSlopeConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border Style="{StaticResource BorderRegion}">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <TextBox Text="{Binding P2CompensationCoefficient}"
-                                     hc:TitleElement.Title="P2 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P3CompensationCoefficient}"
-                                     hc:TitleElement.Title="P3 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P4CompensationCoefficient}"
-                                     hc:TitleElement.Title="P4 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P5CompensationCoefficient}"
-                                     hc:TitleElement.Title="P5 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P6CompensationCoefficient}"
-                                     hc:TitleElement.Title="P6 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P7CompensationCoefficient}"
-                                     hc:TitleElement.Title="P7 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding P8CompensationCoefficient}"
-                                     hc:TitleElement.Title="P8 Compensation: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="{StaticResource TitleWidth}"
-                                     Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                <Button Content="Add"
+                                        Command="{Binding AddSlopeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                        Style="{StaticResource ButtonInfo}" />
+                                <Button Content="Delete"
+                                        Command="{Binding RemoveSlopeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridSlopeConfigurations}"
+                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                        Style="{StaticResource ButtonDanger}" />
+                            </hc:UniformSpacingPanel>
+                            <DataGrid x:Name="DataGridSlopeConfigurations"
+                                      MaxHeight="500"
+                                      hc:DataGridAttach.ShowRowNumber="True"
+                                      Style="{StaticResource DataGrid.Small}"
+                                      HeadersVisibility="All"
+                                      RowHeaderWidth="60"
+                                      CanUserSortColumns="False"
+                                      AutoGenerateColumns="False"
+                                      ItemsSource="{Binding SlopeConfigurations}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Width="100"
+                                                        Header="Delta K Rate"
+                                                        Binding="{Binding DeltaKRate, StringFormat='0.##################'}" />
+                                    <DataGridTextColumn Width="100"
+                                                        Header="Coefficient"
+                                                        Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>

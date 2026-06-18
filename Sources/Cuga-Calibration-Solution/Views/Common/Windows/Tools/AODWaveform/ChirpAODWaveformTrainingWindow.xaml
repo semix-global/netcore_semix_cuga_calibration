@@ -12,8 +12,9 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters;assembly=Core.Utilities.WPF"
            xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
@@ -32,11 +33,11 @@
     </i:Interaction.Triggers>
     <Grid>
         <Grid.Resources>
-            <multiValueConverters:MultiValueBooleanAnyConverter x:Key="MultiValueBooleanNegationAnyConverter" IsNegation="True" />
             <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
                 <Setter Property="CornerRadius" Value="0" />
                 <Setter Property="BorderThickness" Value="0" />
             </Style>
+            <paramUI:GenerateAODWaveformSlopeConfigurationsToStringConvert x:Key="GenerateAODWaveformSlopeConfigurationsToStringConvert" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -126,7 +127,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <paramUI:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
                                                                                               IsVisibleDirectoryPath="False"
-                                                                                              IsVisibleCompensation="False"
+                                                                                              IsVisibleSlopeConfiguration="False"
                                                                                               DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
                                         </Border>
                                     </Expander>
@@ -158,33 +159,116 @@
                                     </ComboBox>
                                     <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                                     <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
-                                    <Expander Header="Position"
+                                    <StackPanel>
+                                        <TextBlock Text="Step 1 Params"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <TextBox Text="{Binding Cache.DSWMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                                         hc:TitleElement.Title="Machine Position(um):"
+                                                <tools:AlignmentUserControl DataContext="{Binding .AlignmentUserControlViewModel}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <StackPanel>
+                                        <TextBlock Text="Step 2 Params"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <Expander Header="{Binding Steps[1]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                                          Style="{StaticResource ComboBoxExtend}">
+                                                    <i:Interaction.Behaviors>
+                                                        <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                                    </i:Interaction.Behaviors>
+                                                </ComboBox>
+                                                <TextBox Text="{Binding Cache.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Position(um): "
                                                          hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitleWidth="160"
                                                          Style="{StaticResource TextBoxExtend}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <StackPanel>
+                                        <TextBlock Text="Step 3 Params"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <Expander Header="{Binding Steps[2]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
+                                                                  hc:TitleElement.TitleWidth="160"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ScanLength}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Center(ECS): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="160"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.CenterECS}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="160"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.RangeECS}" />
+                                                <Border Style="{StaticResource BorderRegion}">
+                                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                        <StackPanel>
+                                                            <TextBlock Text="Slopes Params"
+                                                                       HorizontalAlignment="Center"
+                                                                       FontSize="13"
+                                                                       FontWeight="Bold"
+                                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                                        </StackPanel>
+                                                        <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                            <Button Content="Add"
+                                                                    Command="{Binding AddChirpAODWaveformTrainingSlopeCommand}"
+                                                                    hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                    Style="{StaticResource ButtonInfo}" />
+                                                            <Button Content="Delete"
+                                                                    Command="{Binding RemoveChirpAODWaveformTrainingSlopeCommand}"
+                                                                    CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridChirpAODWaveformTrainingSlopes}"
+                                                                    hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                    Style="{StaticResource ButtonDanger}" />
+                                                        </hc:UniformSpacingPanel>
+                                                        <DataGrid x:Name="DataGridChirpAODWaveformTrainingSlopes"
+                                                                  MaxHeight="500"
+                                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                  HeadersVisibility="All"
+                                                                  RowHeaderWidth="60"
+                                                                  CanUserSortColumns="False"
+                                                                  AutoGenerateColumns="False"
+                                                                  ItemsSource="{Binding Cache.ChirpAODWaveformTrainingSlopes}">
+                                                            <DataGrid.Columns>
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Start"
+                                                                                    Binding="{Binding StartDeltaKRate, StringFormat='0.##################'}" />
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Step"
+                                                                                    Binding="{Binding StepDeltaKRate, StringFormat='0.##################'}" />
+                                                                <DataGridTextColumn Width="100"
+                                                                                    Header="Stop"
+                                                                                    Binding="{Binding StopDeltaKRate, StringFormat='0.##################'}" />
+                                                            </DataGrid.Columns>
+                                                        </DataGrid>
+                                                    </hc:UniformSpacingPanel>
+                                                </Border>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -210,363 +294,100 @@
                                                 Command="{Binding ContinueCommand}"
                                                 Style="{StaticResource ButtonDefault}" />
                                     </hc:UniformSpacingPanel>
-                                    <hc:NumericUpDown hc:TitleElement.Title="P2"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP2Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P2Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P3"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP3Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P3Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P4"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP4Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P4Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P5"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP5Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P5Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P6"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP6Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P6Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P7"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP7Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P7Coefficient}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="P8"
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      IsEnabled="{Binding TrainingP8Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                                      Value="{Binding Cache.P8Coefficient}" />
-                                    <Expander Header="P2"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP2Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP2Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP2Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP2Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP2CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P3"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP3Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP3Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP3Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP3Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP3CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P4"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP4Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP4Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP4Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP4Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP4CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P5"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP5Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP5Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP5Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP5Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP5CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P6"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP6Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP6Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP6Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP6Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP6CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P7"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP7Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP7Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP7Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP7Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP7CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="P8"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Start"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StartP8Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Step"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StepP8Coefficient}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Stop"
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.StopP8Coefficient}" />
-                                                <hc:UniformSpacingPanel Spacing="10">
-                                                    <Button Content="Action"
-                                                            Command="{Binding TrainingP8Command}"
-                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                            Style="{StaticResource ButtonPrimary.Loading}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="TrainingP2Command.IsRunning" />
-                                                                <Binding Path="TrainingP3Command.IsRunning" />
-                                                                <Binding Path="TrainingP4Command.IsRunning" />
-                                                                <Binding Path="TrainingP5Command.IsRunning" />
-                                                                <Binding Path="TrainingP6Command.IsRunning" />
-                                                                <Binding Path="TrainingP7Command.IsRunning" />
-                                                                <Binding Path="TrainingP8Command.IsRunning" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding TrainingP8CancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
+                                    <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="2" Orientation="Vertical">
+                                        <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                                                 hc:TitleElement.Title="Alignment Degrees(°): "
+                                                 hc:TitleElement.TitleWidth="150"
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                VerticalAlignment="Top"
+                                                                Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding Step0Command}"
+                                                    CommandParameter="{x:Static models:Constants.False}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                        <Binding Path="Step0Command.IsRunning" />
+                                                        <Binding Path="Step1Command.IsRunning" />
+                                                        <Binding Path="Step2Command.IsRunning" />
+                                                        <Binding Path="AllCommand.IsRunning" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                            </Button>
+                                            <Button Content="Cancel"
+                                                    Command="{Binding Step0CancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step1Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step2Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="One-click start" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="All Action"
+                                                Command="{Binding AllCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="AllCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="All Cancel"
+                                                Command="{Binding AllCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -589,26 +410,8 @@
                                     <Run Text="[Best] Y Strehl: " />
                                     <Run Text="{Binding Cache.Item.BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
                                     <Run Text=", " />
-                                    <Run Text="P2: " />
-                                    <Run Text="{Binding Cache.Item.P2Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P3: " />
-                                    <Run Text="{Binding Cache.Item.P3Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P4: " />
-                                    <Run Text="{Binding Cache.Item.P4Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P5: " />
-                                    <Run Text="{Binding Cache.Item.P5Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P6: " />
-                                    <Run Text="{Binding Cache.Item.P6Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P7: " />
-                                    <Run Text="{Binding Cache.Item.P7Coefficient, StringFormat='0.######'}" />
-                                    <Run Text=", " />
-                                    <Run Text="P8: " />
-                                    <Run Text="{Binding Cache.Item.P8Coefficient, StringFormat='0.######'}" />
+                                    <Run Text="Slope Configurations: " />
+                                    <Run Text="{Binding Cache.Item.SlopeConfigurations, Converter={StaticResource GenerateAODWaveformSlopeConfigurationsToStringConvert}}" />
                                 </TextBlock>
                             </Border>
                             <ListView Grid.Row="1"
@@ -643,13 +446,6 @@
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Y Strehl" DisplayMemberBinding="{Binding BestFocus.BestYStrehlRatioPoint, Converter={StaticResource PointYToStringConverter}, ConverterParameter='0.###'}" />
-                                        <GridViewColumn Header="P2 Coefficient" DisplayMemberBinding="{Binding P2Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P3 Coefficient" DisplayMemberBinding="{Binding P3Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P4 Coefficient" DisplayMemberBinding="{Binding P4Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P5 Coefficient" DisplayMemberBinding="{Binding P5Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P6 Coefficient" DisplayMemberBinding="{Binding P6Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P7 Coefficient" DisplayMemberBinding="{Binding P7Coefficient, StringFormat='0.######'}" />
-                                        <GridViewColumn Header="P8 Coefficient" DisplayMemberBinding="{Binding P8Coefficient, StringFormat='0.######'}" />
                                         <GridViewColumn Header="Profiles">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
@@ -677,6 +473,15 @@
                                                             </TabControl>
                                                         </Popup>
                                                     </Grid>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Width="400" Header="Slope Configurations">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
+                                                    <TextBlock TextWrapping="Wrap">
+                                                        <Run Text="{Binding SlopeConfigurations, Converter={StaticResource GenerateAODWaveformSlopeConfigurationsToStringConvert}}" />
+                                                    </TextBlock>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
@@ -718,41 +523,24 @@
                                             </Hyperlink>
                                         </TextBlock>
                                     </StackPanel>
-                                    <TextBox Text="{Binding Cache.Item.P2Coefficient}"
-                                             hc:TitleElement.Title="P2:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P3Coefficient}"
-                                             hc:TitleElement.Title="P3:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P4Coefficient}"
-                                             hc:TitleElement.Title="P4:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P5Coefficient}"
-                                             hc:TitleElement.Title="P5:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P6Coefficient}"
-                                             hc:TitleElement.Title="P6:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P7Coefficient}"
-                                             hc:TitleElement.Title="P7:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.Item.P8Coefficient}"
-                                             hc:TitleElement.Title="P8:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
+                                    <DataGrid MaxHeight="500"
+                                              hc:DataGridAttach.ShowRowNumber="True"
+                                              Style="{StaticResource DataGrid.Small}"
+                                              HeadersVisibility="All"
+                                              RowHeaderWidth="60"
+                                              IsReadOnly="True"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              ItemsSource="{Binding Cache.Item.SlopeConfigurations}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Width="100"
+                                                                Header="Delta K Rate"
+                                                                Binding="{Binding DeltaKRate, StringFormat='0.##################'}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="Coefficient"
+                                                                Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                     <ToggleButton x:Name="ToggleButtonBestItemAODWaveformProfiles"
                                                   Content="Profiles"
                                                   Margin="0,2"

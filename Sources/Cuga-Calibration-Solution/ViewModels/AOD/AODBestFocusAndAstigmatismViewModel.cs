@@ -707,7 +707,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         generateChirpAODWaveformParam.BandWidth = bandWidth;
         generateChirpAODWaveformParam.DirectoryPath = ChirpFileDirectory;
 
-        var aodWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(generateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 
         var chirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
 
