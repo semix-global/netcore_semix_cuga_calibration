@@ -21,15 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-		<PackageReference Include="MdXaml" />
-        <PackageReference Include="Markdig" VersionOverride="1.2.0"/>
-        <PackageReference Include="Microsoft.Web.WebView2" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Cuga-Calibration-Solution\Cuga-Calibration-Solution.csproj" />
-        <ProjectReference Include="..\Cores\Core.Models\04. Core.Models.csproj" />
-        <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
     </ItemGroup>
 
 </Project>

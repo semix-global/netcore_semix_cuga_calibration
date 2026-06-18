@@ -5,7 +5,6 @@ using Cuga.Data.DataStruct.Optics;
 #if NET
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
-
 #else
 using Cuga.Data.DataStruct.PMT;
 using Semix.WcfTransfer.DTO;
@@ -223,6 +222,7 @@ public static class EnumOpticsExtension
     #endregion
 
 #if NETFRAMEWORK
+
     #region OpticsAODTypeEnum
 
     extension(OpticsAODTypeEnum @this)

@@ -345,47 +345,47 @@ public sealed record MarkdownHtmlBuilder
                              """;
 
         return $"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-            {viewportCss}
-            </style>
-            <meta name="generator" content="MarkdownViewer-v{HtmlFormatVersion}" />
-            <style>
-            {responsiveCss}
-            </style>
-            <style>
-            {Css}
-            </style>
-            <style>
-            {overrideCss}
-            </style>
-            <style>
-            {PrismCss}
-            </style>
-            <style>
-            {popupButtonCss}
-            </style>
-            <style>
-            {tocCss}
-            </style>
-            </head>
-            <body>
-            <div class="markdown-body">
-            {bodyHtml}
-            </div>
-            <script>{PrismJs}</script>
-            <script>{popupButtonJs}</script>
-            <script>{tocJs}</script>
-            <style>
-            {prismOverrideCss}
-            </style>
-            </body>
-            </html>
-            """;
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                {viewportCss}
+                </style>
+                <meta name="generator" content="MarkdownViewer-v{HtmlFormatVersion}" />
+                <style>
+                {responsiveCss}
+                </style>
+                <style>
+                {Css}
+                </style>
+                <style>
+                {overrideCss}
+                </style>
+                <style>
+                {PrismCss}
+                </style>
+                <style>
+                {popupButtonCss}
+                </style>
+                <style>
+                {tocCss}
+                </style>
+                </head>
+                <body>
+                <div class="markdown-body">
+                {bodyHtml}
+                </div>
+                <script>{PrismJs}</script>
+                <script>{popupButtonJs}</script>
+                <script>{tocJs}</script>
+                <style>
+                {prismOverrideCss}
+                </style>
+                </body>
+                </html>
+                """;
     }
 
     /// <summary>
@@ -557,6 +557,7 @@ public sealed record MarkdownHtmlBuilder
                 var version = match.Groups[1].Value;
                 return version != HtmlFormatVersion; // 版本不匹配
             }
+
             // 没有找到版本标记，认为是旧版本
             return true;
         }

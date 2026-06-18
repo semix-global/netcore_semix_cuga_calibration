@@ -32,7 +32,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         Cache.FlatnessGeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
         Cache.FlatnessGeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
 
-        var prescanAODWaveformResult = AODWaveformGenerator.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
+        var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.FlatnessGeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
 
         item.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
         item.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
@@ -45,7 +45,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         Cache.FlatnessGenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
         Cache.FlatnessGenerateChirpAODWaveformParam.ElectrodeConfigurations = item.ElectrodeConfigurations;
 
-        var chirpAODWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.FlatnessGenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 
         item.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
         item.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
@@ -79,7 +79,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         result.GenerateChirpAODWaveformParam.DirectoryPath = ResultAODWaveformDirectoryPath;
         result.GenerateChirpAODWaveformParam.ElectrodeConfigurations = Cache.ElectrodeConfigurationResults;
 
-        var aodWaveformResult = AODWaveformGenerator.GenerateChirpAODWaveform(result.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
+        var aodWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(result.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
 
         result.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(aodWaveformResult);
         result.ChirpAODWaveformResultFilePath = aodWaveformResult.FilePath;

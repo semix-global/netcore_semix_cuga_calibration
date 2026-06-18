@@ -322,6 +322,7 @@ public sealed partial class CalibrationCategory : ObservableObject
 
     [ObservableProperty]
     public partial CalibrationCategoryItem CategoryItem { get; set; } = new();
+
     [ObservableProperty]
     public partial IReadOnlyList<CalibrationCategory> Children { get; set; } = [];
 
@@ -351,6 +352,7 @@ public partial class CalibrationCategoryItem : ObservableObject
 
     [ObservableProperty]
     public partial bool IsAnyOk { get; set; }
+
     public bool IsArray { get; init; }
     public Type? Type { get; init; }
 
@@ -358,6 +360,7 @@ public partial class CalibrationCategoryItem : ObservableObject
     /// 标记是否被配置强制禁用
     /// </summary>
     private bool _isForceDisabled;
+
     public bool IsForceDisabled
     {
         get => _isForceDisabled;

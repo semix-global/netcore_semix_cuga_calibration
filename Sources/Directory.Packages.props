@@ -3,7 +3,7 @@
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
 
     <ItemGroup>
-        <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.2420.47" />
-		<PackageVersion Include="MdXaml" Version="1.27.0" />
-	</ItemGroup>
+        <PackageVersion Include="Net.Utilities.ScottPlot.WPF" Version="2.8.1-preview22.0-xuan" />
+    </ItemGroup>
+
 </Project>

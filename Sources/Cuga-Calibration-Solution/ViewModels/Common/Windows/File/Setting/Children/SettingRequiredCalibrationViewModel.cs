@@ -98,6 +98,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
             var found = FindRecursive(cache, menuNode);
             if (found is not null) return found;
         }
+
         return null;
 
         SettingRequiredCalibrationParam? FindRecursive(SettingRequiredCalibrationParam node, CalibrationMenu target)
@@ -108,6 +109,7 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                 var result = FindRecursive(child, target);
                 if (result is not null) return result;
             }
+
             return null;
         }
     }

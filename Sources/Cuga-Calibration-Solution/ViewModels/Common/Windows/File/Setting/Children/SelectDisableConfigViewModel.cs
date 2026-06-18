@@ -60,4 +60,3 @@ public sealed partial class SelectDisableConfigViewModel(
         CloseView(false);
     }
 }
-

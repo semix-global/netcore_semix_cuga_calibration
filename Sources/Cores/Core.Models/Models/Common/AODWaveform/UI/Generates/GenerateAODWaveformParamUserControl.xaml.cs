@@ -150,6 +150,26 @@ public sealed partial class GenerateAODWaveformParamUserControl
         valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
     });
 
+    [RelayCommand]
+    private void AddSlopeConfiguration() => Invoke(param =>
+    {
+        var configurationList = param.SlopeConfigurations.ToList();
+        configurationList.Add(new GenerateAODWaveformSlopeConfiguration());
+
+        param.SlopeConfigurations = configurationList;
+    });
+
+    [RelayCommand]
+    private void RemoveSlopeConfiguration(IEnumerable? selectItems) => Invoke(param =>
+    {
+        if (selectItems is null) return;
+
+        var configurationList = param.SlopeConfigurations.ToList();
+        foreach (GenerateAODWaveformSlopeConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
+
+        param.SlopeConfigurations = configurationList;
+    });
+
     private void Invoke(Action<AbstractGenerateAODWaveformParam> action)
     {
         Guard.IsNotNull(_logger);
