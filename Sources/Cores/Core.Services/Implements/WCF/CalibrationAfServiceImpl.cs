@@ -41,7 +41,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
     public SxExecuteRet<bool> ToggleDarkFieldEnable(bool enable)
     {
-        var sxExecuteRet = enable ? Invoke(() => Service!.OpenDarkFieldMode()) : Invoke(() => Service!.OpenNscTestMode());
+        var sxExecuteRet = enable ? Invoke(() => Service!.OpenInspectionMode()) : Invoke(() => Service!.OpenNscTestMode());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
