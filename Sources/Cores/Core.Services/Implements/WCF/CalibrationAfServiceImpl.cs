@@ -112,6 +112,11 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double Min, double Max)> GetEcsMoveRange()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         var sxExecuteRet = Invoke(() => Service!.SetAFMicroscopeObj(microscopeLensInformation.AdaptTo().LensCode));
@@ -186,6 +191,16 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)

@@ -104,6 +104,11 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double Min, double Max)> GetEcsMoveRange()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeObj(new SxParamObj<CgMicroscopeLens>(microscopeLensInformation.AdaptTo().LensCode)));
@@ -164,6 +169,16 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
     }
 
     public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB)
     {
         throw new NotImplementedException();
     }

@@ -20,6 +20,10 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     private double _currentBValue;
     private double _nscOffsetValue;
     private double _nscGainValue;
+    private double _kA;
+    private double _offsetA;
+    private double _kB;
+    private double _offsetB;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -95,6 +99,11 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double Min, double Max)> GetEcsMoveRange()
+    {
+        return SxExecuteRetHelper.CreateSuccess((0d, 10000d));
+    }
+
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         Thread.Sleep(100);
@@ -146,6 +155,23 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     {
         _nscOffsetValue = offset;
         _nscGainValue = gain;
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess((_kA, _offsetA, _kB, _offsetB));
+    }
+
+    public SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB)
+    {
+        _kA = kA;
+        _offsetA = offsetA;
+        _kB = kB;
+        _offsetB = offsetB;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }

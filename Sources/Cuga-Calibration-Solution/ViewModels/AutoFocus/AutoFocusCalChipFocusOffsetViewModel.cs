@@ -347,8 +347,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             {
                 var nscMaxIndex = nscVector.MaximumIndex();
                 var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-                var nscMinNegativeRightIndex =
-                    nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+                var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
                 if (DarkAutoFocus.IsNscUsePositiveSlope)
                 {
                     nscIntervalVector = nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
@@ -364,8 +363,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             {
                 var nscMinIndex = nscVector.MinimumIndex();
                 var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-                var nscMaxPositiveRightIndex =
-                    nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+                var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
 
                 if (DarkAutoFocus.IsNscUsePositiveSlope)
                 {
