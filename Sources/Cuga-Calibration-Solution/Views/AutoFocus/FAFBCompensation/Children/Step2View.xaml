@@ -85,7 +85,7 @@
                                     <DataGridTextColumn Width="150"
                                                         Header="Points"
                                                         Binding="{Binding DSWFindBrightMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    <DataGridTemplateColumn Width="300" Header="Actions">
+                                    <DataGridTemplateColumn Width="150" Header="Actions">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button Content="Mark"

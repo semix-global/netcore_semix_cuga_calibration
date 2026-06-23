@@ -216,7 +216,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         CalibratingItem.CalibratingItems = [];
         CalibratingItem.VerifyItems = [];
 
-        AfViewModel.ResetSensorNscCompensation();
+        AfViewModel.ResetFAFBCompensation();
         await Task.Delay(100, cancellationToken);
 
         await GetSCurvesAsync(true, cancellationToken);
