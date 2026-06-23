@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net480;net8.0-windows10.0.19041</TargetFrameworks>
+        <TargetFrameworks>net480;net10.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <AssemblyName>Core.Services</AssemblyName>
         <RootNamespace>Core.Services</RootNamespace>
@@ -14,7 +14,7 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
         <PackageReference Include="Grpc.Net.Client" />
         <PackageReference Include="Semix.CoreLib.Grpc" />
         <PackageReference Include="Cuga.Interface" />
@@ -49,7 +49,7 @@
         <ProjectReference Include="..\Core.Models\04. Core.Models.csproj" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows10.0.19041'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
         <Compile Remove="Implements\Wcf\*.cs" />
         <None Include="Implements\Wcf\*.cs" />
     </ItemGroup>
