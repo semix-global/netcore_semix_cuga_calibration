@@ -28,7 +28,7 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCenterChannelFlexibleApertureViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelFlexibleApertureViewModel : CalibrationViewModelBase
+public sealed partial class PupilCenterChannelFlexibleApertureViewModel : CalibrationViewModelBase<PupilCenterChannelFlexibleApertureCache>
 {
     #region 界面相关
 
@@ -165,7 +165,7 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
 
     [RecipeCache]
     [ObservableProperty]
-    public partial PupilCenterChannelFlexibleApertureCache Cache { get; set; } = new();
+    public override partial PupilCenterChannelFlexibleApertureCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -1567,3 +1567,4 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
         Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
     }
 }
+

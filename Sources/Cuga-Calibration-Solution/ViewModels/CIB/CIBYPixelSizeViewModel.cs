@@ -28,7 +28,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBYPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
+public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CIBYPixelSizeCache>
 {
     #region 属性
 
@@ -73,7 +73,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBYPixelSizeCache Cache { get; set; } = new();
+    public override partial CIBYPixelSizeCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -553,3 +553,4 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

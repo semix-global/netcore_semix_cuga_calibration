@@ -25,7 +25,7 @@ using Net.Utilities.WPF.MVVM;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCalChipViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBase
+public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBase<MicroscopeCalChipCache>
 {
     #region 属性
 
@@ -75,7 +75,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     [RecipeCache]
     [ObservableProperty]
-    public partial MicroscopeCalChipCache Cache { get; set; } = new();
+    public override partial MicroscopeCalChipCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -653,3 +653,4 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     #endregion 校准
 }
+

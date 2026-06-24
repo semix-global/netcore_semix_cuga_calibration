@@ -48,7 +48,7 @@ namespace CugaCalibration.ViewModels.CIB;
 /// Mixed Mode Detection
 /// </summary>
 [IOCAppService(ServiceType = typeof(CIBMMDViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
+public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCache>
 {
     #region 属性
 
@@ -90,7 +90,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBMMDCache Cache { get; set; } = new();
+    public override partial CIBMMDCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -1352,3 +1352,4 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

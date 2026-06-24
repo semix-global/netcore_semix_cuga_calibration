@@ -27,7 +27,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBLineOrientationOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewModelBase
+public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewModelBase<CIBLineOrientationOffsetCache>
 {
     #region 属性
 
@@ -73,7 +73,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBLineOrientationOffsetCache Cache { get; set; } = new();
+    public override partial CIBLineOrientationOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -693,3 +693,4 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
     #endregion 校准
 }
+

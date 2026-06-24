@@ -19,7 +19,7 @@ using BitmapImage = Net.Utilities.Graphics.Primitives.Medias.Imaging.BitmapImage
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModelBase
+public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModelBase<PupilCameraAlignmentCache>
 {
     #region 界面相关
 
@@ -46,7 +46,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
     [RecipeCache]
     [ObservableProperty]
-    public partial PupilCameraAlignmentCache Cache { get; set; } = new();
+    public override partial PupilCameraAlignmentCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -432,3 +432,4 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         }).ConfigureAwait(false);
     }
 }
+

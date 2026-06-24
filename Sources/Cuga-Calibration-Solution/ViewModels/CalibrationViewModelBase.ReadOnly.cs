@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
@@ -46,6 +46,8 @@ public partial class CalibrationViewModelBase
     public ICacheProvider RecipeCacheProvider { get; } = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
 
     public IApplicationCookieService ApplicationCookieService { get; } = HostApplication.GetRequiredService<IApplicationCookieService>();
+
+    public ICalibrationCacheProvider CalibrationCacheProvider { get; } = HostApplication.GetRequiredService<ICalibrationCacheProvider>();
 
     public ICalibrationRecipeService CalibrationRecipeService { get; } = HostApplication.GetRequiredService<ICalibrationRecipeService>();
 

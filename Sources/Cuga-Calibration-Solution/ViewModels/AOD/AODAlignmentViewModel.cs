@@ -34,7 +34,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(AODAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
+public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AODAlignmentCache>
 {
     #region 属性
 
@@ -74,7 +74,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AODAlignmentCache Cache { get; set; } = new();
+    public override partial AODAlignmentCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]

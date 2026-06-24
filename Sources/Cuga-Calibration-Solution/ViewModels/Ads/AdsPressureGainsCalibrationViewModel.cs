@@ -16,7 +16,7 @@ using Net.Utilities.WPF.Enums;
 namespace CugaCalibration.ViewModels.Ads;
 
 [IOCAppService(ServiceType = typeof(AdsPressureGainsCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationViewModelBase<AdsPressureGainsCache>
 {
     #region 属性
 
@@ -48,7 +48,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AdsPressureGainsCache Cache { get; set; } = new();
+    public override partial AdsPressureGainsCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]

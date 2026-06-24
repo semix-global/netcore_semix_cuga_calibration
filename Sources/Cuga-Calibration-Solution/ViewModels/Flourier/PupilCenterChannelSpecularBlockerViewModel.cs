@@ -35,7 +35,7 @@ using Size = Net.Utilities.Models.Geometries.Size;
 namespace CugaCalibration.ViewModels.Flourier;
 
 [IOCAppService(ServiceType = typeof(PupilCenterChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCenterChannelSpecularBlockerViewModel : CalibrationViewModelBase
+public sealed partial class PupilCenterChannelSpecularBlockerViewModel : CalibrationViewModelBase<PupilCenterChannelSpecularBlockerCache>
 {
     #region 界面相关
 
@@ -141,7 +141,7 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
 
     [RecipeCache]
     [ObservableProperty]
-    public partial PupilCenterChannelSpecularBlockerCache Cache { get; set; } = new();
+    public override partial PupilCenterChannelSpecularBlockerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -773,3 +773,4 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
         return new BitmapImage(bytes, isCopy: true);
     }
 }
+

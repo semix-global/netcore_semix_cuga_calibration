@@ -38,7 +38,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(AODBestFocusAndAstigmatismViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationViewModelBase
+public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationViewModelBase<AODBestFocusAndAstigmatismCache>
 {
     #region 属性
 
@@ -94,7 +94,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AODBestFocusAndAstigmatismCache Cache { get; set; } = new();
+    public override partial AODBestFocusAndAstigmatismCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -821,3 +821,4 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
     #endregion 算法
 }
+

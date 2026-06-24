@@ -37,7 +37,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBAGCDelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
+public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBAGCDelayCache>
 {
     #region 属性
 
@@ -78,7 +78,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBAGCDelayCache Cache { get; set; } = new();
+    public override partial CIBAGCDelayCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -778,3 +778,4 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

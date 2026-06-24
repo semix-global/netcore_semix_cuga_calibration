@@ -24,7 +24,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.AutoFocus;
 
 [IOCAppService(ServiceType = typeof(AutoFocusCalChipFocusOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationViewModelBase
+public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationViewModelBase<AutoFocusCalChipFocusOffsetCache>
 {
     #region 属性
 
@@ -67,7 +67,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AutoFocusCalChipFocusOffsetCache Cache { get; set; } = new();
+    public override partial AutoFocusCalChipFocusOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -529,3 +529,4 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
     #endregion 校准
 }
+

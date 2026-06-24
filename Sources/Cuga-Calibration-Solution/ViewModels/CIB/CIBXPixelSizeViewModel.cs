@@ -40,7 +40,7 @@ using System.Threading.Channels;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBXPixelSizeViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
+public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CIBXPixelSizeCache>
 {
     #region 属性
 
@@ -91,7 +91,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBXPixelSizeCache Cache { get; set; } = new();
+    public override partial CIBXPixelSizeCache Cache { get; set; } = new();
 
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
@@ -983,3 +983,4 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+
