@@ -13,6 +13,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -21,6 +22,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
@@ -207,6 +209,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             Cache.RangeECS,
             Cache.SpeedECSPerSecond,
             Points = new HtmlTable([.. Cache.Items.Select(t => new { t.DSWFindBrightMachinePosition })]),
+            Cache.ThresholdECS
         }), HtmlLogUniqueId.LoggingHtml());
 
         CalibratingItem.KA = 0d;
@@ -219,23 +222,37 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         AfViewModel.ResetFAFBCompensation();
         await Task.Delay(100, cancellationToken);
 
+        Logger.LogHtmlInformation("Get S Curve", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
         await GetSCurvesAsync(true, cancellationToken);
 
-        CalibratingItem.IsCalibrated = true;
-
-        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            CalibratingItem.KA,
-            CalibratingItem.OffsetA,
-            CalibratingItem.KB,
-            CalibratingItem.OffsetB,
-            PlotDataSource = new HtmlContainer([.. CalibratingItem.CalibratingPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
-        }), HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        Algorithm(CalibratingItem);
 
         Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
         return CalibratingItem.IsCalibrated;
     }).ConfigureAwait(false);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task AlgorithmAsync(CancellationToken cancellationToken)
+    {
+        await InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ThresholdECS
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+            Algorithm(CalibratingItem);
+
+            DialogWindowProvider.ShowDialog($"Algorithm {(CalibratingItem.IsCalibrated ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                CalibratingItem.IsCalibrated ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return CalibratingItem.IsCalibrated;
+        }).ConfigureAwait(false);
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> VerifyAsync(CancellationToken cancellationToken) => await InvokeVerifyAsync(async () =>
@@ -310,7 +327,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Logger.LogHtmlInformation($"{cacheItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{cacheItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(cacheItem.DSWFindBrightMachinePosition), CalChipSiteModelEnum.DswModel);
 
@@ -341,6 +358,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 var dtoItem = new AutoFocusFAFBCompensationDTOItem
                 {
                     DSWFindBrightMachinePosition = cacheItem.DSWFindBrightMachinePosition,
+                    AverageECS = averageEcs,
                     ECSes = [..traceBufferList.Select(t => t.Ecs)],
                     FAs = [..traceBufferList.Select(t => t.Fa)],
                     NAs = [..traceBufferList.Select(t => t.Na)],
@@ -349,71 +367,34 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                     NSCs = [..traceBufferList.Select(t => t.Nsc)]
                 };
 
-                var ecsVector = Vector<double>.Build.Dense([..dtoItem.ECSes]);
-                var nscVector = Vector<double>.Build.Dense([..dtoItem.NSCs]);
-
-                Vector<double> nscIntervalVector, ecsIntervalVector;
-                if (DarkAutoFocus.IsNscUseMaxValue)
-                {
-                    var nscMaxIndex = nscVector.MaximumIndex();
-                    var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-                    var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
-                    if (DarkAutoFocus.IsNscUsePositiveSlope)
-                    {
-                        nscIntervalVector = nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
-                        ecsIntervalVector = ecsVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
-                    }
-                    else
-                    {
-                        nscIntervalVector = nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
-                        ecsIntervalVector = ecsVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
-                    }
-                }
-                else
-                {
-                    var nscMinIndex = nscVector.MinimumIndex();
-                    var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-                    var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
-
-                    if (DarkAutoFocus.IsNscUsePositiveSlope)
-                    {
-                        nscIntervalVector = nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
-                        ecsIntervalVector = ecsVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
-                    }
-                    else
-                    {
-                        nscIntervalVector = nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
-                        ecsIntervalVector = ecsVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
-                    }
-                }
-
-                var leftIndex = nscIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index;
-                var rightIndex = nscIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index;
-
-                dtoItem.NSCZeroPoint = new Point((ecsIntervalVector[leftIndex] + ecsIntervalVector[rightIndex]) / 2d, (nscIntervalVector[leftIndex] + nscIntervalVector[rightIndex]) / 2d);
-
+                bool isSuccess;
                 if (isCalibrating)
+                {
+                    isSuccess = true;
                     item.CalibratingItems = [..item.CalibratingItems, dtoItem];
+                }
                 else
+                {
+                    (isSuccess, dtoItem.NSCZeroPoint) = GetSCurveZeroPoint(averageEcs, dtoItem.ECSes, dtoItem.NSCs);
                     item.VerifyItems = [..item.VerifyItems, dtoItem];
-
-                var isOk = averageEcs > ecsIntervalVector[0] && averageEcs < ecsIntervalVector[^1];
+                }
 
                 var htmlBullet = new HtmlBullet(new
                 {
+                    dtoItem.DSWFindBrightMachinePosition,
+                    dtoItem.AverageECS,
                     ecsMin,
                     ecsMax,
-                    averageEcs,
                     startECS,
                     stopECS,
                     PlotDataSource = new HtmlContainer([.. (isCalibrating ? item.CalibratingPlotDataSource : item.VerifyPlotDataSource).GetAllHtmlPlot2DLinesCharts()])
                 });
 
-                if (isOk)
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                if (isSuccess)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                     ThrowHelper.ThrowArgumentException("NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.");
                 }
@@ -423,6 +404,199 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             StageViewModel.SetBrightFieldAbsoluteStageXy(brightFieldPosition);
         }
+    }
+
+    private void Algorithm(AutoFocusFAFBCompensationDTO item)
+    {
+        var confirmViewModel = HostApplication.GetRequiredService<AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel>();
+        var isShowDialog = WindowManagerService.ShowDialog(confirmViewModel);
+        Guard.IsTrue(isShowDialog == true);
+
+        item.LeastSquaresMinECS = null;
+        item.LeastSquaresMaxECS = null;
+        item.LeastSquareFindPoints = [];
+        foreach (var dtoItem in item.CalibratingItems)
+        {
+            dtoItem.FACompensations = [];
+            dtoItem.FBCompensations = [];
+            dtoItem.NSCCompensations = [];
+            dtoItem.NSCZeroPoint = null;
+        }
+
+        item.LeastSquaresMinECS = confirmViewModel.LeastSquaresMinECS;
+        item.LeastSquaresMaxECS = confirmViewModel.LeastSquaresMaxECS;
+
+        var naList = new List<double>();
+        var faDiffList = new List<double>();
+        var nbList = new List<double>();
+        var fbDiffList = new List<double>();
+        foreach (var ecs in item.CalibratingItems
+                     .SelectMany(t => t.ECSes)
+                     .Where(t => item.LeastSquaresMinECS <= t && t <= item.LeastSquaresMaxECS)
+                     .Distinct()
+                     .OrderBy(t => t))
+        {
+            var indexOfList = item.CalibratingItems.Select(t => t.ECSes.ToArray().IndexOf(ecs)).ToList();
+            if (indexOfList.Any(t => t == -1)) continue;
+
+            var faAverage = item.CalibratingItems.Index().Select(t => t.Item.FAs[indexOfList[t.Index]]).Average();
+            item.LeastSquareFindPoints = [.. item.LeastSquareFindPoints, new Point(ecs, faAverage)];
+
+            foreach (var (index, dtoItem) in item.CalibratingItems.Index())
+            {
+                // faAverage = fa + ka * (na - offseta) => faAverage - fa = ka * na - ka * offseta
+                naList.Add(dtoItem.NAs[indexOfList[index]]);
+                faDiffList.Add(faAverage - dtoItem.FAs[indexOfList[index]]);
+
+                // faAverage = fb + kb * (nb - offsetb) => faAverage - fb = kb * nb - kb * offsetb
+                nbList.Add(dtoItem.NBs[indexOfList[index]]);
+                fbDiffList.Add(faAverage - dtoItem.FBs[indexOfList[index]]);
+            }
+        }
+
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+        {
+            item.LeastSquaresMinECS,
+            item.LeastSquaresMaxECS,
+            PlotFA = new HtmlPlot2DLinesChart([(string.Empty, [.. naList.Index().Select(t => new Point(t.Item, faDiffList[t.Index]))])], "fa"),
+            PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. nbList.Index().Select(t => new Point(t.Item, fbDiffList[t.Index]))])], "fb")
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        var (ka, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..naList]), Vector<double>.Build.Dense([..faDiffList]));
+        var (kb, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..nbList]), Vector<double>.Build.Dense([..fbDiffList]));
+
+        var offsetA = -interceptA / ka;
+        var offsetB = -interceptB / kb;
+
+        item.KA = ka;
+        item.OffsetA = offsetA;
+        item.FARSquared = rSquaredA;
+        item.KB = kb;
+        item.OffsetB = offsetB;
+        item.FBRSquared = rSquaredB;
+
+        // 计算补偿曲线及 NSC 零点
+        foreach (var dtoItem in item.CalibratingItems)
+        {
+            Logger.LogHtmlInformation($"{dtoItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+            var faCompensations = new double[dtoItem.ECSes.Count];
+            var fbCompensations = new double[dtoItem.ECSes.Count];
+            var nscCompensations = new double[dtoItem.ECSes.Count];
+            for (var i = 0; i < dtoItem.ECSes.Count; i++)
+            {
+                var fa = dtoItem.FAs[i];
+                var na = dtoItem.NAs[i];
+                var fb = dtoItem.FBs[i];
+                var nb = dtoItem.NBs[i];
+
+                // faAverage = fa + ka * (na - offseta)
+                // fbAverage = fb + kb * (nb - offsetb)
+                var faCompensation = fa + ka * (na - offsetA);
+                var fbCompensation = fb + kb * (nb - offsetB);
+
+                faCompensations[i] = faCompensation;
+                fbCompensations[i] = fbCompensation;
+
+                Guard.IsNotEqualTo(na, 0);
+                Guard.IsNotEqualTo(nb, 0);
+
+                nscCompensations[i] = faCompensation / na - fbCompensation / nb;
+            }
+
+            dtoItem.FACompensations = faCompensations;
+            dtoItem.FBCompensations = fbCompensations;
+            dtoItem.NSCCompensations = nscCompensations;
+            var (isSuccess, zeroPoint) = GetSCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
+            dtoItem.NSCZeroPoint = zeroPoint;
+
+            var tempHtmlBullet = new HtmlBullet(new
+            {
+                dtoItem.DSWFindBrightMachinePosition,
+                dtoItem.AverageECS,
+                PlotDataSource = new HtmlContainer([.. item.CalibratingPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+            });
+
+            if (isSuccess)
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, tempHtmlBullet, HtmlLogUniqueId.LoggingHtml());
+            else
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, tempHtmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                ThrowHelper.ThrowArgumentException("NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.");
+            }
+        }
+
+        var ecses = item.CalibratingItems.Select(t => Guard.IsNotNullAndReturn(t.NSCZeroPoint).X).ToArray();
+        var error = Math.Abs(ecses.Max() - ecses.Min());
+        var isOk = error < Cache.ThresholdECS;
+        item.IsCalibrated = isOk;
+
+        var htmlBullet = new HtmlBullet(new
+        {
+            item.KA,
+            item.OffsetA,
+            RARSquared = item.FARSquared,
+            item.KB,
+            item.OffsetB,
+            RBRSquared = item.FBRSquared,
+            ecses,
+            error,
+            isOk,
+            CalibratingPlotDataSource = new HtmlContainer([.. item.CalibratingPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+        });
+
+        if (isOk) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+        else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+    }
+
+    private (bool IsSuccess, Point ZeroPoint) GetSCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
+    {
+        var ecsVector = Vector<double>.Build.Dense([..ecses]);
+        var nscVector = Vector<double>.Build.Dense([..nscs]);
+
+        Vector<double> nscIntervalVector, ecsIntervalVector;
+        if (DarkAutoFocus.IsNscUseMaxValue)
+        {
+            var nscMaxIndex = nscVector.MaximumIndex();
+            var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
+            var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
+            if (DarkAutoFocus.IsNscUsePositiveSlope)
+            {
+                nscIntervalVector = nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
+                ecsIntervalVector = ecsVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
+            }
+            else
+            {
+                nscIntervalVector = nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
+                ecsIntervalVector = ecsVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
+            }
+        }
+        else
+        {
+            var nscMinIndex = nscVector.MinimumIndex();
+            var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
+            var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+
+            if (DarkAutoFocus.IsNscUsePositiveSlope)
+            {
+                nscIntervalVector = nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
+                ecsIntervalVector = ecsVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
+            }
+            else
+            {
+                nscIntervalVector = nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
+                ecsIntervalVector = ecsVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
+            }
+        }
+
+        var leftIndex = nscIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index;
+        var rightIndex = nscIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index;
+
+        var result = new Point((ecsIntervalVector[leftIndex] + ecsIntervalVector[rightIndex]) / 2d, (nscIntervalVector[leftIndex] + nscIntervalVector[rightIndex]) / 2d);
+        var isOk = averageEcs > ecsIntervalVector[0] && averageEcs < ecsIntervalVector[^1];
+
+        return (isOk, result);
     }
 
     private bool Save(AutoFocusFAFBCompensationDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
@@ -447,5 +621,21 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
         status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
         status.Details = [];
+    }
+}
+
+[IOCAppService(ServiceType = typeof(AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
+public sealed partial class AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel : ViewModelBase
+{
+    [ObservableProperty]
+    public partial double LeastSquaresMinECS { get; set; }
+
+    [ObservableProperty]
+    public partial double LeastSquaresMaxECS { get; set; }
+
+    [RelayCommand]
+    private void Close()
+    {
+        CloseView(true);
     }
 }

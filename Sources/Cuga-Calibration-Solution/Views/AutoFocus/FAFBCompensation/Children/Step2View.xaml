@@ -52,6 +52,12 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SpeedECSPerSecond}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(ECS): "
+                                          hc:TitleElement.TitleWidth="180"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ThresholdECS}" />
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel>
                                 <TextBlock Text="Slopes Params"
@@ -82,10 +88,10 @@
                                       IsReadOnly="True"
                                       ItemsSource="{Binding Cache.Items}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Width="150"
+                                    <DataGridTextColumn Width="200"
                                                         Header="Points"
                                                         Binding="{Binding DSWFindBrightMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                    <DataGridTemplateColumn Width="150" Header="Actions">
+                                    <DataGridTemplateColumn Header="Actions">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button Content="Mark"
@@ -118,6 +124,13 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.FARSquared, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="FA R^2: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.KB, StringFormat='0.###', Mode=OneWay}"
                                  hc:TitleElement.Title="KB: "
                                  hc:TitleElement.TitleWidth="200"
@@ -132,6 +145,25 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.FBRSquared, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="FB R^2: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Algorithm"
+                                    Command="{Binding AlgorithmCommand}"
+                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                    Style="{StaticResource ButtonInfo.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding AlgorithmCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

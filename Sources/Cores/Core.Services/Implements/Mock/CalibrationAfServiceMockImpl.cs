@@ -20,9 +20,9 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     private double _currentBValue;
     private double _nscOffsetValue;
     private double _nscGainValue;
-    private double _kA;
+    private double _ka;
     private double _offsetA;
-    private double _kB;
+    private double _kb;
     private double _offsetB;
 
     public SxExecuteRet<bool> Connect()
@@ -163,14 +163,14 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess((_kA, _offsetA, _kB, _offsetB));
+        return SxExecuteRetHelper.CreateSuccess((_ka: _ka, _offsetA, _kb: _kb, _offsetB));
     }
 
-    public SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB)
+    public SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
     {
-        _kA = kA;
+        _ka = ka;
         _offsetA = offsetA;
-        _kB = kB;
+        _kb = kb;
         _offsetB = offsetB;
 
         return SxExecuteRetHelper.CreateSuccess(true);

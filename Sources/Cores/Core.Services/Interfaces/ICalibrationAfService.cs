@@ -134,13 +134,13 @@ public interface ICalibrationAfService
 
     /// <summary>
     /// 设置FA FB补偿系数
-    /// <param name="kA">FA' = FA + KA * (NA - OffsetA) FA'/NA = FA/NA + KA * (1 - OffsetA/NA)</param>
+    /// <param name="ka">FA' = FA + KA * (NA - OffsetA) FA'/NA = FA/NA + KA * (1 - OffsetA/NA)</param>
     /// <param name="offsetA">FA'/NA = FA/NA + KA * (1 - OffsetA/NA)</param>
-    /// <param name="kB">FB' = FB + KB * (NB - OffsetB) FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</param>
+    /// <param name="kb">FB' = FB + KB * (NB - OffsetB) FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</param>
     /// <param name="offsetB">FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</param>
     /// </summary>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB);
+    SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB);
 
     /// <summary>
     /// 获取传感器: TracesBuffer error的Buffer值

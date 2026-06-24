@@ -198,7 +198,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetFAFBCompensation(double kA, double offsetA, double kB, double offsetB)
+    public SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
     {
         throw new NotImplementedException();
     }

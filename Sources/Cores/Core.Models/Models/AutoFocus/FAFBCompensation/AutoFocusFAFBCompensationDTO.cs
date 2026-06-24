@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -22,13 +23,28 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
     public partial double OffsetA { get; set; }
 
     [ObservableProperty]
+    public partial double FARSquared { get; set; }
+
+    [ObservableProperty]
     public partial double KB { get; set; }
 
     [ObservableProperty]
     public partial double OffsetB { get; set; }
 
     [ObservableProperty]
+    public partial double FBRSquared { get; set; }
+
+    [ObservableProperty]
     public partial IReadOnlyList<AutoFocusFAFBCompensationDTOItem> CalibratingItems { get; set; } = [];
+
+    [ObservableProperty]
+    public partial double? LeastSquaresMinECS { get; set; }
+
+    [ObservableProperty]
+    public partial double? LeastSquaresMaxECS { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<Point> LeastSquareFindPoints { get; set; } = [];
 
     [ObservableProperty]
     public partial IReadOnlyList<AutoFocusFAFBCompensationDTOItem> VerifyItems { get; set; } = [];
@@ -43,61 +59,165 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnCalibratingItemsChanged(IReadOnlyList<AutoFocusFAFBCompensationDTOItem> value) => RefreshPlot(CalibratingPlotDataSource, CalibratingItems);
+    partial void OnCalibratingItemsChanged(IReadOnlyList<AutoFocusFAFBCompensationDTOItem>? oldValue, IReadOnlyList<AutoFocusFAFBCompensationDTOItem> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
-    partial void OnVerifyItemsChanged(IReadOnlyList<AutoFocusFAFBCompensationDTOItem> value) => RefreshPlot(VerifyPlotDataSource, VerifyItems);
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshCalibratingPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshCalibratingPlot();
+    }
+
+    partial void OnLeastSquaresMinECSChanged(double? value) => RefreshCalibratingPlot();
+
+    partial void OnLeastSquaresMaxECSChanged(double? value) => RefreshCalibratingPlot();
+
+    partial void OnLeastSquareFindPointsChanging(IReadOnlyList<Point> value) => RefreshCalibratingPlot();
+
+    partial void OnVerifyItemsChanged(IReadOnlyList<AutoFocusFAFBCompensationDTOItem>? oldValue, IReadOnlyList<AutoFocusFAFBCompensationDTOItem> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshVerifyPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshVerifyPlot();
+    }
 
     // ReSharper restore UnusedParameterInPartialMethod
 
     public AutoFocusFAFBCompensationDTO()
     {
-        Configure(CalibratingPlotDataSource);
-        Configure(VerifyPlotDataSource);
+        var customGrid = new CustomGrid();
+        CalibratingPlotDataSource.Configure(customGrid, 3,
+            plots =>
+            {
+                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
+                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
+                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2, colSpan: 2));
+            });
 
-        return;
+        CalibratingPlotDataSource.SetTitle(0, "F N (Y: None - X: ECS)");
+        CalibratingPlotDataSource.SetTitle(1, "F N (Y: None - X: ms)");
+        CalibratingPlotDataSource.SetTitle(2, "F N Compensation (Y: None - X: ECS)");
 
-        static void Configure(IPlotDataSource plotDataSource)
-        {
-            plotDataSource.Configure(new Columns(), 2);
-
-            plotDataSource.SetTitle(0, "F N (Y: None - X: ECS)");
-            plotDataSource.SetTitle(1, "F N (Y: None - X: ms)");
-        }
+        VerifyPlotDataSource.SetTitle(0, "F N (Y: None - X: ECS)");
+        VerifyPlotDataSource.SetTitle(1, "F N (Y: None - X: ms)");
     }
 
-    private static void RefreshPlot(IPlotDataSource plotDataSource, IReadOnlyList<AutoFocusFAFBCompensationDTOItem> items)
+    private void RefreshCalibratingPlot()
     {
         try
         {
-            var scatterLines0 = plotDataSource.GetOrAddScatterLines(0, items.Count * 5);
-            var scatterLines1 = plotDataSource.GetOrAddScatterLines(1, items.Count * 6);
-            var xLines = plotDataSource.GetOrAddXLines(0, items.Count);
-            var yLines = plotDataSource.GetOrAddXLines(0, items.Count);
+            var compensations = CalibratingItems
+                .Index()
+                .Where(t => t.Item.ECSes.Count == t.Item.FACompensations.Count
+                            && t.Item.ECSes.Count == t.Item.FBCompensations.Count
+                            && t.Item.ECSes.Count == t.Item.NSCCompensations.Count
+                            && t.Item.ECSes.Count > 0
+                            && t.Item.NSCZeroPoint is not null)
+                .ToArray();
 
-            foreach (var (index, item) in items.Index())
+            var originScatterLines0 = CalibratingPlotDataSource.GetOrAddScatterLines(0, CalibratingItems.Count * 5);
+            var originScatterLines1 = VerifyPlotDataSource.GetOrAddScatterLines(1, CalibratingItems.Count * 6);
+            var compensationScatterLines = CalibratingPlotDataSource.GetOrAddScatterLines(2, compensations.Length * 3);
+            var xLines = CalibratingPlotDataSource.GetOrAddXLines(2, compensations.Length);
+            var yLines = CalibratingPlotDataSource.GetOrAddXLines(2, compensations.Length);
+
+            foreach (var (index, item) in CalibratingItems.Index())
             {
-                scatterLines0.ElementAtOrDefault(index * 5 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Category10.GetColor(0));
-                scatterLines0.ElementAtOrDefault(index * 5 + 1)?.Update("NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Category10.GetColor(1));
-                scatterLines0.ElementAtOrDefault(index * 5 + 2)?.Update("FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Category10.GetColor(2));
-                scatterLines0.ElementAtOrDefault(index * 5 + 3)?.Update("NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Category10.GetColor(3));
-                scatterLines0.ElementAtOrDefault(index * 5 + 4)?.Update("NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCs[t.Index]))], Constants.Category10.GetColor(4));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 3)?.Update($"{item.DSWFindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 4)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
 
-                scatterLines1.ElementAtOrDefault(index * 6 + 0)?.Update("ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(0));
-                scatterLines1.ElementAtOrDefault(index * 6 + 1)?.Update("FA", [.. item.FAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(1));
-                scatterLines1.ElementAtOrDefault(index * 6 + 2)?.Update("NA", [.. item.NAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(2));
-                scatterLines1.ElementAtOrDefault(index * 6 + 3)?.Update("FB", [.. item.FBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(3));
-                scatterLines1.ElementAtOrDefault(index * 6 + 4)?.Update("NB", [.. item.NBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(4));
-                scatterLines1.ElementAtOrDefault(index * 6 + 5)?.Update("NSC", [.. item.NSCs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Category10.GetColor(5));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 0)?.Update("ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 1)?.Update("FA", [.. item.FAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 2)?.Update("NA", [.. item.NAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 3)?.Update("FB", [.. item.FBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 4)?.Update("NB", [.. item.NBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index * 6 + 5)?.Update("NSC", [.. item.NSCs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+            }
 
-                xLines.ElementAtOrDefault(index)?.Update("Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, items.Count)));
+            foreach (var (index, item) in compensations)
+            {
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+
+                xLines.ElementAtOrDefault(index)?.Update("Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 xLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
-                yLines.ElementAtOrDefault(index)?.Update("Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, items.Count)));
+                yLines.ElementAtOrDefault(index)?.Update("Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                yLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
+            }
+
+            var originXLines = CalibratingPlotDataSource.GetOrAddXLines(0, (LeastSquaresMinECS is not null ? 1 : 0) + (LeastSquaresMaxECS is not null ? 1 : 0));
+            originXLines.ElementAtOrDefault(0)?.Update(string.Empty, LeastSquaresMinECS ?? 0d, Colors.DarkRed);
+            originXLines.ElementAtOrDefault(0)?.LinePattern = LinePattern.Solid;
+            originXLines.ElementAtOrDefault(0)?.LineWidth = 5f;
+            originXLines.ElementAtOrDefault(1)?.Update(string.Empty, LeastSquaresMaxECS ?? 0d, Colors.DarkRed);
+            originXLines.ElementAtOrDefault(1)?.LinePattern = LinePattern.Solid;
+            originXLines.ElementAtOrDefault(1)?.LineWidth = 5f;
+
+            var originScatterMarkerses = CalibratingPlotDataSource.GetOrAddScatterMarkerses(0, LeastSquareFindPoints.Count > 0 ? 1 : 0);
+            originScatterMarkerses.ElementAtOrDefault(0)?.Update("Least Square Find Points", [.. LeastSquareFindPoints], Colors.Green, MarkerShape.Asterisk);
+            originScatterMarkerses.ElementAtOrDefault(0)?.MarkerSize = 5f;
+        }
+        finally
+        {
+            CalibratingPlotDataSource.AutoScaleRefresh();
+        }
+    }
+
+    private void RefreshVerifyPlot()
+    {
+        try
+        {
+            var scatterLines0 = VerifyPlotDataSource.GetOrAddScatterLines(0, VerifyItems.Count * 5);
+            var scatterLines1 = VerifyPlotDataSource.GetOrAddScatterLines(1, VerifyItems.Count * 6);
+            var xLines = VerifyPlotDataSource.GetOrAddXLines(VerifyItems.Count);
+            var yLines = VerifyPlotDataSource.GetOrAddYLines(VerifyItems.Count);
+
+            foreach (var (index, item) in VerifyItems.Index())
+            {
+                scatterLines0.ElementAtOrDefault(index * 5 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 5 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 5 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 5 + 3)?.Update($"{item.DSWFindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 5 + 4)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+
+                scatterLines1.ElementAtOrDefault(index * 6 + 0)?.Update("ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index * 6 + 1)?.Update("FA", [.. item.FAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index * 6 + 2)?.Update("NA", [.. item.NAs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index * 6 + 3)?.Update("FB", [.. item.FBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index * 6 + 4)?.Update("NB", [.. item.NBs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index * 6 + 5)?.Update("NSC", [.. item.NSCs.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+
+                xLines.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                xLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
+                yLines.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 yLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
             }
         }
         finally
         {
-            plotDataSource.AutoScaleRefresh();
+            VerifyPlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -105,9 +225,14 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
     {
         KA = KA,
         OffsetA = OffsetA,
+        FARSquared = FARSquared,
         KB = KB,
         OffsetB = OffsetB,
+        FBRSquared = FBRSquared,
         CalibratingItems = [.. CalibratingItems.Select(t => t.Clone())],
+        LeastSquaresMinECS = LeastSquaresMinECS,
+        LeastSquaresMaxECS = LeastSquaresMaxECS,
+        LeastSquareFindPoints = [..LeastSquareFindPoints],
         VerifyItems = [.. VerifyItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -121,6 +246,9 @@ public sealed partial class AutoFocusFAFBCompensationDTOItem : ObservableObject,
 {
     [ObservableProperty]
     public partial Point DSWFindBrightMachinePosition { get; set; }
+
+    [ObservableProperty]
+    public partial double AverageECS { get; set; }
 
     [ObservableProperty]
     public partial IReadOnlyList<double> ECSes { get; set; } = [];
@@ -141,17 +269,30 @@ public sealed partial class AutoFocusFAFBCompensationDTOItem : ObservableObject,
     public partial IReadOnlyList<double> NSCs { get; set; } = [];
 
     [ObservableProperty]
+    public partial IReadOnlyList<double> FACompensations { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<double> FBCompensations { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<double> NSCCompensations { get; set; } = [];
+
+    [ObservableProperty]
     public partial Point? NSCZeroPoint { get; set; }
 
     public AutoFocusFAFBCompensationDTOItem Clone() => new()
     {
         DSWFindBrightMachinePosition = DSWFindBrightMachinePosition,
+        AverageECS = AverageECS,
         ECSes = [.. ECSes],
         FAs = [.. FAs],
         NAs = [.. NAs],
         FBs = [.. FBs],
         NBs = [.. NBs],
         NSCs = [.. NSCs],
+        FACompensations = [.. FACompensations],
+        FBCompensations = [.. FBCompensations],
+        NSCCompensations = [.. NSCCompensations],
         NSCZeroPoint = NSCZeroPoint
     };
 }
