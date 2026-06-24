@@ -38,7 +38,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.AOD;
 
 [IOCAppService(ServiceType = typeof(AODUniformityViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
+public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AODUniformityCache>
 {
     #region 属性
 
@@ -81,7 +81,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AODUniformityCache Cache { get; set; } = new();
+    public override partial AODUniformityCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -1216,3 +1216,4 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

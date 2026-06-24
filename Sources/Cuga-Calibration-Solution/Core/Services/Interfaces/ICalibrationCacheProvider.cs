@@ -3,7 +3,7 @@ using Local.SQL.Cache.Providers.Services.Interfaces;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 
-public interface ICalibrationCacheProvider
+public partial interface ICalibrationCacheProvider
 {
     Task<bool> TrySaveAsync(CalibrationVersionDTO calibrationVersionDTO, CancellationToken cancellationToken);
 

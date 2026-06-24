@@ -26,7 +26,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserAttenuatorViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
+public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<LaserAttenuatorCache>
 {
     #region 属性
 
@@ -64,7 +64,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial LaserAttenuatorCache Cache { get; set; } = new();
+    public override partial LaserAttenuatorCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -426,3 +426,4 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

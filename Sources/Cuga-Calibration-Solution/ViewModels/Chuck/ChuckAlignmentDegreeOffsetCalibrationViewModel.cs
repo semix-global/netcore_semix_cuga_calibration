@@ -25,7 +25,7 @@ using System.Runtime.CompilerServices;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckAlignmentDegreeOffsetCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : CalibrationViewModelBase<ChuckAlignmentDegreeOffsetCache>
 {
     #region 属性
 
@@ -63,7 +63,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
     [RecipeCache]
     [ObservableProperty]
-    public partial ChuckAlignmentDegreeOffsetCache Cache { get; set; } = new();
+    public override partial ChuckAlignmentDegreeOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -396,3 +396,4 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
     #endregion 校准
 }
+

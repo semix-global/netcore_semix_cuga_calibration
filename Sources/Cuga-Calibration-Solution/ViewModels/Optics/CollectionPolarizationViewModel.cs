@@ -21,7 +21,7 @@ using Point = Net.Utilities.Models.Geometries.Point;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(CollectionPolarizationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionPolarizationViewModel : CalibrationViewModelBase
+public sealed partial class CollectionPolarizationViewModel : CalibrationViewModelBase<CollectPolarizationCache>
 {
     #region 界面相关
 
@@ -45,7 +45,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CollectPolarizationCache Cache { get; set; } = new();
+    public override partial CollectPolarizationCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -401,3 +401,4 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         status.Details = [];
     }
 }
+

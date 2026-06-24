@@ -23,7 +23,7 @@ using System.Runtime.CompilerServices;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeCentricityCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeCentricityCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class MicroscopeCentricityCalibrationViewModel : CalibrationViewModelBase<MicroscopeCentricityCache>
 {
     #region 属性
 
@@ -67,7 +67,7 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     [RecipeCache]
     [ObservableProperty]
-    public partial MicroscopeCentricityCache Cache { get; set; } = new();
+    public override partial MicroscopeCentricityCache Cache { get; set; } = new();
 
     [ObservableProperty]
     public partial MicroscopeCentricityCacheItem SelectMicroscopeCentricityCacheItem { get; set; } = new();
@@ -565,3 +565,4 @@ public sealed partial class MicroscopeCentricityCalibrationViewModel : Calibrati
 
     #endregion 校准
 }
+

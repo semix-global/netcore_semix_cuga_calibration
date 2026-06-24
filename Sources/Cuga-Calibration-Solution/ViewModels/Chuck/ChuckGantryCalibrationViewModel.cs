@@ -25,7 +25,7 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase<ChuckGantryCache>
 {
     #region 属性
 
@@ -65,7 +65,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    public partial ChuckGantryCache Cache { get; set; } = new();
+    public override partial ChuckGantryCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -596,3 +596,4 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
     #endregion 校准
 }
+

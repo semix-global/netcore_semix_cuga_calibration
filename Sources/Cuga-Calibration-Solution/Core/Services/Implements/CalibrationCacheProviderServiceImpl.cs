@@ -42,7 +42,7 @@ using System.Text;
 namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCacheProvider), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public class CalibrationCacheProviderServiceImpl(
+public partial class CalibrationCacheProviderServiceImpl(
     IOptions<ApplicationSetting> options,
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
@@ -137,7 +137,7 @@ public class CalibrationCacheProviderServiceImpl(
                 if (parentCalibrationRequiredCache is null)
                 {
                     logger.LogWarning("Required calibration cache not found for category: {Category}", parentCategoryName);
-                    return;
+                    // return;
                 }
 
                 // 获取 DTO 类型信息
@@ -163,7 +163,7 @@ public class CalibrationCacheProviderServiceImpl(
                 var versionInfo = calibrationVersionDTO.GetVersionInfo(calibrationDtoType);
                 var version = SQLiteHelper.GetTableInfo(calibrationDtoType).Version;
 
-                var childCalibrationRequiredCache = parentCalibrationRequiredCache.GetAllChildren().SingleOrDefault(t => t.CategoryItem.TypeInstance == calibrationDtoType);
+                var childCalibrationRequiredCache = parentCalibrationRequiredCache?.GetAllChildren().SingleOrDefault(t => t.CategoryItem.TypeInstance == calibrationDtoType);
                 var isRequired = childCalibrationRequiredCache?.CategoryItem.IsRequired ?? false;
 
                 // 获取转换方法

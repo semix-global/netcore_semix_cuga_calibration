@@ -31,7 +31,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBLightMatchingViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
+public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase<CIBLightMatchingCache>
 {
     #region 属性
 
@@ -75,7 +75,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBLightMatchingCache Cache { get; set; } = new();
+    public override partial CIBLightMatchingCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -905,3 +905,4 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

@@ -34,7 +34,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBLineCentricityViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService applicationCookieService) : CalibrationViewModelBase
+public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService applicationCookieService) : CalibrationViewModelBase<CIBLineCentricityCache>
 {
     #region 属性
 
@@ -79,7 +79,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBLineCentricityCache Cache { get; set; } = new();
+    public override partial CIBLineCentricityCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -753,3 +753,4 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     #endregion 校准
 }
+

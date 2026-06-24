@@ -24,7 +24,7 @@ using Net.Utilities.WPF.Helper;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckPrealignerCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewModel efemWindowViewModel) : CalibrationViewModelBase
+public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewModel efemWindowViewModel) : CalibrationViewModelBase<ChuckPrealignerCache>
 {
     #region 属性
 
@@ -60,7 +60,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     [RecipeCache]
     [ObservableProperty]
-    public partial ChuckPrealignerCache Cache { get; set; } = new();
+    public override partial ChuckPrealignerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -724,3 +724,4 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
     #endregion 校准
 }
+

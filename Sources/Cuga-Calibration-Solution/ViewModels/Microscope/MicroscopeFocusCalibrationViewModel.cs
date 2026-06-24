@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 namespace CugaCalibration.ViewModels.Microscope;
 
 [IOCAppService(ServiceType = typeof(MicroscopeFocusCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationViewModelBase<MicroscopeFocusCache>
 {
     #region 属性
 
@@ -73,7 +73,7 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    public partial MicroscopeFocusCache Cache { get; set; } = new();
+    public override partial MicroscopeFocusCache Cache { get; set; } = new();
 
     [ObservableProperty]
     public partial MicroscopeFocusCacheItem SelectMicroscopeFocusCacheItem { get; set; } = new();
@@ -584,3 +584,4 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
 
     #endregion 校准
 }
+
