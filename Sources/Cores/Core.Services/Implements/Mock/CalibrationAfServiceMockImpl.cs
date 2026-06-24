@@ -14,8 +14,12 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationAfService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 {
+    private static readonly string[] NSCCuveFilePaths = Directory.EnumerateFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\NSCSCurve"), "*.csv")
+        .OrderBy(t => t)
+        .ToArray();
+
     private CalChipSiteModelEnum _calChipSiteModelEnum;
-    private double _ecsValue;
+    private double _ecsValue = Convert.ToDouble(Path.GetFileNameWithoutExtension(NSCCuveFilePaths[0]).Split(['E', 'C', 'S'], StringSplitOptions.RemoveEmptyEntries)[^1]);
     private double _currentAValue;
     private double _currentBValue;
     private double _nscOffsetValue;
@@ -24,6 +28,8 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     private double _offsetA;
     private double _kb;
     private double _offsetB;
+
+    private int _nextNSCCurveFilePathIndex;
 
     public SxExecuteRet<bool> Connect()
     {
@@ -78,7 +84,6 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     public SxExecuteRet<double> GetSensorEcsValue()
     {
         Thread.Sleep(100);
-        _ecsValue = Random.Shared.NextDouble() * 1000;
 
         return SxExecuteRetHelper.CreateSuccess(_ecsValue);
     }
@@ -86,7 +91,6 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     public SxExecuteRet<double> GetSensorAverageEcsValue()
     {
         Thread.Sleep(100);
-        _ecsValue = Random.Shared.NextDouble() * 1000;
 
         return SxExecuteRetHelper.CreateSuccess(_ecsValue);
     }
@@ -163,7 +167,7 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess((_ka: _ka, _offsetA, _kb: _kb, _offsetB));
+        return SxExecuteRetHelper.CreateSuccess((_ka, _offsetA, _kb, _offsetB));
     }
 
     public SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
@@ -192,21 +196,23 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
 
     public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
     {
-        Thread.Sleep(100);
+        Interlocked.Increment(ref _nextNSCCurveFilePathIndex);
 
-        var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\AfTraceBuffers.xlsx");
+        var path = NSCCuveFilePaths[_nextNSCCurveFilePathIndex % NSCCuveFilePaths.Length];
 
         var rows = MiniExcel.Query(path, true).Cast<IDictionary<string, object>>();
         var dataList = rows.Select(t =>
-            (Convert.ToDouble(t["ECS-Y"]),
-                Convert.ToDouble(t["NSC-Y"]),
-                Convert.ToDouble(t["NSC-Y"]),
-                Convert.ToDouble(t["LVDT-Y"]),
-                Convert.ToDouble(t["FA-Y"]),
-                Convert.ToDouble(t["NA-Y"]),
-                Convert.ToDouble(t["FB-Y"]),
-                Convert.ToDouble(t["NB-Y"]))
+            (Convert.ToDouble(t["ECS"]),
+                Convert.ToDouble(t["NSC"]),
+                Convert.ToDouble(t["NSC"]),
+                Convert.ToDouble(t["ECS"]),
+                Convert.ToDouble(t["FA"]),
+                Convert.ToDouble(t["NA"]),
+                Convert.ToDouble(t["FB"]),
+                Convert.ToDouble(t["NB"]))
         ).ToList();
+
+        _ecsValue = Convert.ToDouble(Path.GetFileNameWithoutExtension(path).Split(['E', 'C', 'S'], StringSplitOptions.RemoveEmptyEntries)[^1]);
 
         return SxExecuteRetHelper.CreateSuccess(dataList);
     }

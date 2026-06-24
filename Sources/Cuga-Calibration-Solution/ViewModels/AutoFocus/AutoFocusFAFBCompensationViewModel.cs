@@ -11,7 +11,6 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
@@ -214,16 +213,28 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
         CalibratingItem.KA = 0d;
         CalibratingItem.OffsetA = 0d;
+        CalibratingItem.FARSquared = 0d;
         CalibratingItem.KB = 0d;
         CalibratingItem.OffsetB = 0d;
+        CalibratingItem.FBRSquared = 0d;
         CalibratingItem.CalibratingItems = [];
         CalibratingItem.VerifyItems = [];
+        CalibratingItem.LeastSquaresMinECS = null;
+        CalibratingItem.LeastSquaresMaxECS = null;
+        CalibratingItem.LeastSquareFindPoints = [];
+        foreach (var dtoItem in CalibratingItem.CalibratingItems)
+        {
+            dtoItem.FACompensations = [];
+            dtoItem.FBCompensations = [];
+            dtoItem.NSCCompensations = [];
+            dtoItem.NSCZeroPoint = null;
+        }
 
         AfViewModel.ResetFAFBCompensation();
         await Task.Delay(100, cancellationToken);
 
         Logger.LogHtmlInformation("Get S Curve", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-        await GetSCurvesAsync(true, cancellationToken);
+        await GetNSCCurvesAsync(true, cancellationToken);
 
         Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
         Algorithm(CalibratingItem);
@@ -245,6 +256,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
             Algorithm(CalibratingItem);
+
+            Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
             DialogWindowProvider.ShowDialog($"Algorithm {(CalibratingItem.IsCalibrated ? "OK" : "Failed")}",
                 DialogButtonsEnum.OK,
@@ -273,7 +286,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         AfViewModel.SetFAFBCompensation(Review.KA, Review.OffsetA, Review.KB, Review.OffsetB);
         await Task.Delay(100, cancellationToken);
 
-        await GetSCurvesAsync(false, cancellationToken);
+        await GetNSCCurvesAsync(false, cancellationToken);
 
         var ecses = Review.VerifyItems.Select(t => Guard.IsNotNullAndReturn(t.NSCZeroPoint).X).ToArray();
         var error = Math.Abs(ecses.Max() - ecses.Min());
@@ -316,7 +329,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
     #endregion 校准
 
-    private async Task GetSCurvesAsync(bool isCalibrating, CancellationToken cancellationToken)
+    private async Task GetNSCCurvesAsync(bool isCalibrating, CancellationToken cancellationToken)
     {
         var item = isCalibrating ? CalibratingItem : Review;
 
@@ -339,9 +352,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 AfViewModel.ToggleDarkFieldEnable(true);
                 await Task.Delay(100, cancellationToken);
 
-                var averageEcs = HostEnvironment.IsDevelopment() == false
-                    ? AfViewModel.GetSensorAverageEcsValue()
-                    : 5600;
+                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
 
                 var startECS = Math.Clamp(averageEcs - Cache.RangeECS, ecsMin, ecsMax);
                 var stopECS = Math.Clamp(averageEcs + Cache.RangeECS, ecsMin, ecsMax);
@@ -375,7 +386,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 }
                 else
                 {
-                    (isSuccess, dtoItem.NSCZeroPoint) = GetSCurveZeroPoint(averageEcs, dtoItem.ECSes, dtoItem.NSCs);
+                    (isSuccess, dtoItem.NSCZeroPoint) = GetNSCCurveZeroPoint(averageEcs, dtoItem.ECSes, dtoItem.NSCs);
                     item.VerifyItems = [..item.VerifyItems, dtoItem];
                 }
 
@@ -409,8 +420,13 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     private void Algorithm(AutoFocusFAFBCompensationDTO item)
     {
         var confirmViewModel = HostApplication.GetRequiredService<AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel>();
+        confirmViewModel.LeastSquaresMinECS = item.LeastSquaresMinECS ?? 0d;
+        confirmViewModel.LeastSquaresMaxECS = item.LeastSquaresMaxECS ?? 0d;
+
         var isShowDialog = WindowManagerService.ShowDialog(confirmViewModel);
         Guard.IsTrue(isShowDialog == true);
+
+        Guard.IsTrue(item.CalibratingItems.Count >= 2);
 
         item.LeastSquaresMinECS = null;
         item.LeastSquaresMaxECS = null;
@@ -430,8 +446,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         var faDiffList = new List<double>();
         var nbList = new List<double>();
         var fbDiffList = new List<double>();
-        foreach (var ecs in item.CalibratingItems
-                     .SelectMany(t => t.ECSes)
+        foreach (var ecs in item.CalibratingItems[0]
+                     .ECSes
                      .Where(t => item.LeastSquaresMinECS <= t && t <= item.LeastSquaresMaxECS)
                      .Distinct()
                      .OrderBy(t => t))
@@ -468,6 +484,11 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         var offsetA = -interceptA / ka;
         var offsetB = -interceptB / kb;
 
+        Guard.IsFalse(double.IsNaN(ka));
+        Guard.IsFalse(double.IsNaN(offsetA));
+        Guard.IsFalse(double.IsNaN(kb));
+        Guard.IsFalse(double.IsNaN(offsetB));
+
         item.KA = ka;
         item.OffsetA = offsetA;
         item.FARSquared = rSquaredA;
@@ -501,13 +522,13 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 Guard.IsNotEqualTo(na, 0);
                 Guard.IsNotEqualTo(nb, 0);
 
-                nscCompensations[i] = faCompensation / na - fbCompensation / nb;
+                nscCompensations[i] = (faCompensation / na - fbCompensation / nb) * 10000d;
             }
 
             dtoItem.FACompensations = faCompensations;
             dtoItem.FBCompensations = fbCompensations;
             dtoItem.NSCCompensations = nscCompensations;
-            var (isSuccess, zeroPoint) = GetSCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
+            var (isSuccess, zeroPoint) = GetNSCCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
             dtoItem.NSCZeroPoint = zeroPoint;
 
             var tempHtmlBullet = new HtmlBullet(new
@@ -550,7 +571,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
     }
 
-    private (bool IsSuccess, Point ZeroPoint) GetSCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
+    private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
     {
         var ecsVector = Vector<double>.Build.Dense([..ecses]);
         var nscVector = Vector<double>.Build.Dense([..nscs]);
