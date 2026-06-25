@@ -517,8 +517,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 var dswAlignmentDegree = SelectReviewItem.DSWAlignmentDegree;
                 StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
 
-                var alignmentCache = CacheProvider
-                    .GetOrDefaultArray<AlignmentCacheBrightField>()
+                var alignmentCache = ApplicationCookieService
+                    .GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken)
                     .Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.DswModel);
                 var alignmentResultDto = StageViewModel.AlignmentVerify(
                     alignmentCache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),

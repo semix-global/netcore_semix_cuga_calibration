@@ -1,4 +1,5 @@
 using Core.Models.Models;
+using Local.SQL.Cache.Providers.Bases;
 
 namespace CugaCalibration.Core.Services.Interfaces;
 
@@ -15,4 +16,12 @@ public partial interface IApplicationCookieService
     void SetCalibration<T>(T calibration, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
 
     void SetCalibrations<T>(T[] calibrations, CancellationToken cancellationToken = default) where T : CalibrationDTOBase, new();
+
+    T GetOrDefault<T>(bool isRecipe, CancellationToken cancellationToken = default) where T : ObservableCacheBase;
+
+    T[] GetArrayOrDefault<T>(bool isRecipe, CancellationToken cancellationToken = default) where T : ObservableCacheBase;
+
+    void Set<T>(T cache, bool isRecipe, CancellationToken cancellationToken = default) where T : ObservableCacheBase;
+
+    void SetArray<T>(T[] caches, bool isRecipe, CancellationToken cancellationToken = default) where T : ObservableCacheBase;
 }

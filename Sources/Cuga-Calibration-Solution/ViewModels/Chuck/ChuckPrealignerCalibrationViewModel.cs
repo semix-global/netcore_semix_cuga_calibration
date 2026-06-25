@@ -89,7 +89,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
+        AlignmentCacheBrightField = ApplicationCookieService.GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
 
         Cache = ApplicationCookieService.GetCache<ChuckPrealignerCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckPrealignerDTO>(cancellationToken);

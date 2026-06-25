@@ -2,15 +2,13 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.CIB;
-using Core.Models.Helper;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Services.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -25,8 +23,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
 [IOCAppService(ServiceType = typeof(OpticsBestFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class OpticsBestFocusWindowViewModel(
-    [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
-    ICacheProvider recipeCacheProvider,
+    IApplicationCookieService applicationCookieService,
     ICalibrationAlgorithmService calibrationAlgorithmService) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
@@ -56,7 +53,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         await base.LoadedAsync().ConfigureAwait(false);
 
         Results = [];
-        MicroscopeCalChipCache = recipeCacheProvider.GetOrDefault<MicroscopeCalChipCache>();
+        MicroscopeCalChipCache = applicationCookieService.GetCache<MicroscopeCalChipCache>();
     }).ConfigureAwait(false);
 
     protected override bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage)

@@ -80,7 +80,7 @@ public partial class CalibrationCacheProviderServiceImpl(
                 // 递归处理所有校准菜单节点
                 ProcessCalibrationMenuNode(calibrationMenu, calibrationObj, wcfObjProperties, cancellationToken);
 
-                cacheProvider.Set(calibrationVersionDTO, CancellationToken.None);
+                applicationCookieService.Set(calibrationVersionDTO, false, CancellationToken.None);
 
                 FileHelper.SerializeOperate(calibrationObj, Path.Combine(Path.Combine(options.Value.AppHomeDirectory, "CalibrationResult"), calibrationVersionDTO.ResultFilePath));
 
@@ -412,7 +412,6 @@ public partial class CalibrationCacheProviderServiceImpl(
                         {
                             Guard.IsNotNull(recipeName);
                             var recipeCaches = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(recipeCachesToken);
-
 
                             var recipe = sysRecipeInformationList.SingleOrDefault(t => t.RecipeDbName == recipeName);
 
