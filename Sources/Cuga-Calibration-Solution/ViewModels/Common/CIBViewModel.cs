@@ -14,7 +14,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Services.Interfaces;
+using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -34,7 +34,7 @@ public sealed class CIBViewModel(
     ICalibrationCIBService calibrationCIBService,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<CIBViewModel> logger,
-    ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieCacheProvider,
     MicroscopeViewModel microscopeViewModel,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
@@ -652,7 +652,7 @@ public sealed class CIBViewModel(
     {
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
 
-        var cibLineCentricities = cacheProvider.GetOrDefaultArray<CIBLineCentricityDTO>();
+        var cibLineCentricities = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>();
 
         var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
         var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId);
@@ -830,7 +830,7 @@ public sealed class CIBViewModel(
         matchAngle = 0;
         resultImageFilePath = string.Empty;
 
-        var xSize = cacheProvider.GetOrDefaultArray<CIBXPixelSizeDTO>()
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
         if (xSize?.IsOk != true)
         {
@@ -839,7 +839,7 @@ public sealed class CIBViewModel(
             return false;
         }
 
-        var ySize = cacheProvider.GetOrDefaultArray<CIBYPixelSizeDTO>()
+        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>()
             .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
                                   && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
                                   && t.PmtId == cibInformation.PMTId);

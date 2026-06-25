@@ -34,7 +34,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         {
             try
             {
-                if (AlignmentFindCenterCache is null) Cache = RecipeCacheProvider.GetOrDefault<AlignmentFindCenterCache>();
+                if (AlignmentFindCenterCache is null) Cache = ApplicationCookieService.GetOrDefault<AlignmentFindCenterCache>(true, CancellationToken.None);
                 else Cache = AlignmentFindCenterCache;
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         try
         {
             Cache.IsOk = true;
-            RecipeCacheProvider.Set(Cache, CancellationToken.None);
+            ApplicationCookieService.Set(Cache, true, CancellationToken.None);
         }
         catch (Exception ex)
         {

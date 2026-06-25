@@ -4,7 +4,7 @@ using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.Focus;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Microscope.Enums;
-using Local.SQL.Cache.Providers.Services.Interfaces;
+using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -21,7 +21,7 @@ public sealed class MicroscopeViewModel(
     ICalibrationMicroscopeService calibrationMicroscopeService,
     ILogger<MicroscopeViewModel> logger,
     AfViewModel afViewModel,
-    ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieCacheProvider,
     StageViewModel stageViewModel) : ViewModelBase
 {
     #region 服务
@@ -60,7 +60,7 @@ public sealed class MicroscopeViewModel(
         MicroscopeLensInformation previousMicroscopeLensInformation,
         MicroscopeLensInformation currentMicroscopeLensInformation)
     {
-        var microscopeCentricities = cacheProvider.GetOrDefaultArray<MicroscopeCentricityItemDto>();
+        var microscopeCentricities = applicationCookieCacheProvider.GetCalibrations<MicroscopeCentricityItemDto>();
 
         var previousMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == previousMicroscopeLensInformation);
         var currentMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
@@ -89,7 +89,7 @@ public sealed class MicroscopeViewModel(
 
     public bool SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
     {
-        var resultFocusList = cacheProvider.GetOrDefaultArray<MicroscopeFocusItemDto>();
+        var resultFocusList = applicationCookieCacheProvider.GetCalibrations<MicroscopeFocusItemDto>();
 
         var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
         var newMicroscopeFocusItemDto = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);

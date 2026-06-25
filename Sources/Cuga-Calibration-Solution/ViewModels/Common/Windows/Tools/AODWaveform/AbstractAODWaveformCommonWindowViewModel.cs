@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Utilities;
+using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -27,6 +28,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected readonly ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>> Logger;
     protected readonly ApplicationSetting ApplicationSetting;
     protected readonly ICacheProvider CacheProvider;
+    protected readonly IApplicationCookieService ApplicationCookieService;
     protected readonly IWindowManagerService WindowManagerService;
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly LaserViewModel LaserViewModel;
@@ -65,6 +67,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         Logger = (ILogger<AbstractAODWaveformCommonWindowViewModel<TCache, TItem, TResult>>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         ApplicationSetting = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
+        ApplicationCookieService = HostApplication.GetRequiredService<IApplicationCookieService>();
         WindowManagerService = HostApplication.GetRequiredService<IWindowManagerService>();
         DialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
@@ -81,7 +84,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
-        if (CacheProvider.TryGetOrDefaultArray<LaserOpticalPowerMeterDTO>(out var laserOpticalPowerDtos))
+        var laserOpticalPowerDtos = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>();
+        if (laserOpticalPowerDtos.Length > 0)
         {
             var laserOpticalPowerDto = laserOpticalPowerDtos.SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                                   && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType

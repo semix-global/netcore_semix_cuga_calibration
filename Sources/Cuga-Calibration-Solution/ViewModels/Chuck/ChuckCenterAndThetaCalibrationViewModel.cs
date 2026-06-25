@@ -101,7 +101,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         Cache = ApplicationCookieService.GetCache<ChuckCenterAndThetaCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
-        AlignmentCacheBrightField = RecipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
+        AlignmentCacheBrightField = ApplicationCookieService.GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
 
         if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
         if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
