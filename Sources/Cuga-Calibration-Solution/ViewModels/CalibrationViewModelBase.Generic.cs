@@ -82,7 +82,6 @@ public partial class CalibrationViewModelBase
                 ObjectHelper.SetPropertyValue(this, nameof(CalibrationViewModelBase<>.Cache), cache);
 
                 DialogWindowProvider.ShowDialog("Import cache success!");
-
             }, _cancellationTokenSource.Token).ConfigureAwait(false);
         }
         catch (Exception ex)

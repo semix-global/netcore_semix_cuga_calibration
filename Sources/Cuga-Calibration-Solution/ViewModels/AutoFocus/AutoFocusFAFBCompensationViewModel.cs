@@ -1,4 +1,3 @@
-using System.Collections;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,6 +21,7 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Collections;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
@@ -370,24 +370,24 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 {
                     DSWFindBrightMachinePosition = cacheItem.DSWFindBrightMachinePosition,
                     AverageECS = averageEcs,
-                    ECSes = [..traceBufferList.Select(t => t.Ecs)],
-                    FAs = [..traceBufferList.Select(t => t.Fa)],
-                    NAs = [..traceBufferList.Select(t => t.Na)],
-                    FBs = [..traceBufferList.Select(t => t.Fb)],
-                    NBs = [..traceBufferList.Select(t => t.Nb)],
-                    NSCs = [..traceBufferList.Select(t => t.Nsc)]
+                    ECSes = [.. traceBufferList.Select(t => t.Ecs)],
+                    FAs = [.. traceBufferList.Select(t => t.Fa)],
+                    NAs = [.. traceBufferList.Select(t => t.Na)],
+                    FBs = [.. traceBufferList.Select(t => t.Fb)],
+                    NBs = [.. traceBufferList.Select(t => t.Nb)],
+                    NSCs = [.. traceBufferList.Select(t => t.Nsc)]
                 };
 
                 bool isSuccess;
                 if (isCalibrating)
                 {
                     isSuccess = true;
-                    item.CalibratingItems = [..item.CalibratingItems, dtoItem];
+                    item.CalibratingItems = [.. item.CalibratingItems, dtoItem];
                 }
                 else
                 {
                     (isSuccess, dtoItem.NSCZeroPoint) = GetNSCCurveZeroPoint(averageEcs, dtoItem.ECSes, dtoItem.NSCs);
-                    item.VerifyItems = [..item.VerifyItems, dtoItem];
+                    item.VerifyItems = [.. item.VerifyItems, dtoItem];
                 }
 
                 var htmlBullet = new HtmlBullet(new
@@ -478,8 +478,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. nbList.Index().Select(t => new Point(t.Item, fbDiffList[t.Index]))])], "fb")
         }), HtmlLogUniqueId.LoggingHtml());
 
-        var (ka, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..naList]), Vector<double>.Build.Dense([..faDiffList]));
-        var (kb, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([..nbList]), Vector<double>.Build.Dense([..fbDiffList]));
+        var (ka, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. naList]), Vector<double>.Build.Dense([.. faDiffList]));
+        var (kb, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. nbList]), Vector<double>.Build.Dense([.. fbDiffList]));
 
         var offsetA = -interceptA / ka;
         var offsetB = -interceptB / kb;
@@ -573,8 +573,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
     private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
     {
-        var ecsVector = Vector<double>.Build.Dense([..ecses]);
-        var nscVector = Vector<double>.Build.Dense([..nscs]);
+        var ecsVector = Vector<double>.Build.Dense([.. ecses]);
+        var nscVector = Vector<double>.Build.Dense([.. nscs]);
 
         Vector<double> nscIntervalVector, ecsIntervalVector;
         if (DarkAutoFocus.IsNscUseMaxValue)

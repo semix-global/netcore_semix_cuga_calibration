@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -9,6 +8,7 @@ using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AutoFocus.FAFBCompensation;
@@ -266,7 +266,7 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
         CalibratingItems = [.. CalibratingItems.Select(t => t.Clone())],
         LeastSquaresMinECS = LeastSquaresMinECS,
         LeastSquaresMaxECS = LeastSquaresMaxECS,
-        LeastSquareFindPoints = [..LeastSquareFindPoints],
+        LeastSquareFindPoints = [.. LeastSquareFindPoints],
         VerifyItems = [.. VerifyItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
