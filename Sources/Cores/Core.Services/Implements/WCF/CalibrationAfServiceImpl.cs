@@ -114,7 +114,11 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
     public SxExecuteRet<(double Min, double Max)> GetEcsMoveRange()
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service!.ReadECSLimit());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (0d, 0d))
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.ECSDownLimit + 100d, sxExecuteRet.Anything.ECSUpLimit - 100d));
     }
 
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
@@ -177,7 +181,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
         return sxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess<(double Offset, double Gain)>((sxExecuteRet.Anything.NSCOffset, sxExecuteRet.Anything.NSCGain / 1000d))
-            : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0, 0));
+            : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0d, 0d));
     }
 
     public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
@@ -195,12 +199,20 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
     public SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation()
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess<(double KA, double OffsetA, double KB, double OffsetB)>((sxExecuteRet.Anything.FA_K, sxExecuteRet.Anything.FA_B, sxExecuteRet.Anything.FB_K, sxExecuteRet.Anything.FB_B))
+            : SxExecuteRetHelper.CreateError<(double KA, double OffsetA, double KB, double OffsetB)>(sxExecuteRet.Msg, (0d, 0d, 0d, 0d));
     }
 
     public SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
     {
-        throw new NotImplementedException();
+        var sxExecuteRet = Invoke(() => Service!.SetAFLightOffset(ka, offsetA, kb, offsetB));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
