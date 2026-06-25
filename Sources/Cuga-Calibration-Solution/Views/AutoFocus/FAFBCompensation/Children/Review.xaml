@@ -38,11 +38,18 @@
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
                         <hc:NumericUpDown hc:TitleElement.Title="Threshold(ECS): "
-                                          hc:TitleElement.TitleWidth="180"
+                                          hc:TitleElement.TitleWidth="200"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.ThresholdECS}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
                         <TextBox Text="{Binding Review.KA, StringFormat='0.###', Mode=OneWay}"
                                  hc:TitleElement.Title="KA: "
                                  hc:TitleElement.TitleWidth="200"

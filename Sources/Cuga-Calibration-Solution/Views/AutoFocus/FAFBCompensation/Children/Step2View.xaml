@@ -46,7 +46,7 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.RangeECS}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Speed(ecs/s): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Speed(ECS/s): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
