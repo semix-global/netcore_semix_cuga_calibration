@@ -20,7 +20,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.AutoFocus;
 
 [IOCAppService(ServiceType = typeof(AutoFocusGlobalFocusOffsetViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationViewModelBase
+public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationViewModelBase<AutoFocusGlobalFocusOffsetCache>
 {
     #region 属性
 
@@ -60,7 +60,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     [RecipeCache]
     [ObservableProperty]
-    public partial AutoFocusGlobalFocusOffsetCache Cache { get; set; } = new();
+    public override partial AutoFocusGlobalFocusOffsetCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -447,3 +447,4 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     #endregion 校准
 }
+

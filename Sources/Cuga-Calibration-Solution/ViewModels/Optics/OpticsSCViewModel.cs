@@ -26,7 +26,7 @@ using System.Text;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(OpticsSCViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
+public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsSCCache>
 {
     #region 属性
 
@@ -67,7 +67,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial OpticsSCCache Cache { get; set; } = new();
+    public override partial OpticsSCCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -571,3 +571,4 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

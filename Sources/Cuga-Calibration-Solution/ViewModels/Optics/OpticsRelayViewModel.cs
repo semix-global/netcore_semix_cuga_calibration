@@ -33,7 +33,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(OpticsRelayViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
+public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<OpticsRelayCache>
 {
     #region 属性
 
@@ -76,7 +76,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
     [RecipeCache]
     [ObservableProperty]
-    public partial OpticsRelayCache Cache { get; set; } = new();
+    public override partial OpticsRelayCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -864,3 +864,4 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase
 
     #endregion 校准
 }
+

@@ -31,7 +31,7 @@ using Constants = Net.Utilities.Models.Constants;
 namespace CugaCalibration.ViewModels.CIB;
 
 [IOCAppService(ServiceType = typeof(CIBIlluminationProfileViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewModelBase
+public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewModelBase<CIBIlluminationProfileCache>
 {
     #region 属性
 
@@ -74,7 +74,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    public partial CIBIlluminationProfileCache Cache { get; set; } = new();
+    public override partial CIBIlluminationProfileCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -642,3 +642,4 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     #endregion 校准
 }
+

@@ -40,7 +40,7 @@ namespace CugaCalibration.ViewModels.Chuck;
 [IOCAppService(ServiceType = typeof(ChuckStageMapCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckStageMapCalibrationViewModel(
     ApplicationCookie applicationCookie,
-    CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase
+    CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel) : CalibrationViewModelBase<ChuckStageMapCache>
 {
     #region 属性
 
@@ -84,7 +84,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     [RecipeCache]
     [ObservableProperty]
-    public partial ChuckStageMapCache Cache { get; set; } = new();
+    public override partial ChuckStageMapCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]

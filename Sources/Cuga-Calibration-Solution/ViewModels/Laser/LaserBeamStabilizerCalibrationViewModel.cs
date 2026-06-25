@@ -15,7 +15,7 @@ using System.Collections.ObjectModel;
 namespace CugaCalibration.ViewModels.Laser;
 
 [IOCAppService(ServiceType = typeof(LaserBeamStabilizerCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class LaserBeamStabilizerCalibrationViewModel : CalibrationViewModelBase
+public sealed partial class LaserBeamStabilizerCalibrationViewModel : CalibrationViewModelBase<LaserBeamStabilizerCache>
 {
     #region 属性
 
@@ -42,7 +42,7 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
     [RecipeCache]
     [ObservableProperty]
-    public partial LaserBeamStabilizerCache Cache { get; set; } = new();
+    public override partial LaserBeamStabilizerCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -346,3 +346,4 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
 
     #endregion 校准
 }
+

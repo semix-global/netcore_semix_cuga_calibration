@@ -23,7 +23,7 @@ using System.Collections.Concurrent;
 namespace CugaCalibration.ViewModels.AutoFocus;
 
 [IOCAppService(ServiceType = typeof(AutoFocusDarkAutoFocusViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewModelBase
+public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewModelBase<DarkAutoFocusCache>
 {
     #region 属性
 
@@ -61,7 +61,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     [RecipeCache]
     [ObservableProperty]
-    public partial DarkAutoFocusCache Cache { get; set; } = new();
+    public override partial DarkAutoFocusCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -1254,3 +1254,4 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     #endregion 校准
 }
+

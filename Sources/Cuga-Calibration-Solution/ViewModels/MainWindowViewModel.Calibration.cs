@@ -52,6 +52,12 @@ public sealed partial class MainWindowViewModel : IRecipient<ValueChangedMessage
     private async Task NextAsync() => await (ActiveItem?.NextAsync() ?? Task.CompletedTask).ConfigureAwait(false);
 
     [RelayCommand]
+    private async Task ExportAsync() => await (ActiveItem?.ExportAsync() ?? Task.CompletedTask).ConfigureAwait(false);
+
+    [RelayCommand]
+    private async Task ImportAsync() => await (ActiveItem?.ImportAsync() ?? Task.CompletedTask).ConfigureAwait(false);
+
+    [RelayCommand]
     private async Task OpenCalibrationAsync(string viewModel)
     {
         await Task.Run(() =>
