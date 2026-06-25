@@ -233,10 +233,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         AfViewModel.ResetFAFBCompensation();
         await Task.Delay(100, cancellationToken);
 
-        Logger.LogHtmlInformation("Get S Curve", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Get S Curve", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         await GetNSCCurvesAsync(true, cancellationToken);
 
-        Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
         Algorithm(CalibratingItem);
 
         Guard.IsTrue(Save(CalibratingItem, cancellationToken));
