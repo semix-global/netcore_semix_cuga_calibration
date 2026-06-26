@@ -237,7 +237,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         await GetNSCCurvesAsync(true, cancellationToken);
 
         Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-        Algorithm(CalibratingItem);
+        Algorithm(CalibratingItem, cancellationToken);
 
         Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
@@ -255,7 +255,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-            Algorithm(CalibratingItem);
+            Algorithm(CalibratingItem, cancellationToken);
 
             Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
@@ -417,7 +417,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }
     }
 
-    private void Algorithm(AutoFocusFAFBCompensationDTO item)
+    private void Algorithm(AutoFocusFAFBCompensationDTO item, CancellationToken cancellationToken)
     {
         var confirmViewModel = HostApplication.GetRequiredService<AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel>();
         confirmViewModel.LeastSquaresMinECS = item.LeastSquaresMinECS ?? 0d;
@@ -433,6 +433,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         item.LeastSquareFindPoints = [];
         foreach (var dtoItem in item.CalibratingItems)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             dtoItem.FACompensations = [];
             dtoItem.FBCompensations = [];
             dtoItem.NSCCompensations = [];
@@ -452,6 +454,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                      .Distinct()
                      .OrderBy(t => t))
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var indexOfList = item.CalibratingItems.Select(t => t.ECSes.ToArray().IndexOf(ecs)).ToList();
             if (indexOfList.Any(t => t == -1)) continue;
 
@@ -460,10 +464,12 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             foreach (var (index, dtoItem) in item.CalibratingItems.Index())
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 // target = fa / na + ka * (1 - offsetA / na)
                 // => target - fa / na = ka * 1 - ka * offsetA / na
                 // => target - fa / na = - ka * offsetA / na + ka * 1
-                
+
                 xAList.Add(1d / dtoItem.NAs[indexOfList[index]]);
                 yAList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
                 xBList.Add(1d / dtoItem.NBs[indexOfList[index]]);
@@ -500,6 +506,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         // 计算补偿曲线及 NSC 零点
         foreach (var dtoItem in item.CalibratingItems)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             Logger.LogHtmlInformation($"{dtoItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             var faPerNACompensations = new double[dtoItem.ECSes.Count];
@@ -507,6 +515,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             var nscCompensations = new double[dtoItem.ECSes.Count];
             for (var i = 0; i < dtoItem.ECSes.Count; i++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var fa = dtoItem.FAs[i];
                 var na = dtoItem.NAs[i];
                 var fb = dtoItem.FBs[i];
@@ -522,7 +532,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 Guard.IsNotEqualTo(na, 0);
                 Guard.IsNotEqualTo(nb, 0);
 
-                nscCompensations[i] = faCompensation  - fbCompensation;
+                nscCompensations[i] = faCompensation - fbCompensation;
             }
 
             dtoItem.FACompensations = faPerNACompensations;
