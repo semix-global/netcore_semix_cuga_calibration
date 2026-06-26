@@ -22,6 +22,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using MathNet.Numerics;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
@@ -445,10 +446,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         item.LeastSquaresMinECS = confirmViewModel.LeastSquaresMinECS;
         item.LeastSquaresMaxECS = confirmViewModel.LeastSquaresMaxECS;
 
-        var column1AList = new List<double>();
-        var column2AList = new List<double>();
-        var column1BList = new List<double>();
-        var column2BList = new List<double>();
+        var xAList = new List<double>();
+        var yAList = new List<double>();
+        var xBList = new List<double>();
+        var yBList = new List<double>();
         foreach (var ecs in item.CalibratingItems[0]
                      .ECSes
                      .Where(t => item.LeastSquaresMinECS <= t && t <= item.LeastSquaresMaxECS)
@@ -469,27 +470,34 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                 // target = fa / na + ka * (1 - offsetA / na)
                 // => target - fa / na = ka * 1 - ka * offsetA / na
-                // => target - fa / na + ka * offsetA / na = ka * 1
-                // => (target - fa / na) / ka + offsetA / na = 1
+                // => target - fa / na = - ka * offsetA / na + ka * 1
 
-                column1AList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
-                column2AList.Add(1d / dtoItem.NAs[indexOfList[index]]);
-                column1BList.Add(target - dtoItem.FBs[indexOfList[index]] / dtoItem.NBs[indexOfList[index]]);
-                column2BList.Add(1d / dtoItem.NBs[indexOfList[index]]);
+                xAList.Add(1d / dtoItem.NAs[indexOfList[index]]);
+                yAList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
+                xBList.Add(1d / dtoItem.NBs[indexOfList[index]]);
+                yBList.Add(target - dtoItem.FBs[indexOfList[index]] / dtoItem.NBs[indexOfList[index]]);
             }
         }
 
-        Guard.IsTrue(column1AList.Count >= 2);
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+        {
+            item.LeastSquaresMinECS,
+            item.LeastSquaresMaxECS,
+            PlotFA = new HtmlPlot2DLinesChart([(string.Empty, [.. xAList.Index().Select(t => new Point(t.Item, yAList[t.Index]))])], "fa"),
+            PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. xBList.Index().Select(t => new Point(t.Item, yBList[t.Index]))])], "fb")
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        Guard.IsTrue(xAList.Count >= 2);
 
         // A * X = B (最小二乘法)
-        var (x1A, x2A, rSquaredA) = LeastSquare(column1AList, column2AList);
-        var (x1B, x2B, rSquaredB) = LeastSquare(column1BList, column2BList);
+        var (slopeA, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xAList]), Vector<double>.Build.Dense([.. yAList]));
+        var (slopeB, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xBList]), Vector<double>.Build.Dense([.. yBList]));
 
-        item.KA = 1d / x1A;
-        item.OffsetA = x2A;
+        item.KA = interceptA;
+        item.OffsetA = -slopeA / interceptA;
         item.FARSquared = rSquaredA;
-        item.KB = 1d / x1B;
-        item.OffsetB = x2B;
+        item.KB = interceptB;
+        item.OffsetB = -slopeB / interceptB;
         item.FBRSquared = rSquaredB;
 
         Guard.IsFalse(double.IsNaN(item.KA));
@@ -517,8 +525,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 var nb = dtoItem.NBs[i];
 
                 // target = fa / na + ka * (1 - offsetA / na)
-                var faCompensation = fa / na + item.KA * (1 - item.OffsetA / na);
-                var fbCompensation = fb / nb + item.KB * (1 - item.OffsetB / nb);
+                var faCompensation = fa / na + item.KA * (1d - item.OffsetA / na);
+                var fbCompensation = fb / nb + item.KB * (1d - item.OffsetB / nb);
 
                 faPerNACompensations[i] = faCompensation;
                 fbPerNBCompensations[i] = fbCompensation;
@@ -575,26 +583,6 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
         return Task.CompletedTask;
-
-        static (double X1, double X2, double RSquared) LeastSquare(IReadOnlyList<double> column1, IReadOnlyList<double> column2)
-        {
-            // A * X = B (最小二乘法)
-            var bVector = Vector<double>.Build.Dense(column1.Count, 1d);
-            var aMatrix = Matrix<double>.Build.Dense(column1.Count, 2);
-            for (var i = 0; i < column1.Count; i++)
-            {
-                aMatrix[i, 0] = column1[i];
-                aMatrix[i, 1] = column2[i];
-            }
-
-            var solve = aMatrix.QR().Solve(bVector);
-            var rSquared = Fit.RSquared(aMatrix * solve, bVector);
-
-            Guard.IsFalse(double.IsNaN(solve[0]));
-            Guard.IsFalse(double.IsNaN(solve[1]));
-
-            return (solve[0], solve[1], rSquared);
-        }
     }
 
     private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
