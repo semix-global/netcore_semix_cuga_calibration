@@ -11,7 +11,6 @@ using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -22,6 +21,8 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
@@ -224,8 +225,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         CalibratingItem.LeastSquareFindPoints = [];
         foreach (var dtoItem in CalibratingItem.CalibratingItems)
         {
-            dtoItem.FACompensations = [];
-            dtoItem.FBCompensations = [];
+            dtoItem.FAPerNACompensations = [];
+            dtoItem.FBPerNBCompensations = [];
             dtoItem.NSCCompensations = [];
             dtoItem.NSCZeroPoint = null;
         }
@@ -237,7 +238,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         await GetNSCCurvesAsync(true, cancellationToken);
 
         Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-        Algorithm(CalibratingItem, cancellationToken);
+        await AlgorithmAsync(CalibratingItem, cancellationToken);
 
         Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
@@ -247,7 +248,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AlgorithmAsync(CancellationToken cancellationToken)
     {
-        await InvokeCalibrateAsync(() =>
+        await InvokeCalibrateAsync(async () =>
         {
             Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -255,7 +256,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-            Algorithm(CalibratingItem, cancellationToken);
+            await AlgorithmAsync(CalibratingItem, cancellationToken);
 
             Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
@@ -417,16 +418,16 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }
     }
 
-    private void Algorithm(AutoFocusFAFBCompensationDTO item, CancellationToken cancellationToken)
+    private Task AlgorithmAsync(AutoFocusFAFBCompensationDTO item, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(item.CalibratingItems.Count >= 2);
+
         var confirmViewModel = HostApplication.GetRequiredService<AutoFocusFAFBCompensationConfirmECSRangeWindowViewModel>();
         confirmViewModel.LeastSquaresMinECS = item.LeastSquaresMinECS ?? 0d;
         confirmViewModel.LeastSquaresMaxECS = item.LeastSquaresMaxECS ?? 0d;
 
         var isShowDialog = WindowManagerService.ShowDialog(confirmViewModel);
         Guard.IsTrue(isShowDialog == true);
-
-        Guard.IsTrue(item.CalibratingItems.Count >= 2);
 
         item.LeastSquaresMinECS = null;
         item.LeastSquaresMaxECS = null;
@@ -435,8 +436,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            dtoItem.FACompensations = [];
-            dtoItem.FBCompensations = [];
+            dtoItem.FAPerNACompensations = [];
+            dtoItem.FBPerNBCompensations = [];
             dtoItem.NSCCompensations = [];
             dtoItem.NSCZeroPoint = null;
         }
@@ -444,10 +445,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         item.LeastSquaresMinECS = confirmViewModel.LeastSquaresMinECS;
         item.LeastSquaresMaxECS = confirmViewModel.LeastSquaresMaxECS;
 
-        var xAList = new List<double>();
-        var yAList = new List<double>();
-        var xBList = new List<double>();
-        var yBList = new List<double>();
+        var column1AList = new List<double>();
+        var column2AList = new List<double>();
+        var column1BList = new List<double>();
+        var column2BList = new List<double>();
         foreach (var ecs in item.CalibratingItems[0]
                      .ECSes
                      .Where(t => item.LeastSquaresMinECS <= t && t <= item.LeastSquaresMaxECS)
@@ -468,40 +469,33 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                 // target = fa / na + ka * (1 - offsetA / na)
                 // => target - fa / na = ka * 1 - ka * offsetA / na
-                // => target - fa / na = - ka * offsetA / na + ka * 1
+                // => target - fa / na + ka * offsetA / na = ka * 1
+                // => (target - fa / na) / ka + offsetA / na = 1
 
-                xAList.Add(1d / dtoItem.NAs[indexOfList[index]]);
-                yAList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
-                xBList.Add(1d / dtoItem.NBs[indexOfList[index]]);
-                yBList.Add(target - dtoItem.FBs[indexOfList[index]] / dtoItem.NBs[indexOfList[index]]);
+                column1AList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
+                column2AList.Add(1d / dtoItem.NAs[indexOfList[index]]);
+                column1BList.Add(target - dtoItem.FBs[indexOfList[index]] / dtoItem.NBs[indexOfList[index]]);
+                column2BList.Add(1d / dtoItem.NBs[indexOfList[index]]);
             }
         }
 
-        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-        {
-            item.LeastSquaresMinECS,
-            item.LeastSquaresMaxECS,
-            PlotFA = new HtmlPlot2DLinesChart([(string.Empty, [.. xAList.Index().Select(t => new Point(t.Item, yAList[t.Index]))])], "fa"),
-            PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. xBList.Index().Select(t => new Point(t.Item, yBList[t.Index]))])], "fb")
-        }), HtmlLogUniqueId.LoggingHtml());
+        Guard.IsTrue(column1AList.Count >= 2);
 
-        var (slopeA, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xAList]), Vector<double>.Build.Dense([.. yAList]));
-        var (slopeB, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xBList]), Vector<double>.Build.Dense([.. yBList]));
+        // A * X = B (最小二乘法)
+        var (x1A, x2A, rSquaredA) = LeastSquare(column1AList, column2AList);
+        var (x1B, x2B, rSquaredB) = LeastSquare(column1BList, column2BList);
 
-        var offsetA = -slopeA / interceptA;
-        var offsetB = -slopeB / interceptB;
-
-        Guard.IsFalse(double.IsNaN(interceptA));
-        Guard.IsFalse(double.IsNaN(offsetA));
-        Guard.IsFalse(double.IsNaN(interceptB));
-        Guard.IsFalse(double.IsNaN(offsetB));
-
-        item.KA = interceptA;
-        item.OffsetA = offsetA;
+        item.KA = 1d / x1A;
+        item.OffsetA = x2A;
         item.FARSquared = rSquaredA;
-        item.KB = interceptB;
-        item.OffsetB = offsetB;
+        item.KB = 1d / x1B;
+        item.OffsetB = x2B;
         item.FBRSquared = rSquaredB;
+
+        Guard.IsFalse(double.IsNaN(item.KA));
+        Guard.IsFalse(double.IsNaN(item.OffsetA));
+        Guard.IsFalse(double.IsNaN(item.KB));
+        Guard.IsFalse(double.IsNaN(item.OffsetB));
 
         // 计算补偿曲线及 NSC 零点
         foreach (var dtoItem in item.CalibratingItems)
@@ -535,8 +529,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 nscCompensations[i] = faCompensation - fbCompensation;
             }
 
-            dtoItem.FACompensations = faPerNACompensations;
-            dtoItem.FBCompensations = fbPerNBCompensations;
+            dtoItem.FAPerNACompensations = faPerNACompensations;
+            dtoItem.FBPerNBCompensations = fbPerNBCompensations;
             dtoItem.NSCCompensations = nscCompensations;
             var (isSuccess, zeroPoint) = GetNSCCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
             dtoItem.NSCZeroPoint = zeroPoint;
@@ -567,10 +561,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             item.KA,
             item.OffsetA,
-            RARSquared = item.FARSquared,
+            item.FARSquared,
             item.KB,
             item.OffsetB,
-            RBRSquared = item.FBRSquared,
+            item.FBRSquared,
             ecses,
             error,
             isOk,
@@ -579,6 +573,28 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
         if (isOk) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
         else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+        return Task.CompletedTask;
+
+        static (double X1, double X2, double RSquared) LeastSquare(IReadOnlyList<double> column1, IReadOnlyList<double> column2)
+        {
+            // A * X = B (最小二乘法)
+            var bVector = Vector<double>.Build.Dense(column1.Count, 1d);
+            var aMatrix = Matrix<double>.Build.Dense(column1.Count, 2);
+            for (var i = 0; i < column1.Count; i++)
+            {
+                aMatrix[i, 0] = column1[i];
+                aMatrix[i, 1] = column2[i];
+            }
+
+            var solve = aMatrix.QR().Solve(bVector);
+            var rSquared = Fit.RSquared(aMatrix * solve, bVector);
+
+            Guard.IsFalse(double.IsNaN(solve[0]));
+            Guard.IsFalse(double.IsNaN(solve[1]));
+
+            return (solve[0], solve[1], rSquared);
+        }
     }
 
     private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
