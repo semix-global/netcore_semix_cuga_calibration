@@ -139,7 +139,7 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
                             && t.Item.NSCZeroPoint is not null)
                 .ToArray();
 
-            var originScatterLines0 = CalibratingPlotDataSource.GetOrAddScatterLines(0, CalibratingItems.Count * 5);
+            var originScatterLines0 = CalibratingPlotDataSource.GetOrAddScatterLines(0, CalibratingItems.Count * 3);
             var originScatterLines1 = CalibratingPlotDataSource.GetOrAddScatterLines(1, CalibratingItems.Count * 6);
             var compensationScatterLines = CalibratingPlotDataSource.GetOrAddScatterLines(2, compensations.Length * 3);
             var xLines = CalibratingPlotDataSource.GetOrAddXLines(2, compensations.Length);
@@ -147,18 +147,12 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
 
             foreach (var (index, item) in CalibratingItems.Index())
             {
-                originScatterLines0.ElementAtOrDefault(index * 5 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 5 + 0)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 5 + 1)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 1)?.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
-                originScatterLines0.ElementAtOrDefault(index * 5 + 2)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 3)?.Update($"{item.DSWFindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 5 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index] - item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 5 + 3)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 3)?.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 5 + 4)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
-                originScatterLines0.ElementAtOrDefault(index * 5 + 4)?.MarkerStyle.IsVisible = false;
 
                 originScatterLines1.ElementAtOrDefault(index * 6 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines1.ElementAtOrDefault(index * 6 + 0)?.MarkerStyle.IsVisible = false;
@@ -190,9 +184,9 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
             }
 
             var originXLines = CalibratingPlotDataSource.GetOrAddXLines(0, (LeastSquaresMinECS is not null ? 1 : 0) + (LeastSquaresMaxECS is not null ? 1 : 0));
-            originXLines.ElementAtOrDefault(0)?.Update(string.Empty, LeastSquaresMinECS ?? 0d, Colors.DarkRed);
+            originXLines.ElementAtOrDefault(0)?.Update("Min", LeastSquaresMinECS ?? 0d, Colors.DarkRed);
             originXLines.ElementAtOrDefault(0)?.LinePattern = LinePattern.Solid;
-            originXLines.ElementAtOrDefault(1)?.Update(string.Empty, LeastSquaresMaxECS ?? 0d, Colors.DarkRed);
+            originXLines.ElementAtOrDefault(1)?.Update("Max", LeastSquaresMaxECS ?? 0d, Colors.DarkRed);
             originXLines.ElementAtOrDefault(1)?.LinePattern = LinePattern.Solid;
 
             var originScatterMarkerses = CalibratingPlotDataSource.GetOrAddScatterMarkerses(2, LeastSquareFindPoints.Count > 0 ? 1 : 0);

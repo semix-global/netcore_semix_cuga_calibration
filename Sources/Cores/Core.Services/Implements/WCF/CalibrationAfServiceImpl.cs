@@ -118,7 +118,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (0d, 0d))
-            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.ECSDownLimit + 100d, sxExecuteRet.Anything.ECSUpLimit - 100d));
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.ECSMinLimit + 1000d, sxExecuteRet.Anything.ECSMaxLimit - 500d));
     }
 
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)

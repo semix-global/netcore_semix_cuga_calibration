@@ -442,10 +442,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         item.LeastSquaresMinECS = confirmViewModel.LeastSquaresMinECS;
         item.LeastSquaresMaxECS = confirmViewModel.LeastSquaresMaxECS;
 
-        var naList = new List<double>();
-        var faDiffList = new List<double>();
-        var nbList = new List<double>();
-        var fbDiffList = new List<double>();
+        var xAList = new List<double>();
+        var yAList = new List<double>();
+        var xBList = new List<double>();
+        var yBList = new List<double>();
         foreach (var ecs in item.CalibratingItems[0]
                      .ECSes
                      .Where(t => item.LeastSquaresMinECS <= t && t <= item.LeastSquaresMaxECS)
@@ -455,18 +455,19 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             var indexOfList = item.CalibratingItems.Select(t => t.ECSes.ToArray().IndexOf(ecs)).ToList();
             if (indexOfList.Any(t => t == -1)) continue;
 
-            var faAverage = item.CalibratingItems.Index().Select(t => t.Item.FAs[indexOfList[t.Index]]).Average();
-            item.LeastSquareFindPoints = [.. item.LeastSquareFindPoints, new Point(ecs, faAverage)];
+            var target = item.CalibratingItems.Index().Select(t => t.Item.FAs[indexOfList[t.Index]] / t.Item.NAs[indexOfList[t.Index]]).Average();
+            item.LeastSquareFindPoints = [.. item.LeastSquareFindPoints, new Point(ecs, target)];
 
             foreach (var (index, dtoItem) in item.CalibratingItems.Index())
             {
-                // faAverage = fa + ka * (na - offseta) => faAverage - fa = ka * na - ka * offseta
-                naList.Add(dtoItem.NAs[indexOfList[index]]);
-                faDiffList.Add(faAverage - dtoItem.FAs[indexOfList[index]]);
-
-                // faAverage = fb + kb * (nb - offsetb) => faAverage - fb = kb * nb - kb * offsetb
-                nbList.Add(dtoItem.NBs[indexOfList[index]]);
-                fbDiffList.Add(faAverage - dtoItem.FBs[indexOfList[index]]);
+                // target = fa / na + ka * (1 - offsetA / na)
+                // => target - fa / na = ka * 1 - ka * offsetA / na
+                // => target - fa / na = - ka * offsetA / na + ka * 1
+                
+                xAList.Add(1d / dtoItem.NAs[indexOfList[index]]);
+                yAList.Add(target - dtoItem.FAs[indexOfList[index]] / dtoItem.NAs[indexOfList[index]]);
+                xBList.Add(1d / dtoItem.NBs[indexOfList[index]]);
+                yBList.Add(target - dtoItem.FBs[indexOfList[index]] / dtoItem.NBs[indexOfList[index]]);
             }
         }
 
@@ -474,25 +475,25 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             item.LeastSquaresMinECS,
             item.LeastSquaresMaxECS,
-            PlotFA = new HtmlPlot2DLinesChart([(string.Empty, [.. naList.Index().Select(t => new Point(t.Item, faDiffList[t.Index]))])], "fa"),
-            PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. nbList.Index().Select(t => new Point(t.Item, fbDiffList[t.Index]))])], "fb")
+            PlotFA = new HtmlPlot2DLinesChart([(string.Empty, [.. xAList.Index().Select(t => new Point(t.Item, yAList[t.Index]))])], "fa"),
+            PlotFB = new HtmlPlot2DLinesChart([(string.Empty, [.. xBList.Index().Select(t => new Point(t.Item, yBList[t.Index]))])], "fb")
         }), HtmlLogUniqueId.LoggingHtml());
 
-        var (ka, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. naList]), Vector<double>.Build.Dense([.. faDiffList]));
-        var (kb, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. nbList]), Vector<double>.Build.Dense([.. fbDiffList]));
+        var (slopeA, interceptA, rSquaredA, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xAList]), Vector<double>.Build.Dense([.. yAList]));
+        var (slopeB, interceptB, rSquaredB, _) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xBList]), Vector<double>.Build.Dense([.. yBList]));
 
-        var offsetA = -interceptA / ka;
-        var offsetB = -interceptB / kb;
+        var offsetA = -slopeA / interceptA;
+        var offsetB = -slopeB / interceptB;
 
-        Guard.IsFalse(double.IsNaN(ka));
+        Guard.IsFalse(double.IsNaN(interceptA));
         Guard.IsFalse(double.IsNaN(offsetA));
-        Guard.IsFalse(double.IsNaN(kb));
+        Guard.IsFalse(double.IsNaN(interceptB));
         Guard.IsFalse(double.IsNaN(offsetB));
 
-        item.KA = ka;
+        item.KA = interceptA;
         item.OffsetA = offsetA;
         item.FARSquared = rSquaredA;
-        item.KB = kb;
+        item.KB = interceptB;
         item.OffsetB = offsetB;
         item.FBRSquared = rSquaredB;
 
@@ -501,8 +502,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             Logger.LogHtmlInformation($"{dtoItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-            var faCompensations = new double[dtoItem.ECSes.Count];
-            var fbCompensations = new double[dtoItem.ECSes.Count];
+            var faPerNACompensations = new double[dtoItem.ECSes.Count];
+            var fbPerNBCompensations = new double[dtoItem.ECSes.Count];
             var nscCompensations = new double[dtoItem.ECSes.Count];
             for (var i = 0; i < dtoItem.ECSes.Count; i++)
             {
@@ -511,22 +512,21 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 var fb = dtoItem.FBs[i];
                 var nb = dtoItem.NBs[i];
 
-                // faAverage = fa + ka * (na - offseta)
-                // fbAverage = fb + kb * (nb - offsetb)
-                var faCompensation = fa + ka * (na - offsetA);
-                var fbCompensation = fb + kb * (nb - offsetB);
+                // target = fa / na + ka * (1 - offsetA / na)
+                var faCompensation = fa / na + item.KA * (1 - item.OffsetA / na);
+                var fbCompensation = fb / nb + item.KB * (1 - item.OffsetB / nb);
 
-                faCompensations[i] = faCompensation;
-                fbCompensations[i] = fbCompensation;
+                faPerNACompensations[i] = faCompensation;
+                fbPerNBCompensations[i] = fbCompensation;
 
                 Guard.IsNotEqualTo(na, 0);
                 Guard.IsNotEqualTo(nb, 0);
 
-                nscCompensations[i] = (faCompensation / na - fbCompensation / nb) * 10000d;
+                nscCompensations[i] = faCompensation  - fbCompensation;
             }
 
-            dtoItem.FACompensations = faCompensations;
-            dtoItem.FBCompensations = fbCompensations;
+            dtoItem.FACompensations = faPerNACompensations;
+            dtoItem.FBCompensations = fbPerNBCompensations;
             dtoItem.NSCCompensations = nscCompensations;
             var (isSuccess, zeroPoint) = GetNSCCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
             dtoItem.NSCZeroPoint = zeroPoint;
