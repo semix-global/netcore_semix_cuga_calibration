@@ -4,7 +4,7 @@ namespace CugaCalibration.ViewModels;
 
 public partial class CalibrationViewModelBase : IDisposable
 {
-    protected CancellationTokenSource? _cancellationTokenSource;
+    private CancellationTokenSource? _cancellationTokenSource;
 
     private void CancelToken()
     {
