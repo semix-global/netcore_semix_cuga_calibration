@@ -22,6 +22,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using MathNet.Numerics;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 
@@ -161,11 +162,22 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     [RelayCommand]
     private void MarkDSWFindBrightMachinePosition(AutoFocusFAFBCompensationCacheItem? items)
     {
-        if (items is null) return;
+        try
+        {
+            if (items is null) return;
 
-        Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+            Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-        items.DSWFindBrightMachinePosition = StageViewModel.GetMachineStagePosition();
+            items.DSWFindBrightMachinePosition = StageViewModel.GetMachineStagePosition();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, nameof(MarkDSWFindBrightMachinePosition));
+            DialogWindowProvider.ShowDialog($"""
+                                             {nameof(MarkDSWFindBrightMachinePosition)} Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -344,7 +356,11 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                 Logger.LogHtmlInformation($"{cacheItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(cacheItem.DSWFindBrightMachinePosition), CalChipSiteModelEnum.DswModel);
+                var tempBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(cacheItem.DSWFindBrightMachinePosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(tempBrightFieldPosition, CalChipSiteModelEnum.DswModel);
+                await Task.Delay(1000, cancellationToken);
+
+                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, CalChipSiteModelEnum.DswModel);
 
                 CIBViewModel.ToggleRTFCParam(ApplicationCookie.ProductivityInformations[0]);
                 await Task.Delay(100, cancellationToken);
@@ -415,7 +431,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }
         finally
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(brightFieldPosition);
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(brightFieldPosition, CalChipSiteModelEnum.DswModel);
         }
     }
 

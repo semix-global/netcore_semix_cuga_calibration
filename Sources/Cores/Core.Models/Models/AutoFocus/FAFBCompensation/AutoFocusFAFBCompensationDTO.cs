@@ -113,7 +113,7 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
             });
 
         CalibratingPlotDataSource.SetTitle(0, "F N (Y: None - X: ECS)");
-        CalibratingPlotDataSource.SetTitle(1, "F N (Y: None - X: ms)");
+        CalibratingPlotDataSource.SetTitle(1, "Y: ECS - X: ms");
         CalibratingPlotDataSource.SetTitle(2, "F N Compensation (Y: None - X: ECS)");
         CalibratingPlotDataSource.ToggleLegend(0, false);
         CalibratingPlotDataSource.ToggleLegend(1, false);
@@ -121,7 +121,7 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
 
         VerifyPlotDataSource.Configure(new Columns(), 2);
         VerifyPlotDataSource.SetTitle(0, "F N (Y: None - X: ECS)");
-        VerifyPlotDataSource.SetTitle(1, "F N (Y: None - X: ms)");
+        VerifyPlotDataSource.SetTitle(1, "Y: ECS - X: ms");
         VerifyPlotDataSource.ToggleLegend(0, false);
         VerifyPlotDataSource.ToggleLegend(1, false);
     }
