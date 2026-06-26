@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
-using Core.Models.Models.Common.Cookies;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,8 @@ using Net.Utilities.Models.Serializations;
 using Net.Utilities.WPF.Enums;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Reflection;
+using Local.SQL.Cache.Providers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 
 namespace CugaCalibration.ViewModels;
 
@@ -23,27 +23,19 @@ public partial class CalibrationViewModelBase
             {
                 if (DialogWindowProvider.TryShowSaveFilePathDialog(".json", out var exportPath) != true) return;
 
-                ApplicationCookie.CalibrationViewModelEntries.TryGetValue(GetType(), out var entry);
-                Guard.IsNotNull(entry, "The match entry is null.");
-
-                var cache = ObjectHelper.GetPropertyValue(this, nameof(CalibrationViewModelBase<>.Cache));
-                Guard.IsNotNull(cache, "The export cache is not exit! Please check the viewmodel.");
-
-                var version = entry.DTOType.GetCustomAttribute<CacheVersionAttribute>();
-                Guard.IsNotNull(version, "The CalibrateDTO's version attribute is null.");
+                var version = SQLiteHelper.GetTableInfo(Entry.CacheType);
 
                 var exportData = new JObject
                 {
                     [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(version.Version)] = version.Version,
-                    [nameof(entry.CacheType)] = JObject.FromObject(cache, PrivateSetterContractResolver.Serializer),
+                    [nameof(CalibrationViewModelBase<>.Cache)] = JObject.FromObject(ObjectHelper.GetPropertyValue<CalibrationCacheBase>(this, nameof(CalibrationViewModelBase<>.Cache)), PrivateSetterContractResolver.Serializer),
                 };
 
-                var json = exportData.ToString(Newtonsoft.Json.Formatting.Indented);
-                File.WriteAllText(exportPath, json);
+                File.WriteAllText(exportPath, exportData.ToString(Newtonsoft.Json.Formatting.Indented));
 
                 DialogWindowProvider.ShowDialog("Export cache success!");
-            }, _cancellationTokenSource.Token);
+            });
         }
         catch (Exception ex)
         {
@@ -60,29 +52,23 @@ public partial class CalibrationViewModelBase
             {
                 if (DialogWindowProvider.TryShowSelectFilePathDialog(".json", out var importPath) == false) return;
 
-                ApplicationCookie.CalibrationViewModelEntries.TryGetValue(GetType(), out var entry);
-                Guard.IsNotNull(entry, "The match entry is null.");
+                var version = SQLiteHelper.GetTableInfo(Entry.CacheType);
 
-                var version = entry.DTOType.GetCustomAttribute<CacheVersionAttribute>();
-                Guard.IsNotNull(version, "The CalibrateDTO's version attribute is null.");
+                var importData = JObject.Parse(File.ReadAllText(importPath));
 
-                var content = File.ReadAllText(importPath);
-                var importData = JObject.Parse(content);
+                var versionToken = importData[nameof(version.Version)]?.ToObject<string>();
+                Guard.IsNotNull(versionToken);
+                Guard.IsTrue(versionToken == version.Version);
 
-                var versionToken = importData[nameof(version.Version)];
-                var cacheVersion = GuardExtensions.IsNotNullAndReturn(versionToken, "Version is empty...").ToObject<string>();
+                var cacheToken = importData[nameof(CalibrationViewModelBase<>.Cache)];
+                Guard.IsNotNull(cacheToken);
 
-                if (cacheVersion is null || new Version(cacheVersion) != new Version(version.Version)) ThrowHelper.ThrowArgumentException("Version mismatch...");
-
-                var cacheToken = importData[nameof(entry.CacheType)];
-                if (cacheToken == null) ThrowHelper.ThrowArgumentException<CalibrationCacheBase>("Cache data missing.");
-
-                var cache = cacheToken.ToObject(entry.CacheType, PrivateSetterContractResolver.Serializer);
+                var cache = cacheToken.ToObject(Entry.CacheType, PrivateSetterContractResolver.Serializer);
 
                 ObjectHelper.SetPropertyValue(this, nameof(CalibrationViewModelBase<>.Cache), cache);
 
                 DialogWindowProvider.ShowDialog("Import cache success!");
-            }, _cancellationTokenSource.Token).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
