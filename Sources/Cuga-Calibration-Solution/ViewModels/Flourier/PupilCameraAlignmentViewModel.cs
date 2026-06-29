@@ -432,4 +432,3 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         }).ConfigureAwait(false);
     }
 }
-

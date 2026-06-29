@@ -2455,4 +2455,3 @@ public partial class Pole : ObservableObject
     [ObservableProperty]
     public partial int Height { get; set; } = 80;
 }
-

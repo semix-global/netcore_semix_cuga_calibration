@@ -102,6 +102,13 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public (double Min, double Max) GetEcsMoveRange()
+    {
+        var ret = calibrationAfService.GetEcsMoveRange();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         var ret = calibrationAfService.SetSensorMicroscopeObjValue(microscopeLensInformation);
@@ -146,7 +153,7 @@ public sealed class AfViewModel(
 
     public void ResetSensorNscCompensation()
     {
-        var ret = calibrationAfService.SetSensorNscCompensation(0, 1);
+        var ret = calibrationAfService.SetSensorNscCompensation(0d, 1d);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -154,6 +161,27 @@ public sealed class AfViewModel(
     public void SetSensorNscCompensation(double offset, double gain)
     {
         var ret = calibrationAfService.SetSensorNscCompensation(offset, gain);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public (double KA, double OffsetA, double KB, double OffsetB) GetFAFBCompensation()
+    {
+        var ret = calibrationAfService.GetFAFBCompensation();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void ResetFAFBCompensation()
+    {
+        var ret = calibrationAfService.SetFAFBCompensation(0d, 0d, 0d, 0d);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
+    {
+        var ret = calibrationAfService.SetFAFBCompensation(ka, offsetA, kb, offsetB);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

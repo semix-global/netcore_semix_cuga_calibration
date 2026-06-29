@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Common.Cookies;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -452,4 +451,3 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     #endregion 校准
 }
-

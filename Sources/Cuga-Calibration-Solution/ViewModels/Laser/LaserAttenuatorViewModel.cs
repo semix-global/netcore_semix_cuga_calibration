@@ -426,4 +426,3 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
 
     #endregion 校准
 }
-

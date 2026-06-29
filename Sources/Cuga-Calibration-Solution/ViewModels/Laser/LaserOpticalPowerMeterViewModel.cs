@@ -484,4 +484,3 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
 
     #endregion 校准
 }
-
