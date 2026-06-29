@@ -1,8 +1,8 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿using System.Runtime.CompilerServices;
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Net.Utilities.Models;
-using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.Core.Services.Implements;
 
@@ -10,9 +10,21 @@ public sealed partial class ApplicationCookieServiceImpl
 {
     public object GetOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => (t.DTOType == type || t.CacheType == type) && t.IsArray == false);
+        var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
+        if (cacheEntry is not null)
+        {
+            Guard.IsTrue(isRecipe, nameof(isRecipe), "Cache is must be Recipe Provider");
 
-        if (entry is not null) return isRecipe ? GetCache(type, cancellationToken) : GetCalibration(type, cancellationToken);
+            return GetCache(type, cancellationToken);
+        }
+
+        var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type && t.IsArray == false);
+        if (dtoEntry is not null)
+        {
+            Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
+
+            return GetCalibration(type, cancellationToken);
+        }
 
         if (isRecipe)
         {
@@ -40,12 +52,16 @@ public sealed partial class ApplicationCookieServiceImpl
 
     public object[] GetArrayOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => (t.DTOType == type || t.CacheType == type) && t.IsArray);
+        var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
+        if (cacheEntry is not null) return ThrowHelper.ThrowArgumentException<object[]>("Cache is not support get array!");
 
-        if (entry is not null)
-            return type == entry.DTOType
-                ? Unsafe.As<object[]>(GetCalibrations(type, cancellationToken))
-                : throw new ArgumentException("Cache is not support get array!", nameof(type));
+        var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type && t.IsArray);
+        if (dtoEntry is not null)
+        {
+            Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
+
+            return Unsafe.As<object[]>(GetCalibrations(type, cancellationToken));
+        }
 
         if (isRecipe)
         {
@@ -65,44 +81,43 @@ public sealed partial class ApplicationCookieServiceImpl
 
     public void Set(Type type, object cache, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(e => (e.DTOType == type || e.CacheType == type) && e.IsArray == false);
-        if (entry is not null)
+        var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
+        if (cacheEntry is not null)
         {
-            if (type == entry.CacheType)
-            {
-                if (cache is not CalibrationCacheBase recipeCache) throw new ArgumentException("Cache must be CalibrationCacheBase", nameof(cache));
-                SetCache(type, recipeCache, cancellationToken);
-            }
-            else
-            {
-                if (cache is not CalibrationDTOBase calibration) throw new ArgumentException("Cache must be CalibrationDTOBase", nameof(cache));
-                SetCalibration(type, calibration, cancellationToken);
-            }
+            Guard.IsTrue(isRecipe, nameof(isRecipe), "Cache is must be Recipe Provider");
+
+            SetCache(type, Unsafe.As<CalibrationCacheBase>(cache), cancellationToken);
         }
-        else
+
+        var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type && t.IsArray == false);
+        if (dtoEntry is not null)
         {
-            if (isRecipe) recipeCacheProvider.Set(type, cache, cancellationToken);
-            else cacheProvider.Set(type, cache, cancellationToken);
+            Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
+
+            SetCalibration(type, Unsafe.As<CalibrationDTOBase>(cache), cancellationToken);
         }
+
+        if (isRecipe) recipeCacheProvider.Set(type, cache, cancellationToken);
+        else cacheProvider.Set(type, cache, cancellationToken);
 
         return Unit.Default;
     }, cancellationToken);
 
     public void SetArray(Type type, object[] caches, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
-        var entry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(e => (e.DTOType == type || e.CacheType == type) && e.IsArray);
-        if (entry is not null)
-        {
-            if (type == entry.CacheType) throw new ArgumentException("Cache is not support get array!", nameof(type));
+        var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
+        if (cacheEntry is not null) ThrowHelper.ThrowArgumentException("Cache is not support get array!");
 
-            if (caches is not CalibrationDTOBase[] calibrations) throw new ArgumentException("Cache must be CalibrationDTOBase", nameof(caches));
-            SetCalibrations(type, calibrations, cancellationToken);
-        }
-        else
+        var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type && t.IsArray);
+        if (dtoEntry is not null)
         {
-            if (isRecipe) recipeCacheProvider.SetArray(type, caches, cancellationToken);
-            else cacheProvider.SetArray(type, caches, cancellationToken);
+            Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
+
+            SetCalibrations(type, Guard.IsAssignableToTypeAndReturn<CalibrationDTOBase[]>(caches), cancellationToken);
         }
+
+        if (isRecipe) recipeCacheProvider.SetArray(type, caches, cancellationToken);
+        else cacheProvider.SetArray(type, caches, cancellationToken);
 
         return Unit.Default;
     }, cancellationToken);
