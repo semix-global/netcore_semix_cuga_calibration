@@ -122,7 +122,7 @@ public sealed partial class ApplicationCookieServiceImpl
 
             isRelease = _semaphore.Wait(TimeSpan.FromSeconds(TimeoutSecond), cancellationToken);
 
-            return isRelease ? func() : ThrowHelper.ThrowTimeoutException<T>();
+            return isRelease ? InvokeGetCache(func) : ThrowHelper.ThrowTimeoutException<T>();
         }
         finally
         {

@@ -2,13 +2,14 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Models;
 
 namespace CugaCalibration.Core.Services.Implements;
 
 public sealed partial class ApplicationCookieServiceImpl
 {
-    public object GetOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
+    public object GetOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => InvokeGetCache(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
         if (cacheEntry is not null)
@@ -49,9 +50,9 @@ public sealed partial class ApplicationCookieServiceImpl
 
             return cache;
         }
-    }, cancellationToken);
+    });
 
-    public object[] GetArrayOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
+    public object[] GetArrayOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => InvokeGetCache(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
         if (cacheEntry is not null) return ThrowHelper.ThrowArgumentException<object[]>("Cache is not support get array");
@@ -79,9 +80,9 @@ public sealed partial class ApplicationCookieServiceImpl
 
             return caches;
         }
-    }, cancellationToken);
+    });
 
-    public void Set(Type type, object cache, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
+    public void Set(Type type, object cache, bool isRecipe, CancellationToken cancellationToken = default) => InvokeGetCache(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
         if (cacheEntry is not null)
@@ -104,9 +105,9 @@ public sealed partial class ApplicationCookieServiceImpl
         else cacheProvider.Set(type, cache, cancellationToken);
 
         return Unit.Default;
-    }, cancellationToken);
+    });
 
-    public void SetArray(Type type, object[] caches, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
+    public void SetArray(Type type, object[] caches, bool isRecipe, CancellationToken cancellationToken = default) => InvokeGetCache(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
         if (cacheEntry is not null) ThrowHelper.ThrowArgumentException("Cache is not support get array");
@@ -124,5 +125,19 @@ public sealed partial class ApplicationCookieServiceImpl
         else cacheProvider.SetArray(type, caches, cancellationToken);
 
         return Unit.Default;
-    }, cancellationToken);
+    });
+
+    private T InvokeGetCache<T>(Func<T> func)
+    {
+        try
+        {
+            logger.LogTrace("Start Get Cache...");
+
+            return func();
+        }
+        finally
+        {
+            logger.LogTrace("Stop Get Cache...");
+        }
+    }
 }
