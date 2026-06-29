@@ -40,7 +40,7 @@ public partial class AODUniformityDTO
     public AODUniformityDTO()
     {
         var customGridIsReverseScatterPlotControl = new CustomGrid();
-        IsReverseScatterPlotControl.Configure(customGridIsReverseScatterPlotControl, 5,
+        IsReverseScatterPlotControl.Configure(customGridIsReverseScatterPlotControl, 4,
             plots =>
             {
                 customGridIsReverseScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 2));

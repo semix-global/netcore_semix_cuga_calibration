@@ -1113,4 +1113,3 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         return new BitmapImage(bytes, isCopy: true);
     }
 }
-

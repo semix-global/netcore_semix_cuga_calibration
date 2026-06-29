@@ -72,6 +72,12 @@ public interface ICalibrationAfService
     SxExecuteRet<bool> SetSensorEcsValue(double ecs);
 
     /// <summary>
+    /// 获取ECS移动范围
+    /// </summary>    
+    /// <returns>范围</returns>
+    SxExecuteRet<(double Min, double Max)> GetEcsMoveRange();
+
+    /// <summary>
     /// 移动显微镜镜头
     /// </summary>
     /// <param name="microscopeLensInformation">显微镜镜头</param>
@@ -119,6 +125,22 @@ public interface ICalibrationAfService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain);
+
+    /// <summary>
+    /// 获取FA FB补偿系数
+    /// </summary>
+    /// <returns>FA'/NA = FA/NA + KA * (1 - OffsetA/NA) FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</returns>
+    SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation();
+
+    /// <summary>
+    /// 设置FA FB补偿系数
+    /// <param name="ka">FA' = FA + KA * (NA - OffsetA) FA'/NA = FA/NA + KA * (1 - OffsetA/NA)</param>
+    /// <param name="offsetA">FA'/NA = FA/NA + KA * (1 - OffsetA/NA)</param>
+    /// <param name="kb">FB' = FB + KB * (NB - OffsetB) FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</param>
+    /// <param name="offsetB">FB'/NB = FB/NB + KB * (1 - OffsetB/NB)</param>
+    /// </summary>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB);
 
     /// <summary>
     /// 获取传感器: TracesBuffer error的Buffer值

@@ -401,4 +401,3 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         status.Details = [];
     }
 }
-

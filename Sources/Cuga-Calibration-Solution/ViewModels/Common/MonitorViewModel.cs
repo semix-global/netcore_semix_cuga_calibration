@@ -7,7 +7,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(MonitorViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class MonitorViewModel(ICalibrationMonitorService calibrationMonitorService) : ViewModelBase
+public sealed class MonitorViewModel(ICalibrationMonitorService calibrationMonitorService) : ViewModelBase
 {
     #region 服务
 

@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsSCViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -42,70 +42,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <StackPanel>
-                                <TextBlock Text="Result: Alignment Setting Param"
-                                           HorizontalAlignment="Center"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Style="{StaticResource TextBlockDefaultSuccess}" />
-                            </StackPanel>
-                            <TextBox Text="{Binding MicroscopeCalChipCache.LowSite1.Location, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.Title="Low Site1(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding MicroscopeCalChipCache.LowSite2.Location, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.Title="Low Site2(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding MicroscopeCalChipCache.HighSite1.Location, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.Title="High Site1(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding MicroscopeCalChipCache.HighSite2.Location, Converter={StaticResource PointToStringConverter}}"
-                                     hc:TitleElement.Title="High Site2(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="150"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <hc:UniformSpacingPanel Spacing="10">
-                                <view:CanvasView Width="100"
-                                                 Height="100"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding MicroscopeCalChipCache.LowSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                                <view:CanvasView Width="100"
-                                                 Height="100"
-                                                 BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="True"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding MicroscopeCalChipCache.HighSite1.Template.Thumb, Converter={StaticResource BitmapMemoryByteArrayToBitmapSourceConverter}}" />
-                            </hc:UniformSpacingPanel>
-                        </hc:UniformSpacingPanel>
-                        <TextBox Text="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
-                                 hc:TitleElement.Title="Alignment Degrees(°): "
-                                 hc:TitleElement.TitleWidth="150"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

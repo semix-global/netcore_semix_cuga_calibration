@@ -13,7 +13,7 @@
            xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:behaviorsCore="clr-namespace:CugaCalibration.Core.Behaviors"
            Width="328"
-           Height="772"
+           Height="775"
            d:DataContext="{d:DesignInstance Type=viewModels:StageWindowViewModel}"
            Loaded="OnLoaded"
            Closed="OnClosed"

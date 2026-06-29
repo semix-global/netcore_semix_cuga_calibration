@@ -1,0 +1,48 @@
+<UserControl x:Class="CugaCalibration.Views.AutoFocus.FAFBCompensation.AutoFocusFAFBCompensationUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:children="clr-namespace:CugaCalibration.Views.AutoFocus.FAFBCompensation.Children"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
+             d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusFAFBCompensationViewModel}"
+             d:DesignHeight="900"
+             d:DesignWidth="1920"
+             wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
+             mc:Ignorable="d">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsLoadingToVisibilityConverter}}">
+                    <hc:LoadingCircle Width="200"
+                                      Height="200"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Style="{StaticResource LoadingCircleLarge}" />
+                </Grid>
+                <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsWelcomeToVisibilityConverter}}">
+                    <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
+                </Grid>
+                <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
+                    <children:Step0View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs0ToVisibilityConverter}}" />
+                    <children:Step1View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />
+                    <children:Step2View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs2ToVisibilityConverter}}" />
+                </Grid>
+                <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
+                    <children:Review />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
