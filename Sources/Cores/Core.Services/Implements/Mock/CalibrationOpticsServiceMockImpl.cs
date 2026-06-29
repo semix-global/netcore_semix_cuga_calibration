@@ -403,7 +403,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    public SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable)
     {
         Thread.Sleep(100);
 

@@ -1,525 +1,420 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
+using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using CugaCalibration.ViewModels.Common.Windows.View;
+using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.Core.Services.Interfaces;
+using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections.ObjectModel;
+using ScottPlot;
+using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 using System.IO;
-using System.Windows;
+using Constants = Net.Utilities.Models.Constants;
+using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
+using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
-[IOCAppService(ServiceType = typeof(CollectionYGhostWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionYGhostWindowViewModel(
-    IServiceProvider serviceProvider,
-    StageViewModel stageViewModel,
-    StageWindowViewModel stageWindowViewModel,
-    AfViewModel afViewModel,
-    LaserViewModel laserViewModel,
-    CIBViewModel cibViewModel,
-    IOptions<ApplicationSetting> options,
-    ICalibrationOpticsService calibrationOpticsService,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
-    CreateRoiWindowViewModel createRoiWindowViewModel,
-    ApplicationCookie applicationCookie,
-    ICacheProvider cacheProvider,
-    IDialogWindowProvider dialogWindowProvider,
-    IWindowManagerService windowManagerService,
-    ILogger<CollectionYGhostWindowViewModel> logger) : ViewModelBase
+public sealed partial class CollectionYGhostCache : ObservableCacheBase
 {
-    public IReadOnlyList<int> AvailableChannelIds => ApplicationCookie.CIBInformationChannelIds;
+    [ObservableProperty]
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
-    public partial int SelectedChannelId { get; set; } = -1;
-
-    private const string DSW = nameof(DSW);
-    private const string Haze = nameof(Haze);
-
-    public string Name => "Collection Y Ghost";
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionYGhostWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    public static string LogHtmlFileName => "Collection Y Ghost_Diagnosis";
-
-    public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
 
     [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial Point BrightFieldPosition { get; set; }
+    public partial LaserLightInformation LaserLightInformation { get; set; } = null!;
 
     [ObservableProperty]
-    public partial int ImageWidthPixel { get; set; } = 1000;
+    public partial int PMTId { get; set; } = 8;
 
     [ObservableProperty]
-    public partial float MoveDownThreshold { get; set; } = -0.3f;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial string[] PMT8Ch1ImagePath { get; set; } = new string[7];
+    public partial Point StartPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial string[] PMT8Ch2ImagePath { get; set; } = new string[7];
+    public partial double YRange { get; set; }
 
     [ObservableProperty]
-    public partial string[] PMT8Ch3ImagePath { get; set; } = new string[7];
+    public partial double YStep { get; set; } = 23;
 
     [ObservableProperty]
-    public partial string[] PMT8ChImagePath { get; set; } = new string[7];
+    public partial double AligndBValue { get; set; } = -1;
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH11 { get; set; } = [];
+    public partial double Threshold { get; set; } = 5e-4;
+}
+
+public sealed partial class CollectionYGhostResult : ObservableObject
+{
+    [ObservableProperty]
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH12 { get; set; } = [];
+    public partial IReadOnlyList<CollectionYGhostResultItem> Items { get; set; } = [];
+
+#pragma warning disable IDE0079
+#pragma warning disable CS0657
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH13 { get; set; } = [];
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+#pragma warning restore CS0657
+#pragma warning restore IDE0079
+
+    partial void OnItemsChanged(IReadOnlyList<CollectionYGhostResultItem>? oldValue, IReadOnlyList<CollectionYGhostResultItem> newValue)
+    {
+        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        RefreshPlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
+    }
+
+    public CollectionYGhostResult()
+    {
+        ScatterPlotControl.Configure(new Rows(), 2);
+        ScatterPlotControl.SetTitle(0, "Y Ghost(Y: dB - X: um)");
+        ScatterPlotControl.SetTitle(1, "Align Y Ghost(Y: dB - X: um)");
+    }
+
+    private void RefreshPlot()
+    {
+        try
+        {
+            var yGhostScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, Items.Count);
+            var alignMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count);
+
+            var yGhostAlignScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, Items.Count);
+            var markerses = ScatterPlotControl.GetOrAddScatterMarkerses(1, Items.Count);
+
+            foreach (var (index, item) in Items.Index())
+            {
+                if (item.YGhostPoints.Length <= 0) continue;
+
+                yGhostScatterLines[index].Update(
+                    $"No.{index}:{item.FindPosition:0.###}(um)",
+                    item.YGhostPoints,
+                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+
+                if (item.AlignPoint != Point.Origin)
+                {
+                    alignMarkerses[index].Update(
+                        $"No.{index} Align Point",
+                        [item.AlignPoint],
+                        Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                        MarkerShape.OpenCircle);
+                    alignMarkerses[index].MarkerSize = 20;
+                }
+
+                if (item.YGhostAlignPoints.Length <= 0) continue;
+
+                yGhostAlignScatterLines[index].Update(
+                    $"No.{index}:{item.FindPosition:0.###}(um)",
+                    item.YGhostAlignPoints,
+                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+
+                markerses[index].Update(
+                    $"No.{index} minimum(db),Result {(item.IsOk ? "OK" : "Failed")}:{item.YGhostResultValue:0.######}",
+                    [item.YGhostMinimumPoint],
+                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                    MarkerShape.OpenCircle);
+                markerses[index].MarkerSize = 20;
+            }
+        }
+        finally
+        {
+            ScatterPlotControl.AutoScaleRefresh();
+        }
+    }
+
+    public object ToHtmlAnonymous() => new
+    {
+        CIBInformation,
+        Details = new HtmlTable([.. Items.Select(t => t.ToHtmlAnonymous())]),
+        ScatterPlotControl = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+    };
+}
+
+public sealed partial class CollectionYGhostResultItem : ObservableObject
+{
+    [ObservableProperty]
+    public partial bool IsOk { get; set; }
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH14 { get; set; } = [];
+    public partial Point FindPosition { get; set; }
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH15 { get; set; } = [];
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH16 { get; set; } = [];
+    public partial Point AlignPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH17 { get; set; } = [];
+    public partial Point[] YGhostPoints { get; set; } = [];
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH21 { get; set; } = [];
+    public partial Point[] YGhostAlignPoints { get; set; } = [];
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH22 { get; set; } = [];
+    [NotifyPropertyChangedFor(nameof(YGhostResultValue))]
+    public partial Point YGhostMinimumPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial Point[] YGhostListCH23 { get; set; } = [];
+    [NotifyPropertyChangedFor(nameof(YGhostResultValue))]
+    public partial Point YGhostMaximumPoint { get; set; } = Point.Origin;
 
-    [ObservableProperty]
-    public partial Point[] YGhostListCH24 { get; set; } = [];
+    public double YGhostResultValue => YGhostMinimumPoint.Y / YGhostMaximumPoint.Y;
 
-    [ObservableProperty]
-    public partial Point[] YGhostListCH25 { get; set; } = [];
+    public object ToHtmlAnonymous() => new
+    {
+        FindPosition,
+        IsOk,
+        MinimumdBValue = YGhostMinimumPoint.Y,
+        MaximumdBValue = YGhostMaximumPoint.Y,
+        YGhostResultValue,
+        ResultImageh = new HtmlImage(ImageFilePath),
+    };
+}
 
-    [ObservableProperty]
-    public partial Point[] YGhostListCH26 { get; set; } = [];
+[IOCAppService(ServiceType = typeof(CollectionYGhostWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CollectionYGhostWindowViewModel(
+    StageViewModel stageViewModel,
+    OpticsViewModel opticsViewModel,
+    CIBViewModel cibViewModel,
+    IOptions<ApplicationSetting> options,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    ApplicationCookie applicationCookie,
+    ICacheProvider cacheProvider,
+    IDialogWindowProvider dialogWindowProvider,
+    ILogger<CollectionYGhostWindowViewModel> logger,
+    IApplicationCookieService applicationCookieService) : ViewModelBase
+{
+    public string Name => "Collection Y Ghost";
 
-    [ObservableProperty]
-    public partial Point[] YGhostListCH27 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH31 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH32 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH33 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH34 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH35 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH36 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH37 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] YGhostListCH { get; set; } = [];
-
-    [ObservableProperty]
-    public partial float PMT8Ch1PixselCompare { get; set; }
-
-    [ObservableProperty]
-    public partial float PMT8Ch2PixselCompare { get; set; }
-
-    [ObservableProperty]
-    public partial float PMT8Ch3PixselCompare { get; set; }
-
-    [ObservableProperty]
-    public partial ObservableCollection<double> YValueListCH { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH12 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH13 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH14 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH15 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH16 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH17 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH22 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH23 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH24 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH25 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH26 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH27 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH32 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH33 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH34 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH35 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH36 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial ObservableCollection<Point> AlignedYGhostListCH37 { get; set; } = [];
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionYGhostWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
+    [ObservableProperty]
+    public partial CollectionYGhostCache Cache { get; set; } = new();
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CollectionYGhostResult> YGhostResults { get; set; } = [];
+
     [RelayCommand]
     private void Loaded()
     {
-        HtmlLogUniqueId = Guid.NewGuid();
-        logger.LogHtmlInformation("Result Params", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
-        {
-            BrightFieldPosition,
-            ImageWidthPixel
-        }), HtmlLogUniqueId.LoggingHtml());
+        Cache = cacheProvider.GetOrDefault<CollectionYGhostCache>();
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step00Async(CancellationToken cancellationToken)
+    private async Task ActionAsync(CancellationToken cancellationToken)
     {
-        BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition();
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(BrightFieldPosition, calChipSiteModelEnum);
-        afViewModel.ToggleDarkFieldEnable(true);
-        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
-
-        Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
-        Point DarkFieldPosition2 = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
-
-        logger.LogHtmlInformation("Get PMT of 8 Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+        try
         {
-            BrightFieldPosition,
-            DarkFieldPosition,
-            ImageWidthPixel
-        }), HtmlLogUniqueId.LoggingHtml());
-    }
+            YGhostResults = [];
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step01Async(CancellationToken cancellationToken)
-    {
-        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
-        {
-            var allOpticsPaths1 = new string[7]; // 创建新数组
-            var allOpticsPaths2 = new string[7]; // 创建新数组
-            var allOpticsPaths3 = new string[7]; // 创建新数组
-
-            for (int i = 1; i <= 7; i++)
+            CIBConfiguration cibConfiguration = new()
             {
-                Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
-                var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 1);
-                using var darkFieldImage1 = await cibViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, OpticsConfiguration),
-                    (false, CIBConfiguration),
-                    (false, LaserLightInformation),
-                    false,
-                    cancellationToken);
+                IsAutoGainControl = true,
+                IsL0K = false,
+                CIBProfileMode = CIBProfileModeEnum.PMTLog
+            };
+            var yPixelSize = GuardExtensions.IsNotNullAndReturn(applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken)
+                .SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.PMTId && t.IsOk), "Please calibrate CIB Y pixel size first!");
 
-                var path = Path.Combine(ImageDirectory, "CH1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage1.Image.SaveImage(path);
-                allOpticsPaths1[i - 1] = path;
-
-                if (i == 1)
-                {
-                    YGhostListCH11 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 2)
-                {
-                    YGhostListCH12 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 3)
-                {
-                    YGhostListCH13 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 4)
-                {
-                    YGhostListCH14 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 5)
-                {
-                    YGhostListCH15 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 6)
-                {
-                    YGhostListCH16 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                if (i == 7)
-                {
-                    YGhostListCH17 = ProcessImageAndGetPoints(darkFieldImage1.Image).ToArray();
-                }
-
-                CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 2);
-                using var darkFieldImage2 = await cibViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, OpticsConfiguration),
-                    (false, CIBConfiguration),
-                    (false, LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                path = Path.Combine(ImageDirectory, "CH2", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage2.Image.SaveImage(path);
-                allOpticsPaths2[i - 1] = path;
-
-                if (i == 1)
-                {
-                    YGhostListCH21 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 2)
-                {
-                    YGhostListCH22 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 3)
-                {
-                    YGhostListCH23 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 4)
-                {
-                    YGhostListCH24 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 5)
-                {
-                    YGhostListCH25 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 6)
-                {
-                    YGhostListCH26 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                if (i == 7)
-                {
-                    YGhostListCH27 = ProcessImageAndGetPoints(darkFieldImage2.Image).ToArray();
-                }
-
-                CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == 3);
-                using var darkFieldImage3 = await cibViewModel.GetPMTImageAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, OpticsConfiguration),
-                    (false, CIBConfiguration),
-                    (false, LaserLightInformation),
-                    false,
-                    cancellationToken);
-
-                path = Path.Combine(ImageDirectory, "CH3", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImage3.Image.SaveImage(path);
-                allOpticsPaths3[i - 1] = path;
-
-                if (i == 1)
-                {
-                    YGhostListCH31 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 2)
-                {
-                    YGhostListCH32 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 3)
-                {
-                    YGhostListCH33 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 4)
-                {
-                    YGhostListCH34 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 5)
-                {
-                    YGhostListCH35 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 6)
-                {
-                    YGhostListCH36 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                if (i == 7)
-                {
-                    YGhostListCH37 = ProcessImageAndGetPoints(darkFieldImage3.Image).ToArray();
-                }
-
-                // 创建新的Point实例，Y坐标增加23
-                Point newPosition = new Point(DarkFieldPosition.X, DarkFieldPosition.Y + 23);
-                CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-                stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(newPosition, calChipSiteModelEnum);
-                afViewModel.ToggleDarkFieldEnable(true);
-            }
-
-            PMT8Ch1ImagePath = allOpticsPaths1;
-            PMT8Ch2ImagePath = allOpticsPaths2;
-            PMT8Ch3ImagePath = allOpticsPaths3;
-        }
-
-        logger.LogHtmlInformation("Get ALL PMT Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-        {
-            StagePosition = stageViewModel.GetMachineStagePosition(),
-            DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition(),
-            ImageWidthPixel,
-            HtmlTab1 = new HtmlTab(new
+            logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                PMT8Ch1Image1 = new HtmlImage(PMT8Ch1ImagePath[0]),
-                PMT8Ch1Image2 = new HtmlImage(PMT8Ch1ImagePath[1]),
-                PMT8Ch1Image3 = new HtmlImage(PMT8Ch1ImagePath[2]),
-                PMT8Ch1Image4 = new HtmlImage(PMT8Ch1ImagePath[3]),
-                PMT8Ch1Image5 = new HtmlImage(PMT8Ch1ImagePath[4]),
-                PMT8Ch1Image6 = new HtmlImage(PMT8Ch1ImagePath[5]),
-                PMT8Ch1Image7 = new HtmlImage(PMT8Ch1ImagePath[6])
-            }),
-            HtmlTab2 = new HtmlTab(new
-            {
-                PMT8Ch2Image1 = new HtmlImage(PMT8Ch2ImagePath[0]),
-                PMT8Ch2Image2 = new HtmlImage(PMT8Ch2ImagePath[1]),
-                PMT8Ch2Image3 = new HtmlImage(PMT8Ch2ImagePath[2]),
-                PMT8Ch2Image4 = new HtmlImage(PMT8Ch2ImagePath[3]),
-                PMT8Ch2Image5 = new HtmlImage(PMT8Ch2ImagePath[4]),
-                PMT8Ch2Image6 = new HtmlImage(PMT8Ch2ImagePath[5]),
-                PMT8Ch2Image7 = new HtmlImage(PMT8Ch2ImagePath[6])
-            }),
-            HtmlTab3 = new HtmlTab(new
-            {
-                PMT8Ch3Image1 = new HtmlImage(PMT8Ch3ImagePath[0]),
-                PMT8Ch3Image2 = new HtmlImage(PMT8Ch3ImagePath[1]),
-                PMT8Ch3Image3 = new HtmlImage(PMT8Ch3ImagePath[2]),
-                PMT8Ch3Image4 = new HtmlImage(PMT8Ch3ImagePath[3]),
-                PMT8Ch3Image5 = new HtmlImage(PMT8Ch3ImagePath[4]),
-                PMT8Ch3Image6 = new HtmlImage(PMT8Ch3ImagePath[5]),
-                PMT8Ch3Image7 = new HtmlImage(PMT8Ch3ImagePath[6])
-            })
-        }), HtmlLogUniqueId.LoggingHtml());
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step02Async(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            LoadGhostData();
-
-            logger.LogHtmlInformation("Get ALL Channel Curves", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-            {
-                PlotCh1 = new HtmlPlot2DLinesChart([
-                    ("CH11", YGhostListCH11),
-                    ("CH12", YGhostListCH12),
-                    ("CH13", YGhostListCH13),
-                    ("CH14", YGhostListCH14),
-                    ("CH15", YGhostListCH15),
-                    ("CH16", YGhostListCH16),
-                    ("CH17", YGhostListCH17)
-                ], "PlotCh1"),
-                PlotCh2 = new HtmlPlot2DLinesChart([
-                    ("CH21", YGhostListCH21),
-                    ("CH22", YGhostListCH22),
-                    ("CH23", YGhostListCH23),
-                    ("CH24", YGhostListCH24),
-                    ("CH25", YGhostListCH25),
-                    ("CH26", YGhostListCH26),
-                    ("CH27", YGhostListCH27)
-                ], "PlotCh2"),
-                PlotCh3 = new HtmlPlot2DLinesChart([
-                    ("CH31", YGhostListCH31),
-                    ("CH32", YGhostListCH32),
-                    ("CH33", YGhostListCH33),
-                    ("CH34", YGhostListCH34),
-                    ("CH35", YGhostListCH35),
-                    ("CH36", YGhostListCH36),
-                    ("CH37", YGhostListCH37)
-                ], "PlotCh3")
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
+                Cache.CalChipSiteModelEnum,
+                Cache.PMTId,
+                Cache.ImageWidth,
+                Cache.LaserLightInformation,
+                Cache.Threshold,
+                Cache.StartPosition,
+                YStop = Cache.YRange,
+                Cache.YStep,
+                MaximumdBValue = Cache.AligndBValue,
+                yPixelSize,
+                CibConfiguration = new HtmlQuote(cibConfiguration.ToHtmlAnonymous()),
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
+            await InvokeAsync(async () =>
+            {
+                try
+                {
+                    opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, true);
 
-            logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_OK"));
-            logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-        }).ConfigureAwait(false);
+                    var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId).ToArray();
+                    YGhostResults =
+                    [
+                        ..cibInformations.Select(t => new CollectionYGhostResult
+                        {
+                            CIBInformation = t
+                        })
+                    ];
+
+                    var positionIndex = 0;
+                    foreach (var yPosition in Generate.LinearRange(Cache.StartPosition.Y, Cache.YStep, Cache.StartPosition.Y + Cache.YRange))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var findPosition = new Point(Cache.StartPosition.X, yPosition);
+                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(findPosition);
+
+                        var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Dark,
+                            findPosition,
+                            Cache.ImageWidth,
+                            cibInformations,
+                            (false, Cache.CalChipSiteModelEnum),
+                            (false, Cache.OpticsConfiguration),
+                            (false, cibConfiguration),
+                            (false, Cache.LaserLightInformation),
+                            false,
+                            cancellationToken);
+
+                        foreach (var (index, darkFieldImageDTO) in darkFieldImages.Select((t, i) => (i, t)))
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            // //mock
+                            // var mockImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Assets\Data\YGhost\{positionIndex}.raw");
+                            // var bytes = System.IO.File.ReadAllBytes(mockImagePath);
+                            // var (size, _, _) = RAWImageFactory.GetSize(bytes);
+                            // var darkFieldImageDTO = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO
+                            // {
+                            //     CIBInformation = dto.CIBInformation,
+                            //     Size = size,
+                            //     IsForward = dto.IsForward,
+                            //     RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
+                            //     RawImageFilePath = mockImagePath,
+                            //     IsKeepRawImageCIBProfileModeEnum = true
+                            // });
+
+                            var resultItem = GetResultItem(darkFieldImageDTO);
+                            resultItem.FindPosition = findPosition;
+                            YGhostResults[index].Items = [.. YGhostResults[index].Items, resultItem];
+                        }
+
+                        positionIndex++;
+                    }
+
+                    foreach (var yGhostResult in YGhostResults)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        // 对齐
+                        var alignResultItem = yGhostResult.Items.OrderByDescending(t => t.AlignPoint.X).First();
+
+                        yGhostResult.Items =
+                        [
+                            ..yGhostResult.Items.Select(t =>
+                            {
+                                var alignOffsetX = alignResultItem.AlignPoint.X - t.AlignPoint.X;
+                                var yGhostAlignPoints = t.YGhostPoints.Select(tt => new Point(tt.X + alignOffsetX, tt.Y)).ToArray();
+                                var yGhostMinimumPoint = yGhostAlignPoints.OrderBy(tt => tt.Y).First();
+                                var yGhostMaximumPoint = yGhostAlignPoints.OrderByDescending(tt => tt.Y).First();
+                                var yGhostResultValue = yGhostMinimumPoint.Y / Cache.AligndBValue;
+
+                                return new CollectionYGhostResultItem
+                                {
+                                    FindPosition = t.FindPosition,
+                                    ImageFilePath = t.ImageFilePath,
+                                    AlignPoint = t.AlignPoint,
+                                    YGhostPoints = [..t.YGhostPoints],
+                                    YGhostAlignPoints = [..yGhostAlignPoints],
+                                    YGhostMinimumPoint = yGhostMinimumPoint,
+                                    YGhostMaximumPoint = yGhostMaximumPoint,
+                                    IsOk = yGhostResultValue <= Cache.Threshold
+                                };
+                            })
+                        ];
+
+                        logger.LogHtmlInformation($"{yGhostResult.CIBInformation} Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            Result = new HtmlQuote(yGhostResult.ToHtmlAnonymous())
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+
+                    return YGhostResults.SelectMany(t => t.Items).All(t => t.IsOk);
+                }
+                finally
+                {
+                    opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
+                }
+
+                CollectionYGhostResultItem GetResultItem(DarkFieldImageDTO darkFieldImageDTO)
+                {
+                    var filePath = Path.Combine(ImageDirectory, $"{darkFieldImageDTO.CIBInformation}_GUID{Guid.NewGuid()}.png");
+                    using var rotateImage = darkFieldImageDTO.Image.RotateCounterClockwise90Degree();
+                    using var mirrorImage = darkFieldImageDTO.Image.VerticalFlip();
+                    darkFieldImageDTO.Image.SaveImage(filePath);
+
+                    var yGhostValues = calibrationAlgorithmService.GetImageGrayYProjectionsPixels(darkFieldImageDTO.Image);
+                    var yGhostPoints = yGhostValues.Select((t, i) => new Point(i, t)).ToArray();
+                    var alignPoint = yGhostPoints.Select(t => t).OrderBy(t => Math.Abs(t.Y - Cache.AligndBValue)).First();
+
+                    return new CollectionYGhostResultItem
+                    {
+                        ImageFilePath = filePath,
+                        AlignPoint = alignPoint,
+                        YGhostPoints = [.. yGhostPoints]
+                    };
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "{@Name}: Failed to action", Name);
+            dialogWindowProvider.ShowDialog($"{Name} action error:{ex}", DialogButtonsEnum.OK, DialogIconEnum.Error);
+        }
     }
 
     [RelayCommand]
@@ -528,347 +423,59 @@ public sealed partial class CollectionYGhostWindowViewModel(
         try
         {
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save cache");
+            logger.LogError(ex, "{@Name}: Failed to save cache", Name);
         }
 
-        CloseView(null);
+        CloseView(true);
     }
 
-    partial void OnSelectedChannelIdChanged(int value)
+    private async Task InvokeAsync(Func<Task<bool>> func)
     {
-        var channelIds = ApplicationCookie.CIBInformationChannelIds;
-        int index = channelIds.ToList().IndexOf(value);
-
-        switch (index)
+        await Task.Run(async () =>
         {
-            case 0:
-                PMT8ChImagePath = PMT8Ch1ImagePath.ToArray();
-                break;
-            case 1:
-                PMT8ChImagePath = PMT8Ch2ImagePath.ToArray();
-                break;
-            case 2:
-                PMT8ChImagePath = PMT8Ch3ImagePath.ToArray();
-                break;
-            default:
-                MessageBox.Show($"通道 {value} 超出支持范围", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                break;
-        }
-    }
+            HtmlLogUniqueId = Guid.NewGuid();
 
-    int? FindXAtY(Point[] points, double targetY)
-    {
-        foreach (var p in points)
-        {
-            if (Math.Abs(p.Y - targetY) < 1e-6) // 避免浮点精度问题（如果 Y 是 double）
-                return (int)p.X;
-        }
+            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
 
-        return null;
-    }
-
-    private int? FindClosestXAtY(Point[] points, double targetY)
-    {
-        if (points == null || points.Length == 0)
-            return null;
-
-        Point bestPoint = points[0];
-        double minDiff = Math.Abs(points[0].Y - targetY);
-
-        for (int i = 1; i < points.Length; i++)
-        {
-            double diff = Math.Abs(points[i].Y - targetY);
-            if (diff < minDiff)
+            var isSuccess = false;
+            try
             {
-                minDiff = diff;
-                bestPoint = points[i];
+                isSuccess = await func().ConfigureAwait(false);
             }
-        }
-
-        return (int)bestPoint.X;
-    }
-
-    public void LoadGhostData()
-    {
-        double targetY = MoveDownThreshold;
-        {
-            // 1. 获取基准 X（来自 CH11）
-            var refX = FindClosestXAtY(YGhostListCH11, targetY);
-
-            var x12 = FindClosestXAtY(YGhostListCH12, targetY);
-            if (x12.HasValue)
+            catch (Exception ex)
             {
-                int offset12 = x12.Value - refX.Value;
-                YGhostListCH12 = YGhostListCH12.Select(p => new Point(p.X - offset12, p.Y)).ToArray();
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    return false;
+                }
+
+                dialogWindowProvider.ShowDialog($"""
+                                                 {Name}: Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            }
+            finally
+            {
+                logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSuccess ? "OK" : "Failed")}"));
             }
 
-            var x13 = FindClosestXAtY(YGhostListCH13, targetY);
-            if (x13.HasValue)
+            if (isSuccess)
             {
-                int offset13 = x13.Value - refX.Value;
-                YGhostListCH13 = YGhostListCH13.Select(p => new Point(p.X - offset13, p.Y)).ToArray();
+                dialogWindowProvider.ShowDialog($"{Name}: Success");
             }
+            else
+                dialogWindowProvider.ShowDialog($"{Name}: Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-            var x14 = FindClosestXAtY(YGhostListCH14, targetY);
-            if (x14.HasValue)
-            {
-                int offset14 = x14.Value - refX.Value;
-                YGhostListCH14 = YGhostListCH14.Select(p => new Point(p.X - offset14, p.Y)).ToArray();
-            }
-
-            var x15 = FindClosestXAtY(YGhostListCH15, targetY);
-            if (x15.HasValue)
-            {
-                int offset15 = x15.Value - refX.Value;
-                YGhostListCH15 = YGhostListCH15.Select(p => new Point(p.X - offset15, p.Y)).ToArray();
-            }
-
-            var x16 = FindClosestXAtY(YGhostListCH16, targetY);
-            if (x16.HasValue)
-            {
-                int offset16 = x16.Value - refX.Value;
-                YGhostListCH16 = YGhostListCH16.Select(p => new Point(p.X - offset16, p.Y)).ToArray();
-            }
-
-            var x17 = FindClosestXAtY(YGhostListCH17, targetY);
-            if (x17.HasValue)
-            {
-                int offset17 = x17.Value - refX.Value;
-                YGhostListCH17 = YGhostListCH17.Select(p => new Point(p.X - offset17, p.Y)).ToArray();
-            }
-        }
-
-        {
-            var refX = FindClosestXAtY(YGhostListCH21, targetY);
-
-            var x22 = FindClosestXAtY(YGhostListCH22, targetY);
-            if (x22.HasValue)
-            {
-                int offset22 = x22.Value - refX.Value;
-                YGhostListCH22 = YGhostListCH22.Select(p => new Point(p.X - offset22, p.Y)).ToArray();
-            }
-
-            var x23 = FindClosestXAtY(YGhostListCH23, targetY);
-            if (x23.HasValue)
-            {
-                int offset23 = x23.Value - refX.Value;
-                YGhostListCH23 = YGhostListCH23.Select(p => new Point(p.X - offset23, p.Y)).ToArray();
-            }
-
-            var x24 = FindClosestXAtY(YGhostListCH24, targetY);
-            if (x24.HasValue)
-            {
-                int offset24 = x24.Value - refX.Value;
-                YGhostListCH24 = YGhostListCH24.Select(p => new Point(p.X - offset24, p.Y)).ToArray();
-            }
-
-            var x25 = FindClosestXAtY(YGhostListCH25, targetY);
-            if (x25.HasValue)
-            {
-                int offset25 = x25.Value - refX.Value;
-                YGhostListCH25 = YGhostListCH25.Select(p => new Point(p.X - offset25, p.Y)).ToArray();
-            }
-
-            var x26 = FindClosestXAtY(YGhostListCH26, targetY);
-            if (x26.HasValue)
-            {
-                int offset26 = x26.Value - refX.Value;
-                YGhostListCH26 = YGhostListCH26.Select(p => new Point(p.X - offset26, p.Y)).ToArray();
-            }
-
-            var x27 = FindClosestXAtY(YGhostListCH27, targetY);
-            if (x27.HasValue)
-            {
-                int offset27 = x27.Value - refX.Value;
-                YGhostListCH27 = YGhostListCH27.Select(p => new Point(p.X - offset27, p.Y)).ToArray();
-            }
-        }
-
-        {
-            var refX = FindClosestXAtY(YGhostListCH31, targetY);
-
-            var x32 = FindClosestXAtY(YGhostListCH32, targetY);
-            if (x32.HasValue)
-            {
-                int offset32 = x32.Value - refX.Value;
-                YGhostListCH32 = YGhostListCH32.Select(p => new Point(p.X - offset32, p.Y)).ToArray();
-            }
-
-            var x33 = FindClosestXAtY(YGhostListCH33, targetY);
-            if (x33.HasValue)
-            {
-                int offset33 = x33.Value - refX.Value;
-                YGhostListCH33 = YGhostListCH33.Select(p => new Point(p.X - offset33, p.Y)).ToArray();
-            }
-
-            var x34 = FindClosestXAtY(YGhostListCH34, targetY);
-            if (x34.HasValue)
-            {
-                int offset34 = x34.Value - refX.Value;
-                YGhostListCH34 = YGhostListCH34.Select(p => new Point(p.X - offset34, p.Y)).ToArray();
-            }
-
-            var x35 = FindClosestXAtY(YGhostListCH35, targetY);
-            if (x35.HasValue)
-            {
-                int offset35 = x35.Value - refX.Value;
-                YGhostListCH35 = YGhostListCH35.Select(p => new Point(p.X - offset35, p.Y)).ToArray();
-            }
-
-            var x36 = FindClosestXAtY(YGhostListCH36, targetY);
-            if (x36.HasValue)
-            {
-                int offset36 = x36.Value - refX.Value;
-                YGhostListCH36 = YGhostListCH36.Select(p => new Point(p.X - offset36, p.Y)).ToArray();
-            }
-
-            var x37 = FindClosestXAtY(YGhostListCH37, targetY);
-            if (x37.HasValue)
-            {
-                int offset37 = x37.Value - refX.Value;
-                YGhostListCH37 = YGhostListCH37.Select(p => new Point(p.X - offset37, p.Y)).ToArray();
-            }
-        }
-    }
-
-    private ObservableCollection<Point> ProcessImageAndGetPoints(BitmapImage image0)
-    {
-        using var mirrorImage = image0.RotateCounterClockwise90DegreeAndVerticalFlip();
-        var yArray = calibrationAlgorithmService.GetImageGrayYProjectionsPixels(mirrorImage);
-        var points = new ObservableCollection<Point>();
-
-        for (var j = 0; j < yArray.Length; j++)
-        {
-            points.Add(new Point(j, yArray[j]));
-        }
-
-        return points;
-    }
-
-    private int FindFirstDropPoint(Point[] points)
-    {
-        if (points == null || points.Length == 0) return 0;
-        for (int i = 1; i < points.Length; i++)
-        {
-            double dy = points[i].Y - points[i - 1].Y;
-            if (dy < MoveDownThreshold) // 假设下降超过 0.1 就认为是“开始”
-                return (int)points[i].X;
-        }
-
-        return 0;
-    }
-
-    private void AlignCurvesCh1()
-    {
-        var baseCurve = YGhostListCH11.ToList(); // 基准曲线
-        var baseStartX = FindFirstDropPoint(baseCurve.ToArray());
-        // 对其他曲线做平移
-        var curves = new[]
-        {
-            (YGhostListCH12, "CH12"),
-            (YGhostListCH13, "CH13"),
-            (YGhostListCH14, "CH14"),
-            (YGhostListCH15, "CH15"),
-            (YGhostListCH16, "CH16"),
-            (YGhostListCH17, "CH17")
-        };
-
-        foreach (var (curve, name) in curves)
-        {
-            if (curve == null || curve.Length == 0) continue;
-
-            var start = FindFirstDropPoint(curve);
-            var offset = start - baseStartX;
-
-            var aligned = curve.Select(p => new Point(p.X - offset, p.Y)).ToList();
-
-            // 根据名称绑定到对应属性
-            switch (name)
-            {
-                case "CH12": AlignedYGhostListCH12 = new ObservableCollection<Point>(aligned); break;
-                case "CH13": AlignedYGhostListCH13 = new ObservableCollection<Point>(aligned); break;
-                case "CH14": AlignedYGhostListCH14 = new ObservableCollection<Point>(aligned); break;
-                case "CH15": AlignedYGhostListCH15 = new ObservableCollection<Point>(aligned); break;
-                case "CH16": AlignedYGhostListCH16 = new ObservableCollection<Point>(aligned); break;
-                case "CH17": AlignedYGhostListCH17 = new ObservableCollection<Point>(aligned); break;
-            }
-        }
-    }
-
-    private void AlignCurvesCh2()
-    {
-        var baseCurve = YGhostListCH21.ToList(); // 基准曲线
-        var baseStartX = FindFirstDropPoint(baseCurve.ToArray());
-        // 对其他曲线做平移
-        var curves = new[]
-        {
-            (YGhostListCH22, "CH22"),
-            (YGhostListCH23, "CH23"),
-            (YGhostListCH24, "CH24"),
-            (YGhostListCH25, "CH25"),
-            (YGhostListCH26, "CH26"),
-            (YGhostListCH27, "CH27")
-        };
-
-        foreach (var (curve, name) in curves)
-        {
-            if (curve == null || curve.Length == 0) continue;
-
-            var start = FindFirstDropPoint(curve);
-            var offset = start - baseStartX;
-
-            var aligned = curve.Select(p => new Point(p.X - offset, p.Y)).ToList();
-
-            // 根据名称绑定到对应属性
-            switch (name)
-            {
-                case "CH22": AlignedYGhostListCH22 = new ObservableCollection<Point>(aligned); break;
-                case "CH23": AlignedYGhostListCH23 = new ObservableCollection<Point>(aligned); break;
-                case "CH24": AlignedYGhostListCH24 = new ObservableCollection<Point>(aligned); break;
-                case "CH25": AlignedYGhostListCH25 = new ObservableCollection<Point>(aligned); break;
-                case "CH26": AlignedYGhostListCH26 = new ObservableCollection<Point>(aligned); break;
-                case "CH27": AlignedYGhostListCH27 = new ObservableCollection<Point>(aligned); break;
-            }
-        }
-    }
-
-    private void AlignCurvesCh3()
-    {
-        var baseCurve = YGhostListCH31.ToList(); // 基准曲线
-        var baseStartX = FindFirstDropPoint(baseCurve.ToArray());
-        // 对其他曲线做平移
-        var curves = new[]
-        {
-            (YGhostListCH32, "CH32"),
-            (YGhostListCH33, "CH33"),
-            (YGhostListCH34, "CH34"),
-            (YGhostListCH35, "CH35"),
-            (YGhostListCH36, "CH36"),
-            (YGhostListCH37, "CH37")
-        };
-
-        foreach (var (curve, name) in curves)
-        {
-            if (curve == null || curve.Length == 0) continue;
-
-            var start = FindFirstDropPoint(curve);
-            var offset = start - baseStartX;
-
-            var aligned = curve.Select(p => new Point(p.X - offset, p.Y)).ToList();
-
-            // 根据名称绑定到对应属性
-            switch (name)
-            {
-                case "CH32": AlignedYGhostListCH32 = new ObservableCollection<Point>(aligned); break;
-                case "CH33": AlignedYGhostListCH33 = new ObservableCollection<Point>(aligned); break;
-                case "CH34": AlignedYGhostListCH34 = new ObservableCollection<Point>(aligned); break;
-                case "CH35": AlignedYGhostListCH35 = new ObservableCollection<Point>(aligned); break;
-                case "CH36": AlignedYGhostListCH36 = new ObservableCollection<Point>(aligned); break;
-                case "CH37": AlignedYGhostListCH37 = new ObservableCollection<Point>(aligned); break;
-            }
-        }
+            return isSuccess;
+        }).ConfigureAwait(false);
     }
 }

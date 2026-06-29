@@ -131,7 +131,7 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    public SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable)
     {
         Thread.Sleep(100);
 

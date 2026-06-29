@@ -4,11 +4,14 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionCrossTalkWindowViewModel}"
@@ -25,21 +28,11 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <Grid.Resources>
-            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
-                <Setter Property="CornerRadius" Value="0" />
-                <Setter Property="BorderThickness" Value="0" />
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <hc:SimplePanel Grid.Row="0" Grid.Column="0"
-                        Background="{StaticResource PrimaryBrush}">
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
             <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
                         VerticalAlignment="Center"
                         Background="Transparent">
@@ -71,185 +64,254 @@
                 </Button.Style>
             </Button>
         </hc:SimplePanel>
-        <Grid Grid.Row="1" Margin="5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Border Width="500"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Auto">
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <GroupBox Header="Common Params">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <ComboBox Width="430"
-                                                  hc:TitleElement.Title="Productivity Information: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
-                                                  Style="{StaticResource ComboBoxExtend}">
+
+        <Border Grid.Row="1"
+                Margin="1"
+                Padding="2"
+                Effect="{StaticResource EffectShadow1}"
+                Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="500" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource BorderRegion}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <GroupBox Header="Params">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="160"
+                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="160"
+                                                     IsEditable="True"
+                                                     IsReadOnly="True"
+                                                     Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
+                                            <hc:ComboBox.ItemsSource>
+                                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                                    <Binding Path="ApplicationCookie" />
+                                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                                                </MultiBinding>
+                                            </hc:ComboBox.ItemsSource>
+                                        </hc:ComboBox>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="CIB Informations: "
+                                                       Width="160"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" />
+                                            <ListBox Grid.Column="1"
+                                                     Height="300"
+                                                     ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                                     ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
+                                                     SelectedItem="{Binding Cache.PMTId}"
+                                                     SelectionMode="Single">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                                </i:Interaction.Behaviors>
+                                            </ListBox>
+                                        </Grid>
+                                        <ComboBox hc:TitleElement.Title="Cal Chip: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="160"
+                                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
+                                                  SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
                                         </ComboBox>
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Select OpticsIlluminationMode And ProductivityInformation"
-                                                Command="{Binding Step00Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Margin="11,0"
-                                                            Orientation="Vertical"
-                                                            Spacing="2">
-                                        <pattern:CIBConfigurationUserControl DataContext="{Binding CIBConfiguration}" />
                                         <ComboBox hc:TitleElement.Title="Laser Light Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  SelectedItem="{Binding LaserLightInformation}"
+                                                  hc:TitleElement.TitleWidth="160"
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
-                                                  Style="{StaticResource ComboBoxExtend}" />
-                                        <TextBox Text="{Binding BrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.Title="Bright Field Position:"
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 Style="{StaticResource TextBoxExtend}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="0"
+                                                          hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ImageWidthPixel}" />
+                                                          Value="{Binding Cache.ImageWidth}" />
+                                        <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.TitleWidth="160"
+                                                 hc:TitleElement.Title="Bright Field Position(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(radio): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.Threshold}" />
+                                        <Expander Header="Optics Configuration"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                            </Border>
+                                        </Expander>
+                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                VerticalAlignment="Top"
+                                                                Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding ActionCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                                            <Button Content="Cancel"
+                                                    Command="{Binding ActionCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
                                     </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Get PMT of  8 Pictures  Action"
-                                                Command="{Binding Step01Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Get ALL PMT  Pictures  Action"
-                                                Command="{Binding Step02Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Compare PMT Pictures Action"
-                                                Command="{Binding Step03Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                        <GroupBox Header="Result">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <TextBox Text="{Binding PMT8Ch1PixselCompare}"
-                                             hc:TitleElement.Title="CH1 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding PMT8Ch2PixselCompare}"
-                                             hc:TitleElement.Title="CH2 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding PMT8Ch3PixselCompare}"
-                                             hc:TitleElement.Title="CH3 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                    </hc:UniformSpacingPanel>
-                </hc:ScrollViewer>
-            </Border>
-            <GridSplitter Grid.Column="1" />
-            <Border Grid.Column="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <TabControl>
-                    <i:Interaction.Behaviors>
-                        <wpf:SelectorAutoSelectFirstBehavior />
-                    </i:Interaction.Behaviors>
-                    <TabItem Header="Center Optics">
-                        <TabControl SelectedIndex="0">
-                            <TabItem Header="CH1 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChCenterOpticsImagePath[0], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="CH2 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChCenterOpticsImagePath[1], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="CH3 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChCenterOpticsImagePath[2], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                        </TabControl>
-                    </TabItem>
-                    <TabItem Header="All Optics">
-                        <TabControl SelectedIndex="0">
-                            <TabItem Header="CH1 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChAllOpticsImagePath[0], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="CH2 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChAllOpticsImagePath[1], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="CH3 Image">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChAllOpticsImagePath[2], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                        </TabControl>
-                    </TabItem>
-                </TabControl>
-            </Border>
-        </Grid>
+                                </Border>
+                            </GroupBox>
+                        </hc:UniformSpacingPanel>
+                    </ScrollViewer>
+                </Border>
+                <GridSplitter Grid.Column="1" Width="5" />
+
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Row="0" Header="Zoos On">
+                        <Border Padding="5" Style="{StaticResource BorderRegion}">
+                            <ListBox ItemsSource="{Binding ZoosOnResults}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
+                                        <Border Width="250"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="False"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </GroupBox>
+                    <GroupBox Grid.Row="1" Header="Zoos Off">
+                        <Border Padding="5" Style="{StaticResource BorderRegion}">
+                            <ListBox ItemsSource="{Binding ZoosOffResults}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
+                                        <Border Width="250"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="False"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </hc:SimplePanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </GroupBox>
+                    <GroupBox Grid.Row="2" Header="Diff">
+                        <Border Padding="5" Style="{StaticResource BorderRegion}">
+                            <ListBox ItemsSource="{Binding Results}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
+                                        <Border Width="250"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <hc:SimplePanel>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="False"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <hc:UniformSpacingPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Top"
+                                                               Foreground="Yellow" />
+                                                    <TextBlock Text="{Binding RadioResult, StringFormat={}Radio Value: {0:F6}}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Top"
+                                                               Foreground="Green">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                                                        <Setter Property="Foreground" Value="Green" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                        <Setter Property="Foreground" Value="Red" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </hc:UniformSpacingPanel>
+                                             
+                                            </hc:SimplePanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
+                    </GroupBox>
+                </Grid>
+
+            </Grid>
+        </Border>
     </Grid>
 </hc:Window>

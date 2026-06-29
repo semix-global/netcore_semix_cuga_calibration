@@ -9,9 +9,9 @@
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-           xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
-           xmlns:wpfScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionYGhostWindowViewModel}"
@@ -28,21 +28,11 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <Grid.Resources>
-            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
-                <Setter Property="CornerRadius" Value="0" />
-                <Setter Property="BorderThickness" Value="0" />
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <hc:SimplePanel Grid.Row="0" Grid.Column="0"
-                        Background="{StaticResource PrimaryBrush}">
+        <hc:SimplePanel Background="{StaticResource PrimaryBrush}">
             <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
                         VerticalAlignment="Center"
                         Background="Transparent">
@@ -74,282 +64,203 @@
                 </Button.Style>
             </Button>
         </hc:SimplePanel>
-        <Grid Grid.Row="1" Margin="5">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="5" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Border Width="500"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Auto">
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <GroupBox Header="Common Params">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:UniformSpacingPanel Margin="11,0"
-                                                            Orientation="Vertical"
-                                                            Spacing="2">
-                                        <pattern:CIBConfigurationUserControl DataContext="{Binding CIBConfiguration}" />
+
+        <Border Grid.Row="1"
+                Margin="1"
+                Padding="2"
+                Effect="{StaticResource EffectShadow1}"
+                Style="{StaticResource BorderRegion}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="500" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource BorderRegion}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <GroupBox Header="Params">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="160"
+                                                     SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
+                                                     Style="{StaticResource ComboBoxExtend}"
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                        <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="160"
+                                                     IsEditable="True"
+                                                     IsReadOnly="True"
+                                                     Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                            <hc:ComboBox.ItemsSource>
+                                                <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
+                                                    <Binding Path="ApplicationCookie" />
+                                                    <Binding Path="Cache.OpticsIlluminationModeEnum" />
+                                                </MultiBinding>
+                                            </hc:ComboBox.ItemsSource>
+                                        </hc:ComboBox>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="CIB Informations: "
+                                                       Width="160"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center" />
+                                            <ListBox Grid.Column="1"
+                                                     Height="300"
+                                                     ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                                     ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
+                                                     SelectedItem="{Binding Cache.PMTId}"
+                                                     SelectionMode="Single">
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                                </i:Interaction.Behaviors>
+                                            </ListBox>
+                                        </Grid>
+                                        <ComboBox hc:TitleElement.Title="Cal Chip: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="160"
+                                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
+                                                  SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         <ComboBox hc:TitleElement.Title="Laser Light Information: "
                                                   hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  SelectedItem="{Binding LaserLightInformation}"
+                                                  hc:TitleElement.TitleWidth="160"
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
-                                                  Style="{StaticResource ComboBoxExtend}" />
-                                        <TextBox Text="{Binding BrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.Title="Bright Field Position:"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.ImageWidth}" />
+                                        <TextBox Text="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.TitleWidth="160"
+                                                 hc:TitleElement.Title="Start Position(um): "
                                                  hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="200"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                        <hc:NumericUpDown hc:TitleElement.Title="Y Range(um): "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="0"
+                                                          hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding ImageWidthPixel}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Curve MoveDown Threshold: "
+                                                          Value="{Binding Cache.YRange}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Y Step(um): "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="-5"
-                                                          Maximum="-0.1"
-                                                          Increment="0.1"
-                                                          ValueFormat="F2"
+                                                          hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding MoveDownThreshold}" />
+                                                          Value="{Binding Cache.YStep}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Align Value(dB): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.AligndBValue}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(dB): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.Threshold}" />
+                                        <Expander Header="Optics Configuration"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                            </Border>
+                                        </Expander>
+                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                VerticalAlignment="Top"
+                                                                Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding ActionCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                                            <Button Content="Cancel"
+                                                    Command="{Binding ActionCancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
                                     </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Goto 0.16Array Region Action"
-                                                Command="{Binding Step00Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Get  PMT8  Pictures  Action"
-                                                Command="{Binding Step01Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Get  All Curve  Data  Action"
-                                                Command="{Binding Step02Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                    </hc:UniformSpacingPanel>
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                        <GroupBox Header="Result">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:ComboBox HorizontalAlignment="Left"
-                                                 hc:InfoElement.TitlePlacement="Left"
-                                                 hc:InfoElement.Title="Channel Show Type: "
-                                                 hc:TitleElement.TitleWidth="200"
-                                                 hc:InfoElement.Necessary="False"
-                                                 ItemsSource="{Binding AvailableChannelIds}"
-                                                 SelectedItem="{Binding SelectedChannelId, Mode=TwoWay}" />
-                                    <TextBox Text="{Binding PMT8Ch1PixselCompare}"
-                                             hc:TitleElement.Title="CH1 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding PMT8Ch2PixselCompare}"
-                                             hc:TitleElement.Title="CH2 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding PMT8Ch3PixselCompare}"
-                                             hc:TitleElement.Title="CH3 Pixsel Compare:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                    </hc:UniformSpacingPanel>
-                </hc:ScrollViewer>
-            </Border>
-            <GridSplitter Grid.Column="1" />
-            <Border Grid.Column="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <TabControl>
-                    <i:Interaction.Behaviors>
-                        <wpf:SelectorAutoSelectFirstBehavior />
-                    </i:Interaction.Behaviors>
-                    <TabItem Header="All Images">
-                        <TabControl SelectedIndex="0">
-                            <TabItem Header="Image1">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[0], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image2">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[1], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image3">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[2], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image4">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[3], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image5">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[4], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image6">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[5], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
-                            <TabItem Header="Image7">
-                                <view:CanvasView BackgroundColor="#0A0A0A"
-                                                 AxisColor="Red"
-                                                 Interactive="True"
-                                                 ShowAxes="False"
-                                                 ShowCursor="False"
-                                                 ShowGrid="False"
-                                                 BackgroundImage="{Binding PMT8ChImagePath[6], Converter={StaticResource StringToBitmapFrameConverter}}" />
-                            </TabItem>
+                                </Border>
+                            </GroupBox>
+                        </hc:UniformSpacingPanel>
+                    </ScrollViewer>
+                </Border>
+
+                <GridSplitter Grid.Column="1" Width="5" />
+
+                <GroupBox Grid.Column="2" Header="History">
+                    <Border Padding="5" Style="{StaticResource BorderRegion}">
+                        <TabControl ItemsSource="{Binding YGhostResults}">
+                            <i:Interaction.Behaviors>
+                                <wpf:SelectorAutoSelectFirstBehavior />
+                            </i:Interaction.Behaviors>
+                            <TabControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type viewModels:CollectionYGhostResult}">
+                                    <TextBlock Text="{Binding CIBInformation}" />
+                                </DataTemplate>
+                            </TabControl.ItemTemplate>
+                            <TabControl.ContentTemplate>
+                                <DataTemplate DataType="{x:Type viewModels:CollectionYGhostResult}">
+                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="7*" />
+                                                <RowDefinition Height="5" />
+                                                <RowDefinition Height="3*" />
+                                            </Grid.RowDefinitions>
+                                            <ContentControl Content="{Binding ScatterPlotControl,Mode=OneWay}" />
+                                            <GridSplitter Grid.Row="1" Width="5" />
+                                            <ListBox Grid.Row="2" ItemsSource="{Binding Items}">
+                                                <ListBox.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <WrapPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ListBox.ItemsPanel>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="{x:Type viewModels:CollectionYGhostResultItem}">
+                                                        <Border Width="250"
+                                                                Height="300"
+                                                                Style="{StaticResource BorderRegion}">
+                                                            <hc:SimplePanel>
+                                                                <view:CanvasView AxisColor="Red"
+                                                                                 BackgroundColor="#0A0A0A"
+                                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                 Interactive="True"
+                                                                                 ShowAxes="False"
+                                                                                 ShowCursor="False"
+                                                                                 ShowGrid="False" />
+                                                                <TextBlock Text="{Binding FindPosition, StringFormat={}Find Position: {0:F2}}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Top"
+                                                                           Foreground="Yellow" />
+                                                            </hc:SimplePanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </TabControl.ContentTemplate>
                         </TabControl>
-                    </TabItem>
-                    <TabItem Header="All Curves">
-                        <TabControl SelectedIndex="0">
-                            <TabItem Header="CurveCH1">
-                                <Grid>
-                                    <wpfScottPlot:WpfPlot Margin="5">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Y Ghost Curve"
-                                                                            Plot0Title="Curve1"
-                                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                            Plot0="{Binding YGhostListCH11}"
-                                                                            Plot1Title="Curve2"
-                                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                            Plot1="{Binding YGhostListCH12}"
-                                                                            Plot2Title="Curve3"
-                                                                            Plot2Color="{x:Static scottPlot:Colors.Yellow}"
-                                                                            Plot2="{Binding YGhostListCH13}"
-                                                                            Plot3Title="Curve4"
-                                                                            Plot3Color="{x:Static scottPlot:Colors.Blue}"
-                                                                            Plot3="{Binding YGhostListCH14}"
-                                                                            Plot4Title="Curve5"
-                                                                            Plot4Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                                            Plot4="{Binding YGhostListCH15}"
-                                                                            Plot5Title="Curve6"
-                                                                            Plot5Color="{x:Static scottPlot:Colors.Gold}"
-                                                                            Plot5="{Binding YGhostListCH16}"
-                                                                            Plot6Title="Curve7"
-                                                                            Plot6Color="{x:Static scottPlot:Colors.Gray}"
-                                                                            Plot6="{Binding YGhostListCH17}" />
-                                        </i:Interaction.Behaviors>
-                                    </wpfScottPlot:WpfPlot>
-                                </Grid>
-                            </TabItem>
-                            <TabItem Header="CurveCH2">
-                                <Grid>
-                                    <wpfScottPlot:WpfPlot Margin="5">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Y Ghost Curve"
-                                                                            Plot0Title="Curve1"
-                                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                            Plot0="{Binding YGhostListCH21}"
-                                                                            Plot1Title="Curve2"
-                                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                            Plot1="{Binding YGhostListCH22}"
-                                                                            Plot2Title="Curve3"
-                                                                            Plot2Color="{x:Static scottPlot:Colors.Yellow}"
-                                                                            Plot2="{Binding YGhostListCH23}"
-                                                                            Plot3Title="Curve4"
-                                                                            Plot3Color="{x:Static scottPlot:Colors.Blue}"
-                                                                            Plot3="{Binding YGhostListCH24}"
-                                                                            Plot4Title="Curve5"
-                                                                            Plot4Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                                            Plot4="{Binding YGhostListCH25}"
-                                                                            Plot5Title="Curve6"
-                                                                            Plot5Color="{x:Static scottPlot:Colors.Gold}"
-                                                                            Plot5="{Binding YGhostListCH26}"
-                                                                            Plot6Title="Curve7"
-                                                                            Plot6Color="{x:Static scottPlot:Colors.Gray}"
-                                                                            Plot6="{Binding YGhostListCH27}" />
-                                        </i:Interaction.Behaviors>
-                                    </wpfScottPlot:WpfPlot>
-                                </Grid>
-                            </TabItem>
-                            <TabItem Header="CurveCH3">
-                                <Grid>
-                                    <wpfScottPlot:WpfPlot Margin="5">
-                                        <i:Interaction.Behaviors>
-                                            <behaviors:WpfPlotMultiBehavior Title="Y Ghost Curve"
-                                                                            Plot0Title="Curve1"
-                                                                            Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                            Plot0="{Binding YGhostListCH31}"
-                                                                            Plot1Title="Curve2"
-                                                                            Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                            Plot1="{Binding YGhostListCH32}"
-                                                                            Plot2Title="Curve3"
-                                                                            Plot2Color="{x:Static scottPlot:Colors.Yellow}"
-                                                                            Plot2="{Binding YGhostListCH33}"
-                                                                            Plot3Title="Curve4"
-                                                                            Plot3Color="{x:Static scottPlot:Colors.Blue}"
-                                                                            Plot3="{Binding YGhostListCH34}"
-                                                                            Plot4Title="Curve5"
-                                                                            Plot4Color="{x:Static scottPlot:Colors.DarkOrange}"
-                                                                            Plot4="{Binding YGhostListCH35}"
-                                                                            Plot5Title="Curve6"
-                                                                            Plot5Color="{x:Static scottPlot:Colors.Gold}"
-                                                                            Plot5="{Binding YGhostListCH36}"
-                                                                            Plot6Title="Curve7"
-                                                                            Plot6Color="{x:Static scottPlot:Colors.Gray}"
-                                                                            Plot6="{Binding YGhostListCH37}" />
-                                        </i:Interaction.Behaviors>
-                                    </wpfScottPlot:WpfPlot>
-                                </Grid>
-                            </TabItem>
-                        </TabControl>
-                    </TabItem>
-                </TabControl>
-            </Border>
-        </Grid>
+                    </Border>
+                </GroupBox>
+            </Grid>
+        </Border>
     </Grid>
 </hc:Window>

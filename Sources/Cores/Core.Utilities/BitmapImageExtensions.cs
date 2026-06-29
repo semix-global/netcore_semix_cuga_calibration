@@ -1,3 +1,4 @@
+using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -30,14 +31,22 @@ public static class BitmapImageExtensions
             return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
-        public BitmapImage RotateCounterClockwise90DegreeAndVerticalFlip()
+        public BitmapImage RotateCounterClockwise90Degree()
         {
             using var hImage = bitmapImage.ToHImage();
 
-            using var temp1 = hImage.RotateCounterClockwise90Degree();
-            using var temp2 = temp1.VerticalFlip();
+            using var temp = hImage.RotateCounterClockwise90Degree();
 
-            return temp2.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+        }
+
+        public BitmapImage VerticalFlip()
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            using var temp = hImage.VerticalFlip();
+
+            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
         public (double Average, double Deviation) GetIntensity()
@@ -45,6 +54,18 @@ public static class BitmapImageExtensions
             using var hImage = bitmapImage.ToHImage();
 
             return hImage.GetIntensity();
+        }
+
+        public BitmapImage SubImage(BitmapImage subImage)
+        {
+            using var hImage = bitmapImage.ToHImage();
+            using var hSubImage = subImage.ToHImage();
+
+            using var resultImage = hImage.SubImage(hSubImage, 1d, 0d);
+
+            using var resultHImage = new HImage(resultImage);
+
+            return resultHImage.ToBitmapImage();
         }
     }
 }
