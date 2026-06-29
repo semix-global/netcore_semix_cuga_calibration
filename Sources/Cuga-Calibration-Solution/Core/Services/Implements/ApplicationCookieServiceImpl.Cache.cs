@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Models;
+using System.Runtime.CompilerServices;
 
 namespace CugaCalibration.Core.Services.Implements;
 

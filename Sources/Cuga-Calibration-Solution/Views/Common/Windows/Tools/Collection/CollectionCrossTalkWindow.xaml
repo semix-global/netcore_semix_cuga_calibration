@@ -278,7 +278,7 @@
                                                                  ShowAxes="False"
                                                                  ShowCursor="False"
                                                                  ShowGrid="False" />
-                                                <hc:UniformSpacingPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
                                                     <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Top"
@@ -301,7 +301,7 @@
                                                         </TextBlock.Style>
                                                     </TextBlock>
                                                 </hc:UniformSpacingPanel>
-                                             
+
                                             </hc:SimplePanel>
                                         </Border>
                                     </DataTemplate>

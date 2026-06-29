@@ -10,7 +10,9 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -21,10 +23,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
-using MathNet.Numerics;
-using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Modules.CurveFitting;
-using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 
