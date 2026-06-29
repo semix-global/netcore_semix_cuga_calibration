@@ -15,4 +15,12 @@ public partial interface IApplicationCookieService
     CalibrationDTOBase[] GetCalibrations(Type type, CancellationToken cancellationToken = default);
 
     void SetCalibrations(Type type, CalibrationDTOBase[] calibrations, CancellationToken cancellationToken = default);
+
+    object GetOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default);
+
+    object[] GetArrayOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default);
+
+    void Set(Type type, object cache, bool isRecipe, CancellationToken cancellationToken = default);
+
+    void SetArray(Type type, object[] caches, bool isRecipe, CancellationToken cancellationToken = default);
 }

@@ -13,12 +13,13 @@ namespace CugaCalibration.Core.Services.Implements;
 [IOCAppService(ServiceType = typeof(ICalibrationVersionFactory), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public class CalibrationVersionFactory(
     ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieService,
     ApplicationCookie applicationCookie) : ICalibrationVersionFactory
 {
     public CalibrationVersionDTO.VersionInfo? CalibrationDTOItemsConvertToVersionInfo(Type type, long? id = null)
     {
         var dtos = (id is null
-            ? cacheProvider.GetOrDefaultArray(type)
+            ? applicationCookieService.GetCalibrations(type)
             : cacheProvider.GetArray(type, id.Value)) as CalibrationDTOBase[];
 
         var dto = dtos?.FirstOrDefault();
@@ -35,7 +36,7 @@ public class CalibrationVersionFactory(
     public CalibrationVersionDTO.VersionInfo? CalibrationDTOConvertToVersionInfo(Type type, long? id = null)
     {
         if ((id is null
-                ? cacheProvider.GetOrDefault(type)
+                ? applicationCookieService.GetCalibration(type)
                 : cacheProvider.Get(type, id.Value)) is not CalibrationDTOBase dto) return null;
 
         return new CalibrationVersionDTO.VersionInfo

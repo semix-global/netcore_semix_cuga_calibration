@@ -11,6 +11,7 @@ using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
+using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -177,6 +178,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     ApplicationCookie applicationCookie,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieService,
     IDialogWindowProvider dialogWindowProvider,
     IOptions<ApplicationSetting> options,
     StageViewModel stageViewModel,
@@ -209,15 +211,14 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     [RelayCommand]
     private void RefreshBFMachinePosition()
     {
-        if (cacheProvider.TryGetOrDefault<MicroscopeCalChipDTO>(out var microscopeCalChip))
-        {
-            if (microscopeCalChip.IsOk)
-            {
-                Cache.HazeBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.HazeItem).BrightFieldMachinePosition;
-                Cache.ShinyWaferBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
+        var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
 
-                return;
-            }
+        if (microscopeCalChip.IsOk)
+        {
+            Cache.HazeBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.HazeItem).BrightFieldMachinePosition;
+            Cache.ShinyWaferBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
+
+            return;
         }
 
         dialogWindowProvider.ShowDialog("Please Calibrate CalChip First", DialogButtonsEnum.OK, DialogIconEnum.Warning);

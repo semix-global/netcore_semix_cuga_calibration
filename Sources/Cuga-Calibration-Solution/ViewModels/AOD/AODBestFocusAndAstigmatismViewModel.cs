@@ -201,7 +201,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         return InvokeCalibrateAsync(() =>
         {
-            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(cancellationToken);
+            var chirpCache = ApplicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(false, cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)

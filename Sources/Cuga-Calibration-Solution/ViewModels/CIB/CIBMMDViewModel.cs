@@ -260,7 +260,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         return InvokeCalibrateAsync(() =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
-            var prescanCache = CacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>(cancellationToken);
+            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>(false, cancellationToken);
             var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (prescanResult is null)
@@ -280,7 +280,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             Cache.GeneratePrescanAODWaveformParam.FlatnessTime = 4800d;
             Cache.GeneratePrescanAODWaveformParam.ZeroSampleCount = 0;
 
-            var chirpCache = CacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(cancellationToken);
+            var chirpCache = ApplicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(false, cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)
@@ -738,8 +738,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         {
             VerifyFileName = nameof(SaveAgingTemplateCommand);
 
-            var cibAgingCache = CacheProvider.GetOrDefault<CIBAgingCache>(cancellationToken);
-            var cibAgingResult = CacheProvider.GetOrDefault<CIBAgingResult>(cancellationToken);
+            var cibAgingCache = ApplicationCookieService.GetOrDefault<CIBAgingCache>(false, cancellationToken);
+            var cibAgingResult = ApplicationCookieService.GetOrDefault<CIBAgingResult>(false, cancellationToken);
 
             cibAgingCache.Id = 0;
             cibAgingCache.CIBMMDCache = Cache.Clone();
@@ -760,8 +760,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                     })
             ];
 
-            CacheProvider.Set(cibAgingCache, cancellationToken);
-            CacheProvider.Set(cibAgingResult, cancellationToken);
+            ApplicationCookieService.Set(cibAgingCache, false, cancellationToken);
+            ApplicationCookieService.Set(cibAgingResult, false, cancellationToken);
 
             var message = string.Join(", ", SelectedReviewItems.OrderBy(t => t.CIBInformation).Select(t => t.CIBInformation));
 

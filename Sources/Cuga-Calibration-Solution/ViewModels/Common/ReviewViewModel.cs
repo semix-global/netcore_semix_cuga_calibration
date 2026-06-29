@@ -9,7 +9,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using Local.SQL.Cache.Providers.Services.Interfaces;
+using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -33,7 +33,7 @@ public sealed partial class ReviewViewModel(
     MicroscopeViewModel microscopeViewModel,
     ILogger<ReviewViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
-    ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     CalibrationSetting calibrationSetting)
     : ViewModelBase
@@ -354,7 +354,7 @@ public sealed partial class ReviewViewModel(
         {
             if (point is null) return;
 
-            var microscopePixelSizes = cacheProvider.GetOrDefaultArray<MicroscopePixelSizeItemDto>();
+            var microscopePixelSizes = applicationCookieCacheProvider.GetCalibrations<MicroscopePixelSizeItemDto>();
             var currentMicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
             var size = microscopePixelSizes.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
 

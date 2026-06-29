@@ -157,7 +157,8 @@ public interface ICalibrationOpticsService
     /// <summary>
     /// 设置ZOOS遮挡与否，实现单光斑或者所有光斑采图
     /// </summary>
-    /// <param name="status">True为ZOOS遮挡，单光斑采图，否则为所有光斑采图</param>
+    /// <param name="opticsIlluminationModeEnum"></param>
+    /// <param name="enable">True为ZOOS遮挡，单光斑采图，否则为所有光斑采图</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status);
+    SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable);
 }
