@@ -42,8 +42,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Cores\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj"
-                          OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Cores\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
         <ProjectReference Include="..\Cores\Core.Recipe\06. Core.Recipe.csproj" />
     </ItemGroup>
@@ -64,8 +63,7 @@
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs">
             <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', 'Abstract$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile
-            Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
             <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
         <Compile Update="ViewModels\*\*.LoadDepends.cs">
