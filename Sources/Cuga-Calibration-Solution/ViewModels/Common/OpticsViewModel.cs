@@ -103,6 +103,13 @@ public sealed class OpticsViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool isEnable)
+    {
+        var ret = calibrationOpticsService.ToggleZoosClinder(opticsIlluminationModeEnum, isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public OpticsApodizationModeEnum GetApodizationMode()
     {
         var ret = calibrationOpticsService.GetApodizationMode();

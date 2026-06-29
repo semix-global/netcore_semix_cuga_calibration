@@ -1,245 +1,259 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Core.Utilities;
-using CugaCalibration.ViewModels.Common.Windows.View;
+using Core.Utilities.SourceGenerators.Attributes;
+using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Helpers.Files;
-using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
 
-[IOCAppService(ServiceType = typeof(CollectionCrossTalkWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionCrossTalkWindowViewModel(
-    IServiceProvider serviceProvider,
-    StageViewModel stageViewModel,
-    StageWindowViewModel stageWindowViewModel,
-    AfViewModel afViewModel,
-    LaserViewModel laserViewModel,
-    CIBViewModel cibViewModel,
-    IOptions<ApplicationSetting> options,
-    ICalibrationOpticsService calibrationOpticsService,
-    CreateRoiWindowViewModel createRoiWindowViewModel,
-    ApplicationCookie applicationCookie,
-    ICacheProvider cacheProvider,
-    IDialogWindowProvider dialogWindowProvider,
-    IWindowManagerService windowManagerService,
-    ILogger<CollectionCrossTalkWindowViewModel> logger) : ViewModelBase
+public sealed partial class CollectionCrossTalkCache : ObservableCacheBase
 {
-    private const string DSW = nameof(DSW);
-
-    private const string Haze = nameof(Haze);
-
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionCrossTalkWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
-
-    public static string LogHtmlFileName => "CollectionCrossTalk_Diagnosis";
-
-    public string DiagnosisHtmlLogFileName => string.IsNullOrWhiteSpace(LogHtmlFileName) ? "Diagnosis" : $"Diagnosis-{FileHelper.RemoveInvalidFileName(LogHtmlFileName)}";
+    [ObservableProperty]
+    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
 
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
+
+    [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = null!;
 
     [ObservableProperty]
-    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
+    public partial int PMTId { get; set; } = 8;
 
     [ObservableProperty]
-    public partial Point BrightFieldPosition { get; set; }
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial int ImageWidthPixel { get; set; } = 1000;
+    public partial Point FindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial double[] PMT8ChPixselBefore { get; set; } = new double[3];
+    public partial double Threshold { get; set; } = 1 / 1500d;
+}
+
+public sealed partial class CollectionCrossTalkResult : ObservableObject
+{
+    [ObservableProperty]
+    public partial bool IsOk { get; set; } = false;
 
     [ObservableProperty]
-    public partial double[] PMT8ChPixselAfter { get; set; } = new double[3];
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    public partial string[] PMT8ChCenterOpticsImagePath { get; set; } = new string[3];
+    public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string[] PMT8ChAllOpticsImagePath { get; set; } = new string[3];
+    public partial double GrayValue { get; set; }
 
     [ObservableProperty]
-    public partial double PMT8Ch1PixselCompare { get; set; }
+    public partial double RadioResult { get; set; }
 
-    [ObservableProperty]
-    public partial double PMT8Ch2PixselCompare { get; set; }
+    public object ToHtmlAnonymous(string title, bool isResult) => isResult
+        ? new
+        {
+            title,
+            IsOk,
+            CIBInformation,
+            GrayValue,
+            RadioResult,
+            ResultImageh = new HtmlImage(ImageFilePath),
+        }
+        : new
+        {
+            title,
+            CIBInformation,
+            GrayValue,
+            ResultImageh = new HtmlImage(ImageFilePath)
+        };
+}
 
-    [ObservableProperty]
-    public partial double PMT8Ch3PixselCompare { get; set; }
+[IOCAppService(ServiceType = typeof(CollectionCrossTalkWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class CollectionCrossTalkWindowViewModel(
+    ICacheProvider cacheProvider,
+    StageViewModel stageViewModel,
+    CIBViewModel cibViewModel,
+    OpticsViewModel opticsViewModel,
+    IOptions<ApplicationSetting> options,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    ApplicationCookie applicationCookie,
+    IDialogWindowProvider dialogWindowProvider,
+    ILogger<CollectionCrossTalkWindowViewModel> logger) : ViewModelBase
+{
+    public string Name => "Collection Cross Talk";
+
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionCrossTalkWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
     public Guid HtmlLogUniqueId { get; private set; }
 
+    [DefaultCache]
+    [ObservableProperty]
+    public partial CollectionCrossTalkCache Cache { get; set; } = new();
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CollectionCrossTalkResult> ZoosOnResults { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CollectionCrossTalkResult> ZoosOffResults { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CollectionCrossTalkResult> Results { get; set; } = [];
+
     [RelayCommand]
     private void Loaded()
     {
-        BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition();
-
-        HtmlLogUniqueId = Guid.NewGuid();
-        logger.LogHtmlInformation("Result Params", HtmlHeaderLevelEnum.Header1, new HtmlBullet(new
-        {
-            BrightFieldPosition,
-            ImageWidthPixel
-        }), HtmlLogUniqueId.LoggingHtml());
-    }
-
-    [RelayCommand]
-    private Task Step00Async()
-    {
-        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-        {
-            ProductivityInformation
-        }), HtmlLogUniqueId.LoggingHtml());
-        return Task.CompletedTask;
+        Cache = cacheProvider.GetOrDefault<CollectionCrossTalkCache>();
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step01Async(CancellationToken cancellationToken)
+    private async Task ActionAsync(CancellationToken cancellationToken)
     {
-        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, true);
-        BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition();
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(BrightFieldPosition, calChipSiteModelEnum);
-
-        Point DarkFieldPosition = stageViewModel.GetDarkFieldStagePosition();
+        await InvokeAsync(async () =>
         {
-            var centerOpticsPaths = new string[3]; // 创建新数组
-            for (int i = 1; i <= 3; i++)
+            ZoosOnResults = [];
+            ZoosOffResults = [];
+            Results = [];
+
+            CIBConfiguration cibConfiguration = new()
             {
-                var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == i);
-                using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
-                    ApplicationCookie.NILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, OpticsConfiguration),
-                    (false, CIBConfiguration),
-                    (false, LaserLightInformation),
+                IsAutoGainControl = true,
+                IsL0K = false,
+                CIBProfileMode = CIBProfileModeEnum.PMTLog
+            };
+
+            logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.OpticsIlluminationModeEnum,
+                Cache.ProductivityInformation,
+                Cache.CalChipSiteModelEnum,
+                Cache.PMTId,
+                Cache.ImageWidth,
+                Cache.FindPosition,
+                Cache.LaserLightInformation,
+                Cache.Threshold,
+                CibConfiguration = new HtmlQuote(cibConfiguration.ToHtmlAnonymous()),
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            try
+            {
+                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
+
+                opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, true);
+                var zoosOnDarkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Bright,
+                    Cache.FindPosition,
+                    Cache.ImageWidth,
+                    [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)],
+                    (false, Cache.CalChipSiteModelEnum),
+                    (false, Cache.OpticsConfiguration),
+                    (false, cibConfiguration),
+                    (false, Cache.LaserLightInformation),
                     false,
                     cancellationToken);
+                ZoosOnResults = GetResult([.. zoosOnDarkFieldImages.Select(t => (t.Image, t.CIBInformation))]);
 
-                var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                using var hImage = darkFieldImage.Image.ToHImage();
-                PMT8ChPixselBefore[i - 1] = hImage.GetIntensity().Average;
-                darkFieldImage.Image.SaveImage(path1);
-                centerOpticsPaths[i - 1] = path1;
-            }
-
-            PMT8ChCenterOpticsImagePath = centerOpticsPaths;
-        }
-
-        logger.LogHtmlInformation("Get PMT of 8 Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-        {
-            BrightFieldPosition,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            HtmlTab = new HtmlTab(new
-            {
-                PMT8Ch1Image = new HtmlImage(PMT8ChCenterOpticsImagePath[0]),
-                PMT8Ch2Image = new HtmlImage(PMT8ChCenterOpticsImagePath[1]),
-                PMT8Ch3Image = new HtmlImage(PMT8ChCenterOpticsImagePath[2])
-            })
-        }), HtmlLogUniqueId.LoggingHtml());
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step02Async(CancellationToken cancellationToken)
-    {
-        calibrationOpticsService.ClinderEXC(OpticsYGhostModeEnum.NI_Zoos, false);
-        Point DarkFieldPosition = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
-
-        {
-            var allOpticsPaths = new string[3]; // 创建新数组
-            for (int i = 1; i <= 3; i++)
-            {
-                var CIBInfor = ApplicationCookie.CIBInformations.Single(x => x.PMTId == 8 && x.ChannelId == i);
-                using var darkFieldImage = await cibViewModel.GetPMTImageAsync(
-                    ApplicationCookie.NILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    DarkFieldPosition,
-                    ImageWidthPixel,
-                    CIBInfor,
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, OpticsConfiguration),
-                    (false, CIBConfiguration),
-                    (false, LaserLightInformation),
+                opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
+                var zoosOffDarkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Bright,
+                    Cache.FindPosition,
+                    Cache.ImageWidth,
+                    [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)],
+                    (false, Cache.CalChipSiteModelEnum),
+                    (false, Cache.OpticsConfiguration),
+                    (false, cibConfiguration),
+                    (false, Cache.LaserLightInformation),
                     false,
                     cancellationToken);
+                ZoosOffResults = GetResult([.. zoosOffDarkFieldImages.Select(t => (t.Image, t.CIBInformation))]);
 
-                var path1 = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                using var hImage = darkFieldImage.Image.ToHImage();
-                PMT8ChPixselAfter[i - 1] = hImage.GetIntensity().Average;
-                darkFieldImage.Image.SaveImage(path1);
-                allOpticsPaths[i - 1] = path1;
+                var resultImages = zoosOnDarkFieldImages
+                    .Select((t, i) =>
+                    {
+                        var image = zoosOffDarkFieldImages[i].Image.SubImage(t.Image);
+                        return (image, t.CIBInformation);
+                    }).ToList();
+                Results = GetResult(resultImages);
+
+                logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                foreach (var (index, result) in Results.Select((t, i) => (i, t)))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    result.RadioResult = result.GrayValue / ZoosOffResults.Single(t => t.CIBInformation == result.CIBInformation).GrayValue;
+                    result.IsOk = result.RadioResult <= Cache.Threshold;
+
+                    logger.LogHtmlInformation($"{result.CIBInformation} {(result.IsOk ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        Results = new HtmlTable([
+                            ZoosOnResults[index].ToHtmlAnonymous("ZoosOn", false),
+                            ZoosOffResults[index].ToHtmlAnonymous("ZoosOff", false),
+                            result.ToHtmlAnonymous("Diff", true)
+                        ])
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                return true;
+            }
+            finally
+            {
+                opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
             }
 
-            PMT8ChAllOpticsImagePath = allOpticsPaths;
-        }
-
-        logger.LogHtmlInformation("Get ALL PMT Pictures", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-        {
-            BrightFieldPosition,
-            DarkFieldPosition,
-            ImageWidthPixel,
-            HtmlTab = new HtmlTab(new
+            IReadOnlyList<CollectionCrossTalkResult> GetResult(IReadOnlyList<(BitmapImage image, CIBInformation cibInformation)> images)
             {
-                AllPMTCh1Image = new HtmlImage(PMT8ChAllOpticsImagePath[0]),
-                AllPMTCh2Image = new HtmlImage(PMT8ChAllOpticsImagePath[1]),
-                AllPMTCh3Image = new HtmlImage(PMT8ChAllOpticsImagePath[2])
-            })
-        }), HtmlLogUniqueId.LoggingHtml());
-    }
+                List<CollectionCrossTalkResult> results = [];
+                foreach (var (image, cibInformation) in images)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-    [RelayCommand]
-    private Task Step03Async()
-    {
-        Point DarkFieldPosition = stageWindowViewModel.StatusViewModel.DarkFieldPosition;
-        PMT8Ch1PixselCompare = PMT8ChPixselBefore[0] / PMT8ChPixselAfter[0];
-        PMT8Ch2PixselCompare = PMT8ChPixselBefore[1] / PMT8ChPixselAfter[1];
-        PMT8Ch3PixselCompare = PMT8ChPixselBefore[2] / PMT8ChPixselAfter[2];
-        logger.LogHtmlInformation("Compare Pictures Pixsel OF PMT8 And All PMT", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
-        {
-            BrightFieldPosition = BrightFieldPosition,
-            DarkFieldPosition = DarkFieldPosition,
-            ImageWidthPixel = ImageWidthPixel,
-            PMT8Ch1PixselCompare = PMT8ChPixselBefore[0] / PMT8ChPixselAfter[0],
-            PMT8Ch2PixselCompare = PMT8ChPixselBefore[1] / PMT8ChPixselAfter[1],
-            PMT8Ch3PixselCompare = PMT8ChPixselBefore[2] / PMT8ChPixselAfter[2],
-            Image = new HtmlImage(PMT8ChCenterOpticsImagePath[2])
-        }), HtmlLogUniqueId.LoggingHtml());
+                    using var _ = image;
 
-        logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml($"{DiagnosisHtmlLogFileName}_OK"));
-        logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
-        return Task.CompletedTask;
+                    var filePath = Path.Combine(ImageDirectory, $"{cibInformation}_GUID{Guid.NewGuid()}.png");
+                    image.SaveImage(filePath);
+
+                    results =
+                    [
+                        ..results, new CollectionCrossTalkResult
+                        {
+                            CIBInformation = cibInformation,
+                            GrayValue = image.GetIntensity().Average,
+                            ImageFilePath = filePath
+                        }
+                    ];
+                }
+
+                return results;
+            }
+        });
     }
 
     [RelayCommand]
@@ -248,12 +262,59 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
         try
         {
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save cache");
+            logger.LogError(ex, "{@Name}: Failed to save cache", Name);
         }
 
-        CloseView(null);
+        CloseView(true);
+    }
+
+    private async Task InvokeAsync(Func<Task<bool>> func)
+    {
+        await Task.Run(async () =>
+        {
+            HtmlLogUniqueId = Guid.NewGuid();
+
+            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+
+            var isSuccess = false;
+            try
+            {
+                isSuccess = await func().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    return false;
+                }
+
+                dialogWindowProvider.ShowDialog($"""
+                                                 {Name}: Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            }
+            finally
+            {
+                logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSuccess ? "OK" : "Failed")}"));
+            }
+
+            if (isSuccess)
+            {
+                dialogWindowProvider.ShowDialog($"{Name}: Success");
+            }
+            else
+                dialogWindowProvider.ShowDialog($"{Name}: Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+            return isSuccess;
+        }).ConfigureAwait(false);
     }
 }

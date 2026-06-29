@@ -265,9 +265,14 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> ClinderEXC(OpticsYGhostModeEnum type, bool status)
+    public SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable)
     {
-        var sxExecuteRet = Invoke(() => Service?.ClinderEXC(type.ToCgClinderType(), status));
+        var sxExecuteRet = Invoke(() => Service?.ClinderEXC(opticsIlluminationModeEnum switch
+        {
+            OpticsIlluminationModeEnum.OI => CgClinderType.OI_Zoos,
+            OpticsIlluminationModeEnum.NI => CgClinderType.NI_Zoos,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgClinderType>(nameof(opticsIlluminationModeEnum))
+        }, enable));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
