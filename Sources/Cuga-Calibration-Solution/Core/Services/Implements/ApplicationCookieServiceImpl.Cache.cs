@@ -22,7 +22,7 @@ public sealed partial class ApplicationCookieServiceImpl
         if (dtoEntry is not null)
         {
             Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
-            Guard.IsFalse(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is not Array, so entry must be no array!");
+            Guard.IsFalse(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is not Array, so entry must be no array");
 
             return GetCalibration(type, cancellationToken);
         }
@@ -54,13 +54,13 @@ public sealed partial class ApplicationCookieServiceImpl
     public object[] GetArrayOrDefault(Type type, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
-        if (cacheEntry is not null) return ThrowHelper.ThrowArgumentException<object[]>("Cache is not support get array!");
+        if (cacheEntry is not null) return ThrowHelper.ThrowArgumentException<object[]>("Cache is not support get array");
 
         var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type);
         if (dtoEntry is not null)
         {
             Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
-            Guard.IsTrue(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is Array, so entry must be array!");
+            Guard.IsTrue(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is Array, so entry must be array");
 
             return Unsafe.As<object[]>(GetCalibrations(type, cancellationToken));
         }
@@ -95,7 +95,7 @@ public sealed partial class ApplicationCookieServiceImpl
         if (dtoEntry is not null)
         {
             Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
-            Guard.IsFalse(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is not Array, so entry must be no array!");
+            Guard.IsFalse(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Get is not Array, so entry must be no array");
 
             SetCalibration(type, Unsafe.As<CalibrationDTOBase>(cache), cancellationToken);
         }
@@ -109,13 +109,13 @@ public sealed partial class ApplicationCookieServiceImpl
     public void SetArray(Type type, object[] caches, bool isRecipe, CancellationToken cancellationToken = default) => Invoke(() =>
     {
         var cacheEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.CacheType == type);
-        if (cacheEntry is not null) ThrowHelper.ThrowArgumentException("Cache is not support get array!");
+        if (cacheEntry is not null) ThrowHelper.ThrowArgumentException("Cache is not support get array");
 
         var dtoEntry = ApplicationCookie.CalibrationViewModelEntries.Values.SingleOrDefault(t => t.DTOType == type);
         if (dtoEntry is not null)
         {
             Guard.IsFalse(isRecipe, nameof(isRecipe), "Cache is must be Cache Provider");
-            Guard.IsTrue(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Set is Array, so entry must be array!");
+            Guard.IsTrue(dtoEntry.IsArray, nameof(dtoEntry.IsArray), "Set is Array, so entry must be array");
 
             SetCalibrations(type, Guard.IsAssignableToTypeAndReturn<CalibrationDTOBase[]>(caches), cancellationToken);
         }
