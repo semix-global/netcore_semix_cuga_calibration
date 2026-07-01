@@ -8,19 +8,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" />
-        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.1-preview1.0-xuan" />
         <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
-        <PackageReference Include="Net.Utilities.ScottPlot" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" />
-        <PackageReference Include="Net.Utilities.Graphics.WPF" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.1-preview1.0-xuan" />
 
-        <PackageReference Include="Net.Utilities.WPF" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" />
-        <PackageReference Include="WPF.CanvasViewer" />
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.1-preview1.0-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.1-preview1.0-xuan" />
 
-        <PackageReference Include="WPF.CustomControl" />
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.1-preview1.0-xuan" />
 
         <PackageReference Include="Microsoft.Web.WebView2" />
     </ItemGroup>
