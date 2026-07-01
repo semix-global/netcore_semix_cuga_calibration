@@ -77,9 +77,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
-
-    [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
@@ -95,7 +92,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
         if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
-        MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<OpticsSCCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<OpticsSCDTO>(cancellationToken);
@@ -571,4 +567,3 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
     #endregion 校准
 }
-

@@ -41,7 +41,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
     public SxExecuteRet<bool> ToggleDarkFieldEnable(bool enable)
     {
-        var sxExecuteRet = enable ? Invoke(() => Service!.OpenDarkFieldMode()) : Invoke(() => Service!.OpenNscTestMode());
+        var sxExecuteRet = enable ? Invoke(() => Service!.OpenInspectionMode()) : Invoke(() => Service!.OpenNscTestMode());
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -112,6 +112,15 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double Min, double Max)> GetEcsMoveRange()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadECSLimit());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (0d, 0d))
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.ECSMinLimit + 1000d, sxExecuteRet.Anything.ECSMaxLimit - 500d));
+    }
+
     public SxExecuteRet<bool> SetSensorMicroscopeObjValue(MicroscopeLensInformation microscopeLensInformation)
     {
         var sxExecuteRet = Invoke(() => Service!.SetAFMicroscopeObj(microscopeLensInformation.AdaptTo().LensCode));
@@ -172,7 +181,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
         return sxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess<(double Offset, double Gain)>((sxExecuteRet.Anything.NSCOffset, sxExecuteRet.Anything.NSCGain / 1000d))
-            : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0, 0));
+            : SxExecuteRetHelper.CreateError<(double Offset, double Gain)>(sxExecuteRet.Msg, (0d, 0d));
     }
 
     public SxExecuteRet<bool> SetSensorNscCompensation(double offset, double gain)
@@ -182,6 +191,24 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
          * 5000/(最大-偏置)   放大1000倍
          */
         var sxExecuteRet = Invoke(() => Service!.SetNSCProperty(Convert.ToInt32(offset), Convert.ToInt32(gain * 1000)));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double KA, double OffsetA, double KB, double OffsetB)> GetFAFBCompensation()
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess<(double KA, double OffsetA, double KB, double OffsetB)>((sxExecuteRet.Anything.FA_K, sxExecuteRet.Anything.FA_B, sxExecuteRet.Anything.FB_K, sxExecuteRet.Anything.FB_B))
+            : SxExecuteRetHelper.CreateError<(double KA, double OffsetA, double KB, double OffsetB)>(sxExecuteRet.Msg, (0d, 0d, 0d, 0d));
+    }
+
+    public SxExecuteRet<bool> SetFAFBCompensation(double ka, double offsetA, double kb, double offsetB)
+    {
+        var sxExecuteRet = Invoke(() => Service!.SetAFLightOffset(ka, offsetA, kb, offsetB));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

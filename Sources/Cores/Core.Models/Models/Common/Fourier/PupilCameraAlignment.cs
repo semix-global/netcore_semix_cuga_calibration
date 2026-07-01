@@ -12,7 +12,7 @@ public enum FFCH
     ALL
 }
 
-public sealed partial class C2MFFRangeModel
+public sealed class C2MFFRangeModel
 {
     //
     // 摘要:

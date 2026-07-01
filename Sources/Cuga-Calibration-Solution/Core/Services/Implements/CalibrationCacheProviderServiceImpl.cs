@@ -42,7 +42,7 @@ using System.Text;
 namespace CugaCalibration.Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCacheProvider), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public partial class CalibrationCacheProviderServiceImpl(
+public class CalibrationCacheProviderServiceImpl(
     IOptions<ApplicationSetting> options,
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]

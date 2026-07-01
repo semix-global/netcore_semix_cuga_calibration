@@ -1567,4 +1567,3 @@ public sealed partial class PupilCenterChannelFlexibleApertureViewModel : Calibr
         Application.Current.Dispatcher.Invoke(() => { Cache.RectROIDrawableList = newList; });
     }
 }
-

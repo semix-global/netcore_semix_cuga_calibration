@@ -773,4 +773,3 @@ public sealed partial class PupilCenterChannelSpecularBlockerViewModel : Calibra
         return new BitmapImage(bytes, isCopy: true);
     }
 }
-
