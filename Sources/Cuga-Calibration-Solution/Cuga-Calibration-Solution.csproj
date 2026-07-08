@@ -27,6 +27,9 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <Reference Include="HAlgorithm">
+            <HintPath>$(RepositoryDirectory)\Dependencies\HAlgorithm.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
