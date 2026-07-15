@@ -101,7 +101,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 

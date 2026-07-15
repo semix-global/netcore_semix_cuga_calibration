@@ -89,7 +89,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 

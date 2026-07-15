@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Setting.CalibrationRelationConfig;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using System.Collections.ObjectModel;
@@ -25,6 +26,12 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
     [ObservableProperty]
     public partial ObservableCollection<SettingRequiredCalibrationParam> SettingRequiredCalibrationParamList { get; set; } = [];
 
+    /// <summary>
+    /// 配置Cuga依赖禁用关系
+    /// </summary>
+    [ObservableProperty]
+    public partial ObservableCollection<SettingCalibrationRelationParam> SettingCalibrationRelationParams { get; set; } = [];
+
     #region Mapper
 
     public CalibrationSetting AdaptIn(CalibrationSetting obj)
@@ -32,6 +39,7 @@ public sealed partial class CalibrationSetting : ObservableCacheBase, IAdaptIn<C
         SettingCommonParam = new SettingCommonParam().AdaptIn(obj.SettingCommonParam);
         SettingTemplateMatchParam = new SettingTemplateMatchParam().AdaptIn(obj.SettingTemplateMatchParam);
         SettingRequiredCalibrationParamList = [.. obj.SettingRequiredCalibrationParamList.Select(x => new SettingRequiredCalibrationParam().AdaptIn(x))];
+        SettingCalibrationRelationParams = [.. obj.SettingCalibrationRelationParams.Select(x => new SettingCalibrationRelationParam().AdaptIn(x))];
 
         return obj;
     }

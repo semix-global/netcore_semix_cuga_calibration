@@ -129,8 +129,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
-
         Cache = ApplicationCookieService.GetCache<AdsXGainsCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<AdsXGainsItemDto>(cancellationToken);
 

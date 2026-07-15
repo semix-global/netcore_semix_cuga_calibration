@@ -122,7 +122,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);

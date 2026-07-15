@@ -57,9 +57,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false)
-            return false;
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CollectPolarizationCache>(cancellationToken);

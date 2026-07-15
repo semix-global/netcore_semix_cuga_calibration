@@ -43,6 +43,9 @@ public sealed partial class SettingWindowViewModel(
     [ObservableProperty]
     public partial SettingRequiredCalibrationViewModel SettingRequiredCalibrationViewModel { get; set; } = HostApplication.GetRequiredService<SettingRequiredCalibrationViewModel>();
 
+    [ObservableProperty]
+    public partial SettingRelationCalibrationViewModel SettingRelationCalibrationViewModel { get; set; } = HostApplication.GetRequiredService<SettingRelationCalibrationViewModel>();
+
     /// <summary>
     /// 控制 SettingDisableCalibrateConfigUserControl 的启用状态
     /// </summary>
@@ -162,6 +165,12 @@ public sealed partial class SettingWindowViewModel(
                 return;
             }
 
+            if (await SettingRelationCalibrationViewModel.SavingAsync().ConfigureAwait(false) == false)
+            {
+                dialogWindowProvider.ShowDialog("Save Disable Calibration Config Failed, Please Check Settings and try again!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return;
+            }
+
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
             cacheProvider.Set(CalibrationSetting, cancellationTokenSource.Token);
@@ -182,7 +191,7 @@ public sealed partial class SettingWindowViewModel(
     private void Close()
     {
         SettingCalibrateItemsStatusViewModel.Closing();
-
+        SettingRelationCalibrationViewModel.Closing();
         CloseView(true);
     }
 }

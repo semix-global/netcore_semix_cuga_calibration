@@ -112,7 +112,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 

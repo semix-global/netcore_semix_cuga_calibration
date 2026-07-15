@@ -93,7 +93,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 

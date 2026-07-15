@@ -89,7 +89,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 

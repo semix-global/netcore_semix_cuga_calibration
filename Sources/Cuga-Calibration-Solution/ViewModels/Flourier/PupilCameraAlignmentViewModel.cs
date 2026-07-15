@@ -61,9 +61,6 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false)
-            return false;
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<PupilCameraAlignmentCache>(cancellationToken);

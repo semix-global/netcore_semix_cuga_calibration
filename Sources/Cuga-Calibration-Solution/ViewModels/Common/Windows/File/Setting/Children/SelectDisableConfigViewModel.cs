@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections.ObjectModel;
 
 namespace CugaCalibration.ViewModels.Common.Windows.File.Setting.Children;
 
@@ -16,7 +15,7 @@ public sealed partial class SelectDisableConfigViewModel(
     ILogger<SelectDisableConfigViewModel> logger) : ViewModelBase
 {
     [ObservableProperty]
-    public partial ObservableCollection<SettingDisableCalibrationConfig> ConfigList { get; set; } = [];
+    public partial IReadOnlyList<SettingDisableCalibrationConfig> ConfigList { get; set; } = [];
 
     [ObservableProperty]
     public partial SettingDisableCalibrationConfig? SelectedConfig { get; set; }
@@ -28,14 +27,8 @@ public sealed partial class SelectDisableConfigViewModel(
         {
             try
             {
-                var configs = cacheProvider.GetOrDefaultArray<SettingDisableCalibrationConfig>();
-
-                ConfigList = new ObservableCollection<SettingDisableCalibrationConfig>(configs);
-
-                if (ConfigList.Count > 0)
-                {
-                    SelectedConfig = ConfigList[0];
-                }
+                ConfigList = cacheProvider.GetOrDefaultArray<SettingDisableCalibrationConfig>();
+                SelectedConfig = ConfigList.Count > 0 ? ConfigList[0] : null;
             }
             catch (Exception ex)
             {

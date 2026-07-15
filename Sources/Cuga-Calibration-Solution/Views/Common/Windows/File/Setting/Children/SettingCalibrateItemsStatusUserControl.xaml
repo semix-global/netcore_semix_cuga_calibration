@@ -4,52 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting.Children"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
+             xmlns:cookiesUi="clr-namespace:Core.Models.Models.Common.Cookies.UI;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingCalibrateItemsStatusViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
              mc:Ignorable="d">
-    <Border>
-        <Grid Margin="10">
-            <!--  使用TreeView展示树状结构的校准配置  -->
-            <TreeView ItemsSource="{Binding CalibrationCategories}">
-                <TreeView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource {x:Type TreeViewItem}}" TargetType="TreeViewItem">
-                        <Setter Property="IsExpanded" Value="True" />
-                    </Style>
-                </TreeView.ItemContainerStyle>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <Grid x:Name="Grid">
-                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Spacing="10"
-                                                    Orientation="Horizontal">
-                                <!--  CheckBox 用于切换校准状态  -->
-                                <CheckBox x:Name="StatusCheckBox"
-                                          IsChecked="{Binding CategoryItem.IsAnyOk}"
-                                          VerticalAlignment="Center"
-                                          IsEnabled="{Binding CategoryItem.IsAnyOk}" />
-                                <!--  节点名称  -->
-                                <TextBlock Text="{Binding Name}"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource TextBlockDefault}" />
-                            </hc:UniformSpacingPanel>
-                        </Grid>
-                        <HierarchicalDataTemplate.Triggers>
-                            <!--  目录节点不显示 CheckBox  -->
-                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Catalog}">
-                                <Setter TargetName="StatusCheckBox" Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                            <!--  叶子节点（Menu 类型）缩进显示  -->
-                            <DataTrigger Binding="{Binding SysMenu.MenuTypeEnum}" Value="{x:Static enums:MenuTypeEnum.Menu}">
-                                <Setter TargetName="Grid" Property="Margin" Value="-20,0,0,0" />
-                            </DataTrigger>
-                        </HierarchicalDataTemplate.Triggers>
-                    </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
-            </TreeView>
-        </Grid>
-    </Border>
+    <cookiesUi:CalibrationTreeView Margin="5"
+                                   CheckBoxStyle="{StaticResource CheckBoxBaseStyle}"
+                                   ItemsSource="{Binding CalibrationCategories}" />
 </UserControl>
