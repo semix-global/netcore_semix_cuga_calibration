@@ -11,8 +11,8 @@
 ## 2. 怎么验证校准对象是否可以使用
 
 > 任何校准对象都是继承自`CalibrationBase`
-  Cuga应用时需先读取标志位`CalibrationBase.IsRequiredSelfCheck`判断当前校准是否为Cuga初始化的必要条件项
-  `CalibrationBase.IsRequiredSelfCheck`为true时，使用`CalibrationBase.IsOk`判断改校准对象是否能够使用
+>   Cuga应用时需先读取标志位`CalibrationBase.IsRequiredSelfCheck`判断当前校准是否为Cuga初始化的必要条件项
+>   `CalibrationBase.IsRequiredSelfCheck`为true时，使用`CalibrationBase.IsOk`判断改校准对象是否能够使用
 
 ```csharp
 [Serializable]
@@ -143,10 +143,10 @@ public sealed class CalibrationAdsPressureGains : CalibrationBase
 
 > - 注意下发的时候的正反向
 > - 下发是根据速度二次多项式拟合
->     - 正向 `X1 = PositiveX1P1* v^2 + PositiveX1P2* v^1 + PositiveX1P3`
->     - 正向 `X2 = PositiveX2P1* v^2 + PositiveX2P2* v^1 + PositiveX2P3`
->     - 反向 `X3 = NegativeX3P1* v^2 + NegativeX3P2* v^1 + NegativeX3P3`
->     - 反向 `X4 = NegativeX4P1* v^2 + NegativeX4P2* v^1 + NegativeX4P3`
+>   - 正向 `X1 = PositiveX1P1* v^2 + PositiveX1P2* v^1 + PositiveX1P3`
+>   - 正向 `X2 = PositiveX2P1* v^2 + PositiveX2P2* v^1 + PositiveX2P3`
+>   - 反向 `X3 = NegativeX3P1* v^2 + NegativeX3P2* v^1 + NegativeX3P3`
+>   - 反向 `X4 = NegativeX4P1* v^2 + NegativeX4P2* v^1 + NegativeX4P3`
 
 ```csharp
 /// <summary>
@@ -221,12 +221,12 @@ public sealed class CalibrationAdsXGainsItem : CalibrationBase
 
 > - 注意下发的时候的正反向
 > - 下发是根据速度二次多项式拟合
->     - 正向 `Y1 = PositiveY1P1* v^2 + PositiveY1P2* v^1 + PositiveY1P3`
->     - 正向 `Y2 = PositiveY2P1* v^2 + PositiveY2P2* v^1 + PositiveY2P3`
->     - 正向 `Y3 = PositiveY3P1* v^2 + PositiveY3P2* v^1 + PositiveY3P3`
->     - 反向 `Y4 = NegativeY4P1* v^2 + NegativeY4P2* v^1 + NegativeY4P3`
->     - 反向 `Y5 = NegativeY5P1* v^2 + NegativeY5P2* v^1 + NegativeY5P3`
->     - 反向 `Y6 = NegativeY6P1* v^2 + NegativeY6P2* v^1 + NegativeY6P3`
+>   - 正向 `Y1 = PositiveY1P1* v^2 + PositiveY1P2* v^1 + PositiveY1P3`
+>   - 正向 `Y2 = PositiveY2P1* v^2 + PositiveY2P2* v^1 + PositiveY2P3`
+>   - 正向 `Y3 = PositiveY3P1* v^2 + PositiveY3P2* v^1 + PositiveY3P3`
+>   - 反向 `Y4 = NegativeY4P1* v^2 + NegativeY4P2* v^1 + NegativeY4P3`
+>   - 反向 `Y5 = NegativeY5P1* v^2 + NegativeY5P2* v^1 + NegativeY5P3`
+>   - 反向 `Y6 = NegativeY6P1* v^2 + NegativeY6P2* v^1 + NegativeY6P3`
 
 ```csharp
 /// <summary>
@@ -545,7 +545,7 @@ public sealed class CalibrationChuckObj
    /// </summary>
    [Description(WcfConstantHelper.ChuckRotateScaleErrorCalibrationName)]
    public CalibrationChuckRotateScaleError CalibrationChuckRotateScaleError { get; set; } = new CalibrationChuckRotateScaleError();
-  
+
     /// <summary>
     /// Stage Map 校准对象
     /// </summary>
@@ -980,7 +980,7 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 ## ==4.3.== Laser 台面功率曲线校准：`CalibrationAttenuatorObj`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
->
+> 
 > 个数：   OI 3 NI 2
 
 ```c#
@@ -1118,9 +1118,9 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 ## 4.6. AOD Prescan均匀性校准: `CalibrationLaserAODUniformityItem`
 
 > 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.CgMagTypeEnum == 幅值)` 判断`is not null`后使用
->
+> 
 > 个数： 2 * 3 * 13 = 78
->
+> 
 > 当前里面的single后，`波形数组 * Uniformities * OpticsPolarizationModeEnumMeasurePowers[当前偏振] / OpticsPolarizationModeEnumMeasurePowers[OpticsPolarizationModeEnum]`，
 
 ```cs
@@ -1332,7 +1332,45 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 }
 ```
 
-## 4.11. CIB MMD校准: `CalibrationLaserCIBMMDItem`
+## 4.11. CIB 正反向校准：`CalibrationCIBLineOrientationOffsetItem`
+
+> 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.PmtId == PmtId)` 判断`is not null`后使用（当前只保留中心光斑的结果）
+
+```csharp
+/// <summary>
+/// 正反向扫描offset校准(机械坐标差值)
+/// </summary>
+[Serializable]
+public sealed class CalibrationCIBLineOrientationOffsetItem : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 暗场相机ID
+    /// </summary>
+    public int PmtId { get; set; }
+
+    /// <summary>
+    /// 当前暗场CgNIOIType、Mag和速度PmtId下的正反向误差值
+    /// </summary>
+    public double XOffset { get; set; }
+}
+```
+
+## 4.12. CIB MMD校准: `CalibrationLaserCIBMMDItem`
 
 根据不同 `列表.SingleOrDefault(t => t.PMTId== PMTId && t.ChannelId== ChannelId)` 判断`is not null`后使用
 
@@ -1367,7 +1405,7 @@ public sealed class CalibrationLaserCIBMMDItem : CalibrationBase
 }
 ```
 
-## 4.12. CIB的AGC完全同步校准: `CalibrationLaserCIBAGCDelayItem`
+## 4.13. CIB的AGC完全同步校准: `CalibrationLaserCIBAGCDelayItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 
@@ -1426,7 +1464,7 @@ public sealed class CalibrationLaserCIBAGCDelayItem : CalibrationBase
 }
 ```
 
-## 4.13. DOE Angle
+## 4.14. DOE Angle
 
 ```cs
 /// <summary>
@@ -1439,7 +1477,7 @@ public sealed class CalibrationLaserDOEAngle : CalibrationBase
 }
 ```
 
-## 4.14. CIB Light Matching校准: `CalibrationLaserCIBLightMatchingItem`
+## 4.15. CIB Light Matching校准: `CalibrationLaserCIBLightMatchingItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
 
@@ -1514,7 +1552,7 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
 }
 ```
 
-## ==4.15.== CIB Illumination Profile 校准: `CalibrationLaserCIBIlluminationProfileItem`
+## ==4.16.== CIB Illumination Profile 校准: `CalibrationLaserCIBIlluminationProfileItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
 
@@ -1589,10 +1627,10 @@ public sealed class CalibrationLaserCIBIlluminationProfileItem : CalibrationBase
 }
 ```
 
-## 4.16. Optics Relay校准: `CalibrationOpticsRelay`
+## 4.17. Optics Relay校准: `CalibrationOpticsRelay`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI)` 判断`is not null`后使用
->
+> 
 > 个数： 2
 
 ```cs
@@ -1624,10 +1662,10 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
 }
 ```
 
-## ==4.17.== Optics INC校准: `CalibrationOpticsRelay`
+## ==4.18.== Optics INC校准: `CalibrationOpticsRelay`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
->
+> 
 > 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
 
 ```CS
@@ -1659,7 +1697,7 @@ public sealed class CalibrationOpticsINC : CalibrationBase
 }
 ```
 
-## ==4.18.== 采集偏振校准: `CollectionPolarization`
+## ==4.19.== 采集偏振校准: `CollectionPolarization`
 
 ```csharp
 /// <summary>
@@ -1700,8 +1738,6 @@ public sealed class CalibrationCollectionPolarization : CalibrationBase
 }
 ```
 
-
-
 # 5. 自动聚焦: `CalibrationAutoFocusObj`
 
 ---
@@ -1726,6 +1762,7 @@ public sealed class CalibrationAutoFocusObj
 ```
 
 ## ==5.1.== 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
+
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
 > 个数： OI 3 * 3 = 9 NI 2 * 1 = 2
@@ -1770,6 +1807,7 @@ public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
 ```
 
 ## ==5.2.== 暗场`CalChip`校准: `CalibrationAutoFocusCalChipFocusOffset`
+
 ```csharp
 /// <summary>
 /// 暗场Cal Chip焦点位置校准对象
@@ -1827,8 +1865,8 @@ public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
     /// </summary>
     public double HazeMotorValue { get; set; }
 }
-
 ```
+
 # 6. 傅里叶校准: `CalibrationPupilFourierObj`
 
 ---
@@ -1864,11 +1902,12 @@ public sealed class CalibrationPupilFourierObj
     /// 傅里叶校准, PupilCenterChannelSpecularBlocker对象数据
     /// </summary>
     public CalibrationPupilCenterChannelSpecularBlocker CalibrationPupilCenterChannelSpecularBlocker { get; set; } = new CalibrationPupilCenterChannelSpecularBlocker();
-    
+
 }
 ```
 
 ## ==6.1.== 傅里叶PupilCameraAlignment校准: `CalibrationPupilCameraAlignment`
+
 ```csharp
 /// <summary>
 /// 傅里叶PupilCameraAlignment校准下发Cuga参数
@@ -1891,10 +1930,10 @@ public sealed class CalibrationPupilCameraAlignment : CalibrationBase
     /// </summary> 
     public Rectangle RectCh3 { get; set; }   
 }
-
 ```
 
 ## ==6.2.== 傅里叶CalibrationPupilSideChannelFlexibleAperture校准: `CalibrationPupilSideChannelFlexibleAperture`
+
 ```csharp
 /// <summary>
 /// 傅里叶PupilSideChannelFlexibleAperture校准下发Cuga参数
@@ -1961,6 +2000,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
 ```
 
 ## ==6.3.== 傅里叶CalibrationPupilSideChannelSpecularBlocker校准: `CalibrationPupilSideChannelSpecularBlocker`
+
 ```csharp
 /// <summary>
 /// 傅里叶CalibrationPupilSideChannelSpecularBlocker校准下发Cuga参数
@@ -1995,6 +2035,7 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
 ```
 
 ## ==6.4.== 傅里叶CalibrationPupilCenterChannelFlexibleAperture校准: `CalibrationPupilCenterChannelFlexibleAperture`
+
 ```csharp
 /// <summary>
 /// 傅里叶CalibrationPupilCenterChannelFlexibleAperture校准下发Cuga参数
@@ -2095,6 +2136,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
 ```
 
 ## ==6.5.== 傅里叶PupilCenterChannelSpecularBlocker校准: `PupilCenterChannelSpecularBlocker`
+
 ```csharp
 /// <summary>
 /// 傅里叶PupilCenterChannelSpecularBlocker校准下发Cuga参数

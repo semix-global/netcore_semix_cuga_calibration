@@ -83,7 +83,6 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 

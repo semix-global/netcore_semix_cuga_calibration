@@ -212,9 +212,6 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false)
-            return false;
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
 

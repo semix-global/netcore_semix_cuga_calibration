@@ -102,7 +102,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
 

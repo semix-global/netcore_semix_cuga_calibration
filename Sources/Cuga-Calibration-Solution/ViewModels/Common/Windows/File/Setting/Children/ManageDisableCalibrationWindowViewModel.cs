@@ -4,6 +4,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Services.Interfaces;
+using Local.SQL.DB.Providers.Models.Enums;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -123,9 +124,9 @@ public sealed partial class ManageDisableCalibrationWindowViewModel(
                     return false;
 
                 // 如果是叶子节点（Menu 类型），验证 CategoryItem
-                if (childMenu.SysMenu.MenuTypeEnum == Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum.Menu)
+                if (childMenu.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu)
                 {
-                    if (cachedCategory.CategoryItem.AssemblyQualifiedName != childMenu.Entry.DTOType.AssemblyQualifiedName)
+                    if (cachedCategory.Item.AssemblyQualifiedName != childMenu.Entry.DTOType.AssemblyQualifiedName)
                         return false;
                 }
 
@@ -181,9 +182,9 @@ public sealed partial class ManageDisableCalibrationWindowViewModel(
                 };
 
                 // 如果是叶子节点（Menu 类型），创建 CategoryItem
-                if (child.SysMenu.MenuTypeEnum == Local.SQL.DB.Providers.Models.Enums.MenuTypeEnum.Menu)
+                if (child.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu)
                 {
-                    category.CategoryItem = new SettingDisableCalibrationCategoryItem
+                    category.Item = new()
                     {
                         Description = child.Entry.Name,
                         IsDisable = false,

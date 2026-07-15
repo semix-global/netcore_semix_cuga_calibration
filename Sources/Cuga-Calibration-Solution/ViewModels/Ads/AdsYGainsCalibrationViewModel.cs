@@ -145,7 +145,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Cache = ApplicationCookieService.GetCache<AdsYGainsCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<AdsYGainsItemDto>(cancellationToken);

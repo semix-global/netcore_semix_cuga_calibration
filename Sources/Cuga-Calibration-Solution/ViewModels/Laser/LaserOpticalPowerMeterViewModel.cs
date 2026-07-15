@@ -80,7 +80,6 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Cache = ApplicationCookieService.GetCache<LaserOpticalPowerMeterCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);

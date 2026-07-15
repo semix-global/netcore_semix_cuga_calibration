@@ -440,13 +440,6 @@ public sealed class CalibrationLaserLineCentricityItem : CalibrationBase
 public sealed class CalibrationCIBLineOrientationOffsetItem : CalibrationBase
 {
     /// <summary>
-    /// 此显微镜镜头下做的校准
-    /// </summary>
-    public CgMicroscopeLens CgMicroscopeLens { get; set; }
-
-    public string CgMicroscopeLensString => CgMicroscopeLens.ToString();
-
-    /// <summary>
     /// 入射方式
     /// </summary>
     public CgNIOIType CgNIOITypeEnum { get; set; }

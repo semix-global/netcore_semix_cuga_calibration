@@ -58,7 +58,6 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Cache = ApplicationCookieService.GetCache<LaserBeamStabilizerCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<LaserBeamStabilizerObjDto>(cancellationToken);

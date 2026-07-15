@@ -98,7 +98,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 

@@ -92,7 +92,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Cache = ApplicationCookieService.GetCache<MicroscopeFocusCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<MicroscopeFocusItemDto>(cancellationToken);
