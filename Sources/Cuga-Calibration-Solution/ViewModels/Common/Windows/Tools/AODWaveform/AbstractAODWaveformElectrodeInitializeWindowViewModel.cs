@@ -78,7 +78,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                     {
                         ElectrodeConfigurations =
                         [
-                            ..Cache.ElectrodeConfigurationResults
+                            .. Cache.ElectrodeConfigurationResults
                                 .Select(t => new GenerateAODWaveformElectrodeConfiguration
                                 {
                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
@@ -159,7 +159,7 @@ public abstract partial class AbstractAODWaveformElectrodeInitializeWindowViewMo
                         {
                             ElectrodeConfigurations =
                             [
-                                ..Cache.ElectrodeConfigurationResults
+                                .. Cache.ElectrodeConfigurationResults
                                     .Select(t => new GenerateAODWaveformElectrodeConfiguration
                                     {
                                         OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,

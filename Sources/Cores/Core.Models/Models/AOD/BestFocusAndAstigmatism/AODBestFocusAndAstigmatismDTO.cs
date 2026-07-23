@@ -109,7 +109,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
             yScatterLines[0].Update(
                 "OriginPoints",
                 [
-                    ..Items.Select(t =>
+                    .. Items.Select(t =>
                         new Point
                         (
                             t.BestFocus.BestYStrehlRatioECS,
@@ -131,7 +131,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
                 1,
                 "OriginPoints",
                 [
-                    ..Items.Select(t =>
+                    .. Items.Select(t =>
                         new Point
                         (
                             t.BestFocus.BestXStrehlRatioECS,
@@ -146,7 +146,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
                 2,
                 "OriginPoints",
                 [
-                    ..Items.Select(t =>
+                    .. Items.Select(t =>
                         new Point
                         (
                             t.XYBestFocusOffsetEcs,

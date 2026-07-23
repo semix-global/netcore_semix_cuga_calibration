@@ -12,11 +12,11 @@ using Cuga.Engine.Interface;
 using MathNet.Numerics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.Runtime.CompilerServices;
-using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace Core.Services.Implements.WCF;

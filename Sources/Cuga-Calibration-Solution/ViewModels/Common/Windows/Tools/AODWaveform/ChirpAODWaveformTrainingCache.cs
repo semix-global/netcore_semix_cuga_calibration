@@ -74,7 +74,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     {
         SlopeConfigurations =
         [
-            ..value.Select(_ => new GenerateAODWaveformSlopeConfiguration
+            .. value.Select(_ => new GenerateAODWaveformSlopeConfiguration
             {
                 DeltaKRate = 0d,
                 Coefficient = 0d

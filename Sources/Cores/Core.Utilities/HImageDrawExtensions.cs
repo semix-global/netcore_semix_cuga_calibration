@@ -28,7 +28,7 @@ public static class HImageDrawExtensions
             window.SetLineWidth(lineWidth);
             window.SetDraw("margin"); // 设置绘图模式为边框(不要填充)
             foreach (var (point1, point2) in lines) window.DispLine(point1.Y, point1.X, point2.Y, point2.X);
-            
+
             var resultImage = window.DumpWindowImage();
 
             window.CloseWindow();

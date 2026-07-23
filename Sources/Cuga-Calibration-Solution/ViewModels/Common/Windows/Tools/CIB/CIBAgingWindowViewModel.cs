@@ -185,7 +185,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 {
                     cibAgingItem.SelectItems =
                     [
-                        ..cibAgingItem.SelectItems,
+                        .. cibAgingItem.SelectItems,
                         cibAgingItem.Items.Single(t => cibAgingSelectItem == new CIBAgingSelectItem(t.Coefficient, t.MeasurePower)).Clone()
                     ];
                     cibAgingItem.NewItems =
@@ -195,7 +195,7 @@ public sealed partial class CIBAgingWindowViewModel(
                         {
                             Coefficient = cibAgingSelectItem.Coefficient,
                             MeasurePower = cibAgingSelectItem.MeasurePower,
-                            Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
+                            Items = [.. gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
                         }
                     ];
                 }
@@ -558,7 +558,7 @@ public sealed partial class CIBAgingWindowViewModel(
 
                     cibAgingSampleItem.Items =
                     [
-                        ..cibAgingSampleItem.Items, new CIBAgingSampleItem.Item
+                        .. cibAgingSampleItem.Items, new CIBAgingSampleItem.Item
                         {
                             Gain = selectItem.Items[index].Gain,
                             OldPMTValue = oldPMTValue,

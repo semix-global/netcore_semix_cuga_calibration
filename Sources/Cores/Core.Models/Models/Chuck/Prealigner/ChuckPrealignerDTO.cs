@@ -83,7 +83,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             0,
             "Center Offset X",
             [
-                ..Items.Select((t, i) =>
+                .. Items.Select((t, i) =>
                     new Point
                     (
                         i,
@@ -98,7 +98,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             0,
             "Center Offset Y",
             [
-                ..Items.Select((t, i) =>
+                .. Items.Select((t, i) =>
                     new Point
                     (
                         i,
@@ -112,7 +112,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             1,
             "Angle",
             [
-                ..Items.Select((t, i) =>
+                .. Items.Select((t, i) =>
                     new Point
                     (
                         i,

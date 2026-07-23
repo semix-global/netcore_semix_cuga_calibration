@@ -10,6 +10,7 @@ using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -17,7 +18,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using Net.Utilities.Helpers.Extensions;
 
 namespace CugaCalibration.ViewModels.Microscope;
 

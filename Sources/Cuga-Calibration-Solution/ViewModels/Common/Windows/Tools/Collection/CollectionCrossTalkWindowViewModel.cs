@@ -260,7 +260,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                     results =
                     [
-                        ..results, new CollectionCrossTalkResult
+                        .. results, new CollectionCrossTalkResult
                         {
                             CIBInformation = cibInformation,
                             GrayValue = image.GetIntensity().Average,

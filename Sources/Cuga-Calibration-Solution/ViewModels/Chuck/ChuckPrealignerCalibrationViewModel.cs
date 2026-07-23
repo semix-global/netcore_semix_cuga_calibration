@@ -487,7 +487,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 CalibrateDTO.Items =
                 [
-                    ..CalibrateDTO.Items,
+                    .. CalibrateDTO.Items,
                     chuckPrealignerItem
                 ];
 

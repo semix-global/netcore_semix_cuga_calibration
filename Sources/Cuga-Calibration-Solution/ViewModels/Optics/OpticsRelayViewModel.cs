@@ -19,6 +19,7 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -28,7 +29,6 @@ using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Net.Utilities.Models.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Optics;
@@ -667,7 +667,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                         var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                             Vector<double>.Build.Dense([.. CalibratingItem.XZItems.Select(t => t.RelayMotorAbsoluteValue)]),
                             Vector<double>.Build.Dense([
-                                ..CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
+                                .. CalibratingItem.XZItems.Select(t => Cache.Item.OpticsStrehlRatioQualityTypeEnum switch
                                 {
                                     OpticsStrehlRatioQualityTypeEnum.XStrehlRatio => t.BestFocus.BestXStrehlRatioECS,
                                     OpticsStrehlRatioQualityTypeEnum.YStrehlRatio => t.BestFocus.BestYStrehlRatioECS,

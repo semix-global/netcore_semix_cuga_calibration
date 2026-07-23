@@ -5,13 +5,16 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -21,9 +24,6 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using Core.Utilities;
-using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -222,7 +222,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         using var drawHImage = hImage.DrawLines(
             [
-                ..indexes
+                .. indexes
                     .SelectMany(t => (int[])[t, t + 1])
                     .Distinct()
                     .OrderBy(t => t)

@@ -167,7 +167,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
         ElectrodeOffsetFrequencyWeightParams =
         [
-            ..electrodeOffsetParams
+            .. electrodeOffsetParams
                 .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
                 .SelectMany(t => frequencies.Select(tt => new AODWaveformElectrodeOffsetFrequencyWeightParam
                 {

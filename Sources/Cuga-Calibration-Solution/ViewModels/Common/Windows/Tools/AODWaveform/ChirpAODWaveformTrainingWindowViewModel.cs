@@ -245,7 +245,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             Cache.Item = new ChirpAODWaveformTrainingItem();
             Cache.SlopeConfigurations =
             [
-                ..Cache.ChirpAODWaveformTrainingSlopes.Select(_ => new GenerateAODWaveformSlopeConfiguration
+                .. Cache.ChirpAODWaveformTrainingSlopes.Select(_ => new GenerateAODWaveformSlopeConfiguration
                 {
                     DeltaKRate = 0d,
                     Coefficient = 0d

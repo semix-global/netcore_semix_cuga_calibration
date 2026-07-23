@@ -16,7 +16,11 @@ internal sealed class CalibrationCategoryItemEmpty : ICalibrationCategoryItem
 {
     public static readonly CalibrationCategoryItemEmpty Instance = new();
 
-    public bool IsChecked { get => false; set { } }
+    public bool IsChecked
+    {
+        get => false;
+        set { }
+    }
 
     public bool IsEnabled => false;
 }

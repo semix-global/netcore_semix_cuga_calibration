@@ -23,6 +23,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -36,7 +37,6 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Channels;
-using Net.Utilities.Models.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 
@@ -581,9 +581,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             var htmlAnonymous = new
             {
                 Score = new HtmlPlot2DLinesChart([
-                    ("All", [..matches.Select(t => t.ScorePoint)], string.Empty),
-                    ("Maxima", [..indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
-                    ("Filter Maxima", [..filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
+                    ("All", [.. matches.Select(t => t.ScorePoint)], string.Empty),
+                    ("Maxima", [.. indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
+                    ("Filter Maxima", [.. filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
                 ], string.Empty),
                 MatchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
                 XDifferences = new HtmlPlot2DLinesChart([(string.Empty, xDifferences.ToPoints())], string.Empty),

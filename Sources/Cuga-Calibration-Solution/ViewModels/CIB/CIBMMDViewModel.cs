@@ -29,6 +29,7 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Algorithms.Modules.CurveFitting.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -39,7 +40,6 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -453,7 +453,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                 await Task.Delay(TimeSpan.FromSeconds(Cache.MeasurePowerWaitTime), cancellationToken).ConfigureAwait(false);
                 var measurePowerNoises = (IReadOnlyList<double>)
                 [
-                    ..Enumerable.Range(0, HostEnvironment.IsProduction() ? Cache.MeasurePowerNoisesCount : 0)
+                    .. Enumerable.Range(0, HostEnvironment.IsProduction() ? Cache.MeasurePowerNoisesCount : 0)
                         .Select(_ =>
                         {
                             cancellationToken.ThrowIfCancellationRequested();
@@ -529,7 +529,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             Cache.NotUseODFilterMeasurePowerPoints =
             [
-                ..Generate.GeometricSequence(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
+                .. Generate.GeometricSequence(maxFitMeasurePowerPoint.Y, Cache.MeasurePowerSequenceCommonRatio, Cache.MeasurePowerNotUseODFilterMinValue)
                     .Select((t, index) =>
                     {
                         if (index == 0) return maxFitMeasurePowerPoint;
@@ -544,7 +544,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             ];
             Cache.UseODFilterMeasurePowerPoints =
             [
-                ..Generate.GeometricSequence(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
+                .. Generate.GeometricSequence(Cache.MeasurePowerNotUseODFilterMinValue, Cache.MeasurePowerSequenceCommonRatio, maxFitMeasurePowerPoint.Y / Cache.MMDMeasurePowerRangeRatio)
                     .Where(t => t < Cache.NotUseODFilterMeasurePowerPoints[0].Y)
                     .Select(t => t * Cache.ODFilterRatio)
                     .Where(t => t < maxFitMeasurePowerPoint.Y)
@@ -576,7 +576,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             var cibMMDGains = CIBViewModel.GetCIBMMDGains(Cache.CIBInformations, Cache.StartGain, Cache.StepGain, Cache.StopGain);
             Calibratings =
             [
-                ..Cache.CIBInformations
+                .. Cache.CIBInformations
                     .Index()
                     .Select(t => new CIBMMDDTO
                     {
@@ -588,13 +588,13 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                             {
                                 Coefficient = tt.X,
                                 MeasurePower = tt.Y / Cache.ODFilterRatio,
-                                Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
+                                Items = [.. gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
                             }),
                             .. Cache.NotUseODFilterMeasurePowerPoints.Select(tt => new CIBMMDDTOItem
                             {
                                 Coefficient = tt.X,
                                 MeasurePower = tt.Y,
-                                Items = [..gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
+                                Items = [.. gains.Select(ttt => new CIBMMDDTOItem.Item { Gain = ttt, PMTValue = double.NaN })]
                             })
                         ]
                     })
@@ -611,8 +611,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             {
                 foreach (var (coefficientIndex, (coefficient, isUseODFilter)) in ((IReadOnlyList<(double Coefficient, bool IsUseODFilter)>)
                          [
-                             ..Cache.UseODFilterMeasurePowerPoints.Select(t => (t.X, true)),
-                             ..Cache.NotUseODFilterMeasurePowerPoints.Select(t => (t.X, false))
+                             .. Cache.UseODFilterMeasurePowerPoints.Select(t => (t.X, true)),
+                             .. Cache.NotUseODFilterMeasurePowerPoints.Select(t => (t.X, false))
                          ]).Index())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -935,7 +935,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
                     cibMMDItem.Items =
                     [
-                        ..cibMMDItem.Items, new CIBMMDDTOItem.Item
+                        .. cibMMDItem.Items, new CIBMMDDTOItem.Item
                         {
                             Gain = Convert.ToDouble(dictionary[keys[0]]),
                             PMTValue = string.IsNullOrWhiteSpace(value?.ToString()) == false ? Convert.ToDouble(value) : double.NaN
@@ -1140,7 +1140,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             var validIndices = (IReadOnlyList<int>)
             [
-                ..bLogCurrentVector
+                .. bLogCurrentVector
                     .Index()
                     .Where(t => double.IsNaN(t.Item) == false)
                     .Select(t => t.Index)
@@ -1176,7 +1176,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             item.GainPoints =
             [
-                ..xValidLogGainVector
+                .. xValidLogGainVector
                     .Map(t => Math.Pow(2, t))
                     .Enumerate()
                     .Index()
@@ -1184,7 +1184,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             ];
             item.OriginLogGainPoints =
             [
-                ..xValidLogGainVector
+                .. xValidLogGainVector
                     .Enumerate()
                     .Index()
                     .Select(t => new Point(gains[t.Index], t.Item))
@@ -1327,7 +1327,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
         Calibrations =
         [
-            ..temps
+            .. temps
                 .Where(t => ApplicationCookie.CIBInformations.Contains(t.CIBInformation))
                 .DistinctBy(t => t.CIBInformation)
                 .Select(t =>

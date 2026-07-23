@@ -154,7 +154,7 @@ public sealed class CalibrationLaserServiceImpl(
         }
 
         var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
-            ..prescanAODWaveProfiles.Select(t => new CgAwgWaveParam
+            .. prescanAODWaveProfiles.Select(t => new CgAwgWaveParam
             {
                 Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
                 WaveType = CgWaveType.Prescan,
@@ -191,7 +191,7 @@ public sealed class CalibrationLaserServiceImpl(
         }
 
         var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
-            ..chirpAODWaveProfiles.Select(t => new CgAwgWaveParam
+            .. chirpAODWaveProfiles.Select(t => new CgAwgWaveParam
             {
                 Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
                 WaveType = CgWaveType.Chirp,

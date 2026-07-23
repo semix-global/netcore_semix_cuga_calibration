@@ -338,7 +338,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             {
                 PmtYPixelSize = new HtmlPlot2DLinesChart(
                     [
-                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", [..CalibratingItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
+                        ("PMT Y Pixel Size(Y:um,X:PMT ID)", [.. CalibratingItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
                     ],
                     "PMT Y Pixel Size")
             }), HtmlLogUniqueId.LoggingHtml());
