@@ -213,7 +213,7 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
         MinimumdBValue = YGhostMinimumPoint.Y,
         MaximumdBValue = YGhostMaximumPoint.Y,
         YGhostResultValue,
-        ResultImageh = new HtmlImage(ImageFilePath),
+        ResultImageh = new HtmlImage(ImageFilePath)
     };
 }
 

@@ -551,9 +551,20 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             CalibratingItem.SlideItems = [.. itemItems];
 
+            Logger.LogHtmlInformation("Matches", HtmlHeaderLevelEnum.Header3, new HtmlPlot2DLinesChart(
+            [
+                ("All",
+                [
+                    .. CalibratingItem.SlideItems
+                        .OrderBy(t => t.MatchPoint.X)
+                        .Select(t => new Point(t.MatchPoint.X, t.Score))
+                ], string.Empty)
+            ], string.Empty), HtmlLogUniqueId.LoggingHtml());
+
             var matches = CalibratingItem.SlideItems
                 .Select(t => (ScorePoint: new Point(t.MatchPoint.X, t.Score), t.MatchPoint, t.IsMatchOk))
-                .Distinct()
+                .GroupBy(t => t.ScorePoint.X)
+                .Select(g => g.MaxBy(t => t.ScorePoint.Y))
                 .OrderBy(t => t.ScorePoint.X)
                 .ToArray();
 

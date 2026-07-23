@@ -83,7 +83,7 @@ public sealed partial class CollectionCrossTalkResult : ObservableObject
             CIBInformation,
             GrayValue,
             RadioResult,
-            ResultImageh = new HtmlImage(ImageFilePath),
+            ResultImageh = new HtmlImage(ImageFilePath)
         }
         : new
         {
