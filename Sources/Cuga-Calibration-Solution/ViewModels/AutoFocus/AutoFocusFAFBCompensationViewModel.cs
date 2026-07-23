@@ -397,7 +397,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                     NAs = [.. traceBufferList.Select(t => t.Na)],
                     FBs = [.. traceBufferList.Select(t => t.Fb)],
                     NBs = [.. traceBufferList.Select(t => t.Nb)],
-                    NSCs = [.. traceBufferList.Select(t => t.Nsc)]
+                    NSCs = [.. traceBufferList.Select(t => t.Fa / t.Na - t.Fb / t.Nb)]
                 };
 
                 bool isSuccess;
