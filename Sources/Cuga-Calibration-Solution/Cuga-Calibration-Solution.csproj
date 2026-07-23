@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFrameworks>net480;net10.0-windows10.0.19041</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <PlatformTarget>x64</PlatformTarget>
         <RootNamespace>CugaCalibration</RootNamespace>
@@ -32,7 +32,7 @@
         </Reference>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="Semix.CoreLib">
             <HintPath>..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>

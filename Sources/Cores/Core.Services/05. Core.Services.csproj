@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net480;net10.0-windows10.0.19041</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <AssemblyName>Core.Services</AssemblyName>
         <RootNamespace>Core.Services</RootNamespace>
@@ -28,7 +28,7 @@
         <PackageReference Include="protobuf-net.Grpc" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="System.ServiceModel" />
         <Reference Include="System.Net.Http" />
         <Reference Include="Semix.WcfTransfer.Interfaces">
@@ -60,7 +60,7 @@
         <None Include="Implements\Wcf\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Compile Remove="Implements\Grpc\*.cs" />
         <None Include="Implements\Grpc\*.cs" />
     </ItemGroup>
