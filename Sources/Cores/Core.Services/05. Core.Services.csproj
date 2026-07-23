@@ -30,24 +30,23 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="System.ServiceModel" />
-        <Reference Include="System.Net.Http" />
         <Reference Include="Semix.WcfTransfer.Interfaces">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.Interfaces.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.Interfaces.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Agent.EngineBase">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Agent.EngineBase.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Agent.EngineBase.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Engine.Interface">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Engine.Interface.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Engine.Interface.dll</HintPath>
         </Reference>
         <Reference Include="Semix.CoreLib">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>
         <Reference Include="Semix.WcfTransfer.DTO">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Data.DataStruct">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>
     </ItemGroup>
 
