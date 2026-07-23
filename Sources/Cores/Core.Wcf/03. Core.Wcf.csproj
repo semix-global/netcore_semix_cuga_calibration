@@ -24,4 +24,9 @@
         </Reference>
     </ItemGroup>
 
+    <ItemGroup>
+        <Using Remove="Polyfills" />
+        <Using Remove="System.Net.Http" />
+    </ItemGroup>
+
 </Project>

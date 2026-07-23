@@ -36,6 +36,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Channels;
+using Net.Utilities.Models.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 

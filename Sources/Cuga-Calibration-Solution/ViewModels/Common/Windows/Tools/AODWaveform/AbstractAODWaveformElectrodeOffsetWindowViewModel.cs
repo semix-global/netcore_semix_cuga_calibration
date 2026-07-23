@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;

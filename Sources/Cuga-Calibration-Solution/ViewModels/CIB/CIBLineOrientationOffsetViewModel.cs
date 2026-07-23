@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.Helpers.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 

@@ -8,6 +8,7 @@ using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
+using Net.Utilities.Helpers.Extensions;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;

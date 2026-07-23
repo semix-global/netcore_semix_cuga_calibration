@@ -17,6 +17,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using Net.Utilities.Helpers.Extensions;
 
 namespace CugaCalibration.ViewModels.Microscope;
 

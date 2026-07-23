@@ -30,6 +30,7 @@ using Net.Utilities.WPF.MVVM;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.Models.Extensions;
 
 namespace CugaCalibration.ViewModels.CIB;
 

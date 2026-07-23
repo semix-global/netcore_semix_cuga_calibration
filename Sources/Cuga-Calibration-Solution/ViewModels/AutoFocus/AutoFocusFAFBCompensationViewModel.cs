@@ -23,6 +23,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
+using Net.Utilities.Helpers.Extensions;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 

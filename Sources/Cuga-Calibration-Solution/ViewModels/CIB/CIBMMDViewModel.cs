@@ -39,6 +39,7 @@ using Net.Utilities.WPF.Enums;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Generate = MathNet.Numerics.Generate;
 
@@ -264,7 +265,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (prescanResult is null)
             {
-                const string comment = "Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!";
+                var comment = $"Warning: Prescan AOD Waveform Param No matched found for current Productivity Information({Cache.ProductivityInformation}) in [{string.Join(",", prescanCache.Results.Select(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation))}]!";
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
 
                 DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
@@ -284,7 +285,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)
             {
-                const string comment = "Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!";
+                var comment = $"Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!({Cache.ProductivityInformation}) in [{string.Join(",", chirpCache.Results.Select(t => t.GenerateChirpAODWaveformParam.ProductivityInformation))}]!";
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
 
                 DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
@@ -1159,6 +1160,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             var bValidVector = bValidLogCurrentVector - aValidCoefficientSubMatrix * xLogMeasurePowerVector;
             var xValidLogGainVector = aValidGainSubMatrix.QR().Solve(bValidVector);
+            if (xValidLogGainVector.Any(t => double.IsNaN(t) || double.IsInfinity(t)))
+            {
+                ThrowHelper.ThrowArgumentException("QR Solve x Valid Log Gain is NaN or Infinity", nameof(item));
+
+                return;
+            }
 
             var xLogVector = Vector<double>.Build.Dense([.. xLogMeasurePowerVector, .. xValidLogGainVector]);
             var gainRSquared = Fit.RSquared(aValidGainSubMatrix * xValidLogGainVector, bValidVector);
