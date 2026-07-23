@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net480;net10.0-windows10.0.19041</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
         <UseWPF>true</UseWPF>
         <AssemblyName>Core.Recipe</AssemblyName>
         <RootNamespace>Core.Recipe</RootNamespace>
@@ -14,15 +14,15 @@
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net480'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="Semix.CoreLib">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
-        </Reference>
-        <Reference Include="Semix.WcfTransfer.DTO">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>
         <Reference Include="Cuga.Data.DataStruct">
-            <HintPath>..\..\..\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
+        </Reference>
+        <Reference Include="Semix.WcfTransfer.DTO">
+            <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.DTO.dll</HintPath>
         </Reference>
     </ItemGroup>
 

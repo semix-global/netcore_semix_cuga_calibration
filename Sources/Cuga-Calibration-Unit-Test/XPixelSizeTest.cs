@@ -26,7 +26,8 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
     {
         var points = MiniExcel.Query<Temp>(@$"Assets\XPixelSize\{filePath}", sheetName: "ALL Points")
             .Select(t => new Point(t.X, t.Y))
-            .Distinct()
+            .GroupBy(t => t.X)
+            .Select(g => g.MaxBy(t => t.Y))
             .OrderBy(t => t.X)
             .ToArray();
 

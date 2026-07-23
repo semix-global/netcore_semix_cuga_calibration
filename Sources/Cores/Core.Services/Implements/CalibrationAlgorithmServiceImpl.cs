@@ -5,13 +5,16 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Core.Utilities;
 using HalconDotNet;
 using HAlgorithm;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -201,13 +204,34 @@ public sealed class CalibrationAlgorithmServiceImpl(
     public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
     {
         using var hImage = image.ToHImage();
-        _algorithm.DarkPixSizeCal(hImage, 1, out var drawingImageObj, out var meanTuple);
+        var data = hImage.RAW16BitsPerPixelToMatrix();
+        var matrix = Matrix<double>.Build.DenseOfArray(data);
+        var projectionYs = matrix.RowSums() / matrix.ColumnCount;
 
-        using var _ = meanTuple;
+        // 使用AMPD算法找出波峰
+        var signal = Vector<double>.Build.DenseOfEnumerable(projectionYs.Select(t => -t));
+        var peaks = AutomaticMPeakDetection.Ampd(signal);
 
-        using var drawingHImage = new HImage(drawingImageObj);
-        drawingImage = drawingHImage.ToBitmapImage();
-        return standardMaskSquareYSize / meanTuple.D;
+        var xDifferences = peaks
+            .Zip(peaks.Skip(1), (prev, next) => (double)next - prev)
+            .ToArray();
+        var (indexes, filterXDifferences) = Filter.MAD(xDifferences);
+
+        // 所有后一个减去前一个，得到差值, 然后取得均值
+        var mean = filterXDifferences.Average();
+
+        using var drawHImage = hImage.DrawLines(
+            [
+                .. indexes
+                    .SelectMany(t => (int[])[t, t + 1])
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
+            ],
+            5);
+        drawingImage = drawHImage.ToBitmapImage();
+
+        return standardMaskSquareYSize / mean;
     }
 
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage)

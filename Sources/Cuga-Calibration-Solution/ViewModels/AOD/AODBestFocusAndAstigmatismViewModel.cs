@@ -22,6 +22,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -555,7 +556,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                         Cache.XQualityThreshold,
                         Cache.YQualityThreshold,
                         AllPMTBestFocusResults = new HtmlContainer([
-                            ..bestFocusResults
+                            .. bestFocusResults
                                 .OrderBy(t => t.cibInformation)
                                 .Select(t => new HtmlExpand(t.cibInformation.ToString(),
                                     new HtmlQuote(new
@@ -568,7 +569,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                                             ]),
                                         YStrehlRatioScatterPlot =
                                             new HtmlContainer([
-                                                ..t.bestFocus.YStrehlRatioScatterPlotControl
+                                                .. t.bestFocus.YStrehlRatioScatterPlotControl
                                                     .GetAllHtmlPlot2DLinesCharts()
                                             ])
                                     })))

@@ -100,7 +100,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> OpticsMagTypeProductivityInformations =>
     [
-        ..ProductivityInformations
+        .. ProductivityInformations
             .GroupBy(t => t.OpticsIlluminationModeEnum)
             .SelectMany(g => g
                 .GroupBy(t => t.OpticsMagType)
@@ -113,7 +113,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> OIProductivityInformations =>
     [
-        ..ProductivityInformations
+        .. ProductivityInformations
             .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
     ];
 
@@ -122,7 +122,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> OIOpticsMagTypeProductivityInformations =>
     [
-        ..OpticsMagTypeProductivityInformations
+        .. OpticsMagTypeProductivityInformations
             .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI)
     ];
 
@@ -145,7 +145,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> NIProductivityInformations =>
     [
-        ..ProductivityInformations
+        .. ProductivityInformations
             .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
     ];
 
@@ -154,7 +154,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<ProductivityInformation> NIOpticsMagTypeProductivityInformations =>
     [
-        ..OpticsMagTypeProductivityInformations
+        .. OpticsMagTypeProductivityInformations
             .Where(t => t.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.NI)
     ];
 
@@ -177,7 +177,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<OpticsIlluminationModeEnum> OpticsIlluminationModeEnums =>
     [
-        ..ProductivityInformations
+        .. ProductivityInformations
             .GroupBy(t => t.OpticsIlluminationModeEnum)
             .Select(t => t.Key)
     ];
@@ -218,7 +218,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     public IReadOnlyList<int> CIBInformationChannelIds =>
     [
-        ..CIBInformations
+        .. CIBInformations
             .GroupBy(t => t.PMTId)
             .First()
             .Select(c => c.ChannelId)

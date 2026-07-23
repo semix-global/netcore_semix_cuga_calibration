@@ -40,7 +40,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
 
         _microscopeLensInformationList =
         [
-            ..sxExecuteRet.Anything
+            .. sxExecuteRet.Anything
                 .Single(t => t.IsUsed)
                 .Info
                 .Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t))

@@ -4,6 +4,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
@@ -44,7 +45,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 Cache.Step0Items = [];
                 Cache.ElectrodeConfigurationResults =
                 [
-                    ..OpticsAODElectrodeEnums.Select(t => new GenerateAODWaveformElectrodeConfiguration
+                    .. OpticsAODElectrodeEnums.Select(t => new GenerateAODWaveformElectrodeConfiguration
                     {
                         OpticsAODElectrodeEnum = t,
                         OffsetFrequency = Cache.OffsetFrequency,
@@ -121,7 +122,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                     {
                                         ElectrodeConfigurations =
                                         [
-                                            ..Cache.ElectrodeConfigurationResults
+                                            .. Cache.ElectrodeConfigurationResults
                                                 .Select(t => new GenerateAODWaveformElectrodeConfiguration
                                                 {
                                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
@@ -148,7 +149,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                     {
                                         ElectrodeConfigurations =
                                         [
-                                            ..Cache.ElectrodeConfigurationResults
+                                            .. Cache.ElectrodeConfigurationResults
                                                 .Select(t => new GenerateAODWaveformElectrodeConfiguration
                                                 {
                                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
@@ -279,7 +280,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                     {
                                         ElectrodeConfigurations =
                                         [
-                                            ..Cache.ElectrodeOffsetFrequencyPeriodParams
+                                            .. Cache.ElectrodeOffsetFrequencyPeriodParams
                                                 .Select(t => new GenerateAODWaveformElectrodeConfiguration
                                                 {
                                                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
@@ -315,7 +316,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         var weightParams = (IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam>)
                         [
-                            ..Cache.ElectrodeOffsetFrequencyWeightParams
+                            .. Cache.ElectrodeOffsetFrequencyWeightParams
                                 .Where(tt => tt.OpticsAODElectrodeEnum == param.OpticsAODElectrodeEnum)
                         ];
 
@@ -473,7 +474,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         electrodeConfiguration.UniformityConfigurations =
                         [
-                            ..points.Select(t => new GenerateAODWaveformUniformityConfiguration
+                            .. points.Select(t => new GenerateAODWaveformUniformityConfiguration
                             {
                                 Frequency = t.X,
                                 Coefficient = t.Y

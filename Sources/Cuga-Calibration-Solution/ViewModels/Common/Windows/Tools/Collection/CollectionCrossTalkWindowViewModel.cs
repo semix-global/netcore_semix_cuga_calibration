@@ -83,7 +83,7 @@ public sealed partial class CollectionCrossTalkResult : ObservableObject
             CIBInformation,
             GrayValue,
             RadioResult,
-            ResultImageh = new HtmlImage(ImageFilePath),
+            ResultImageh = new HtmlImage(ImageFilePath)
         }
         : new
         {
@@ -260,7 +260,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                     results =
                     [
-                        ..results, new CollectionCrossTalkResult
+                        .. results, new CollectionCrossTalkResult
                         {
                             CIBInformation = cibInformation,
                             GrayValue = image.GetIntensity().Average,

@@ -29,7 +29,7 @@ public partial class CalibrationViewModelBase
                 {
                     [nameof(ICacheItem.CreatedTime)] = DateTime.Now,
                     [nameof(version.Version)] = version.Version,
-                    [nameof(CalibrationViewModelBase<>.Cache)] = JObject.FromObject(ObjectHelper.GetPropertyValue<CalibrationCacheBase>(this, nameof(CalibrationViewModelBase<>.Cache)), PrivateSetterContractResolver.Serializer),
+                    [nameof(CalibrationViewModelBase<>.Cache)] = JObject.FromObject(ObjectHelper.GetPropertyValue<CalibrationCacheBase>(this, nameof(CalibrationViewModelBase<>.Cache)), PrivateSetterContractResolver.Serializer)
                 };
 
                 File.WriteAllText(exportPath, exportData.ToString(Newtonsoft.Json.Formatting.Indented));

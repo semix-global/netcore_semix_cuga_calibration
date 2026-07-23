@@ -245,7 +245,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             Cache.Item = new ChirpAODWaveformTrainingItem();
             Cache.SlopeConfigurations =
             [
-                ..Cache.ChirpAODWaveformTrainingSlopes.Select(_ => new GenerateAODWaveformSlopeConfiguration
+                .. Cache.ChirpAODWaveformTrainingSlopes.Select(_ => new GenerateAODWaveformSlopeConfiguration
                 {
                     DeltaKRate = 0d,
                     Coefficient = 0d
@@ -420,7 +420,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                     XStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                     YStrehlRatioScatterPlotControl = new HtmlContainer([.. Cache.Item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
                     ReultStrehlRatio = new HtmlPlot2DLinesChart([("X", pointXStrehlRatioList), ("Y", pointYStrehlRatioList)], "X: PMT Id - Y: Best Strehl Ratio"),
-                    ReultECS = new HtmlPlot2DLinesChart([("X", pointXECSList), ("Y", pointYECSList)], "X: PMT Id - Y: ECS"),
+                    ReultECS = new HtmlPlot2DLinesChart([("X", pointXECSList), ("Y", pointYECSList)], "X: PMT Id - Y: ECS")
                 });
 
                 if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());

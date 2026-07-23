@@ -127,6 +127,7 @@ public sealed partial class SettingRelationCalibrationViewModel(
         {
             configs.Add(BuildRelationConfigTree(menuNode));
         }
+
         return configs.AsReadOnly();
 
         SettingCalibrationRelationConfig BuildRelationConfigTree(CalibrationMenu menuNode)
@@ -176,6 +177,7 @@ public sealed partial class SettingRelationCalibrationViewModel(
             var found = FindRecursive(root, sysMenuId);
             if (found is not null) return found;
         }
+
         return null;
 
         static SettingCalibrationRelationConfig? FindRecursive(SettingCalibrationRelationConfig node, long targetId)
@@ -186,6 +188,7 @@ public sealed partial class SettingRelationCalibrationViewModel(
                 var result = FindRecursive(child, targetId);
                 if (result is not null) return result;
             }
+
             return null;
         }
     }

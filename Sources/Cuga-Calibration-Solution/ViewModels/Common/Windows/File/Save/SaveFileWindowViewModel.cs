@@ -87,7 +87,7 @@ public partial class SaveFileWindowViewModel(
                             .Where(x => x.info != null)
                             .Where(v => SQLiteHelper.GetTableInfo(entry.DTOType).Version == GuardExtensions.IsNotNullAndReturn(v.info).Version)
                             .Select(o => o.dto)
-                    ],
+                    ]
                 };
             }
             else

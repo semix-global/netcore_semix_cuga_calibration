@@ -62,7 +62,7 @@ public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapD
 
         IdealStageMapItemMatrix =
         [
-            ..Enumerable.Range(0, rowNumber).Select<int, StageMapItemDto[]>(_ =>
+            .. Enumerable.Range(0, rowNumber).Select<int, StageMapItemDto[]>(_ =>
             [
                 .. Enumerable.Range(0, columnNumber).Select(_ => new StageMapItemDto())
             ])
@@ -70,7 +70,7 @@ public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapD
 
         RealMatrix =
         [
-            ..Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
+            .. Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
             [
                 .. Enumerable.Range(0, columnNumber).Select(_ => Point.Origin)
             ])
@@ -78,7 +78,7 @@ public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapD
 
         ErrorMatrix =
         [
-            ..Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
+            .. Enumerable.Range(0, rowNumber).Select<int, Point[]>(_ =>
             [
                 .. Enumerable.Range(0, columnNumber).Select(_ => Point.Origin)
             ])
@@ -437,7 +437,7 @@ public sealed partial class StageMapDto : ObservableObject, ICloneable<StageMapD
         [
             .. ErrorMatrix.Select<Point[], CgPoint[]>(t =>
             [
-                ..t.Select(tt => tt.ToCgPoint())
+                .. t.Select(tt => tt.ToCgPoint())
             ])
         ]
     };

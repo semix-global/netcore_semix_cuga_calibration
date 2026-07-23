@@ -69,7 +69,7 @@ public sealed partial class SettingCalibrationRelationCategoryItem :
 
     public SettingCalibrationRelationCategoryItem Clone() => new()
     {
-        DependencyRelationConfigs = new ObservableCollection<SettingCalibrationRelationConfig>(DependencyRelationConfigs.Select(t => t.Clone())),
+        DependencyRelationConfigs = new ObservableCollection<SettingCalibrationRelationConfig>(DependencyRelationConfigs.Select(t => t.Clone()))
     };
 
     public SettingCalibrationRelationCategoryItem AdaptIn(SettingCalibrationRelationCategoryItem obj)

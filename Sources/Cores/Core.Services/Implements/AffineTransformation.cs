@@ -232,7 +232,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         Column = t.Column + 1,
                         t.BadValue,
                         t.NewValue,
-                        FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
+                        FitReal = new HtmlPlot2DLinesChart([.. t.FitLine], "unit: um")
                     })
                 ]),
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXOriginTempMatrix, errorYOriginTempMatrix, "Delete x bad point"),
@@ -339,7 +339,7 @@ public class AffineTransformation(ILogger<AffineTransformation> logger)
                         Column = t.Column + 1,
                         t.BadValue,
                         t.NewValue,
-                        FitReal = new HtmlPlot2DLinesChart([..t.FitLine], "unit: um")
+                        FitReal = new HtmlPlot2DLinesChart([.. t.FitLine], "unit: um")
                     })
                 ]),
                 VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, errorXOriginTempMatrix, errorYOriginTempMatrix, "Delete y bad point"),

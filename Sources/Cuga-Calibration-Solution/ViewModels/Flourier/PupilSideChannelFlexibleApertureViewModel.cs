@@ -753,7 +753,7 @@ public sealed partial class PupilSideChannelFlexibleApertureViewModel : Calibrat
                     {
                         Ch2Image = new HtmlImage(Cache.OriginImageFilePathList2[0], htmlImageOverlays:
                             [
-                                ..Cache.CurrentImageRectListFirstCh2
+                                .. Cache.CurrentImageRectListFirstCh2
                                     .Skip(Cache.CgFFBoxBeginNumber1Ch2)
                                     .Take(Cache.CgFFBoxEndNumber1Ch2 - Cache.CgFFBoxBeginNumber1Ch2 + 1).Select(rect => new HtmlImageRectangleOverlay(rect)),
                                 .. Cache.CurrentImageRectListFirstCh2
