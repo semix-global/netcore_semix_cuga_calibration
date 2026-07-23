@@ -69,16 +69,16 @@ public sealed partial class SettingRequiredCalibrationViewModel(
                 var entry = child.Entry;
                 var cache = FindInCache(child);
 
-                category.CategoryItem = new SettingRequiredCalibrationCategoryItem
+                category.Item = new()
                 {
                     Description = entry.Name,
                     AssemblyQualifiedName = entry.DTOType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false),
-                    IsRequired = cache?.CategoryItem.IsRequired ?? false
+                    IsRequired = cache?.Item.IsRequired ?? false
                 };
             }
             else
             {
-                category.CategoryItem = new SettingRequiredCalibrationCategoryItem
+                category.Item = new()
                 {
                     Description = child.SysMenu.Name
                 };

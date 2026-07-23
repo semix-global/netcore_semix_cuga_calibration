@@ -39,6 +39,14 @@ public partial class CalibrationViewModelBase : ViewModelBase
             RefreshToken();
             await Task.Run(async () =>
             {
+                if (CalibrationRelationService.DependenciesValidate(GetType()) == false)
+                {
+                    DialogWindowProvider.ShowDialog("Calibration Dependency validation failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    UpdateFailedStatus();
+
+                    return;
+                }
+
                 if (await LoadedingAsync(_cancellationTokenSource.Token).ConfigureAwait(false) == false)
                 {
                     UpdateFailedStatus();

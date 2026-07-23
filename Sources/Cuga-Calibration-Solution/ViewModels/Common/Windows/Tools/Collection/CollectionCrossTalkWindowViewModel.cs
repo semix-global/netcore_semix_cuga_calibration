@@ -4,14 +4,16 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Services.Interfaces;
 using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -81,7 +83,7 @@ public sealed partial class CollectionCrossTalkResult : ObservableObject
             CIBInformation,
             GrayValue,
             RadioResult,
-            ResultImageh = new HtmlImage(ImageFilePath),
+            ResultImageh = new HtmlImage(ImageFilePath)
         }
         : new
         {
@@ -99,9 +101,9 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     CIBViewModel cibViewModel,
     OpticsViewModel opticsViewModel,
     IOptions<ApplicationSetting> options,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
     ApplicationCookie applicationCookie,
     IDialogWindowProvider dialogWindowProvider,
+    IHostEnvironment hostEnvironment,
     ILogger<CollectionCrossTalkWindowViewModel> logger) : ViewModelBase
 {
     public string Name => "Collection Cross Talk";
@@ -165,19 +167,22 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             {
                 stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
 
+                CIBInformation[] cibInformations = [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)];
+
                 opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, true);
                 var zoosOnDarkFieldImages = await cibViewModel.GetPMTImagesAsync(
                     Cache.ProductivityInformation,
                     StageCoordinateSystemEnum.Bright,
                     Cache.FindPosition,
                     Cache.ImageWidth,
-                    [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)],
+                    cibInformations,
                     (false, Cache.CalChipSiteModelEnum),
                     (false, Cache.OpticsConfiguration),
                     (false, cibConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
                     cancellationToken);
+                if (hostEnvironment.IsDevelopment()) zoosOnDarkFieldImages = GetMockImages(cibInformations, true); // mock
                 ZoosOnResults = GetResult([.. zoosOnDarkFieldImages.Select(t => (t.Image, t.CIBInformation))]);
 
                 opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
@@ -186,13 +191,14 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                     StageCoordinateSystemEnum.Bright,
                     Cache.FindPosition,
                     Cache.ImageWidth,
-                    [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)],
+                    cibInformations,
                     (false, Cache.CalChipSiteModelEnum),
                     (false, Cache.OpticsConfiguration),
                     (false, cibConfiguration),
                     (false, Cache.LaserLightInformation),
                     false,
                     cancellationToken);
+                if (hostEnvironment.IsDevelopment()) zoosOffDarkFieldImages = GetMockImages(cibInformations, false); // mock
                 ZoosOffResults = GetResult([.. zoosOffDarkFieldImages.Select(t => (t.Image, t.CIBInformation))]);
 
                 var resultImages = zoosOnDarkFieldImages
@@ -208,17 +214,31 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
+                    using var _0 = zoosOnDarkFieldImages[index].Image;
+                    using var _1 = zoosOffDarkFieldImages[index].Image;
+
+#pragma warning disable IDISP007
+                    using var _ = resultImages[index].image;
+#pragma warning restore IDISP007
+
+
                     result.RadioResult = result.GrayValue / ZoosOffResults.Single(t => t.CIBInformation == result.CIBInformation).GrayValue;
                     result.IsOk = result.RadioResult <= Cache.Threshold;
 
-                    logger.LogHtmlInformation($"{result.CIBInformation} {(result.IsOk ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    logger.LogHtmlInformation($"{result.CIBInformation} {(result.IsOk ? "Success" : "Failed")}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                    var htmlBullet = new HtmlBullet(new
                     {
                         Results = new HtmlTable([
                             ZoosOnResults[index].ToHtmlAnonymous("ZoosOn", false),
                             ZoosOffResults[index].ToHtmlAnonymous("ZoosOff", false),
                             result.ToHtmlAnonymous("Diff", true)
                         ])
-                    }), HtmlLogUniqueId.LoggingHtml());
+                    });
+                    if (result.IsOk)
+                        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    else
+                        logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 return true;
@@ -235,14 +255,12 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    using var _ = image;
-
                     var filePath = Path.Combine(ImageDirectory, $"{cibInformation}_GUID{Guid.NewGuid()}.png");
                     image.SaveImage(filePath);
 
                     results =
                     [
-                        ..results, new CollectionCrossTalkResult
+                        .. results, new CollectionCrossTalkResult
                         {
                             CIBInformation = cibInformation,
                             GrayValue = image.GetIntensity().Average,
@@ -316,5 +334,24 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
             return isSuccess;
         }).ConfigureAwait(false);
+    }
+
+    private static IReadOnlyList<DarkFieldImageDTO> GetMockImages(CIBInformation[] cibInformations, bool isZoosEnabled)
+    {
+        var mockImageDirectoryPath = Path.Combine(@"Assets\Data\CrossTalk", $"Zoos{(isZoosEnabled ? "On" : "Off")}");
+
+        var results = new DarkFieldImageDTO[3];
+
+        for (var i = 0; i < results.Length; i++)
+        {
+            var cibInformation = cibInformations[i];
+            var filePath = Path.Combine(mockImageDirectoryPath, $"CH{cibInformation.ChannelId}_{cibInformation.PMTId}.raw");
+            var bytes = System.IO.File.ReadAllBytes(filePath);
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+
+            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = true });
+        }
+
+        return results;
     }
 }

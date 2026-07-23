@@ -39,7 +39,7 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
 
         _microscopeLensInformationList =
         [
-            ..sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)
+            .. sxExecuteRet.Anything.Select(t => MicroscopeLensInformation.Default.Clone().AdaptIn(t)).OrderBy(t => t)
         ];
 
         Guard.IsTrue(_microscopeLensInformationList.DistinctBy(t => t).Count() == _microscopeLensInformationList.Count, "Microscope Information is not unique");

@@ -201,9 +201,6 @@ public sealed partial class PupilSideChannelSpecularBlockerViewModel : Calibrati
         SelectedTabIndex = 0;
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false)
-            return false;
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         PupilCameraAlignmentValue = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
         PupilSideChannelFlexibleApertureValue = ApplicationCookieService.GetCalibration<PupilSideChannelFlexibleApertureDTO>(cancellationToken);

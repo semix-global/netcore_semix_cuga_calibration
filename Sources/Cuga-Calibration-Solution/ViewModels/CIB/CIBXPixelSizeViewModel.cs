@@ -23,6 +23,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -113,7 +114,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
@@ -551,9 +551,20 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             CalibratingItem.SlideItems = [.. itemItems];
 
+            Logger.LogHtmlInformation("Matches", HtmlHeaderLevelEnum.Header3, new HtmlPlot2DLinesChart(
+            [
+                ("All",
+                [
+                    .. CalibratingItem.SlideItems
+                        .OrderBy(t => t.MatchPoint.X)
+                        .Select(t => new Point(t.MatchPoint.X, t.Score))
+                ], string.Empty)
+            ], string.Empty), HtmlLogUniqueId.LoggingHtml());
+
             var matches = CalibratingItem.SlideItems
                 .Select(t => (ScorePoint: new Point(t.MatchPoint.X, t.Score), t.MatchPoint, t.IsMatchOk))
-                .Distinct()
+                .GroupBy(t => t.ScorePoint.X)
+                .Select(g => g.MaxBy(t => t.ScorePoint.Y))
                 .OrderBy(t => t.ScorePoint.X)
                 .ToArray();
 
@@ -581,9 +592,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             var htmlAnonymous = new
             {
                 Score = new HtmlPlot2DLinesChart([
-                    ("All", [..matches.Select(t => t.ScorePoint)], string.Empty),
-                    ("Maxima", [..indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
-                    ("Filter Maxima", [..filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
+                    ("All", [.. matches.Select(t => t.ScorePoint)], string.Empty),
+                    ("Maxima", [.. indexes.Select(t => matches[t].ScorePoint)], MarkerShape.FilledTriangleDown.ToPlotJsMarker()),
+                    ("Filter Maxima", [.. filterIndexes.Select(t => matches[t].ScorePoint)], MarkerShape.Asterisk.ToPlotJsMarker())
                 ], string.Empty),
                 MatchPoints = new HtmlPlot2DLinesChart([(string.Empty, matchPoints)], string.Empty),
                 XDifferences = new HtmlPlot2DLinesChart([(string.Empty, xDifferences.ToPoints())], string.Empty),

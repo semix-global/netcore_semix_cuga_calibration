@@ -85,7 +85,7 @@ public class ListBoxSelectedItemsStatusBehavior<TStatus, TSelectedItem> : Behavi
 
         BindableSelectedItems =
         [
-            ..listBox.SelectedItems
+            .. listBox.SelectedItems
                 .Cast<TStatus>()
                 .Select(t => t.SelectedItem)
         ];

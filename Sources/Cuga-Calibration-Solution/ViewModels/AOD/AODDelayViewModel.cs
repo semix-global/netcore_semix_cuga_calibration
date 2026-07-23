@@ -16,6 +16,7 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -89,7 +90,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 

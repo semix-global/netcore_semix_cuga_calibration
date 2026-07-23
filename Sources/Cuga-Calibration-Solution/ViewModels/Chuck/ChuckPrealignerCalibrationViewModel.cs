@@ -85,7 +85,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
@@ -488,7 +487,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
                 CalibrateDTO.Items =
                 [
-                    ..CalibrateDTO.Items,
+                    .. CalibrateDTO.Items,
                     chuckPrealignerItem
                 ];
 

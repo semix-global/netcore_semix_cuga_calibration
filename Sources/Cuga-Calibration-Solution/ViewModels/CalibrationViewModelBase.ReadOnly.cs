@@ -51,6 +51,8 @@ public partial class CalibrationViewModelBase
 
     public ICalibrationRecipeService CalibrationRecipeService { get; } = HostApplication.GetRequiredService<ICalibrationRecipeService>();
 
+    public ICalibrationRelationService CalibrationRelationService { get; } = HostApplication.GetRequiredService<ICalibrationRelationService>();
+
     public ApplicationSetting ApplicationSetting { get; } = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>().Value;
 
     public ApplicationCookie ApplicationCookie { get; } = HostApplication.GetRequiredService<ApplicationCookie>();

@@ -10,6 +10,7 @@ using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -92,7 +93,6 @@ public sealed partial class MicroscopeFocusCalibrationViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         Cache = ApplicationCookieService.GetCache<MicroscopeFocusCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<MicroscopeFocusItemDto>(cancellationToken);

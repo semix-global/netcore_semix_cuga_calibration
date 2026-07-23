@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Setting.CalibrationRelationConfig;
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -26,6 +27,8 @@ public sealed partial class CalibrationViewModelEntry(
     public bool IsArray { get; } = isArray;
 
     public ICalibrationViewModelCookie<CalibrationCacheBase, CalibrationDTOBase> Cookie { get; } = cookie;
+
+    public IReadOnlyList<SettingCalibrationRelationConfigItem> Dependencies { get; set; } = [];
 
     public CalibrationViewModelStatus Status { get; } = new();
 

@@ -1,13 +1,16 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Cookies;
 using Core.Utilities.WPF.Assembly.Model;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Enums;
 using Net.Utilities.Mapper.Interfaces;
+using System.Collections;
 
 namespace Core.Models.Models.Setting;
 
 public sealed partial class SettingRequiredCalibrationParam :
     ObservableObject,
+    ICalibrationTreeNode,
     ICloneable<SettingRequiredCalibrationParam>,
     IAdaptIn<SettingRequiredCalibrationParam, SettingRequiredCalibrationParam>
 {
@@ -15,12 +18,14 @@ public sealed partial class SettingRequiredCalibrationParam :
     public partial SysMenuDTO SysMenu { get; set; } = new();
 
     [ObservableProperty]
-    private SettingRequiredCalibrationCategoryItem _categoryItem = new();
+    private SettingRequiredCalibrationCategoryItem _item = new();
 
     [ObservableProperty]
     public partial IReadOnlyList<SettingRequiredCalibrationParam> Children { get; set; } = [];
 
-    public string Name => SysMenu.Name;
+    public ICalibrationCategoryItem CategoryItem => Item;
+
+    IEnumerable ICalibrationTreeNode.Children => Children;
 
     public IReadOnlyList<SettingRequiredCalibrationParam> GetAllChildren()
     {
@@ -41,26 +46,40 @@ public sealed partial class SettingRequiredCalibrationParam :
     public SettingRequiredCalibrationParam Clone() => new()
     {
         SysMenu = SysMenu,
-        CategoryItem = CategoryItem.Clone(),
+        Item = Item.Clone(),
         Children = Children.Select(t => t.Clone()).ToList().AsReadOnly()
     };
 
     public SettingRequiredCalibrationParam AdaptIn(SettingRequiredCalibrationParam obj)
     {
         SysMenu = obj.SysMenu;
-        CategoryItem = obj.CategoryItem.AdaptIn(obj.CategoryItem);
+        Item = obj.Item.AdaptIn(obj.Item);
         Children = obj.Children.Select(t => t.AdaptIn(t)).ToList().AsReadOnly();
         return obj;
     }
 }
 
-public partial class SettingRequiredCalibrationCategoryItem :
+public sealed partial class SettingRequiredCalibrationCategoryItem :
     TypeInfo,
+    ICalibrationCategoryItem,
     ICloneable<SettingRequiredCalibrationCategoryItem>,
     IAdaptIn<SettingRequiredCalibrationCategoryItem, SettingRequiredCalibrationCategoryItem>
 {
     [ObservableProperty]
     public partial bool IsRequired { get; set; }
+
+    public bool IsChecked
+    {
+        get => IsRequired;
+        set => IsRequired = value;
+    }
+
+    public bool IsEnabled => true;
+
+    partial void OnIsRequiredChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsChecked));
+    }
 
     public SettingRequiredCalibrationCategoryItem Clone() => new()
     {

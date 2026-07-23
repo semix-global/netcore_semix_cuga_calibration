@@ -36,6 +36,7 @@ public sealed partial class LoadingWindowViewModel(
     CIBViewModel cibViewModel,
     MonitorViewModel monitorViewModel,
     ICacheProvider cacheProvider,
+    ICalibrationRelationService calibrationRelationService,
     IApplicationCookieService applicationCookieService,
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
@@ -161,6 +162,9 @@ public sealed partial class LoadingWindowViewModel(
                 ProcessValue = ConnectCacheProgress + progressPerItem * (i + 1);
                 await Task.Delay(300).ConfigureAwait(false);
             }
+
+            if (calibrationRelationService.RefreshRelationConfigCookies(out var message) == false)
+                dialogWindowProvider.ShowDialog($"Refresh Relation Config Cookies Failed: {message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
 

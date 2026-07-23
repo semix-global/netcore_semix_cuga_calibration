@@ -16,6 +16,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -94,7 +95,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 

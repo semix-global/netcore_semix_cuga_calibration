@@ -1,8 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.Cookies;
 using Core.Utilities.WPF.Assembly.Model;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
-using Local.SQL.DB.Providers.Models.Enums;
 using Net.Utilities.Mapper.Interfaces;
+using System.Collections;
 
 namespace Core.Models.Models.Setting;
 
@@ -55,6 +56,7 @@ public sealed partial class SettingDisableCalibrationConfig :
 
 public sealed partial class SettingDisableCalibrationCategory :
     ObservableObject,
+    ICalibrationTreeNode,
     ICloneable<SettingDisableCalibrationCategory>,
     IAdaptIn<SettingDisableCalibrationCategory, SettingDisableCalibrationCategory>,
     IEquatable<SettingDisableCalibrationCategory>
@@ -63,40 +65,26 @@ public sealed partial class SettingDisableCalibrationCategory :
     public partial SysMenuDTO SysMenu { get; set; } = new();
 
     [ObservableProperty]
-    private SettingDisableCalibrationCategoryItem _categoryItem = new();
+    private SettingDisableCalibrationCategoryItem _item = new();
 
     [ObservableProperty]
     public partial IReadOnlyList<SettingDisableCalibrationCategory> Children { get; set; } = [];
 
-    public string Name => SysMenu.Name;
+    public ICalibrationCategoryItem CategoryItem => Item;
 
-    public IReadOnlyList<SettingDisableCalibrationCategory> GetAllChildren()
-    {
-        var result = new List<SettingDisableCalibrationCategory>();
-
-        RecursionFn(this);
-
-        return result;
-
-        void RecursionFn(SettingDisableCalibrationCategory item)
-        {
-            if (item.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu) result.Add(item);
-
-            foreach (var child in item.Children) RecursionFn(child);
-        }
-    }
+    IEnumerable ICalibrationTreeNode.Children => Children;
 
     public SettingDisableCalibrationCategory Clone() => new()
     {
         SysMenu = SysMenu,
-        CategoryItem = CategoryItem.Clone(),
+        Item = Item.Clone(),
         Children = Children.Select(t => t.Clone()).ToList().AsReadOnly()
     };
 
     public SettingDisableCalibrationCategory AdaptIn(SettingDisableCalibrationCategory obj)
     {
         SysMenu = obj.SysMenu;
-        CategoryItem = obj.CategoryItem.AdaptIn(obj.CategoryItem);
+        Item = obj.Item.AdaptIn(obj.Item);
         Children = obj.Children.Select(t => t.AdaptIn(t)).ToList().AsReadOnly();
         return obj;
     }
@@ -113,21 +101,35 @@ public sealed partial class SettingDisableCalibrationCategory :
         (null, _) => false,
         (_, null) => false,
         (_, _) => ReferenceEquals(left, right) || (Equals(left.SysMenu.Id, right.SysMenu.Id) &&
-                                                   Equals(left.CategoryItem, right.CategoryItem) &&
+                                                   Equals(left.Item, right.Item) &&
                                                    left.Children.SequenceEqual(right.Children))
     };
 
     public static bool operator !=(SettingDisableCalibrationCategory? left, SettingDisableCalibrationCategory? right) => !(left == right);
 }
 
-public partial class SettingDisableCalibrationCategoryItem :
+public sealed partial class SettingDisableCalibrationCategoryItem :
     TypeInfo,
+    ICalibrationCategoryItem,
     ICloneable<SettingDisableCalibrationCategoryItem>,
     IAdaptIn<SettingDisableCalibrationCategoryItem, SettingDisableCalibrationCategoryItem>,
     IEquatable<SettingDisableCalibrationCategoryItem>
 {
     [ObservableProperty]
     private bool _isDisable;
+
+    public bool IsChecked
+    {
+        get => IsDisable;
+        set => IsDisable = value;
+    }
+
+    public bool IsEnabled => true;
+
+    partial void OnIsDisableChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsChecked));
+    }
 
     public SettingDisableCalibrationCategoryItem Clone() => new()
     {

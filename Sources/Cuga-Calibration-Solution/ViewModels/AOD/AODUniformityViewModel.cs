@@ -103,7 +103,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
@@ -440,7 +439,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
 
                     mappingList =
                     [
-                        ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                        .. Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
                             .Select(t => new AODUniformityDTO.Mapping
                             {
                                 IsNotLinearSpline = Random.Shared.NextDouble() > 0.5,
@@ -490,12 +489,12 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
 
                 CalibratingItem.ImageHorizontalProjectMappings =
                 [
-                    ..Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
+                    .. Generate.LinearRangeInt32(0, CalibratingItem.MappingWindowItem.ImageHorizontalProjects.Count - 1)
                         .ChunkSplitEvenly(Cache.Item.ImageHorizontalProjectsSegmentCount)
                 ];
                 CalibratingItem.PrescanAODWaveformProfileMappings =
                 [
-                    ..CalibratingItem.ImageHorizontalProjectMappings
+                    .. CalibratingItem.ImageHorizontalProjectMappings
                         .Select(t => t
                             .SelectMany(tt => CalibratingItem.Mappings
                                 .Single(ttt => ttt.ImageHorizontalProjectIndex == tt).MappingIndices).ToArray())
@@ -643,7 +642,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                         cancellationToken.ThrowIfCancellationRequested();
 
                         var maximumIndex = Vector<double>.Build.Dense([
-                            ..itemItems.Select(t => Vector<double>.Build.Dense([..t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
+                            .. itemItems.Select(t => Vector<double>.Build.Dense([.. t.ImageHorizontalProjects]).SubVectorIndexes(imageHorizontalProjectIndexes).Average())
                         ]).MaximumIndex();
 
                         Vector<double>.Build.Dense(window).SetSubVectorIndexes(

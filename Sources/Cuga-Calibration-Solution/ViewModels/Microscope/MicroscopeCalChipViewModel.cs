@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -101,7 +102,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
         MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
@@ -518,7 +518,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
 
                 var alignmentCache = ApplicationCookieService
-                    .GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken)
+                    .GetArrayOrDefault<AlignmentCacheBrightField>(false, cancellationToken)
                     .Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.DswModel);
                 var alignmentResultDto = StageViewModel.AlignmentVerify(
                     alignmentCache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),

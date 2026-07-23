@@ -15,6 +15,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -98,7 +99,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
 

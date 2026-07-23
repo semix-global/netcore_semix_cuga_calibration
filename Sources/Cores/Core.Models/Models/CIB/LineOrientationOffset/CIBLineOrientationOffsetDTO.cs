@@ -3,7 +3,6 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.DTO.Swath;
-using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -78,7 +77,6 @@ public sealed partial class CIBLineOrientationOffsetDTO : CalibrationDTOBase<CIB
 
     public CalibrationCIBLineOrientationOffsetItem AdaptTo() => new()
     {
-        CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,

@@ -1,27 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net480;net10.0</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0</TargetFrameworks>
         <AssemblyName>Core.Utilities</AssemblyName>
         <RootNamespace>Core.Utilities</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" />
-        <PackageReference Include="Net.Utilities.Models" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" />
-        <PackageReference Include="Net.Utilities.Helpers" />
-        <PackageReference Include="Net.Utilities.Algorithms" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" />
-        <PackageReference Include="Net.Utilities.IOC" />
+        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.9.1-preview6.0-xuan" />
 
-        <PackageReference Include="Net.Utilities.Nlog" />
+        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.9.1-preview6.0-xuan" />
 
-        <PackageReference Include="Net.Utilities.Graphics" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.9.1-preview6.0-xuan" />
 
-        <PackageReference Include="Local.SQL.Cache.Providers" />
-        <PackageReference Include="Local.SQL.DB.Providers" />
+        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.1-preview6.0-xuan" />
 
         <PackageReference Include="Markdig" />
     </ItemGroup>

@@ -163,8 +163,8 @@ public class CalibrationCacheProviderServiceImpl(
                 var versionInfo = calibrationVersionDTO.GetVersionInfo(calibrationDtoType);
                 var version = SQLiteHelper.GetTableInfo(calibrationDtoType).Version;
 
-                var childCalibrationRequiredCache = parentCalibrationRequiredCache?.GetAllChildren().SingleOrDefault(t => t.CategoryItem.TypeInstance == calibrationDtoType);
-                var isRequired = childCalibrationRequiredCache?.CategoryItem.IsRequired ?? false;
+                var childCalibrationRequiredCache = parentCalibrationRequiredCache?.GetAllChildren().SingleOrDefault(t => t.Item.TypeInstance == calibrationDtoType);
+                var isRequired = childCalibrationRequiredCache?.Item.IsRequired ?? false;
 
                 // 获取转换方法
                 var toWcfMethod = CalibrationReflectionHelper.WcfModelTypeToCalibrationDtoType(wcfModelType).MethodInfo;

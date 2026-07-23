@@ -19,6 +19,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 
@@ -47,7 +48,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
     private CalibrationObj? _calibrationObj;
 
     [ObservableProperty]
-    public partial ObservableCollection<CalibrationCategory> CalibrationCategories { get; set; } = [];
+    public partial ObservableCollection<SettingDisableCalibrationParam> CalibrationCategories { get; set; } = [];
 
     public SettingCalibrateItemsStatusViewModel(
         IMessenger messenger,
@@ -175,13 +176,13 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
         return result == true ? viewModel.SelectedConfig : null;
     }
 
-    private static IReadOnlyList<CalibrationCategory> BuildCategoryTree(CalibrationMenu menuNode, SettingDisableCalibrationConfig? config)
+    private static IReadOnlyList<SettingDisableCalibrationParam> BuildCategoryTree(CalibrationMenu menuNode, SettingDisableCalibrationConfig? config)
     {
         var rootConfigCategories = config?.CalibrationItems ?? [];
 
-        List<CalibrationCategory> BuildRecursive(CalibrationMenu node, SettingDisableCalibrationCategory? parentConfigCategory)
+        List<SettingDisableCalibrationParam> BuildRecursive(CalibrationMenu node, SettingDisableCalibrationCategory? parentConfigCategory)
         {
-            var categories = new List<CalibrationCategory>();
+            var categories = new List<SettingDisableCalibrationParam>();
 
             foreach (var child in node.Children)
             {
@@ -198,7 +199,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                     }
                 }
 
-                var category = new CalibrationCategory
+                var category = new SettingDisableCalibrationParam
                 {
                     SysMenu = child.SysMenu
                 };
@@ -212,7 +213,7 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                     bool isAnyOk;
                     bool forceDisabled = false; // 标记是否被配置强制禁用
 
-                    if (matchedConfigCategory?.CategoryItem.IsDisable == true)
+                    if (matchedConfigCategory?.Item.IsDisable == true)
                     {
                         isAnyOk = false; // 强制禁用
                         forceDisabled = true;
@@ -224,9 +225,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                             : entry.Cookie.Calibration.IsCalibrated;
                     }
 
-                    category.CategoryItem = new CalibrationCategoryItem
+                    category.CategoryItem = new SettingDisableCalibrationCategoryItem
                     {
-                        Description = entry.Name,
                         IsAnyOk = isAnyOk,
                         IsArray = entry.IsArray,
                         Type = entry.DTOType,
@@ -236,9 +236,8 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
                 else
                 {
                     // 目录节点使用默认的 CategoryItem
-                    category.CategoryItem = new CalibrationCategoryItem
+                    category.CategoryItem = new SettingDisableCalibrationCategoryItem
                     {
-                        Description = child.SysMenu.Name,
                         IsAnyOk = false,
                         IsArray = false,
                         Type = null
@@ -315,28 +314,30 @@ public sealed partial class SettingCalibrateItemsStatusViewModel : ViewModelBase
     }
 }
 
-public sealed partial class CalibrationCategory : ObservableObject
+public sealed partial class SettingDisableCalibrationParam : ObservableObject, ICalibrationTreeNode
 {
     [ObservableProperty]
     public partial SysMenuDTO SysMenu { get; set; } = new();
 
     [ObservableProperty]
-    public partial CalibrationCategoryItem CategoryItem { get; set; } = new();
+    public partial SettingDisableCalibrationCategoryItem CategoryItem { get; set; } = new();
 
     [ObservableProperty]
-    public partial IReadOnlyList<CalibrationCategory> Children { get; set; } = [];
+    public partial IReadOnlyList<SettingDisableCalibrationParam> Children { get; set; } = [];
 
-    public string Name => SysMenu.Name;
+    ICalibrationCategoryItem ICalibrationTreeNode.CategoryItem => CategoryItem;
 
-    public IReadOnlyList<CalibrationCategory> GetAllChildren()
+    IEnumerable ICalibrationTreeNode.Children => Children;
+
+    public IReadOnlyList<SettingDisableCalibrationParam> GetAllChildren()
     {
-        var result = new List<CalibrationCategory>();
+        var result = new List<SettingDisableCalibrationParam>();
 
         RecursionFn(this);
 
         return result;
 
-        void RecursionFn(CalibrationCategory item)
+        void RecursionFn(SettingDisableCalibrationParam item)
         {
             if (item.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu) result.Add(item);
 
@@ -345,13 +346,18 @@ public sealed partial class CalibrationCategory : ObservableObject
     }
 }
 
-public partial class CalibrationCategoryItem : ObservableObject
+public partial class SettingDisableCalibrationCategoryItem : ObservableObject, ICalibrationCategoryItem
 {
     [ObservableProperty]
-    public partial string Description { get; set; } = string.Empty;
-
-    [ObservableProperty]
     public partial bool IsAnyOk { get; set; }
+
+    public bool IsChecked
+    {
+        get => IsAnyOk;
+        set => IsAnyOk = value;
+    }
+
+    public bool IsEnabled => IsAnyOk;
 
     public bool IsArray { get; init; }
     public Type? Type { get; init; }
@@ -379,6 +385,8 @@ public partial class CalibrationCategoryItem : ObservableObject
 
     partial void OnIsAnyOkChanged(bool value)
     {
+        OnPropertyChanged(nameof(IsChecked));
+        OnPropertyChanged(nameof(IsEnabled));
         if (value == false) IsChanged = true;
         else IsAnyOk = true;
     }

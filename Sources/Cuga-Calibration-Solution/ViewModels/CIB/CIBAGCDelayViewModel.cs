@@ -101,7 +101,6 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        if (LoadDepends() == false) return false;
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
@@ -653,9 +652,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
             {
                 ImageHorizontalProjects =
                 [
-                    ..Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
-                    ..horizontalProjects,
-                    ..Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1])
+                    .. Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
+                    .. horizontalProjects,
+                    .. Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1])
                 ],
                 RawImageFilePath = darkFieldImage.RawImageFilePath,
                 ImageFilePath = imageFilePath
