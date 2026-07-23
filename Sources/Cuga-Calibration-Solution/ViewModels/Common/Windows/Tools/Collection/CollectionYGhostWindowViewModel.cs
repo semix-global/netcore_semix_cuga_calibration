@@ -213,7 +213,7 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
         MinimumdBValue = YGhostMinimumPoint.Y,
         MaximumdBValue = YGhostMaximumPoint.Y,
         YGhostResultValue,
-        ResultImageh = new HtmlImage(ImageFilePath),
+        ResultImageh = new HtmlImage(ImageFilePath)
     };
 }
 
@@ -293,7 +293,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId).ToArray();
                     YGhostResults =
                     [
-                        ..cibInformations.Select(t => new CollectionYGhostResult
+                        .. cibInformations.Select(t => new CollectionYGhostResult
                         {
                             CIBInformation = t
                         })
@@ -355,7 +355,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
                         yGhostResult.Items =
                         [
-                            ..yGhostResult.Items.Select(t =>
+                            .. yGhostResult.Items.Select(t =>
                             {
                                 var alignOffsetX = alignResultItem.AlignPoint.X - t.AlignPoint.X;
                                 var yGhostAlignPoints = t.YGhostPoints.Select(tt => new Point(tt.X + alignOffsetX, tt.Y)).ToArray();
@@ -368,8 +368,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
                                     FindPosition = t.FindPosition,
                                     ImageFilePath = t.ImageFilePath,
                                     AlignPoint = t.AlignPoint,
-                                    YGhostPoints = [..t.YGhostPoints],
-                                    YGhostAlignPoints = [..yGhostAlignPoints],
+                                    YGhostPoints = [.. t.YGhostPoints],
+                                    YGhostAlignPoints = [.. yGhostAlignPoints],
                                     YGhostMinimumPoint = yGhostMinimumPoint,
                                     YGhostMaximumPoint = yGhostMaximumPoint,
                                     IsOk = yGhostResultValue <= Cache.Threshold

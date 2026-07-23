@@ -289,25 +289,25 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         {
             dictionary[($"{nameof(BestFocus.BestXStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio X")] =
             [
-                ..bestFocuses
+                .. bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioPoint.Y))
             ];
             dictionary[($"{nameof(BestFocus.BestXStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio X ECS")] =
             [
-                ..bestFocuses
+                .. bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestXStrehlRatioECS))
             ];
             dictionary[($"{nameof(BestFocus.BestYStrehlRatioPoint)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio Y")] =
             [
-                ..bestFocuses
+                .. bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestYStrehlRatioPoint.Y))
             ];
             dictionary[($"{nameof(BestFocus.BestYStrehlRatioECS)} {nameof(CIBInformation.ChannelId)}: {channelId} ", "X: PMT Id - Y: Best Strehl Ratio Y ECS")] =
             [
-                ..bestFocuses
+                .. bestFocuses
                     .Where(t => t.BestFocus.IsAlgorithmOk)
                     .Select(t => new Point(t.DarkFieldImage.CIBInformation.PMTId, t.BestFocus.BestYStrehlRatioECS))
             ];

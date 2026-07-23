@@ -135,55 +135,47 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
                 .Where(t => t.Item.ECSes.Count == t.Item.FAPerNACompensations.Count
                             && t.Item.ECSes.Count == t.Item.FBPerNBCompensations.Count
                             && t.Item.ECSes.Count == t.Item.NSCCompensations.Count
-                            && t.Item.ECSes.Count > 0
-                            && t.Item.NSCZeroPoint is not null)
+                            && t.Item.ECSes.Count > 0)
                 .ToArray();
 
             var originScatterLines0 = CalibratingPlotDataSource.GetOrAddScatterLines(0, CalibratingItems.Count * 7);
             var originScatterLines1 = CalibratingPlotDataSource.GetOrAddScatterLines(1, CalibratingItems.Count);
             var compensationScatterLines = CalibratingPlotDataSource.GetOrAddScatterLines(2, compensations.Length * 3);
-            var xLines = CalibratingPlotDataSource.GetOrAddXLines(2, compensations.Length);
-            var yLines = CalibratingPlotDataSource.GetOrAddYLines(2, compensations.Length);
 
             foreach (var (index, item) in CalibratingItems.Index())
             {
-                originScatterLines0.ElementAtOrDefault(index * 7 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 0)?.Update($"{item.FindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 0)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 7 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 1)?.Update($"{item.FindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 1)?.MarkerStyle.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 7 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index] - item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 2)?.Update($"{item.FindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index] - item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 2)?.MarkerStyle.IsVisible = false;
 
-                originScatterLines0.ElementAtOrDefault(index * 7 + 3)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 3)?.Update($"{item.FindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 3)?.MarkerStyle.IsVisible = false;
                 originScatterLines0.ElementAtOrDefault(index * 7 + 3)?.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 7 + 4)?.Update($"{item.DSWFindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 4)?.Update($"{item.FindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 4)?.MarkerStyle.IsVisible = false;
                 originScatterLines0.ElementAtOrDefault(index * 7 + 4)?.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 7 + 5)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 5)?.Update($"{item.FindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 5)?.MarkerStyle.IsVisible = false;
                 originScatterLines0.ElementAtOrDefault(index * 7 + 5)?.IsVisible = false;
-                originScatterLines0.ElementAtOrDefault(index * 7 + 6)?.Update($"{item.DSWFindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines0.ElementAtOrDefault(index * 7 + 6)?.Update($"{item.FindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines0.ElementAtOrDefault(index * 7 + 6)?.MarkerStyle.IsVisible = false;
                 originScatterLines0.ElementAtOrDefault(index * 7 + 6)?.IsVisible = false;
 
-                originScatterLines1.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                originScatterLines1.ElementAtOrDefault(index)?.Update($"{item.FindBrightMachinePosition}: ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 originScatterLines1.ElementAtOrDefault(index)?.MarkerStyle.IsVisible = false;
             }
 
             foreach (var (index, item) in compensations)
             {
-                compensationScatterLines.ElementAtOrDefault(index * 3 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAPerNACompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 0)?.Update($"{item.FindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAPerNACompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 compensationScatterLines.ElementAtOrDefault(index * 3 + 0)?.MarkerStyle.IsVisible = false;
-                compensationScatterLines.ElementAtOrDefault(index * 3 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBPerNBCompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 1)?.Update($"{item.FindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBPerNBCompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 compensationScatterLines.ElementAtOrDefault(index * 3 + 1)?.MarkerStyle.IsVisible = false;
-                compensationScatterLines.ElementAtOrDefault(index * 3 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCCompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
+                compensationScatterLines.ElementAtOrDefault(index * 3 + 2)?.Update($"{item.FindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NSCCompensations[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
                 compensationScatterLines.ElementAtOrDefault(index * 3 + 2)?.MarkerStyle.IsVisible = false;
-
-                xLines.ElementAtOrDefault(index)?.Update("Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
-                xLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
-                yLines.ElementAtOrDefault(index)?.Update("Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, CalibratingItems.Count)));
-                yLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
             }
 
             var originXLines = CalibratingPlotDataSource.GetOrAddXLines(0, (LeastSquaresMinECS is not null ? 1 : 0) + (LeastSquaresMaxECS is not null ? 1 : 0));
@@ -213,32 +205,32 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
 
             foreach (var (index, item) in VerifyItems.Index())
             {
-                scatterLines0.ElementAtOrDefault(index * 7 + 0)?.Update($"{item.DSWFindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 0)?.Update($"{item.FindBrightMachinePosition}: FA / NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 0)?.MarkerStyle.IsVisible = false;
-                scatterLines0.ElementAtOrDefault(index * 7 + 1)?.Update($"{item.DSWFindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 1)?.Update($"{item.FindBrightMachinePosition}: FB / NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 1)?.MarkerStyle.IsVisible = false;
-                scatterLines0.ElementAtOrDefault(index * 7 + 2)?.Update($"{item.DSWFindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index] - item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 2)?.Update($"{item.FindBrightMachinePosition}: NSC", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index] / item.NAs[t.Index] - item.FBs[t.Index] / item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 2)?.MarkerStyle.IsVisible = false;
 
-                scatterLines0.ElementAtOrDefault(index * 7 + 3)?.Update($"{item.DSWFindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 3)?.Update($"{item.FindBrightMachinePosition}: FA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 3)?.MarkerStyle.IsVisible = false;
                 scatterLines0.ElementAtOrDefault(index * 7 + 3)?.IsVisible = false;
-                scatterLines0.ElementAtOrDefault(index * 7 + 4)?.Update($"{item.DSWFindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 4)?.Update($"{item.FindBrightMachinePosition}: NA", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NAs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 4)?.MarkerStyle.IsVisible = false;
                 scatterLines0.ElementAtOrDefault(index * 7 + 4)?.IsVisible = false;
-                scatterLines0.ElementAtOrDefault(index * 7 + 5)?.Update($"{item.DSWFindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 5)?.Update($"{item.FindBrightMachinePosition}: FB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.FBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 5)?.MarkerStyle.IsVisible = false;
                 scatterLines0.ElementAtOrDefault(index * 7 + 5)?.IsVisible = false;
-                scatterLines0.ElementAtOrDefault(index * 7 + 6)?.Update($"{item.DSWFindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines0.ElementAtOrDefault(index * 7 + 6)?.Update($"{item.FindBrightMachinePosition}: NB", [.. item.ECSes.Index().Select(t => new Point(t.Item, item.NBs[t.Index]))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines0.ElementAtOrDefault(index * 7 + 6)?.MarkerStyle.IsVisible = false;
                 scatterLines0.ElementAtOrDefault(index * 7 + 6)?.IsVisible = false;
 
-                scatterLines1.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                scatterLines1.ElementAtOrDefault(index)?.Update($"{item.FindBrightMachinePosition}: ECS", [.. item.ECSes.Index().Select(t => new Point(t.Index, t.Item))], Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 scatterLines1.ElementAtOrDefault(index)?.MarkerStyle.IsVisible = false;
 
-                xLines.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                xLines.ElementAtOrDefault(index)?.Update($"{item.FindBrightMachinePosition}: Zero ECS", item.NSCZeroPoint?.X ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 xLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
-                yLines.ElementAtOrDefault(index)?.Update($"{item.DSWFindBrightMachinePosition}: Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
+                yLines.ElementAtOrDefault(index)?.Update($"{item.FindBrightMachinePosition}: Zero NSC", item.NSCZeroPoint?.Y ?? 0d, Constants.Turbo.GetColor(index, new Range(0, VerifyItems.Count)));
                 yLines.ElementAtOrDefault(index)?.LinePattern = LinePattern.Dashed;
             }
         }
@@ -272,10 +264,10 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
 public sealed partial class AutoFocusFAFBCompensationDTOItem : ObservableObject, ICloneable<AutoFocusFAFBCompensationDTOItem>
 {
     [ObservableProperty]
-    public partial Point DSWFindBrightMachinePosition { get; set; }
+    public partial Point FindBrightMachinePosition { get; set; }
 
     [ObservableProperty]
-    public partial double AverageECS { get; set; }
+    public partial double? AverageECS { get; set; }
 
     [ObservableProperty]
     public partial IReadOnlyList<double> ECSes { get; set; } = [];
@@ -309,7 +301,7 @@ public sealed partial class AutoFocusFAFBCompensationDTOItem : ObservableObject,
 
     public AutoFocusFAFBCompensationDTOItem Clone() => new()
     {
-        DSWFindBrightMachinePosition = DSWFindBrightMachinePosition,
+        FindBrightMachinePosition = FindBrightMachinePosition,
         AverageECS = AverageECS,
         ECSes = [.. ECSes],
         FAs = [.. FAs],

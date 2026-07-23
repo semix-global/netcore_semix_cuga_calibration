@@ -480,7 +480,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         selectedReviewItem.ResultItem.AppliedDOEPos,
                         qualityError,
                         Qualitys = new HtmlPlot2DLinesChart([
-                            ("Qualitys", [..qualitys.Select((t, i) => new Point(i, t))])
+                            ("Qualitys", [.. qualitys.Select((t, i) => new Point(i, t))])
                         ], "unit: score")
                     });
 
@@ -581,7 +581,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
             globalFieldTiltDTOItem.BestFocusChannelItems =
             [
-                ..darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item
+                .. darkFieldImageDtoList.Where(t => t.CIBInformation.ChannelId == Cache.Item.CIBInformation.ChannelId).Select(t => new GlobalFieldTiltDTOItem.Item
                 {
                     PmtId = t.CIBInformation.PMTId,
                     ChannelId = t.CIBInformation.ChannelId,

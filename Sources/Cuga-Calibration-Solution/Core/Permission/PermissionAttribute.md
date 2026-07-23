@@ -643,7 +643,7 @@ public class PermissionGeneratorTests
 
 | 风险 | 影响 | 缓解措施 |
 |------|------|----------|
-| Source Generator 不支持 .NET Framework 4.8 | 高 | 使用 `netstandard2.0` 目标框架编写生成器，生成的代码兼容 net480 |
+| Source Generator 不支持 .NET Framework 4.8 | 高 | 使用 `netstandard2.0` 目标框架编写生成器，生成的代码兼容 net48 |
 | 生成代码与手写代码冲突 | 中 | 使用 partial class，确保方法名唯一（加 `_Generated` 后缀） |
 | 调试困难 | 中 | 添加 `#nullable enable` 和详细注释，支持 Source Link |
 | 迁移期间功能中断 | 高 | 分模块迁移，保持双轨运行直到验证通过 |

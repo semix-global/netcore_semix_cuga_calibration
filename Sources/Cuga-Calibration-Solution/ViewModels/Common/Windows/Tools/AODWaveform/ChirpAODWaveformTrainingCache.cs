@@ -74,7 +74,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     {
         SlopeConfigurations =
         [
-            ..value.Select(_ => new GenerateAODWaveformSlopeConfiguration
+            .. value.Select(_ => new GenerateAODWaveformSlopeConfiguration
             {
                 DeltaKRate = 0d,
                 Coefficient = 0d
@@ -104,7 +104,7 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
         RangeECS,
         IsConfirmBestYStrehlRatioResult,
         SlopeConfigurations = new HtmlTable([.. SlopeConfigurations.Select(t => t.ToHtmlAnonymous())]),
-        ChirpAODWaveformTrainingSlopes = new HtmlTable([.. ChirpAODWaveformTrainingSlopes.Select(t => t.ToHtmlAnonymous())]),
+        ChirpAODWaveformTrainingSlopes = new HtmlTable([.. ChirpAODWaveformTrainingSlopes.Select(t => t.ToHtmlAnonymous())])
     };
 }
 

@@ -4,6 +4,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Wcf.Models.Laser;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
