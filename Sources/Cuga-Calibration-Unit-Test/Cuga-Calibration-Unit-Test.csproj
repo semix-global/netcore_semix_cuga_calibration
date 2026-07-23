@@ -9,11 +9,15 @@
     <Import Project="$(BuildToolsDirectory)\XUnit.Build.props" />
 
     <ItemGroup>
+        <PackageReference Include="halconxl" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Reference Include="HAlgorithm">
             <HintPath>$(RepositoryDirectory)\Dependencies\HAlgorithm.dll</HintPath>
         </Reference>
     </ItemGroup>
-    
+
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Reference Include="Semix.CoreLib">
             <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
