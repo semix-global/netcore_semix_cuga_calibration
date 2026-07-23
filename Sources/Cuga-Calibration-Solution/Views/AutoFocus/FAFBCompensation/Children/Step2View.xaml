@@ -40,24 +40,12 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.RangeECS}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Speed(ECS/s): "
                                           hc:TitleElement.TitleWidth="180"
                                           hc:TitleElement.TitlePlacement="Left"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SpeedECSPerSecond}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(ECS): "
-                                          hc:TitleElement.TitleWidth="180"
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          Minimum="0"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ThresholdECS}" />
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                             <StackPanel>
                                 <TextBlock Text="Slopes Params"
@@ -90,12 +78,12 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="200"
                                                         Header="Points"
-                                                        Binding="{Binding DSWFindBrightMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                                        Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                                     <DataGridTemplateColumn Header="Actions">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button Content="Mark"
-                                                        Command="{Binding DataContext.MarkDSWFindBrightMachinePositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                        Command="{Binding DataContext.MarkFindBrightMachinePositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>

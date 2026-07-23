@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Mapper.Interfaces;
@@ -12,13 +13,13 @@ public sealed partial class AutoFocusFAFBCompensationCache : CalibrationCacheBas
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
+
+    [ObservableProperty]
     public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [ObservableProperty]
-    public partial double RangeECS { get; set; }
-
-    [ObservableProperty]
-    public partial double SpeedECSPerSecond { get; set; } = 500d;
+    public partial double SpeedECSPerSecond { get; set; } = 1000d;
 
     [ObservableProperty]
     public partial double ThresholdECS { get; set; } = 5d;
@@ -29,8 +30,8 @@ public sealed partial class AutoFocusFAFBCompensationCache : CalibrationCacheBas
     public override AutoFocusFAFBCompensationCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
         AlignmentResult = AlignmentResult.Clone(),
-        RangeECS = RangeECS,
         SpeedECSPerSecond = SpeedECSPerSecond,
         ThresholdECS = ThresholdECS,
         Items = [.. Items.Select(t => t.Clone())],
@@ -44,10 +45,10 @@ public sealed partial class AutoFocusFAFBCompensationCache : CalibrationCacheBas
 public sealed partial class AutoFocusFAFBCompensationCacheItem : ObservableObject, ICloneable<AutoFocusFAFBCompensationCacheItem>
 {
     [ObservableProperty]
-    public partial Point DSWFindBrightMachinePosition { get; set; }
+    public partial Point FindBFMachinePosition { get; set; }
 
     public AutoFocusFAFBCompensationCacheItem Clone() => new()
     {
-        DSWFindBrightMachinePosition = DSWFindBrightMachinePosition
+        FindBFMachinePosition = FindBFMachinePosition
     };
 }

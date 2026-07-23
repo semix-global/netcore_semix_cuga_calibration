@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.AutoFocus.FAFBCompensation;
@@ -119,7 +118,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             case 1:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Items.ElementAtOrDefault(0)?.DSWFindBrightMachinePosition ?? MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Items.ElementAtOrDefault(0)?.FindBFMachinePosition ?? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -158,7 +158,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     }
 
     [RelayCommand]
-    private void MarkDSWFindBrightMachinePosition(AutoFocusFAFBCompensationCacheItem? items)
+    private void MarkFindBrightMachinePosition(AutoFocusFAFBCompensationCacheItem? items)
     {
         try
         {
@@ -166,13 +166,13 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            items.DSWFindBrightMachinePosition = StageViewModel.GetMachineStagePosition();
+            items.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, nameof(MarkDSWFindBrightMachinePosition));
+            Logger.LogError(ex, nameof(MarkFindBrightMachinePosition));
             DialogWindowProvider.ShowDialog($"""
-                                             {nameof(MarkDSWFindBrightMachinePosition)} Failed!
+                                             {nameof(MarkFindBrightMachinePosition)} Failed!
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
@@ -183,7 +183,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     {
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            Cache.MicroscopeLensInformation
+            Cache.MicroscopeLensInformation,
+            Cache.CalChipSiteModelEnum
         }), HtmlLogUniqueId.LoggingHtml());
 
         return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -192,7 +193,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step1Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
-        AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+        AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
         AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
@@ -202,6 +203,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
+            Cache.CalChipSiteModelEnum,
             AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous())
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -216,10 +218,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             Cache.MicroscopeLensInformation,
+            Cache.CalChipSiteModelEnum,
             AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous()),
-            Cache.RangeECS,
             Cache.SpeedECSPerSecond,
-            Points = new HtmlTable([.. Cache.Items.Select(t => new { t.DSWFindBrightMachinePosition })]),
+            Points = new HtmlTable([.. Cache.Items.Select(t => new { t.FindBFMachinePosition })]),
             Cache.ThresholdECS
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -288,10 +290,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             Cache.MicroscopeLensInformation,
+            Cache.CalChipSiteModelEnum,
             AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous()),
-            Cache.RangeECS,
             Cache.SpeedECSPerSecond,
-            Points = new HtmlTable([.. Cache.Items.Select(t => new { t.DSWFindBrightMachinePosition })]),
+            Points = new HtmlTable([.. Cache.Items.Select(t => new { t.FindBFMachinePosition })]),
             Cache.ThresholdECS
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -345,33 +347,37 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     {
         var item = isCalibrating ? CalibratingItem : Review;
 
-        var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Items[0].DSWFindBrightMachinePosition);
+        var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Items[0].FindBFMachinePosition);
         try
         {
             foreach (var cacheItem in Cache.Items)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                Logger.LogHtmlInformation($"{cacheItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{cacheItem.FindBFMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
-                var tempBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(cacheItem.DSWFindBrightMachinePosition);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(tempBrightFieldPosition, CalChipSiteModelEnum.DswModel);
+                var tempBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(cacheItem.FindBFMachinePosition);
+                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
                 await Task.Delay(1000, cancellationToken);
 
-                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, CalChipSiteModelEnum.DswModel);
+                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
 
                 CIBViewModel.ToggleRTFCParam(ApplicationCookie.ProductivityInformations[0]);
                 await Task.Delay(100, cancellationToken);
 
                 var (ecsMin, ecsMax) = AfViewModel.GetEcsMoveRange();
 
-                AfViewModel.ToggleDarkFieldEnable(true);
-                await Task.Delay(100, cancellationToken);
+                double? averageEcs = null;
+                if (isCalibrating == false)
+                {
+                    AfViewModel.ToggleDarkFieldEnable(true);
+                    await Task.Delay(100, cancellationToken);
 
-                var averageEcs = AfViewModel.GetSensorAverageEcsValue();
+                    averageEcs = AfViewModel.GetSensorAverageEcsValue();
+                }
 
-                var startECS = Math.Clamp(averageEcs - Cache.RangeECS, ecsMin, ecsMax);
-                var stopECS = Math.Clamp(averageEcs + Cache.RangeECS, ecsMin, ecsMax);
+                var startECS = ecsMin;
+                var stopECS = ecsMax;
 
                 AfViewModel.SetSensorEcsValue(startECS);
                 await Task.Delay(100, cancellationToken);
@@ -384,7 +390,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                 var dtoItem = new AutoFocusFAFBCompensationDTOItem
                 {
-                    DSWFindBrightMachinePosition = cacheItem.DSWFindBrightMachinePosition,
+                    FindBrightMachinePosition = cacheItem.FindBFMachinePosition,
                     AverageECS = averageEcs,
                     ECSes = [.. traceBufferList.Select(t => t.Ecs)],
                     FAs = [.. traceBufferList.Select(t => t.Fa)],
@@ -402,13 +408,15 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 }
                 else
                 {
-                    (isSuccess, dtoItem.NSCZeroPoint) = GetNSCCurveZeroPoint(averageEcs, dtoItem.ECSes, dtoItem.NSCs);
+                    Guard.IsNotNull(averageEcs);
+
+                    (isSuccess, dtoItem.NSCZeroPoint) = GetNSCCurveZeroPoint(averageEcs.Value, dtoItem.ECSes, dtoItem.NSCs);
                     item.VerifyItems = [.. item.VerifyItems, dtoItem];
                 }
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    dtoItem.DSWFindBrightMachinePosition,
+                    dtoItem.FindBrightMachinePosition,
                     dtoItem.AverageECS,
                     ecsMin,
                     ecsMax,
@@ -429,7 +437,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }
         finally
         {
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(brightFieldPosition, CalChipSiteModelEnum.DswModel);
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(brightFieldPosition, Cache.CalChipSiteModelEnum);
         }
     }
 
@@ -524,7 +532,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Logger.LogHtmlInformation($"{dtoItem.DSWFindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{dtoItem.FindBrightMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             var faPerNACompensations = new double[dtoItem.ECSes.Count];
             var fbPerNBCompensations = new double[dtoItem.ECSes.Count];
@@ -554,32 +562,17 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             dtoItem.FAPerNACompensations = faPerNACompensations;
             dtoItem.FBPerNBCompensations = fbPerNBCompensations;
             dtoItem.NSCCompensations = nscCompensations;
-            var (isSuccess, zeroPoint) = GetNSCCurveZeroPoint(dtoItem.AverageECS, dtoItem.ECSes, nscCompensations);
-            dtoItem.NSCZeroPoint = zeroPoint;
 
-            var tempHtmlBullet = new HtmlBullet(new
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
-                dtoItem.DSWFindBrightMachinePosition,
+                dtoItem.FindBrightMachinePosition,
                 dtoItem.AverageECS,
                 PlotDataSource = new HtmlContainer([.. item.CalibratingPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
-            });
-
-            if (isSuccess)
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, tempHtmlBullet, HtmlLogUniqueId.LoggingHtml());
-            else
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, tempHtmlBullet, HtmlLogUniqueId.LoggingHtml());
-
-                ThrowHelper.ThrowArgumentException("NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.");
-            }
+            }), HtmlLogUniqueId.LoggingHtml());
         }
 
-        var ecses = item.CalibratingItems.Select(t => Guard.IsNotNullAndReturn(t.NSCZeroPoint).X).ToArray();
-        var error = Math.Abs(ecses.Max() - ecses.Min());
-        var isOk = error < Cache.ThresholdECS;
-        item.IsCalibrated = isOk;
-
-        var htmlBullet = new HtmlBullet(new
+        item.IsCalibrated = true;
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             item.KA,
             item.OffsetA,
@@ -587,14 +580,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             item.KB,
             item.OffsetB,
             item.FBRSquared,
-            ecses,
-            error,
-            isOk,
             CalibratingPlotDataSource = new HtmlContainer([.. item.CalibratingPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
-        });
-
-        if (isOk) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-        else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+        }), HtmlLogUniqueId.LoggingHtml());
 
         return Task.CompletedTask;
     }

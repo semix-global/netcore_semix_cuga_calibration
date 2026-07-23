@@ -17,6 +17,7 @@ using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
+using CommunityToolkit.Diagnostics;
 
 namespace Core.Models.Models.Microscope.CalChip;
 
@@ -53,6 +54,16 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
 
     [ObservableProperty]
     public partial Point DSWBrightFieldMachineAffinePosition { get; set; }
+
+    public Point GetBFMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    {
+        CalChipSiteModelEnum.ChuckModel => Point.Origin,
+        CalChipSiteModelEnum.DswModel => DswItem.BrightFieldMachinePosition,
+        CalChipSiteModelEnum.UndefinedModel => UndefineWaferItem.BrightFieldMachinePosition,
+        CalChipSiteModelEnum.HazeModel => HazeItem.BrightFieldMachinePosition,
+        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferItem.BrightFieldMachinePosition,
+        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
+    };
 
     #region Mapper
 
