@@ -8,9 +8,12 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 #if XPixelSizeTest
 using System.Windows;
-using Net.Utilities.ScottPlot.WPF.Plottables;
-using Net.Utilities.ScottPlot.WPF.WPF;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.WPF.V2;
+using Net.Utilities.Helpers.Extensions;
 using ScottPlot;
+using ScottPlot.MultiplotLayouts;
 #endif
 
 namespace CugaCalibrationUnitTest;
@@ -22,6 +25,8 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
     [InlineData("test2.xlsx", 0.7, 16, new[] { 74706.354, 74706.115, 74708.599, 74707.325, 74705.558, 74707.925, 74706.92, 74707.655, 74707.707, 74706.902, 74705.874, 74706.493, 74706.946, 74707.062, 74706.141 })]
     [InlineData("test3.xlsx", 0.7, 15, new[] { 74944.447, 74947.406, 74944.655, 74943.691, 74946.119, 74946.759, 74946.367, 74944.355, 74946.67, 74943.411, 74947.489, 74943.737, 74947.8, 74944.207 })]
     [InlineData("test4.xlsx", 0.7, 17, new[] { 49964.727, 49964.088, 49963.032, 49962.883, 49964.177, 49963.214, 49964.824, 49962.904, 49963.303, 49963.897, 49963.932, 49964.166, 49963.731, 49963.272, 49964.164, 49963.486 })]
+    [InlineData("test5.xlsx", 0.7, 14, new[] { 50325.744, 50325.486, 50326.672, 50325.033, 50327.846, 50328.08, 50327.871, 50328.456, 50329.57, 50329.011, 50328.965, 50330.811 })]
+    [InlineData("test5.xlsx", 0.6, 14, new[] { 50325.744, 50325.486, 50326.672, 50325.033, 50327.846, 50327.871, 50328.456, 50329.57, 50329.011, 50328.965, 50330.811 })]
     public void Test(string filePath, double threshold, int count, IReadOnlyList<double> expectedXDifferences)
     {
         var points = MiniExcel.Query<Temp>(@$"Assets\XPixelSize\{filePath}", sheetName: "ALL Points")
@@ -62,42 +67,54 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
         {
             var window = new Window { Title = $"{nameof(XPixelSizeTest)}_{threshold:0.###}" };
 
-            var scatterPlotControl = new ScatterPlotControl();
-            window.Content = scatterPlotControl;
+            var plotControl = new PlotControl();
+            window.Content = plotControl;
 
-            var plot = scatterPlotControl.Plot;
+            var plotDataSource = new PlotDataSource();
+            plotDataSource.Configure(new Rows(), 3);
+            plotControl.DataSource = plotDataSource;
 
-            plot.Title("Template Match: px/score");
-            var scatterLine = ScatterLine.Empty;
-            scatterLine.Update(
+            #region Plot0
+
+            plotDataSource.SetTitle(0, "Template Match: px/score");
+
+            plotDataSource.GetOrAddScatterLine(
+                0,
                 "Origin",
                 [.. points.Select(t => new Point(t.X, t.Y))],
                 Colors.Blue);
-            plot.PlottableList.Add(scatterLine);
 
-            var yLine = YLine.Empty;
-            yLine.Update("Threshold", threshold, Colors.LightGreen);
-            plot.PlottableList.Add(yLine);
+            plotDataSource.GetOrAddYLine(0, "Threshold", threshold, Colors.LightGreen);
 
-            var scatterMarkers = ScatterMarkers.Empty;
-            scatterMarkers.Update(
+            var scatterMarkers = plotDataSource.GetOrAddScatterMarkers(
+                0,
                 "Maxima",
                 [.. indexes.Select(t => points[t])],
                 Colors.DarkMagenta,
                 MarkerShape.FilledTriangleDown);
             scatterMarkers.MarkerSize = 20;
-            plot.PlottableList.Add(scatterMarkers);
 
-            scatterMarkers = ScatterMarkers.Empty;
-            scatterMarkers.Update(
+            scatterMarkers = plotDataSource.GetOrAddScatterMarkers(
+                0,
                 "Filter Maxima",
                 matchPoints,
                 Colors.Red,
                 MarkerShape.Asterisk);
             scatterMarkers.MarkerSize = 30;
-            plot.PlottableList.Add(scatterMarkers);
 
-            plot.ShowLegend(Alignment.UpperLeft, Orientation.Vertical);
+            #endregion
+
+            plotDataSource.GetOrAddScatterLine(
+                1,
+                "XDifferences",
+                xDifferences.ToPoints(),
+                Colors.Blue);
+
+            plotDataSource.GetOrAddScatterLine(
+                2,
+                "XFilterDifferences",
+                filterXDifferences.ToPoints(),
+                Colors.Blue);
 
             window.ShowDialog();
         });
