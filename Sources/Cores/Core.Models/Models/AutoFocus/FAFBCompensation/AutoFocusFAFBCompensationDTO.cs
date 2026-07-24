@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Wcf.Models.AutoFocus;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -14,7 +15,7 @@ using Range = ScottPlot.Range;
 namespace Core.Models.Models.AutoFocus.FAFBCompensation;
 
 [CacheVersion("1.0.0")]
-public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<AutoFocusFAFBCompensationDTO>
+public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<AutoFocusFAFBCompensationDTO>, IAdaptTo<CalibrationLaserAutoFocusFAFBCompensation>
 {
     [ObservableProperty]
     public partial double KA { get; set; }
@@ -240,6 +241,8 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
         }
     }
 
+    #region Mapper
+
     public override AutoFocusFAFBCompensationDTO Clone() => new()
     {
         KA = KA,
@@ -259,6 +262,19 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
         Id = Id,
         Expiration = Expiration
     };
+
+    public CalibrationLaserAutoFocusFAFBCompensation AdaptTo() => new()
+    {
+        KA = KA,
+        OffsetA = OffsetA,
+        KB = KB,
+        OffsetB = OffsetB,
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
+    };
+
+    #endregion Mapper
 }
 
 public sealed partial class AutoFocusFAFBCompensationDTOItem : ObservableObject, ICloneable<AutoFocusFAFBCompensationDTOItem>
