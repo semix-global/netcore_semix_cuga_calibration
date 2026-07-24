@@ -11,6 +11,11 @@ namespace Core.Wcf.Models.AutoFocus;
 public class CalibrationAutoFocusObj
 {
     /// <summary>
+    /// 暗场自动聚焦, FA FB补偿系数校准对象
+    /// </summary>
+    public CalibrationLaserAutoFocusFAFBCompensation CalibrationLaserAutoFocusFAFBCompensation { get; set; } = new();
+
+    /// <summary>
     /// GFO校准对象列表
     /// </summary>
     public CalibrationAutoFocusGlobalFocusOffset[] CalibrationAutoFocusGlobalFocusOffsets { get; set; } = [];
@@ -19,6 +24,35 @@ public class CalibrationAutoFocusObj
     /// CalChipFocusOffset校准对象列表
     /// </summary>
     public CalibrationAutoFocusCalChipFocusOffset CalibrationAutoFocusCalChipFocusOffset { get; set; } = new();
+}
+
+/// <summary>
+/// 暗场自动聚焦, FA FB补偿系数校准对象
+/// target = FA / NA + KA * (1 - OffsetA / NA)
+/// target = FB / NB + KB * (1 - OffsetB / NB)
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserAutoFocusFAFBCompensation : CalibrationBase
+{
+    /// <summary>
+    /// FA补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double KA { get; set; }
+
+    /// <summary>
+    /// FA补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double OffsetA { get; set; }
+
+    /// <summary>
+    /// FB补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double KB { get; set; }
+
+    /// <summary>
+    /// FB补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double OffsetB { get; set; }
 }
 
 /// <summary>
