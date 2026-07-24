@@ -394,7 +394,7 @@ public sealed class CalibrationMicroscopeFocusItem : CalibrationBase
 }
 ```
 
-## ==2.2.== Cal Chip4个耳朵自动聚焦校准: `CalibrationMicroscopeCalChip`
+## 2.2. Cal Chip4个耳朵自动聚焦校准: `CalibrationMicroscopeCalChip`
 
 ```csharp
 /// <summary>
@@ -977,7 +977,7 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
 }
 ```
 
-## ==4.3.== Laser 台面功率曲线校准：`CalibrationAttenuatorObj`
+## 4.3. Laser 台面功率曲线校准：`CalibrationAttenuatorObj`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 > 
@@ -1162,7 +1162,7 @@ public sealed class CalibrationLaserAODUniformityItem : CalibrationBase
 }
 ```
 
-## ==4.7.== CIB的采样窗口完全同步校准: `CalibrationLaserCIBXTCItem`
+## 4.7. CIB的采样窗口完全同步校准: `CalibrationLaserCIBXTCItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag)` 判断`is not null`后使用
 
@@ -1552,7 +1552,7 @@ public sealed class CalibrationLaserCIBLightMatchingItem : CalibrationBase
 }
 ```
 
-## ==4.16.== CIB Illumination Profile 校准: `CalibrationLaserCIBIlluminationProfileItem`
+## 4.16. CIB Illumination Profile 校准: `CalibrationLaserCIBIlluminationProfileItem`
 
 根据不同 `列表.SingleOrDefault(t => t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度 && t.OpticsApodizationModeEnum == 切趾 && t.OpticsPolarizationModeEnum == 光学偏振 && t.CollectorPolarizationModeEnum == 采集偏振)` 判断`is not null`后使用
 
@@ -1662,7 +1662,7 @@ public sealed class CalibrationOpticsRelay : CalibrationBase
 }
 ```
 
-## ==4.18.== Optics INC校准: `CalibrationOpticsRelay`
+## 4.18. Optics INC校准: `CalibrationOpticsRelay`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
@@ -1697,7 +1697,7 @@ public sealed class CalibrationOpticsINC : CalibrationBase
 }
 ```
 
-## ==4.19.== 采集偏振校准: `CollectionPolarization`
+## 4.19. 采集偏振校准: `CollectionPolarization`
 
 ```csharp
 /// <summary>
@@ -1747,8 +1747,13 @@ public sealed class CalibrationCollectionPolarization : CalibrationBase
 /// AutoFocus校准对象
 /// </summary>
 [Serializable]
-public sealed class CalibrationAutoFocusObj
+public class CalibrationAutoFocusObj
 {
+    /// <summary>
+    /// 暗场自动聚焦, FA FB补偿系数校准对象
+    /// </summary>
+    public CalibrationLaserAutoFocusFAFBCompensation CalibrationLaserAutoFocusFAFBCompensation { get; set; } = new();
+
     /// <summary>
     /// GFO校准对象列表
     /// </summary>
@@ -1761,7 +1766,41 @@ public sealed class CalibrationAutoFocusObj
 }
 ```
 
-## ==5.1.== 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
+## ==5.1.== 暗场自动聚焦FA FB补偿系数校准: `CalibrationLaserAutoFocusFAFBCompensation`
+
+```csharp
+/// <summary>
+/// 暗场自动聚焦, FA FB补偿系数校准对象
+/// target = FA / NA + KA * (1 - OffsetA / NA)
+/// target = FB / NB + KB * (1 - OffsetB / NB)
+/// </summary>
+[Serializable]
+public sealed class CalibrationLaserAutoFocusFAFBCompensation : CalibrationBase
+{
+    /// <summary>
+    /// FA补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double KA { get; set; }
+
+    /// <summary>
+    /// FA补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double OffsetA { get; set; }
+
+    /// <summary>
+    /// FB补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double KB { get; set; }
+
+    /// <summary>
+    /// FB补偿系数, **需要下发AF硬件**
+    /// </summary>
+    public double OffsetB { get; set; }
+}
+
+```
+
+## 5.2. 暗场焦点位置校准: `CalibrationGlobalFocusOffset`
 
 > 根据不同 `列表.SingleOrDefault(t => t.CgNIOITypeEnum ==OI/NI && t.CgMagTypeEnum == 暗场Mag && t.Speed == 速度)` 判断`is not null`后使用
 > 
@@ -1806,7 +1845,7 @@ public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
 }
 ```
 
-## ==5.2.== 暗场`CalChip`校准: `CalibrationAutoFocusCalChipFocusOffset`
+## 5.3. 暗场`CalChip`校准: `CalibrationAutoFocusCalChipFocusOffset`
 
 ```csharp
 /// <summary>
@@ -1906,7 +1945,7 @@ public sealed class CalibrationPupilFourierObj
 }
 ```
 
-## ==6.1.== 傅里叶PupilCameraAlignment校准: `CalibrationPupilCameraAlignment`
+## 6.1. 傅里叶PupilCameraAlignment校准: `CalibrationPupilCameraAlignment`
 
 ```csharp
 /// <summary>
@@ -1932,7 +1971,7 @@ public sealed class CalibrationPupilCameraAlignment : CalibrationBase
 }
 ```
 
-## ==6.2.== 傅里叶CalibrationPupilSideChannelFlexibleAperture校准: `CalibrationPupilSideChannelFlexibleAperture`
+## 6.2. 傅里叶CalibrationPupilSideChannelFlexibleAperture校准: `CalibrationPupilSideChannelFlexibleAperture`
 
 ```csharp
 /// <summary>
@@ -1999,7 +2038,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
 }
 ```
 
-## ==6.3.== 傅里叶CalibrationPupilSideChannelSpecularBlocker校准: `CalibrationPupilSideChannelSpecularBlocker`
+## 6.3. 傅里叶CalibrationPupilSideChannelSpecularBlocker校准: `CalibrationPupilSideChannelSpecularBlocker`
 
 ```csharp
 /// <summary>
@@ -2034,7 +2073,7 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
 }
 ```
 
-## ==6.4.== 傅里叶CalibrationPupilCenterChannelFlexibleAperture校准: `CalibrationPupilCenterChannelFlexibleAperture`
+## 6.4. 傅里叶CalibrationPupilCenterChannelFlexibleAperture校准: `CalibrationPupilCenterChannelFlexibleAperture`
 
 ```csharp
 /// <summary>
@@ -2135,7 +2174,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
 }
 ```
 
-## ==6.5.== 傅里叶PupilCenterChannelSpecularBlocker校准: `PupilCenterChannelSpecularBlocker`
+## 6.5. 傅里叶PupilCenterChannelSpecularBlocker校准: `PupilCenterChannelSpecularBlocker`
 
 ```csharp
 /// <summary>
