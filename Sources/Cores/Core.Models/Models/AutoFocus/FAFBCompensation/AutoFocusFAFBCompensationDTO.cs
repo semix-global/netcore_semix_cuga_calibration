@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Wcf.Models.AutoFocus;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -9,7 +10,6 @@ using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
-using Core.Wcf.Models.AutoFocus;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AutoFocus.FAFBCompensation;
