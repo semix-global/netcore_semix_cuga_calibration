@@ -13,7 +13,8 @@
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:wpf="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
+           xmlns:dock="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            xmlns:ui="clr-namespace:Core.Utilities.WPF.UI;assembly=Core.Utilities.WPF"
            Width="1200"
            Height="800"
@@ -217,11 +218,12 @@
                             Style="{StaticResource ButtonPrimary}" />
                 </hc:UniformSpacingPanel>
                 <Grid Grid.Row="2">
-                    <wpf:DockHostControl Side="Right"
+                    <dock:DockHostControl x:Name="DockHostControl"
+                                         Side="Right"
                                          SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}"
                                          IsEnabled="{Binding ActiveItem, Converter={StaticResource NotNullToBoolConverter}, Mode=OneWay}">
-                        <wpf:DockHostControl.Style>
-                            <Style TargetType="wpf:DockHostControl">
+                        <dock:DockHostControl.Style>
+                            <Style TargetType="dock:DockHostControl">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="True">
                                         <Setter Property="IsExpanded" Value="False" />
@@ -231,8 +233,8 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </wpf:DockHostControl.Style>
-                        <wpf:DockHostControl.SideContent>
+                        </dock:DockHostControl.Style>
+                        <dock:DockHostControl.SideContent>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="50" />
@@ -278,8 +280,8 @@
                                              Style="{StaticResource ProgressBarSuccess}"
                                              Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
                             </Grid>
-                        </wpf:DockHostControl.SideContent>
-                        <wpf:DockHostControl.MainContent>
+                        </dock:DockHostControl.SideContent>
+                        <dock:DockHostControl.MainContent>
                             <ContentControl>
                                 <ContentControl.Style>
                                     <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
@@ -306,8 +308,8 @@
                                     </Style>
                                 </ContentControl.Style>
                             </ContentControl>
-                        </wpf:DockHostControl.MainContent>
-                    </wpf:DockHostControl>
+                        </dock:DockHostControl.MainContent>
+                    </dock:DockHostControl>
                     <hc:UniformSpacingPanel HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
                                             Orientation="Vertical">

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.1-preview6.0-xuan" />
+
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.1-preview6.0-xuan" />
+
+        <PackageReference Include="Microsoft.Web.WebView2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities.Calibration\Net.Utilities.Calibration.csproj" />
+    </ItemGroup>
+
+</Project>

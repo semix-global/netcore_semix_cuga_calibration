@@ -25,7 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
         <ProjectReference Include="..\Core.Utilities.WPF\01. Core.Utilities.WPF.csproj" />
         <ProjectReference Include="..\Core.Wcf\03. Core.Wcf.csproj" />
     </ItemGroup>

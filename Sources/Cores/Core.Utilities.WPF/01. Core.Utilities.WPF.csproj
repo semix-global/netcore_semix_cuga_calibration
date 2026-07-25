@@ -8,30 +8,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-
-        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.1-preview6.0-xuan" />
-
-        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.1-preview6.0-xuan" />
-
-        <PackageReference Include="Microsoft.Web.WebView2" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.WPF.CustomControl.Calibration\Net.Utilities.WPF.CustomControl.Calibration.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Include="Assets\Css\*.css" />
         <EmbeddedResource Include="Assets\Js\*.js" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Core.Utilities\00. Core.Utilities.csproj" />
     </ItemGroup>
 
 </Project>

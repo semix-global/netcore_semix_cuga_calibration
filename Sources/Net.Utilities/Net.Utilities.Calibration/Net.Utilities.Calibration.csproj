@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <TargetFrameworks>net48;net10.0</TargetFrameworks>
-        <AssemblyName>Core.Utilities</AssemblyName>
-        <RootNamespace>Core.Utilities</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

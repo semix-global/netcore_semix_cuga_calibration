@@ -1,42 +1,40 @@
-using CommunityToolkit.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.CustomControl.Calibration;
 
-public class CircleProgressToggleButton : ToggleButton
+public class CircleProgressButton : Button
 {
-    static CircleProgressToggleButton()
+    static CircleProgressButton()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressToggleButton), new FrameworkPropertyMetadata(typeof(CircleProgressToggleButton)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressButton), new FrameworkPropertyMetadata(typeof(CircleProgressButton)));
     }
 
     public static readonly DependencyProperty EffectBackgroundProperty = DependencyProperty.Register(
         nameof(EffectBackground),
         typeof(Brush),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(Brushes.DarkGray, OnChanged));
 
     public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
         nameof(Progress),
         typeof(double),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(0d, OnChanged));
 
     public static readonly DependencyProperty IsOkProperty = DependencyProperty.Register(
         nameof(IsOk),
         typeof(bool),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(false, OnChanged));
 
     private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is not CircleProgressToggleButton circleProgressToggleButton) return;
+        if (d is not CircleProgressButton circleProgressButton) return;
 
-        circleProgressToggleButton.Update();
+        circleProgressButton.Update();
     }
 
     public Brush EffectBackground
@@ -65,9 +63,12 @@ public class CircleProgressToggleButton : ToggleButton
     {
         base.OnApplyTemplate();
 
-        _progressEllipse = Guard.IsNotNullAndAssignableToTypeAndReturn<Ellipse>(GetTemplateChild("PART_ProgressEllipse"));
-        _progressEllipseClipGeometry = Guard.IsNotNullAndAssignableToTypeAndReturn<RectangleGeometry>(GetTemplateChild("PART_ProgressEllipseClipGeometry"));
-        _checkMarkImage = Guard.IsNotNullAndAssignableToTypeAndReturn<Image>(GetTemplateChild("PART_CheckMarkImage"));
+        _progressEllipse = (Ellipse?)GetTemplateChild("PART_ProgressEllipse")
+                           ?? throw new InvalidOperationException($"Template part PART_ProgressEllipse of type {typeof(Ellipse)} is required.");
+        _progressEllipseClipGeometry = (RectangleGeometry?)GetTemplateChild("PART_ProgressEllipseClipGeometry")
+                                       ?? throw new InvalidOperationException($"Template part PART_ProgressEllipseClipGeometry of type {typeof(RectangleGeometry)} is required.");
+        _checkMarkImage = (Image?)GetTemplateChild("PART_CheckMarkImage")
+                          ?? throw new InvalidOperationException($"Template part PART_CheckMarkImage of type {typeof(Image)} is required.");
 
         Update();
     }

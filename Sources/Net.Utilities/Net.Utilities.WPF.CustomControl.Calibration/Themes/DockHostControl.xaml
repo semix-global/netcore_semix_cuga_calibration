@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration">
+    <Style TargetType="{x:Type local:DockHostControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:DockHostControl}">
+                    <Grid x:Name="PART_LayoutRoot">
+                        <ToggleButton x:Name="PART_Toggle"
+                                      Margin="2"
+                                      Padding="0"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Background="{TemplateBinding Background}"
+                                      BorderBrush="{TemplateBinding BorderBrush}"
+                                      Foreground="{TemplateBinding Foreground}"
+                                      FocusVisualStyle="{x:Null}">
+                            <TextBlock x:Name="PART_ArrowText"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       FontWeight="Bold" />
+                        </ToggleButton>
+                        <Border x:Name="PART_SideHost"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter x:Name="PART_SideContent"
+                                              Content="{TemplateBinding SideContent}"
+                                              FlowDirection="LeftToRight" />
+                        </Border>
+                        <GridSplitter x:Name="PART_Splitter"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      Background="{x:Null}" />
+                        <ContentPresenter x:Name="PART_MainContent"
+                                          Content="{TemplateBinding MainContent}"
+                                          FlowDirection="LeftToRight" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
