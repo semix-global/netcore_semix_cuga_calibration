@@ -220,64 +220,17 @@
                 </hc:UniformSpacingPanel>
                 <Grid Grid.Row="2">
                     <dock:DockHostControl x:Name="DockHostControl"
-                                          Side="Right"
+                                          DockSideEnum="Right"
                                           SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}">
                         <dock:DockHostControl.Style>
                             <Style TargetType="dock:DockHostControl">
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="True">
+                                    <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="IsExpanded" Value="False" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </dock:DockHostControl.Style>
-                        <dock:DockHostControl.SideContent>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="35" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Instructions"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource TextBlockLargeBold}" />
-                                <hc:ButtonGroup Grid.Row="1"
-                                                Margin="5"
-                                                HorizontalAlignment="Center">
-                                    <RadioButton Content="Introduction"
-                                                 IsChecked="True"
-                                                 GroupName="InstructionTabs"
-                                                 Style="{StaticResource RadioGroupItemHorizontalFirst}" />
-                                    <RadioButton Content="Others"
-                                                 IsChecked="False"
-                                                 GroupName="InstructionTabs"
-                                                 Style="{StaticResource RadioGroupItemHorizontalLast}" />
-                                </hc:ButtonGroup>
-                                <Grid Grid.Row="2">
-                                    <ui:MarkdownViewer Margin="10"
-                                                       MarkdownFilePath="{Binding ActiveItem.HtmlPath}"
-                                                       Tag="{Binding ActiveItem}"
-                                                       IsPopupEnabled="True" />
-                                </Grid>
-                                <hc:StepBar Grid.Row="3"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            FontSize="10"
-                                            StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                            ItemsSource="{Binding ActiveItem.CalibrationSteps}">
-                                    <hc:StepBar.ItemTemplate>
-                                        <DataTemplate />
-                                    </hc:StepBar.ItemTemplate>
-                                </hc:StepBar>
-                                <ProgressBar Grid.Row="4"
-                                             Margin="5"
-                                             Style="{StaticResource ProgressBarSuccess}"
-                                             Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
-                            </Grid>
-                        </dock:DockHostControl.SideContent>
                         <dock:DockHostControl.MainContent>
                             <ContentControl>
                                 <ContentControl.Style>
@@ -306,30 +259,80 @@
                                 </ContentControl.Style>
                             </ContentControl>
                         </dock:DockHostControl.MainContent>
+                        <dock:DockHostControl.SideContent>
+                            <Border Style="{StaticResource BorderRegion}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="35" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Instructions"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource TextBlockLargeBold}" />
+                                    <hc:ButtonGroup Grid.Row="1"
+                                                    Margin="5"
+                                                    HorizontalAlignment="Center">
+                                        <RadioButton Content="Introduction"
+                                                     IsChecked="True"
+                                                     GroupName="InstructionTabs"
+                                                     Style="{StaticResource RadioGroupItemHorizontalFirst}" />
+                                        <RadioButton Content="Others"
+                                                     IsChecked="False"
+                                                     GroupName="InstructionTabs"
+                                                     Style="{StaticResource RadioGroupItemHorizontalLast}" />
+                                    </hc:ButtonGroup>
+                                    <Grid Grid.Row="2">
+                                        <ui:MarkdownViewer Margin="10"
+                                                           MarkdownFilePath="{Binding ActiveItem.HtmlPath}"
+                                                           Tag="{Binding ActiveItem}"
+                                                           IsPopupEnabled="True" />
+                                    </Grid>
+                                    <hc:StepBar Grid.Row="3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                FontSize="10"
+                                                StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
+                                                ItemsSource="{Binding ActiveItem.CalibrationSteps}">
+                                        <hc:StepBar.ItemTemplate>
+                                            <DataTemplate />
+                                        </hc:StepBar.ItemTemplate>
+                                    </hc:StepBar>
+                                    <ProgressBar Grid.Row="4"
+                                                 Margin="5"
+                                                 Style="{StaticResource ProgressBarSuccess}"
+                                                 Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
+                                </Grid>
+                            </Border>
+                        </dock:DockHostControl.SideContent>
+                        <dock:DockHostControl.ToolContent>
+                            <hc:UniformSpacingPanel VerticalAlignment="Bottom"
+                                                    Orientation="Vertical"
+                                                    Spacing="10"
+                                                    Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
+                                <Button Command="{Binding ExportCommand}"
+                                        HorizontalAlignment="Center"
+                                        hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
+                                        Style="{StaticResource ButtonIcon}" />
+                                <Button Command="{Binding ImportCommand}"
+                                        HorizontalAlignment="Center"
+                                        hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
+                                        Style="{StaticResource ButtonIcon}" />
+                                <hc:StepBar HorizontalAlignment="Center"
+                                            Dock="Right"
+                                            StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
+                                            ItemsSource="{Binding ActiveItem.CalibrationSteps}"
+                                            Visibility="{Binding IsExpanded, ElementName=DockHostControl, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                    <hc:StepBar.ItemTemplate>
+                                        <DataTemplate />
+                                    </hc:StepBar.ItemTemplate>
+                                </hc:StepBar>
+                            </hc:UniformSpacingPanel>
+                        </dock:DockHostControl.ToolContent>
                     </dock:DockHostControl>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"
-                                            Orientation="Vertical"
-                                            Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
-                        <Button Command="{Binding ExportCommand}"
-                                HorizontalAlignment="Right"
-                                hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
-                                Style="{StaticResource ButtonIcon}" />
-                        <Button Command="{Binding ImportCommand}"
-                                HorizontalAlignment="Right"
-                                hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
-                                Style="{StaticResource ButtonIcon}" />
-                    </hc:UniformSpacingPanel>
-                    <hc:StepBar HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Dock="Right"
-                                StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                ItemsSource="{Binding ActiveItem.CalibrationSteps}"
-                                Visibility="{Binding IsExpanded, ElementName=DockHostControl, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                        <hc:StepBar.ItemTemplate>
-                            <DataTemplate />
-                        </hc:StepBar.ItemTemplate>
-                    </hc:StepBar>
                 </Grid>
                 <GridSplitter Grid.Row="3" Height="5" />
                 <Grid Grid.Row="4" Grid.Column="0">

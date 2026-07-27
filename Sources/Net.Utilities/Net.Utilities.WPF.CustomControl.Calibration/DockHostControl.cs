@@ -1,55 +1,24 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
+using CommunityToolkit.Diagnostics;
 
 namespace Net.Utilities.WPF.CustomControl.Calibration;
 
-public enum DockSide
+public enum DockSideEnum
 {
     Left,
     Right
 }
 
-public class DockHostControl : Control
+public sealed class DockHostControl : Control
 {
     static DockHostControl()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(
-            typeof(DockHostControl),
-            new FrameworkPropertyMetadata(typeof(DockHostControl)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(DockHostControl), new FrameworkPropertyMetadata(typeof(DockHostControl)));
     }
-
-    private ColumnDefinition? _sideColumn;
-
-    private ColumnDefinition? _toggleColumn;
-
-    private GridSplitter? _splitter;
-
-    private TextBlock? _arrowText;
-
-    private ToggleButton? _toggleButton;
-
-    private double _lastWidth = 300;
-
-    private double _toggleLastWidth = 28;
-
-    #region SideContent
-
-    public static readonly DependencyProperty SideContentProperty = DependencyProperty.Register(
-        nameof(SideContent),
-        typeof(object),
-        typeof(DockHostControl),
-        new PropertyMetadata(null));
-
-    public object? SideContent
-    {
-        get => GetValue(SideContentProperty);
-        set => SetValue(SideContentProperty, value);
-    }
-
-    #endregion
-
-    #region MainContent
 
     public static readonly DependencyProperty MainContentProperty = DependencyProperty.Register(
         nameof(MainContent),
@@ -57,37 +26,59 @@ public class DockHostControl : Control
         typeof(DockHostControl),
         new PropertyMetadata(null));
 
+    public static readonly DependencyProperty SideContentProperty = DependencyProperty.Register(
+        nameof(SideContent),
+        typeof(object),
+        typeof(DockHostControl),
+        new PropertyMetadata(null));
+
+    public static readonly DependencyProperty ToolContentProperty = DependencyProperty.Register(
+        nameof(ToolContent),
+        typeof(object),
+        typeof(DockHostControl),
+        new PropertyMetadata(null));
+
+    public static readonly DependencyProperty DockSideEnumProperty = DependencyProperty.Register(
+        nameof(DockSideEnum),
+        typeof(DockSideEnum),
+        typeof(DockHostControl),
+        new PropertyMetadata(DockSideEnum.Left, OnChanged));
+
+    public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register(
+        nameof(IsExpanded),
+        typeof(bool),
+        typeof(DockHostControl),
+        new PropertyMetadata(true, OnChanged));
+
+    public static readonly DependencyProperty SideContentVisibilityProperty = DependencyProperty.Register(
+        nameof(SideContentVisibility),
+        typeof(Visibility),
+        typeof(DockHostControl),
+        new PropertyMetadata(Visibility.Visible, OnChanged));
+
     public object? MainContent
     {
         get => GetValue(MainContentProperty);
         set => SetValue(MainContentProperty, value);
     }
 
-    #endregion
-
-    #region Side
-
-    public static readonly DependencyProperty SideProperty = DependencyProperty.Register(
-        nameof(Side),
-        typeof(DockSide),
-        typeof(DockHostControl),
-        new PropertyMetadata(DockSide.Left, OnSideChanged));
-
-    public DockSide Side
+    public object? SideContent
     {
-        get => (DockSide)GetValue(SideProperty);
-        set => SetValue(SideProperty, value);
+        get => GetValue(SideContentProperty);
+        set => SetValue(SideContentProperty, value);
     }
 
-    #endregion
+    public object? ToolContent
+    {
+        get => GetValue(ToolContentProperty);
+        set => SetValue(ToolContentProperty, value);
+    }
 
-    #region IsExpanded
-
-    public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register(
-        nameof(IsExpanded),
-        typeof(bool),
-        typeof(DockHostControl),
-        new PropertyMetadata(true, OnExpandedChanged));
+    public DockSideEnum DockSideEnum
+    {
+        get => (DockSideEnum)GetValue(DockSideEnumProperty);
+        set => SetValue(DockSideEnumProperty, value);
+    }
 
     public bool IsExpanded
     {
@@ -95,120 +86,108 @@ public class DockHostControl : Control
         set => SetValue(IsExpandedProperty, value);
     }
 
-    #endregion
-
-    public static readonly DependencyProperty SideContentVisibilityProperty = DependencyProperty.Register(
-        nameof(SideContentVisibility),
-        typeof(Visibility),
-        typeof(DockHostControl),
-        new PropertyMetadata(Visibility.Visible, OnSideContentVisibilityChanged));
-
     public Visibility SideContentVisibility
     {
         get => (Visibility)GetValue(SideContentVisibilityProperty);
         set => SetValue(SideContentVisibilityProperty, value);
     }
 
+    private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not DockHostControl control) return;
+
+        control.Update();
+    }
+
+    private DrawingImage? _leftDrawingImage;
+    private DrawingImage? _rightDrawingImage;
+
+    private ColumnDefinition? _toolColumn;
+    private ColumnDefinition? _sideContentColumn;
+
+    private Border? _toolBorder;
+    private Image? _arrowImage;
+
+    private ContentPresenter? _sideContentPresenter;
+    private GridSplitter? _splitter;
+
+    private double _lastToolColumnWidth;
+    private double _lastSideContentColumnWidth;
+
     public override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
 
-        if (_toggleButton != null)
-        {
-            _toggleButton.Click -= OnToggleButtonClick;
-        }
+        _leftDrawingImage = Guard.IsNotNullAndAssignableToTypeAndReturn<DrawingImage>(FindResource("LeftDrawingImage"));
+        _rightDrawingImage = Guard.IsNotNullAndAssignableToTypeAndReturn<DrawingImage>(FindResource("RightDrawingImage"));
 
-        _sideColumn = GetTemplateChild("PART_SideColumn") as ColumnDefinition;
+        _toolBorder?.MouseDown -= ToolBorderOnMouseDown;
+        _splitter?.DragCompleted -= SplitterDragOnDragCompleted;
 
-        _toggleColumn = GetTemplateChild("PART_ToggleColumn") as ColumnDefinition;
+        _toolColumn = Guard.IsNotNullAndAssignableToTypeAndReturn<ColumnDefinition>(GetTemplateChild("PART_ToolColumn"));
+        _sideContentColumn = Guard.IsNotNullAndAssignableToTypeAndReturn<ColumnDefinition>(GetTemplateChild("PART_SideContentColumn"));
 
-        _splitter = GetTemplateChild("PART_Splitter") as GridSplitter;
+        _toolBorder = Guard.IsNotNullAndAssignableToTypeAndReturn<Border>(GetTemplateChild("PART_ToolBorder"));
+        _arrowImage = Guard.IsNotNullAndAssignableToTypeAndReturn<Image>(GetTemplateChild("PART_ArrowImage"));
 
-        _arrowText = GetTemplateChild("PART_ArrowText") as TextBlock;
+        _sideContentPresenter = Guard.IsNotNullAndAssignableToTypeAndReturn<ContentPresenter>(GetTemplateChild("PART_SideContent"));
+        _splitter = Guard.IsNotNullAndAssignableToTypeAndReturn<GridSplitter>(GetTemplateChild("PART_Splitter"));
 
-        _toggleButton = GetTemplateChild("PART_Toggle") as ToggleButton;
+        _toolBorder.MouseDown -= ToolBorderOnMouseDown;
+        _toolBorder.MouseDown += ToolBorderOnMouseDown;
+        _splitter.DragCompleted -= SplitterDragOnDragCompleted;
+        _splitter.DragCompleted += SplitterDragOnDragCompleted;
 
-        if (_toggleButton != null)
-        {
-            _toggleButton.Click += OnToggleButtonClick;
-        }
+        _lastToolColumnWidth = _toolColumn.Width.Value;
+        _lastSideContentColumnWidth = _sideContentColumn.Width.Value;
 
-        UpdateFlowDirection();
-        UpdateLayoutState();
+        Update();
     }
 
-    private static void OnExpandedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private void ToolBorderOnMouseDown(object sender, MouseButtonEventArgs e) => SetCurrentValue(IsExpandedProperty, !IsExpanded);
+
+    private void SplitterDragOnDragCompleted(object sender, DragCompletedEventArgs e)
     {
-        if (d is DockHostControl control)
-        {
-            control.UpdateLayoutState();
-        }
+        if (IsExpanded == false || _sideContentPresenter is null) return;
+
+        _lastSideContentColumnWidth = Math.Max(_sideContentPresenter.ActualWidth, 0d);
     }
 
-    private static void OnSideChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private void Update()
     {
-        if (d is not DockHostControl control) return;
-        control.UpdateFlowDirection();
-        control.UpdateArrow();
-    }
+        FlowDirection = DockSideEnum == DockSideEnum.Right ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
 
-    private static void OnSideContentVisibilityChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is DockHostControl control)
-        {
-            control.UpdateLayoutState();
-        }
-    }
-
-    private void UpdateFlowDirection()
-    {
-        FlowDirection = Side == DockSide.Right
-            ? FlowDirection.RightToLeft
-            : FlowDirection.LeftToRight;
-    }
-
-    private void OnToggleButtonClick(object sender, RoutedEventArgs e)
-    {
-        SetCurrentValue(IsExpandedProperty, !IsExpanded);
-    }
-
-    private void UpdateLayoutState()
-    {
-        if (_sideColumn == null) return;
+        if (_leftDrawingImage is null
+            || _rightDrawingImage is null
+            || _toolColumn is null
+            || _sideContentColumn is null
+            || _splitter is null
+            || _sideContentPresenter is null
+            || _arrowImage is null) return;
 
         if (IsExpanded)
         {
-            _sideColumn.Width =
-                new GridLength(_lastWidth);
-
-            _splitter?.Visibility = Visibility.Visible;
+            _sideContentColumn.Width = new GridLength(_lastSideContentColumnWidth);
+            _splitter.Visibility = Visibility.Visible;
         }
         else
         {
-            if (_sideColumn.ActualWidth > 0)
-            {
-                _lastWidth = _sideColumn.ActualWidth;
-            }
+            var actualWidth = _sideContentPresenter.ActualWidth;
+            if (actualWidth > 0) _lastSideContentColumnWidth = actualWidth;
 
-            _sideColumn.Width = new GridLength(0);
-
-            _splitter?.Visibility = Visibility.Collapsed;
+            _sideContentColumn.Width = new GridLength(0);
+            _splitter.Visibility = Visibility.Collapsed;
         }
 
-        _toggleColumn?.Width = SideContentVisibility != Visibility.Visible ? new GridLength(0) : new GridLength(_toggleLastWidth);
+        _toolColumn.Width = SideContentVisibility != Visibility.Visible
+            ? new GridLength(0)
+            : new GridLength(_lastToolColumnWidth);
 
-        _toggleButton?.IsChecked = IsExpanded;
-
-        UpdateArrow();
-    }
-
-    private void UpdateArrow()
-    {
-        _arrowText?.Text = Side switch
+        _arrowImage.Source = DockSideEnum switch
         {
-            DockSide.Left => IsExpanded ? "◀" : "▶",
-            DockSide.Right => IsExpanded ? "▶" : "◀",
-            _ => "◀"
+            DockSideEnum.Left => IsExpanded ? _leftDrawingImage : _rightDrawingImage,
+            DockSideEnum.Right => IsExpanded ? _rightDrawingImage : _leftDrawingImage,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<DrawingImage>(nameof(DockSideEnum))
         };
     }
 }
