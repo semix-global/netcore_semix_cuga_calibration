@@ -314,11 +314,9 @@
                                                     Spacing="10"
                                                     Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
                                 <Button Command="{Binding ExportCommand}"
-                                        HorizontalAlignment="Center"
                                         hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
                                         Style="{StaticResource ButtonIcon}" />
                                 <Button Command="{Binding ImportCommand}"
-                                        HorizontalAlignment="Center"
                                         hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
                                         Style="{StaticResource ButtonIcon}" />
                                 <hc:StepBar HorizontalAlignment="Center"

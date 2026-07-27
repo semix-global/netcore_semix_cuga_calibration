@@ -24,14 +24,13 @@
                 <ControlTemplate TargetType="{x:Type local:DockHostControl}">
                     <Grid FlowDirection="{TemplateBinding FlowDirection}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="PART_ToolColumn" Width="36" />
-                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition x:Name="PART_ToolColumn" Width="28" />
                             <ColumnDefinition x:Name="PART_SideContentColumn" Width="300" />
                             <ColumnDefinition Width="5" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Border x:Name="PART_ToolBorder" Grid.Column="0"
-                                Background="White"
+                                Background="#F0F0F0"
                                 BorderThickness="1"
                                 BorderBrush="#E0E0E0"
                                 CornerRadius="3"
@@ -53,16 +52,16 @@
                                                   FlowDirection="LeftToRight" />
                             </Grid>
                         </Border>
-                        <ContentPresenter x:Name="PART_SideContent" Grid.Column="2"
+                        <ContentPresenter x:Name="PART_SideContent" Grid.Column="1"
                                           Content="{TemplateBinding SideContent}"
                                           FlowDirection="LeftToRight"
                                           Visibility="{TemplateBinding SideContentVisibility}" />
-                        <GridSplitter x:Name="PART_Splitter" Grid.Column="3"
+                        <GridSplitter x:Name="PART_Splitter" Grid.Column="2"
                                       HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
                                       ResizeBehavior="PreviousAndNext"
                                       Visibility="{TemplateBinding SideContentVisibility}" />
-                        <ContentPresenter Grid.Column="4"
+                        <ContentPresenter Grid.Column="3"
                                           Content="{TemplateBinding MainContent}"
                                           FlowDirection="LeftToRight" />
                     </Grid>
