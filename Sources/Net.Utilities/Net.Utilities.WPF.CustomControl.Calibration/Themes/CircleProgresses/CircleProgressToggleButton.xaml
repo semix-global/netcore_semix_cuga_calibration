@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration">
+                    xmlns:local="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration.CircleProgresses">
     <Style TargetType="{x:Type local:CircleProgressToggleButton}">
         <Setter Property="Width" Value="16" />
         <Setter Property="Height" Value="16" />
@@ -43,8 +43,7 @@
                             <Image.Source>
                                 <DrawingImage>
                                     <DrawingImage.Drawing>
-                                        <GeometryDrawing Brush="{Binding Fill, ElementName=PART_ProgressEllipse}"
-                                                         Geometry="M512.66048 64.64c-247.424 0-448 200.57728-448 448s200.576 448 448 448 448-200.57728 448-448c0-247.424-200.57728-448-448-448z m250.71232 334.86336L480.98176 681.89312c-15.49568 15.49696-40.61952 15.49696-56.11648 0l-162.9184-162.9184c-15.49568-15.49568-15.49568-40.61824 0-56.1152s40.61952-15.49568 56.11648 0l134.85952 134.85952L707.25504 343.3856c15.49568-15.49568 40.61952-15.49568 56.11648 0s15.49696 40.6208 0.00128 56.11776z" />
+                                        <GeometryDrawing Brush="{Binding Fill, ElementName=PART_ProgressEllipse}" Geometry="M512.66048 64.64c-247.424 0-448 200.57728-448 448s200.576 448 448 448 448-200.57728 448-448c0-247.424-200.57728-448-448-448z m250.71232 334.86336L480.98176 681.89312c-15.49568 15.49696-40.61952 15.49696-56.11648 0l-162.9184-162.9184c-15.49568-15.49568-15.49568-40.61824 0-56.1152s40.61952-15.49568 56.11648 0l134.85952 134.85952L707.25504 343.3856c15.49568-15.49568 40.61952-15.49568 56.11648 0s15.49696 40.6208 0.00128 56.11776z" />
                                     </DrawingImage.Drawing>
                                 </DrawingImage>
                             </Image.Source>

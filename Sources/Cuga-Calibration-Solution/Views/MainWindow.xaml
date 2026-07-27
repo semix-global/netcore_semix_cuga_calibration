@@ -16,6 +16,7 @@
            xmlns:wpf="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            xmlns:dock="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            xmlns:ui="clr-namespace:Core.Utilities.WPF.UI;assembly=Core.Utilities.WPF"
+           xmlns:circleProgresses="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration.CircleProgresses;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -157,16 +158,16 @@
                                                     VerticalAlignment="Center"
                                                     Spacing="10"
                                                     Orientation="Horizontal">
-                                <wpf:CircleProgressButton x:Name="StatusButton"
-                                                          Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          CommandParameter="{Binding}"
-                                                          Width="14"
-                                                          Height="14"
-                                                          Foreground="{StaticResource SuccessBrush}"
-                                                          Background="{StaticResource BorderBrush}"
-                                                          EffectBackground="{StaticResource InfoBrush}"
-                                                          Progress="{Binding Entry.Status.Progress}"
-                                                          IsOk="{Binding Entry.Status.IsOk}" />
+                                <circleProgresses:CircleProgressButton x:Name="StatusButton"
+                                                                       Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                       CommandParameter="{Binding}"
+                                                                       Width="14"
+                                                                       Height="14"
+                                                                       Foreground="{StaticResource SuccessBrush}"
+                                                                       Background="{StaticResource BorderBrush}"
+                                                                       EffectBackground="{StaticResource InfoBrush}"
+                                                                       Progress="{Binding Entry.Status.Progress}"
+                                                                       IsOk="{Binding Entry.Status.IsOk}" />
                                 <TextBlock Text="{Binding SysMenu.Name}" />
                             </hc:UniformSpacingPanel>
                         </Grid>
@@ -219,9 +220,9 @@
                 </hc:UniformSpacingPanel>
                 <Grid Grid.Row="2">
                     <dock:DockHostControl x:Name="DockHostControl"
-                                         Side="Right"
-                                         SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}"
-                                         IsEnabled="{Binding ActiveItem, Converter={StaticResource NotNullToBoolConverter}, Mode=OneWay}">
+                                          Side="Right"
+                                          SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}"
+                                          IsEnabled="{Binding ActiveItem, Converter={StaticResource NotNullToBoolConverter}, Mode=OneWay}">
                         <dock:DockHostControl.Style>
                             <Style TargetType="dock:DockHostControl">
                                 <Style.Triggers>

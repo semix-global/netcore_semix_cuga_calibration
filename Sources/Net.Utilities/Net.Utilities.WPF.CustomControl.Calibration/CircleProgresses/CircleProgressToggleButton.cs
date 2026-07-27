@@ -1,40 +1,42 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using CommunityToolkit.Diagnostics;
 
-namespace Net.Utilities.WPF.CustomControl.Calibration;
+namespace Net.Utilities.WPF.CustomControl.Calibration.CircleProgresses;
 
-public class CircleProgressButton : Button
+public sealed class CircleProgressToggleButton : ToggleButton
 {
-    static CircleProgressButton()
+    static CircleProgressToggleButton()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressButton), new FrameworkPropertyMetadata(typeof(CircleProgressButton)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressToggleButton), new FrameworkPropertyMetadata(typeof(CircleProgressToggleButton)));
     }
 
     public static readonly DependencyProperty EffectBackgroundProperty = DependencyProperty.Register(
         nameof(EffectBackground),
         typeof(Brush),
-        typeof(CircleProgressButton),
+        typeof(CircleProgressToggleButton),
         new PropertyMetadata(Brushes.DarkGray, OnChanged));
 
     public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
         nameof(Progress),
         typeof(double),
-        typeof(CircleProgressButton),
+        typeof(CircleProgressToggleButton),
         new PropertyMetadata(0d, OnChanged));
 
     public static readonly DependencyProperty IsOkProperty = DependencyProperty.Register(
         nameof(IsOk),
         typeof(bool),
-        typeof(CircleProgressButton),
+        typeof(CircleProgressToggleButton),
         new PropertyMetadata(false, OnChanged));
 
     private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is not CircleProgressButton circleProgressButton) return;
+        if (d is not CircleProgressToggleButton circleProgressToggleButton) return;
 
-        circleProgressButton.Update();
+        circleProgressToggleButton.Update();
     }
 
     public Brush EffectBackground
@@ -63,12 +65,9 @@ public class CircleProgressButton : Button
     {
         base.OnApplyTemplate();
 
-        _progressEllipse = (Ellipse?)GetTemplateChild("PART_ProgressEllipse")
-                           ?? throw new InvalidOperationException($"Template part PART_ProgressEllipse of type {typeof(Ellipse)} is required.");
-        _progressEllipseClipGeometry = (RectangleGeometry?)GetTemplateChild("PART_ProgressEllipseClipGeometry")
-                                       ?? throw new InvalidOperationException($"Template part PART_ProgressEllipseClipGeometry of type {typeof(RectangleGeometry)} is required.");
-        _checkMarkImage = (Image?)GetTemplateChild("PART_CheckMarkImage")
-                          ?? throw new InvalidOperationException($"Template part PART_CheckMarkImage of type {typeof(Image)} is required.");
+        _progressEllipse = Guard.IsNotNullAndAssignableToTypeAndReturn<Ellipse>(GetTemplateChild("PART_ProgressEllipse"));
+        _progressEllipseClipGeometry = Guard.IsNotNullAndAssignableToTypeAndReturn<RectangleGeometry>(GetTemplateChild("PART_ProgressEllipseClipGeometry"));
+        _checkMarkImage = Guard.IsNotNullAndAssignableToTypeAndReturn<Image>(GetTemplateChild("PART_CheckMarkImage"));
 
         Update();
     }
