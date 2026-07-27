@@ -13,10 +13,8 @@
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
-           xmlns:wpf="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
-           xmlns:dock="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
+           xmlns:customControl="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            xmlns:ui="clr-namespace:Core.Utilities.WPF.UI;assembly=Core.Utilities.WPF"
-           xmlns:circleProgresses="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration.CircleProgresses;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -158,16 +156,16 @@
                                                     VerticalAlignment="Center"
                                                     Spacing="10"
                                                     Orientation="Horizontal">
-                                <circleProgresses:CircleProgressButton x:Name="StatusButton"
-                                                                       Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                       CommandParameter="{Binding}"
-                                                                       Width="14"
-                                                                       Height="14"
-                                                                       Foreground="{StaticResource SuccessBrush}"
-                                                                       Background="{StaticResource BorderBrush}"
-                                                                       EffectBackground="{StaticResource InfoBrush}"
-                                                                       Progress="{Binding Entry.Status.Progress}"
-                                                                       IsOk="{Binding Entry.Status.IsOk}" />
+                                <customControl:CircleProgressButton x:Name="StatusButton"
+                                                                    Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                    CommandParameter="{Binding}"
+                                                                    Width="14"
+                                                                    Height="14"
+                                                                    Foreground="{StaticResource SuccessBrush}"
+                                                                    Background="{StaticResource BorderBrush}"
+                                                                    EffectBackground="{StaticResource InfoBrush}"
+                                                                    Progress="{Binding Entry.Status.Progress}"
+                                                                    IsOk="{Binding Entry.Status.IsOk}" />
                                 <TextBlock Text="{Binding SysMenu.Name}" />
                             </hc:UniformSpacingPanel>
                         </Grid>
@@ -219,19 +217,21 @@
                             Style="{StaticResource ButtonPrimary}" />
                 </hc:UniformSpacingPanel>
                 <Grid Grid.Row="2">
-                    <dock:DockHostControl x:Name="DockHostControl"
-                                          DockSideEnum="Right"
-                                          SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}">
-                        <dock:DockHostControl.Style>
-                            <Style TargetType="dock:DockHostControl">
+                    <customControl:DockHostControl x:Name="DockHostControl"
+                                                   DockSideEnum="Right"
+                                                   Background="{StaticResource BorderBrush}"
+                                                   BorderBrush="{StaticResource BorderBrush}"
+                                                   SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}">
+                        <customControl:DockHostControl.Style>
+                            <Style TargetType="customControl:DockHostControl">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="{x:Static constants:Constants.True}">
                                         <Setter Property="IsExpanded" Value="False" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
-                        </dock:DockHostControl.Style>
-                        <dock:DockHostControl.MainContent>
+                        </customControl:DockHostControl.Style>
+                        <customControl:DockHostControl.MainContent>
                             <ContentControl>
                                 <ContentControl.Style>
                                     <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
@@ -258,8 +258,8 @@
                                     </Style>
                                 </ContentControl.Style>
                             </ContentControl>
-                        </dock:DockHostControl.MainContent>
-                        <dock:DockHostControl.SideContent>
+                        </customControl:DockHostControl.MainContent>
+                        <customControl:DockHostControl.SideContent>
                             <Border Style="{StaticResource BorderRegion}">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -307,33 +307,32 @@
                                                  Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
                                 </Grid>
                             </Border>
-                        </dock:DockHostControl.SideContent>
-                        <dock:DockHostControl.ToolContent>
-                            <hc:UniformSpacingPanel HorizontalAlignment="Center"
-                                                    VerticalAlignment="Bottom"
-                                                    Orientation="Vertical"
-                                                    Spacing="10"
-                                                    Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
-                                <Button Command="{Binding ExportCommand}"
-                                        Padding="1"
-                                        hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
-                                        Style="{StaticResource ButtonIcon}" />
-                                <Button Command="{Binding ImportCommand}"
-                                        Padding="1"
-                                        hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
-                                        Style="{StaticResource ButtonIcon}" />
-                                <hc:StepBar Width="28"
-                                            Dock="Right"
-                                            StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                            ItemsSource="{Binding ActiveItem.CalibrationSteps}"
-                                            Visibility="{Binding IsExpanded, ElementName=DockHostControl, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                                    <hc:StepBar.ItemTemplate>
-                                        <DataTemplate />
-                                    </hc:StepBar.ItemTemplate>
-                                </hc:StepBar>
-                            </hc:UniformSpacingPanel>
-                        </dock:DockHostControl.ToolContent>
-                    </dock:DockHostControl>
+                        </customControl:DockHostControl.SideContent>
+                    </customControl:DockHostControl>
+                    <hc:UniformSpacingPanel HorizontalAlignment="Right"
+                                            VerticalAlignment="Bottom"
+                                            Orientation="Vertical"
+                                            Spacing="5"
+                                            Margin="-3"
+                                            Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
+                        <Button Command="{Binding ExportCommand}"
+                                Padding="1"
+                                hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
+                                Style="{StaticResource ButtonIcon}" />
+                        <Button Command="{Binding ImportCommand}"
+                                Padding="1"
+                                hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
+                                Style="{StaticResource ButtonIcon}" />
+                        <hc:StepBar Dock="Right"
+                                    Margin="0,0,10,0"
+                                    StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
+                                    ItemsSource="{Binding ActiveItem.CalibrationSteps}"
+                                    Visibility="{Binding IsExpanded, ElementName=DockHostControl, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                            <hc:StepBar.ItemTemplate>
+                                <DataTemplate />
+                            </hc:StepBar.ItemTemplate>
+                        </hc:StepBar>
+                    </hc:UniformSpacingPanel>
                 </Grid>
                 <GridSplitter Grid.Row="3" Height="5" />
                 <Grid Grid.Row="4" Grid.Column="0">

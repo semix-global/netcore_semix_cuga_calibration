@@ -1,42 +1,41 @@
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using CommunityToolkit.Diagnostics;
 
-namespace Net.Utilities.WPF.CustomControl.Calibration.CircleProgresses;
+namespace Net.Utilities.WPF.CustomControl.Calibration;
 
-public sealed class CircleProgressToggleButton : ToggleButton
+public sealed class CircleProgressButton : Button
 {
-    static CircleProgressToggleButton()
+    static CircleProgressButton()
     {
-        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressToggleButton), new FrameworkPropertyMetadata(typeof(CircleProgressToggleButton)));
+        DefaultStyleKeyProperty.OverrideMetadata(typeof(CircleProgressButton), new FrameworkPropertyMetadata(typeof(CircleProgressButton)));
     }
 
     public static readonly DependencyProperty EffectBackgroundProperty = DependencyProperty.Register(
         nameof(EffectBackground),
         typeof(Brush),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(Brushes.DarkGray, OnChanged));
 
     public static readonly DependencyProperty ProgressProperty = DependencyProperty.Register(
         nameof(Progress),
         typeof(double),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(0d, OnChanged));
 
     public static readonly DependencyProperty IsOkProperty = DependencyProperty.Register(
         nameof(IsOk),
         typeof(bool),
-        typeof(CircleProgressToggleButton),
+        typeof(CircleProgressButton),
         new PropertyMetadata(false, OnChanged));
 
     private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is not CircleProgressToggleButton circleProgressToggleButton) return;
+        if (d is not CircleProgressButton circleProgressButton) return;
 
-        circleProgressToggleButton.Update();
+        circleProgressButton.Update();
     }
 
     public Brush EffectBackground

@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgresses/CircleProgressButton.xaml" />
-        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgresses/CircleProgressToggleButton.xaml" />
+        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgressButton.xaml" />
+        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgressToggleButton.xaml" />
         <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/DockHostControl.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
