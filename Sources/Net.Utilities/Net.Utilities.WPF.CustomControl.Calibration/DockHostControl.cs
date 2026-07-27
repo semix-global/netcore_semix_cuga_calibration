@@ -102,7 +102,6 @@ public sealed class DockHostControl : Control
     private DrawingImage? _leftDrawingImage;
     private DrawingImage? _rightDrawingImage;
 
-    private ColumnDefinition? _toolColumn;
     private ColumnDefinition? _sideContentColumn;
 
     private Border? _toolBorder;
@@ -111,7 +110,6 @@ public sealed class DockHostControl : Control
     private ContentPresenter? _sideContentPresenter;
     private GridSplitter? _splitter;
 
-    private double _lastToolColumnWidth;
     private double _lastSideContentColumnWidth;
 
     public override void OnApplyTemplate()
@@ -124,7 +122,6 @@ public sealed class DockHostControl : Control
         _toolBorder?.MouseDown -= ToolBorderOnMouseDown;
         _splitter?.DragCompleted -= SplitterDragOnDragCompleted;
 
-        _toolColumn = Guard.IsNotNullAndAssignableToTypeAndReturn<ColumnDefinition>(GetTemplateChild("PART_ToolColumn"));
         _sideContentColumn = Guard.IsNotNullAndAssignableToTypeAndReturn<ColumnDefinition>(GetTemplateChild("PART_SideContentColumn"));
 
         _toolBorder = Guard.IsNotNullAndAssignableToTypeAndReturn<Border>(GetTemplateChild("PART_ToolBorder"));
@@ -138,7 +135,6 @@ public sealed class DockHostControl : Control
         _splitter.DragCompleted -= SplitterDragOnDragCompleted;
         _splitter.DragCompleted += SplitterDragOnDragCompleted;
 
-        _lastToolColumnWidth = _toolColumn.Width.Value;
         _lastSideContentColumnWidth = _sideContentColumn.Width.Value;
 
         Update();
@@ -159,11 +155,11 @@ public sealed class DockHostControl : Control
 
         if (_leftDrawingImage is null
             || _rightDrawingImage is null
-            || _toolColumn is null
             || _sideContentColumn is null
-            || _splitter is null
+            || _toolBorder is null
+            || _arrowImage is null
             || _sideContentPresenter is null
-            || _arrowImage is null) return;
+            || _splitter is null) return;
 
         if (IsExpanded)
         {
@@ -179,15 +175,23 @@ public sealed class DockHostControl : Control
             _splitter.Visibility = Visibility.Collapsed;
         }
 
-        _toolColumn.Width = SideContentVisibility != Visibility.Visible
-            ? new GridLength(0)
-            : new GridLength(_lastToolColumnWidth);
-
         _arrowImage.Source = DockSideEnum switch
         {
             DockSideEnum.Left => IsExpanded ? _leftDrawingImage : _rightDrawingImage,
             DockSideEnum.Right => IsExpanded ? _rightDrawingImage : _leftDrawingImage,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<DrawingImage>(nameof(DockSideEnum))
+        };
+        _toolBorder.BorderThickness = DockSideEnum switch
+        {
+            DockSideEnum.Left => IsExpanded ? new Thickness(1, 1, 0, 1) : new Thickness(1d),
+            DockSideEnum.Right => IsExpanded ? new Thickness(0, 1, 1, 1) : new Thickness(1d),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Thickness>(nameof(DockSideEnum))
+        };
+        _toolBorder.CornerRadius = DockSideEnum switch
+        {
+            DockSideEnum.Left => IsExpanded ? new CornerRadius(3, 0, 0, 3) : new CornerRadius(3d),
+            DockSideEnum.Right => IsExpanded ? new CornerRadius(0, 3, 3, 0) : new CornerRadius(3d),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CornerRadius>(nameof(DockSideEnum))
         };
     }
 }

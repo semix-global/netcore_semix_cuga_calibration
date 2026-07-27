@@ -24,16 +24,14 @@
                 <ControlTemplate TargetType="{x:Type local:DockHostControl}">
                     <Grid FlowDirection="{TemplateBinding FlowDirection}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition x:Name="PART_ToolColumn" Width="28" />
+                            <ColumnDefinition x:Name="PART_ToolColumn" Width="Auto" />
                             <ColumnDefinition x:Name="PART_SideContentColumn" Width="300" />
                             <ColumnDefinition Width="5" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Border x:Name="PART_ToolBorder" Grid.Column="0"
                                 Background="#F0F0F0"
-                                BorderThickness="1"
                                 BorderBrush="#E0E0E0"
-                                CornerRadius="3"
                                 Visibility="{TemplateBinding SideContentVisibility}">
                             <Grid>
                                 <Grid.RowDefinitions>

@@ -309,17 +309,20 @@
                             </Border>
                         </dock:DockHostControl.SideContent>
                         <dock:DockHostControl.ToolContent>
-                            <hc:UniformSpacingPanel VerticalAlignment="Bottom"
+                            <hc:UniformSpacingPanel HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
                                                     Orientation="Vertical"
                                                     Spacing="10"
                                                     Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
                                 <Button Command="{Binding ExportCommand}"
+                                        Padding="1"
                                         hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
                                         Style="{StaticResource ButtonIcon}" />
                                 <Button Command="{Binding ImportCommand}"
+                                        Padding="1"
                                         hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
                                         Style="{StaticResource ButtonIcon}" />
-                                <hc:StepBar HorizontalAlignment="Center"
+                                <hc:StepBar Width="28"
                                             Dock="Right"
                                             StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
                                             ItemsSource="{Binding ActiveItem.CalibrationSteps}"
