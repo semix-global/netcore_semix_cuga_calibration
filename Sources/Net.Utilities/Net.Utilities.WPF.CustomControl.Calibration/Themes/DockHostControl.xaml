@@ -5,35 +5,34 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:DockHostControl}">
-                    <Grid x:Name="PART_LayoutRoot">
-                        <ToggleButton x:Name="PART_Toggle"
+                    <Grid FlowDirection="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FlowDirection}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition x:Name="PART_ToggleColumn" Width="28" />
+                            <ColumnDefinition x:Name="PART_SideColumn" Width="300" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ToggleButton x:Name="PART_Toggle" Grid.Column="0"
+                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}"
                                       Margin="2"
-                                      Padding="0"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Stretch"
-                                      Background="{TemplateBinding Background}"
-                                      BorderBrush="{TemplateBinding BorderBrush}"
-                                      Foreground="{TemplateBinding Foreground}"
-                                      FocusVisualStyle="{x:Null}">
+                                      Visibility="{Binding SideContentVisibility, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}">
                             <TextBlock x:Name="PART_ArrowText"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        FontSize="16"
                                        FontWeight="Bold" />
                         </ToggleButton>
-                        <Border x:Name="PART_SideHost"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter x:Name="PART_SideContent"
-                                              Content="{TemplateBinding SideContent}"
-                                              FlowDirection="LeftToRight" />
-                        </Border>
-                        <GridSplitter x:Name="PART_Splitter"
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding SideContent}"
+                                          FlowDirection="LeftToRight"
+                                          Visibility="{Binding SideContentVisibility, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" />
+                        <GridSplitter x:Name="PART_Splitter" Grid.Column="2"
+                                      Width="5"
                                       HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
-                                      Background="{x:Null}" />
-                        <ContentPresenter x:Name="PART_MainContent"
+                                      ResizeBehavior="PreviousAndNext"
+                                      Visibility="{Binding SideContentVisibility, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" />
+                        <ContentPresenter Grid.Column="3"
                                           Content="{TemplateBinding MainContent}"
                                           FlowDirection="LeftToRight" />
                     </Grid>

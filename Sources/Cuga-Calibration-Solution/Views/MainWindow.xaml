@@ -221,15 +221,11 @@
                 <Grid Grid.Row="2">
                     <dock:DockHostControl x:Name="DockHostControl"
                                           Side="Right"
-                                          SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}"
-                                          IsEnabled="{Binding ActiveItem, Converter={StaticResource NotNullToBoolConverter}, Mode=OneWay}">
+                                          SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}">
                         <dock:DockHostControl.Style>
                             <Style TargetType="dock:DockHostControl">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="True">
-                                        <Setter Property="IsExpanded" Value="False" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="False">
                                         <Setter Property="IsExpanded" Value="False" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -313,24 +309,23 @@
                     </dock:DockHostControl>
                     <hc:UniformSpacingPanel HorizontalAlignment="Right"
                                             VerticalAlignment="Top"
-                                            Orientation="Vertical">
+                                            Orientation="Vertical"
+                                            Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
                         <Button Command="{Binding ExportCommand}"
                                 HorizontalAlignment="Right"
                                 hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
-                                Style="{StaticResource ButtonIcon}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                                Style="{StaticResource ButtonIcon}" />
                         <Button Command="{Binding ImportCommand}"
                                 HorizontalAlignment="Right"
                                 hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
-                                Style="{StaticResource ButtonIcon}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                                Style="{StaticResource ButtonIcon}" />
                     </hc:UniformSpacingPanel>
                     <hc:StepBar HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
                                 Dock="Right"
                                 StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
                                 ItemsSource="{Binding ActiveItem.CalibrationSteps}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
+                                Visibility="{Binding IsExpanded, ElementName=DockHostControl, Converter={StaticResource BoolNegationToVisibilityConverter}}">
                         <hc:StepBar.ItemTemplate>
                             <DataTemplate />
                         </hc:StepBar.ItemTemplate>
