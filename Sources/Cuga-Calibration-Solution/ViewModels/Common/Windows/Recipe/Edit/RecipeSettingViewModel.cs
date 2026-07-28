@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Recipe.Models;
-using Core.Utilities;
+using Core.Models;
 using CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;

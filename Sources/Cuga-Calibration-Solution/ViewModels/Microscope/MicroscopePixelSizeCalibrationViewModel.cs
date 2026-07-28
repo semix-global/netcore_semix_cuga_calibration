@@ -8,7 +8,6 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -21,6 +20,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using Net.Utilities.Calibration;
 
 namespace CugaCalibration.ViewModels.Microscope;
 

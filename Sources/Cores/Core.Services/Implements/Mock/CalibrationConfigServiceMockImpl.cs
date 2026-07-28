@@ -7,7 +7,7 @@ using Core.Models.Models.Common.Config;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Core.Utilities;
+using Core.Models;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Options;

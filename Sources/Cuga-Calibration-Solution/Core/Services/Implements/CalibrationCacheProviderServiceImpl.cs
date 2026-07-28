@@ -5,7 +5,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Version;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
-using Core.Utilities;
+using Core.Models;
 using Core.Utilities.SourceGenerators;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;

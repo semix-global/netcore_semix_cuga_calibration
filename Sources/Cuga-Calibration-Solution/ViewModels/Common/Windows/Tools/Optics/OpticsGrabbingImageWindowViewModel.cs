@@ -5,7 +5,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
-using Core.Utilities;
+using Core.Models;
 using Core.Utilities.SourceGenerators.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Local.SQL.Cache.Providers.Services.Interfaces;

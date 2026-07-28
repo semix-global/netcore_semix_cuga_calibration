@@ -7,7 +7,6 @@ using Core.Models.Models.AutoFocus.GlobalFocusOffset;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities;
 using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -16,6 +15,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.Calibration;
 
 namespace CugaCalibration.ViewModels.AutoFocus;
 

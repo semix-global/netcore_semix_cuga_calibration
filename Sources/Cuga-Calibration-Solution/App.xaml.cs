@@ -1,7 +1,7 @@
 using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
-using Core.Utilities;
+using Core.Models;
 using Core.Utilities.SourceGenerators;
 using CugaCalibration.Core;
 using CugaCalibration.Views;

@@ -7,7 +7,7 @@ using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Recipe.Models;
 using Core.Recipe.Services.Interfaces.Factory;
-using Core.Utilities;
+using Core.Models;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Services.Interfaces;

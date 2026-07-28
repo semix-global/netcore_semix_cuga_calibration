@@ -1,5 +1,5 @@
 using Core.Recipe.Services.Interfaces.Factory;
-using Core.Utilities;
+using Core.Models;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
