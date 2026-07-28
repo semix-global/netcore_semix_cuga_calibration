@@ -28,7 +28,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.SourceGenerators.Calibration\Net.Utilities.SourceGenerators.Calibration.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\Core.Models\04. Core.Models.csproj" />
+        <ProjectReference Include="..\Core.Models\02. Core.Models.csproj" />
     </ItemGroup>
 
 </Project>
