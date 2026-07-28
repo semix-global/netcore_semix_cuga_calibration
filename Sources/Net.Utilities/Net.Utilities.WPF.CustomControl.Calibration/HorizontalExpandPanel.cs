@@ -229,8 +229,8 @@ public sealed class HorizontalExpandPanel : Control
 
         _toolArrowPath.Data = HorizontalExpandDirectionEnum switch
         {
-            HorizontalExpandDirectionEnum.Left => IsExpanded ? LeftArrowGeometry : RightArrowGeometry,
-            HorizontalExpandDirectionEnum.Right => IsExpanded ? RightArrowGeometry : LeftArrowGeometry,
+            HorizontalExpandDirectionEnum.Left => IsExpanded ? RightArrowGeometry : LeftArrowGeometry,
+            HorizontalExpandDirectionEnum.Right => IsExpanded ? LeftArrowGeometry : RightArrowGeometry,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<Geometry>(nameof(HorizontalExpandDirectionEnum))
         };
         _toolBorder.CornerRadius = HorizontalExpandDirectionEnum switch
