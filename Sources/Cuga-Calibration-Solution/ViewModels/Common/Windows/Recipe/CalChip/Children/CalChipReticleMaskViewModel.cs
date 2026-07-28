@@ -12,6 +12,7 @@ using CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.IOC.Providers;
@@ -21,7 +22,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
-using Net.Utilities.Calibration;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Recipe.CalChip.Children;
 

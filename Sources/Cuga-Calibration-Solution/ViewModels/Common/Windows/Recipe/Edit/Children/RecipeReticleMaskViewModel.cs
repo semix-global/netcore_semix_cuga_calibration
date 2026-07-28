@@ -13,6 +13,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.IOC.Providers;
@@ -24,7 +25,6 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Net.Utilities.Calibration;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Recipe.Edit.Children;
 

@@ -1,8 +1,8 @@
+using CommunityToolkit.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using CommunityToolkit.Diagnostics;
 
 namespace Net.Utilities.WPF.CustomControl.Calibration;
 

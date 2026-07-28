@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Models;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;

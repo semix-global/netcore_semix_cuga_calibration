@@ -17,6 +17,7 @@ using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -25,7 +26,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Net.Utilities.Calibration;
 
 namespace CugaCalibration.ViewModels.Common;
 

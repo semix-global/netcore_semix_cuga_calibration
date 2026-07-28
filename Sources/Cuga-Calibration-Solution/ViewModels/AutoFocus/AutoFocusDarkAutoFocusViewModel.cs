@@ -5,7 +5,6 @@ using Core.Models.Models;
 using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
-using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
@@ -17,6 +16,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.Collections.Concurrent;
 

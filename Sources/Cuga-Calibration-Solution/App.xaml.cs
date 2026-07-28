@@ -1,8 +1,7 @@
+using Core.Models;
 using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
-using Core.Models;
-using Net.Utilities.SourceGenerators.Calibration;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
 using Net.Utilities.ScottPlot.WPF;
+using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
 using NLog;
 using NLog.Extensions.Hosting;
