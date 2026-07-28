@@ -56,9 +56,9 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBIlluminationProfileDTOItem>? oldValue, IReadOnlyList<CIBIlluminationProfileDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBIlluminationProfileDTOItem> oldValue, IReadOnlyList<CIBIlluminationProfileDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -188,9 +188,9 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
     [ObservableProperty]
     public partial IReadOnlyList<double> Window { get; set; } = [];
 
-    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

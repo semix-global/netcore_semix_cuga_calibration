@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Core.Utilities.WPF</AssemblyName>
+        <RootNamespace>Core.Utilities.WPF</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Markdig" />
+        <PackageReference Include="Microsoft.Web.WebView2" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.WPF.CustomControl.Calibration\Net.Utilities.WPF.CustomControl.Calibration.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Assets\Css\*.*" />
+        <None Remove="Assets\Js\*.*" />
+        <EmbeddedResource Include="Assets\Css\*.*" />
+        <EmbeddedResource Include="Assets\Js\*.*" />
+    </ItemGroup>
+
+</Project>

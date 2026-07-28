@@ -5,7 +5,7 @@ using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 
-namespace Core.Utilities;
+namespace Net.Utilities.Calibration;
 
 public static class BitmapImageExtensions
 {

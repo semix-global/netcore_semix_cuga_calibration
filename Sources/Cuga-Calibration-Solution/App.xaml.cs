@@ -1,8 +1,7 @@
+using Core.Models;
 using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
-using Core.Utilities;
-using Core.Utilities.SourceGenerators;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
 using Net.Utilities.ScottPlot.WPF;
+using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
 using NLog;
 using NLog.Extensions.Hosting;
@@ -76,7 +76,7 @@ public sealed partial class App
             app.MainWindow.Visibility = Visibility.Visible;
 
             // todo: 等后续ScottPlot改造好移动到static中
-            CalibrationViewModelEntriesCollector.Init();
+            CugaCalibrationSolutionCalibrationViewModelEntriesCollector.Init();
 
 #pragma warning disable IDE0079
 #pragma warning disable VSTHRD101

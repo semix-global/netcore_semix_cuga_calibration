@@ -6,7 +6,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
-using Core.Utilities.SourceGenerators.Attributes;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -14,6 +13,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using System.IO;
 using Point = Net.Utilities.Models.Geometries.Point;
 

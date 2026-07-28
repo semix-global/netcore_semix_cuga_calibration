@@ -39,9 +39,9 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<OpticsINCDTOItem>? oldValue, IReadOnlyList<OpticsINCDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<OpticsINCDTOItem> oldValue, IReadOnlyList<OpticsINCDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

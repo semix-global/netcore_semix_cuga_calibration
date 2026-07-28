@@ -13,8 +13,8 @@
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:ui="clr-namespace:Core.Utilities.WPF.UI;assembly=Core.Utilities.WPF"
+           xmlns:calibration="clr-namespace:Net.Utilities.WPF.CustomControl.Calibration;assembly=Net.Utilities.WPF.CustomControl.Calibration"
            Width="1200"
            Height="800"
            d:DataContext="{d:DesignInstance Type=viewModels:MainWindowViewModel}"
@@ -156,16 +156,16 @@
                                                     VerticalAlignment="Center"
                                                     Spacing="10"
                                                     Orientation="Horizontal">
-                                <wpf:CircleProgressButton x:Name="StatusButton"
-                                                          Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          CommandParameter="{Binding}"
-                                                          Width="14"
-                                                          Height="14"
-                                                          Foreground="{StaticResource SuccessBrush}"
-                                                          Background="{StaticResource BorderBrush}"
-                                                          EffectBackground="{StaticResource InfoBrush}"
-                                                          Progress="{Binding Entry.Status.Progress}"
-                                                          IsOk="{Binding Entry.Status.IsOk}" />
+                                <calibration:CircleProgressButton x:Name="StatusButton"
+                                                                  Command="{Binding DataContext.ShowCalibrationMenuCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                  CommandParameter="{Binding}"
+                                                                  Width="14"
+                                                                  Height="14"
+                                                                  Foreground="{StaticResource SuccessBrush}"
+                                                                  Background="{StaticResource BorderBrush}"
+                                                                  EffectBackground="{StaticResource InfoBrush}"
+                                                                  Progress="{Binding Entry.Status.Progress}"
+                                                                  IsOk="{Binding Entry.Status.IsOk}" />
                                 <TextBlock Text="{Binding SysMenu.Name}" />
                             </hc:UniformSpacingPanel>
                         </Grid>
@@ -217,69 +217,17 @@
                             Style="{StaticResource ButtonPrimary}" />
                 </hc:UniformSpacingPanel>
                 <Grid Grid.Row="2">
-                    <wpf:DockHostControl Side="Right"
-                                         SideContentVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}"
-                                         IsEnabled="{Binding ActiveItem, Converter={StaticResource NotNullToBoolConverter}, Mode=OneWay}">
-                        <wpf:DockHostControl.Style>
-                            <Style TargetType="wpf:DockHostControl">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="True">
-                                        <Setter Property="IsExpanded" Value="False" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding ActiveItem, Converter={StaticResource NullToBoolConverter}}" Value="False">
-                                        <Setter Property="IsExpanded" Value="False" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </wpf:DockHostControl.Style>
-                        <wpf:DockHostControl.SideContent>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="50" />
-                                    <RowDefinition Height="35" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Text="Instructions"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource TextBlockLargeBold}" />
-                                <hc:ButtonGroup Grid.Row="1"
-                                                Margin="5"
-                                                HorizontalAlignment="Center">
-                                    <RadioButton Content="Introduction"
-                                                 IsChecked="True"
-                                                 GroupName="InstructionTabs"
-                                                 Style="{StaticResource RadioGroupItemHorizontalFirst}" />
-                                    <RadioButton Content="Others"
-                                                 IsChecked="False"
-                                                 GroupName="InstructionTabs"
-                                                 Style="{StaticResource RadioGroupItemHorizontalLast}" />
-                                </hc:ButtonGroup>
-                                <Grid Grid.Row="2">
-                                    <ui:MarkdownViewer Margin="10"
-                                                       MarkdownFilePath="{Binding ActiveItem.HtmlPath}"
-                                                       Tag="{Binding ActiveItem}"
-                                                       IsPopupEnabled="True" />
-                                </Grid>
-                                <hc:StepBar Grid.Row="3"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            FontSize="10"
-                                            StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                            ItemsSource="{Binding ActiveItem.CalibrationSteps}">
-                                    <hc:StepBar.ItemTemplate>
-                                        <DataTemplate />
-                                    </hc:StepBar.ItemTemplate>
-                                </hc:StepBar>
-                                <ProgressBar Grid.Row="4"
-                                             Margin="5"
-                                             Style="{StaticResource ProgressBarSuccess}"
-                                             Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
-                            </Grid>
-                        </wpf:DockHostControl.SideContent>
-                        <wpf:DockHostControl.MainContent>
+                    <calibration:HorizontalExpandPanel x:Name="HorizontalExpandPanel"
+                                                       PanelBackground="{StaticResource DarkDefaultBrush}"
+                                                       PanelHoverBackground="{StaticResource RegionBrush}"
+                                                       PanelForeground="{StaticResource SecondaryTextBrush}"
+                                                       PanelBorderBrush="{StaticResource BorderBrush}"
+                                                       PanelBorderThickness="1"
+                                                       PanelBorderCornerRadius="5"
+                                                       HorizontalExpandDirectionEnum="Right"
+                                                       IsExpanded="False"
+                                                       PanelVisibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}, Mode=OneWay}">
+                        <calibration:HorizontalExpandPanel.MainContent>
                             <ContentControl>
                                 <ContentControl.Style>
                                     <Style BasedOn="{StaticResource {x:Type ContentControl}}" TargetType="{x:Type ContentControl}">
@@ -306,32 +254,93 @@
                                     </Style>
                                 </ContentControl.Style>
                             </ContentControl>
-                        </wpf:DockHostControl.MainContent>
-                    </wpf:DockHostControl>
-                    <hc:UniformSpacingPanel HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"
-                                            Orientation="Vertical">
+                        </calibration:HorizontalExpandPanel.MainContent>
+                        <calibration:HorizontalExpandPanel.ExpandContent>
+                            <Border Style="{StaticResource BorderRegion}"
+                                    CornerRadius="5,5,0,5"
+                                    BorderThickness="1,1,0,1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition Height="35" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Instructions"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource TextBlockLargeBold}" />
+                                    <hc:ButtonGroup Grid.Row="1"
+                                                    Margin="5"
+                                                    HorizontalAlignment="Center">
+                                        <RadioButton Content="Introduction"
+                                                     IsChecked="True"
+                                                     GroupName="InstructionTabs"
+                                                     Style="{StaticResource RadioGroupItemHorizontalFirst}" />
+                                        <RadioButton Content="Others"
+                                                     IsChecked="False"
+                                                     GroupName="InstructionTabs"
+                                                     Style="{StaticResource RadioGroupItemHorizontalLast}" />
+                                    </hc:ButtonGroup>
+                                    <Grid Grid.Row="2">
+                                        <ui:MarkdownViewer Margin="10"
+                                                           MarkdownFilePath="{Binding ActiveItem.HtmlPath}"
+                                                           Tag="{Binding ActiveItem}"
+                                                           IsPopupEnabled="True" />
+                                    </Grid>
+                                    <hc:StepBar Grid.Row="3"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                FontSize="10"
+                                                StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
+                                                ItemsSource="{Binding ActiveItem.CalibrationSteps}">
+                                        <hc:StepBar.ItemTemplate>
+                                            <DataTemplate />
+                                        </hc:StepBar.ItemTemplate>
+                                    </hc:StepBar>
+                                    <ProgressBar Grid.Row="4"
+                                                 Margin="5"
+                                                 Style="{StaticResource ProgressBarSuccess}"
+                                                 Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
+                                </Grid>
+                            </Border>
+                        </calibration:HorizontalExpandPanel.ExpandContent>
+                    </calibration:HorizontalExpandPanel>
+                    <hc:UniformSpacingPanel>
+                        <hc:UniformSpacingPanel.Style>
+                            <Style TargetType="{x:Type hc:UniformSpacingPanel}">
+                                <Setter Property="Margin" Value="-3" />
+                                <Setter Property="HorizontalAlignment" Value="Right" />
+                                <Setter Property="VerticalAlignment" Value="Bottom" />
+                                <Setter Property="Orientation" Value="Vertical" />
+                                <Setter Property="Spacing" Value="5" />
+                                <Setter Property="Visibility" Value="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsExpanded, ElementName=HorizontalExpandPanel}" Value="{x:Static constants:Constants.True}">
+                                        <Setter Property="Margin" Value="5" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </hc:UniformSpacingPanel.Style>
                         <Button Command="{Binding ExportCommand}"
-                                HorizontalAlignment="Right"
+                                Padding="3"
                                 hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
-                                Style="{StaticResource ButtonIcon}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                                Style="{StaticResource ButtonIcon}" />
                         <Button Command="{Binding ImportCommand}"
-                                HorizontalAlignment="Right"
+                                Padding="3"
                                 hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
-                                Style="{StaticResource ButtonIcon}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}" />
+                                Style="{StaticResource ButtonIcon}" />
+                        <hc:StepBar Margin="0,0,10,0"
+                                    Dock="Right"
+                                    StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
+                                    ItemsSource="{Binding ActiveItem.CalibrationSteps}"
+                                    Visibility="{Binding IsExpanded, ElementName=HorizontalExpandPanel, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                            <hc:StepBar.ItemTemplate>
+                                <DataTemplate />
+                            </hc:StepBar.ItemTemplate>
+                        </hc:StepBar>
                     </hc:UniformSpacingPanel>
-                    <hc:StepBar HorizontalAlignment="Right"
-                                VerticalAlignment="Bottom"
-                                Dock="Right"
-                                StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                ItemsSource="{Binding ActiveItem.CalibrationSteps}"
-                                Visibility="{Binding ActiveItem, Converter={StaticResource NotNullToVisibilityConverter}}">
-                        <hc:StepBar.ItemTemplate>
-                            <DataTemplate />
-                        </hc:StepBar.ItemTemplate>
-                    </hc:StepBar>
                 </Grid>
                 <GridSplitter Grid.Row="3" Height="5" />
                 <Grid Grid.Row="4" Grid.Column="0">

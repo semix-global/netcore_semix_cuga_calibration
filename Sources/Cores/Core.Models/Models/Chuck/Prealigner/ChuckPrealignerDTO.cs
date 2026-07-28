@@ -28,9 +28,9 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
     [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<ChuckPrealignerDTOItem> Items { get; set; } = [];
 
-    partial void OnItemsChanged(IReadOnlyList<ChuckPrealignerDTOItem>? oldValue, IReadOnlyList<ChuckPrealignerDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<ChuckPrealignerDTOItem> oldValue, IReadOnlyList<ChuckPrealignerDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

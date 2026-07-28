@@ -1,7 +1,7 @@
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Net.Utilities.Models;
 
-namespace Core.Utilities;
+namespace Core.Models;
 
 public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfiguration
 {

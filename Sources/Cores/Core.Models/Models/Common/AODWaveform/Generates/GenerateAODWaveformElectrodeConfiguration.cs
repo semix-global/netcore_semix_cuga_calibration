@@ -35,9 +35,9 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     [ObservableProperty]
     public partial IReadOnlyList<GenerateAODWaveformUniformityConfiguration> UniformityConfigurations { get; set; } = [];
 
-    partial void OnUniformityConfigurationsChanged(IReadOnlyList<GenerateAODWaveformUniformityConfiguration>? oldValue, IReadOnlyList<GenerateAODWaveformUniformityConfiguration> newValue)
+    partial void OnUniformityConfigurationsChanged(IReadOnlyList<GenerateAODWaveformUniformityConfiguration> oldValue, IReadOnlyList<GenerateAODWaveformUniformityConfiguration> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
