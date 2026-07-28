@@ -81,9 +81,9 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<OpticsRelayDTOItem>? oldValue, IReadOnlyList<OpticsRelayDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<OpticsRelayDTOItem> oldValue, IReadOnlyList<OpticsRelayDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -106,9 +106,9 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
 
     partial void OnFitRelayPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnXZItemsChanged(IReadOnlyList<OpticsRelayDTOXZItem>? oldValue, IReadOnlyList<OpticsRelayDTOXZItem> newValue)
+    partial void OnXZItemsChanged(IReadOnlyList<OpticsRelayDTOXZItem> oldValue, IReadOnlyList<OpticsRelayDTOXZItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

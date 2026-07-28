@@ -481,6 +481,7 @@
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
                         <ListBox Margin="5"
                                  HorizontalContentAlignment="Stretch"
+                                 VirtualizingPanel.ScrollUnit="Pixel"
                                  ItemsSource="{Binding Results}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>

@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Utilities;
+using Core.Models;
 using Core.Utilities.WPF.ApplicationAbout.Helper;
 using Core.Utilities.WPF.ApplicationAbout.Model;
 using Core.Utilities.WPF.Assembly.Helper;

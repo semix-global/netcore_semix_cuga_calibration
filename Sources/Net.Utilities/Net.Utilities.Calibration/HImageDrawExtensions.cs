@@ -3,7 +3,7 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Utilities;
+namespace Net.Utilities.Calibration;
 
 public static class HImageDrawExtensions
 {

@@ -76,10 +76,9 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
         ScatterPlotControl.SetTitle(2, "(XY Focus Offset)(Y: mm/MHz - X: XY Focus Offset(ecs))");
     }
 
-    partial void OnItemsChanged(ObservableCollection<AODBestFocusAndAstigmatismDTOItem>? oldValue,
-        ObservableCollection<AODBestFocusAndAstigmatismDTOItem> newValue)
+    partial void OnItemsChanged(ObservableCollection<AODBestFocusAndAstigmatismDTOItem> oldValue, ObservableCollection<AODBestFocusAndAstigmatismDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

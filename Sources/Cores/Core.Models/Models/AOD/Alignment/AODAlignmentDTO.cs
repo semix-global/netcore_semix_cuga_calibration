@@ -49,9 +49,9 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem>? oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem> oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

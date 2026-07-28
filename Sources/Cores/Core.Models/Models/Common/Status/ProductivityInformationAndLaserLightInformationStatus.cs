@@ -15,9 +15,9 @@ public sealed partial class ProductivityInformationAndLaserLightInformationStatu
 
     public bool IsCalibrated => Items.All(c => c.IsCalibrated);
 
-    partial void OnItemsChanged(IReadOnlyList<LaserLightInformationStatus>? oldValue, IReadOnlyList<LaserLightInformationStatus> newValue)
+    partial void OnItemsChanged(IReadOnlyList<LaserLightInformationStatus> oldValue, IReadOnlyList<LaserLightInformationStatus> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

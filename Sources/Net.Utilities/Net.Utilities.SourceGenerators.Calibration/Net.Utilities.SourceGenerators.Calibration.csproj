@@ -8,9 +8,6 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <AnalysisLevel>latest</AnalysisLevel>
         <IsRoslynComponent>true</IsRoslynComponent>
-
-        <AssemblyName>Core.Utilities.SourceGenerators</AssemblyName>
-        <RootNamespace>Core.Utilities.SourceGenerators</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>

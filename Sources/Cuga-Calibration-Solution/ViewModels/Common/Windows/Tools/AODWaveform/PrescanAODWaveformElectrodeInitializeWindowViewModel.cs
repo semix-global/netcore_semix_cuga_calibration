@@ -1,10 +1,10 @@
 using Core.Models.Models.Common.AODWaveform;
-using Core.Utilities.SourceGenerators.Attributes;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 

@@ -62,9 +62,9 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBLightMatchingDTOItem>? oldValue, IReadOnlyList<CIBLightMatchingDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBLightMatchingDTOItem> oldValue, IReadOnlyList<CIBLightMatchingDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -318,9 +318,9 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
     [Newtonsoft.Json.JsonIgnore]
     public double DigitalGainPlusMultiplicativeFactors => DigitalGain + MultiplicativeFactors;
 
-    partial void OnHazeItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnHazeItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -335,9 +335,9 @@ public sealed partial class CIBLightMatchingDTOItem : ObservableObject, ICloneab
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(HazeItems));
     }
 
-    partial void OnSilicaSphereItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnSilicaSphereItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

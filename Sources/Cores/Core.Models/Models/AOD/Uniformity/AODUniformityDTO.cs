@@ -262,9 +262,9 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
     [ObservableProperty]
     public partial IReadOnlyList<Status> VerifyMappingStatuses { get; set; } = [];
 
-    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

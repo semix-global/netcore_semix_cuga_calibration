@@ -1,4 +1,4 @@
-namespace Core.Utilities.SourceGenerators;
+namespace Net.Utilities.SourceGenerators.Calibration;
 
 internal static class SourceGeneratorHelper
 {

@@ -81,9 +81,9 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<CIBMMDDTOItem>? oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBMMDDTOItem> oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -275,9 +275,9 @@ public sealed partial class CIBMMDDTOItem : ObservableObject, ICloneable<CIBMMDD
     [ObservableProperty]
     public partial double ProtectedOverflowProtectedPMTValueCount { get; set; }
 
-    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
