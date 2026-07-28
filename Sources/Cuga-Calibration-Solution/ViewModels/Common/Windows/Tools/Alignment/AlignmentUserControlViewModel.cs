@@ -6,7 +6,7 @@ using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Attributes;

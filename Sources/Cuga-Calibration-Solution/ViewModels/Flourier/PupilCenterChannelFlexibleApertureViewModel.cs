@@ -6,7 +6,7 @@ using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using HalconDotNet;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

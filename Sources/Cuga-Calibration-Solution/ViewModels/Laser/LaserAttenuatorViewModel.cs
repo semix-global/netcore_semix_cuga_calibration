@@ -7,7 +7,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.Attenuator;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;

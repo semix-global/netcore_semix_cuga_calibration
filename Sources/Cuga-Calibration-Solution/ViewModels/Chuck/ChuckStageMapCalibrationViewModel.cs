@@ -15,7 +15,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;

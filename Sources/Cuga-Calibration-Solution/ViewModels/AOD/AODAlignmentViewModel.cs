@@ -8,7 +8,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;

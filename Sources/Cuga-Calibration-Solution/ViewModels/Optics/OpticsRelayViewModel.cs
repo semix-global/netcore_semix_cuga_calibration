@@ -9,7 +9,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.Relay;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Humanizer;
 using MathNet.Numerics;

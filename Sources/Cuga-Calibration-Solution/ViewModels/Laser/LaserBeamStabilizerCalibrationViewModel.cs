@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Laser.BeamStabilizer;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;

@@ -5,7 +5,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;

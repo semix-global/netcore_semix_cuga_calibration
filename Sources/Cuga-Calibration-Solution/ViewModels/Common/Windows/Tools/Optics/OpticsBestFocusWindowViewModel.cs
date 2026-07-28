@@ -6,7 +6,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Algorithms.Halcon;

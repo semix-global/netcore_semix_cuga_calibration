@@ -2,7 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Enums;
 using Microsoft.Extensions.Logging;

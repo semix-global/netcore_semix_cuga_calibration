@@ -6,7 +6,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using HandyControl.Tools.Extension;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Attributes;

@@ -2,7 +2,7 @@ using Core.Models.Helper;
 using Core.Recipe.Services;
 using Core.Services;
 using Core.Models;
-using Core.Utilities.SourceGenerators;
+using Net.Utilities.SourceGenerators.Calibration;
 using CugaCalibration.Core;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;

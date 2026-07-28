@@ -6,7 +6,7 @@ using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;

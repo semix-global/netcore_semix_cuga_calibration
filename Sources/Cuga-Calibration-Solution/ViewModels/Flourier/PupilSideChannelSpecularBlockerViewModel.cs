@@ -9,7 +9,7 @@ using Core.Models.Models.Fourier.CameraAlignment;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using HalconDotNet;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;

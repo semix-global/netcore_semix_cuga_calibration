@@ -11,7 +11,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;

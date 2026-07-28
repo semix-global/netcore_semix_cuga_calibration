@@ -13,7 +13,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Laser.OpticalPowerMeter;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using CugaCalibration.ViewModels.Common.Windows.Tools.CIB;
 using Humanizer;

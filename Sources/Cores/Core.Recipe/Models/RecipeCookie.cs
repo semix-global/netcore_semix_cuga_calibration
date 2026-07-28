@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 
 namespace Core.Recipe.Models;

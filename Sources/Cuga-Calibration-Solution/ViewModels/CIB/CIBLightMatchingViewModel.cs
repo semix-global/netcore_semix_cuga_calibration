@@ -8,7 +8,7 @@ using Core.Models.Models.CIB.LightMatching;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Humanizer;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon.Extensions;

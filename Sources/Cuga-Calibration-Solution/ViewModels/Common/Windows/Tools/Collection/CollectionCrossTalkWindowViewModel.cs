@@ -7,7 +7,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;

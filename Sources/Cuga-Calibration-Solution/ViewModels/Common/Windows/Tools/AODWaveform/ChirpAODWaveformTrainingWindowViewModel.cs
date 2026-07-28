@@ -7,7 +7,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
 using Core.Services.Interfaces;
 using Core.Models;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics;

@@ -11,7 +11,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;

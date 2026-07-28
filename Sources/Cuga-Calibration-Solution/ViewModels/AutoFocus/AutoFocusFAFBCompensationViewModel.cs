@@ -6,7 +6,7 @@ using Core.Models.Models.AutoFocus.DarkAutoFocus;
 using Core.Models.Models.AutoFocus.FAFBCompensation;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;

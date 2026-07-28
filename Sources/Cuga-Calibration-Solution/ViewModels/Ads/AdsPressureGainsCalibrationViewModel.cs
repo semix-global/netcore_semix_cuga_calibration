@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.Ads.PressureGains;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;

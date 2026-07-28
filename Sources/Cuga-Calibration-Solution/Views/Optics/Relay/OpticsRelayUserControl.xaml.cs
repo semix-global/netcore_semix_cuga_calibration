@@ -1,4 +1,4 @@
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 

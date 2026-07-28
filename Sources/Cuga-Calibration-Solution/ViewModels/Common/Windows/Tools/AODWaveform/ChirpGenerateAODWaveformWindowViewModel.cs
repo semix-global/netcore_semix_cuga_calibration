@@ -1,6 +1,6 @@
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;

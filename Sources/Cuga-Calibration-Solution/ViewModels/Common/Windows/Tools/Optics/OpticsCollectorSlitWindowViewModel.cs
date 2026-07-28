@@ -7,7 +7,7 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Core.Models;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;

@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Ads.XGains;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

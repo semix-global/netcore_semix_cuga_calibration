@@ -6,7 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;

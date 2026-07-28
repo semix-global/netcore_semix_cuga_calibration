@@ -9,7 +9,7 @@ using Core.Models.Models.Chuck.Prealigner;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;

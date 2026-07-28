@@ -10,7 +10,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using Core.Models;
-using Core.Utilities.SourceGenerators.Attributes;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
