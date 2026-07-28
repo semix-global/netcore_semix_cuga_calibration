@@ -2,6 +2,6 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgressButton.xaml" />
         <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/CircleProgressToggleButton.xaml" />
-        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/DockHostControl.xaml" />
+        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Calibration;component/Themes/HorizontalExpandPanel.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
