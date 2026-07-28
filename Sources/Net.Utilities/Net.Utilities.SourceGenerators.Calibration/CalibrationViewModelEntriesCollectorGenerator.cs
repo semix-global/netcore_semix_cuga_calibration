@@ -31,10 +31,17 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
             .Where(static item => string.IsNullOrEmpty(item.ViewModel) == false)
             .Collect();
 
-        context.RegisterSourceOutput(defaults.Combine(recipes), static (ctx, source) =>
+        var assemblyName = context.CompilationProvider
+            .Select(static (c, _) => c.Assembly.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
+
+        context.RegisterSourceOutput(defaults.Combine(recipes).Combine(assemblyName), static (ctx, source) =>
+        {
+            var ((defaults, recipes), assemblyName) = source;
+
             ctx.AddSource(
                 "SourceGenerators.CalibrationViewModelEntriesCollector.g.cs",
-                SourceText.From(GenerateSource(source.Left, source.Right), Encoding.UTF8)));
+                SourceText.From(GenerateSource(assemblyName, defaults, recipes), Encoding.UTF8));
+        });
     }
 
     private static (string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray) GetDefault(GeneratorAttributeSyntaxContext context)
@@ -105,9 +112,12 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
     }
 
     private static string GenerateSource(
+        string assemblyName,
         ImmutableArray<(string ViewModel, string DTO, string? AdaptToCUGA, bool IsArray)> defaults,
         ImmutableArray<(string ViewModel, string Cache, string ShortCache)> recipes)
     {
+        var pascalAssemblyName = SourceGeneratorHelper.ToPascalCaseName(assemblyName);
+
         var recipeDictionary = recipes
             .GroupBy(r => r.ViewModel, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
@@ -178,7 +188,7 @@ public sealed class CalibrationViewModelEntriesCollectorGenerator : IIncremental
 
                  namespace Net.Utilities.SourceGenerators.Calibration
                  {
-                     public static class CalibrationViewModelEntriesCollector
+                     public static class {{pascalAssemblyName}}CalibrationViewModelEntriesCollector
                      {
                          public static void Init()
                          {

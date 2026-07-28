@@ -12,7 +12,6 @@ using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Enums;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -29,7 +28,6 @@ public sealed partial class ApplicationCookieServiceImpl(
     ICacheProvider recipeCacheProvider,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
-    ILogger<ApplicationCookieServiceImpl> logger,
     CalibrationSetting calibrationSetting) : IApplicationCookieService
 {
     public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)

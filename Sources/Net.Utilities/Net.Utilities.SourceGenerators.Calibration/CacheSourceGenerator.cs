@@ -66,7 +66,7 @@ public sealed class CacheSourceGenerator : IIncrementalGenerator
         {
             var ((defaultCaches, recipeCaches), assemblyName) = source;
 
-            var code = GenerateProjectCacheCollector(assemblyName, defaultCaches, recipeCaches);
+            var code = GenerateSource(assemblyName, defaultCaches, recipeCaches);
             ctx.AddSource(
                 "SourceGenerators.CacheCollector.g.cs",
                 SourceText.From(code, Encoding.UTF8));
@@ -90,10 +90,7 @@ public sealed class CacheSourceGenerator : IIncrementalGenerator
         return (typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat), isArray);
     }
 
-    /// <summary>
-    /// 生成项目特定命名空间的 CacheCollector
-    /// </summary>
-    private static string GenerateProjectCacheCollector(
+    private static string GenerateSource(
         string assemblyName,
         ImmutableArray<(string Type, bool IsArray)> defaultCaches,
         ImmutableArray<(string Type, bool IsArray)> recipeCaches)
