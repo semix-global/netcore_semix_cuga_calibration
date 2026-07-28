@@ -324,11 +324,11 @@
                             </Style>
                         </hc:UniformSpacingPanel.Style>
                         <Button Command="{Binding ExportCommand}"
-                                Padding="5"
+                                Padding="3"
                                 hc:IconElement.Geometry="{StaticResource CustomExportGeometry}"
                                 Style="{StaticResource ButtonIcon}" />
                         <Button Command="{Binding ImportCommand}"
-                                Padding="5"
+                                Padding="3"
                                 hc:IconElement.Geometry="{StaticResource CustomImportGeometry}"
                                 Style="{StaticResource ButtonIcon}" />
                         <hc:StepBar Margin="0,0,10,0"
