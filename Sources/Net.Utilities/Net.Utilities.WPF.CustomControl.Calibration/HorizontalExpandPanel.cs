@@ -15,9 +15,15 @@ public enum HorizontalExpandDirectionEnum
 
 public sealed class HorizontalExpandPanel : Control
 {
+    private static readonly Geometry LeftArrowGeometry = Geometry.Parse("F1 M1024,1024z M0,0z M724,218.3L724,141C724,134.3,716.3,130.6,711.1,134.7L260.3,486.8C243.9,499.6,243.9,524.3,260.3,537.1L711.1,889.2C716.4,893.3,724,889.6,724,882.9L724,805.6C724,800.7,721.7,796,717.9,793L357.9,512 717.9,230.9C721.7,227.9,724,223.2,724,218.3z");
+    private static readonly Geometry RightArrowGeometry = Geometry.Parse("F1 M1024,1024z M0,0z M765.7,486.8L314.9,134.7C309.6,130.6,302,134.3,302,141L302,218.3C302,223.2,304.3,227.9,308.1,230.9L668.1,512 308.1,793.1C304.2,796.1,302,800.8,302,805.7L302,883C302,889.7,309.7,893.4,314.9,889.3L765.7,537.2C782.1,524.4,782.1,499.6,765.7,486.8z");
+
     static HorizontalExpandPanel()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(HorizontalExpandPanel), new FrameworkPropertyMetadata(typeof(HorizontalExpandPanel)));
+
+        LeftArrowGeometry.Freeze();
+        RightArrowGeometry.Freeze();
     }
 
     public static readonly DependencyProperty PanelBackgroundProperty = DependencyProperty.Register(
@@ -158,16 +164,6 @@ public sealed class HorizontalExpandPanel : Control
 
         control.Update();
     }
-
-    private static Geometry FreezeGeometry(string path)
-    {
-        var geometry = Geometry.Parse(path);
-        geometry.Freeze();
-        return geometry;
-    }
-
-    private static readonly Geometry LeftArrowGeometry = FreezeGeometry("F1 M1024,1024z M0,0z M724,218.3L724,141C724,134.3,716.3,130.6,711.1,134.7L260.3,486.8C243.9,499.6,243.9,524.3,260.3,537.1L711.1,889.2C716.4,893.3,724,889.6,724,882.9L724,805.6C724,800.7,721.7,796,717.9,793L357.9,512 717.9,230.9C721.7,227.9,724,223.2,724,218.3z");
-    private static readonly Geometry RightArrowGeometry = FreezeGeometry("F1 M1024,1024z M0,0z M765.7,486.8L314.9,134.7C309.6,130.6,302,134.3,302,141L302,218.3C302,223.2,304.3,227.9,308.1,230.9L668.1,512 308.1,793.1C304.2,796.1,302,800.8,302,805.7L302,883C302,889.7,309.7,893.4,314.9,889.3L765.7,537.2C782.1,524.4,782.1,499.6,765.7,486.8z");
 
     private ColumnDefinition? _sideContentColumn;
 
