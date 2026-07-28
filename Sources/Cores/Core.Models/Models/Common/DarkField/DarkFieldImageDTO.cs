@@ -160,7 +160,7 @@ public sealed class DarkFieldImageDTO :
 
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
-    public BitmapImage Image { get; private set; } = Utilities.BitmapImageExtensions.Empty;
+    public BitmapImage Image { get; private set; } = Net.Utilities.Calibration.BitmapImageExtensions.Empty;
 
     protected override DarkFieldRawScanImageDTO CreateInstance() => new DarkFieldImageDTO();
 

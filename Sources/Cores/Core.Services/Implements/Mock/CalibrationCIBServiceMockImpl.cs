@@ -194,7 +194,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
@@ -206,7 +206,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
-        var bytes = File.ReadAllBytes(_mockImageFilePath);
+        var bytes = await File.ReadAllBytesAsync(_mockImageFilePath, cancellationToken);
 
         var results = new DarkFieldImageDTO[cibInformations.Count];
 
@@ -218,10 +218,10 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results);
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         IReadOnlyList<Point> centerPositions,
@@ -232,7 +232,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
-        var bytes = File.ReadAllBytes(_mockImageFilePath);
+        var bytes = await File.ReadAllBytesAsync(_mockImageFilePath, cancellationToken);
 
         var results = new DarkFieldImageDTO[centerPositions.Count];
 
@@ -243,7 +243,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results);
     }
 
     public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
@@ -274,7 +274,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
@@ -286,7 +286,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isKeepRawImageCIBProfileModeEnum,
         CancellationToken cancellationToken)
     {
-        var bytes = File.ReadAllBytes(_xzSyncMockImageFilePath);
+        var bytes = await File.ReadAllBytesAsync(_xzSyncMockImageFilePath, cancellationToken);
 
         var results = new DarkFieldImageDTO[cibInformations.Count];
 
@@ -298,7 +298,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
             results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _xzSyncMockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results);
     }
 
     public SxExecuteRet<(double ECS, double Motor, bool isAFServo)> RuntimeAFCalibration(

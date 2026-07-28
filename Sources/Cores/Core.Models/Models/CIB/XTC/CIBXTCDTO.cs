@@ -57,9 +57,9 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
+    partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
     {
-        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
+        oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
@@ -76,9 +76,9 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         }
     }
 
-    partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem? oldValue, AODUniformityDTO.WindowItem newValue)
+    partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
     {
-        if (oldValue is not null) oldValue.PropertyChanged -= ItemOnPropertyChanged;
+        oldValue.PropertyChanged -= ItemOnPropertyChanged;
 
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
@@ -95,9 +95,9 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         }
     }
 
-    partial void OnItemsChanged(IReadOnlyList<CIBXTCDTOItem>? oldValue, IReadOnlyList<CIBXTCDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBXTCDTOItem> oldValue, IReadOnlyList<CIBXTCDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -314,9 +314,9 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
     [ObservableProperty]
     public partial double Delay { get; set; }
 
-    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

@@ -1,9 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
-using Core.Utilities;
 using Core.Utilities.WPF.Entities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;

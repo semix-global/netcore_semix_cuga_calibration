@@ -16,9 +16,9 @@ public partial class ProductivityInformationAndApodizationStatus : ObservableObj
 
     public bool IsCalibrated => Items.All(c => c.IsCalibrated);
 
-    partial void OnItemsChanged(IReadOnlyList<OpticsApodizationModeStatus>? oldValue, IReadOnlyList<OpticsApodizationModeStatus> newValue)
+    partial void OnItemsChanged(IReadOnlyList<OpticsApodizationModeStatus> oldValue, IReadOnlyList<OpticsApodizationModeStatus> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

@@ -26,7 +26,7 @@ public class BitmapImageTest
         using var oldBitmapImage = oldHImage.ToBitmapImage(isToLiner ? 16 : 12);
 
         var (size, _, _) = RAWImageFactory.GetSize(rawBytes);
-        var darkFieldImageDTO = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { Size = size, RawImageCIBProfileModeEnum = cibProfileMode, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = !isToLiner });
+        using var darkFieldImageDTO = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { Size = size, RawImageCIBProfileModeEnum = cibProfileMode, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = !isToLiner });
         using var newBitmapImage = darkFieldImageDTO.GetImage();
         using var newHImage = newBitmapImage.ToHImage();
 

@@ -15,9 +15,9 @@ public sealed partial class OpticsIlluminationModeAndProductivityInformationStat
 
     public bool IsCalibrated => ProductivityInformationStatusList.All(c => c.IsCalibrated);
 
-    partial void OnProductivityInformationStatusListChanged(BindingList<ProductivityInformationStatus>? oldValue, BindingList<ProductivityInformationStatus> newValue)
+    partial void OnProductivityInformationStatusListChanged(BindingList<ProductivityInformationStatus> oldValue, BindingList<ProductivityInformationStatus> newValue)
     {
-        if (oldValue != null) oldValue.ListChanged -= OnValueOnListChanged;
+        oldValue.ListChanged -= OnValueOnListChanged;
 
         newValue.ListChanged += OnValueOnListChanged;
     }

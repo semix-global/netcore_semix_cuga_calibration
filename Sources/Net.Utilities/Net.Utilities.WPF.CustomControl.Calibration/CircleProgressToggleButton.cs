@@ -5,9 +5,9 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.CustomControl.Calibration;
 
-public class CircleProgressToggleButton : ToggleButton
+public sealed class CircleProgressToggleButton : ToggleButton
 {
     static CircleProgressToggleButton()
     {

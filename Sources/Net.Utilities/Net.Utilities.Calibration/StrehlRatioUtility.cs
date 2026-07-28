@@ -3,7 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Models.Geometries;
 
-namespace Core.Utilities;
+namespace Net.Utilities.Calibration;
 
 public static class StrehlRatioUtility
 {

@@ -4,9 +4,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.CustomControl.Calibration;
 
-public class CircleProgressButton : Button
+public sealed class CircleProgressButton : Button
 {
     static CircleProgressButton()
     {
