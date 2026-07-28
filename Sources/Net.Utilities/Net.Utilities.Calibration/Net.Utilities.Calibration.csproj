@@ -1,27 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net48;net10.0</TargetFrameworks>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.9.1-preview8.0-xuan" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.9.1-preview8.0-xuan" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.9.1-preview8.0-xuan" />
 
-        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.1-preview6.0-xuan" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.1-preview6.0-xuan" />
+        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.1-preview8.0-xuan" />
 
-        <PackageReference Include="Markdig" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.1-preview8.0-xuan" />
+
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.1-preview8.0-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.1-preview8.0-xuan" />
+
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.1-preview8.0-xuan" />
     </ItemGroup>
 
 </Project>
