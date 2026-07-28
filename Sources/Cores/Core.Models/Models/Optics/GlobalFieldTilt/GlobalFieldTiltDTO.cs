@@ -30,9 +30,9 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
     [ObservableProperty]
     public partial GlobalFieldTiltDTOItem? ResultItem { get; set; }
 
-    partial void OnItemsChanged(IReadOnlyList<GlobalFieldTiltDTOItem>? oldValue, IReadOnlyList<GlobalFieldTiltDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<GlobalFieldTiltDTOItem> oldValue, IReadOnlyList<GlobalFieldTiltDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -141,9 +141,9 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         ScatterPlotControl.SetTitle(0, "Global Field Tilt(Y: Focus(ECS) - X: PMT(um))");
     }
 
-    partial void OnBestFocusChannelItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnBestFocusChannelItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

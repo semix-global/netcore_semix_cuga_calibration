@@ -50,9 +50,9 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<AODDelayDTOItem>? oldValue, IReadOnlyList<AODDelayDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<AODDelayDTOItem> oldValue, IReadOnlyList<AODDelayDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

@@ -55,9 +55,9 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     partial void OnLaserLightInformationPMTVoltageValuePointsChanged(Point[] value) => RefreshPlot();
 
-    partial void OnItemsChanged(IReadOnlyList<CIBAGCDelayDTOItem>? oldValue, IReadOnlyList<CIBAGCDelayDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<CIBAGCDelayDTOItem> oldValue, IReadOnlyList<CIBAGCDelayDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -201,9 +201,9 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
     [ObservableProperty]
     public partial double Delay { get; set; }
 
-    partial void OnItemsChanged(IReadOnlyList<Item>? oldValue, IReadOnlyList<Item> newValue)
+    partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {

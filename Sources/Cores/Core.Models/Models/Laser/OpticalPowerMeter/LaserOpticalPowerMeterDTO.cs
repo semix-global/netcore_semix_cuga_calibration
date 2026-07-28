@@ -49,9 +49,9 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase<Laser
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    partial void OnItemsChanged(IReadOnlyList<LaserOpticalPowerMeterDTOItem>? oldValue, IReadOnlyList<LaserOpticalPowerMeterDTOItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<LaserOpticalPowerMeterDTOItem> oldValue, IReadOnlyList<LaserOpticalPowerMeterDTOItem> newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
