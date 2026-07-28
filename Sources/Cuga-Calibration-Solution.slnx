@@ -29,10 +29,10 @@
     <Folder Name="/01. Net.Utilities/">
         <Project Path="Net.Utilities/Net.Utilities.Calibration/Net.Utilities.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.WPF.CustomControl.Calibration/Net.Utilities.WPF.CustomControl.Calibration.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.SourceGenerators.Calibration/Net.Utilities.SourceGenerators.Calibration.csproj" />
     </Folder>
     <Folder Name="/02. Cores/">
         <Project Path="Cores/Core.Utilities.WPF/01. Core.Utilities.WPF.csproj" />
-        <Project Path="Cores/Core.Utilities.SourceGenerators/02. Core.Utilities.SourceGenerators.csproj" />
         <Project Path="Cores/Core.Wcf/03. Core.Wcf.csproj" />
         <Project Path="Cores/Core.Models/04. Core.Models.csproj" />
         <Project Path="Cores/Core.Services/05. Core.Services.csproj" />

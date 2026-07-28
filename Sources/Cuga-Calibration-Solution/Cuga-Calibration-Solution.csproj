@@ -48,7 +48,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Cores\Core.Utilities.SourceGenerators\02. Core.Utilities.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Net.Utilities\Net.Utilities.SourceGenerators.Calibration\Net.Utilities.SourceGenerators.Calibration.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Cores\Core.Services\05. Core.Services.csproj" />
         <ProjectReference Include="..\Cores\Core.Recipe\06. Core.Recipe.csproj" />
     </ItemGroup>
