@@ -273,6 +273,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
+            AfViewModel.SetFAFBCompensation(CalibratingItem.KA, CalibratingItem.OffsetA, CalibratingItem.KB, CalibratingItem.OffsetB);
+            
             DialogWindowProvider.ShowDialog($"Algorithm {(CalibratingItem.IsCalibrated ? "OK" : "Failed")}",
                 DialogButtonsEnum.OK,
                 CalibratingItem.IsCalibrated ? DialogIconEnum.Information : DialogIconEnum.Warning);
