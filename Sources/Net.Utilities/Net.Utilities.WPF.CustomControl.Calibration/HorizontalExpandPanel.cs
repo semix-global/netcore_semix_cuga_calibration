@@ -92,6 +92,13 @@ public sealed class HorizontalExpandPanel : Control
         typeof(HorizontalExpandPanel),
         new PropertyMetadata(false, OnChanged));
 
+    private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not HorizontalExpandPanel control) return;
+
+        control.Update();
+    }
+
     public Brush PanelBackground
     {
         get => (Brush)GetValue(PanelBackgroundProperty);
@@ -156,13 +163,6 @@ public sealed class HorizontalExpandPanel : Control
     {
         get => (bool)GetValue(IsExpandedProperty);
         set => SetValue(IsExpandedProperty, value);
-    }
-
-    private static void OnChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is not HorizontalExpandPanel control) return;
-
-        control.Update();
     }
 
     private ColumnDefinition? _sideContentColumn;
