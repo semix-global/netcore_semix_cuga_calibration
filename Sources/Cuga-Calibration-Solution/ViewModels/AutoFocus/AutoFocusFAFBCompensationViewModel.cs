@@ -9,11 +9,9 @@ using Core.Models.Models.Microscope.CalChip;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -272,6 +270,8 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
             await AlgorithmAsync(CalibratingItem, cancellationToken);
 
             Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+
+            AfViewModel.SetFAFBCompensation(CalibratingItem.KA, CalibratingItem.OffsetA, CalibratingItem.KB, CalibratingItem.OffsetB);
 
             DialogWindowProvider.ShowDialog($"Algorithm {(CalibratingItem.IsCalibrated ? "OK" : "Failed")}",
                 DialogButtonsEnum.OK,
@@ -588,51 +588,34 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
     private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
     {
-        var ecsVector = Vector<double>.Build.Dense([.. ecses]);
-        var nscVector = Vector<double>.Build.Dense([.. nscs]);
+        Guard.IsEqualTo(ecses.Count, nscs.Count);
+        Guard.IsGreaterThan(ecses.Count, 2);
 
-        Vector<double> nscIntervalVector, ecsIntervalVector;
-        if (DarkAutoFocus.IsNscUseMaxValue)
-        {
-            var nscMaxIndex = nscVector.MaximumIndex();
-            var nscMinPositiveLeftIndex = nscVector.SubVectorRange(0, nscMaxIndex).MinimumIndex();
-            var nscMinNegativeRightIndex = nscVector.SubVectorRange(nscMaxIndex, nscVector.Count - 1).MinimumIndex() + nscMaxIndex;
-            if (DarkAutoFocus.IsNscUsePositiveSlope)
-            {
-                nscIntervalVector = nscVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
-                ecsIntervalVector = ecsVector.SubVectorRange(nscMinPositiveLeftIndex, nscMaxIndex);
-            }
-            else
-            {
-                nscIntervalVector = nscVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
-                ecsIntervalVector = ecsVector.SubVectorRange(nscMaxIndex, nscMinNegativeRightIndex);
-            }
-        }
-        else
-        {
-            var nscMinIndex = nscVector.MinimumIndex();
-            var nscMaxNegativeLeftIndex = nscVector.SubVectorRange(0, nscMinIndex).MaximumIndex();
-            var nscMaxPositiveRightIndex = nscVector.SubVectorRange(nscMinIndex, nscVector.Count - 1).MaximumIndex() + nscMinIndex;
+        var zeroPoints = new List<Point>();
 
-            if (DarkAutoFocus.IsNscUsePositiveSlope)
+        for (var i = 0; i < ecses.Count - 1; i++)
+        {
+            var ecsA = ecses[i];
+            var ecsB = ecses[i + 1];
+            var nscA = nscs[i];
+            var nscB = nscs[i + 1];
+
+            if (nscA == 0d) zeroPoints.Add(new Point(ecsA, nscA));
+
+            if (nscA * nscB < 0d)
             {
-                nscIntervalVector = nscVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
-                ecsIntervalVector = ecsVector.SubVectorRange(nscMinIndex, nscMaxPositiveRightIndex);
-            }
-            else
-            {
-                nscIntervalVector = nscVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
-                ecsIntervalVector = ecsVector.SubVectorRange(nscMaxNegativeLeftIndex, nscMinIndex);
+                var zeroEcs = ecsA - nscA * (ecsB - ecsA) / (nscB - nscA);
+                zeroPoints.Add(new Point(zeroEcs, 0d));
             }
         }
 
-        var leftIndex = nscIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index;
-        var rightIndex = nscIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index;
+        if (nscs[^1] == 0d) zeroPoints.Add(new Point(ecses[^1], nscs[^1]));
 
-        var result = new Point((ecsIntervalVector[leftIndex] + ecsIntervalVector[rightIndex]) / 2d, (nscIntervalVector[leftIndex] + nscIntervalVector[rightIndex]) / 2d);
-        var isOk = averageEcs > ecsIntervalVector[0] && averageEcs < ecsIntervalVector[^1];
+        if (zeroPoints.Count == 0) return (false, Point.Origin);
 
-        return (isOk, result);
+        var closestZeroPoint = zeroPoints.MinBy(p => Math.Abs(p.X - averageEcs));
+
+        return (true, closestZeroPoint);
     }
 
     private bool Save(AutoFocusFAFBCompensationDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
