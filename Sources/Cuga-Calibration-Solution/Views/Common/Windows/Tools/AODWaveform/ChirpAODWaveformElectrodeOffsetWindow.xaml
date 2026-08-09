@@ -305,6 +305,45 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
+                                    <Expander Header="Phase Optimizer Params"
+                                              IsExpanded="True"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Increment="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.InitialPoints}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Noise: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Increment="0.0001"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.Noise}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Increment="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.RetryCount}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Random State: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Increment="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.RandomState}" />
+                                                <Button Content="Reset Phase Optimizer"
+                                                        Command="{Binding ResetPhaseOptimizerCommand}"
+                                                        Style="{StaticResource ButtonDanger}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                     <Expander Header="Electrode Offset Frequency Period Params"
                                               IsExpanded="False"
                                               ExpandDirection="Down">

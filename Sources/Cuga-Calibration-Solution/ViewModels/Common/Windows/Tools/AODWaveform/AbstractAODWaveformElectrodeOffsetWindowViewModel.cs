@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -5,10 +6,14 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
+using Python.Runtime;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -17,7 +22,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    public readonly IReadOnlyList<OpticsAODElectrodeEnum> OpticsAODElectrodeEnums = [OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4];
+    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", $"{GetType().Name}.pkl");
 
     public override IReadOnlyList<string> Steps { get; } =
     [
@@ -26,6 +31,20 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         "Step 3 Generate AOD Waveform",
         "Step 4 Set AOD Waveform Config"
     ];
+
+    [RelayCommand]
+    private void ResetPhaseOptimizer()
+    {
+        if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
+        {
+            var backupFilePath = Path.Combine(PhaseOptimizerStateFilePath, $"_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}");
+            System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
+
+            DialogWindowProvider.ShowDialog($"Phase optimizer state file backup: {backupFilePath} Ok.");
+        }
+
+        DialogWindowProvider.ShowDialog("Phase optimizer state file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
@@ -197,7 +216,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
 
-            Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.IsOnlyElectrode4 ? 4 : Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
+            Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
             Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
@@ -329,13 +348,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 #if NET
         await
 #endif
-            using var _ = cancellationToken.Register(() =>
-            {
-                if (Step0Command.CanBeCanceled) Step0Command.Cancel();
-                if (Step1Command.CanBeCanceled) Step1Command.Cancel();
-                if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
-                if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
-            });
+        using var _ = cancellationToken.Register(() =>
+        {
+            if (Step0Command.CanBeCanceled) Step0Command.Cancel();
+            if (Step1Command.CanBeCanceled) Step1Command.Cancel();
+            if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
+            if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
+        });
 
         var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
         if (await step0Task == false) return;
@@ -347,5 +366,61 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         if (await stepSecondLastTask == false) return;
 
         await StepFirstLastCommand.ExecuteAsync( /* isNotSilent */ false);
+    }
+
+    private (double[] Phases, bool IsDone) AlgorithmSuggest(
+        double? previousCost,
+        int phaseCount,
+        int initialPoints,
+        double noise,
+        int earlyStop,
+        int randomState)
+    {
+        DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
+
+        using var _ = Py.GIL();
+
+        using var sys = Py.Import("sys");
+        using var pathObject = sys.GetAttr("path");
+        using var pyList = new PyList(pathObject);
+        using var pyModuleDirectory = Path.Combine(AppContext.BaseDirectory, "Assets", "Python").ToPython();
+        pyList.Insert(0, pyModuleDirectory);
+
+        using var module = Py.Import("phase_optimizer");
+
+        using var pyPhaseOptimizerStateFilePath = PhaseOptimizerStateFilePath.ToPython();
+        module.SetAttr("_STATE_FILE", pyPhaseOptimizerStateFilePath);
+
+        using var suggest = module.GetAttr("suggest");
+
+        using var pyCost = previousCost.ToPython();
+        using var pyPhaseCount = phaseCount.ToPython();
+        using var pyInitialPoints = initialPoints.ToPython();
+        using var pyNoise = noise.ToPython();
+        using var pyEarlyStop = earlyStop.ToPython();
+        using var pyRandomState = randomState.ToPython();
+        using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyRandomState);
+
+        using var pyPhases = Guard.IsNotNullAndReturn(result["phases"]);
+        using var pyBestCost = Guard.IsNotNullAndReturn(result["best_cost"]);
+        using var pyBestPhases = Guard.IsNotNullAndReturn(result["best_phases"]);
+        using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
+
+        return (ToDoubles(pyPhases), pyDone.As<bool>());
+    }
+
+    private static double[] ToDoubles(PyObject pyValues)
+    {
+        using var values = new PyList(pyValues);
+        var result = new double[values.Length()];
+
+        for (var index = 0; index < result.Length; index++)
+        {
+            using var value = Guard.IsNotNullAndReturn(values[index]);
+
+            result[index] = value.As<double>();
+        }
+
+        return result;
     }
 }

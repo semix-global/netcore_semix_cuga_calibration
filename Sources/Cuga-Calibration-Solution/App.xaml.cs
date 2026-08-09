@@ -18,14 +18,32 @@ using NLog.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
+using Python.Runtime;
 
 namespace CugaCalibration;
 
 public sealed partial class App
 {
     private static readonly Logger Logger = LogManager.Setup().GetCurrentClassLogger();
+
+    static App()
+    {
+        var pythonHome = Path.Combine(AppContext.BaseDirectory, "PythonRuntime");
+        var pythonDllName = Assembly.GetExecutingAssembly()
+            .GetCustomAttributes<AssemblyMetadataAttribute>()
+            .SingleOrDefault(attribute => attribute.Key == "PythonDllName")
+            ?.Value ?? string.Empty;
+        var pythonDll = Path.Combine(pythonHome, pythonDllName);
+
+        Runtime.PythonDLL = pythonDll;
+        PythonEngine.PythonHome = pythonHome;
+
+        PythonEngine.Initialize();
+    }
 
     [STAThread]
     private static void Main(string[] args)
@@ -116,6 +134,7 @@ public sealed partial class App
         finally
         {
             LogManager.Shutdown();
+            PythonEngine.Shutdown();
             mutex.Dispose();
         }
     }

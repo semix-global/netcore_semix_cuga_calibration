@@ -27,7 +27,19 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double StepFrequency { get; set; }
 
     [ObservableProperty]
-    public partial bool IsOnlyElectrode4 { get; set; } = true;
+    public partial int AlgorithmInitialPoints { get; set; } = 10;
+
+    [ObservableProperty]
+    public partial double AlgorithmNoise { get; set; } = 1e-4;
+
+    [ObservableProperty]
+    public partial int AlgorithmEarlyStop { get; set; } = 25;
+
+    [ObservableProperty]
+    public partial int AlgorithmRandomState { get; set; } = 42;
+
+    [ObservableProperty]
+    public partial int AlgorithmRetryCount { get; set; } = 200;
 
     #region 方式一逐步遍历
 
@@ -188,6 +200,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         InterpolationCount,
         Frequencies,
         StepFrequency,
+        AlgorithmInitialPoints,
+        AlgorithmNoise,
+        AlgorithmEarlyStop,
+        AlgorithmRandomState,
+        AlgorithmRetryCount,
         ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         Electrode2OffsetFrequencyPeriodParam = new HtmlQuote(Electrode2OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
         Electrode3OffsetFrequencyPeriodParam = new HtmlQuote(Electrode3OffsetFrequencyPeriodParam.ToHtmlAnonymous()),
