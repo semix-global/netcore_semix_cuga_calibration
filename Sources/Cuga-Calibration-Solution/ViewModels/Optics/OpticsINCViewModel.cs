@@ -376,7 +376,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
                         CalibratingItem.Items = [.. ((IReadOnlyList<OpticsINCDTOItem>)[.. CalibratingItem.Items, itemItem]).OrderBy(t => t.INCMotorAbsoluteValue)];
 
-                        Logger.LogHtmlInformation($"{incMotorAbsoluteValue:0.###}mm", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        Logger.LogHtmlInformation($"{incMotorAbsoluteValue:0.###}°", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                         {
                             itemItem.PMTValue,
                             itemItem.RawImageFilePath,

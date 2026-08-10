@@ -62,7 +62,7 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
 
     public OpticsINCDTO()
     {
-        ScatterPlotControl.SetTitle("INC(Y: PMT Value - X: mm)");
+        ScatterPlotControl.SetTitle("INC(Y: PMT Value - X: °)");
     }
 
     private void RefreshPlot()
@@ -73,7 +73,7 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
 
             ScatterPlotControl.GetOrAddScatterLine(
                 0,
-                $"INC {(MaxItem is not null ? $"{MaxItem.INCMotorAbsoluteValue:0.###}" : "-")}(mm)",
+                $"INC {(MaxItem is not null ? $"{MaxItem.INCMotorAbsoluteValue:0.###}" : "-")}(°)",
                 [.. Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))],
                 Constants.Category10.GetColor(0));
         }
