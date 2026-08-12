@@ -32,17 +32,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     ];
 
     [RelayCommand]
-    private void ResetPhaseOptimizer()
+    private void ResetAlgorithmPhaseOptimizerState()
     {
         if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
         {
             var backupFilePath = Path.Combine(PhaseOptimizerStateFilePath, $"_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}");
             System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
 
-            DialogWindowProvider.ShowDialog($"Phase optimizer state file backup: {backupFilePath} Ok.");
+            DialogWindowProvider.ShowDialog($"Algorithm Phase optimizer state file backup: {backupFilePath} Ok.");
         }
 
-        DialogWindowProvider.ShowDialog("Phase optimizer state file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        DialogWindowProvider.ShowDialog("Algorithm Phase optimizer state file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
