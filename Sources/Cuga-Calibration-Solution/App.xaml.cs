@@ -43,6 +43,7 @@ public sealed partial class App
         PythonEngine.PythonHome = pythonHome;
 
         PythonEngine.Initialize();
+        _ = PythonEngine.BeginAllowThreads();
     }
 
     [STAThread]

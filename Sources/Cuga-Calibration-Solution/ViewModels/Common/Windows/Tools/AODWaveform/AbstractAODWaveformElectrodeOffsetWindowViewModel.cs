@@ -36,7 +36,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     {
         if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
         {
-            var backupFilePath = Path.Combine(PhaseOptimizerStateFilePath, $"_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}");
+            var backupFilePath = $"{PhaseOptimizerStateFilePath}_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}";
             System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
 
             DialogWindowProvider.ShowDialog($"Algorithm Phase optimizer state file backup: {backupFilePath} Ok.");
@@ -154,6 +154,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams.Single(tt => Equals(t.Frequency, tt.Frequency)).Weight * t.MeasurePower)
                         .Sum() / Cache.ElectrodeOffsetFrequencyWeightParams.Sum(t => t.Weight);
 
+                    Cache.Step0.Items = [.. Cache.Step0.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
+
                     if (++times > Cache.AlgorithmRetryTimes - 1)
                     {
                         isSuccess = false;
@@ -192,12 +194,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
 
+            Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
+            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
+            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
+            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
             Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
-            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
-            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
 
             Cache.Step1Items = [];
             foreach (var electrodeConfiguration in Cache.ElectrodeConfigurationResults)
