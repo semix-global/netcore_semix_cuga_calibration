@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Models.Geometries;
+using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -7,11 +7,11 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
+
+    [ObservableProperty]
     public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<Point> FrequencyInterpolationPoints { get; set; } = [];
-
-    [ObservableProperty]
-    public partial IReadOnlyList<Point> FrequencyMaximaPoints { get; set; } = [];
+    public partial double Cost { get; set; }
 }

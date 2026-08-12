@@ -15,14 +15,10 @@ public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
     [ObservableProperty]
     public partial double Amplitude { get; set; }
 
-    [ObservableProperty]
-    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
-
     public override object ToHtmlAnonymous() => new
     {
         Frequency,
         Amplitude,
-        OffsetFrequencyPeriodCoefficient,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }

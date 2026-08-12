@@ -299,7 +299,7 @@
                                                       hc:TitleElement.TitleWidth="200"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StepFrequency}" />
+                                                      Value="{Binding Cache.ElectrodeOffsetFrequencyUniformityParamStepFrequency}" />
                                     <StackPanel>
                                         <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"

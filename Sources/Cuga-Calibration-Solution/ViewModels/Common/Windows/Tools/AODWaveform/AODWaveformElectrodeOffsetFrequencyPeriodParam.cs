@@ -8,20 +8,8 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodParam : Obs
     [ObservableProperty]
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
-    [ObservableProperty]
-    public partial double StartOffsetFrequencyPeriodCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double StepOffsetFrequencyPeriodCoefficient { get; set; }
-
-    [ObservableProperty]
-    public partial double StopOffsetFrequencyPeriodCoefficient { get; set; }
-
     public object ToHtmlAnonymous() => new
     {
-        OpticsAODElectrodeEnum,
-        StartOffsetFrequencyPeriodCoefficient,
-        StepOffsetFrequencyPeriodCoefficient,
-        StopOffsetFrequencyPeriodCoefficient
+        OpticsAODElectrodeEnum
     };
 }

@@ -52,11 +52,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public Guid HtmlLogUniqueId { get; private set; }
 
-    protected abstract void GenerateFlatnessAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
-
-    protected abstract void GenerateScanAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
-
-    protected abstract void SetAODWaveformProfiles(TItem item, Guid htmlLogUniqueId);
+    protected abstract void GenerateAndSetFlatnessAODWaveform(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
     protected abstract void GenerateResultAODWaveform(TResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken);
 
@@ -239,14 +235,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }).ConfigureAwait(false);
     }
 
-    protected async Task UpdateMeasurePowerAsync(TItem item, bool isGenerateFlatnessAODWaveform, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected async Task UpdateMeasurePowerAsync(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         try
         {
-            if (isGenerateFlatnessAODWaveform) GenerateFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
-            else GenerateScanAODWaveform(item, htmlLogUniqueId, cancellationToken);
+            GenerateAndSetFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
-            SetAODWaveformProfiles(item, htmlLogUniqueId);
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
