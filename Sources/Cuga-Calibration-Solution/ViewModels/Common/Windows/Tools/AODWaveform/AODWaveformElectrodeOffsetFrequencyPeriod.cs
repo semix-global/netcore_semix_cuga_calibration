@@ -39,6 +39,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     public AODWaveformElectrodeOffsetFrequencyPeriod()
     {
+        PlotDataSource.Configure();
         PlotDataSource.ToggleLegend(false);
         PlotDataSource.SetTitle("Result (Y: mW - X: MHz)");
     }

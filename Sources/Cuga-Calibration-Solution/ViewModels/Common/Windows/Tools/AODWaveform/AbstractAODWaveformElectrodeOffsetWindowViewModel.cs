@@ -202,7 +202,12 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         Cache.AlgorithmEarlyStop,
                         Cache.AlgorithmRandomState);
 
-                    if (isDone) isSuccess = true;
+                    if (isDone)
+                    {
+                        isSuccess = true;
+
+                        break;
+                    }
 
                     var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
                     {
@@ -211,12 +216,14 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             .. Cache.ElectrodeOffsetFrequencyPeriodParams
                                 .Index()
                                 .Select(t => t.Index <= Cache.ElectrodeOffsetFrequencyPeriodParams.Count - 2
-                                    ? phases[t.Index] + t.Item.BoardCardOffsetFrequencyPeriodCoefficient
+                                    ? Generate.LinearRangeInt32(0, t.Index).Sum(tt=>phases[tt]) / (2d * Math.PI) + t.Item.BoardCardOffsetFrequencyPeriodCoefficient
                                     : 0d)
                         ],
                         FrequencyItems = [],
                         Score = 0d
                     };
+
+                    Cache.Step0.Items = [.. Cache.Step0.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
                     foreach (var frequency in Cache.Frequencies)
                     {
@@ -244,17 +251,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             Amplitude = Cache.DefaultAmplitude
                         };
 
-                        await UpdateMeasurePowerAsync(item, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                        await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                         aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                     }
 
-                    var vector = 10 * (Vector<double>.Build.Dense([.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).PointwiseLog10();
+                    var vector = 10d * (Vector<double>.Build.Dense([.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).PointwiseLog10();
                     aodWaveformElectrodeOffsetFrequencyPeriodItem.Score = vector.Average() - Cache.AlgorithmLambda * vector.StandardDeviation();
 
                     lastCost = -aodWaveformElectrodeOffsetFrequencyPeriodItem.Score;
-
-                    Cache.Step0.Items = [.. Cache.Step0.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
                     if (++times > Cache.AlgorithmRetryTimes - 1)
                     {
@@ -382,7 +387,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                                 Logger.LogHtmlInformation($"{item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId.LoggingHtml());
 
-                                await UpdateMeasurePowerAsync(item, aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, aodWaveformElectrodeOffsetFrequencyUniformityHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                                 aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems, item];
                             }

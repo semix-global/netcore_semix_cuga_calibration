@@ -235,7 +235,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }).ConfigureAwait(false);
     }
 
-    protected async Task UpdateMeasurePowerAsync(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected async Task UpdateMeasurePowerAsync(double totalMeasurePower, TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         try
         {
@@ -245,7 +245,17 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
-            var measurePower = LaserViewModel.GetOpticalMeasurePower();
+            var times = 0;
+            var measurePower = 0d;
+            while (true)
+            {
+                measurePower = LaserViewModel.GetOpticalMeasurePower();
+                if (0 < measurePower && measurePower <= totalMeasurePower) break;
+
+                Logger.LogWarning("Get Optical Measure Power Failed!");
+                if (++times > 20)ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over times 20!");
+            }
+
             item.MeasurePower = measurePower;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, new HtmlQuote(item.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
