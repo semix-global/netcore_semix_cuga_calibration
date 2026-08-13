@@ -141,6 +141,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 0;
+        const int detailLogInterval = 20;
 
         return await InvokeAsync(stepIndex, async () =>
         {
@@ -183,6 +184,58 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 .ToArray();
 
             var isSuccess = false;
+            Guid? detailLogUniqueId = null;
+            string? detailLogFileName = null;
+            var detailLogStartItemIndex = 0;
+
+            Guid StartDetailLog(int times)
+            {
+                var startTimes = times + 1;
+                var stopTimes = Math.Min(times + detailLogInterval, Cache.AlgorithmRetryTimes);
+                var electrodes = Cache.ElectrodeOffsetFrequencyPeriodParams.Select(t => t.OpticsAODElectrodeEnum).ToArray();
+                var currentDetailLogUniqueId = Guid.NewGuid();
+
+                detailLogUniqueId = currentDetailLogUniqueId;
+                detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", electrodes)}_{startTimes}-{stopTimes}";
+                detailLogStartItemIndex = Cache.Step0.Items.Count;
+
+                var title = $"{startTimes}-{stopTimes}: {string.Join(", ", electrodes)}";
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3,
+                    new HtmlComment($"See Above! Same Directory File Name: {detailLogFileName}({currentDetailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"{currentDetailLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentDetailLogUniqueId.LoggingHtml());
+
+                return currentDetailLogUniqueId;
+            }
+
+            void EndDetailLog()
+            {
+                if (detailLogUniqueId is null || detailLogFileName is null) return;
+
+                var currentDetailLogUniqueId = detailLogUniqueId.Value;
+                try
+                {
+                    var table = new HtmlTable(
+                    [
+                        .. Cache.Step0.Items
+                            .Skip(detailLogStartItemIndex)
+                            .Index()
+                            .Select(t => new
+                            {
+                                Index = detailLogStartItemIndex + t.Index + 1,
+                                Period2Pi = string.Join(", ", t.Item.OffsetFrequencyPeriodCoefficients.Select(tt => $"{tt:f6}")),
+                                Score = $"{t.Item.Score:0.###}"
+                            })
+                    ]);
+
+                    Logger.LogHtmlInformation("Step 1 Details", HtmlHeaderLevelEnum.Header2, table, currentDetailLogUniqueId.LoggingHtml());
+                }
+                finally
+                {
+                    Logger.LogHtmlInformation(currentDetailLogUniqueId.LoggedEndHtml(detailLogFileName));
+                    detailLogUniqueId = null;
+                    detailLogFileName = null;
+                }
+            }
 
             try
             {
@@ -192,7 +245,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    var currentDetailLogUniqueId = detailLogUniqueId ?? StartDetailLog(times);
+                    Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentDetailLogUniqueId.LoggingHtml());
 
                     var (phases, isDone) = AlgorithmSuggest(
                         lastCost,
@@ -229,7 +283,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, currentDetailLogUniqueId.LoggingHtml());
 
                         var item = new TItem
                         {
@@ -251,7 +305,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             Amplitude = Cache.DefaultAmplitude
                         };
 
-                        await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                        await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                         aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                     }
@@ -261,7 +315,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     lastCost = -aodWaveformElectrodeOffsetFrequencyPeriodItem.Score;
 
-                    if (++times > Cache.AlgorithmRetryTimes - 1)
+                    times++;
+                    if (times % detailLogInterval == 0) EndDetailLog();
+
+                    if (times > Cache.AlgorithmRetryTimes - 1)
                     {
                         isSuccess = false;
                         Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("More than the number of times."), HtmlLogUniqueId.LoggingHtml());
@@ -279,9 +336,22 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             }
             finally
             {
+                EndDetailLog();
+
                 var htmlBullet = new HtmlBullet(new
                 {
                     Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
+                    Step0Items = new HtmlTable(
+                    [
+                        .. Cache.Step0.Items
+                            .Index()
+                            .Select(t => new
+                            {
+                                Index = t.Index + 1,
+                                Period2Pi = string.Join(", ", t.Item.OffsetFrequencyPeriodCoefficients.Select(tt => $"{tt:f6}")),
+                                Score = $"{t.Item.Score:0.###}"
+                            })
+                    ]),
                     ElectrodeOffsetItems = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
