@@ -13,6 +13,7 @@
     <converters:CollectionEmptyToVisibilityConverter x:Key="CollectionEmptyToVisibilityConverter" />
     <converters:CollectionNotEmptyToVisibilityConverter x:Key="CollectionNotEmptyToVisibilityConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
+    <converters:ListToStringFormatConverter x:Key="ListToStringFormatConverter" />
 
     <valueConverters:NullToBoolConverter x:Key="NullToBoolConverter" />
     <valueConverters:NullToBoolConverter x:Key="NotNullToBoolConverter" IsInverted="True" />

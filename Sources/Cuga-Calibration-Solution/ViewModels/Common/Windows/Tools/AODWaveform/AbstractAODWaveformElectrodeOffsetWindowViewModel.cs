@@ -193,7 +193,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     var (phases, isDone) = AlgorithmSuggest(
                         lastCost,
-                        Cache.ElectrodeOffsetFrequencyPeriodParams.Count,
+                        Cache.ElectrodeOffsetFrequencyPeriodParams.Count - 1,
                         Cache.AlgorithmInitialPoints,
                         Cache.AlgorithmNoise,
                         Cache.AlgorithmEarlyStop,
@@ -207,7 +207,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         [
                             .. Cache.ElectrodeOffsetFrequencyPeriodParams
                                 .Index()
-                                .Select(t => phases[t.Index] + t.Item.BoardCardOffsetFrequencyPeriodCoefficient)
+                                .Select(t => t.Index <= Cache.ElectrodeOffsetFrequencyPeriodParams.Count - 2
+                                    ? phases[t.Index] + t.Item.BoardCardOffsetFrequencyPeriodCoefficient
+                                    : 0d)
                         ],
                         FrequencyItems = [],
                         Score = 0d
