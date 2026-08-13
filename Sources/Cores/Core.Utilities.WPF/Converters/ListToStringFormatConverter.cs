@@ -12,8 +12,8 @@ public sealed class ListToStringFormatConverter : AbstractSingletonConverterBase
         return value switch
         {
             null => string.Empty,
-            IEnumerable<IFormattable> temps when parameter is string format => string.Join(", ", temps.Select(t => t.ToString(format, null))),
-            IEnumerable<IFormattable> temps => string.Join(", ", temps),
+            IEnumerable<double> temps when parameter is string format => string.Join(", ", temps.Select(t => t.ToString(format, null))),
+            IEnumerable<double> temps => string.Join(", ", temps),
             _ => DependencyProperty.UnsetValue
         };
     }

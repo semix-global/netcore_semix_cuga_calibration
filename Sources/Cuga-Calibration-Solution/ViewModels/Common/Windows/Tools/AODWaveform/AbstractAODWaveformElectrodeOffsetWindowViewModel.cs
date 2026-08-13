@@ -153,6 +153,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
 
+            Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmNoise, 0d);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
@@ -171,6 +172,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     IsGenerateAODWaveformZero = false
                 })
             ];
+
+            if (Cache.ElectrodeOffsetFrequencyPeriodParams.Count == 1) return true;
 
             var linearSplines = Cache.ElectrodeOffsetFrequencyPeriodParams.Select(t => t.UniformityConfigurations.Count > 0
                     ? LinearSpline.InterpolateSorted(

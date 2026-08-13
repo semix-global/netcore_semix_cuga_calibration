@@ -21,16 +21,16 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial IReadOnlyList<double> Frequencies { get; set; } = [];
 
     [ObservableProperty]
-    public partial double TotalMeasurePower { get; set; }
+    public partial double TotalMeasurePower { get; set; } = 20d;
 
     [ObservableProperty]
-    public partial double AlgorithmLambda { get; set; }
+    public partial double AlgorithmLambda { get; set; } = 1d;
 
     [ObservableProperty]
     public partial int AlgorithmInitialPoints { get; set; } = 10;
 
     [ObservableProperty]
-    public partial double AlgorithmNoise { get; set; } = 1e-4;
+    public partial double AlgorithmNoise { get; set; } = 1e-3;
 
     [ObservableProperty]
     public partial int AlgorithmEarlyStop { get; set; } = 25;
