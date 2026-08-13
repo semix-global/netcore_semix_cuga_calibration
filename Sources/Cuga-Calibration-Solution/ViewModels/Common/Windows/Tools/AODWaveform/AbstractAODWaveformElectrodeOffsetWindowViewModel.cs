@@ -1,11 +1,18 @@
+using System.Collections;
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
+using MathNet.Numerics.Interpolation;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.Statistics;
+using Microsoft.Extensions.Logging;
+using MiniExcelLibs;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
@@ -21,7 +28,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", $"{GetType().Name}.pkl");
+    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", $"{GetType().Name}_{string.Join(',', Cache.ElectrodeOffsetFrequencyPeriodParams.Select(p => p.OpticsAODElectrodeEnum))}.pkl");
 
     public override IReadOnlyList<string> Steps { get; } =
     [
@@ -32,17 +39,102 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     ];
 
     [RelayCommand]
-    private void ResetAlgorithmPhaseOptimizerState()
+    private void ImportUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration)
     {
-        if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
+        try
         {
-            var backupFilePath = $"{PhaseOptimizerStateFilePath}_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}";
-            System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
+            var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+            if (dialog == false) return;
 
-            DialogWindowProvider.ShowDialog($"Algorithm Phase optimizer state file backup: {backupFilePath} Ok.");
+            generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
+
+            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+                .Where(t => t.Frequency > 0)
+                .ToArray();
+            if (values.Length <= 0)
+            {
+                values =
+                [
+                    .. MiniExcel.Query(filePath, useHeaderRow: true)
+                        .Cast<IDictionary<string, object>>()
+                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                        .Where(t => t.Frequency > 0)
+                ];
+            }
+
+            if (values.Length > 0)
+            {
+                generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+                Logger.LogInformation("Import Uniformity Configuration OK!");
+                DialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
+            }
+            else
+            {
+                Logger.LogWarning("Import Uniformity Configuration Failed! No data found.");
+                DialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Import Uniformity Configuration");
+            DialogWindowProvider.ShowDialog($"""
+                                             Import Uniformity Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
 
-        DialogWindowProvider.ShowDialog("Algorithm Phase optimizer state file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+    [RelayCommand]
+    private void AddUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration)
+    {
+        var configurationList = generateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
+        configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
+
+        generateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
+    }
+
+    [RelayCommand]
+    private void RemoveUniformityConfiguration((GenerateAODWaveformElectrodeConfiguration GenerateAODWaveformElectrodeConfiguration, IEnumerable? SelectItems)? valueTuple)
+    {
+        if (valueTuple?.SelectItems is null) return;
+
+        var configurationList = valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
+        foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
+
+        valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ResetAlgorithmPhaseOptimizerStateAsync(TResult result, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
+                {
+                    var backupFilePath = $"{PhaseOptimizerStateFilePath}_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}";
+                    System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
+
+                    DialogWindowProvider.ShowDialog($"Algorithm Phase optimizer state file backup: {backupFilePath} , Reset Ok.");
+                }
+                else DialogWindowProvider.ShowDialog("Reset Algorithm Phase optimizer state file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    DialogWindowProvider.ShowDialog($"{Name}:Reset Algorithm Phase optimizer state Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                DialogWindowProvider.ShowDialog($"""
+                                                 {Name}: Reset Algorithm Phase optimizer state Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "Reset Algorithm Phase optimizer state");
+            }
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -80,10 +172,18 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 })
             ];
 
+            var linearSplines = Cache.ElectrodeOffsetFrequencyPeriodParams.Select(t => t.UniformityConfigurations.Count > 0
+                    ? LinearSpline.InterpolateSorted(
+                        [.. t.UniformityConfigurations.Select(configuration => configuration.Frequency)],
+                        [.. t.UniformityConfigurations.Select(configuration => configuration.Coefficient)])
+                    : null)
+                .ToArray();
+
             var isSuccess = false;
 
             try
             {
+                double? lastCost = null;
                 var times = 0;
                 while (true)
                 {
@@ -92,44 +192,25 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
                     var (phases, isDone) = AlgorithmSuggest(
-                        null,
+                        lastCost,
                         Cache.ElectrodeOffsetFrequencyPeriodParams.Count,
                         Cache.AlgorithmInitialPoints,
                         Cache.AlgorithmNoise,
                         Cache.AlgorithmEarlyStop,
                         Cache.AlgorithmRandomState);
 
-                    if (isDone)
-                    {
-                        var item = Cache.Step0.Items.Maxima(t => t.Cost).First();
-
-                        foreach (var result in Cache.ElectrodeConfigurationResults)
-                        {
-                            result.OffsetFrequencyPeriodCoefficient = item.ElectrodeConfigurations
-                                .Single(tt => tt.OpticsAODElectrodeEnum == result.OpticsAODElectrodeEnum)
-                                .OffsetFrequencyPeriodCoefficient;
-                        }
-
-                        isSuccess = true;
-                    }
+                    if (isDone) isSuccess = true;
 
                     var aodWaveformElectrodeOffsetFrequencyPeriodItem = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
                     {
-                        ElectrodeConfigurations =
+                        OffsetFrequencyPeriodCoefficients =
                         [
                             .. Cache.ElectrodeOffsetFrequencyPeriodParams
                                 .Index()
-                                .Select(t => new GenerateAODWaveformElectrodeConfiguration
-                                {
-                                    OpticsAODElectrodeEnum = t.Item.OpticsAODElectrodeEnum,
-                                    OffsetFrequency = Cache.OffsetFrequency,
-                                    OffsetFrequencyPeriodCoefficient = phases[t.Index],
-                                    Amplitude = Cache.DefaultAmplitude,
-                                    IsGenerateAODWaveformZero = false
-                                })
+                                .Select(t => phases[t.Index] + t.Item.BoardCardOffsetFrequencyPeriodCoefficient)
                         ],
                         FrequencyItems = [],
-                        Cost = 0d
+                        Score = 0d
                     };
 
                     foreach (var frequency in Cache.Frequencies)
@@ -140,7 +221,20 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         var item = new TItem
                         {
-                            ElectrodeConfigurations = aodWaveformElectrodeOffsetFrequencyPeriodItem.ElectrodeConfigurations,
+                            ElectrodeConfigurations =
+                            [
+                                .. Cache.ElectrodeOffsetFrequencyPeriodParams
+                                    .Index()
+                                    .Select(t => new GenerateAODWaveformElectrodeConfiguration
+                                    {
+                                        OpticsAODElectrodeEnum = t.Item.OpticsAODElectrodeEnum,
+                                        OffsetFrequency = Cache.OffsetFrequency,
+                                        OffsetFrequencyPeriodCoefficient = aodWaveformElectrodeOffsetFrequencyPeriodItem.OffsetFrequencyPeriodCoefficients[t.Index],
+                                        Amplitude = linearSplines[t.Index]?.Interpolate(frequency) ?? Cache.DefaultAmplitude,
+                                        IsGenerateAODWaveformZero = false,
+                                        UniformityConfigurations = t.Item.UniformityConfigurations
+                                    })
+                            ],
                             Frequency = frequency,
                             Amplitude = Cache.DefaultAmplitude
                         };
@@ -150,9 +244,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                     }
 
-                    aodWaveformElectrodeOffsetFrequencyPeriodItem.Cost = aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems
-                        .Select(t => Cache.ElectrodeOffsetFrequencyWeightParams.Single(tt => Equals(t.Frequency, tt.Frequency)).Weight * t.MeasurePower)
-                        .Sum() / Cache.ElectrodeOffsetFrequencyWeightParams.Sum(t => t.Weight);
+                    var vector = 10 * (Vector<double>.Build.Dense([.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).PointwiseLog10();
+                    aodWaveformElectrodeOffsetFrequencyPeriodItem.Score = vector.Average() - Cache.AlgorithmLambda * vector.StandardDeviation();
+
+                    lastCost = -aodWaveformElectrodeOffsetFrequencyPeriodItem.Score;
 
                     Cache.Step0.Items = [.. Cache.Step0.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
@@ -163,6 +258,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                         break;
                     }
+                }
+
+                var bestScoreItem = Cache.Step0.Items.Maxima(t => t.Score).First();
+
+                foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
+                {
+                    result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
                 }
             }
             finally

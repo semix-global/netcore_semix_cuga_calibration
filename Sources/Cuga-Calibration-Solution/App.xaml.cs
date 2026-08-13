@@ -37,6 +37,9 @@ public sealed partial class App
             .GetCustomAttributes<AssemblyMetadataAttribute>()
             .SingleOrDefault(attribute => attribute.Key == "PythonDllName")
             ?.Value ?? string.Empty;
+#if NET48
+        pythonDllName = "python314.dll";
+#endif
         var pythonDll = Path.Combine(pythonHome, pythonDllName);
 
         Runtime.PythonDLL = pythonDll;

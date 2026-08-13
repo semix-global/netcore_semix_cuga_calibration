@@ -75,7 +75,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     }
 
     [RelayCommand]
-    protected virtual async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
+    protected async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
 
     [RelayCommand]
     private void RefreshMeasureMachinePosition()
@@ -112,7 +112,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 if (ex is OperationCanceledException)
                 {
-                    DialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    DialogWindowProvider.ShowDialog($"{Name}: Set AOD Waveform Configuration Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     return;
                 }
 

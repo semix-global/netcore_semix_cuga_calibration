@@ -52,7 +52,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
             foreach (var (index, item) in Items.Index())
             {
                 scatterLines[index].Update(
-                    $"{index + 1}",
+                    $"{index + 1}: {item.Score:0.###}",
                     [.. item.FrequencyItems.Select(t => new Point(t.Frequency, t.MeasurePower))], Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
             }
         }

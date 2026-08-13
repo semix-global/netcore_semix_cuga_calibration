@@ -1,4 +1,8 @@
 <Solution>
+
+    <Configurations>
+        <Platform Name="x64" />
+    </Configurations>
     
     <Folder Name="/00. Solution Items/">
         <File Path="Directory.Build.props" />
@@ -43,8 +47,10 @@
     </Folder>
 
     <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj">
+        <Platform Project="x64" />
     </Project>
     <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj">
+        <Platform Project="x64" />
     </Project>
     
 </Solution>

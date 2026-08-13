@@ -21,6 +21,12 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial IReadOnlyList<double> Frequencies { get; set; } = [];
 
     [ObservableProperty]
+    public partial double TotalMeasurePower { get; set; }
+
+    [ObservableProperty]
+    public partial double AlgorithmLambda { get; set; }
+
+    [ObservableProperty]
     public partial int AlgorithmInitialPoints { get; set; } = 10;
 
     [ObservableProperty]
@@ -34,19 +40,16 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
-    
-    [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam> ElectrodeOffsetFrequencyWeightParams { get; set; } = [];
+    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
     public partial double ElectrodeOffsetFrequencyUniformityParamStepFrequency { get; set; }
 
     [ObservableProperty]
     public partial int ElectrodeOffsetFrequencyUniformityParamChunkSize { get; set; }
-    
+
     [ObservableProperty]
     public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
 
@@ -70,24 +73,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurationResults { get; set; } = [];
 
     #endregion Result
-
-    partial void OnFrequenciesChanged(IReadOnlyList<double> value)
-    {
-        var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
-
-        ElectrodeOffsetFrequencyWeightParams =
-        [
-            .. value.Select(tt => new AODWaveformElectrodeOffsetFrequencyWeightParam
-            {
-                Frequency = tt,
-                Weight = oldElectrodeOffsetFrequencyWeightParams
-                    .FirstOrDefault(ttt => Equals(ttt.Frequency, tt))
-                    ?.Weight ?? 1d
-            })
-        ];
-
-        ElectrodeOffsetFrequencyWeightParams = [.. ElectrodeOffsetFrequencyWeightParams.DistinctBy(t => t.Frequency)];
-    }
 
     [RelayCommand]
     private void AddElectrodeOffsetFrequencyPeriodParam()
@@ -153,13 +138,14 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         OffsetFrequency,
         Frequencies,
+        TotalMeasurePower,
+        AlgorithmLambda,
         AlgorithmInitialPoints,
         AlgorithmNoise,
         AlgorithmEarlyStop,
         AlgorithmRandomState,
         AlgorithmRetryTimes,
         ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
-        ElectrodeOffsetFrequencyWeightParams = new HtmlTable([.. ElectrodeOffsetFrequencyWeightParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParamStepFrequency,
         ElectrodeOffsetFrequencyUniformityParamChunkSize,
         ElectrodeOffsetFrequencyUniformityParams = new HtmlTable([.. ElectrodeOffsetFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),

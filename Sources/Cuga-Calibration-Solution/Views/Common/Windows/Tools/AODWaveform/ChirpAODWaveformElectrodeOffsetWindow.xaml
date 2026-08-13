@@ -204,6 +204,12 @@
                                              hc:TitleElement.TitleWidth="200"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                              Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.TotalMeasurePower}" />
                                     <StackPanel>
                                         <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"
@@ -214,39 +220,61 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Algorithm Initial Points: "
+                                                <StackPanel>
+                                                    <TextBlock Text="Algorithm Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Lambda: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmLambda}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmInitialPoints}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Algorithm Noise: "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Noise: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmNoise}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Algorithm Early Stop: "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Early Stop: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmEarlyStop}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Algorithm Random State: "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Random State: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRandomState}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Algorithm Retry Times: "
+                                                <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
-                                                <Button Content="Reset Algorithm Phase Optimizer State"
-                                                        Command="{Binding ResetAlgorithmPhaseOptimizerStateCommand}"
-                                                        Style="{StaticResource ButtonDanger}" />
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Reset Algorithm Phase Optimizer State"
+                                                            Command="{Binding ResetAlgorithmPhaseOptimizerStateCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding ResetAlgorithmPhaseOptimizerStateCancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
+                                                </hc:UniformSpacingPanel>
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
@@ -264,41 +292,90 @@
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
+                                                          CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn IsReadOnly="True"
                                                                             Header="AOD Electrode"
                                                                             Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                                <StackPanel>
-                                                    <TextBlock Text="Electrode Offset Frequency Weight Params"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
-                                                <DataGrid MaxHeight="500"
-                                                          hc:DataGridAttach.ShowRowNumber="False"
-                                                          Style="{StaticResource DataGrid.Small}"
-                                                          HeadersVisibility="Column"
-                                                          RowHeaderWidth="60"
-                                                          AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyWeightParams}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn IsReadOnly="True"
-                                                                            Header="Frequency(MHz)"
-                                                                            Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                        <DataGridTemplateColumn Header="Weight">
+                                                        <DataGridTextColumn Header="Board Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTemplateColumn Header="Uniformity">
                                                             <DataGridTemplateColumn.CellTemplate>
                                                                 <DataTemplate>
-                                                                    <TextBlock Text="{Binding Weight}" />
+                                                                    <Grid Margin="2">
+                                                                        <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
+                                                                                      Content="Profiles"
+                                                                                      Margin="0,2"
+                                                                                      HorizontalAlignment="Left"
+                                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                                      Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                                        <Popup Width="800"
+                                                                               Height="800"
+                                                                               StaysOpen="False"
+                                                                               PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
+                                                                               Placement="Right"
+                                                                               AllowsTransparency="True"
+                                                                               PopupAnimation="Slide"
+                                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
+                                                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                                <Grid>
+                                                                                    <Grid.RowDefinitions>
+                                                                                        <RowDefinition Height="Auto" />
+                                                                                        <RowDefinition Height="*" />
+                                                                                    </Grid.RowDefinitions>
+                                                                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                                                        <Button Content="Import"
+                                                                                                Command="{Binding DataContext.ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                CommandParameter="{Binding}"
+                                                                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                                                Style="{StaticResource ButtonInfo}" />
+                                                                                        <Button Content="Add"
+                                                                                                Command="{Binding DataContext.AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                CommandParameter="{Binding}"
+                                                                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                                                Style="{StaticResource ButtonInfo}" />
+                                                                                        <Button Content="Delete"
+                                                                                                Command="{Binding DataContext.RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                                                Style="{StaticResource ButtonDanger}">
+                                                                                            <Button.CommandParameter>
+                                                                                                <MultiBinding Converter="{paramUI:RemoveUniformityConfigurationConvert}">
+                                                                                                    <Binding />
+                                                                                                    <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
+                                                                                                </MultiBinding>
+                                                                                            </Button.CommandParameter>
+                                                                                        </Button>
+                                                                                    </hc:UniformSpacingPanel>
+                                                                                    <Grid Grid.Row="1">
+                                                                                        <Grid.ColumnDefinitions>
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                            <ColumnDefinition Width="Auto" />
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                        </Grid.ColumnDefinitions>
+                                                                                        <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                                                  HeadersVisibility="All"
+                                                                                                  RowHeaderWidth="60"
+                                                                                                  AutoGenerateColumns="False"
+                                                                                                  ItemsSource="{Binding UniformityConfigurations}">
+                                                                                            <DataGrid.Columns>
+                                                                                                <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                                <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                                            </DataGrid.Columns>
+                                                                                        </DataGrid>
+                                                                                        <GridSplitter Grid.Column="1" Width="5" />
+                                                                                        <controls:ScatterMultiPlotControl Grid.Column="2"
+                                                                                                                          Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                                    </Grid>
+                                                                                </Grid>
+                                                                            </Border>
+                                                                        </Popup>
+                                                                    </Grid>
                                                                 </DataTemplate>
                                                             </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <hc:NumericUpDown Minimum="1" Value="{Binding Weight}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
                                                         </DataGridTemplateColumn>
                                                     </DataGrid.Columns>
                                                 </DataGrid>
@@ -678,8 +755,8 @@
                                       IsReadOnly="True"
                                       ItemsSource="{Binding Cache.Step0.Items}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Electrode Configurations" Binding="{Binding ElectrodeConfigurations}" />
-                                    <DataGridTextColumn Header="Cost(mW)" Binding="{Binding Cost, StringFormat='0:0.###'}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringConverter}}" />
+                                    <DataGridTextColumn Header="Score" Binding="{Binding Score, StringFormat='0:0.###'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
