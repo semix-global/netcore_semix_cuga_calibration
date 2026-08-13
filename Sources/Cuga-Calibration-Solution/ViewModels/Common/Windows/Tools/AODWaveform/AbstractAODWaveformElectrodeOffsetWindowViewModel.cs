@@ -39,14 +39,14 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     ];
 
     [RelayCommand]
-    private void ImportUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration)
+    private void ImportUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
     {
         try
         {
             var dialog = DialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            generateAODWaveformElectrodeConfiguration.UniformityConfigurations = [];
+            aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = [];
 
             var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
                 .Where(t => t.Frequency > 0)
@@ -64,7 +64,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             if (values.Length > 0)
             {
-                generateAODWaveformElectrodeConfiguration.UniformityConfigurations = values;
+                aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = values;
                 Logger.LogInformation("Import Uniformity Configuration OK!");
                 DialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
             }
@@ -85,23 +85,23 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand]
-    private void AddUniformityConfiguration(GenerateAODWaveformElectrodeConfiguration generateAODWaveformElectrodeConfiguration)
+    private void AddUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
     {
-        var configurationList = generateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
+        var configurationList = aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
         configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
 
-        generateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
+        aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
     }
 
     [RelayCommand]
-    private void RemoveUniformityConfiguration((GenerateAODWaveformElectrodeConfiguration GenerateAODWaveformElectrodeConfiguration, IEnumerable? SelectItems)? valueTuple)
+    private void RemoveUniformityConfiguration((AODWaveformElectrodeOffsetFrequencyPeriodParam AODWaveformElectrodeOffsetFrequencyPeriodParam, IEnumerable? SelectItems)? valueTuple)
     {
         if (valueTuple?.SelectItems is null) return;
 
-        var configurationList = valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations.ToList();
+        var configurationList = valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
         foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
 
-        valueTuple.Value.GenerateAODWaveformElectrodeConfiguration.UniformityConfigurations = configurationList;
+        valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]

@@ -1,9 +1,11 @@
+using System.Collections;
 using CommunityToolkit.Diagnostics;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
+using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.Views.Common.Windows.Tools.AODWaveform;
 
@@ -28,6 +30,21 @@ public sealed class ChirpAODWaveformElectrodeOffsetConvert : MarkupExtension, IV
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => ThrowHelper.ThrowNotSupportedException<object>();
+
+    public override object ProvideValue(IServiceProvider serviceProvider) => this;
+}
+
+public sealed class RemoveAODWaveformElectrodeOffsetFrequencyPeriodParamUniformityConfigurationConvert : MarkupExtension, IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        return values is [AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam, IEnumerable selectItems]
+            ? (aodWaveformElectrodeOffsetFrequencyPeriodParam, selectItems)
+            : ThrowHelper.ThrowNotSupportedException<object>();
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => ThrowHelper.ThrowNotSupportedException<object[]>();
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }

@@ -340,7 +340,7 @@
                                                                                                 hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                                                                 Style="{StaticResource ButtonDanger}">
                                                                                             <Button.CommandParameter>
-                                                                                                <MultiBinding Converter="{paramUI:RemoveUniformityConfigurationConvert}">
+                                                                                                <MultiBinding Converter="{aodWaveform:RemoveAODWaveformElectrodeOffsetFrequencyPeriodParamUniformityConfigurationConvert}">
                                                                                                     <Binding />
                                                                                                     <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
                                                                                                 </MultiBinding>
@@ -755,8 +755,10 @@
                                       IsReadOnly="True"
                                       ItemsSource="{Binding Cache.Step0.Items}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringConverter}}" />
-                                    <DataGridTextColumn Header="Score" Binding="{Binding Score, StringFormat='0:0.###'}" />
+                                    <DataGridTextColumn Width="500"
+                                                        Header="Period(2pi)"
+                                                        Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringConverter}}" />
+                                    <DataGridTextColumn Header="Score" Binding="{Binding Score, StringFormat='0.###'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
