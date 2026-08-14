@@ -6,11 +6,17 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    public partial IReadOnlyList<double> OffsetFrequencyPeriodCoefficients { get; set; } = [];
+    public partial double[] OffsetFrequencyPeriodCoefficients { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];
+    public partial TItem[] FrequencyItems { get; set; } = [];
 
     [ObservableProperty]
     public partial double Score { get; set; }
+
+    public object ToHtmlAnonymous() => new
+    {
+        OffsetFrequencyPeriodCoefficients,
+        Score
+    };
 }

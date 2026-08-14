@@ -48,7 +48,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public abstract string Name { get; }
 
-    public abstract IReadOnlyList<string> Steps { get; }
+    public abstract string[] Steps { get; }
 
     public Guid HtmlLogUniqueId { get; private set; }
 
@@ -128,7 +128,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> StepSecondLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(Steps.Count - 2, () =>
+        return await InvokeAsync(Steps.Length - 2, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
 
@@ -146,7 +146,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> StepFirstLastAsync(bool isNotSilent, CancellationToken cancellationToken)
     {
-        return await InvokeAsync(Steps.Count - 1, () =>
+        return await InvokeAsync(Steps.Length - 1, () =>
         {
             Guard.IsNotEmpty(Cache.Results);
 
@@ -187,7 +187,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         return await Task.Run(async () =>
         {
             var isInitHtmlLog = isNotSilent || stepIndex == 0;
-            var isEndHtml = isNotSilent || stepIndex == Steps.Count - 1;
+            var isEndHtml = isNotSilent || stepIndex == Steps.Length - 1;
 
             HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
 
@@ -239,6 +239,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
+            const int totalMeasurePowerCount = 20;
+
             GenerateAndSetFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
@@ -246,14 +248,14 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
 
             var times = 0;
-            var measurePower = 0d;
+            double measurePower;
             while (true)
             {
                 measurePower = LaserViewModel.GetOpticalMeasurePower();
                 if (0 < measurePower && measurePower <= totalMeasurePower) break;
 
-                Logger.LogWarning("Get Optical Measure Power Failed!");
-                if (++times > 20)ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over times 20!");
+                Logger.LogWarning("Get Optical Measure Power Failed, Retrying...");
+                if (++times > totalMeasurePowerCount) ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over Max Retry Count");
             }
 
             item.MeasurePower = measurePower;

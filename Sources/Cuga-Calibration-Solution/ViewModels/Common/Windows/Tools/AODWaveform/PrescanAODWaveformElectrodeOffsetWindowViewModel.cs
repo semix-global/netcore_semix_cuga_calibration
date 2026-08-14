@@ -70,7 +70,7 @@ public sealed class PrescanAODWaveformElectrodeOffsetWindowViewModel :
 
         var aodWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(result.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
 
-        result.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult);
+        result.PrescanAODWaveformProfiles = [.. AODWaveformProfileFactory.CreatePrescanList(aodWaveformResult)];
         result.PrescanAODWaveformResultFilePath = aodWaveformResult.FilePath;
 
         if (htmlLogUniqueId == Guid.Empty) return;

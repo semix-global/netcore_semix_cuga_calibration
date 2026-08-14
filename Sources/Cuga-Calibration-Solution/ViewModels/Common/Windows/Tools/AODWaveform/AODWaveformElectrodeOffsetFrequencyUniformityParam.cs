@@ -9,13 +9,13 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityParam :
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    public partial double StartAmplitude { get; set; } = 1;
+    public partial double StartAmplitude { get; set; } = 0.1;
 
     [ObservableProperty]
-    public partial double StepAmplitude { get; set; } = 1;
+    public partial double StepAmplitude { get; set; } = 0.1;
 
     [ObservableProperty]
-    public partial double StopAmplitude { get; set; } = 1;
+    public partial double StopAmplitude { get; set; } = 1d;
 
     public object ToHtmlAnonymous() => new
     {

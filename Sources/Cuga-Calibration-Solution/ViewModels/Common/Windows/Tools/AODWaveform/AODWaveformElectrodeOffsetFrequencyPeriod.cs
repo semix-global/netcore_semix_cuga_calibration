@@ -14,15 +14,15 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> Items { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] Items { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> newValue)
+    partial void OnItemsChanged(AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] oldValue, AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -48,13 +48,13 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
     {
         try
         {
-            var scatterLines = PlotDataSource.GetOrAddScatterLines(Items.Count);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(Items.Length);
 
             foreach (var (index, item) in Items.Index())
             {
                 scatterLines[index].Update(
                     $"{index + 1}: {item.Score:0.###}",
-                    [.. item.FrequencyItems.Select(t => new Point(t.Frequency, t.MeasurePower))], Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+                    [.. item.FrequencyItems.Select(t => new Point(t.Frequency, t.MeasurePower))], Constants.Turbo.GetColor(index, new Range(0, Items.Length - 1)));
             }
         }
         finally

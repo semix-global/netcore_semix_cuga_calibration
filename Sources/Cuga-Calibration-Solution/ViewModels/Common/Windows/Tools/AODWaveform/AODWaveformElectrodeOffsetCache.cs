@@ -5,11 +5,6 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.Collections;
-using MiniExcelLibs;
-using Net.Utilities.Models.Geometries;
-using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
-using Net.Utilities.WPF.MVVM.Providers;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -23,7 +18,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double OffsetFrequency { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<double> Frequencies { get; set; } = [];
+    public partial double[] Frequencies { get; set; } = [];
 
     [ObservableProperty]
     public partial double TotalMeasurePower { get; set; } = 20d;
@@ -47,7 +42,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial int AlgorithmRetryTimes { get; set; } = 200;
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
     public partial double ElectrodeOffsetFrequencyUniformityParamStepFrequency { get; set; }
@@ -56,26 +51,24 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial int ElectrodeOffsetFrequencyUniformityParamChunkSize { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequencyUniformityParam[] ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
 
     #endregion Param
 
     #region Items
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
     public partial AODWaveformElectrodeOffsetFrequencyPeriod<TItem> Step0 { get; set; } = new();
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> Step1Items { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequencyUniformity<TItem>[] Step1Items { get; set; } = [];
 
     #endregion Items
 
     #region Result
 
     [ObservableProperty]
-    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurationResults { get; set; } = [];
+    public partial GenerateAODWaveformElectrodeConfiguration[] ElectrodeConfigurationResults { get; set; } = [];
 
     #endregion Result
 
@@ -84,18 +77,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        if (ElectrodeOffsetFrequencyPeriodParams.Count > electrodeEnums.Length) return;
+        if (ElectrodeOffsetFrequencyPeriodParams.Length > electrodeEnums.Length) return;
 
-        var electrodeOffsetParamList = ElectrodeOffsetFrequencyPeriodParams.ToList();
-        electrodeOffsetParamList.Add(new AODWaveformElectrodeOffsetFrequencyPeriodParam());
+        ElectrodeOffsetFrequencyPeriodParams = [.. ElectrodeOffsetFrequencyPeriodParams, new AODWaveformElectrodeOffsetFrequencyPeriodParam()];
 
-        foreach (var (index, item) in electrodeOffsetParamList
-                     .Select((item, index) => (index, t: item)))
-        {
-            item.OpticsAODElectrodeEnum = electrodeEnums[index];
-        }
-
-        ElectrodeOffsetFrequencyPeriodParams = electrodeOffsetParamList;
+        foreach (var (index, item) in ElectrodeOffsetFrequencyPeriodParams.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
     }
 
     [RelayCommand]
@@ -106,6 +92,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         var electrodeOffsetParamList = ElectrodeOffsetFrequencyPeriodParams.ToList();
+
         foreach (AODWaveformElectrodeOffsetFrequencyPeriodParam selectItem in selectItems)
         {
             if (selectItem.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode1) continue;
@@ -113,79 +100,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
             electrodeOffsetParamList.Remove(selectItem);
         }
 
-        foreach (var (index, item) in electrodeOffsetParamList
-                     .Select((item, index) => (index, t: item)))
-        {
-            item.OpticsAODElectrodeEnum = electrodeEnums[index];
-        }
+        foreach (var (index, item) in electrodeOffsetParamList.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
 
-        ElectrodeOffsetFrequencyPeriodParams = electrodeOffsetParamList;
+        ElectrodeOffsetFrequencyPeriodParams = [.. electrodeOffsetParamList];
     }
 
-    [RelayCommand]
-    private void ImportUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
-    {
-        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
-
-        try
-        {
-            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
-            if (dialog == false) return;
-
-            aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = [];
-
-            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
-                .Where(t => t.Frequency > 0)
-                .ToArray();
-            if (values.Length <= 0)
-            {
-                values =
-                [
-                    .. MiniExcel.Query(filePath, useHeaderRow: true)
-                        .Cast<IDictionary<string, object>>()
-                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
-                        .Where(t => t.Frequency > 0)
-                ];
-            }
-
-            if (values.Length > 0)
-            {
-                aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = values;
-                dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
-            }
-            else
-            {
-                dialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            }
-        }
-        catch (Exception ex)
-        {
-            dialogWindowProvider.ShowDialog($"""
-                                             Import Uniformity Configuration Failed!
-                                             {ex.Message}
-                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-        }
-    }
-
-    [RelayCommand]
-    private void AddUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
-    {
-        var configurationList = aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
-        configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
-
-        aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
-    }
-
-    [RelayCommand]
-    private void RemoveUniformityConfiguration((AODWaveformElectrodeOffsetFrequencyPeriodParam AODWaveformElectrodeOffsetFrequencyPeriodParam, IEnumerable? SelectItems)? valueTuple)
-    {
-        if (valueTuple?.SelectItems is null) return;
-
-        var configurationList = valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
-        foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
-
-        valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
-    }
 
     [RelayCommand]
     private void AddElectrodeOffsetFrequencyUniformityParam() => ElectrodeOffsetFrequencyUniformityParams = [.. ElectrodeOffsetFrequencyUniformityParams, new AODWaveformElectrodeOffsetFrequencyUniformityParam()];
@@ -196,12 +115,10 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         if (selectItems is null) return;
 
         var electrodeFrequencyUniformityParamList = ElectrodeOffsetFrequencyUniformityParams.ToList();
-        foreach (AODWaveformElectrodeOffsetFrequencyUniformityParam selectItem in selectItems)
-        {
-            electrodeFrequencyUniformityParamList.Remove(selectItem);
-        }
 
-        ElectrodeOffsetFrequencyUniformityParams = electrodeFrequencyUniformityParamList;
+        foreach (AODWaveformElectrodeOffsetFrequencyUniformityParam selectItem in selectItems) electrodeFrequencyUniformityParamList.Remove(selectItem);
+
+        ElectrodeOffsetFrequencyUniformityParams = [.. electrodeFrequencyUniformityParamList];
     }
 
     public override object ToHtmlAnonymous() => new

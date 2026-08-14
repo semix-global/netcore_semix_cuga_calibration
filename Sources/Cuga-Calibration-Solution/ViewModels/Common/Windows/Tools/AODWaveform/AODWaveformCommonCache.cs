@@ -25,12 +25,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     public partial GenerateChirpAODWaveformParam FlatnessGenerateChirpAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    public partial GeneratePrescanAODWaveformParam ScanGeneratePrescanAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
-    public partial GenerateChirpAODWaveformParam ScanGenerateChirpAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
     public partial Point MeasureMaxPowerMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
@@ -39,7 +33,7 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     #region Result
 
     [ObservableProperty]
-    public partial IReadOnlyList<TResult> Results { get; set; } = [];
+    public partial TResult[] Results { get; set; } = [];
 
     #endregion Result
 
@@ -52,9 +46,10 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
         if (selectItems is null) return;
 
         var resultList = Results.ToList();
+
         foreach (TResult selectItem in selectItems) resultList.Remove(selectItem);
 
-        Results = resultList;
+        Results = [.. resultList];
     }
 
     public virtual object ToHtmlAnonymous() => new

@@ -6,7 +6,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityItem<TI
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];
+    public partial TItem[] FrequencyItems { get; set; } = [];
 
     [ObservableProperty]
     public partial TItem? MaxItem { get; set; }

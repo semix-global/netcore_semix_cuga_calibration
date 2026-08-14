@@ -317,26 +317,18 @@
                                                                                     </Grid.RowDefinitions>
                                                                                     <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                                         <Button Content="Import"
-                                                                                                Command="{Binding DataContext.Cache.ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                                                CommandParameter="{Binding}"
+                                                                                                Command="{Binding ImportUniformityConfigurationCommand}"
                                                                                                 hc:IconElement.Geometry="{StaticResource ImportGeometry}"
                                                                                                 Style="{StaticResource ButtonInfo}" />
                                                                                         <Button Content="Add"
-                                                                                                Command="{Binding DataContext.Cache.AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                                                CommandParameter="{Binding}"
+                                                                                                Command="{Binding AddUniformityConfigurationCommand}"
                                                                                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                                                                 Style="{StaticResource ButtonInfo}" />
                                                                                         <Button Content="Delete"
-                                                                                                Command="{Binding DataContext.Cache.RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                Command="{Binding RemoveUniformityConfigurationCommand}"
+                                                                                                CommandParameter="{Binding SelectedItems, ElementName=DataGridUniformityConfigurations}"
                                                                                                 hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                                                Style="{StaticResource ButtonDanger}">
-                                                                                            <Button.CommandParameter>
-                                                                                                <MultiBinding Converter="{aodWaveform:RemoveAODWaveformElectrodeOffsetFrequencyPeriodParamUniformityConfigurationConvert}">
-                                                                                                    <Binding />
-                                                                                                    <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
-                                                                                                </MultiBinding>
-                                                                                            </Button.CommandParameter>
-                                                                                        </Button>
+                                                                                                Style="{StaticResource ButtonDanger}" />
                                                                                     </hc:UniformSpacingPanel>
                                                                                     <Grid Grid.Row="2">
                                                                                         <Grid.ColumnDefinitions>
@@ -776,7 +768,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                <ContentControl Grid.Row="1" Content="{Binding PlotDataSource, Mode=OneWay}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

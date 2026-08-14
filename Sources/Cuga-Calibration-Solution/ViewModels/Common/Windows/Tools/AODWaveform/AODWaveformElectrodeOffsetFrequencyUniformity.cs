@@ -4,11 +4,13 @@ using Core.Models.Enums.Optics;
 using Humanizer;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
+using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -18,26 +20,20 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
-    public partial IReadOnlyList<OpticsAODElectrodeEnum> Electrodes { get; set; } = [];
+    public partial OpticsAODElectrodeEnum[] Electrodes { get; set; } = [];
 
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> Items { get; set; } = [];
-
-#pragma warning disable IDE0079
-#pragma warning disable CS0657
+    public partial AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>[] Items { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
-
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> newValue)
+    partial void OnItemsChanged(AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>[] oldValue, AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>[] newValue)
     {
-        foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
         foreach (var item in newValue)
         {
@@ -54,50 +50,48 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
 
     public AODWaveformElectrodeOffsetFrequencyUniformity()
     {
-        ScatterPlotControl.Configure(totalPlotCount: 3);
-        ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
-        ScatterPlotControl.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
-        ScatterPlotControl.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
+        PlotDataSource.Configure(totalPlotCount: 3);
+        PlotDataSource.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
+        PlotDataSource.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
+        PlotDataSource.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var isNeedRefreshes = new bool[Items.Count];
+            var isNeedRefreshes = Generate.Repeat(Items.Length, false);
+
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(0, Items.Length);
+
             foreach (var (index, item) in Items.Index())
             {
-                if (item.FrequencyItems.Count <= 0) continue;
-
-                ScatterPlotControl.GetOrAddScatterLine(
-                    0,
+                scatterLines[index].Update(
                     $"{item.FrequencyItems[0].Frequency}(MHz)",
                     [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
-                    index,
-                    new Range(0, Items.Count - 1));
+                    Constants.Turbo.GetColor(index, new Range(0, Items.Length - 1)));
+
+                if (item.FrequencyItems.Length <= 0) continue;
 
                 item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).First();
-
                 isNeedRefreshes[index] = true;
             }
 
-            if (isNeedRefreshes.All(b => b))
-            {
-                ScatterPlotControl.GetOrAddScatterLine(
-                    1,
-                    "Amplitude",
-                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).Amplitude))],
-                    Colors.Blue);
-                ScatterPlotControl.GetOrAddScatterLine(
-                    2,
-                    "Measure Power",
-                    [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
-                    Colors.Blue);
-            }
+            scatterLines = PlotDataSource.GetOrAddScatterLines(1, isNeedRefreshes.All(b => b) ? 1 : 0);
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                "Amplitude",
+                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).Amplitude))],
+                Colors.Blue);
+
+            scatterLines = PlotDataSource.GetOrAddScatterLines(2, isNeedRefreshes.All(b => b) ? 1 : 0);
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                "Measure Power",
+                [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
+                Colors.Blue);
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 }

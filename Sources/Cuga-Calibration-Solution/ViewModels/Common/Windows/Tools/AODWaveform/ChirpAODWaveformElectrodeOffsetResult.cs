@@ -13,5 +13,5 @@ public sealed partial class ChirpAODWaveformElectrodeOffsetResult : AODWaveformE
     public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
+    public partial ChirpAODWaveformProfile[] ChirpAODWaveformProfiles { get; set; } = [];
 }
