@@ -56,6 +56,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRandomState, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);
+
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);

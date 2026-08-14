@@ -240,7 +240,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         try
         {
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
-            Guard.IsGreaterThan(Cache.TotalMeasurePowerCount, 0);
+            Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
             GenerateAndSetFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
@@ -256,7 +256,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
                 if (0 < measurePower && measurePower <= Cache.TotalMeasurePower) break;
 
                 Logger.LogWarning("Get Optical Measure Power Failed, Retrying...");
-                if (++times > Cache.TotalMeasurePowerCount) ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over Max Retry Count");
+                if (++times > Cache.MeasurePowerTimes - 1) ThrowHelper.ThrowNotSupportedException($"Get Optical Measure Power Failed, Over Max Retry Count({Cache.MeasurePowerTimes})");
             }
 
             item.MeasurePower = measurePower;

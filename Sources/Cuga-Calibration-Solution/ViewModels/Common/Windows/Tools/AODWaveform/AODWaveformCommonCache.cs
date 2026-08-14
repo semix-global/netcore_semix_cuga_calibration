@@ -19,12 +19,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     public partial double DefaultAmplitude { get; set; } = 1;
 
     [ObservableProperty]
-    public partial double TotalMeasurePower { get; set; } = 20d;
-
-    [ObservableProperty]
-    public partial int TotalMeasurePowerCount { get; set; } = 20;
-
-    [ObservableProperty]
     public partial GeneratePrescanAODWaveformParam FlatnessGeneratePrescanAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
@@ -35,6 +29,12 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
 
     [ObservableProperty]
     public partial double WaitTime { get; set; } = 5;
+
+    [ObservableProperty]
+    public partial double TotalMeasurePower { get; set; } = 20d;
+
+    [ObservableProperty]
+    public partial int MeasurePowerTimes { get; set; } = 20;
 
     #region Result
 
@@ -62,9 +62,9 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     {
         ProductivityInformation,
         DefaultAmplitude,
-        TotalMeasurePower,
-        TotalMeasurePowerCount,
         MeasureMaxPowerMachinePosition,
-        WaitTime
+        WaitTime,
+        TotalMeasurePower,
+        MeasurePowerTimes
     };
 }

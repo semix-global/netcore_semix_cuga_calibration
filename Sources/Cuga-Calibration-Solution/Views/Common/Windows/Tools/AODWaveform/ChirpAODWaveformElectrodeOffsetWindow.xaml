@@ -184,6 +184,18 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.TotalMeasurePower}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Retry Times: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerTimes}" />
                                     <StackPanel>
                                         <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}"
                                                    HorizontalAlignment="Center"
@@ -204,18 +216,6 @@
                                              hc:TitleElement.TitleWidth="200"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                              Style="{StaticResource TextBoxExtend}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power(mW): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.TotalMeasurePower}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power Retry Count: "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.TotalMeasurePowerCount}" />
                                     <StackPanel>
                                         <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"
