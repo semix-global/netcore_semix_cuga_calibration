@@ -507,6 +507,7 @@
                                                 </hc:UniformSpacingPanel>
                                                 <ListBox x:Name="ResultTabControl"
                                                          SelectionMode="Extended"
+                                                         VirtualizingPanel.ScrollUnit="Pixel"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetResult}">
