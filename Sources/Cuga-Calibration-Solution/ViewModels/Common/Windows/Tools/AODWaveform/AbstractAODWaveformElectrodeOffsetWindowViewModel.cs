@@ -25,7 +25,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     private double? _lastCost;
 
-    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", "optimizer_state.json");
+    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", $"{GetType().Name}_optimizer_state.json");
 
     public override string[] Steps { get; } =
     [
