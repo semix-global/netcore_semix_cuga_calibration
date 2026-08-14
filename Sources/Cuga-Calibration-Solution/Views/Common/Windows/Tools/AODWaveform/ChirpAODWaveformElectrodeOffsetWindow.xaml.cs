@@ -33,18 +33,3 @@ public sealed class ChirpAODWaveformElectrodeOffsetConvert : MarkupExtension, IV
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }
-
-public sealed class RemoveAODWaveformElectrodeOffsetFrequencyPeriodParamUniformityConfigurationConvert : MarkupExtension, IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        return values is [AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam, IEnumerable selectItems]
-            ? (aodWaveformElectrodeOffsetFrequencyPeriodParam, selectItems)
-            : ThrowHelper.ThrowNotSupportedException<object>();
-    }
-
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        => ThrowHelper.ThrowNotSupportedException<object[]>();
-
-    public override object ProvideValue(IServiceProvider serviceProvider) => this;
-}

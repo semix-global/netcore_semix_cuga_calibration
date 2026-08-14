@@ -826,7 +826,7 @@
                                                                       RowHeaderWidth="60"
                                                                       AutoGenerateColumns="False"
                                                                       IsReadOnly="True"
-                                                                      ItemsSource="{Binding FrequencyItems}">
+                                                                      ItemsSource="{Binding SelectedItem.FrequencyItems, RelativeSource={RelativeSource AncestorType=TabControl}}">
                                                                 <DataGrid.Columns>
                                                                     <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
                                                                     <DataGridTextColumn Header="Amplitude(AMP)" Binding="{Binding Amplitude, StringFormat='0.###'}" />
