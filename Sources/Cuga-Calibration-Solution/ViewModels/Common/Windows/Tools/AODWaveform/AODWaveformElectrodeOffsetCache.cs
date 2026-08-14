@@ -21,9 +21,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double[] Frequencies { get; set; } = [];
 
     [ObservableProperty]
-    public partial double TotalMeasurePower { get; set; } = 20d;
-
-    [ObservableProperty]
     public partial double AlgorithmLambda { get; set; } = 1d;
 
     [ObservableProperty]
@@ -40,6 +37,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
+
+    [ObservableProperty]
+    public partial int DetailLogInterval { get; set; } = 20;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
@@ -125,13 +125,13 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         OffsetFrequency,
         Frequencies,
-        TotalMeasurePower,
         AlgorithmLambda,
         AlgorithmInitialPoints,
         AlgorithmNoise,
         AlgorithmEarlyStop,
         AlgorithmRandomState,
         AlgorithmRetryTimes,
+        DetailLogInterval,
         ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParamStepFrequency,
         ElectrodeOffsetFrequencyUniformityParamChunkSize,

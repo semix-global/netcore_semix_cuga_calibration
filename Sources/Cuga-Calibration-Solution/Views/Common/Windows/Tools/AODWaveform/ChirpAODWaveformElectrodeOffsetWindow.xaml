@@ -210,6 +210,12 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.TotalMeasurePower}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power Retry Count: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.TotalMeasurePowerCount}" />
                                     <StackPanel>
                                         <TextBlock Text="Step 1 Params"
                                                    HorizontalAlignment="Center"
@@ -260,6 +266,12 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.DetailLogInterval}" />
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Params"
                                                                HorizontalAlignment="Center"

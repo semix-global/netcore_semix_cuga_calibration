@@ -39,7 +39,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 0;
-        const int detailLogInterval = 20;
 
         return await InvokeAsync(stepIndex, async () =>
         {
@@ -57,6 +56,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRandomState, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);
+            Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
 
@@ -174,7 +174,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                     Amplitude = Cache.DefaultAmplitude
                                 };
 
-                                await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                await UpdateMeasurePowerAsync(item, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                                 aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                             }
@@ -201,7 +201,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     }
                     finally
                     {
-                        if (times % detailLogInterval == 0) EndDetailLog();
+                        if (times % Cache.DetailLogInterval == 0) EndDetailLog();
                     }
                 }
 
@@ -234,7 +234,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guid StartDetailLog(int times)
             {
                 var startTimes = times + 1;
-                var stopTimes = Math.Min(times + detailLogInterval, Cache.AlgorithmRetryTimes);
+                var stopTimes = Math.Min(times + Cache.DetailLogInterval, Cache.AlgorithmRetryTimes);
                 var currentDetailLogUniqueId = Guid.NewGuid();
 
                 detailLogUniqueId = currentDetailLogUniqueId;
@@ -366,7 +366,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                                 Logger.LogHtmlInformation($"{item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header5, detailLogUniqueId.LoggingHtml());
 
-                                await UpdateMeasurePowerAsync(Cache.TotalMeasurePower, item, detailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                await UpdateMeasurePowerAsync(item, detailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                                 aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems, item];
                             }

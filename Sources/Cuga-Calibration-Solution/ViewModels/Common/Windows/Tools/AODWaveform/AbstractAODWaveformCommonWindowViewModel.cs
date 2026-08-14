@@ -235,11 +235,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }).ConfigureAwait(false);
     }
 
-    protected async Task UpdateMeasurePowerAsync(double totalMeasurePower, TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected async Task UpdateMeasurePowerAsync(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         try
         {
-            const int totalMeasurePowerCount = 20;
+            Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
+            Guard.IsGreaterThan(Cache.TotalMeasurePowerCount, 0);
 
             GenerateAndSetFlatnessAODWaveform(item, htmlLogUniqueId, cancellationToken);
 
@@ -252,10 +253,10 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             while (true)
             {
                 measurePower = LaserViewModel.GetOpticalMeasurePower();
-                if (0 < measurePower && measurePower <= totalMeasurePower) break;
+                if (0 < measurePower && measurePower <= Cache.TotalMeasurePower) break;
 
                 Logger.LogWarning("Get Optical Measure Power Failed, Retrying...");
-                if (++times > totalMeasurePowerCount) ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over Max Retry Count");
+                if (++times > Cache.TotalMeasurePowerCount) ThrowHelper.ThrowNotSupportedException("Get Optical Measure Power Failed, Over Max Retry Count");
             }
 
             item.MeasurePower = measurePower;
