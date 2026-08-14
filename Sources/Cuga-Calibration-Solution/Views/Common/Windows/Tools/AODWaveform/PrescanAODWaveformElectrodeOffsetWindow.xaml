@@ -260,16 +260,6 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
-                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                    <Button Content="Reset Algorithm Phase Optimizer State"
-                                                            Command="{Binding ResetAlgorithmPhaseOptimizerStateCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
-                                                            Style="{StaticResource ButtonDanger}" />
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding ResetAlgorithmPhaseOptimizerStateCancelCommand}"
-                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </hc:UniformSpacingPanel>
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Params"
                                                                HorizontalAlignment="Center"
@@ -322,21 +312,22 @@
                                                                                 <Grid>
                                                                                     <Grid.RowDefinitions>
                                                                                         <RowDefinition Height="Auto" />
+                                                                                        <RowDefinition Height="5" />
                                                                                         <RowDefinition Height="*" />
                                                                                     </Grid.RowDefinitions>
                                                                                     <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                                         <Button Content="Import"
-                                                                                                Command="{Binding DataContext.ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                Command="{Binding DataContext.Cache.ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                                                                 CommandParameter="{Binding}"
                                                                                                 hc:IconElement.Geometry="{StaticResource ImportGeometry}"
                                                                                                 Style="{StaticResource ButtonInfo}" />
                                                                                         <Button Content="Add"
-                                                                                                Command="{Binding DataContext.AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                Command="{Binding DataContext.Cache.AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                                                                 CommandParameter="{Binding}"
                                                                                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                                                                 Style="{StaticResource ButtonInfo}" />
                                                                                         <Button Content="Delete"
-                                                                                                Command="{Binding DataContext.RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                                                Command="{Binding DataContext.Cache.RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                                                                 hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                                                                 Style="{StaticResource ButtonDanger}">
                                                                                             <Button.CommandParameter>
@@ -347,7 +338,7 @@
                                                                                             </Button.CommandParameter>
                                                                                         </Button>
                                                                                     </hc:UniformSpacingPanel>
-                                                                                    <Grid Grid.Row="1">
+                                                                                    <Grid Grid.Row="2">
                                                                                         <Grid.ColumnDefinitions>
                                                                                             <ColumnDefinition Width="*" />
                                                                                             <ColumnDefinition Width="Auto" />
@@ -514,7 +505,7 @@
                                                          SelectionMode="Extended"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
-                                                        <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetResult}">
+                                                        <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetResult}">
                                                             <Border Height="360"
                                                                     Margin="0,2"
                                                                     Style="{StaticResource BorderRegion}">
@@ -525,15 +516,15 @@
                                                                             <RowDefinition Height="5" />
                                                                             <RowDefinition Height="*" />
                                                                         </Grid.RowDefinitions>
-                                                                        <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
+                                                                        <TextBlock Text="{Binding GeneratePrescanAODWaveformParam.ProductivityInformation}"
                                                                                    HorizontalAlignment="Center"
                                                                                    Style="{StaticResource TextBlockSubTitleBold}"
                                                                                    Foreground="{StaticResource InfoBrush}" />
-                                                                        <paramUI:GenerateChirpAODWaveformParamUserControl Grid.Row="2"
-                                                                                                                          IsVisibleDirectoryPath="False"
-                                                                                                                          IsVisibleElectrodeConfiguration="False"
-                                                                                                                          IsVisibleUniformityConfiguration="False"
-                                                                                                                          DataContext="{Binding GenerateChirpAODWaveformParam}" />
+                                                                        <paramUI:GeneratePrescanAODWaveformParamUserControl Grid.Row="2"
+                                                                                                                            IsVisibleDirectoryPath="False"
+                                                                                                                            IsVisibleElectrodeConfiguration="False"
+                                                                                                                            IsVisibleUniformityConfiguration="False"
+                                                                                                                            DataContext="{Binding GeneratePrescanAODWaveformParam}" />
                                                                     </Grid>
                                                                 </ScrollViewer>
                                                             </Border>

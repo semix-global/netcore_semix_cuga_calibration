@@ -5,6 +5,11 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.Collections;
+using MiniExcelLibs;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -115,6 +120,71 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         }
 
         ElectrodeOffsetFrequencyPeriodParams = electrodeOffsetParamList;
+    }
+
+    [RelayCommand]
+    private void ImportUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+            if (dialog == false) return;
+
+            aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = [];
+
+            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+                .Where(t => t.Frequency > 0)
+                .ToArray();
+            if (values.Length <= 0)
+            {
+                values =
+                [
+                    .. MiniExcel.Query(filePath, useHeaderRow: true)
+                        .Cast<IDictionary<string, object>>()
+                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                        .Where(t => t.Frequency > 0)
+                ];
+            }
+
+            if (values.Length > 0)
+            {
+                aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = values;
+                dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
+            }
+            else
+            {
+                dialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Import Uniformity Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private void AddUniformityConfiguration(AODWaveformElectrodeOffsetFrequencyPeriodParam aodWaveformElectrodeOffsetFrequencyPeriodParam)
+    {
+        var configurationList = aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
+        configurationList.Add(new GenerateAODWaveformUniformityConfiguration());
+
+        aodWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
+    }
+
+    [RelayCommand]
+    private void RemoveUniformityConfiguration((AODWaveformElectrodeOffsetFrequencyPeriodParam AODWaveformElectrodeOffsetFrequencyPeriodParam, IEnumerable? SelectItems)? valueTuple)
+    {
+        if (valueTuple?.SelectItems is null) return;
+
+        var configurationList = valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations.ToList();
+        foreach (GenerateAODWaveformUniformityConfiguration selectItem in valueTuple.Value.SelectItems) configurationList.Remove(selectItem);
+
+        valueTuple.Value.AODWaveformElectrodeOffsetFrequencyPeriodParam.UniformityConfigurations = configurationList;
     }
 
     [RelayCommand]
