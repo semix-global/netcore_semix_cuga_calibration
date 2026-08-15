@@ -196,6 +196,12 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.OffsetFrequency}" />
                                     <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
                                              Height="40"
                                              TextWrapping="Wrap"
@@ -210,12 +216,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.OffsetFrequency}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Noise Measure Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -232,11 +232,6 @@
                                                           ExpandDirection="Down">
                                                     <Border Style="{StaticResource BorderRegion}">
                                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                            <StackPanel>
-                                                                <TextBlock Text="Electrode Params"
-                                                                           HorizontalAlignment="Center"
-                                                                           Style="{StaticResource TextBlockDefaultInfo}" />
-                                                            </StackPanel>
                                                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                 <Button Content="Add"
                                                                         Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
@@ -504,7 +499,7 @@
                                                 <Expander Header="{StaticResource ResultParamTitleString}"
                                                           IsExpanded="False"
                                                           ExpandDirection="Down">
-                                                    <Border Style="{StaticResource BorderRegion}">
+                                                    <Border Height="500" Style="{StaticResource BorderRegion}">
                                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                 <Button Content="Add"
