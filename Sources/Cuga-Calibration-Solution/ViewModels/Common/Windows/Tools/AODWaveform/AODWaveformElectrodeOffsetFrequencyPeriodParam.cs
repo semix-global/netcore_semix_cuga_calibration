@@ -1,4 +1,5 @@
-﻿using System.Collections;
+using System.Collections;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -22,6 +23,23 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodParam : Obs
 
     [ObservableProperty]
     public partial GenerateAODWaveformUniformityConfiguration[] UniformityConfigurations { get; set; } = [];
+
+    partial void OnUniformityConfigurationsChanged(GenerateAODWaveformUniformityConfiguration[] oldValue, GenerateAODWaveformUniformityConfiguration[] newValue)
+    {
+        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
+
+        foreach (var item in newValue)
+        {
+            item.PropertyChanged -= ItemOnPropertyChanged;
+            item.PropertyChanged += ItemOnPropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(UniformityConfigurations));
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(UniformityConfigurations));
+    }
 
     [RelayCommand]
     private void ImportUniformityConfiguration()

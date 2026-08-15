@@ -173,7 +173,7 @@
                                      Style="{StaticResource TextBoxExtend}"
                                      Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Button Content="Change AOD Waveform Directory Path"
-                                    Command="{Binding ChangeDirectoryPathCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    Command="{Binding ChangeDirectoryPathCommand}"
                                     Style="{StaticResource ButtonDefault}"
                                     Visibility="{Binding IsVisibleDirectoryPath, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
                             <Separator />
@@ -200,11 +200,11 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                 <Button Content="Add"
-                                        Command="{Binding AddElectrodeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding AddElectrodeConfigurationCommand}"
                                         hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                         Style="{StaticResource ButtonInfo}" />
                                 <Button Content="Delete"
-                                        Command="{Binding RemoveElectrodeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding RemoveElectrodeConfigurationCommand}"
                                         CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeConfigurations}"
                                         hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                         Style="{StaticResource ButtonDanger}" />
@@ -251,32 +251,25 @@
                                                             <Grid>
                                                                 <Grid.RowDefinitions>
                                                                     <RowDefinition Height="Auto" />
+                                                                    <RowDefinition Height="5" />
                                                                     <RowDefinition Height="*" />
                                                                 </Grid.RowDefinitions>
                                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                     <Button Content="Import"
-                                                                            Command="{Binding ImportUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            CommandParameter="{Binding}"
+                                                                            Command="{Binding ImportUniformityConfigurationCommand}"
                                                                             hc:IconElement.Geometry="{StaticResource ImportGeometry}"
                                                                             Style="{StaticResource ButtonInfo}" />
                                                                     <Button Content="Add"
-                                                                            Command="{Binding AddUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            CommandParameter="{Binding}"
+                                                                            Command="{Binding AddUniformityConfigurationCommand}"
                                                                             hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                                             Style="{StaticResource ButtonInfo}" />
                                                                     <Button Content="Delete"
-                                                                            Command="{Binding RemoveUniformityConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                            Command="{Binding RemoveUniformityConfigurationCommand}"
+                                                                            CommandParameter="{Binding SelectedItems, ElementName=DataGridUniformityConfigurations}"
                                                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                            Style="{StaticResource ButtonDanger}">
-                                                                        <Button.CommandParameter>
-                                                                            <MultiBinding Converter="{ui:RemoveUniformityConfigurationConvert}">
-                                                                                <Binding />
-                                                                                <Binding Path="SelectedItems" ElementName="DataGridUniformityConfigurations" />
-                                                                            </MultiBinding>
-                                                                        </Button.CommandParameter>
-                                                                    </Button>
+                                                                            Style="{StaticResource ButtonDanger}" />
                                                                 </hc:UniformSpacingPanel>
-                                                                <Grid Grid.Row="1">
+                                                                <Grid Grid.Row="2">
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="*" />
                                                                         <ColumnDefinition Width="Auto" />
@@ -319,11 +312,11 @@
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                 <Button Content="Add"
-                                        Command="{Binding AddSlopeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding AddSlopeConfigurationCommand}"
                                         hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                         Style="{StaticResource ButtonInfo}" />
                                 <Button Content="Delete"
-                                        Command="{Binding RemoveSlopeConfigurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding RemoveSlopeConfigurationCommand}"
                                         CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridSlopeConfigurations}"
                                         hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                         Style="{StaticResource ButtonDanger}" />

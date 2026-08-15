@@ -79,9 +79,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
         if (ElectrodeOffsetFrequencyPeriodParams.Length > electrodeEnums.Length) return;
 
-        ElectrodeOffsetFrequencyPeriodParams = [.. ElectrodeOffsetFrequencyPeriodParams, new AODWaveformElectrodeOffsetFrequencyPeriodParam()];
+        AODWaveformElectrodeOffsetFrequencyPeriodParam[] electrodeOffsetFrequencyPeriodParams = [.. ElectrodeOffsetFrequencyPeriodParams, new()];
 
-        foreach (var (index, item) in ElectrodeOffsetFrequencyPeriodParams.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
+        foreach (var (index, item) in electrodeOffsetFrequencyPeriodParams.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
+
+        ElectrodeOffsetFrequencyPeriodParams = electrodeOffsetFrequencyPeriodParams;
     }
 
     [RelayCommand]

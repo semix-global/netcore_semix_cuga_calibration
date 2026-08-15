@@ -5,6 +5,13 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.ComponentModel;
+using Net.Utilities.WPF.Enums;
+using CommunityToolkit.Mvvm.Input;
+using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM;
+using System.Collections;
+using MiniExcelLibs;
+
 
 #if NETFRAMEWORK
 using Core.Models.Extensions;
@@ -51,6 +58,65 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(UniformityConfigurations));
     }
+
+
+    [RelayCommand]
+    private void ImportUniformityConfiguration()
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
+            if (dialog == false) return;
+
+            UniformityConfigurations = [];
+
+            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+                .Where(t => t.Frequency > 0)
+                .ToArray();
+            if (values.Length <= 0)
+            {
+                values =
+                [
+                    .. MiniExcel.Query(filePath, useHeaderRow: true)
+                        .Cast<IDictionary<string, object>>()
+                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                        .Where(t => t.Frequency > 0)
+                ];
+            }
+
+            if (values.Length > 0)
+            {
+                UniformityConfigurations = values;
+                dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
+            }
+            else dialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Import Uniformity Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private void AddUniformityConfiguration() => UniformityConfigurations = [.. UniformityConfigurations, new GenerateAODWaveformUniformityConfiguration()];
+
+    [RelayCommand]
+    private void RemoveUniformityConfiguration(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var configurationList = UniformityConfigurations.ToList();
+
+        foreach (GenerateAODWaveformUniformityConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
+
+        UniformityConfigurations = [.. configurationList];
+    }
+
 
     public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
     {
