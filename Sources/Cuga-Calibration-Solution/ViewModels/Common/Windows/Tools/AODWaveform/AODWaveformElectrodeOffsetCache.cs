@@ -5,6 +5,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using System.Collections;
+using MathNet.Numerics.Interpolation;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -12,7 +13,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    #region Param
+    #region Step0 Param
 
     [ObservableProperty]
     public partial double OffsetFrequency { get; set; }
@@ -21,13 +22,20 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double[] Frequencies { get; set; } = [];
 
     [ObservableProperty]
-    public partial double AlgorithmLambda { get; set; } = 1d;
+    public partial int NoiseMeasureTimes { get; set; } = 20;
+
+    [ObservableProperty]
+    public partial double ScoreLambda { get; set; } = 1d;
+
+    [ObservableProperty]
+    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+
+    #endregion Step0 Param
+
+    #region Step1 Param
 
     [ObservableProperty]
     public partial int AlgorithmInitialPoints { get; set; } = 10;
-
-    [ObservableProperty]
-    public partial double AlgorithmNoise { get; set; } = 1e-3;
 
     [ObservableProperty]
     public partial int AlgorithmEarlyStop { get; set; } = 25;
@@ -41,8 +49,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     [ObservableProperty]
     public partial int DetailLogInterval { get; set; } = 20;
 
-    [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+    #endregion Step1 Param
+
+    #region Step2 Param
 
     [ObservableProperty]
     public partial double ElectrodeOffsetFrequencyUniformityParamStepFrequency { get; set; }
@@ -53,7 +62,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequencyUniformityParam[] ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
 
-    #endregion Param
+    #endregion Step2 Param
 
     #region Items
 
@@ -61,11 +70,17 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial AODWaveformElectrodeOffsetFrequencyPeriod<TItem> Step0 { get; set; } = new();
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyUniformity<TItem>[] Step1Items { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequencyPeriod<TItem> Step1 { get; set; } = new();
+
+    [ObservableProperty]
+    public partial AODWaveformElectrodeOffsetFrequencyUniformity<TItem>[] Step2Items { get; set; } = [];
 
     #endregion Items
 
     #region Result
+
+    [ObservableProperty]
+    public partial double Noise { get; set; } = 1e-3;
 
     [ObservableProperty]
     public partial GenerateAODWaveformElectrodeConfiguration[] ElectrodeConfigurationResults { get; set; } = [];
@@ -107,7 +122,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         ElectrodeOffsetFrequencyPeriodParams = [.. electrodeOffsetParamList];
     }
 
-
     [RelayCommand]
     private void AddElectrodeOffsetFrequencyUniformityParam() => ElectrodeOffsetFrequencyUniformityParams = [.. ElectrodeOffsetFrequencyUniformityParams, new AODWaveformElectrodeOffsetFrequencyUniformityParam()];
 
@@ -123,21 +137,31 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         ElectrodeOffsetFrequencyUniformityParams = [.. electrodeFrequencyUniformityParamList];
     }
 
+    public LinearSpline?[] CreateElectrodeOffsetFrequencyPeriodLinearSplines() =>
+    [
+        .. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.UniformityConfigurations.Length > 0
+            ? LinearSpline.InterpolateSorted(
+                [.. t.UniformityConfigurations.Select(configuration => configuration.Frequency)],
+                [.. t.UniformityConfigurations.Select(configuration => configuration.Coefficient)])
+            : null)
+    ];
+
     public override object ToHtmlAnonymous() => new
     {
         OffsetFrequency,
         Frequencies,
-        AlgorithmLambda,
+        NoiseMeasureTimes,
+        ScoreLambda,
+        ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmInitialPoints,
-        AlgorithmNoise,
         AlgorithmEarlyStop,
         AlgorithmRandomState,
         AlgorithmRetryTimes,
         DetailLogInterval,
-        ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         ElectrodeOffsetFrequencyUniformityParamStepFrequency,
         ElectrodeOffsetFrequencyUniformityParamChunkSize,
         ElectrodeOffsetFrequencyUniformityParams = new HtmlTable([.. ElectrodeOffsetFrequencyUniformityParams.Select(t => t.ToHtmlAnonymous())]),
+        Noise,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
