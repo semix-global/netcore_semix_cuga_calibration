@@ -66,12 +66,12 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
 
             foreach (var (index, item) in Items.Index())
             {
+                if (item.FrequencyItems.Length <= 0) continue;
+                
                 scatterLines[index].Update(
                     $"{item.FrequencyItems[0].Frequency}(MHz)",
                     [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
                     Constants.Turbo.GetColor(index, new Range(0, Items.Length - 1)));
-
-                if (item.FrequencyItems.Length <= 0) continue;
 
                 item.MaxItem = item.FrequencyItems.Maxima(t => t.MeasurePower).First();
                 isNeedRefreshes[index] = true;

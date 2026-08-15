@@ -43,16 +43,19 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            OpticsViewModel.ToggleODFilter(false);
-
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
-            Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
+            Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
+
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
+
+            Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
 
             Cache.Step0 = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem>();
             Cache.Noise = 0d;
@@ -119,20 +122,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            OpticsViewModel.ToggleODFilter(false);
-
             Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
-            Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
+            Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
+
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
+
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
 
-            Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRandomState, 0);
@@ -140,11 +140,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
-            if (DialogWindowProvider.TryShowDialog(
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
+
+            if (isNotSilent == false || (DialogWindowProvider.TryShowDialog(
                     "Yes: reset the algorithm phase optimizer state. No: continue from the existing state.",
                     out var dialogResult,
                     DialogButtonsEnum.YesNo,
-                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
+                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
             {
                 _lastCost = null;
 
@@ -243,7 +247,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     }
                     finally
                     {
-                        if (times % Cache.DetailLogInterval == 0) EndDetailLog();
+                        if (times % Cache.DetailLogInterval == 0)
+                        {
+                            Guard.IsNotNull(detailLogUniqueId);
+                            Guard.IsNotNull(detailLogFileName);
+
+                            EndDetailLog();
+                        }
                     }
                 }
 
@@ -292,8 +302,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             void EndDetailLog()
             {
-                Guard.IsNotNull(detailLogUniqueId);
-                Guard.IsNotNull(detailLogFileName);
+                if (detailLogUniqueId is null || detailLogFileName is null)
+                {
+                    Guard.IsNull(detailLogUniqueId);
+                    Guard.IsNull(detailLogFileName);
+
+                    return;
+                }
 
                 try
                 {
@@ -315,9 +330,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            OpticsViewModel.ToggleODFilter(false);
+            Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
+            Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
@@ -332,6 +346,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
             Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Length, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
+
+            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            OpticsViewModel.ToggleODFilter(false);
 
             Cache.Step2Items = [];
             foreach (var electrodeConfiguration in Cache.ElectrodeConfigurationResults) electrodeConfiguration.UniformityConfigurations = [];

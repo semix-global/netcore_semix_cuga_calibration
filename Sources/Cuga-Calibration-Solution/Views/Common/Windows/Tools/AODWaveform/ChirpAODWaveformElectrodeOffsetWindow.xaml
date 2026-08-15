@@ -34,7 +34,6 @@
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
             <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Chirp AOD Waveform</system:String>
             <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Prescan AOD Waveform</system:String>
-            <system:String x:Key="ResultParamTitleString">Flatness Result Chirp AOD Waveform</system:String>
         </ResourceDictionary>
     </hc:Window.Resources>
     <i:Interaction.Triggers>
@@ -226,111 +225,108 @@
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ScoreLambda}" />
-                                                <Expander Header="Electrode Offset Frequency Period Params"
-                                                          IsExpanded="False"
-                                                          ExpandDirection="Down">
-                                                    <Border Style="{StaticResource BorderRegion}">
-                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                            <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                                <Button Content="Add"
-                                                                        Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                        hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                                        Style="{StaticResource ButtonInfo}" />
-                                                                <Button Content="Delete"
-                                                                        Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                        CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
-                                                                        hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                        Style="{StaticResource ButtonDanger}" />
-                                                            </hc:UniformSpacingPanel>
-                                                            <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
-                                                                      MaxHeight="500"
-                                                                      hc:DataGridAttach.ShowRowNumber="False"
-                                                                      Style="{StaticResource DataGrid.Small}"
-                                                                      HeadersVisibility="Column"
-                                                                      RowHeaderWidth="60"
-                                                                      CanUserSortColumns="False"
-                                                                      AutoGenerateColumns="False"
-                                                                      ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
-                                                                <DataGrid.Columns>
-                                                                    <DataGridTextColumn IsReadOnly="True"
-                                                                                        Header="AOD Electrode"
-                                                                                        Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                                    <DataGridTextColumn Header="Board Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
-                                                                    <DataGridTemplateColumn Header="Uniformity">
-                                                                        <DataGridTemplateColumn.CellTemplate>
-                                                                            <DataTemplate>
-                                                                                <Grid Margin="2">
-                                                                                    <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
-                                                                                                  Content="Profiles"
-                                                                                                  Margin="0,2"
-                                                                                                  HorizontalAlignment="Left"
-                                                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                                                                                  Style="{StaticResource ToggleButtonDefault.Small}" />
-                                                                                    <Popup Width="800"
-                                                                                           Height="800"
-                                                                                           StaysOpen="False"
-                                                                                           PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
-                                                                                           Placement="Right"
-                                                                                           AllowsTransparency="True"
-                                                                                           PopupAnimation="Slide"
-                                                                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
-                                                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                                            <Grid>
-                                                                                                <Grid.RowDefinitions>
-                                                                                                    <RowDefinition Height="Auto" />
-                                                                                                    <RowDefinition Height="5" />
-                                                                                                    <RowDefinition Height="*" />
-                                                                                                </Grid.RowDefinitions>
-                                                                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                                                                    <Button Content="Import"
-                                                                                                            Command="{Binding ImportUniformityConfigurationCommand}"
-                                                                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
-                                                                                                            Style="{StaticResource ButtonInfo}" />
-                                                                                                    <Button Content="Add"
-                                                                                                            Command="{Binding AddUniformityConfigurationCommand}"
-                                                                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                                                                            Style="{StaticResource ButtonInfo}" />
-                                                                                                    <Button Content="Delete"
-                                                                                                            Command="{Binding RemoveUniformityConfigurationCommand}"
-                                                                                                            CommandParameter="{Binding SelectedItems, ElementName=DataGridUniformityConfigurations}"
-                                                                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                                                            Style="{StaticResource ButtonDanger}" />
-                                                                                                </hc:UniformSpacingPanel>
-                                                                                                <Grid Grid.Row="2">
-                                                                                                    <Grid.ColumnDefinitions>
-                                                                                                        <ColumnDefinition Width="*" />
-                                                                                                        <ColumnDefinition Width="Auto" />
-                                                                                                        <ColumnDefinition Width="*" />
-                                                                                                    </Grid.ColumnDefinitions>
-                                                                                                    <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                                              hc:DataGridAttach.ShowRowNumber="True"
-                                                                                                              Style="{StaticResource DataGrid.Small}"
-                                                                                                              HeadersVisibility="All"
-                                                                                                              RowHeaderWidth="60"
-                                                                                                              AutoGenerateColumns="False"
-                                                                                                              ItemsSource="{Binding UniformityConfigurations}">
-                                                                                                        <DataGrid.Columns>
-                                                                                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                                                                            <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
-                                                                                                        </DataGrid.Columns>
-                                                                                                    </DataGrid>
-                                                                                                    <GridSplitter Grid.Column="1" Width="5" />
-                                                                                                    <controls:ScatterMultiPlotControl Grid.Column="2"
-                                                                                                                                      Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                                                      ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                                                </Grid>
-                                                                                            </Grid>
-                                                                                        </Border>
-                                                                                    </Popup>
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Offset Frequency Period Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Add"
+                                                            Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Delete"
+                                                            Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
+                                                          MaxHeight="500"
+                                                          hc:DataGridAttach.ShowRowNumber="False"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="Column"
+                                                          RowHeaderWidth="60"
+                                                          CanUserSortColumns="False"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn IsReadOnly="True"
+                                                                            Header="AOD Electrode"
+                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        <DataGridTextColumn Header="Board Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTemplateColumn Header="Uniformity">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid Margin="2">
+                                                                        <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
+                                                                                      Content="Profiles"
+                                                                                      Margin="0,2"
+                                                                                      HorizontalAlignment="Left"
+                                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                                      Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                                        <Popup Width="800"
+                                                                               Height="800"
+                                                                               StaysOpen="False"
+                                                                               PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
+                                                                               Placement="Right"
+                                                                               AllowsTransparency="True"
+                                                                               PopupAnimation="Slide"
+                                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
+                                                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                                <Grid>
+                                                                                    <Grid.RowDefinitions>
+                                                                                        <RowDefinition Height="Auto" />
+                                                                                        <RowDefinition Height="5" />
+                                                                                        <RowDefinition Height="*" />
+                                                                                    </Grid.RowDefinitions>
+                                                                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                                                        <Button Content="Import"
+                                                                                                Command="{Binding ImportUniformityConfigurationCommand}"
+                                                                                                hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                                                Style="{StaticResource ButtonInfo}" />
+                                                                                        <Button Content="Add"
+                                                                                                Command="{Binding AddUniformityConfigurationCommand}"
+                                                                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                                                                Style="{StaticResource ButtonInfo}" />
+                                                                                        <Button Content="Delete"
+                                                                                                Command="{Binding RemoveUniformityConfigurationCommand}"
+                                                                                                CommandParameter="{Binding SelectedItems, ElementName=DataGridUniformityConfigurations}"
+                                                                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                                                                Style="{StaticResource ButtonDanger}" />
+                                                                                    </hc:UniformSpacingPanel>
+                                                                                    <Grid Grid.Row="2">
+                                                                                        <Grid.ColumnDefinitions>
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                            <ColumnDefinition Width="Auto" />
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                        </Grid.ColumnDefinitions>
+                                                                                        <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                                                                  Style="{StaticResource DataGrid.Small}"
+                                                                                                  HeadersVisibility="All"
+                                                                                                  RowHeaderWidth="60"
+                                                                                                  AutoGenerateColumns="False"
+                                                                                                  ItemsSource="{Binding UniformityConfigurations}">
+                                                                                            <DataGrid.Columns>
+                                                                                                <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                                <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                                            </DataGrid.Columns>
+                                                                                        </DataGrid>
+                                                                                        <GridSplitter Grid.Column="1" Width="5" />
+                                                                                        <controls:ScatterMultiPlotControl Grid.Column="2"
+                                                                                                                          Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                                          ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                                    </Grid>
                                                                                 </Grid>
-                                                                            </DataTemplate>
-                                                                        </DataGridTemplateColumn.CellTemplate>
-                                                                    </DataGridTemplateColumn>
-                                                                </DataGrid.Columns>
-                                                            </DataGrid>
-                                                        </hc:UniformSpacingPanel>
-                                                    </Border>
-                                                </Expander>
+                                                                            </Border>
+                                                                        </Popup>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -394,6 +390,11 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Uniformity Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyUniformityParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
@@ -482,7 +483,7 @@
                                     <Expander Header="{Binding Steps[3]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
-                                        <Border Height="500" Style="{StaticResource BorderRegion}">
+                                        <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
@@ -496,6 +497,7 @@
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
                                                 <ListBox x:Name="ResultTabControl"
+                                                         Height="500"
                                                          SelectionMode="Extended"
                                                          VirtualizingPanel.ScrollUnit="Pixel"
                                                          ItemsSource="{Binding Cache.Results}">
@@ -837,7 +839,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding PlotDataSource, Mode=OneWay}" />
+                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding PlotDataSource}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

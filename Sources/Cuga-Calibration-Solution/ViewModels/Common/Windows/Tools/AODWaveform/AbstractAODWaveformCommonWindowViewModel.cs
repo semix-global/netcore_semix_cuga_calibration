@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
@@ -237,6 +238,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     protected async Task UpdateMeasurePowerAsync(TItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
+        var timestamp = Stopwatch.GetTimestamp();
+
         try
         {
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
@@ -266,6 +269,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         finally
         {
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+ 
+            Logger.LogTrace("Get Measure Power Time :{TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
     }
 }
