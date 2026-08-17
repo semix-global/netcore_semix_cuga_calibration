@@ -18,6 +18,7 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.V2.Controls;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:behaviors="clr-namespace:Core.Utilities.WPF.Behaviors;assembly=Core.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetWindowViewModel}"
@@ -497,14 +498,13 @@
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
                                                 <ListBox x:Name="ResultTabControl"
-                                                         Height="500"
+                                                         HorizontalContentAlignment="Stretch"
                                                          SelectionMode="Extended"
-                                                         VirtualizingPanel.ScrollUnit="Pixel"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetResult}">
                                                             <Border Height="360"
-                                                                    Margin="0,2"
+                                                                    Margin="-10,2"
                                                                     Style="{StaticResource BorderRegion}">
                                                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                                     <Grid>
@@ -785,6 +785,9 @@
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
                                       ItemsSource="{Binding Cache.Step0.Items}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:DataGridScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="500"
                                                         Header="Period(2pi)"
@@ -808,6 +811,9 @@
                                       AutoGenerateColumns="False"
                                       IsReadOnly="True"
                                       ItemsSource="{Binding Cache.Step1.Items}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:DataGridScrollToCurrentBehavior />
+                                </i:Interaction.Behaviors>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="500"
                                                         Header="Period(2pi)"
@@ -885,6 +891,9 @@
                                                                       AutoGenerateColumns="False"
                                                                       IsReadOnly="True"
                                                                       ItemsSource="{Binding SelectedItem.FrequencyItems, RelativeSource={RelativeSource AncestorType=TabControl}}">
+                                                                <i:Interaction.Behaviors>
+                                                                    <behaviors:DataGridScrollToCurrentBehavior />
+                                                                </i:Interaction.Behaviors>
                                                                 <DataGrid.Columns>
                                                                     <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
                                                                     <DataGridTextColumn Header="Amplitude(AMP)" Binding="{Binding Amplitude, StringFormat='0.###'}" />
