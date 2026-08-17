@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Core.Models;
 using Core.Models.Helper;
 using Core.Recipe.Services;
@@ -19,9 +20,9 @@ using NLog.Extensions.Logging;
 using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
+using CommunityToolkit.Diagnostics;
 using Python.Runtime;
 
 namespace CugaCalibration;
@@ -29,25 +30,6 @@ namespace CugaCalibration;
 public sealed partial class App
 {
     private static readonly Logger Logger = LogManager.Setup().GetCurrentClassLogger();
-
-    static App()
-    {
-        var pythonHome = Path.Combine(AppContext.BaseDirectory, "PythonRuntime");
-        var pythonDllName = Assembly.GetExecutingAssembly()
-            .GetCustomAttributes<AssemblyMetadataAttribute>()
-            .SingleOrDefault(attribute => attribute.Key == "PythonDllName")
-            ?.Value ?? string.Empty;
-#if NET48
-        pythonDllName = "python314.dll";
-#endif
-        var pythonDll = Path.Combine(pythonHome, pythonDllName);
-
-        Runtime.PythonDLL = pythonDll;
-        PythonEngine.PythonHome = pythonHome;
-
-        PythonEngine.Initialize();
-        _ = PythonEngine.BeginAllowThreads();
-    }
 
     [STAThread]
     private static void Main(string[] args)
@@ -61,6 +43,17 @@ public sealed partial class App
 
         try
         {
+            var pythonDllFilePath = GetPythonDllFilePath();
+            var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
+            Guard.IsTrue(File.Exists(pythonDllFilePath));
+            Guard.IsTrue(Directory.Exists(pythonHome));
+
+            Runtime.PythonDLL = pythonDllFilePath;
+            PythonEngine.PythonHome = pythonHome;
+
+            PythonEngine.Initialize();
+            _ = PythonEngine.BeginAllowThreads();
+
             var app = new App();
 
 #pragma warning disable IDE0079
@@ -188,4 +181,34 @@ public sealed partial class App
     }
 
     #endregion 全局异常捕获
+
+    private static string GetPythonDllFilePath()
+    {
+        using var process = new Process();
+        process.StartInfo = new ProcessStartInfo
+        {
+            FileName = "python",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        process.StartInfo.ArgumentList.Add("-c");
+        process.StartInfo.ArgumentList.Add("""
+                                           import sys, pathlib
+                                           print(pathlib.Path(sys.base_prefix) / ('python%d%d.dll' % sys.version_info[:2]))
+                                           """);
+
+        Guard.IsTrue(process.Start());
+
+        var output = process.StandardOutput.ReadToEnd().Trim();
+        var error = process.StandardError.ReadToEnd().Trim();
+
+        Guard.IsTrue(process.WaitForExit(5000));
+
+        if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(output)) ThrowHelper.ThrowNotSupportedException(error);
+
+        return output;
+    }
 }

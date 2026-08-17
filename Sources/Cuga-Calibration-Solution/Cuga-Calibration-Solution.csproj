@@ -12,8 +12,6 @@
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
-    <Import Project="$(BuildToolsDirectory)\Python.Build.props" />
-
     <PropertyGroup>
         <ContentSQLiteInteropFiles>true</ContentSQLiteInteropFiles>
         <CopySQLiteInteropFiles>false</CopySQLiteInteropFiles>
@@ -27,6 +25,7 @@
         <PackageReference Include="R3" />
         <PackageReference Include="System.Data.SQLite.Core" />
         <PackageReference Include="FreeSql.Provider.Sqlite" />
+        <PackageReference Include="pythonnet" />
         <PackageReference Include="SourceGenerator.InjectHostDI">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
