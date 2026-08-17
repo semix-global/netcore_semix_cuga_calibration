@@ -358,12 +358,12 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmEarlyStop}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Random State: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.AlgorithmRandomState}" />
+                                                <ComboBox hc:TitleElement.Title="Acquisition Function: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
+                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:AlgorithmAcquisitionFunctionEnum}}}"
+                                                          SelectedItem="{Binding Cache.AlgorithmAcquisitionFunctionEnum}"
+                                                          Style="{StaticResource ComboBoxExtend}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

@@ -26,7 +26,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     public partial double ScoreLambda { get; set; } = 1d;
-    
+
     [ObservableProperty]
     public partial double ScoreGamma { get; set; } = 0.5;
 
@@ -44,7 +44,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial int AlgorithmEarlyStop { get; set; } = 25;
 
     [ObservableProperty]
-    public partial int AlgorithmRandomState { get; set; } = 42;
+    public partial AlgorithmAcquisitionFunctionEnum AlgorithmAcquisitionFunctionEnum { get; set; } = AlgorithmAcquisitionFunctionEnum.LCB;
 
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
@@ -159,7 +159,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
-        AlgorithmRandomState,
+        AlgorithmAcquisitionFunctionEnum,
         AlgorithmRetryTimes,
         DetailLogInterval,
         ElectrodeOffsetFrequencyUniformityParamStepFrequency,
@@ -169,3 +169,12 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
 }
+
+// ReSharper disable InconsistentNaming
+public enum AlgorithmAcquisitionFunctionEnum
+{
+    LCB,
+    EI,
+    PI
+}
+// ReSharper restore InconsistentNaming

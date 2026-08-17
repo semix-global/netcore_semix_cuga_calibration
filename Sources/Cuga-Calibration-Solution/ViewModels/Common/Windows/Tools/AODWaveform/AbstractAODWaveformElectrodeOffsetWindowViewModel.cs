@@ -150,7 +150,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
-            Guard.IsGreaterThan(Cache.AlgorithmRandomState, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);
 
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
@@ -215,7 +214,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             Cache.AlgorithmInitialPoints,
                             Cache.Noise,
                             Cache.AlgorithmEarlyStop,
-                            Cache.AlgorithmRandomState);
+                            Cache.AlgorithmAcquisitionFunctionEnum);
 
                         if (isDone)
                         {
@@ -577,7 +576,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         int initialPoints,
         double noise,
         int earlyStop,
-        int randomState)
+        AlgorithmAcquisitionFunctionEnum algorithmAcquisitionFunctionEnum)
     {
         DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
 
@@ -601,12 +600,10 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         using var pyInitialPoints = initialPoints.ToPython();
         using var pyNoise = noise.ToPython();
         using var pyEarlyStop = earlyStop.ToPython();
-        using var pyRandomState = randomState.ToPython();
-        using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyRandomState);
+        using var pyAcquisitionFunction = algorithmAcquisitionFunctionEnum.ToString().ToPython();
+        using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
-        using var pyPhases = Guard.IsNotNullAndReturn(result["phases"]);
-        using var pyBestCost = Guard.IsNotNullAndReturn(result["best_cost"]);
-        using var pyBestPhases = Guard.IsNotNullAndReturn(result["best_phases"]);
+        using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
         using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
         return (ToDoubles(pyPhases), pyDone.As<bool>());
