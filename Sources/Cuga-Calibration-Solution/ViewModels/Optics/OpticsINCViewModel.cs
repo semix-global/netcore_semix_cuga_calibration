@@ -294,7 +294,8 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
-            CalibratingItem.MaxItem = null;
+            CalibratingItem.SmoothPoints = [];
+            CalibratingItem.MaxItemINCMotorAbsoluteValue = null;
             CalibratingItem.IsCalibrated = false;
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -311,22 +312,19 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                     Cache.Item.StopRoughINCMotorAbsoluteValue));
 
                 Algorithm(CalibratingItem);
-                Guard.IsNotNull(CalibratingItem.MaxItem);
+                Guard.IsNotNull(CalibratingItem.MaxItemINCMotorAbsoluteValue);
 
                 await CatchINCAsync(Generate.LinearRange(
-                    CalibratingItem.MaxItem.INCMotorAbsoluteValue - Cache.Item.RangeRefinedINCMotorAbsoluteValue,
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value - Cache.Item.RangeRefinedINCMotorAbsoluteValue,
                     Cache.Item.StepRefinedINCMotorAbsoluteValue,
-                    CalibratingItem.MaxItem.INCMotorAbsoluteValue + Cache.Item.RangeRefinedINCMotorAbsoluteValue));
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value + Cache.Item.RangeRefinedINCMotorAbsoluteValue));
 
                 Algorithm(CalibratingItem);
                 CalibratingItem.IsCalibrated = true;
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    CalibratingItem.MaxItem.INCMotorAbsoluteValue,
-                    CalibratingItem.MaxItem.PMTValue,
-                    CalibratingItem.MaxItem.RawImageFilePath,
-                    HtmlImage = new HtmlImage(CalibratingItem.MaxItem.ImageFilePath),
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -416,8 +414,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
                 Logger.LogHtmlInformation($"{inc.ProductivityInformation}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
-                    inc.MaxItem?.INCMotorAbsoluteValue,
-                    inc.MaxItem?.PMTValue,
+                    inc.MaxItemINCMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. inc.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
             }, cancellationToken)));
@@ -470,12 +467,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    selectedReviewItem.MaxItem?.INCMotorAbsoluteValue,
-                    selectedReviewItem.MaxItem?.PMTValue,
-                    selectedReviewItem.MaxItem?.RawImageFilePath,
-                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
-                        ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
-                        : new HtmlImage(Guard.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
+                    selectedReviewItem.MaxItemINCMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -505,20 +497,17 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
     private void Algorithm(OpticsINCDTO opticsINC)
     {
-        var smoothPoints = Filter.MovMean([.. opticsINC.Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))], Cache.SmoothWindowSize);
+        opticsINC.SmoothPoints = Filter.MovMean([.. opticsINC.Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))], Cache.SmoothWindowSize);
 
-        double maxMotorAbsoluteValue;
         if (HostEnvironment.IsDevelopment())
         {
-            maxMotorAbsoluteValue = smoothPoints.Maxima(t => t.Y).First().X;
+            opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.SmoothPoints.Maxima(t => t.Y).First().X;
+            
+            return;
         }
-        else
-        {
-            var (_, results) = Extremumor.FindMaxima(smoothPoints);
-            maxMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
-        }
-
-        opticsINC.MaxItem = opticsINC.Items.MinBy(t => Math.Abs(t.INCMotorAbsoluteValue - maxMotorAbsoluteValue));
+        
+        var (_, results) = Extremumor.FindMaxima(opticsINC.SmoothPoints);
+        opticsINC.MaxItemINCMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
     }
 
     private bool Save(IReadOnlyList<OpticsINCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
