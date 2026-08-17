@@ -14,9 +14,13 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
     [ObservableProperty]
     public partial double Score { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
+
     public object ToHtmlAnonymous() => new
     {
         OffsetFrequencyPeriodCoefficients,
-        Score
+        Score,
+        IsSelected
     };
 }

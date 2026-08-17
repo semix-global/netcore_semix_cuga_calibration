@@ -43,6 +43,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
+            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
+            Guard.IsGreaterThan(Cache.WaitTime, 0);
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
@@ -57,7 +59,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
 
-            Cache.Step0 = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem>();
+            if (isNotSilent == false || (DialogWindowProvider.TryShowDialog(
+                    "Yes: reset noise measure state. No: continue from the existing state.",
+                    out var dialogResult,
+                    DialogButtonsEnum.YesNo,
+                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
+            {
+                Cache.Step0 = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem>();
+            }
+
             Cache.Noise = 0d;
 
             var isSuccess = false;
@@ -89,6 +99,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     finally
                     {
                         if (isCurrentFrequenciesOk == false) Cache.Step0.Items = [.. Cache.Step0.Items.AsSpan()[..^1]];
+
+                        foreach (var temp in Cache.Step0.Items) temp.IsSelected = false;
                     }
                 }
 
@@ -122,8 +134,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
-
+            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
+            Guard.IsGreaterThan(Cache.WaitTime, 0);
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
@@ -132,6 +144,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
 
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+
+            Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
@@ -233,6 +247,16 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         finally
                         {
                             if (isCurrentFrequenciesOk == false) Cache.Step1.Items = [.. Cache.Step1.Items.AsSpan()[..^1]];
+
+                            foreach (var temp in Cache.Step1.Items) temp.IsSelected = false;
+
+                            var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
+                            bestScoreItem.IsSelected = true;
+
+                            foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
+                            {
+                                result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
+                            }
                         }
 
                         _lastCost = -item.Score;
@@ -255,13 +279,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             EndDetailLog();
                         }
                     }
-                }
-
-                var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
-
-                foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
-                {
-                    result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
                 }
             }
             finally
@@ -330,6 +347,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
+            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
+            Guard.IsGreaterThan(Cache.WaitTime, 0);
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
