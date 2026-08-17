@@ -25,7 +25,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     private double? _lastCost;
 
-    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", GetType().Name, "phase_optimizer_state.json");
+    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", GetType().Name, "optimizer_state.pkl");
 
     public override string[] Steps { get; } =
     [
@@ -231,7 +231,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                     .Index()
                                     .Select(t => t.Index == 0
                                         ? 0d
-                                        : Generate.LinearRangeInt32(0, t.Index - 1).Sum(tt => phases[tt]) / (2d * Math.PI) + t.Item.BoardCardOffsetFrequencyPeriodCoefficient)
+                                        : Generate.LinearRangeInt32(0, t.Index - 1).Sum(tt => phases[tt]) + t.Item.BoardCardOffsetFrequencyPeriodCoefficient)
                             ]
                         };
 
