@@ -208,15 +208,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     try
                     {
-                        var (phases, isDone) = AlgorithmSuggest(
-                            _lastCost,
-                            Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1,
-                            Cache.AlgorithmInitialPoints,
-                            Cache.Noise,
-                            Cache.AlgorithmEarlyStop,
-                            Cache.AlgorithmAcquisitionFunctionEnum);
+                        var (isOk, phases) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
 
-                        if (isDone)
+                        if (isOk)
                         {
                             isSuccess = true;
 
@@ -570,13 +564,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
-    private (double[] Phases, bool IsDone) AlgorithmSuggest(
-        double? previousCost,
-        int phaseCount,
-        int initialPoints,
-        double noise,
-        int earlyStop,
-        AlgorithmAcquisitionFunctionEnum algorithmAcquisitionFunctionEnum)
+    private (bool IsOk, double[] Phases) AlgorithmSuggest(double? previousCost, int phaseCount)
     {
         DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
 
@@ -597,16 +585,16 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         using var pyCost = previousCost.ToPython();
         using var pyPhaseCount = phaseCount.ToPython();
-        using var pyInitialPoints = initialPoints.ToPython();
-        using var pyNoise = noise.ToPython();
-        using var pyEarlyStop = earlyStop.ToPython();
-        using var pyAcquisitionFunction = algorithmAcquisitionFunctionEnum.ToString().ToPython();
+        using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
+        using var pyNoise = Cache.Noise.ToPython();
+        using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
+        using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
         using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
         using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
         using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
-        return (ToDoubles(pyPhases), pyDone.As<bool>());
+        return (pyDone.As<bool>(), ToDoubles(pyPhases));
     }
 
     private static double[] ToDoubles(PyObject pyValues)

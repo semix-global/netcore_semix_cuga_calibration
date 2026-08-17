@@ -219,7 +219,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             }
             finally
             {
-                if (isEndHtml)
+                if (isEndHtml || isSuccess == false)
                     Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSilent ? "All" : Steps[stepIndex].Replace(" ", string.Empty))}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
@@ -267,7 +267,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         finally
         {
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
- 
+
             Logger.LogTrace("Get Measure Power Time :{TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
     }
