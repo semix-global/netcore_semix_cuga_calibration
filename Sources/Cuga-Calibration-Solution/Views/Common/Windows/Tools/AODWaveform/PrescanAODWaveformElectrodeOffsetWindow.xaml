@@ -814,6 +814,15 @@
                                 <i:Interaction.Behaviors>
                                     <behaviors:DataGridScrollToCurrentBehavior />
                                 </i:Interaction.Behaviors>
+                                <DataGrid.RowStyle>
+                                    <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="{x:Static models:Constants.True}">
+                                                <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Width="500"
                                                         Header="Period(2pi)"

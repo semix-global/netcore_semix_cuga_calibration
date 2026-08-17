@@ -39,8 +39,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
     public string AODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
-    public string ResultAODWaveformCsvResultFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", "CSV", $"{GetType().Name}.CSV");
-
     public string ResultAODWaveformDirectoryPath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie { get; }

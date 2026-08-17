@@ -25,7 +25,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 {
     private double? _lastCost;
 
-    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", "PhaseOptimizer", $"{GetType().Name}_optimizer_state.json");
+    public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", GetType().Name, "phase_optimizer_state.json");
 
     public override string[] Steps { get; } =
     [
@@ -250,12 +250,15 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                             foreach (var temp in Cache.Step1.Items) temp.IsSelected = false;
 
-                            var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
-                            bestScoreItem.IsSelected = true;
-
-                            foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
+                            if (Cache.Step1.Items.Length > 0)
                             {
-                                result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
+                                var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
+                                bestScoreItem.IsSelected = true;
+
+                                foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
+                                {
+                                    result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
+                                }
                             }
                         }
 
