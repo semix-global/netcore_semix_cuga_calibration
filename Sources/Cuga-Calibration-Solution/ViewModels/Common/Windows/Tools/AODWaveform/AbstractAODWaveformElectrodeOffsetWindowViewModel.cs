@@ -37,7 +37,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     ];
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 0;
 
@@ -59,7 +59,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
 
-            if (isNotSilent == false || (DialogWindowProvider.TryShowDialog(
+            if (isSilent || (DialogWindowProvider.TryShowDialog(
                     "Yes: reset noise measure state. No: continue from the existing state.",
                     out var dialogResult,
                     DialogButtonsEnum.YesNo,
@@ -124,11 +124,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             }
 
             return isSuccess;
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step1Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 1;
 
@@ -158,7 +158,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
 
-            if (isNotSilent == false || (DialogWindowProvider.TryShowDialog(
+            if (isSilent || (DialogWindowProvider.TryShowDialog(
                     "Yes: reset the algorithm phase optimizer state. No: continue from the existing state.",
                     out var dialogResult,
                     DialogButtonsEnum.YesNo,
@@ -337,11 +337,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     detailLogFileName = null;
                 }
             }
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step2Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 2;
 
@@ -493,7 +493,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             }
 
             return isSuccess;
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -511,19 +511,19 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
         });
 
-        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isSilent */ true));
         if (await step0Task == false) return;
 
-        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
+        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isSilent */ true));
         if (await step1Task == false) return;
 
-        var step2Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step2Command.ExecuteAsync( /* isNotSilent */ false));
+        var step2Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step2Command.ExecuteAsync( /* isSilent */ true));
         if (await step2Task == false) return;
 
-        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
+        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isSilent */ true));
         if (await stepSecondLastTask == false) return;
 
-        await StepFirstLastCommand.ExecuteAsync( /* isNotSilent */ false);
+        await StepFirstLastCommand.ExecuteAsync( /* isSilent */ true);
     }
 
     private async Task UpdateElectrodeOffsetFrequencyPeriodItemAsync(

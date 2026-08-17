@@ -627,7 +627,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step0Command}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -650,7 +650,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step1Command}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -673,7 +673,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step2Command}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -696,7 +696,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding StepSecondLastCommand}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -719,7 +719,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding StepFirstLastCommand}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>

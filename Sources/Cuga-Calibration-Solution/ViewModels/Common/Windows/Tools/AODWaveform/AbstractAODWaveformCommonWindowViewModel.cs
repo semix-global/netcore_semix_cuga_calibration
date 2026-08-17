@@ -127,7 +127,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> StepSecondLastAsync(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> StepSecondLastAsync(bool isSilent, CancellationToken cancellationToken)
     {
         return await InvokeAsync(Steps.Length - 2, () =>
         {
@@ -141,11 +141,11 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             }
 
             return Task.FromResult(true);
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> StepFirstLastAsync(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> StepFirstLastAsync(bool isSilent, CancellationToken cancellationToken)
     {
         return await InvokeAsync(Steps.Length - 1, () =>
         {
@@ -159,7 +159,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             }
 
             return Task.FromResult(true);
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -183,12 +183,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected async Task<bool> InvokeAsync(
         int stepIndex,
         Func<Task<bool>> func,
-        bool isNotSilent)
+        bool isSilent)
     {
         return await Task.Run(async () =>
         {
-            var isInitHtmlLog = isNotSilent || stepIndex == 0;
-            var isEndHtml = isNotSilent || stepIndex == Steps.Length - 1;
+            var isInitHtmlLog = isSilent == false || stepIndex == 0;
+            var isEndHtml = isSilent == false || stepIndex == Steps.Length - 1;
 
             HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
 
@@ -205,7 +205,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             {
                 if (ex is OperationCanceledException)
                 {
-                    if (isNotSilent == false) isEndHtml = true;
+                    if (isSilent) isEndHtml = true;
 
                     DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                     Logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -222,12 +222,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             finally
             {
                 if (isEndHtml)
-                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isNotSilent ? Steps[stepIndex].Replace(" ", string.Empty) : "All")}_{(isSuccess ? "OK" : "Failed")}"));
+                    Logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSilent ? "All" : Steps[stepIndex].Replace(" ", string.Empty))}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isNotSilent ? Steps[stepIndex] : "All")} Success");
+                if (isEndHtml) DialogWindowProvider.ShowDialog($"{Name}: {(isSilent ? "All" : Steps[stepIndex])} Success");
             }
             else
                 DialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
