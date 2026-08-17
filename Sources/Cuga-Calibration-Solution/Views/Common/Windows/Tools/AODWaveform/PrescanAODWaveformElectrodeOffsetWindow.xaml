@@ -226,6 +226,11 @@
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ScoreLambda}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Gamma: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.ScoreGamma}" />
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Offset Frequency Period Params"
                                                                HorizontalAlignment="Center"

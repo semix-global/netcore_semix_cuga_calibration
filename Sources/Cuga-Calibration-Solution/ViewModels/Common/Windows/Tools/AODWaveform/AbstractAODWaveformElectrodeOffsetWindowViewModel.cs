@@ -104,7 +104,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     }
                 }
 
-                Cache.Noise = Cache.Step0.Items.Select(t => t.Score).StandardDeviation();
+                var standardDeviation = Cache.Step0.Items.Select(t => t.Score).StandardDeviation();
+                Cache.Noise = standardDeviation * standardDeviation;
 
                 isSuccess = true;
             }
@@ -567,7 +568,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         }
 
         var vector = 10d * (Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).PointwiseLog10();
-        frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation();
+        frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
     private (double[] Phases, bool IsDone) AlgorithmSuggest(

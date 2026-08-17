@@ -26,6 +26,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     public partial double ScoreLambda { get; set; } = 1d;
+    
+    [ObservableProperty]
+    public partial double ScoreGamma { get; set; } = 0.5;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
@@ -152,6 +155,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         Frequencies,
         NoiseMeasureTimes,
         ScoreLambda,
+        ScoreGamma,
         ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
