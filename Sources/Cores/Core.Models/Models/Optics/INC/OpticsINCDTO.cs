@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
@@ -10,12 +11,13 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
+using ScottPlot;
 using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.INC;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("1.0.1")]
 public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAdaptTo<CalibrationOpticsINC>
 {
     [ObservableProperty]
@@ -25,7 +27,10 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
     public partial IReadOnlyList<OpticsINCDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    public partial OpticsINCDTOItem? MaxItem { get; set; }
+    public partial IReadOnlyList<Point> SmoothPoints { get; set; } = [];
+
+    [ObservableProperty]
+    public partial double? MaxItemINCMotorAbsoluteValue { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -56,26 +61,35 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnMaxItemChanged(OpticsINCDTOItem? value) => RefreshPlot();
+    partial void OnSmoothPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    partial void OnMaxItemINCMotorAbsoluteValueChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
     public OpticsINCDTO()
     {
-        ScatterPlotControl.SetTitle("INC(Y: PMT Value - X: mm)");
+        ScatterPlotControl.SetTitle("INC(Y: PMT Value - X: °)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear();
+            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
+            var xLines = ScatterPlotControl.GetOrAddXLines(MaxItemINCMotorAbsoluteValue is not null ? 1 : 0);
 
-            ScatterPlotControl.GetOrAddScatterLine(
-                0,
-                $"INC {(MaxItem is not null ? $"{MaxItem.INCMotorAbsoluteValue:0.###}" : "-")}(mm)",
+            scatterLines.ElementAtOrDefault(0)?.Update(
+                "INC",
                 [.. Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))],
                 Constants.Category10.GetColor(0));
+
+            scatterLines.ElementAtOrDefault(1)?.Update(
+                "Smooth",
+                SmoothPoints,
+                Constants.Category10.GetColor(1));
+
+            xLines.ElementAtOrDefault(0)?.Update("Max", Guard.IsNotNullAndReturn(MaxItemINCMotorAbsoluteValue), Colors.Red);
         }
         finally
         {
@@ -89,7 +103,8 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        MaxItem = MaxItem?.Clone(),
+        SmoothPoints = [.. SmoothPoints],
+        MaxItemINCMotorAbsoluteValue = MaxItemINCMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -102,7 +117,7 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-        INCMotorAbsoluteValue = MaxItem?.INCMotorAbsoluteValue,
+        INCMotorAbsoluteValue = MaxItemINCMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
