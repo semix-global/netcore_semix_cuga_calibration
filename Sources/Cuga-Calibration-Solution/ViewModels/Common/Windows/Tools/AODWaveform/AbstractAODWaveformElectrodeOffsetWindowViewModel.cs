@@ -37,6 +37,19 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     private double? _lastCost;
 
+    protected override void Closing()
+    {
+        TestSetResultAODWaveformConfigurationCancelCommand.Execute(null);
+
+        AllCancelCommand.Execute(null);
+
+        StepFirstLastCancelCommand.Execute(null);
+        StepSecondLastCancelCommand.Execute(null);
+        Step2CancelCommand.Execute(null);
+        Step1CancelCommand.Execute(null);
+        Step0CancelCommand.Execute(null);
+    }
+
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {

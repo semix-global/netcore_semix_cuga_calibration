@@ -73,6 +73,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
     }
 
+    protected abstract void Closing();
+
     [RelayCommand]
     protected async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
 
@@ -165,6 +167,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     {
         try
         {
+            Closing();
+
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
             Cache.Id = 0;
