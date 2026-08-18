@@ -502,10 +502,10 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
         if (HostEnvironment.IsDevelopment())
         {
             opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.SmoothPoints.Maxima(t => t.Y).First().X;
-            
+
             return;
         }
-        
+
         var (_, results) = Extremumor.FindMaxima(opticsINC.SmoothPoints);
         opticsINC.MaxItemINCMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
     }
