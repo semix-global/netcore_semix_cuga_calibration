@@ -6,6 +6,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.CIB.AGCDelay;
+using Core.Models.Models.CIB.XTC;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
@@ -87,6 +88,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
+    [ObservableProperty]
+    public partial CIBXTCDTO[] CIBXTCs { get; set; } = [];
+
     public ProductivityInformation LowProductivityInformation => Cache.ProductivityInformation.OpticsIlluminationModeEnum == OpticsIlluminationModeEnum.OI
         ? ApplicationCookie.OILowProductivityInformation
         : ApplicationCookie.NILowProductivityInformation;
@@ -101,8 +105,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        CIBXTCs = ApplicationCookieService.GetCalibrations<CIBXTCDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBAGCDelayCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBAGCDelayDTO>(cancellationToken);
@@ -398,7 +402,15 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
         {
             var detectImageDirectory = ImageFileDirectory;
             var cibInformations = ApplicationCookie.CIBInformations;
-            var cibDelays = CIBViewModel.GetDelays(Cache.ProductivityInformation, cibInformations);
+
+            var defaultCIBDelays = CIBViewModel.GetDelays(Cache.ProductivityInformation, cibInformations);
+            var cibDelays = defaultCIBDelays.Select(t => t.Clone()).ToArray();
+
+            var cibxtc = CIBXTCs.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            foreach (var cibDelay in cibDelays)
+            {
+                cibDelay.WithPMTDelayAndSenseDelay(cibxtc.Items.Single(t => t.CIBInformation == cibDelay.CIBInformation).Delay);
+            }
 
             var averageZeroDelayError = 0d;
             if (Cache.ProductivityInformation != LowProductivityInformation) averageZeroDelayError = Calibrations.Single(t => t.ProductivityInformation == LowProductivityInformation).Items.Average(t => t.ZeroDelayError);
@@ -422,6 +434,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                 CalibratingItem.ProductivityInformation.OriginYPixelsStartIndex,
                 CalibratingItem.ProductivityInformation.OriginYPixelsEndIndex,
                 CIBInformations = new HtmlExpand(string.Empty, new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])),
+                DefaultCIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. defaultCIBDelays.Select(t => t.ToHtmlAnonymous())])),
                 CIBDelays = new HtmlExpand(string.Empty, new HtmlTable([.. cibDelays.Select(t => t.ToHtmlAnonymous())])),
                 initDelay,
                 averageZeroDelayError,
