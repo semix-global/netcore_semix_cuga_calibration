@@ -23,8 +23,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     where TItem : AODWaveformElectrodeOffsetItem, new()
     where TResult : AODWaveformElectrodeOffsetResult, new()
 {
-    private double? _lastCost;
-
     public string PhaseOptimizerStateFilePath => Path.Combine(ApplicationSetting.AppHomeDirectory, "Python", GetType().Name, "optimizer_state.pkl");
 
     public override string[] Steps { get; } =
@@ -35,6 +33,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         "Step 4 Generate AOD Waveform",
         "Step 5 Set AOD Waveform Config"
     ];
+
+    private double? _lastCost;
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
@@ -305,7 +305,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                 var currentDetailLogUniqueId = Guid.NewGuid();
 
                 detailLogUniqueId = currentDetailLogUniqueId;
-                detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", Cache.ElectrodeOffsetFrequencyPeriodParams.Select(t => t.OpticsAODElectrodeEnum))}_{startTimes}-{stopTimes}";
+                detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{startTimes}-{stopTimes}";
 
                 var title = $"{startTimes}-{stopTimes}";
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {detailLogFileName}({currentDetailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
