@@ -5,8 +5,8 @@
         <UseWPF>true</UseWPF>
         <RootNamespace>CugaCalibrationUnitTest</RootNamespace>
 
-		<Platform>x64</Platform>
-		<Platforms>x64</Platforms>
+        <Platform>x64</Platform>
+        <Platforms>x64</Platforms>
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 

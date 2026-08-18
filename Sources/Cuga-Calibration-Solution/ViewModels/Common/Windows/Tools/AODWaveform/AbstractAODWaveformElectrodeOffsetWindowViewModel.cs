@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -569,14 +570,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
 
         using var _ = Py.GIL();
-
-        using var sys = Py.Import("sys");
-        using var pathObject = sys.GetAttr("path");
-        using var pyList = new PyList(pathObject);
-        using var pyModuleDirectory = Path.Combine(AppContext.BaseDirectory, "Assets", "Python").ToPython();
-        pyList.Insert(0, pyModuleDirectory);
-
-        using var module = Py.Import("phase_optimizer");
+        using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeOffsetWindowViewModelShared.PhaseOptimizerPythonScript);
 
         using var pyPhaseOptimizerStateFilePath = PhaseOptimizerStateFilePath.ToPython();
         module.SetAttr("_STATE_FILE", pyPhaseOptimizerStateFilePath);
@@ -610,5 +604,21 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         }
 
         return result;
+    }
+}
+
+public static class AODWaveformElectrodeOffsetWindowViewModelShared
+{
+    public static readonly string PhaseOptimizerPythonScript = GetEmbeddedResource("CugaCalibration.Assets.Python.phase_optimizer.py");
+
+    private static string GetEmbeddedResource(string resourceName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream is null) ThrowHelper.ThrowArgumentException($"Resource '{resourceName}' not found in assembly '{assembly.FullName}'.");
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 }

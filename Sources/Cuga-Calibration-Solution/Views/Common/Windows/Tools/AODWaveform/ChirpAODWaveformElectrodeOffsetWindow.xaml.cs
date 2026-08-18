@@ -1,11 +1,9 @@
-using System.Collections;
 using CommunityToolkit.Diagnostics;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
-using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.Views.Common.Windows.Tools.AODWaveform;
 

@@ -8,7 +8,7 @@
         <ApplicationIcon>Assets\Images\CugaCalibration.ico</ApplicationIcon>
 
         <Platform>x64</Platform>
-		<Platforms>x64</Platforms>
+        <Platforms>x64</Platforms>
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
@@ -112,6 +112,10 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+
+        <None Remove="Assets\Python\*.*" />
+        <EmbeddedResource Include="Assets\Python\*.*" />
+
         <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />
     </ItemGroup>
