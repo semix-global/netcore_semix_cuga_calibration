@@ -9,7 +9,6 @@ using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -32,9 +31,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     [
         "Step 1 Measure Noise",
         "Step 2 Electrode Offset",
-        "Step 3 Uniformity",
-        "Step 4 Generate AOD Waveform",
-        "Step 5 Set AOD Waveform Config"
+        "Step 3 Generate AOD Waveform",
+        "Step 4 Set AOD Waveform Config"
     ];
 
     private double? _lastCost;
@@ -47,7 +45,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         StepFirstLastCancelCommand.Execute(null);
         StepSecondLastCancelCommand.Execute(null);
-        Step2CancelCommand.Execute(null);
         Step1CancelCommand.Execute(null);
         Step0CancelCommand.Execute(null);
     }
@@ -90,8 +87,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             try
             {
-                var linearSplines = Cache.CreateElectrodeOffsetFrequencyPeriodLinearSplines();
-
                 for (var index = 0; index < Cache.NoiseMeasureTimes; index++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -108,7 +103,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     var isCurrentFrequenciesOk = false;
                     try
                     {
-                        await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, linearSplines, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                        await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, null, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                         isCurrentFrequenciesOk = true;
                     }
@@ -211,8 +206,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             try
             {
-                var linearSplines = Cache.CreateElectrodeOffsetFrequencyPeriodLinearSplines();
-
                 var times = 0;
                 while (true)
                 {
@@ -224,8 +217,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     try
                     {
-                        (isSuccess, var phases) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
+                        (isSuccess, var phases, var uniformities) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
                         if (isSuccess) break;
+
+                        var linearSpaced = Generate.LinearSpaced(uniformities.Length, Cache.Frequencies.Min(), Cache.Frequencies.Max());
+                        var linearSpline = LinearSpline.InterpolateSorted(linearSpaced, uniformities);
 
                         var item = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
                         {
@@ -244,7 +240,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         var isCurrentFrequenciesOk = false;
                         try
                         {
-                            await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, linearSplines, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                            await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, linearSpline, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                             isCurrentFrequenciesOk = true;
                         }
@@ -262,6 +258,14 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                                 foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
                                 {
                                     result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
+                                    result.UniformityConfigurations =
+                                    [
+                                        .. bestScoreItem.FrequencyItems.Select(t => new GenerateAODWaveformUniformityConfiguration
+                                        {
+                                            Frequency = t.Frequency,
+                                            Coefficient = t.Amplitude
+                                        })
+                                    ];
                                 }
                             }
                         }
@@ -348,162 +352,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken)
-    {
-        const int stepIndex = 2;
-
-        return await InvokeAsync(stepIndex, async () =>
-        {
-            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
-            Guard.IsGreaterThan(Cache.WaitTime, 0);
-            Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
-            Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
-
-            Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
-            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
-            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
-
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
-
-            Guard.IsGreaterThan(Cache.ElectrodeOffsetFrequencyUniformityParamStepFrequency, 0);
-            Guard.IsGreaterThan(Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize, 0);
-
-            Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Length, Cache.ElectrodeOffsetFrequencyPeriodParams.Length);
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
-            Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
-            Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Length, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
-
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
-            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            OpticsViewModel.ToggleODFilter(false);
-
-            Cache.Step2Items = [];
-            foreach (var electrodeConfiguration in Cache.ElectrodeConfigurationResults) electrodeConfiguration.UniformityConfigurations = [];
-
-            var isSuccess = false;
-
-            try
-            {
-                var frequencies = Generate.LinearRangeContainsEdge(Cache.Frequencies[0], Cache.ElectrodeOffsetFrequencyUniformityParamStepFrequency, Cache.Frequencies[^1]);
-                Guard.IsNotEmpty(frequencies);
-
-                foreach (var electrodeFrequencyUniformityParams in Cache.ElectrodeOffsetFrequencyUniformityParams.Chunk(Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize))
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var electrodes = electrodeFrequencyUniformityParams.Select(t => t.OpticsAODElectrodeEnum).ToArray();
-
-                    var aodWaveformElectrodeOffsetFrequencyUniformity = new AODWaveformElectrodeOffsetFrequencyUniformity<TItem> { Electrodes = electrodes };
-                    Cache.Step2Items = [.. Cache.Step2Items, aodWaveformElectrodeOffsetFrequencyUniformity];
-
-                    var detailLogUniqueId = Guid.NewGuid();
-                    var detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyUniformity.Electrodes)}";
-                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyUniformity.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {detailLogFileName}({detailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
-                    Logger.LogHtmlInformation($"{detailLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), detailLogUniqueId.LoggingHtml());
-
-                    try
-                    {
-                        foreach (var frequency in frequencies)
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            var aodWaveformElectrodeOffsetFrequencyUniformityItem = new AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>();
-                            aodWaveformElectrodeOffsetFrequencyUniformity.Items = [.. aodWaveformElectrodeOffsetFrequencyUniformity.Items, aodWaveformElectrodeOffsetFrequencyUniformityItem];
-
-                            Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, detailLogUniqueId.LoggingHtml());
-
-                            var amplitudes = Generate.LinearRangeContainsEdge(electrodeFrequencyUniformityParams[0].StartAmplitude, electrodeFrequencyUniformityParams[0].StepAmplitude, electrodeFrequencyUniformityParams[0].StopAmplitude)
-                                .AsEnumerable()
-                                .Reverse()
-                                .ToArray();
-                            Guard.IsNotEmpty(amplitudes);
-
-                            foreach (var amplitude in amplitudes)
-                            {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                var item = new TItem
-                                {
-                                    ElectrodeConfigurations =
-                                    [
-                                        .. Cache.ElectrodeConfigurationResults
-                                            .Select(t =>
-                                            {
-                                                if (electrodes.Contains(t.OpticsAODElectrodeEnum))
-                                                {
-                                                    return t.Clone()
-                                                        .WithAmplitude(amplitude)
-                                                        .WithUniformityConfigurations([]);
-                                                }
-
-                                                var uniformityConfigurationResults = Cache.ElectrodeConfigurationResults
-                                                    .Single(tt => tt.OpticsAODElectrodeEnum == t.OpticsAODElectrodeEnum)
-                                                    .UniformityConfigurations;
-
-                                                return t.Clone()
-                                                    .WithAmplitude(uniformityConfigurationResults.Count > 0
-                                                        ? uniformityConfigurationResults.Single(tt => Equals(tt.Frequency, frequency)).Coefficient
-                                                        : Cache.DefaultAmplitude)
-                                                    .WithUniformityConfigurations([]);
-                                            })
-                                    ],
-                                    Amplitude = amplitude,
-                                    Frequency = frequency
-                                };
-
-                                Logger.LogHtmlInformation($"{item.Amplitude}(AMP)", HtmlHeaderLevelEnum.Header5, detailLogUniqueId.LoggingHtml());
-
-                                await UpdateMeasurePowerAsync(item, detailLogUniqueId, cancellationToken).ConfigureAwait(false);
-
-                                aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyUniformityItem.FrequencyItems, item];
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        Logger.LogHtmlInformation(detailLogUniqueId.LoggedEndHtml(detailLogFileName));
-                    }
-
-                    foreach (var electrodeConfiguration in Cache.ElectrodeConfigurationResults.Where(t => electrodes.Contains(t.OpticsAODElectrodeEnum)))
-                    {
-                        var points = aodWaveformElectrodeOffsetFrequencyUniformity.PlotDataSource.GetScatterLines(1).Single().ScatterSourcePoints.Points;
-                        if (points.Count != frequencies.Length) return ThrowHelper.ThrowArgumentException<bool>($"{nameof(points)} count != {nameof(frequencies)} count");
-
-                        electrodeConfiguration.UniformityConfigurations =
-                        [
-                            .. points.Select(t => new GenerateAODWaveformUniformityConfiguration
-                            {
-                                Frequency = t.X,
-                                Coefficient = t.Y
-                            })
-                        ];
-                    }
-                }
-
-                isSuccess = true;
-            }
-            finally
-            {
-                var htmlBullet = new HtmlBullet(new
-                {
-                    Cache.Noise,
-                    Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
-                    Step2Items = new HtmlTable([.. Cache.Step1.Items.Select(t => t.ToHtmlAnonymous())]),
-                    Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
-                    Step3Plot = new HtmlContainer([.. Cache.Step2Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))])
-                });
-
-                if (isSuccess)
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-            }
-
-            return isSuccess;
-        }, isSilent).ConfigureAwait(false);
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
 #if NET
@@ -513,7 +361,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         {
             if (Step0Command.CanBeCanceled) Step0Command.Cancel();
             if (Step1Command.CanBeCanceled) Step1Command.Cancel();
-            if (Step2Command.CanBeCanceled) Step2Command.Cancel();
             if (StepSecondLastCommand.CanBeCanceled) StepSecondLastCommand.Cancel();
             if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
         });
@@ -524,9 +371,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isSilent */ true));
         if (await step1Task == false) return;
 
-        var step2Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step2Command.ExecuteAsync( /* isSilent */ true));
-        if (await step2Task == false) return;
-
         var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isSilent */ true));
         if (await stepSecondLastTask == false) return;
 
@@ -535,7 +379,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     private async Task UpdateElectrodeOffsetFrequencyPeriodItemAsync(
         AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> frequencyPeriodItem,
-        LinearSpline?[] linearSplines,
+        LinearSpline? linearSpline,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
     {
@@ -543,7 +387,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+            var amplitude = linearSpline?.Interpolate(frequency) ?? Cache.DefaultAmplitude;
+
+            Logger.LogHtmlInformation($"{frequency}(MHz)-[{amplitude}]", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
             var item = new TItem
             {
@@ -556,13 +402,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             OpticsAODElectrodeEnum = t.Item.OpticsAODElectrodeEnum,
                             OffsetFrequency = Cache.OffsetFrequency,
                             OffsetFrequencyPeriodCoefficient = frequencyPeriodItem.OffsetFrequencyPeriodCoefficients[t.Index],
-                            Amplitude = linearSplines[t.Index]?.Interpolate(frequency) ?? Cache.DefaultAmplitude,
+                            Amplitude = amplitude,
                             IsGenerateAODWaveformZero = false,
                             UniformityConfigurations = []
                         })
                 ],
                 Frequency = frequency,
-                Amplitude = Cache.DefaultAmplitude
+                Amplitude = amplitude
             };
 
             await UpdateMeasurePowerAsync(item, htmlLogUniqueId, cancellationToken).ConfigureAwait(false);
@@ -574,7 +420,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
-    private (bool IsSuccess, double[] Phases) AlgorithmSuggest(double? previousCost, int phaseCount)
+    private (bool IsSuccess, double[] Phases, double[] Uniformities) AlgorithmSuggest(double? previousCost, int phaseCount)
     {
         var timestamp = Stopwatch.GetTimestamp();
 
@@ -593,7 +439,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             using var suggest = module.GetAttr("suggest");
 
             using var pyCost = previousCost.ToPython();
-            using var pyPhaseCount = phaseCount.ToPython();
+            using var pyPhaseCount = (phaseCount + Cache.AlgorithmUniformityCount).ToPython();
             using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
             using var pyNoise = Cache.Noise.ToPython();
             using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
@@ -603,7 +449,11 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
-            return (pyDone.As<bool>(), ToDoubles(pyPhases));
+            var doubles = ToDoubles(pyPhases);
+            var phases = doubles.AsSpan()[..phaseCount].ToArray();
+            var uniformities = doubles.AsSpan()[phaseCount..].ToArray();
+
+            return (pyDone.As<bool>(), phases, uniformities);
         }
         finally
         {

@@ -1,7 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 
@@ -19,15 +18,12 @@ public sealed class PrescanAODWaveformElectrodeOffsetConvert : MarkupExtension, 
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not IEnumerable<PrescanAODWaveformElectrodeOffsetItem> items) return ThrowHelper.ThrowNotSupportedException<object>();
+        if (value is not PrescanAODWaveformElectrodeOffsetItem[] items || parameter is not string format) return ThrowHelper.ThrowNotSupportedException<object>();
 
-        var item = items.FirstOrDefault();
-
-        return item is null ? DependencyProperty.UnsetValue : $"{item.Frequency}MHz";
+        return string.Join(", ", items.Select(t => $"{t.Frequency.ToString(format)}: {t.Amplitude.ToString(format)}"));
     }
 
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => ThrowHelper.ThrowNotSupportedException<object>();
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => ThrowHelper.ThrowNotSupportedException<object>();
 
     public override object ProvideValue(IServiceProvider serviceProvider) => this;
 }
