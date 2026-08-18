@@ -274,6 +274,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
+            CalibratingItem.SmoothPoints = [];
             CalibratingItem.MaxItemAODDelay = null;
             CalibratingItem.IsCalibrated = false;
 
@@ -482,6 +483,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
         if (HostEnvironment.IsDevelopment())
         {
             aodDelay.MaxItemAODDelay = aodDelay.SmoothPoints.Maxima(t => t.Y).First().X;
+
             return;
         }
 

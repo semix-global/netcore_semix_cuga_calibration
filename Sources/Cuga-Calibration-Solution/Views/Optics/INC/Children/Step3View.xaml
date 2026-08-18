@@ -61,22 +61,34 @@
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.ImageWidth}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Start INC(mm): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Start Rough INC(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.StartINCMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step INC(mm): "
+                                          Value="{Binding Cache.Item.StartRoughINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step Rough INC(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.StepINCMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Stop INC(mm): "
+                                          Value="{Binding Cache.Item.StepRoughINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop Rough INC(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.StopINCMotorAbsoluteValue}" />
+                                          Value="{Binding Cache.Item.StopRoughINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Range Refined INC(°): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.RangeRefinedINCMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step Refined INC(°): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepRefinedINCMotorAbsoluteValue}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -128,7 +140,7 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="INC(mm)" DisplayMemberBinding="{Binding INCMotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="INC(°)" DisplayMemberBinding="{Binding INCMotorAbsoluteValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="PMT Value" DisplayMemberBinding="{Binding PMTValue, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
