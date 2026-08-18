@@ -12,6 +12,9 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase<OpticsINCCache
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
+    [ObservableProperty]
+    public partial int SmoothWindowSize { get; set; } = 21;
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, OpticsINCCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, OpticsINCCacheItem> Items { get; init; } = [];
 
@@ -21,6 +24,7 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase<OpticsINCCache
     public override OpticsINCCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
+        SmoothWindowSize = SmoothWindowSize,
         Items = new ConcurrentDictionary<ProductivityInformation, OpticsINCCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, OpticsINCCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
@@ -53,13 +57,19 @@ public sealed partial class OpticsINCCacheItem : CalibrationCacheBase<OpticsINCC
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double StartINCMotorAbsoluteValue { get; set; }
+    public partial double StartRoughINCMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial double StepINCMotorAbsoluteValue { get; set; }
+    public partial double StepRoughINCMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial double StopINCMotorAbsoluteValue { get; set; }
+    public partial double StopRoughINCMotorAbsoluteValue { get; set; }
+
+    [ObservableProperty]
+    public partial double RangeRefinedINCMotorAbsoluteValue { get; set; } = 0.2;
+
+    [ObservableProperty]
+    public partial double StepRefinedINCMotorAbsoluteValue { get; set; } = 0.01;
 
     public override OpticsINCCacheItem Clone() => new()
     {
@@ -70,9 +80,11 @@ public sealed partial class OpticsINCCacheItem : CalibrationCacheBase<OpticsINCC
         CIBConfiguration = CIBConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
-        StartINCMotorAbsoluteValue = StartINCMotorAbsoluteValue,
-        StepINCMotorAbsoluteValue = StepINCMotorAbsoluteValue,
-        StopINCMotorAbsoluteValue = StopINCMotorAbsoluteValue,
+        StartRoughINCMotorAbsoluteValue = StartRoughINCMotorAbsoluteValue,
+        StepRoughINCMotorAbsoluteValue = StepRoughINCMotorAbsoluteValue,
+        StopRoughINCMotorAbsoluteValue = StopRoughINCMotorAbsoluteValue,
+        RangeRefinedINCMotorAbsoluteValue = RangeRefinedINCMotorAbsoluteValue,
+        StepRefinedINCMotorAbsoluteValue = StepRefinedINCMotorAbsoluteValue,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

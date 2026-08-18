@@ -10,7 +10,9 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.INC;
 using MathNet.Numerics;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
@@ -280,16 +282,20 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
-                Cache.Item.StartINCMotorAbsoluteValue,
-                Cache.Item.StepINCMotorAbsoluteValue,
-                Cache.Item.StopINCMotorAbsoluteValue,
+                Cache.Item.StartRoughINCMotorAbsoluteValue,
+                Cache.Item.StepRoughINCMotorAbsoluteValue,
+                Cache.Item.StopRoughINCMotorAbsoluteValue,
+                Cache.Item.RangeRefinedINCMotorAbsoluteValue,
+                Cache.Item.StepRefinedINCMotorAbsoluteValue,
+                Cache.SmoothWindowSize,
                 currentMotorAbsoluteValue,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
             CalibratingItem.Items = [];
-            CalibratingItem.MaxItem = null;
+            CalibratingItem.SmoothPoints = [];
+            CalibratingItem.MaxItemINCMotorAbsoluteValue = null;
             CalibratingItem.IsCalibrated = false;
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
@@ -300,59 +306,25 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
             {
                 Logger.LogHtmlInformation("INC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var relayMotorAbsoluteValues = Generate.LinearRange(Cache.Item.StartINCMotorAbsoluteValue, Cache.Item.StepINCMotorAbsoluteValue, Cache.Item.StopINCMotorAbsoluteValue);
-                Guard.IsNotEmpty(relayMotorAbsoluteValues);
+                await CatchINCAsync(Generate.LinearRange(
+                    Cache.Item.StartRoughINCMotorAbsoluteValue,
+                    Cache.Item.StepRoughINCMotorAbsoluteValue,
+                    Cache.Item.StopRoughINCMotorAbsoluteValue));
 
-                foreach (var relayMotorAbsoluteValue in relayMotorAbsoluteValues)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+                Algorithm(CalibratingItem);
+                Guard.IsNotNull(CalibratingItem.MaxItemINCMotorAbsoluteValue);
 
-                    OpticsViewModel.SetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, relayMotorAbsoluteValue);
+                await CatchINCAsync(Generate.LinearRange(
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value - Cache.Item.RangeRefinedINCMotorAbsoluteValue,
+                    Cache.Item.StepRefinedINCMotorAbsoluteValue,
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value + Cache.Item.RangeRefinedINCMotorAbsoluteValue));
 
-                    using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Dark,
-                        hazeBFPosition,
-                        Cache.Item.ImageWidth,
-                        Cache.Item.CIBInformation,
-                        (false, CalChipSiteModelEnum.HazeModel),
-                        (false, Cache.Item.OpticsConfiguration),
-                        (false, Cache.Item.CIBConfiguration),
-                        (false, Cache.Item.LaserLightInformation),
-                        false,
-                        cancellationToken);
-
-                    var imageFilePath = Path.Combine(detectImageDirectory, $"{relayMotorAbsoluteValue:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    darkFieldImage.Image.SaveImage(imageFilePath);
-
-                    using var hImage = darkFieldImage.Image.ToHImage();
-                    var itemItem = new OpticsINCDTOItem
-                    {
-                        INCMotorAbsoluteValue = relayMotorAbsoluteValue,
-                        ImageFilePath = imageFilePath,
-                        RawImageFilePath = darkFieldImage.RawImageFilePath,
-                        PMTValue = hImage.GetIntensity().Average
-                    };
-
-                    CalibratingItem.Items = [.. CalibratingItem.Items, itemItem];
-
-                    Logger.LogHtmlInformation($"{relayMotorAbsoluteValue:0.###}mm", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        itemItem.PMTValue,
-                        itemItem.RawImageFilePath,
-                        HtmlImage = new HtmlImage(itemItem.ImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-
-                CalibratingItem.MaxItem = CalibratingItem.Items.Maxima(t => t.PMTValue).First();
+                Algorithm(CalibratingItem);
                 CalibratingItem.IsCalibrated = true;
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    CalibratingItem.MaxItem.INCMotorAbsoluteValue,
-                    CalibratingItem.MaxItem.PMTValue,
-                    CalibratingItem.MaxItem.RawImageFilePath,
-                    HtmlImage = new HtmlImage(CalibratingItem.MaxItem.ImageFilePath),
+                    CalibratingItem.MaxItemINCMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -364,6 +336,52 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 Guard.IsTrue(Save([CalibratingItem], cancellationToken));
 
                 return CalibratingItem.IsCalibrated;
+
+                async Task CatchINCAsync(IReadOnlyList<double> incMotorAbsoluteValues)
+                {
+                    Guard.IsNotEmpty(incMotorAbsoluteValues);
+
+                    foreach (var incMotorAbsoluteValue in incMotorAbsoluteValues)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        OpticsViewModel.SetINCMotorAbsoluteValue(Cache.ProductivityInformation.OpticsIlluminationModeEnum, incMotorAbsoluteValue);
+
+                        using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Dark,
+                            hazeBFPosition,
+                            Cache.Item.ImageWidth,
+                            Cache.Item.CIBInformation,
+                            (false, CalChipSiteModelEnum.HazeModel),
+                            (false, Cache.Item.OpticsConfiguration),
+                            (false, Cache.Item.CIBConfiguration),
+                            (false, Cache.Item.LaserLightInformation),
+                            false,
+                            cancellationToken);
+
+                        var imageFilePath = Path.Combine(detectImageDirectory, $"{incMotorAbsoluteValue:0.###}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        darkFieldImage.Image.SaveImage(imageFilePath);
+
+                        using var hImage = darkFieldImage.Image.ToHImage();
+                        var itemItem = new OpticsINCDTOItem
+                        {
+                            INCMotorAbsoluteValue = incMotorAbsoluteValue,
+                            ImageFilePath = imageFilePath,
+                            RawImageFilePath = darkFieldImage.RawImageFilePath,
+                            PMTValue = hImage.GetIntensity().Average
+                        };
+
+                        CalibratingItem.Items = [.. ((IReadOnlyList<OpticsINCDTOItem>)[.. CalibratingItem.Items, itemItem]).OrderBy(t => t.INCMotorAbsoluteValue)];
+
+                        Logger.LogHtmlInformation($"{incMotorAbsoluteValue:0.###}°", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                        {
+                            itemItem.PMTValue,
+                            itemItem.RawImageFilePath,
+                            HtmlImage = new HtmlImage(itemItem.ImageFilePath)
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+                }
             }
             finally
             {
@@ -372,6 +390,43 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
             }
         });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task AlgorithmAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0) return;
+
+        await InvokeVerifyAsync(async () =>
+        {
+            Logger.LogHtmlInformation("Algorithm Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+            {
+                Cache.SmoothWindowSize
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            await Task.WhenAll(SelectedReviewItems.Select(inc => Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Algorithm(inc);
+                inc.IsVerified = false;
+                inc.IsCalibrated = true;
+
+                Logger.LogHtmlInformation($"{inc.ProductivityInformation}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    inc.MaxItemINCMotorAbsoluteValue,
+                    ScatterPlotControl = new HtmlContainer([.. inc.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                }), HtmlLogUniqueId.LoggingHtml());
+            }, cancellationToken)));
+
+            var result = SelectedReviewItems.All(t => t.IsCalibrated);
+
+            DialogWindowProvider.ShowDialog($"Algorithm {(result ? "OK" : "Failed")}",
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -412,12 +467,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    selectedReviewItem.MaxItem?.INCMotorAbsoluteValue,
-                    selectedReviewItem.MaxItem?.PMTValue,
-                    selectedReviewItem.MaxItem?.RawImageFilePath,
-                    Image = string.IsNullOrWhiteSpace(selectedReviewItem.MaxItem?.ImageFilePath)
-                        ? (BaseHtmlElement)new HtmlComment("The image was not saved. For details, see the raw file path.")
-                        : new HtmlImage(Guard.IsNotNullAndReturn(selectedReviewItem.MaxItem).ImageFilePath),
+                    selectedReviewItem.MaxItemINCMotorAbsoluteValue,
                     ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -443,6 +493,21 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private void Algorithm(OpticsINCDTO opticsINC)
+    {
+        opticsINC.SmoothPoints = Filter.MovMean([.. opticsINC.Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))], Cache.SmoothWindowSize);
+
+        if (HostEnvironment.IsDevelopment())
+        {
+            opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.SmoothPoints.Maxima(t => t.Y).First().X;
+
+            return;
+        }
+
+        var (_, results) = Extremumor.FindMaxima(opticsINC.SmoothPoints);
+        opticsINC.MaxItemINCMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
     }
 
     private bool Save(IReadOnlyList<OpticsINCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
