@@ -260,7 +260,7 @@
                                                         <DataGridTextColumn IsReadOnly="True"
                                                                             Header="AOD Electrode"
                                                                             Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        <DataGridTextColumn Header="Board Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Board Offset Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
                                                         <DataGridTemplateColumn Header="Uniformity">
                                                             <DataGridTemplateColumn.CellTemplate>
                                                                 <DataTemplate>
@@ -797,9 +797,7 @@
                                     <DataGridTextColumn Width="100"
                                                         Header="Score"
                                                         Binding="{Binding Score, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Width="350"
-                                                        Header="Period(2pi)"
-                                                        Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
@@ -834,9 +832,7 @@
                                     <DataGridTextColumn Width="100"
                                                         Header="Score"
                                                         Binding="{Binding Score, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Width="350"
-                                                        Header="Period(2pi)"
-                                                        Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
