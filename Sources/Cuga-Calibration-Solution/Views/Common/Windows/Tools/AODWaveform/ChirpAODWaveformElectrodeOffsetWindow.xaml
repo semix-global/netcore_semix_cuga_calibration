@@ -548,14 +548,13 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Noise: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  DecimalPlaces="6"
-                                                                  Minimum="0"
-                                                                  IsReadOnly="True"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.Noise}" />
+                                                <TextBox Text="{Binding Cache.Noise}"
+                                                         hc:TitleElement.Title="Noise: "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Offset"
                                                                HorizontalAlignment="Center"
