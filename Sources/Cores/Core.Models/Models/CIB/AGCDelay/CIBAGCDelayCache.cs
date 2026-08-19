@@ -68,6 +68,9 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
     public partial double TargetPMTValue { get; set; } = 400d;
 
     [ObservableProperty]
+    public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 10;
+
+    [ObservableProperty]
     public partial int MarkerLengthPixel { get; set; } = 30;
 
     public override CIBAGCDelayCacheItem Clone() => new()
@@ -80,6 +83,7 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
         StopCoefficient = StopCoefficient,
         ImageWidth = ImageWidth,
         TargetPMTValue = TargetPMTValue,
+        PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
         MarkerLengthPixel = MarkerLengthPixel,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
