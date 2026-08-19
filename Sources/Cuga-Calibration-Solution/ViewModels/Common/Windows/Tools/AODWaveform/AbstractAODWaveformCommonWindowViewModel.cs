@@ -257,10 +257,12 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
             double measurePower;
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 measurePower = LaserViewModel.GetOpticalMeasurePower();
                 if (0 < measurePower && measurePower <= Cache.TotalMeasurePower) break;
 
-                Logger.LogWarning("Get Optical Measure Power Failed, Retrying...");
+                Logger.LogWarning($"Get Optical Measure Power Failed({measurePower:0.###}mW), Retrying...");
                 if (++times > Cache.MeasurePowerTimes - 1) ThrowHelper.ThrowNotSupportedException($"Get Optical Measure Power Failed, Over Max Retry Count({Cache.MeasurePowerTimes})");
             }
 
