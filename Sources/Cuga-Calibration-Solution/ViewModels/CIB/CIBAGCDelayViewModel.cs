@@ -34,6 +34,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Core.Models.Models.Microscope.CalChip;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -780,9 +781,9 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
             {
                 ImageHorizontalProjects =
                 [
-                    .. Generate.LinearRangeInt32(0, Cache.ProductivityInformation.OriginYPixelsStartIndex - 1).Select(_ => horizontalProjects[0]),
+                    .. Generate.Repeat(Cache.ProductivityInformation.OriginYPixelsStartIndex, horizontalProjects[0]),
                     .. horizontalProjects,
-                    .. Generate.LinearRangeInt32(Cache.ProductivityInformation.OriginYPixelsEndIndex, Cache.ProductivityInformation.OriginYPixels - 1).Select(_ => horizontalProjects[^1])
+                    .. Generate.Repeat(Cache.ProductivityInformation.OriginYPixels - 1 - Cache.ProductivityInformation.OriginYPixelsEndIndex, horizontalProjects[^1])
                 ],
                 RawImageFilePath = darkFieldImage.RawImageFilePath,
                 ImageFilePath = imageFilePath

@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
-using Cuga.Data.DataStruct.DTO.Swath;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
@@ -10,6 +9,7 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
@@ -192,19 +192,30 @@ public sealed partial class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(C2MProductivityInfo obj,
-        CgSwathSpeedInfo swathSpeedInfo,
-        double originYPixels,
-        double originYPixelsStartIndex,
-        double originYPixelsEndIndex,
-        double sampleRate,
-        double xSpeedValue
+    public ProductivityInformation AdaptIn(
+        C2MProductivityInfo obj,
 #if NET
-        , OpticsIlluminationModeEnum opticsIlluminationModeEnum
+        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
 #endif
-
-    )
+        double yPixelSize,
+        double yPixel,
+        int pxStartPoint,
+        int pxEndPoint,
+        double hz,
+        double xSpeedValue)
     {
+        /*
+         * YPixel : 表示PMT原始长度(原始配置，就是用来匹配CIB的波形数据长度的, 非截取)
+         * PxStartPoint - 0 : 表示前面少几个点
+         * YPixel - PxEndPoint : 表示后面少几个点
+         * PxEndPoint - PxStartPoint : 表示实际图片总长度【YPixel - (PxStartPoint - 0) - (YPixel - PxEndPoint) = PxEndPoint - PxStartPoint】
+         * 举例子：
+         * YPixel: 1700 就表示PMT的数据有 1700 长度
+         * PxStartPoint: 30 就是表示 30 - 0, 表示前面少30个点
+         * PxEndPoint: 1600 就是表示 1700 - 1600 = 100, 表示后面少100个点
+         * 所以实际图片总长度 1600 - 30 =1570 长度
+         */
+
         Name = obj.Name;
 #if NET
         OpticsIlluminationModeEnum = opticsIlluminationModeEnum;
@@ -213,12 +224,22 @@ public sealed partial class ProductivityInformation :
 #endif
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
-        YPixelSize = swathSpeedInfo.YPixelSize;
-        OriginYPixels = Convert.ToInt32(originYPixels);
-        OriginYPixelsStartIndex = Convert.ToInt32(originYPixelsStartIndex);
-        OriginYPixelsEndIndex = Convert.ToInt32(originYPixelsEndIndex);
-        YPixels = OriginYPixelsEndIndex - OriginYPixelsStartIndex;
-        SampleRate = sampleRate;
+        YPixelSize = yPixelSize;
+
+        OriginYPixels = Convert.ToInt32(yPixel);
+
+        Guard.IsGreaterThanOrEqualTo(pxStartPoint, 0);
+        Guard.IsGreaterThan(pxEndPoint, pxStartPoint);
+        Guard.IsGreaterThanOrEqualTo(OriginYPixels, pxEndPoint);
+
+        OriginYPixelsStartIndex = pxStartPoint;
+        OriginYPixelsEndIndex = OriginYPixels - 1 - (OriginYPixels - pxEndPoint);
+        YPixels = pxEndPoint - pxStartPoint;
+
+        Guard.IsEqualTo(OriginYPixelsEndIndex - OriginYPixelsStartIndex + 1, YPixels);
+        Guard.IsGreaterThanOrEqualTo(OriginYPixels, YPixels);
+
+        SampleRate = hz;
         XSpeedValue = xSpeedValue;
         XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 

@@ -351,7 +351,10 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
             var hostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
 
             var imageHorizontalProjects = hostEnvironment.IsProduction()
-                ? ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray()
+                ? ImageHorizontalProjects
+                    .ToArray()
+                    .AsSpan()[productivityInformation.OriginYPixelsStartIndex..(productivityInformation.OriginYPixelsEndIndex + 1)]
+                    .ToArray()
                 : ImageHorizontalProjects.ToArray();
 
             var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
