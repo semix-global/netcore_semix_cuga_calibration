@@ -222,14 +222,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     try
                     {
-                        var (isOk, phases) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
-
-                        if (isOk)
-                        {
-                            isSuccess = true;
-
-                            break;
-                        }
+                        (isSuccess, var phases) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
+                        if (isSuccess) break;
 
                         var item = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
                         {
@@ -578,7 +572,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
-    private (bool IsOk, double[] Phases) AlgorithmSuggest(double? previousCost, int phaseCount)
+    private (bool IsSuccess, double[] Phases) AlgorithmSuggest(double? previousCost, int phaseCount)
     {
         DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
 
