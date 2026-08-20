@@ -47,6 +47,9 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
+
+    [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
@@ -76,6 +79,7 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
     public override CIBAGCDelayCacheItem Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
         OpticsConfiguration = OpticsConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         StartCoefficient = StartCoefficient,

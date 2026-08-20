@@ -23,7 +23,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("1.0.1")]
 public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
@@ -75,10 +75,14 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
     {
         oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
+
         OnPropertyChanged(nameof(IsReverse));
         RefreshForwardAndReversePlot();
+
+        return;
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -90,10 +94,14 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
     {
         oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
         newValue.PropertyChanged -= ItemOnPropertyChanged;
         newValue.PropertyChanged += ItemOnPropertyChanged;
+
         OnPropertyChanged(nameof(IsReverse));
         RefreshForwardAndReversePlot();
+
+        return;
 
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -130,6 +138,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
         ScatterPlotControl.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
 
         ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
+
         ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
         ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
@@ -168,18 +177,37 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
             ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
         }
 
+        return;
+
         void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
         {
             if (windowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(0, title, [.. windowItem.Window.ToPoints()], primaryColor);
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    title,
+                    [.. windowItem.Window.ToPoints()],
+                    primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(1, title, [.. windowItem.ImageHorizontalProjects.ToPoints()], primaryColor);
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    title,
+                    [.. windowItem.ImageHorizontalProjects.ToPoints()],
+                    primaryColor);
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
             {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(1, $"{title} Smooth", [.. windowItem.SmoothImageHorizontalProjects.ToPoints()], secondaryColor);
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(1, $"{title} Smooth Min Pixel", windowItem.HorizontalProjectMinPixel, secondaryColor);
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    $"{title} Smooth",
+                    [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
+                    secondaryColor);
+
+                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                    1,
+                    $"{title} Smooth Min Pixel",
+                    windowItem.HorizontalProjectMinPixel,
+                    secondaryColor);
             }
         }
     }
