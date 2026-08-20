@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.DTO.Swath;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
@@ -12,7 +11,6 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -166,9 +164,9 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 OpticsIlluminationModeEnum.OI,
 #endif
                 0.11286,
-                1500,
-                0,
-                1500,
+                1800,
+                30,
+                1590,
                 210,
                 43600
             ),

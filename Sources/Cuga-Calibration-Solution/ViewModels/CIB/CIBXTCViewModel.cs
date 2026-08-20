@@ -18,7 +18,6 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -30,6 +29,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Core.Models.Models.Common.DarkField;
+using Net.Utilities.Helpers.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.CIB;
@@ -544,6 +544,14 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                         times,
                         CalibratingItem.ProductivityInformation,
                         CurrentCIBDelay = new HtmlExpand(string.Empty, new HtmlTable([.. currentCIBDelay.Select(t => t.ToHtmlAnonymous())])),
+                        Error = new HtmlExpand(string.Empty, new HtmlTable(
+                        [
+                            .. CalibratingItem.Items.Select(t => new
+                            {
+                                t.CIBInformation,
+                                t.Items[^1].Error
+                            })
+                        ])),
                         Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 
@@ -552,7 +560,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                     if (CalibratingItem.IsCalibrated)
                     {
                         LogDetails(true);
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
@@ -560,12 +568,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                     if (++times > Cache.CalibratingRetryTimes - 1)
                     {
                         LogDetails(false);
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
 
-                    Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation("Results", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 Guard.IsTrue(Save([CalibratingItem], cancellationToken));
@@ -574,7 +582,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
 
                 void LogDetails(bool isSuccess)
                 {
-                    Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                     foreach (var itemItem in CalibratingItem.Items)
                     {
                         var itemItemData = itemItem.Items[^1];
@@ -584,8 +592,8 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                             Image = new HtmlImage(itemItemData.ImageFilePath)
                         });
 
-                        if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                        else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                     }
                 }
             }
@@ -639,6 +647,15 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                 var htmlBullet = new HtmlBullet(new
                 {
                     selectedReviewItem.ProductivityInformation,
+                    Error = new HtmlExpand(string.Empty, new HtmlTable(
+                    [
+                        .. selectedReviewItem.Items.Select(t => new
+                        {
+                            t.CIBInformation,
+                            t.Delay,
+                            Error = t.Items.Count > 0 ? t.Items[^1].Error.ToString("0.###") : "Not Cache"
+                        })
+                    ])),
                     Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 

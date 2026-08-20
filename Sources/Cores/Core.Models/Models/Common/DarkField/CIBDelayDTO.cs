@@ -68,7 +68,7 @@ public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayD
 
     public object ToHtmlAnonymous() => new
     {
-        CIBInformation = new HtmlQuote(CIBInformation.ToHtmlAnonymous()),
+        CIBInformation,
         PMTDelay,
         SenseDelay,
         AGCDelay

@@ -5,7 +5,6 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
-using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
@@ -18,6 +17,7 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
@@ -230,7 +230,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
                 {
                     var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
                     scatterLines[index].Update(
-                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###}",
+                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###} Error: {itemItemData.Error:0.###}",
                         [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                         color);
 
@@ -376,14 +376,12 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
         public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)
         {
-            var hostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
+            var imageHorizontalProjects = ImageHorizontalProjects
+                .ToArray()
+                .AsSpan()[productivityInformation.OriginYPixelsStartIndex..(productivityInformation.OriginYPixelsEndIndex + 1)]
+                .ToArray();
 
-            var imageHorizontalProjects = hostEnvironment.IsProduction()
-                ? ImageHorizontalProjects
-                    .ToArray()
-                    .AsSpan()[productivityInformation.OriginYPixelsStartIndex..(productivityInformation.OriginYPixelsEndIndex + 1)]
-                    .ToArray()
-                : ImageHorizontalProjects.ToArray();
+            Guard.IsEqualTo(imageHorizontalProjects.Length, productivityInformation.YPixels);
 
             var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
 

@@ -16,7 +16,6 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -555,10 +554,15 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
             var cugaConfigureCIBDelays = CIBViewModel.GetDelays(Cache.ProductivityInformation, cibInformations);
             var cibDelays = cugaConfigureCIBDelays.Select(t => t.Clone()).ToArray();
 
-            var cibxtc = CIBXTCs.Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            var cibxtc = CIBXTCs.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk);
+            Guard.IsNotNull(cibxtc, $"CIBXTCs is not found for ProductivityInformation: {Cache.ProductivityInformation}");
+
             foreach (var cibDelay in cibDelays)
             {
-                cibDelay.WithPMTDelayAndSenseDelay(cibxtc.Items.Single(t => t.CIBInformation == cibDelay.CIBInformation).Delay);
+                var item = cibxtc.Items.SingleOrDefault(t => t.CIBInformation == cibDelay.CIBInformation);
+                Guard.IsNotNull(item, $"CIBXTCs is not found for CIBInformation: {cibDelay.CIBInformation}");
+
+                cibDelay.WithPMTDelayAndSenseDelay(item.Delay);
             }
 
             var averageZeroDelayError = 0d;
@@ -647,6 +651,14 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                         CalibratingItem.ProductivityInformation,
                         CalibratingItem.Coefficient,
                         CurrentCIBDelay = new HtmlExpand(string.Empty, new HtmlTable([.. currentCIBDelay.Select(t => t.ToHtmlAnonymous())])),
+                        Error = new HtmlExpand(string.Empty, new HtmlTable(
+                        [
+                            .. CalibratingItem.Items.Select(t => new
+                            {
+                                t.CIBInformation,
+                                t.Items[^1].Error
+                            })
+                        ])),
                         Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 
@@ -655,7 +667,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                     if (CalibratingItem.IsCalibrated)
                     {
                         LogDetails(true);
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
@@ -663,12 +675,12 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                     if (++times > Cache.CalibratingRetryTimes - 1)
                     {
                         LogDetails(false);
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
                         break;
                     }
 
-                    Logger.LogHtmlInformation("Plots", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation("Results", HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 Guard.IsTrue(Save([CalibratingItem], cancellationToken));
@@ -677,7 +689,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
 
                 void LogDetails(bool isSuccess)
                 {
-                    Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
                     foreach (var itemItem in CalibratingItem.Items)
                     {
                         var itemItemData = itemItem.Items[^1];
@@ -687,8 +699,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                             Image = new HtmlImage(itemItemData.ImageFilePath)
                         });
 
-                        if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                        else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header5, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        if (isSuccess) Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        else Logger.LogHtmlError(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                     }
                 }
             }
@@ -743,6 +755,16 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                 var htmlBullet = new HtmlBullet(new
                 {
                     selectedReviewItem.ProductivityInformation,
+                    selectedReviewItem.Coefficient,
+                    Error = new HtmlExpand(string.Empty, new HtmlTable(
+                    [
+                        .. selectedReviewItem.Items.Select(t => new
+                        {
+                            t.CIBInformation,
+                            t.Delay,
+                            Error = t.Items.Count > 0 ? t.Items[^1].Error.ToString("0.###") : "Not Cache"
+                        })
+                    ])),
                     Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
@@ -768,6 +790,23 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private double[] GetAndApplyWindow(int segmentCount, int segmentIndex, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfiles)
+    {
+        var prescanAODWaveformCount = prescanAODWaveformProfiles[0].Shorts.Count;
+
+        var window = Generate.LinearVShapeWindowBySegments(
+            CalibratingItem.Coefficient,
+            CalibratingItem.Coefficient / 1000d,
+            segmentCount,
+            segmentIndex,
+            prescanAODWaveformCount).Window;
+
+        foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
+        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
+
+        return window;
     }
 
     private async Task<(bool IsSuccess, IReadOnlyList<CIBDelayDTO> CurrentCIBDelay)> GetDelayAsync(
@@ -831,7 +870,6 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
             };
             itemItemData.CalculateHorizontalProjectMinPixel(CalibratingItem.ProductivityInformation, Cache.Item.MarkerLengthPixel);
 
-            if (HostEnvironment.IsDevelopment()) itemItemData.HorizontalProjectMinPixel += Random.Shared.RandomInteger(-10, 10);
             itemItem.Items = [.. itemItem.Items, itemItemData];
 
             Logger.LogHtmlInformation(itemItem.CIBInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
@@ -861,23 +899,6 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
         }
 
         return (resultList.All(t => t), currentCIBDelay);
-    }
-
-    private double[] GetAndApplyWindow(int segmentCount, int segmentIndex, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveformProfiles)
-    {
-        var prescanAODWaveformCount = prescanAODWaveformProfiles[0].Shorts.Count;
-
-        var window = Generate.LinearVShapeWindowBySegments(
-            CalibratingItem.Coefficient,
-            CalibratingItem.Coefficient / 1000d,
-            segmentCount,
-            segmentIndex,
-            prescanAODWaveformCount).Window;
-
-        foreach (var prescanAODWaveformProfile in prescanAODWaveformProfiles) prescanAODWaveformProfile.ApplyCoefficientWindowList(window);
-        LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, prescanAODWaveformProfiles);
-
-        return window;
     }
 
     private double CheckDelay(double delay) => delay < 0d ? delay + Cache.ProductivityInformation.OriginYPixels /* 推迟到下一个周期 */ : delay;
