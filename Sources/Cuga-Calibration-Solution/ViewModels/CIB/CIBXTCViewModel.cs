@@ -647,7 +647,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                 var htmlBullet = new HtmlBullet(new
                 {
                     selectedReviewItem.ProductivityInformation,
-                    Error = new HtmlExpand(string.Empty, new HtmlTable(
+                    Details = new HtmlExpand(string.Empty, new HtmlTable(
                     [
                         .. selectedReviewItem.Items.Select(t => new
                         {

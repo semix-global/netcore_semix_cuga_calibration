@@ -756,7 +756,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                 {
                     selectedReviewItem.ProductivityInformation,
                     selectedReviewItem.Coefficient,
-                    Error = new HtmlExpand(string.Empty, new HtmlTable(
+                    Details = new HtmlExpand(string.Empty, new HtmlTable(
                     [
                         .. selectedReviewItem.Items.Select(t => new
                         {
