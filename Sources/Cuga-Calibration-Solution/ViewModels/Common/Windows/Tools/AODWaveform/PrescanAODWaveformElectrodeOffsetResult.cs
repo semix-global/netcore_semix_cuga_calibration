@@ -13,5 +13,5 @@ public sealed partial class PrescanAODWaveformElectrodeOffsetResult : AODWavefor
     public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
+    public partial PrescanAODWaveformProfile[] PrescanAODWaveformProfiles { get; set; } = [];
 }

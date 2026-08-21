@@ -1,9 +1,15 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
+using System.Collections;
 using System.IO;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
@@ -149,6 +155,68 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
     protected virtual void OnBandWidthChanged()
     {
+    }
+
+
+    [RelayCommand]
+    private void ChangeDirectoryPath()
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        var dialog = dialogWindowProvider.TryShowSelectDirectoryPathDialog(out var directoryPath);
+        if (dialog == false) return;
+
+        DirectoryPath = directoryPath;
+    }
+
+    [RelayCommand]
+    private void AddElectrodeConfiguration()
+    {
+        var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
+
+        if (ElectrodeConfigurations.Count > electrodeEnums.Length) return;
+
+        GenerateAODWaveformElectrodeConfiguration[] electrodeConfigurations = [.. ElectrodeConfigurations, new()];
+
+        foreach (var (index, item) in electrodeConfigurations.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
+
+        ElectrodeConfigurations = electrodeConfigurations;
+    }
+
+    [RelayCommand]
+    private void RemoveElectrodeConfiguration(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
+
+        var configurationList = ElectrodeConfigurations.ToList();
+
+        foreach (GenerateAODWaveformElectrodeConfiguration selectItem in selectItems)
+        {
+            if (selectItem.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode1) continue;
+
+            configurationList.Remove(selectItem);
+        }
+
+        foreach (var (index, item) in configurationList.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
+
+        ElectrodeConfigurations = [.. configurationList];
+    }
+
+    [RelayCommand]
+    private void AddSlopeConfiguration() => SlopeConfigurations = [.. SlopeConfigurations, new GenerateAODWaveformSlopeConfiguration()];
+
+    [RelayCommand]
+    private void RemoveSlopeConfiguration(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var configurationList = SlopeConfigurations.ToList();
+
+        foreach (GenerateAODWaveformSlopeConfiguration selectItem in selectItems) configurationList.Remove(selectItem);
+
+        SlopeConfigurations = [.. configurationList];
     }
 
     public void WithFrequencyFlatness(double frequency)

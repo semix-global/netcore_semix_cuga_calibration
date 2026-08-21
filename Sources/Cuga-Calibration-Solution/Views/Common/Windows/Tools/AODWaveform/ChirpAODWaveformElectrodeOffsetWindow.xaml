@@ -4,7 +4,6 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:optics="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
@@ -12,11 +11,13 @@
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
-           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.V2.Controls;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:behaviors="clr-namespace:Core.Utilities.WPF.Behaviors;assembly=Core.Utilities.WPF"
+           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformElectrodeOffsetWindowViewModel}"
@@ -33,98 +34,6 @@
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
             <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Chirp AOD Waveform</system:String>
             <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Prescan AOD Waveform</system:String>
-            <system:String x:Key="ResultParamTitleString">Flatness Result Chirp AOD Waveform</system:String>
-            <Style x:Key="FrequencyItemsListViewStyle"
-                   x:Shared="False"
-                   TargetType="ListView"
-                   BasedOn="{StaticResource ListView.Small}">
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
-                <Setter Property="ItemContainerStyle">
-                    <Setter.Value>
-                        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle.Small}">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="View">
-                    <Setter.Value>
-                        <GridView>
-                            <GridView.ColumnHeaderContainerStyle>
-                                <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                </Style>
-                            </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Frequency(MHz)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding Frequency, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Amplitude(AMP)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding Amplitude, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Period(2pi)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Measure Power(mW)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding MeasurePower, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="AOD Waveform Profiles">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetItem}">
-                                        <Grid>
-                                            <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
-                                                          Content="Profiles"
-                                                          Margin="0,2"
-                                                          HorizontalAlignment="Left"
-                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="800"
-                                                   Height="800"
-                                                   StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
-                                                   Placement="Right"
-                                                   AllowsTransparency="True"
-                                                   PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
-                                                <TabControl>
-                                                    <TabItem Header="Chirp AOD Waveform">
-                                                        <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding ChirpAODWaveformProfiles}" />
-                                                    </TabItem>
-                                                    <TabItem Header="Prescan AOD Waveform">
-                                                        <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                    </TabItem>
-                                                </TabControl>
-                                            </Popup>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </Setter.Value>
-                </Setter>
-            </Style>
         </ResourceDictionary>
     </hc:Window.Resources>
     <i:Interaction.Triggers>
@@ -274,12 +183,18 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
-                                    <StackPanel>
-                                        <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Separator />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.TotalMeasurePower}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Retry Times: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerTimes}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
@@ -294,317 +209,113 @@
                                              hc:TitleElement.TitleWidth="200"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                              Style="{StaticResource TextBoxExtend}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Step Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.StepFrequency}" />
-                                    <StackPanel>
-                                        <TextBlock Text="Step 1 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="Electrode Offset Frequency Period Params"
+                                    <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Noise Measure Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
+                                                                  Minimum="2"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.InterpolationCount}" />
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Is Confirm Result: "
-                                                               Width="200"
-                                                               HorizontalAlignment="Left"
-                                                               VerticalAlignment="Center" />
-                                                    <ToggleButton IsChecked="{Binding Cache.IsConfirmAODWaveformElectrodeOffsetResult}"
-                                                                  HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"
-                                                                  Background="{StaticResource DangerBrush}"
-                                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                                </StackPanel>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="Is Enable Type 2:  "
-                                                               Width="200"
-                                                               HorizontalAlignment="Left"
-                                                               VerticalAlignment="Center" />
-                                                    <ToggleButton IsChecked="{Binding Cache.IsOnlyElectrode4}"
-                                                                  HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"
-                                                                  Background="{StaticResource InfoBrush}"
-                                                                  Style="{StaticResource ToggleButtonSwitch}" />
-                                                </StackPanel>
-                                                <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
-                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                                        <Button Content="Add"
-                                                                Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                                Style="{StaticResource ButtonInfo}" />
-                                                        <Button Content="Delete"
-                                                                Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
-                                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                                Style="{StaticResource ButtonDanger}" />
-                                                    </hc:UniformSpacingPanel>
-                                                    <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
-                                                              MaxHeight="500"
-                                                              hc:DataGridAttach.ShowRowNumber="False"
-                                                              Style="{StaticResource DataGrid.Small}"
-                                                              HeadersVisibility="Column"
-                                                              RowHeaderWidth="60"
-                                                              AutoGenerateColumns="False"
-                                                              ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
-                                                        <DataGrid.Columns>
-                                                            <DataGridTextColumn IsReadOnly="True"
-                                                                                Header="AOD Electrode"
-                                                                                Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                            <DataGridTextColumn Header="Start(2pi)" Binding="{Binding StartOffsetFrequencyPeriodCoefficient}" />
-                                                            <DataGridTextColumn Header="Step Period(2pi)" Binding="{Binding StepOffsetFrequencyPeriodCoefficient}" />
-                                                            <DataGridTextColumn Header="Stop Period(2pi)" Binding="{Binding StopOffsetFrequencyPeriodCoefficient}" />
-                                                        </DataGrid.Columns>
-                                                    </DataGrid>
-                                                </hc:UniformSpacingPanel>
-                                                <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
-                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <StackPanel>
-                                                        <TextBlock Text="Electrode2"
-                                                                   HorizontalAlignment="Center"
-                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
-                                                    <TextBox Text="{Binding Cache.Electrode2Weights, Converter={StaticResource DoublesToStringConverter}}"
-                                                             Height="50"
-                                                             TextWrapping="Wrap"
-                                                             hc:TitleElement.Title="Weights: "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="200"
-                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <StackPanel>
-                                                        <TextBlock Text="Electrode3"
-                                                                   HorizontalAlignment="Center"
-                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
-                                                    <TextBox Text="{Binding Cache.Electrode3Weights, Converter={StaticResource DoublesToStringConverter}}"
-                                                             Height="50"
-                                                             TextWrapping="Wrap"
-                                                             hc:TitleElement.Title="Weights: "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="200"
-                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                    <StackPanel>
-                                                        <TextBlock Text="Electrode4"
-                                                                   HorizontalAlignment="Center"
-                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                                    </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
-                                                    <TextBox Text="{Binding Cache.Electrode4Weights, Converter={StaticResource DoublesToStringConverter}}"
-                                                             Height="50"
-                                                             TextWrapping="Wrap"
-                                                             hc:TitleElement.Title="Weights: "
-                                                             hc:TitleElement.TitlePlacement="Left"
-                                                             hc:TitleElement.TitleWidth="200"
-                                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                             Style="{StaticResource TextBoxExtend}" />
-                                                </hc:UniformSpacingPanel>
+                                                                  Value="{Binding Cache.NoiseMeasureTimes}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Lambda: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.ScoreLambda}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Gamma: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.ScoreGamma}" />
                                                 <StackPanel>
-                                                    <TextBlock Text="Electrode Offset Frequency Weight Params"
+                                                    <TextBlock Text="Electrode Offset Frequency Period Params"
                                                                HorizontalAlignment="Center"
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
-                                                <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
-                                                                        Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
-                                                    <DataGrid MaxHeight="500"
-                                                              hc:DataGridAttach.ShowRowNumber="False"
-                                                              Style="{StaticResource DataGrid.Small}"
-                                                              HeadersVisibility="Column"
-                                                              RowHeaderWidth="60"
-                                                              AutoGenerateColumns="False"
-                                                              ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyWeightParams}">
-                                                        <DataGrid.Columns>
-                                                            <DataGridTextColumn IsReadOnly="True"
-                                                                                Header="AOD Electrode"
-                                                                                Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                            <DataGridTextColumn IsReadOnly="True"
-                                                                                Header="Frequency(MHz)"
-                                                                                Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                            <DataGridTemplateColumn Header="Weight">
-                                                                <DataGridTemplateColumn.CellTemplate>
-                                                                    <DataTemplate>
-                                                                        <TextBlock Text="{Binding Weight}" />
-                                                                    </DataTemplate>
-                                                                </DataGridTemplateColumn.CellTemplate>
-                                                                <DataGridTemplateColumn.CellEditingTemplate>
-                                                                    <DataTemplate>
-                                                                        <hc:NumericUpDown Minimum="1" Value="{Binding Weight}" />
-                                                                    </DataTemplate>
-                                                                </DataGridTemplateColumn.CellEditingTemplate>
-                                                            </DataGridTemplateColumn>
-                                                        </DataGrid.Columns>
-                                                    </DataGrid>
-                                                </hc:UniformSpacingPanel>
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <StackPanel>
-                                        <TextBlock Text="Step 2 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="Electrode Frequency Uniformity Params"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <hc:NumericUpDown hc:TitleElement.Title="Split Chunk Size: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize}" />
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
-                                                            Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyUniformityParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                             hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                             Style="{StaticResource ButtonInfo}" />
                                                     <Button Content="Delete"
-                                                            Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyUniformityParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyUniformityParams}"
+                                                            Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
                                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
-                                                <DataGrid x:Name="DataGridElectrodeOffsetFrequencyUniformityParams"
+                                                <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
                                                           MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
+                                                          CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyUniformityParams}">
+                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
                                                     <DataGrid.Columns>
-                                                        <DataGridTemplateColumn Header="AOD Electrode">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <ComboBox SelectedItem="{Binding OpticsAODElectrodeEnum, Mode=TwoWay}" ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type optics:OpticsAODElectrodeEnum}}}">
-                                                                        <ComboBox.ItemTemplate>
-                                                                            <DataTemplate>
-                                                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                                            </DataTemplate>
-                                                                        </ComboBox.ItemTemplate>
-                                                                    </ComboBox>
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
-                                                        <DataGridTemplateColumn Header="Start(AMP)">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding StartAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <hc:NumericUpDown Minimum="0.001"
-                                                                                      Maximum="1"
-                                                                                      Value="{Binding StartAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
-                                                        <DataGridTemplateColumn Header="Step(AMP)">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding StepAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <hc:NumericUpDown Minimum="0.001"
-                                                                                      Maximum="1"
-                                                                                      Value="{Binding StepAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
-                                                        <DataGridTemplateColumn Header="Stop(AMP)">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding StopAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                            <DataGridTemplateColumn.CellEditingTemplate>
-                                                                <DataTemplate>
-                                                                    <hc:NumericUpDown Minimum="0.001"
-                                                                                      Maximum="1"
-                                                                                      Value="{Binding StopAmplitude}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellEditingTemplate>
-                                                        </DataGridTemplateColumn>
+                                                        <DataGridTextColumn IsReadOnly="True"
+                                                                            Header="AOD Electrode"
+                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        <DataGridTextColumn Header="Board Offset Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
                                                     </DataGrid.Columns>
                                                 </DataGrid>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <StackPanel>
-                                        <TextBlock Text="Step3 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="{StaticResource ResultParamTitleString}"
+                                    <Expander Header="{Binding Steps[1]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                <StackPanel>
+                                                    <TextBlock Text="Algorithm Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmInitialPoints}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Early Stop: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmEarlyStop}" />
+                                                <ComboBox hc:TitleElement.Title="Acquisition Function: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
+                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:AlgorithmAcquisitionFunctionEnum}}}"
+                                                          SelectedItem="{Binding Cache.AlgorithmAcquisitionFunctionEnum}"
+                                                          Style="{StaticResource ComboBoxExtend}" />
+                                                <TextBox Text="{Binding Cache.AlgorithmUniformityCount}"
+                                                         hc:TitleElement.Title="Uniformity Count: "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmRetryTimes}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.DetailLogInterval}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="{Binding Steps[2]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -621,12 +332,13 @@
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
                                                 <ListBox x:Name="ResultTabControl"
+                                                         HorizontalContentAlignment="Stretch"
                                                          SelectionMode="Extended"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformElectrodeOffsetResult}">
                                                             <Border Height="360"
-                                                                    Margin="0,2"
+                                                                    Margin="-10,2"
                                                                     Style="{StaticResource BorderRegion}">
                                                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                                     <Grid>
@@ -661,80 +373,94 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="Electrode Offset Results" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                            <TextBlock Text="Results" Style="{StaticResource TextBlockDefaultSuccess}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <DataGrid MaxHeight="500"
-                                                      hc:DataGridAttach.ShowRowNumber="False"
-                                                      Style="{StaticResource DataGrid.Small}"
-                                                      HeadersVisibility="Column"
-                                                      RowHeaderWidth="60"
-                                                      AutoGenerateColumns="False"
-                                                      ItemsSource="{Binding Cache.ElectrodeConfigurationResults}">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn IsReadOnly="True"
-                                                                        Header="AOD Electrode"
-                                                                        Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
-                                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
-                                                    <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
-                                                    <DataGridTemplateColumn Header="Uniformity">
-                                                        <DataGridTemplateColumn.CellTemplate>
-                                                            <DataTemplate>
-                                                                <Grid Margin="2">
-                                                                    <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
-                                                                                  Content="Profiles"
-                                                                                  Margin="0,2"
-                                                                                  HorizontalAlignment="Left"
-                                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}"
-                                                                                  Style="{StaticResource ToggleButtonDefault.Small}" />
-                                                                    <Popup Width="800"
-                                                                           Height="800"
-                                                                           StaysOpen="False"
-                                                                           PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
-                                                                           Placement="Right"
-                                                                           AllowsTransparency="True"
-                                                                           PopupAnimation="Slide"
-                                                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
-                                                                        <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                                                                            <Grid>
-                                                                                <Grid.ColumnDefinitions>
-                                                                                    <ColumnDefinition Width="*" />
-                                                                                    <ColumnDefinition Width="Auto" />
-                                                                                    <ColumnDefinition Width="*" />
-                                                                                </Grid.ColumnDefinitions>
-                                                                                <DataGrid x:Name="DataGridUniformityConfigurations"
-                                                                                          hc:DataGridAttach.ShowRowNumber="True"
-                                                                                          Style="{StaticResource DataGrid.Small}"
-                                                                                          HeadersVisibility="All"
-                                                                                          RowHeaderWidth="60"
-                                                                                          AutoGenerateColumns="False"
-                                                                                          ItemsSource="{Binding UniformityConfigurations}">
-                                                                                    <DataGrid.Columns>
-                                                                                        <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                                                                        <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
-                                                                                    </DataGrid.Columns>
-                                                                                </DataGrid>
-                                                                                <GridSplitter Grid.Column="1" Width="5" />
-                                                                                <controls:ScatterMultiPlotControl Grid.Column="2"
-                                                                                                                  Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
-                                                                                                                  ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
-                                                                            </Grid>
-                                                                        </Border>
-                                                                    </Popup>
-                                                                </Grid>
-                                                            </DataTemplate>
-                                                        </DataGridTemplateColumn.CellTemplate>
-                                                    </DataGridTemplateColumn>
-                                                </DataGrid.Columns>
-                                            </DataGrid>
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <TextBox Text="{Binding Cache.Noise}"
+                                                         hc:TitleElement.Title="Noise: "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Offset"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <DataGrid MaxHeight="500"
+                                                          hc:DataGridAttach.ShowRowNumber="False"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="Column"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.ElectrodeConfigurationResults}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn IsReadOnly="True"
+                                                                            Header="AOD Electrode"
+                                                                            Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                                        <DataGridTemplateColumn Header="Uniformity">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate>
+                                                                    <Grid Margin="2">
+                                                                        <ToggleButton x:Name="ToggleButtonUniformityConfigurations"
+                                                                                      Content="Profiles"
+                                                                                      Margin="0,2"
+                                                                                      HorizontalAlignment="Left"
+                                                                                      hc:IconElement.Geometry="{StaticResource AllGeometry}"
+                                                                                      Style="{StaticResource ToggleButtonDefault.Small}" />
+                                                                        <Popup Width="800"
+                                                                               Height="800"
+                                                                               StaysOpen="False"
+                                                                               PlacementTarget="{Binding ElementName=ToggleButtonUniformityConfigurations}"
+                                                                               Placement="Right"
+                                                                               AllowsTransparency="True"
+                                                                               PopupAnimation="Slide"
+                                                                               IsOpen="{Binding IsChecked, ElementName=ToggleButtonUniformityConfigurations, Mode=TwoWay}">
+                                                                            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                        <ColumnDefinition Width="Auto" />
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <DataGrid x:Name="DataGridUniformityConfigurations"
+                                                                                              hc:DataGridAttach.ShowRowNumber="True"
+                                                                                              Style="{StaticResource DataGrid.Small}"
+                                                                                              HeadersVisibility="All"
+                                                                                              RowHeaderWidth="60"
+                                                                                              AutoGenerateColumns="False"
+                                                                                              ItemsSource="{Binding UniformityConfigurations}">
+                                                                                        <DataGrid.Columns>
+                                                                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                                                            <DataGridTextColumn Header="Coefficient" Binding="{Binding Coefficient, StringFormat='0.###'}" />
+                                                                                        </DataGrid.Columns>
+                                                                                    </DataGrid>
+                                                                                    <GridSplitter Grid.Column="1" Width="5" />
+                                                                                    <controls:ScatterMultiPlotControl Grid.Column="2"
+                                                                                                                      Title="Uniformity Configurations(Y: Coefficient - X: MHz)"
+                                                                                                                      ScatterLine0Points="{Binding UniformityConfigurations, Converter={StaticResource GenerateAODWaveformUniformityConfigurationsToPointsConvert}}" />
+                                                                                </Grid>
+                                                                            </Border>
+                                                                        </Popup>
+                                                                    </Grid>
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
                                     <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step0Command}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -756,7 +482,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step1Command}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -778,7 +504,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding StepSecondLastCommand}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -800,7 +526,7 @@
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding StepFirstLastCommand}"
-                                                CommandParameter="{x:Static models:Constants.True}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}">
                                             <Button.IsEnabled>
@@ -850,149 +576,140 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
-                    <TabItem Header="Step 1 Plots">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding ScatterPlotControl, Mode=OneWay}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                    <TabItem Header="{Binding Steps[0]}" HeaderStringFormat="{}{0} Plots">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <v2:PlotControl DataSource="{Binding Cache.Step0.PlotDataSource}" />
+                        </Border>
                     </TabItem>
-                    <TabItem Header="Step 1 Details">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
-                                                    <TabControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ItemTemplate>
-                                                    <TabControl.ContentTemplate>
-                                                        <DataTemplate>
-                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ContentTemplate>
-                                                </TabControl>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                    <TabItem Header="{Binding Steps[0]}" HeaderStringFormat="{}{0} Details">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <DataGrid x:Name="DataGridStep0Details" Grid.Row="0"
+                                          hc:DataGridAttach.ShowRowNumber="True"
+                                          Style="{StaticResource DataGrid.Small}"
+                                          HeadersVisibility="All"
+                                          RowHeaderWidth="60"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Cache.Step0.Items}">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:DataGridScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="100"
+                                                            Header="Score"
+                                                            Binding="{Binding Score, StringFormat='0.###'}" />
+                                        <DataGridTextColumn Width="350"
+                                                            Header="Period(2pi)"
+                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                        <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <GridSplitter Grid.Row="1" Height="5" />
+                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                   Foreground="{StaticResource SuccessBrush}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                    <Binding Path="SelectedItem.Score" ElementName="DataGridStep0Details" />
+                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                             ElementName="DataGridStep0Details"
+                                                             Converter="{StaticResource ListToStringFormatConverter}"
+                                                             ConverterParameter="f6" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <controls:ScatterMultiPlotControl Grid.Row="1"
+                                                                          Title="Selected Frequency Items(Y: Amp - X: MHz)"
+                                                                          ScatterLine0Points="{Binding SelectedItem.FrequencyItems, ElementName=DataGridStep0Details, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetItemToPointsConvert}}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
                     </TabItem>
-                    <TabItem Header="Step 2 Plots">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="800" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding ScatterPlotControl, Mode=OneWay}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                    <TabItem Header="{Binding Steps[1]}" HeaderStringFormat="{}{0} Plots">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <v2:PlotControl DataSource="{Binding Cache.Step1.PlotDataSource}" />
+                        </Border>
                     </TabItem>
-                    <TabItem Header="Step 2 Details">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
-                                                    <TabControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ItemTemplate>
-                                                    <TabControl.ContentTemplate>
-                                                        <DataTemplate>
-                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ContentTemplate>
-                                                </TabControl>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                    <TabItem Header="{Binding Steps[1]}" HeaderStringFormat="{}{0} Details">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <DataGrid x:Name="DataGridStep1Details" Grid.Row="0"
+                                          hc:DataGridAttach.ShowRowNumber="True"
+                                          Style="{StaticResource DataGrid.Small}"
+                                          HeadersVisibility="All"
+                                          RowHeaderWidth="60"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Cache.Step1.Items}">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:DataGridScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <DataGrid.RowStyle>
+                                        <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="{x:Static models:Constants.True}">
+                                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="100"
+                                                            Header="Score"
+                                                            Binding="{Binding Score, StringFormat='0.###'}" />
+                                        <DataGridTextColumn Width="350"
+                                                            Header="Period(2pi)"
+                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                        <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <GridSplitter Grid.Row="1" Height="5" />
+                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                   Foreground="{StaticResource SuccessBrush}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                    <Binding Path="SelectedItem.Score" ElementName="DataGridStep1Details" />
+                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                             ElementName="DataGridStep1Details"
+                                                             Converter="{StaticResource ListToStringFormatConverter}"
+                                                             ConverterParameter="f6" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <controls:ScatterMultiPlotControl Grid.Row="1"
+                                                                          Title="Selected Frequency Items(Y: Amp - X: MHz)"
+                                                                          ScatterLine0Points="{Binding SelectedItem.FrequencyItems, ElementName=DataGridStep1Details, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetItemToPointsConvert}}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Border>
                     </TabItem>
-                    <TabItem Header="Step 3 Plots">
+                    <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} Plots">
                         <ScrollViewer Margin="5"
                                       HorizontalScrollBarVisibility="Disabled"
                                       VerticalScrollBarVisibility="Auto">
