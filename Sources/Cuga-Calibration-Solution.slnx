@@ -1,4 +1,8 @@
 <Solution>
+    <Configurations>
+        <Platform Name="x64" />
+    </Configurations>
+
     <Folder Name="/00. Solution Items/">
         <File Path="Directory.Build.props" />
         <File Path="Directory.Build.targets" />
@@ -26,6 +30,7 @@
         <File Path="../.gitmodules" />
         <File Path="../README.md" />
     </Folder>
+
     <Folder Name="/01. Net.Utilities/">
         <Project Path="Net.Utilities/Net.Utilities.Calibration/Net.Utilities.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.WPF.CustomControl.Calibration/Net.Utilities.WPF.CustomControl.Calibration.csproj" />
@@ -38,6 +43,12 @@
         <Project Path="Cores/Core.Services/03. Core.Services.csproj" />
         <Project Path="Cores/Core.Recipe/04. Core.Recipe.csproj" />
     </Folder>
-    <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj" />
-    <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj" />
+
+    <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj">
+        <Platform Project="x64" />
+    </Project>
+    <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj">
+        <Platform Project="x64" />
+    </Project>
+
 </Solution>

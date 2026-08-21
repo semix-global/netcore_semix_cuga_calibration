@@ -25,21 +25,21 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     public partial GenerateChirpAODWaveformParam FlatnessGenerateChirpAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
-    public partial GeneratePrescanAODWaveformParam ScanGeneratePrescanAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
-    public partial GenerateChirpAODWaveformParam ScanGenerateChirpAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
     public partial Point MeasureMaxPowerMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
     public partial double WaitTime { get; set; } = 5;
 
+    [ObservableProperty]
+    public partial double TotalMeasurePower { get; set; } = 20d;
+
+    [ObservableProperty]
+    public partial int MeasurePowerTimes { get; set; } = 20;
+
     #region Result
 
     [ObservableProperty]
-    public partial IReadOnlyList<TResult> Results { get; set; } = [];
+    public partial TResult[] Results { get; set; } = [];
 
     #endregion Result
 
@@ -52,9 +52,10 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
         if (selectItems is null) return;
 
         var resultList = Results.ToList();
+
         foreach (TResult selectItem in selectItems) resultList.Remove(selectItem);
 
-        Results = resultList;
+        Results = [.. resultList];
     }
 
     public virtual object ToHtmlAnonymous() => new
@@ -62,6 +63,8 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
         ProductivityInformation,
         DefaultAmplitude,
         MeasureMaxPowerMachinePosition,
-        WaitTime
+        WaitTime,
+        TotalMeasurePower,
+        MeasurePowerTimes
     };
 }

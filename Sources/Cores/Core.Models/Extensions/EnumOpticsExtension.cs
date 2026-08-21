@@ -257,6 +257,7 @@ public static class EnumOpticsExtension
             OpticsAODElectrodeEnum.Electrode2 => CgAwgElectrodeEnum.Electrode2,
             OpticsAODElectrodeEnum.Electrode3 => CgAwgElectrodeEnum.Electrode3,
             OpticsAODElectrodeEnum.Electrode4 => CgAwgElectrodeEnum.Electrode4,
+            OpticsAODElectrodeEnum.Electrode5 => CgAwgElectrodeEnum.Electrode5,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgAwgElectrodeEnum>(nameof(@this))
         };
     }
@@ -269,6 +270,7 @@ public static class EnumOpticsExtension
             CgAwgElectrodeEnum.Electrode2 => OpticsAODElectrodeEnum.Electrode2,
             CgAwgElectrodeEnum.Electrode3 => OpticsAODElectrodeEnum.Electrode3,
             CgAwgElectrodeEnum.Electrode4 => OpticsAODElectrodeEnum.Electrode4,
+            CgAwgElectrodeEnum.Electrode5 => OpticsAODElectrodeEnum.Electrode5,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsAODElectrodeEnum>(nameof(@this))
         };
     }
