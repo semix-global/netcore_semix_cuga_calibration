@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.PMT;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace Core.Models.Models.Common.DarkField;
 

@@ -6,10 +6,10 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using System.ComponentModel;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
+using System.ComponentModel;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 

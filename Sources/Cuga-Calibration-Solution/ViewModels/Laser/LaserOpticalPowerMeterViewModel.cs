@@ -13,11 +13,11 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Net.Utilities.ScottPlot.Extensions;
 
 namespace CugaCalibration.ViewModels.Laser;
 

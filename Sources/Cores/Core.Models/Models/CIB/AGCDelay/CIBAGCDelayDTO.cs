@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.AOD.Uniformity;
@@ -17,7 +18,6 @@ using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
 using Generate = MathNet.Numerics.Generate;
 using Range = ScottPlot.Range;
 
