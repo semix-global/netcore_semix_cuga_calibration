@@ -1,11 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Models.Geometries;
-using ScottPlot;
-using System.ComponentModel;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
+using ScottPlot;
+using System.ComponentModel;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;

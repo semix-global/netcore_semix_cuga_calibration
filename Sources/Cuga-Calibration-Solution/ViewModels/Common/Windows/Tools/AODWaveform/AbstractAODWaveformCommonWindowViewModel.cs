@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
@@ -17,6 +16,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Diagnostics;
 using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;

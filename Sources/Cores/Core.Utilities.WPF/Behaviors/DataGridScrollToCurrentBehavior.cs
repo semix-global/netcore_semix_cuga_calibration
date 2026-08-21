@@ -1,8 +1,8 @@
+using Microsoft.Xaml.Behaviors;
 using System.Collections;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Controls;
-using Microsoft.Xaml.Behaviors;
 
 namespace Core.Utilities.WPF.Behaviors;
 

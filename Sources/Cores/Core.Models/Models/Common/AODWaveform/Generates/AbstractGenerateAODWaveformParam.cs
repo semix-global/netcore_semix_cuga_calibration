@@ -1,7 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -9,8 +11,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.IO;
-using Core.Models.Enums.Optics;
-using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -176,7 +176,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
 
         if (ElectrodeConfigurations.Count > electrodeEnums.Length) return;
 
-        GenerateAODWaveformElectrodeConfiguration[] electrodeConfigurations = [.. ElectrodeConfigurations, new ()];
+        GenerateAODWaveformElectrodeConfiguration[] electrodeConfigurations = [.. ElectrodeConfigurations, new()];
 
         foreach (var (index, item) in electrodeConfigurations.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
 

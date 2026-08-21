@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -14,6 +13,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.Diagnostics;
 
 namespace Core.Services.Implements.WCF;
 

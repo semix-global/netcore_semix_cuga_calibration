@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Helper;
 using Core.Recipe.Services;
@@ -17,13 +17,13 @@ using Net.Utilities.WPF.MVVM;
 using NLog;
 using NLog.Extensions.Hosting;
 using NLog.Extensions.Logging;
+using Python.Runtime;
 using SourceGenerator.AssemblyMetadata;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Threading;
-using CommunityToolkit.Diagnostics;
-using Python.Runtime;
 
 namespace CugaCalibration;
 
