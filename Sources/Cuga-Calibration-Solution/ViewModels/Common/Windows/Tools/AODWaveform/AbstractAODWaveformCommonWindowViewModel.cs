@@ -276,7 +276,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         {
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
 
-            Logger.LogTrace("Get Measure Power Time Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+            Logger.LogTrace("Update Measure Power Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
     }
 }
