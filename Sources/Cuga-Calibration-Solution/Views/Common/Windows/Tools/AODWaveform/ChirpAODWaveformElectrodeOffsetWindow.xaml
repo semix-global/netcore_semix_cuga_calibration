@@ -583,26 +583,59 @@
                     </TabItem>
                     <TabItem Header="{Binding Steps[0]}" HeaderStringFormat="{}{0} Details">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                      Style="{StaticResource DataGrid.Small}"
-                                      HeadersVisibility="All"
-                                      RowHeaderWidth="60"
-                                      AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      ItemsSource="{Binding Cache.Step0.Items}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:DataGridScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="100"
-                                                        Header="Score"
-                                                        Binding="{Binding Score, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Width="350"
-                                                        Header="Period(2pi)"
-                                                        Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
-                                    <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <DataGrid x:Name="DataGridStep0Details" Grid.Row="0"
+                                          hc:DataGridAttach.ShowRowNumber="True"
+                                          Style="{StaticResource DataGrid.Small}"
+                                          HeadersVisibility="All"
+                                          RowHeaderWidth="60"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Cache.Step0.Items}">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:DataGridScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="100"
+                                                            Header="Score"
+                                                            Binding="{Binding Score, StringFormat='0.###'}" />
+                                        <DataGridTextColumn Width="350"
+                                                            Header="Period(2pi)"
+                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                        <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <GridSplitter Grid.Row="1" Height="5" />
+                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                   Foreground="{StaticResource SuccessBrush}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                    <Binding Path="SelectedItem.Score" ElementName="DataGridStep0Details" />
+                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                             ElementName="DataGridStep0Details"
+                                                             Converter="{StaticResource ListToStringFormatConverter}"
+                                                             ConverterParameter="f6" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <controls:ScatterMultiPlotControl Grid.Row="1"
+                                                                          Title="Selected Frequency Items(Y: Amp - X: MHz)"
+                                                                          ScatterLine0Points="{Binding SelectedItem.FrequencyItems, ElementName=DataGridStep0Details, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetItemToPointsConvert}}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[1]}" HeaderStringFormat="{}{0} Plots">
@@ -612,35 +645,68 @@
                     </TabItem>
                     <TabItem Header="{Binding Steps[1]}" HeaderStringFormat="{}{0} Details">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <DataGrid hc:DataGridAttach.ShowRowNumber="True"
-                                      Style="{StaticResource DataGrid.Small}"
-                                      HeadersVisibility="All"
-                                      RowHeaderWidth="60"
-                                      AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      ItemsSource="{Binding Cache.Step1.Items}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:DataGridScrollToCurrentBehavior />
-                                </i:Interaction.Behaviors>
-                                <DataGrid.RowStyle>
-                                    <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsSelected}" Value="{x:Static models:Constants.True}">
-                                                <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Width="100"
-                                                        Header="Score"
-                                                        Binding="{Binding Score, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Width="350"
-                                                        Header="Period(2pi)"
-                                                        Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
-                                    <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <DataGrid x:Name="DataGridStep1Details" Grid.Row="0"
+                                          hc:DataGridAttach.ShowRowNumber="True"
+                                          Style="{StaticResource DataGrid.Small}"
+                                          HeadersVisibility="All"
+                                          RowHeaderWidth="60"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          ItemsSource="{Binding Cache.Step1.Items}">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:DataGridScrollToCurrentBehavior />
+                                    </i:Interaction.Behaviors>
+                                    <DataGrid.RowStyle>
+                                        <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="{x:Static models:Constants.True}">
+                                                    <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Width="100"
+                                                            Header="Score"
+                                                            Binding="{Binding Score, StringFormat='0.###'}" />
+                                        <DataGridTextColumn Width="350"
+                                                            Header="Period(2pi)"
+                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                        <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                                <GridSplitter Grid.Row="1" Height="5" />
+                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                   Foreground="{StaticResource SuccessBrush}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                    <Binding Path="SelectedItem.Score" ElementName="DataGridStep1Details" />
+                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                             ElementName="DataGridStep1Details"
+                                                             Converter="{StaticResource ListToStringFormatConverter}"
+                                                             ConverterParameter="f6" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <controls:ScatterMultiPlotControl Grid.Row="1"
+                                                                          Title="Selected Frequency Items(Y: Amp - X: MHz)"
+                                                                          ScatterLine0Points="{Binding SelectedItem.FrequencyItems, ElementName=DataGridStep1Details, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetItemToPointsConvert}}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} Plots">
