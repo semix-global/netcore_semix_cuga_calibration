@@ -3,7 +3,7 @@
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
 
     <ItemGroup>
-        <PackageVersion Include="Net.Utilities.ScottPlot.WPF" Version="2.9.1-preview7.0-xuan" />
+        <PackageVersion Include="Net.Utilities.ScottPlot.WPF" Version="2.9.1-preview15.0-xuan" />
     </ItemGroup>
 
 </Project>

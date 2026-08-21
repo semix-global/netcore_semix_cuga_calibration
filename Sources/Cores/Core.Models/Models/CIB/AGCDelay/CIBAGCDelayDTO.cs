@@ -1,10 +1,11 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
+using Core.Models.Models.AOD.Uniformity;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
-using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
@@ -14,6 +15,7 @@ using Net.Utilities.ScottPlot.WPF.Helper;
 using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
+using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using Generate = MathNet.Numerics.Generate;
@@ -21,7 +23,7 @@ using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.CIB.AGCDelay;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("1.0.1")]
 public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>, IAdaptTo<CalibrationLaserCIBAGCDelayItem>
 {
     [ObservableProperty]
@@ -39,6 +41,21 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial AODUniformityDTO.WindowItem StartWindowItem { get; set; } = new();
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial AODUniformityDTO.WindowItem StopWindowItem { get; set; } = new();
+
+    [Newtonsoft.Json.JsonIgnore]
+    public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [ObservableProperty]
     public partial IReadOnlyList<CIBAGCDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
@@ -54,6 +71,44 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     // ReSharper disable UnusedParameterInPartialMethod
 
     partial void OnLaserLightInformationPMTVoltageValuePointsChanged(Point[] value) => RefreshPlot();
+
+    partial void OnStartWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
+    {
+        oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
+        newValue.PropertyChanged -= ItemOnPropertyChanged;
+        newValue.PropertyChanged += ItemOnPropertyChanged;
+
+        OnPropertyChanged(nameof(IsReverse));
+        RefreshForwardAndReversePlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshForwardAndReversePlot();
+        }
+    }
+
+    partial void OnStopWindowItemChanged(AODUniformityDTO.WindowItem oldValue, AODUniformityDTO.WindowItem newValue)
+    {
+        oldValue.PropertyChanged -= ItemOnPropertyChanged;
+
+        newValue.PropertyChanged -= ItemOnPropertyChanged;
+        newValue.PropertyChanged += ItemOnPropertyChanged;
+
+        OnPropertyChanged(nameof(IsReverse));
+        RefreshForwardAndReversePlot();
+
+        return;
+
+        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(IsReverse));
+            RefreshForwardAndReversePlot();
+        }
+    }
 
     partial void OnItemsChanged(IReadOnlyList<CIBAGCDelayDTOItem> oldValue, IReadOnlyList<CIBAGCDelayDTOItem> newValue)
     {
@@ -81,6 +136,11 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     public CIBAGCDelayDTO()
     {
         ScatterPlotControl.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
+
+        ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
+
+        ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
 
     public CIBAGCDelayDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
@@ -105,6 +165,53 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
         }
     }
 
+    private void RefreshForwardAndReversePlot()
+    {
+        try
+        {
+            Refresh(StartWindowItem, "Start", Colors.Blue, Colors.DarkBlue);
+            Refresh(StopWindowItem, "Stop", Colors.Red, Colors.DarkRed);
+        }
+        finally
+        {
+            ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
+        }
+
+        return;
+
+        void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
+        {
+            if (windowItem.Window.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    0,
+                    title,
+                    [.. windowItem.Window.ToPoints()],
+                    primaryColor);
+
+            if (windowItem.ImageHorizontalProjects.Count > 0)
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    title,
+                    [.. windowItem.ImageHorizontalProjects.ToPoints()],
+                    primaryColor);
+
+            if (windowItem.SmoothImageHorizontalProjects.Count > 0)
+            {
+                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                    1,
+                    $"{title} Smooth",
+                    [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
+                    secondaryColor);
+
+                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                    1,
+                    $"{title} Smooth Min Pixel",
+                    windowItem.HorizontalProjectMinPixel,
+                    secondaryColor);
+            }
+        }
+    }
+
     private void RefreshPlots()
     {
         foreach (var item in Items)
@@ -123,7 +230,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
                 {
                     var color = Constants.Turbo.GetColor(index, new Range(0, item.Items.Count - 1));
                     scatterLines[index].Update(
-                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###}",
+                        $"{index + 1} => Current: {itemItemData.HorizontalProjectMinPixel:0.###} Error: {itemItemData.Error:0.###}",
                         [.. itemItemData.ImageHorizontalProjects.ToPoints()],
                         color);
 
@@ -269,11 +376,12 @@ public sealed partial class CIBAGCDelayDTOItem : ObservableObject, ICloneable<CI
 
         public void CalculateHorizontalProjectMinPixel(ProductivityInformation productivityInformation, int markerLengthPixel)
         {
-            var hostEnvironment = HostApplication.GetRequiredService<IHostEnvironment>();
+            var imageHorizontalProjects = ImageHorizontalProjects
+                .ToArray()
+                .AsSpan()[productivityInformation.OriginYPixelsStartIndex..(productivityInformation.OriginYPixelsEndIndex + 1)]
+                .ToArray();
 
-            var imageHorizontalProjects = hostEnvironment.IsProduction()
-                ? ImageHorizontalProjects.ToArray().AsSpan()[productivityInformation.OriginYPixelsStartIndex..productivityInformation.OriginYPixelsEndIndex].ToArray()
-                : ImageHorizontalProjects.ToArray();
+            Guard.IsEqualTo(imageHorizontalProjects.Length, productivityInformation.YPixels);
 
             var (indexes, _) = Extremumor.FindMinima(imageHorizontalProjects.ToPoints());
 

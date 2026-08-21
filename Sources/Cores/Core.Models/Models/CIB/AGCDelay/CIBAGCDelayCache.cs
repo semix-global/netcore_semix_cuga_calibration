@@ -47,6 +47,9 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
+
+    [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
@@ -68,11 +71,15 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
     public partial double TargetPMTValue { get; set; } = 400d;
 
     [ObservableProperty]
+    public partial int PrescanAODWaveformProfileSegmentCount { get; set; } = 10;
+
+    [ObservableProperty]
     public partial int MarkerLengthPixel { get; set; } = 30;
 
     public override CIBAGCDelayCacheItem Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
+        CIBInformation = CIBInformation.Clone(),
         OpticsConfiguration = OpticsConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         StartCoefficient = StartCoefficient,
@@ -80,6 +87,7 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
         StopCoefficient = StopCoefficient,
         ImageWidth = ImageWidth,
         TargetPMTValue = TargetPMTValue,
+        PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
         MarkerLengthPixel = MarkerLengthPixel,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

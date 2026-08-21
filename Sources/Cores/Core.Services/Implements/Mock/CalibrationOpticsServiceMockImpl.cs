@@ -4,7 +4,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.DTO.Swath;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
@@ -56,19 +55,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.327,
-                    YPixel = 508
-                },
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.327,
                 508,
                 0,
                 508,
                 408,
                 445000
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -81,19 +76,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.327,
-                    YPixel = 508
-                },
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.327,
                 508,
                 0,
                 508,
                 408,
                 222500
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -106,19 +97,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.1635,
-                    YPixel = 1008
-                },
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.1635,
                 1008,
                 0,
                 1008,
                 290,
                 175900
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -131,19 +118,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.1635,
-                    YPixel = 1008
-                },
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.1635,
                 1008,
                 0,
                 1008,
                 290,
                 88060
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -156,19 +139,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.11286,
-                    YPixel = 1500
-                },
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.11286,
                 1500,
                 0,
                 1500,
                 210,
                 87240
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -181,19 +160,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.11286,
-                    YPixel = 1500
-                },
-                1500,
-                0,
-                1500,
+#if NET
+                OpticsIlluminationModeEnum.OI,
+#endif
+                0.11286,
+                1800,
+                30,
+                1590,
                 210,
                 43600
-#if NET
-                , OpticsIlluminationModeEnum.OI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -206,19 +181,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.144,
-                    YPixel = 1160
-                },
+#if NET
+                OpticsIlluminationModeEnum.NI,
+#endif
+                0.144,
                 1160,
                 0,
                 1160,
                 200,
                 40000
-#if NET
-                , OpticsIlluminationModeEnum.NI
-#endif
             ),
             ProductivityInformation.Default.Clone().AdaptIn(
                 new C2MProductivityInfo
@@ -231,19 +202,15 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                     Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
-                new CgSwathSpeedInfo
-                {
-                    YPixelSize = 0.096,
-                    YPixel = 1720
-                },
+#if NET
+                OpticsIlluminationModeEnum.NI,
+#endif
+                0.096,
                 1720,
                 0,
                 1720,
                 200,
                 26880
-#if NET
-                , OpticsIlluminationModeEnum.NI
-#endif
             )
         };
         Guard.IsTrue(productivityInformations.DistinctBy(t => t).Count() == productivityInformations.Length, "Productivity Information is not unique");

@@ -44,19 +44,16 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             var speedInfoSxExecuteRet = Invoke(() => Service?.GetSpeedInfo(c2MProductivityInfo.Mag, c2MProductivityInfo.NIOI));
             if (speedInfoSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
-            var pmtDataLineHeightSxExecuteRet = Invoke(() => Service?.GetInfoByProductivity(c2MProductivityInfo.NIOI, c2MProductivityInfo.Mag));
-            if (pmtDataLineHeightSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
-
             var hzAndRealSpeedSxExecuteRet = Invoke(() => Service?.GetHzAndRealSpeed(c2MProductivityInfo.NIOI, c2MProductivityInfo.Mag, c2MProductivityInfo.Speed));
             if (hzAndRealSpeedSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<ProductivityInformation>>(speedInfoSxExecuteRet.ErrorMsg, []);
 
             productivityInformationList.Add(ProductivityInformation.Default.Clone().AdaptIn(
                 c2MProductivityInfo,
-                speedInfoSxExecuteRet.Anything,
-                pmtDataLineHeightSxExecuteRet.Anything.originalHeight,
-                pmtDataLineHeightSxExecuteRet.Anything.startPoint,
-                pmtDataLineHeightSxExecuteRet.Anything.endPoint,
-                hzAndRealSpeedSxExecuteRet.Anything.hz,
+                speedInfoSxExecuteRet.Anything.YPixelSize,
+                speedInfoSxExecuteRet.Anything.YPixel,
+                speedInfoSxExecuteRet.Anything.PxStartPoint,
+                speedInfoSxExecuteRet.Anything.PxEndPoint,
+                speedInfoSxExecuteRet.Anything.Hz,
                 hzAndRealSpeedSxExecuteRet.Anything.realSpeed));
         }
 
