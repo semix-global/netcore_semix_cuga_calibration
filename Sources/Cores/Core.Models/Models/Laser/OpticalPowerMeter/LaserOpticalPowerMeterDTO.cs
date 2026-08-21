@@ -67,11 +67,13 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase<Laser
     {
         try
         {
-            var heatmaps = PlotDataSource.GetOrAddHeatmaps(Items.Count > 0 ? 1 : 0);
+            var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
+
+            var heatmaps = PlotDataSource.GetOrAddHeatmaps(items.Length > 0 ? 1 : 0);
 
             heatmaps.ElementAtOrDefault(0)?.Update(
                 "Measure Power",
-                [.. Items.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))],
+                [.. items.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))],
                 "00.00000",
                 isHighlightMax: true);
         }
