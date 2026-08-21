@@ -39,15 +39,15 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
     public bool IsReverse => StartWindowItem.HorizontalProjectMinPixel > StopWindowItem.HorizontalProjectMinPixel;
 
     [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+
+    [ObservableProperty]
     public partial IReadOnlyList<CIBXTCDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial ConcurrentDictionary<int, double> TargetPixelValues { get; set; } = [];
-
-    [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]

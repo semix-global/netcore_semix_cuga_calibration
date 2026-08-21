@@ -13,6 +13,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.Runtime.CompilerServices;
@@ -294,7 +295,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     CalibratingItem.MaxMeasurePower,
                     CalibratingItem.MaxMeasurePowerPosition,
                     CalibratingItem.IsCalibrated,
-                    Plot = CalibratingItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
+                    Plot = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot3DCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -396,7 +397,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     selectedReviewItem.MaxMeasurePower,
                     selectedReviewItem.MaxMeasurePowerPosition,
                     selectedReviewItem.IsVerified,
-                    Plot = selectedReviewItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
+                    Plot = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot3DCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
