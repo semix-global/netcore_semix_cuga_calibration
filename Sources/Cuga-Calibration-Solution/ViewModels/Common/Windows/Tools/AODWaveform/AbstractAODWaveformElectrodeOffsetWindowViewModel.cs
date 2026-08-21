@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using CommunityToolkit.Diagnostics;
@@ -7,6 +8,7 @@ using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -574,28 +576,39 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
     private (bool IsSuccess, double[] Phases) AlgorithmSuggest(double? previousCost, int phaseCount)
     {
-        DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
+        var timestamp = Stopwatch.GetTimestamp();
 
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeOffsetWindowViewModelShared.PhaseOptimizerPythonScript);
+        try
+        {
+            Logger.LogTrace("Algorithm Suggest Starting...");
 
-        using var pyPhaseOptimizerStateFilePath = PhaseOptimizerStateFilePath.ToPython();
-        module.SetAttr("_STATE_FILE", pyPhaseOptimizerStateFilePath);
+            DirectoryHelper.CreateFileDirectoryIfNotExists(PhaseOptimizerStateFilePath);
 
-        using var suggest = module.GetAttr("suggest");
+            using var _ = Py.GIL();
+            using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeOffsetWindowViewModelShared.PhaseOptimizerPythonScript);
 
-        using var pyCost = previousCost.ToPython();
-        using var pyPhaseCount = phaseCount.ToPython();
-        using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
-        using var pyNoise = Cache.Noise.ToPython();
-        using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
-        using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
-        using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
+            using var pyPhaseOptimizerStateFilePath = PhaseOptimizerStateFilePath.ToPython();
+            module.SetAttr("_STATE_FILE", pyPhaseOptimizerStateFilePath);
 
-        using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
-        using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
+            using var suggest = module.GetAttr("suggest");
 
-        return (pyDone.As<bool>(), ToDoubles(pyPhases));
+            using var pyCost = previousCost.ToPython();
+            using var pyPhaseCount = phaseCount.ToPython();
+            using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
+            using var pyNoise = Cache.Noise.ToPython();
+            using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
+            using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
+            using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
+
+            using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
+            using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
+
+            return (pyDone.As<bool>(), ToDoubles(pyPhases));
+        }
+        finally
+        {
+            Logger.LogTrace("Algorithm Suggest Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 
     private static double[] ToDoubles(PyObject pyValues)

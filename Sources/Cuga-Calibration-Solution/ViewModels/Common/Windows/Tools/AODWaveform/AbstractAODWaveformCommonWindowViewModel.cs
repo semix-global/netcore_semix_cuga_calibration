@@ -244,6 +244,8 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
 
         try
         {
+            Logger.LogTrace("Update Measure Power Starting...");
+
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
@@ -274,7 +276,7 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         {
             LaserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
 
-            Logger.LogTrace("Get Measure Power Time :{TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+            Logger.LogTrace("Get Measure Power Time Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
     }
 }

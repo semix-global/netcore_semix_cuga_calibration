@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Extensions;
@@ -8,6 +9,7 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.PMT;
 using Cuga.Engine.Interface;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -17,7 +19,8 @@ namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationLaserService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationLaserServiceImpl(
-    ICalibrationConfigService calibrationConfigService) : BaseService<ICgCalibrationService>, ICalibrationLaserService
+    ICalibrationConfigService calibrationConfigService,
+    ILogger<CalibrationLaserServiceImpl> logger) : BaseService<ICgCalibrationService>, ICalibrationLaserService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -61,11 +64,22 @@ public sealed class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<double> GetOpticalMeasurePower()
     {
-        var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+        var timestamp = Stopwatch.GetTimestamp();
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
-            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+        try
+        {
+            logger.LogTrace("Get Optical Measure Power Starting...");
+
+            var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg)
+                : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+        }
+        finally
+        {
+            logger.LogTrace("Get Optical Measure Power Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 
     public SxExecuteRet<IReadOnlyList<LaserLightInformation>> GetLaserLightInformations()
@@ -111,11 +125,22 @@ public sealed class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum opticsAODWorkingModeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAODWorkingModeEnum.ToOpticsAodWorkingMode()));
+        var timestamp = Stopwatch.GetTimestamp();
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        try
+        {
+            logger.LogTrace("Toggle Optics AOD Working Mode Starting...");
+
+            var sxExecuteRet = Invoke(() => Service?.SetAOD_NO(opticsAODWorkingModeEnum.ToOpticsAodWorkingMode()));
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+                : SxExecuteRetHelper.CreateSuccess(true);
+        }
+        finally
+        {
+            logger.LogTrace("Toggle Optics AOD Working Mode Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 
     public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
@@ -146,27 +171,38 @@ public sealed class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetPrescanAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<PrescanAODWaveformProfile> prescanAODWaveProfiles)
     {
-        Guard.IsNotEmpty(prescanAODWaveProfiles);
+        var timestamp = Stopwatch.GetTimestamp();
 
-        foreach (var aodWaveProfile in prescanAODWaveProfiles)
+        try
         {
-            Guard.IsNotEmpty(aodWaveProfile.Bytes);
-        }
+            logger.LogTrace("Set Prescan AOD Wave Profiles Starting...");
 
-        var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
-            .. prescanAODWaveProfiles.Select(t => new CgAwgWaveParam
+            Guard.IsNotEmpty(prescanAODWaveProfiles);
+
+            foreach (var aodWaveProfile in prescanAODWaveProfiles)
             {
-                Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
-                WaveType = CgWaveType.Prescan,
-                Mode = CgAwgSendWaveMode.ElectrodeDataMode,
-                NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-                zeroNum = t.ZeroSampleCount,
-                WaveData = [.. t.Bytes]
-            })
-        ]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+                Guard.IsNotEmpty(aodWaveProfile.Bytes);
+            }
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+            var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
+                .. prescanAODWaveProfiles.Select(t => new CgAwgWaveParam
+                {
+                    Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
+                    WaveType = CgWaveType.Prescan,
+                    Mode = CgAwgSendWaveMode.ElectrodeDataMode,
+                    NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+                    zeroNum = t.ZeroSampleCount,
+                    WaveData = [.. t.Bytes]
+                })
+            ]));
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+            return SxExecuteRetHelper.CreateSuccess(true);
+        }
+        finally
+        {
+            logger.LogTrace("Set Prescan AOD Wave Profiles Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 
     public SxExecuteRet<bool> SetDefaultChirpAODWaveProfile(ProductivityInformation productivityInformation)
@@ -183,26 +219,37 @@ public sealed class CalibrationLaserServiceImpl(
 
     public SxExecuteRet<bool> SetChirpAODWaveProfiles(OpticsIlluminationModeEnum opticsIlluminationModeEnum, IReadOnlyList<ChirpAODWaveformProfile> chirpAODWaveProfiles)
     {
-        Guard.IsNotEmpty(chirpAODWaveProfiles);
+        var timestamp = Stopwatch.GetTimestamp();
 
-        foreach (var aodWaveProfile in chirpAODWaveProfiles)
+        try
         {
-            Guard.IsNotEmpty(aodWaveProfile.Bytes);
-        }
+            logger.LogTrace("Set Chirp AOD Wave Profiles Starting...");
 
-        var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
-            .. chirpAODWaveProfiles.Select(t => new CgAwgWaveParam
+            Guard.IsNotEmpty(chirpAODWaveProfiles);
+
+            foreach (var aodWaveProfile in chirpAODWaveProfiles)
             {
-                Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
-                WaveType = CgWaveType.Chirp,
-                Mode = CgAwgSendWaveMode.ElectrodeDataMode,
-                NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
-                zeroNum = t.ZeroSampleCount,
-                WaveData = [.. t.Bytes]
-            })
-        ]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+                Guard.IsNotEmpty(aodWaveProfile.Bytes);
+            }
 
-        return SxExecuteRetHelper.CreateSuccess(true);
+            var sxExecuteRet = Invoke(() => Service?.SendChirpAndPrescan([
+                .. chirpAODWaveProfiles.Select(t => new CgAwgWaveParam
+                {
+                    Electrode = t.OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
+                    WaveType = CgWaveType.Chirp,
+                    Mode = CgAwgSendWaveMode.ElectrodeDataMode,
+                    NIOI = opticsIlluminationModeEnum.ToCgNIOITypeEnum(),
+                    zeroNum = t.ZeroSampleCount,
+                    WaveData = [.. t.Bytes]
+                })
+            ]));
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+
+            return SxExecuteRetHelper.CreateSuccess(true);
+        }
+        finally
+        {
+            logger.LogTrace("Set Chirp AOD Wave Profiles Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 }
