@@ -387,7 +387,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var amplitude = linearSpline?.Interpolate(frequency) ?? Cache.DefaultAmplitude;
+            var amplitude = linearSpline?.Interpolate(frequency) * Cache.DefaultAmplitude ?? Cache.DefaultAmplitude;
 
             Logger.LogHtmlInformation($"{frequency}(MHz)-[{amplitude}]", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
