@@ -17,6 +17,7 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Net.Utilities.ScottPlot.Extensions;
 
 namespace CugaCalibration.ViewModels.Laser;
 
@@ -294,7 +295,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     CalibratingItem.MaxMeasurePower,
                     CalibratingItem.MaxMeasurePowerPosition,
                     CalibratingItem.IsCalibrated,
-                    Plot = CalibratingItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
+                    Plot = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot3DCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -396,7 +397,7 @@ public sealed partial class LaserOpticalPowerMeterViewModel : CalibrationViewMod
                     selectedReviewItem.MaxMeasurePower,
                     selectedReviewItem.MaxMeasurePowerPosition,
                     selectedReviewItem.IsVerified,
-                    Plot = selectedReviewItem.GetHtmlPlot3DChart(HtmlPlot3DType.Bar3D)
+                    Plot = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot3DCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)

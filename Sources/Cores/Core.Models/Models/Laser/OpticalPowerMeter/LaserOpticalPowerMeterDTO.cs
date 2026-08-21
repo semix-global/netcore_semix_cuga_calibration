@@ -4,20 +4,12 @@ using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Laser;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interactivity.UserActionResponses;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
-using ScottPlot;
-using ScottPlot.Interactivity;
-using ScottPlot.Plottables;
 using System.ComponentModel;
-using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
-using Range = ScottPlot.Range;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 
 namespace Core.Models.Models.Laser.OpticalPowerMeter;
 
@@ -44,7 +36,7 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase<Laser
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -68,55 +60,26 @@ public sealed partial class LaserOpticalPowerMeterDTO : CalibrationDTOBase<Laser
 
     public LaserOpticalPowerMeterDTO()
     {
-        ScatterPlotControl.SetTitle("Map(Y: um - X: um - Z: mW)");
-
-        ScatterPlotControl.Plot.HideAxesAndGrid();
-        ScatterPlotControl.UserInputProcessor.UserActionResponses.Remove(ScatterPlotControl.UserInputProcessor.UserActionResponses.Single(t => t is MouseDragCrosshair));
-        ScatterPlotControl.UserInputProcessor.UserActionResponses.Add(new MouseDragTextCrosshair(StandardMouseButtons.Left, StandardMouseButtons.Right)); // 右键拖动: 十字线
+        PlotDataSource.SetTitle("Map(Y: um - X: um - Z: mW)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            lock (ScatterPlotControl.Plot.Sync) ScatterPlotControl.Plot.PlottableList.RemoveAll(t => t is Text);
+            var heatmaps = PlotDataSource.GetOrAddHeatmaps(Items.Count > 0 ? 1 : 0);
 
-            if (Items.Count <= 0) return;
-
-            var items = Items.Where(t => double.IsNaN(t.MeasurePower) == false).ToArray();
-            var maximumIndex = items.Length > 0 ? Vector<double>.Build.DenseOfEnumerable(items.Select(t => t.MeasurePower)).MaximumIndex() : 0;
-            var measureMinPower = items.Length > 0 ? items.Min(t => t.MeasurePower) : 0;
-            var measureMaxPower = items.Length > 0 ? items.Max(t => t.MeasurePower) : 0;
-
-            foreach (var (index, laserOpticalPowerItemDto) in Items.Index())
-            {
-                var txt = new Text
-                {
-                    LabelText = $"{laserOpticalPowerItemDto.MeasurePower:00.00000}",
-                    LabelBackgroundColor = Constants.Turbo.GetColor(laserOpticalPowerItemDto.MeasurePower, new Range(measureMinPower, measureMaxPower)),
-                    LabelBorderColor = Colors.Transparent,
-                    Location = new Coordinates(laserOpticalPowerItemDto.MeasurePosition.X, laserOpticalPowerItemDto.MeasurePosition.Y),
-                    LabelFontSize = 12,
-                    LabelPadding = 2,
-                    LabelFontColor = Colors.White,
-                    LabelAlignment = Alignment.MiddleCenter
-                };
-
-                lock (ScatterPlotControl.Plot.Sync) ScatterPlotControl.Plot.PlottableList.Add(txt);
-                if (index != maximumIndex) continue;
-
-                txt.LabelBorderColor = Colors.OrangeRed;
-                txt.LabelBorderWidth = 5;
-                txt.LabelPadding = 5;
-            }
+            heatmaps.ElementAtOrDefault(0)?.Update(
+                "Measure Power",
+                [.. Items.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))],
+                "00.00000",
+                isHighlightMax: true);
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
-
-    public HtmlPlot3DChart GetHtmlPlot3DChart(HtmlPlot3DType htmlPlot3DType) => new([.. Items.Select(t => new Point3D(t.MeasurePosition.X, t.MeasurePosition.Y, t.MeasurePower))], ScatterPlotControl.GetTitle(), htmlPlot3DType);
 
     #region Mapper
 
