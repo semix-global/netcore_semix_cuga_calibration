@@ -220,6 +220,11 @@
                                                                   Minimum="2"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.NoiseMeasureTimes}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="μdB - λ * σdB - γ * rangedB"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Lambda: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -293,13 +298,12 @@
                                                           ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:AlgorithmAcquisitionFunctionEnum}}}"
                                                           SelectedItem="{Binding Cache.AlgorithmAcquisitionFunctionEnum}"
                                                           Style="{StaticResource ComboBoxExtend}" />
-                                                <TextBox Text="{Binding Cache.AlgorithmUniformityCount}"
-                                                         hc:TitleElement.Title="Uniformity Count: "
-                                                         hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
-                                                         IsReadOnly="True"
-                                                         Background="{StaticResource SecondaryRegionBrush}"
-                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Uniformity Anchor Count: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="5"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmUniformityAnchorCount}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
