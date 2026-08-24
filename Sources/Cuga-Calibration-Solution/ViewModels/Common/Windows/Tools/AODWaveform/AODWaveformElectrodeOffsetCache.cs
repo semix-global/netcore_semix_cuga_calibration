@@ -46,7 +46,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial AlgorithmAcquisitionFunctionEnum AlgorithmAcquisitionFunctionEnum { get; set; } = AlgorithmAcquisitionFunctionEnum.LCB;
 
     [ObservableProperty]
-    public partial int AlgorithmUniformityCount { get; set; } = 5;
+    public partial int AlgorithmUniformityAnchorCount { get; set; } = 5;
 
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
@@ -122,7 +122,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
         AlgorithmAcquisitionFunctionEnum,
-        AlgorithmUniformityCount,
+        AlgorithmUniformityAnchorCount,
         AlgorithmRetryTimes,
         DetailLogInterval,
         Noise,
