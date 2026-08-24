@@ -416,7 +416,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             frequencyPeriodItem.FrequencyItems = [.. frequencyPeriodItem.FrequencyItems, item];
         }
 
-        var vector = 10d * (Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).PointwiseLog10();
+        var vector = 10d * (Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).Map(d => Math.Log10(Math.Max(d, 1e-12)));
         frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
@@ -439,19 +439,22 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             using var suggest = module.GetAttr("suggest");
 
             using var pyCost = previousCost.ToPython();
-            using var pyPhaseCount = (phaseCount + Cache.AlgorithmUniformityCount).ToPython();
+            using var pyPhaseCount = phaseCount.ToPython();
+            using var pyUniformityAnchorCount = Cache.AlgorithmUniformityAnchorCount.ToPython();
             using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
             using var pyNoise = Cache.Noise.ToPython();
             using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
             using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
-            using var result = suggest.Invoke(pyCost, pyPhaseCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
+            using var result = suggest.Invoke(pyCost, pyPhaseCount, pyUniformityAnchorCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
-            using var pyPhases = Guard.IsNotNullAndReturn(result["x"]);
+            using var pyPhases = Guard.IsNotNullAndReturn(result["x_periodic"]);
+            using var pyUniformities = Guard.IsNotNullAndReturn(result["x_normal"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
-            var doubles = ToDoubles(pyPhases);
-            var phases = doubles.AsSpan()[..phaseCount].ToArray();
-            var uniformities = doubles.AsSpan()[phaseCount..].ToArray();
+            var phases = ToDoubles(pyPhases);
+            var uniformities = ToDoubles(pyUniformities);
+            Guard.IsEqualTo(phases.Length, phaseCount);
+            Guard.IsEqualTo(uniformities.Length, Cache.AlgorithmUniformityAnchorCount);
 
             return (pyDone.As<bool>(), phases, uniformities);
         }
