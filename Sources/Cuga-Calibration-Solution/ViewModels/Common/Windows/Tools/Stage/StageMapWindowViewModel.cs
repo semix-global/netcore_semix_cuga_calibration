@@ -38,6 +38,8 @@ using Net.Utilities.ScottPlot.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Python.Runtime;
 using System.Reflection;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -197,6 +199,7 @@ public sealed partial class StageMapWindowViewModel(
 
             Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
 
+            stageMapTemplatePoint.ROI = createDarkImageTemplateWindowViewModel.Rect;
             stageMapTemplatePoint.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(stageMapTemplatePoint.TemplateFilePath);
 
             if (Cache.CanvasDocument.DefaultModel.Count == 0)
@@ -357,7 +360,7 @@ public sealed partial class StageMapWindowViewModel(
         Cache.VerifyStageMap = Cache.StageMap.Clone();
         await ScanStageMapAsync(Cache.VerifyStageMap, cancellationToken).ConfigureAwait(false);
         Cache.VerifyStageMap.Refresh();
-        LogStageMap("Verify StageMap", Cache.VerifyStageMap);
+        // LogStageMap("Verify StageMap", Cache.VerifyStageMap);
 
         return true;
     }, isSilent).ConfigureAwait(false);
@@ -448,14 +451,22 @@ public sealed partial class StageMapWindowViewModel(
 
                         var bitmapImage = darkFieldImages[i].Image;
 
+                        var roi = Cache.StageMapTemplatePoints[templateIdIndex].ROI.Inflate(Cache.StageMapTemplatePoints[templateIdIndex].ROI.Width, Cache.StageMapTemplatePoints[templateIdIndex].ROI.Height);
+
+                        using var hImage = bitmapImage.ToHImage().ToRoi(roi);
+                        using var temp = hImage.ToBitmapImage();
+
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             Cache.AlgorithmTemplateTypeEnum,
-                            bitmapImage,
+                            temp,
                             templateIds[templateIdIndex],
                             out var matchPoint,
                             out var matchOffset,
                             out var matchScore,
                             out var matchAngle);
+
+                        matchPoint = new Point(matchPoint.X + roi.X, matchPoint.Y + roi.Y);
+                        matchOffset = matchPoint - (Vector)(Size)bitmapImage.Size / 2d;
 
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
                         bitmapImage.Save(resultImageFilePath);

@@ -119,6 +119,9 @@ public sealed partial class StageMapTemplatePoint : ObservableObject
 {
     [ObservableProperty]
     public partial Point DFPosition { get; set; }
+    
+    [ObservableProperty]
+    public partial Rect ROI { get; set; }
 
     [ObservableProperty]
     public partial string TemplateFilePath { get; set; } = string.Empty;
