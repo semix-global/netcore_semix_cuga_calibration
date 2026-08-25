@@ -224,10 +224,12 @@ public sealed partial class StageMapWindowViewModel(
                         Row = t.Row,
                         Col = t.Col,
                         Rect = t.Rect,
-                        IsInWafer = circle.Contains(t.Rect),
+                        IsInWafer = circle.Contains(t.Rect.Point),
                         Markers = [Vector.Zero]
                     }));
                 });
+
+                Cache.CanvasDocument.View.ZoomToFit();
             }
             else
             {
@@ -723,8 +725,6 @@ public sealed partial class StageMapWindowViewModel(
 
             var x = pyX.As<double>();
             var y = pyY.As<double>();
-            Guard.IsTrue(double.IsFinite(x));
-            Guard.IsTrue(double.IsFinite(y));
 
             var matrixIndex = indexes[index];
             stageMap.ErrorMatrix[matrixIndex.Row, matrixIndex.Column] = new Vector(x, y);
