@@ -231,26 +231,59 @@ public sealed partial class StageMapWindowViewModel(
         Cache.ScanStageMap = new StageMap();
 
         var stageMapDies = Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>().ToArray();
+        Guard.IsNotEmpty(stageMapDies);
 
         var minRow = stageMapDies.Min(t => t.Row);
         var maxRow = stageMapDies.Max(t => t.Row);
         var minColumn = stageMapDies.Min(t => t.Col);
         var maxColumn = stageMapDies.Max(t => t.Col);
 
-        for (var row = minRow; row <= maxRow; row++)
-        {
-            for (var col = minColumn; row <= maxColumn; row++)
-            {
-                var stageMapDie = stageMapDies.Single(t => t.Row == row && t.Col == col);
+        var rowCount = maxRow - minRow + 1;
+        var columnCount = maxColumn - minColumn + 1;
+        var idealMatrix = new Point[rowCount, columnCount];
+        var errorMatrix = new Vector[rowCount, columnCount];
+        var validMatrix = new bool[rowCount, columnCount];
 
-                foreach (var marker in stageMapDie.Markers)
+        var stageMapDieLookup = stageMapDies.ToDictionary(t => (t.Row, t.Col));
+        var referenceDie = stageMapDies[0];
+        Guard.IsNotEmpty(referenceDie.Markers);
+        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
+        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                var stageMapRow = minRow + row;
+                var stageMapColumn = minColumn + column;
+                var hasStageMapDie = stageMapDieLookup.TryGetValue((stageMapRow, stageMapColumn), out var stageMapDie);
+
+                Point darkFieldPoint;
+                if (hasStageMapDie)
                 {
-                    var dfMachinePoint = stageViewModel.DarkFieldToMachinePosition(stageMapDie.Rect.Point + marker);
-                    
-                    
+                    Guard.IsNotEmpty(stageMapDie!.Markers);
+                    darkFieldPoint = stageMapDie.Rect.Point + stageMapDie.Markers[0];
                 }
+                else
+                {
+                    // 圆形晶圆的四角没有Die，按Die Pitch补出方形矩阵；这些点不参与扫描。
+                    darkFieldPoint = referenceDie.Rect.Point + referenceDie.Markers[0] + new Vector(
+                        (stageMapColumn - referenceDie.Col) * Cache.DiePitchWidth,
+                        (referenceDie.Row - stageMapRow) * Cache.DiePitchHeight);
+                }
+
+                idealMatrix[row, column] = stageViewModel.DarkFieldToMachinePosition(darkFieldPoint);
+                validMatrix[row, column] = hasStageMapDie;
+                errorMatrix[row, column] = Vector.Zero;
             }
         }
+
+        Cache.ScanStageMap = new StageMap
+        {
+            IdealMatrix = idealMatrix,
+            ErrorMatrix = errorMatrix,
+            ValidMatrix = validMatrix
+        };
 
         return true;
     }, isSilent).ConfigureAwait(false);
