@@ -615,25 +615,21 @@ public sealed partial class StageMapWindowViewModel(
         return true;
     }
 
-    private static PyList ToPythonPointArray(StageMap stageMap)
+    private static PyObject ToPythonDoubleMatrix(double[,] matrix)
     {
-        var result = new PyList();
-        var rowCount = stageMap.IdealMatrix.GetLength(0);
-        var columnCount = stageMap.IdealMatrix.GetLength(1);
+        var rowCount = matrix.GetLength(0);
+        var columnCount = matrix.GetLength(1);
+        Guard.IsGreaterThan(rowCount, 0);
+        Guard.IsGreaterThan(columnCount, 0);
 
+        var result = new PyList();
         for (var row = 0; row < rowCount; row++)
         {
             using var pyRow = new PyList();
             for (var column = 0; column < columnCount; column++)
             {
-                var point = stageMap.IdealMatrix[row, column];
-                using var pyPoint = new PyList();
-                using var pyX = point.X.ToPython();
-                using var pyY = point.Y.ToPython();
-
-                pyPoint.Append(pyX);
-                pyPoint.Append(pyY);
-                pyRow.Append(pyPoint);
+                using var pyValue = matrix[row, column].ToPython();
+                pyRow.Append(pyValue);
             }
 
             result.Append(pyRow);
@@ -642,31 +638,75 @@ public sealed partial class StageMapWindowViewModel(
         return result;
     }
 
-    private static PyList ToPythonErrorArray(StageMap stageMap)
+    private static double[,] ToDoubleMatrix(PyObject pyObject)
     {
-        var result = new PyList();
-        var rowCount = stageMap.ErrorMatrix.GetLength(0);
-        var columnCount = stageMap.ErrorMatrix.GetLength(1);
+        using var pyValueArray = pyObject.InvokeMethod("tolist");
+        using var rows = new PyList(pyValueArray);
+        var rowCount = checked((int)rows.Length());
+        Guard.IsGreaterThan(rowCount, 0);
 
+        using var pyFirstRowObject = Guard.IsNotNullAndReturn(rows[0]);
+        using var pyFirstRow = new PyList(pyFirstRowObject);
+        var columnCount = checked((int)pyFirstRow.Length());
+        Guard.IsGreaterThan(columnCount, 0);
+
+        var result = new double[rowCount, columnCount];
         for (var row = 0; row < rowCount; row++)
         {
-            using var pyRow = new PyList();
+            using var pyRowObject = Guard.IsNotNullAndReturn(rows[row]);
+            using var pyRow = new PyList(pyRowObject);
+            Guard.IsEqualTo((int)pyRow.Length(), columnCount);
+
             for (var column = 0; column < columnCount; column++)
             {
-                var vector = stageMap.ErrorMatrix[row, column];
-                using var pyVector = new PyList();
-                using var pyX = vector.X.ToPython();
-                using var pyY = vector.Y.ToPython();
-
-                pyVector.Append(pyX);
-                pyVector.Append(pyY);
-                pyRow.Append(pyVector);
+                using var pyValue = Guard.IsNotNullAndReturn(pyRow[column]);
+                var value = pyValue.As<double>();
+                Guard.IsTrue(double.IsFinite(value));
+                result[row, column] = value;
             }
-
-            result.Append(pyRow);
         }
 
         return result;
+    }
+
+    private static PyObject ToPythonPointArray(StageMap stageMap)
+    {
+        var rowCount = stageMap.IdealMatrix.GetLength(0);
+        var columnCount = stageMap.IdealMatrix.GetLength(1);
+        var matrix = new double[rowCount * columnCount, 2];
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                var point = stageMap.IdealMatrix[row, column];
+                var matrixRow = row * columnCount + column;
+                matrix[matrixRow, 0] = point.X;
+                matrix[matrixRow, 1] = point.Y;
+            }
+        }
+
+        return ToPythonDoubleMatrix(matrix);
+    }
+
+    private static PyObject ToPythonErrorArray(StageMap stageMap)
+    {
+        var rowCount = stageMap.ErrorMatrix.GetLength(0);
+        var columnCount = stageMap.ErrorMatrix.GetLength(1);
+        var matrix = new double[rowCount * columnCount, 2];
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                var vector = stageMap.ErrorMatrix[row, column];
+                var matrixRow = row * columnCount + column;
+                matrix[matrixRow, 0] = vector.X;
+                matrix[matrixRow, 1] = vector.Y;
+            }
+        }
+
+        return ToPythonDoubleMatrix(matrix);
     }
 
     private static PyObject ToPythonErrorHistory(IReadOnlyList<StageMap> stageMaps)
@@ -684,33 +724,18 @@ public sealed partial class StageMapWindowViewModel(
 
     private static void ApplyPythonErrorArray(StageMap stageMap, PyObject pyValues)
     {
-        using var pyValueArray = pyValues.InvokeMethod("tolist");
-        using var rows = new PyList(pyValueArray);
+        var values = ToDoubleMatrix(pyValues);
         var rowCount = stageMap.ErrorMatrix.GetLength(0);
         var columnCount = stageMap.ErrorMatrix.GetLength(1);
-        Guard.IsEqualTo(rows.Length(), rowCount);
+        Guard.IsEqualTo(values.GetLength(0), rowCount * columnCount);
+        Guard.IsEqualTo(values.GetLength(1), 2);
 
         for (var row = 0; row < rowCount; row++)
         {
-            using var pyRowObject = Guard.IsNotNullAndReturn(rows[row]);
-            using var pyRow = new PyList(pyRowObject);
-            Guard.IsEqualTo(pyRow.Length(), columnCount);
-
             for (var column = 0; column < columnCount; column++)
             {
-                using var pyVectorObject = Guard.IsNotNullAndReturn(pyRow[column]);
-                using var pyVector = new PyList(pyVectorObject);
-                Guard.IsEqualTo(pyVector.Length(), 2);
-
-                using var pyX = Guard.IsNotNullAndReturn(pyVector[0]);
-                using var pyY = Guard.IsNotNullAndReturn(pyVector[1]);
-
-                var x = pyX.As<double>();
-                var y = pyY.As<double>();
-                Guard.IsTrue(double.IsFinite(x));
-                Guard.IsTrue(double.IsFinite(y));
-
-                stageMap.ErrorMatrix[row, column] = new Vector(x, y);
+                var matrixRow = row * columnCount + column;
+                stageMap.ErrorMatrix[row, column] = new Vector(values[matrixRow, 0], values[matrixRow, 1]);
             }
         }
     }
