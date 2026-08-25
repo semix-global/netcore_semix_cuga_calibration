@@ -29,6 +29,12 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
+        <Grid.Resources>
+            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
+                <Setter Property="CornerRadius" Value="0" />
+                <Setter Property="BorderThickness" Value="0" />
+            </Style>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -67,59 +73,77 @@
         </hc:SimplePanel>
         <Grid Grid.Row="1" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="680" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="500" />
+                <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Style="{StaticResource BorderRegion}">
+            <Border Grid.Column="0" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                         <GroupBox Header="Acquisition Parameters">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
-                                              Style="{StaticResource ComboBoxExtend}">
-                                        <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
-                                              Style="{StaticResource ComboBoxExtend}">
-                                        <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <ComboBox hc:TitleElement.Title="CIB Information: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}"
-                                              Style="{StaticResource ComboBoxExtend}">
-                                        <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
-                                    <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                    <hc:UniformSpacingPanel Margin="11,0"
+                                                            Orientation="Vertical"
+                                                            Spacing="2">
+                                        <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="180"
+                                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="180"
+                                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                        <ComboBox hc:TitleElement.Title="CIB Information: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="180"
+                                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <i:Interaction.Behaviors>
+                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                            </i:Interaction.Behaviors>
+                                        </ComboBox>
+                                    </hc:UniformSpacingPanel>
+                                    <Expander Header="Optics Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="CIB Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                         <GroupBox Header="Step Parameters">
                             <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="True"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <hc:UniformSpacingPanel Margin="11,0"
+                                                                    Orientation="Vertical"
+                                                                    Spacing="2">
                                                 <ComboBox hc:TitleElement.Title="Productivity Information: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
+                                                          hc:TitleElement.TitleWidth="180"
                                                           ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
                                                           Style="{StaticResource ComboBoxExtend}">
                                                     <i:Interaction.Behaviors>
@@ -129,14 +153,16 @@
                                                 <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
                                                          hc:TitleElement.Title="Alignment Degrees(°): "
                                                          hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitleWidth="180"
                                                          IsReadOnly="True"
                                                          Background="{StaticResource SecondaryRegionBrush}"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <Expander Header="Alignment Parameters"
                                                           IsExpanded="False"
                                                           ExpandDirection="Down">
-                                                    <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                                    </Border>
                                                 </Expander>
                                             </hc:UniformSpacingPanel>
                                         </Border>
@@ -145,12 +171,14 @@
                                               IsExpanded="True"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <hc:UniformSpacingPanel Margin="11,0"
+                                                                    Orientation="Vertical"
+                                                                    Spacing="2">
                                                 <ComboBox hc:TitleElement.Title="Template Type: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
-                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                                                          hc:TitleElement.TitleWidth="180"
+                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}"
+                                                          SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}">
                                                     <ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
@@ -159,9 +187,9 @@
                                                 </ComboBox>
                                                 <ComboBox hc:TitleElement.Title="Template Size: "
                                                           hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          SelectedItem="{Binding Cache.AlgorithmTemplateSizeEnum}"
-                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
+                                                          hc:TitleElement.TitleWidth="180"
+                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}"
+                                                          SelectedItem="{Binding Cache.AlgorithmTemplateSizeEnum}">
                                                     <ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
@@ -170,42 +198,40 @@
                                                 </ComboBox>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="180"
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ImageWidth}" />
                                                 <TextBox Text="{Binding Cache.ImageHeight}"
                                                          hc:TitleElement.Title="Captured Image Height(px): "
                                                          hc:TitleElement.TitlePlacement="Left"
-                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitleWidth="180"
                                                          IsReadOnly="True"
                                                          Background="{StaticResource SecondaryRegionBrush}"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="180"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.DiePitchSizeWidth}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="180"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.DiePitchSizeHeight}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Wafer Diameter(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  hc:TitleElement.TitleWidth="180"
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.WaferDiameter}" />
-                                                <StackPanel Margin="0,5,0,0">
-                                                    <TextBlock Text="Template Points"
-                                                               HorizontalAlignment="Center"
-                                                               FontSize="13"
-                                                               FontWeight="Bold"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
+                                                <TextBlock Margin="0,5,0,0"
+                                                           HorizontalAlignment="Center"
+                                                           Text="Template Points"
+                                                           Style="{StaticResource TextBlockSubTitleBold}"
+                                                           Foreground="{StaticResource SuccessBrush}" />
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding AddTemplatePointCommand}"
@@ -218,41 +244,43 @@
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
                                                 <DataGrid x:Name="DataGridTemplatePoints"
-                                                          MaxHeight="360"
+                                                          MinHeight="120"
+                                                          MaxHeight="300"
                                                           hc:DataGridAttach.ShowRowNumber="True"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="All"
-                                                          RowHeaderWidth="60"
+                                                          RowHeaderWidth="45"
                                                           CanUserAddRows="False"
                                                           CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           IsReadOnly="True"
                                                           ItemsSource="{Binding Cache.TemplatePoints}">
                                                     <DataGrid.Columns>
-                                                        <DataGridTextColumn Width="190"
-                                                                            Header="BF Machine Position(um)"
+                                                        <DataGridTextColumn Width="170"
+                                                                            Header="BF Position(um)"
                                                                             Binding="{Binding FindBrightFieldMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                                        <DataGridTextColumn Width="180"
+                                                        <DataGridTextColumn Width="*"
                                                                             Header="Bright Template"
                                                                             Binding="{Binding BrightTemplateFilePath}" />
-                                                        <DataGridTextColumn Width="180"
+                                                        <DataGridTextColumn Width="*"
                                                                             Header="Dark Template"
                                                                             Binding="{Binding DarkTemplateFilePath}" />
                                                         <DataGridTemplateColumn Width="Auto" Header="Actions">
                                                             <DataGridTemplateColumn.CellTemplate>
                                                                 <DataTemplate DataType="{x:Type viewModels:StagemapTemplatePoint}">
-                                                                    <Button Content="Mark Position"
+                                                                    <Button Content="Mark"
                                                                             Command="{Binding DataContext.MarkTemplatePointCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
                                                                             CommandParameter="{Binding}"
-                                                                            ToolTip="Capture the current bright-field position, bright-field template, and dark-field template." />
+                                                                            ToolTip="Capture the current bright-field position, bright-field template, and dark-field template."
+                                                                            Style="{StaticResource ButtonInfo}" />
                                                                 </DataTemplate>
                                                             </DataGridTemplateColumn.CellTemplate>
                                                         </DataGridTemplateColumn>
                                                     </DataGrid.Columns>
                                                 </DataGrid>
-                                                <TextBlock Text="Every later point must remain within one DiePitchSize of the first point and within 2/3 of the PMT image height in Y."
+                                                <TextBlock Margin="0,5,0,0"
+                                                           Text="Later points must stay within one DiePitchSize of the first point and within 2/3 of the PMT image height in Y."
                                                            TextWrapping="Wrap"
-                                                           Margin="0,5,0,0"
                                                            Foreground="{StaticResource WarningBrush}"
                                                            Style="{StaticResource TextBlockDefault}" />
                                             </hc:UniformSpacingPanel>
@@ -262,7 +290,9 @@
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <TextBlock Text="No additional parameters. The scan uses the first template point's Y coordinate for every die row." TextWrapping="Wrap" />
+                                            <TextBlock Text="No additional parameters. The scan uses the first template point's Y coordinate for every die row."
+                                                       TextWrapping="Wrap"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
                                         </Border>
                                     </Expander>
                                     <Expander Header="{Binding Steps[3]}"
@@ -271,7 +301,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:NumericUpDown hc:TitleElement.Title="Repeat Count: "
                                                               hc:TitleElement.TitlePlacement="Left"
-                                                              hc:TitleElement.TitleWidth="200"
+                                                              hc:TitleElement.TitleWidth="180"
                                                               Minimum="1"
                                                               Style="{StaticResource NumericUpDownExtend}"
                                                               Value="{Binding Cache.RepeatCount}" />
@@ -281,7 +311,9 @@
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <TextBlock Text="No additional parameters. One Stagemap clone is used for verification." TextWrapping="Wrap" />
+                                            <TextBlock Text="No additional parameters. One Stagemap clone is used for verification."
+                                                       TextWrapping="Wrap"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
                                         </Border>
                                     </Expander>
                                 </hc:UniformSpacingPanel>
@@ -289,9 +321,9 @@
                         </GroupBox>
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                         <Button Content="Alignment"
                                                 Command="{Binding Step0Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -302,7 +334,7 @@
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                         <Button Content="Generate Wafer Map"
                                                 Command="{Binding Step1Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -313,7 +345,7 @@
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                         <Button Content="Scan"
                                                 Command="{Binding Step2Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -324,7 +356,7 @@
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:Divider Content="{Binding Steps[3]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                         <Button Content="Repeated Scan"
                                                 Command="{Binding Step3Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -335,7 +367,7 @@
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
                                     <hc:Divider Content="{Binding Steps[4]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                         <Button Content="Verification Scan"
                                                 Command="{Binding Step4Command}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -352,8 +384,12 @@
                 </ScrollViewer>
             </Border>
             <GridSplitter Grid.Column="1" Width="5" />
-            <GroupBox Grid.Column="2" Header="Body">
-                <Grid />
+            <GroupBox Grid.Column="2"
+                      Padding="5"
+                      Header="Body">
+                <Border Style="{StaticResource BorderRegion}">
+                    <Grid />
+                </Border>
             </GroupBox>
         </Grid>
     </Grid>
