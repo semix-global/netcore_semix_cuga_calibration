@@ -337,7 +337,7 @@ public sealed partial class StageMapWindowViewModel(
                 .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
             ]), HtmlLogUniqueId.LoggingHtml());
 
-            var isCompleted = ProcessStage2Residuals(Cache.StageMap);
+            var isCompleted = ProcessStage2Residuals(scanStageMap);
 
             if (isCompleted) break;
         }
@@ -584,14 +584,14 @@ public sealed partial class StageMapWindowViewModel(
         Guard.IsNotEmpty(scanStageMaps);
         Guard.IsGreaterThanOrEqualTo(Cache.StageMapRetryCount, StageMapMinimumRetryCount);
 
-        foreach (var scanStageMap in scanStageMaps)
+        foreach (var repeatStageMap in scanStageMaps)
         {
-            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(0), stageMap.IdealMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(1), stageMap.IdealMatrix.GetLength(1));
-            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), stageMap.ErrorMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), stageMap.ErrorMatrix.GetLength(1));
-            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(0), stageMap.ValidMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(1), stageMap.ValidMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(0), stageMap.IdealMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(1), stageMap.IdealMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(0), stageMap.ErrorMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(1), stageMap.ErrorMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(0), stageMap.ValidMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(1), stageMap.ValidMatrix.GetLength(1));
         }
 
         using var _ = Py.GIL();
@@ -610,7 +610,7 @@ public sealed partial class StageMapWindowViewModel(
         var isCompleted = needMoreMeasurement == false;
         if (isCompleted == false || pyResidualTable.IsNone()) return isCompleted;
 
-        ApplyPythonErrorArray(stageMap, pyResidualTable);
+        ApplyPythonErrorArray(Cache.StageMap, pyResidualTable);
 
         return true;
     }
