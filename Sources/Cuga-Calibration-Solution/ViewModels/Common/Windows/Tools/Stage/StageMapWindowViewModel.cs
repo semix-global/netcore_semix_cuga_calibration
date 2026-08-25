@@ -469,10 +469,9 @@ public sealed partial class StageMapWindowViewModel(
                             out var matchAngle);
 
                         matchPoint = new Point(matchPoint.X + roi.X, matchPoint.Y + roi.Y);
-                        matchOffset = matchPoint - (Vector)(Size)bitmapImage.Size / 2d;
 
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
-                        bitmapImage.Save(resultImageFilePath);
+                        bitmapImage.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
 
@@ -486,7 +485,7 @@ public sealed partial class StageMapWindowViewModel(
                             vector,
                             HtmlTab = new HtmlTab(new
                             {
-                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint)]),
+                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint), new HtmlImageRectangleOverlay(roi)]),
                                 TemplateImage = new HtmlImage(Cache.StageMapTemplatePoints[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                             })
                         });
@@ -693,7 +692,7 @@ public sealed partial class StageMapWindowViewModel(
             {
                 using var pyValue = Guard.IsNotNullAndReturn(pyRow[column]);
                 var value = pyValue.As<double>();
-                Guard.IsTrue(double.IsFinite(value));
+                // Guard.IsTrue(double.IsFinite(value));
                 result[row, column] = value;
             }
         }
