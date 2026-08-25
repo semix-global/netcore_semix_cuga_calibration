@@ -302,7 +302,7 @@ public sealed partial class StageMapWindowViewModel(
         Cache.StageMap.Refresh();
 
         await ScanStageMapAsync(Cache.StageMap, cancellationToken).ConfigureAwait(false);
-        
+
         ProcessFirstMeasurement(Cache.StageMap);
         Cache.StageMap.Refresh();
 
@@ -331,7 +331,7 @@ public sealed partial class StageMapWindowViewModel(
             await ScanStageMapAsync(scanStageMap, cancellationToken).ConfigureAwait(false);
             repeatStageMaps.Add(scanStageMap);
             Cache.RepeatStageMaps = [.. repeatStageMaps];
-            
+
             logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                 .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                 .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
