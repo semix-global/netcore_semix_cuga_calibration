@@ -121,12 +121,12 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial IPlotDataSource ScanPlotDataSource { get; set; } = new PlotDataSource();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     public void Refresh()
     {
-        var vectorFields = ScanPlotDataSource.GetOrAddVectorFields(1);
-        var heatmaps = ScanPlotDataSource.GetOrAddHeatmaps(1);
+        var vectorFields = PlotDataSource.GetOrAddVectorFields(1);
+        var heatmaps = PlotDataSource.GetOrAddHeatmaps(1);
 
         var vectorFieldList = new List<(Point Point, Vector Vector)>();
         var heatmapList = new List<Point3D>();
@@ -145,8 +145,8 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             }
         }
 
-        vectorFields[0].Update(string.Empty, vectorFieldList);
         heatmaps[0].Update(string.Empty, heatmapList);
+        vectorFields[0].Update(string.Empty, vectorFieldList);
     }
 
     public StageMap Clone() => new()

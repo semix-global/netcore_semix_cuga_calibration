@@ -1,12 +1,10 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
@@ -28,17 +26,14 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using HalconDotNet;
-using MathNet.Numerics;
-using Net.Utilities.Algorithms.Halcon.Extensions;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 using Net.Utilities.Calibration;
-using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.WaferMap.WPF.Primitives.Builders;
+using Net.Utilities.ScottPlot.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -50,6 +45,7 @@ public sealed partial class StageMapWindowViewModel(
     StageViewModel stageViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentUserControlViewModel alignmentUserControlViewModel,
+    ICacheProvider cacheProvider,
     IApplicationCookieService applicationCookieCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IDialogWindowProvider dialogWindowProvider,
@@ -87,7 +83,7 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        Cache = await Task.Run(() => applicationCookieCacheProvider.GetCache<StageMapCache>()).ConfigureAwait(true);
+        Cache = await Task.Run(() => cacheProvider.GetOrDefault<StageMapCache>()).ConfigureAwait(true);
     }
 
     [RelayCommand]
@@ -286,13 +282,15 @@ public sealed partial class StageMapWindowViewModel(
 
         Cache.ScanStageMap.Refresh();
 
-        await ScanStageMapAsync([Cache.ScanStageMap], cancellationToken).ConfigureAwait(false);
+        await ScanStageMapAsync(Cache.ScanStageMap, cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent).ConfigureAwait(false);
 
-    private async Task ScanStageMapAsync(StageMap[] stageMaps, CancellationToken cancellationToken)
+    private async Task ScanStageMapAsync(StageMap stageMap, CancellationToken cancellationToken)
     {
+        logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
 
         var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
@@ -319,32 +317,32 @@ public sealed partial class StageMapWindowViewModel(
             ];
 
             var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
-            var (idealRowCount, _) = Cache.ScanStageMap.IdealMatrix.GetRowCountColCount();
+            var (idealRowCount, _) = stageMap.IdealMatrix.GetRowCountColCount();
+
+            logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             for (var row = 0; row < idealRowCount; row++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var idealRows = Cache.ScanStageMap.IdealMatrix.Row(row);
-
-                var isInWaferColumnIndexes = Cache.ScanStageMap.ValidMatrix.Row(row)
+                var isInWaferColumnIndexes = stageMap.ValidMatrix.Row(row)
                     .Index()
                     .Where(t => t.Item)
                     .Select(t => t.Index)
                     .ToArray();
 
-                var points = isInWaferColumnIndexes.Select(t => idealRows[t]).ToArray();
+                var points = isInWaferColumnIndexes.Select(t => stageMap.IdealMatrix.Row(row)[t]).ToArray();
                 if (points.Length == 0) continue;
 
-                logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+                logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 
-                var darkFieldImageRepeats = new DarkFieldImageDTO[][points.Length];
+                DarkFieldImageDTO[] darkFieldImages = [];
 
                 try
                 {
-                    foreach (var (index, _) in Generate.Repeat(stageMaps.Length, 1).Index())
-                    {
-                        var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                    darkFieldImages =
+                    [
+                        .. await cibViewModel.GetPMTImagesAsync(
                             Cache.ProductivityInformation,
                             StageCoordinateSystemEnum.Machine,
                             points,
@@ -355,91 +353,66 @@ public sealed partial class StageMapWindowViewModel(
                             (false, Cache.CIBConfiguration),
                             (false, Cache.LaserLightInformation),
                             false,
-                            cancellationToken);
-                        Guard.IsEqualTo(points.Length, darkFieldImages.Count);
+                            cancellationToken)
+                    ];
+                    Guard.IsEqualTo(points.Length, darkFieldImages.Length);
 
-                        darkFieldImageRepeats[index] = [.. darkFieldImages];
-                    }
-
-                    var plotDic = new Dictionary<(int RepeatIndex, int ColIndex), Vector>();
                     foreach (var (i, isInWaferColumnIndex) in isInWaferColumnIndexes.Index())
                     {
-                        var templateIndex = i % Cache.StageMapTemplatePoints.Length;
+                        var templateIdIndex = i % Cache.StageMapTemplatePoints.Length;
 
-                        foreach (var (index, _) in Generate.Repeat(stageMaps.Length, 1).Index())
+                        var bitmapImage = darkFieldImages[i].Image;
+
+                        var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
+                            Cache.AlgorithmTemplateTypeEnum,
+                            bitmapImage,
+                            templateIds[templateIdIndex],
+                            out var matchPoint,
+                            out var matchOffset,
+                            out var matchScore,
+                            out var matchAngle);
+
+                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
+                        bitmapImage.Save(resultImageFilePath);
+
+                        var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.X * ySize.YPixelSize);
+
+                        var htmlBullet = new HtmlBullet(new
                         {
-                            var bitmapImage = darkFieldImageRepeats[index][i].Image;
-
-                            var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
-                                Cache.AlgorithmTemplateTypeEnum,
-                                bitmapImage,
-                                templateIds[templateIndex],
-                                out var matchPoint,
-                                out var matchOffset,
-                                out var matchScore,
-                                out var matchAngle);
-
-                            var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
-
-                            using var hImage = bitmapImage.ToHImage();
-                            using var temp = hImage.DrawCrossLine(matchPoint);
-                            temp.Save(resultImageFilePath);
-
-                            var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.X * ySize.YPixelSize);
-
-                            var htmlBullet = new HtmlBullet(new
+                            matchPoint,
+                            matchOffset,
+                            matchScore,
+                            matchAngle,
+                            templateMatchScoreThreshold,
+                            vector,
+                            HtmlTab = new HtmlTab(new
                             {
-                                matchPoint,
-                                matchOffset,
-                                matchScore,
-                                matchAngle,
-                                templateMatchScoreThreshold,
-                                vector,
-                                HtmlTab = new HtmlTab(new
-                                {
-                                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint)]),
-                                    TemplateImage = new HtmlImage(Cache.StageMapTemplatePoints[templateIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                                })
-                            });
+                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint)]),
+                                TemplateImage = new HtmlImage(Cache.StageMapTemplatePoints[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                            })
+                        });
 
-                            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
-                            if (isSuccess)
-                            {
-                                plotDic.Add((index, isInWaferColumnIndex), vector);
+                        if (isSuccess) stageMap.ErrorMatrix[row, isInWaferColumnIndex] = vector;
 
-                                stageMaps[index].ErrorMatrix[row, isInWaferColumnIndex] = vector;
-                            }
-
-                            stageMaps[index].Refresh();
-                        }
+                        stageMap.Refresh();
                     }
-
-                    var plotDicGroup = (from kvp in plotDic
-                        group kvp.Value by kvp.Key.RepeatIndex
-                        into g
-                        select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
-                    if (plotDicGroup.Count == 0)
-                        continue;
-
-                    logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                    {
-                        PlotX = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.X).ToPoints()))], "Error X"),
-                        PlotY = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.Y).ToPoints()))], "Error Y")
-                    }), HtmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
-                    foreach (var darkFieldImages in darkFieldImageRepeats)
+                    foreach (var darkFieldImage in darkFieldImages)
                     {
-                        foreach (var darkFieldImage in darkFieldImages)
-                        {
-                            using var _ = darkFieldImage;
-                        }
+                        using var _ = darkFieldImage;
                     }
                 }
             }
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                .. stageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                .. stageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+            ]), HtmlLogUniqueId.LoggingHtml());
         }
         finally
         {
@@ -456,7 +429,7 @@ public sealed partial class StageMapWindowViewModel(
             Step0CancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            applicationCookieCacheProvider.SetCache(Cache, cancellationTokenSource.Token);
+            cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)
         {

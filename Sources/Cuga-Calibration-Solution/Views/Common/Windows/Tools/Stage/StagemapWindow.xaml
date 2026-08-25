@@ -13,8 +13,9 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-           xmlns:wpf1="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
+           xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+           xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -151,7 +152,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <ComboBox HorizontalAlignment="Left"
-                                                          hc:TitleElement.TitleWidth="160"
+                                                          hc:TitleElement.TitleWidth="200"
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.Title="Template Type: "
                                                           Style="{StaticResource ComboBoxExtend}"
@@ -337,7 +338,12 @@
                 <TabControl>
                     <TabItem Header="{Binding Steps[1]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <wpf1:WPFCanvasControl Document="{Binding Cache.CanvasDocument}" />
+                            <graphicsWPF:WPFCanvasControl Document="{Binding Cache.CanvasDocument}" />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="{Binding Steps[2]}">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <v2:PlotControl DataSource="{Binding Cache.ScanStageMap.PlotDataSource}" />
                         </Border>
                     </TabItem>
                 </TabControl>
