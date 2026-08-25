@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
@@ -18,13 +19,27 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Setting;
+using Core.Services.Interfaces;
+using CugaCalibration.Core.Services.Interfaces;
+using HalconDotNet;
+using MathNet.Numerics;
+using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Calibration;
-using Net.Utilities.Models;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -35,11 +50,13 @@ public sealed partial class StageMapWindowViewModel(
     StageViewModel stageViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     AlignmentUserControlViewModel alignmentUserControlViewModel,
-    ICacheProvider cacheProvider,
+    IApplicationCookieService applicationCookieCacheProvider,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
     IOptions<ApplicationSetting> options,
     ApplicationCookie applicationCookie,
+    CalibrationSetting calibrationSetting,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
 {
     public string Name { get; } = "StageMap Diagnostic Tool";
@@ -70,7 +87,7 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        Cache = await Task.Run(() => cacheProvider.GetOrDefault<StageMapCache>()).ConfigureAwait(true);
+        Cache = await Task.Run(() => applicationCookieCacheProvider.GetCache<StageMapCache>()).ConfigureAwait(true);
     }
 
     [RelayCommand]
@@ -189,20 +206,21 @@ public sealed partial class StageMapWindowViewModel(
                     var circle = new Circle(Point.Origin, Cache.WaferRadius);
                     Cache.CanvasDocument.DefaultModel.Add(new StageMapCircle { Circle = circle });
 
-                    var waferMapDieBuilder = new WaferMapDieBuilder
+                    var stageMapReticleBuilder = new StageMapReticleBuilder
                     {
                         DiePitchSize = new Size(Cache.DiePitchWidth, Cache.DiePitchHeight),
                         OriginalDiePoint = dfPosition
                     };
 
-                    var dies = waferMapDieBuilder.BuildDie(circle);
+                    var stageMapDies = stageMapReticleBuilder.BuildDie(circle);
 
-                    Cache.CanvasDocument.OverlayerModel.AddRange(dies.Select(t => new StageMapDie
+                    Cache.CanvasDocument.OverlayerModel.AddRange(stageMapDies.Select(t => new StageMapDie
                     {
                         Index = t.Index,
                         Row = t.Row,
                         Col = t.Col,
                         Rect = t.Rect,
+                        IsInWafer = circle.Contains(t.Rect),
                         Markers = [Vector.Zero]
                     }));
                 });
@@ -231,8 +249,6 @@ public sealed partial class StageMapWindowViewModel(
         Cache.ScanStageMap = new StageMap();
 
         var stageMapDies = Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>().ToArray();
-        Guard.IsNotEmpty(stageMapDies);
-
         var minRow = stageMapDies.Min(t => t.Row);
         var maxRow = stageMapDies.Max(t => t.Row);
         var minColumn = stageMapDies.Min(t => t.Col);
@@ -240,53 +256,196 @@ public sealed partial class StageMapWindowViewModel(
 
         var rowCount = maxRow - minRow + 1;
         var columnCount = maxColumn - minColumn + 1;
-        var idealMatrix = new Point[rowCount, columnCount];
-        var errorMatrix = new Vector[rowCount, columnCount];
-        var validMatrix = new bool[rowCount, columnCount];
-
-        var stageMapDieLookup = stageMapDies.ToDictionary(t => (t.Row, t.Col));
-        var referenceDie = stageMapDies[0];
-        Guard.IsNotEmpty(referenceDie.Markers);
-        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
+        Cache.ScanStageMap.IdealMatrix = new Point[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
+        Cache.ScanStageMap.ErrorMatrix = new Vector[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
+        Cache.ScanStageMap.ValidMatrix = new bool[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
 
         for (var row = 0; row < rowCount; row++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             for (var column = 0; column < columnCount; column++)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var stageMapRow = minRow + row;
                 var stageMapColumn = minColumn + column;
-                var hasStageMapDie = stageMapDieLookup.TryGetValue((stageMapRow, stageMapColumn), out var stageMapDie);
 
-                Point darkFieldPoint;
-                if (hasStageMapDie)
-                {
-                    Guard.IsNotEmpty(stageMapDie!.Markers);
-                    darkFieldPoint = stageMapDie.Rect.Point + stageMapDie.Markers[0];
-                }
-                else
-                {
-                    // 圆形晶圆的四角没有Die，按Die Pitch补出方形矩阵；这些点不参与扫描。
-                    darkFieldPoint = referenceDie.Rect.Point + referenceDie.Markers[0] + new Vector(
-                        (stageMapColumn - referenceDie.Col) * Cache.DiePitchWidth,
-                        (referenceDie.Row - stageMapRow) * Cache.DiePitchHeight);
-                }
+                var stageMapDie = stageMapDies.Single(t => t.Row == stageMapRow && t.Col == stageMapColumn);
 
-                idealMatrix[row, column] = stageViewModel.DarkFieldToMachinePosition(darkFieldPoint);
-                validMatrix[row, column] = hasStageMapDie;
-                errorMatrix[row, column] = Vector.Zero;
+                for (var markerIndex = 0; markerIndex < columnCount * Cache.StageMapTemplatePoints.Length; markerIndex++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var dfMachinePoint = stageViewModel.DarkFieldToMachinePosition(stageMapDie.Rect.Point + stageMapDie.Markers[markerIndex]);
+                    Cache.ScanStageMap.IdealMatrix[row, column * Cache.StageMapTemplatePoints.Length + markerIndex] = dfMachinePoint;
+                    Cache.ScanStageMap.ValidMatrix[row, column * Cache.StageMapTemplatePoints.Length + markerIndex] = stageMapDie.IsInWafer;
+                }
             }
         }
 
-        Cache.ScanStageMap = new StageMap
-        {
-            IdealMatrix = idealMatrix,
-            ErrorMatrix = errorMatrix,
-            ValidMatrix = validMatrix
-        };
+        Cache.ScanStageMap.Refresh();
+
+        await ScanStageMapAsync([Cache.ScanStageMap], cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent).ConfigureAwait(false);
+
+    private async Task ScanStageMapAsync(StageMap[] stageMaps, CancellationToken cancellationToken)
+    {
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
+        Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+
+        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                                                             && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
+                                                                                                                             && t.PmtId == Cache.CIBInformation.PMTId);
+        Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+        HTuple[] templateIds = [];
+
+        try
+        {
+            templateIds =
+            [
+                .. Cache.StageMapTemplatePoints
+                    .Select(t =>
+                    {
+                        calibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, t.TemplateFilePath, out var templateId);
+
+                        return templateId;
+                    })
+            ];
+
+            var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+            var (idealRowCount, _) = Cache.ScanStageMap.IdealMatrix.GetRowCountColCount();
+
+            for (var row = 0; row < idealRowCount; row++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var idealRows = Cache.ScanStageMap.IdealMatrix.Row(row);
+
+                var isInWaferColumnIndexes = Cache.ScanStageMap.ValidMatrix.Row(row)
+                    .Index()
+                    .Where(t => t.Item)
+                    .Select(t => t.Index)
+                    .ToArray();
+
+                var points = isInWaferColumnIndexes.Select(t => idealRows[t]).ToArray();
+                if (points.Length == 0) continue;
+
+                logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                var darkFieldImageRepeats = new DarkFieldImageDTO[][points.Length];
+
+                try
+                {
+                    foreach (var (index, _) in Generate.Repeat(stageMaps.Length, 1).Index())
+                    {
+                        var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Machine,
+                            points,
+                            Cache.ImageWidth,
+                            Cache.CIBInformation,
+                            (false, CalChipSiteModelEnum.ChuckModel),
+                            (false, Cache.OpticsConfiguration),
+                            (false, Cache.CIBConfiguration),
+                            (false, Cache.LaserLightInformation),
+                            false,
+                            cancellationToken);
+                        Guard.IsEqualTo(points.Length, darkFieldImages.Count);
+
+                        darkFieldImageRepeats[index] = [.. darkFieldImages];
+                    }
+
+                    var plotDic = new Dictionary<(int RepeatIndex, int ColIndex), Vector>();
+                    foreach (var (i, isInWaferColumnIndex) in isInWaferColumnIndexes.Index())
+                    {
+                        var templateIndex = i % Cache.StageMapTemplatePoints.Length;
+
+                        foreach (var (index, _) in Generate.Repeat(stageMaps.Length, 1).Index())
+                        {
+                            var bitmapImage = darkFieldImageRepeats[index][i].Image;
+
+                            var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
+                                Cache.AlgorithmTemplateTypeEnum,
+                                bitmapImage,
+                                templateIds[templateIndex],
+                                out var matchPoint,
+                                out var matchOffset,
+                                out var matchScore,
+                                out var matchAngle);
+
+                            var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
+
+                            using var hImage = bitmapImage.ToHImage();
+                            using var temp = hImage.DrawCrossLine(matchPoint);
+                            temp.Save(resultImageFilePath);
+
+                            var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.X * ySize.YPixelSize);
+
+                            var htmlBullet = new HtmlBullet(new
+                            {
+                                matchPoint,
+                                matchOffset,
+                                matchScore,
+                                matchAngle,
+                                templateMatchScoreThreshold,
+                                vector,
+                                HtmlTab = new HtmlTab(new
+                                {
+                                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint)]),
+                                    TemplateImage = new HtmlImage(Cache.StageMapTemplatePoints[templateIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                                })
+                            });
+
+                            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+                            if (isSuccess)
+                            {
+                                plotDic.Add((index, isInWaferColumnIndex), vector);
+
+                                stageMaps[index].ErrorMatrix[row, isInWaferColumnIndex] = vector;
+                            }
+
+                            stageMaps[index].Refresh();
+                        }
+                    }
+
+                    var plotDicGroup = (from kvp in plotDic
+                        group kvp.Value by kvp.Key.RepeatIndex
+                        into g
+                        select (RepeatCount: $"{g.Key + 1}", Points: g.ToArray())).ToList();
+                    if (plotDicGroup.Count == 0)
+                        continue;
+
+                    logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        PlotX = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.X).ToPoints()))], "Error X"),
+                        PlotY = new HtmlPlot2DLinesChart([.. plotDicGroup.Select(kvp => (kvp.RepeatCount, kvp.Points.Select(t => t.Y).ToPoints()))], "Error Y")
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+                finally
+                {
+                    foreach (var darkFieldImages in darkFieldImageRepeats)
+                    {
+                        foreach (var darkFieldImage in darkFieldImages)
+                        {
+                            using var _ = darkFieldImage;
+                        }
+                    }
+                }
+            }
+        }
+        finally
+        {
+            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId);
+        }
+    }
 
     [RelayCommand]
     private void Close()
@@ -297,7 +456,7 @@ public sealed partial class StageMapWindowViewModel(
             Step0CancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            cacheProvider.Set(Cache, cancellationTokenSource.Token);
+            applicationCookieCacheProvider.SetCache(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)
         {

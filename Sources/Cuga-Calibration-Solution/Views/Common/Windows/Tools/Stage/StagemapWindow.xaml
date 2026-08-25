@@ -14,6 +14,7 @@
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:wpf1="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
+           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -189,6 +190,58 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
+                                    <Expander Header="{Binding Steps[2]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <TextBlock Text="StageMap Template Points"
+                                                               HorizontalAlignment="Center"
+                                                               FontSize="13"
+                                                               FontWeight="Bold"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Delete"
+                                                            Command="{Binding RemoveStageMapTemplatePointsCommand}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridTemplatePoints}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <DataGrid x:Name="DataGridTemplatePoints"
+                                                          MaxHeight="360"
+                                                          hc:DataGridAttach.ShowRowNumber="True"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="All"
+                                                          RowHeaderWidth="60"
+                                                          CanUserAddRows="False"
+                                                          CanUserSortColumns="False"
+                                                          AutoGenerateColumns="False"
+                                                          IsReadOnly="True"
+                                                          ItemsSource="{Binding Cache.StageMapTemplatePoints}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="DF Position(um)" Binding="{Binding DFPosition, Converter={StaticResource PointToStringConverter}}" />
+                                                        <DataGridTemplateColumn Header="Images">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate DataType="{x:Type viewModels:StageMapTemplatePoint}">
+                                                                    <view:CanvasView Width="100"
+                                                                                     Height="100"
+                                                                                     BackgroundColor="#0A0A0A"
+                                                                                     AxisColor="Red"
+                                                                                     Interactive="True"
+                                                                                     ShowAxes="True"
+                                                                                     ShowCursor="False"
+                                                                                     ShowGrid="False"
+                                                                                     BackgroundImage="{Binding TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -222,6 +275,7 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -241,11 +295,32 @@
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Cancel"
                                                 Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step2Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step2CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>

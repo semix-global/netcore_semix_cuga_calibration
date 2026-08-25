@@ -11,7 +11,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public partial class StageMapDie : AbstractDrawable
 {
-    public static readonly LineStyle DieLineStyle = new(new SKColor(100, 100, 100));
+    public static readonly LineStyle InWaferDieLineStyle = new(new SKColor(100, 100, 100));
+    public static readonly LineStyle OutWaferDieLineStyle = new(SKColors.Red);
     private static readonly LineStyle MarkerBorderLineStyle = new(SKColors.Blue);
 
     [ObservableProperty]
@@ -27,11 +28,14 @@ public partial class StageMapDie : AbstractDrawable
     public partial Rect Rect { get; set; }
 
     [ObservableProperty]
+    public partial bool IsInWafer { get; set; }
+
+    [ObservableProperty]
     public partial Vector[] Markers { get; set; } = [];
 
     public override void Draw(Renderer renderer)
     {
-        renderer.DrawRectangle(DieLineStyle, Rect);
+        renderer.DrawRectangle(IsInWafer ? InWaferDieLineStyle : OutWaferDieLineStyle, Rect);
 
         foreach (var marker in Markers)
         {
