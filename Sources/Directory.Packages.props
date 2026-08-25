@@ -3,5 +3,6 @@
     <ItemGroup>
         <PackageVersion Include="algocv_sharp" Version="1.0.10" />
         <PackageVersion Include="Net.Utilities.ScottPlot.WPF" Version="2.9.4-preview1.1-han" />
+        <PackageVersion Include="Net.Utilities.WPF.CustomControl" Version="2.9.1-preview18.0-xuan" />
     </ItemGroup>
 </Project>

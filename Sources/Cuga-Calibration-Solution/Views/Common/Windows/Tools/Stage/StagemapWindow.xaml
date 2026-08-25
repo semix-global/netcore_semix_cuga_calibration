@@ -83,8 +83,7 @@
                                               ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
                                               Style="{StaticResource ComboBoxExtend}">
                                         <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}"
-                                                                              FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
                                     <ComboBox hc:TitleElement.Title="Laser Light Information: "
@@ -93,8 +92,7 @@
                                               ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                               Style="{StaticResource ComboBoxExtend}">
                                         <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}"
-                                                                              FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
                                     <ComboBox hc:TitleElement.Title="CIB Information: "
@@ -103,8 +101,7 @@
                                               ItemsSource="{Binding ApplicationCookie.CIBInformations}"
                                               Style="{StaticResource ComboBoxExtend}">
                                         <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}"
-                                                                              FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
                                     <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
@@ -126,8 +123,7 @@
                                                           ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
                                                           Style="{StaticResource ComboBoxExtend}">
                                                     <i:Interaction.Behaviors>
-                                                        <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}"
-                                                                                          FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                        <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                                     </i:Interaction.Behaviors>
                                                 </ComboBox>
                                                 <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
@@ -155,22 +151,22 @@
                                                           hc:TitleElement.TitleWidth="200"
                                                           SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
                                                           ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
+                                                    <ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                                         </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
+                                                    </ComboBox.ItemTemplate>
                                                 </ComboBox>
                                                 <ComboBox hc:TitleElement.Title="Template Size: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="200"
                                                           SelectedItem="{Binding Cache.AlgorithmTemplateSizeEnum}"
                                                           ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
-                                                    <hc:ComboBox.ItemTemplate>
+                                                    <ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                                         </DataTemplate>
-                                                    </hc:ComboBox.ItemTemplate>
+                                                    </ComboBox.ItemTemplate>
                                                 </ComboBox>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                                                   hc:TitleElement.TitlePlacement="Left"
@@ -254,10 +250,10 @@
                                                         </DataGridTemplateColumn>
                                                     </DataGrid.Columns>
                                                 </DataGrid>
-                                                <TextBlock Margin="0,5,0,0"
-                                                           Text="Every later point must remain within one DiePitchSize of the first point and within 2/3 of the PMT image height in Y."
-                                                           Foreground="{StaticResource WarningBrush}"
+                                                <TextBlock Text="Every later point must remain within one DiePitchSize of the first point and within 2/3 of the PMT image height in Y."
                                                            TextWrapping="Wrap"
+                                                           Margin="0,5,0,0"
+                                                           Foreground="{StaticResource WarningBrush}"
                                                            Style="{StaticResource TextBlockDefault}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
@@ -266,8 +262,7 @@
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <TextBlock Text="No additional parameters. The scan uses the first template point's Y coordinate for every die row."
-                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="No additional parameters. The scan uses the first template point's Y coordinate for every die row." TextWrapping="Wrap" />
                                         </Border>
                                     </Expander>
                                     <Expander Header="{Binding Steps[3]}"
@@ -286,8 +281,7 @@
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <TextBlock Text="No additional parameters. One Stagemap clone is used for verification."
-                                                       TextWrapping="Wrap" />
+                                            <TextBlock Text="No additional parameters. One Stagemap clone is used for verification." TextWrapping="Wrap" />
                                         </Border>
                                     </Expander>
                                 </hc:UniformSpacingPanel>
