@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Common.Windows.Tools.Stage;
 
-public partial class StagemapWindow
+public partial class StageMapWindow
 {
-    public StagemapWindow()
+    public StageMapWindow()
     {
         InitializeComponent();
     }

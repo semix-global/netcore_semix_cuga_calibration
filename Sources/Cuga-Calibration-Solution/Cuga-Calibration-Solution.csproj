@@ -106,6 +106,9 @@
         <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsBestFocus*.cs">
             <DependentUpon>OpticsBestFocusWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Stage\StageMap*.cs">
+            <DependentUpon>StageMapWindowViewModel.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
