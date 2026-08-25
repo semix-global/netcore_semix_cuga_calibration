@@ -37,6 +37,8 @@ public partial class StageMapDie : AbstractDrawable
     {
         renderer.DrawRectangle(IsInWafer ? InWaferDieLineStyle : OutWaferDieLineStyle, Rect);
 
+        if (IsInWafer == false) return;
+
         foreach (var marker in Markers)
         {
             var (centerX, centerY) = Rect.Point + marker;

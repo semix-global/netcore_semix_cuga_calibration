@@ -188,14 +188,6 @@
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.WaferRadius}" />
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
-                                    <Expander Header="{Binding Steps[2]}"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <StackPanel>
                                                     <TextBlock Text="StageMap Template Points"
                                                                HorizontalAlignment="Center"
