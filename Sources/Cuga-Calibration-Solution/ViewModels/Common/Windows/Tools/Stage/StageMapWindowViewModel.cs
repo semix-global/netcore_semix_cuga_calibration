@@ -342,7 +342,11 @@ public sealed partial class StageMapWindowViewModel(
 
             var isCompleted = ProcessStage2Residuals(scanStageMap);
 
-            if (isCompleted) break;
+            if (isCompleted)
+            {
+                SubtractStageMapError(Cache.StageMap, scanStageMap);
+                break;
+            }
         }
 
         Cache.StageMap.Refresh();
@@ -588,7 +592,7 @@ public sealed partial class StageMapWindowViewModel(
         ApplyPythonErrorArray(stageMap, result);
     }
 
-    private bool ProcessStage2Residuals(StageMap stageMap)
+    private bool ProcessStage2Residuals(StageMap scanStageMap)
     {
         var scanStageMaps = Cache.RepeatStageMaps;
 
@@ -597,19 +601,19 @@ public sealed partial class StageMapWindowViewModel(
 
         foreach (var repeatStageMap in scanStageMaps)
         {
-            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(0), stageMap.IdealMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(1), stageMap.IdealMatrix.GetLength(1));
-            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(0), stageMap.ErrorMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(1), stageMap.ErrorMatrix.GetLength(1));
-            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(0), stageMap.ValidMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(1), stageMap.ValidMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(0), scanStageMap.IdealMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(1), scanStageMap.IdealMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(0), scanStageMap.ErrorMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(1), scanStageMap.ErrorMatrix.GetLength(1));
+            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(0), scanStageMap.ValidMatrix.GetLength(0));
+            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(1), scanStageMap.ValidMatrix.GetLength(1));
         }
 
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var process = module.GetAttr("process_stage2_residuals");
         using var pyResiduals = ToPythonErrorHistory(scanStageMaps);
-        using var pyDesiredPositions = ToPythonPointArray(stageMap);
+        using var pyDesiredPositions = ToPythonPointArray(scanStageMap);
         using var pyAlpha = StageMapResidualAlpha.ToPython();
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
         using var pyMaximumCount = Cache.StageMapRetryCount.ToPython();
@@ -621,9 +625,27 @@ public sealed partial class StageMapWindowViewModel(
         var isCompleted = needMoreMeasurement == false;
         if (isCompleted == false || pyResidualTable.IsNone()) return isCompleted;
 
-        ApplyPythonErrorArray(Cache.StageMap, pyResidualTable);
+        ApplyPythonErrorArray(scanStageMap, pyResidualTable);
 
         return true;
+    }
+
+    private static void SubtractStageMapError(StageMap targetStageMap, StageMap scanStageMap)
+    {
+        var rowCount = targetStageMap.ErrorMatrix.GetLength(0);
+        var columnCount = targetStageMap.ErrorMatrix.GetLength(1);
+        Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), rowCount);
+        Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), columnCount);
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                var targetError = targetStageMap.ErrorMatrix[row, column];
+                var scanError = scanStageMap.ErrorMatrix[row, column];
+                targetStageMap.ErrorMatrix[row, column] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
+            }
+        }
     }
 
     private static PyObject ToPythonDoubleMatrix(double[,] matrix)
