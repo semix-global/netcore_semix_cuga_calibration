@@ -78,8 +78,7 @@ public sealed partial class StageMapWindowViewModel(
         "Step 2 Generate Wafer Map",
         "Step 3 Scan",
         "Step 4 Repeat",
-        "Step 5 Download",
-        "Step 6 Verify"
+        "Step 5 Verify"
     ];
 
     public Guid HtmlLogUniqueId { get; private set; }
@@ -305,6 +304,7 @@ public sealed partial class StageMapWindowViewModel(
 
         ProcessFirstMeasurement(Cache.StageMap);
         Cache.StageMap.Refresh();
+        DownloadStageMap();
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
             .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
@@ -348,24 +348,12 @@ public sealed partial class StageMapWindowViewModel(
     }, isSilent).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(bool isSilent, CancellationToken cancellationToken) => InvokeAsync(4, () =>
+    private async Task<bool> Step4Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(4, async () =>
     {
         Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
         cancellationToken.ThrowIfCancellationRequested();
 
-        var stageMapDto = ToStageMapDto(Cache.StageMap);
-        stageViewModel.SetStageMap(stageMapDto);
-        stageViewModel.SetEnableStageMap(true);
-        logger.LogHtmlInformation("StageMap downloaded and enabled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-        return Task.FromResult(true);
-    }, isSilent);
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step5Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(5, async () =>
-    {
-        Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
-
+        DownloadStageMap();
         Cache.VerifyStageMap = Cache.StageMap.Clone();
         await ScanStageMapAsync(Cache.VerifyStageMap, cancellationToken).ConfigureAwait(false);
         Cache.VerifyStageMap.Refresh();
@@ -373,6 +361,16 @@ public sealed partial class StageMapWindowViewModel(
 
         return true;
     }, isSilent).ConfigureAwait(false);
+
+    private void DownloadStageMap()
+    {
+        Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
+
+        var stageMapDto = ToStageMapDto(Cache.StageMap);
+        stageViewModel.SetStageMap(stageMapDto);
+        stageViewModel.SetEnableStageMap(true);
+        logger.LogHtmlInformation("StageMap downloaded and enabled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+    }
 
     private async Task ScanStageMapAsync(StageMap stageMap, CancellationToken cancellationToken)
     {
@@ -734,7 +732,6 @@ public sealed partial class StageMapWindowViewModel(
     {
         try
         {
-            Step5CancelCommand.Execute(null);
             Step4CancelCommand.Execute(null);
             Step3CancelCommand.Execute(null);
             Step1CancelCommand.Execute(null);
