@@ -39,9 +39,6 @@ public sealed partial class StageMapCache : ObservableCacheBase
 
     [ObservableProperty]
     public partial bool IsDarkFieldAlignment { get; set; }
-    
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     #endregion
 
@@ -53,10 +50,6 @@ public sealed partial class StageMapCache : ObservableCacheBase
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial CanvasDocument CanvasDocument { get; set; } = new();
-
     [ObservableProperty]
     public partial double DiePitchWidth { get; set; }
 
@@ -67,7 +60,22 @@ public sealed partial class StageMapCache : ObservableCacheBase
     public partial double WaferRadius { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<StageMapTemplatePoint> TemplatePoints { get; set; } = [];
+    public partial StageMapTemplatePoint[] StageMapTemplatePoints { get; set; } = [];
+
+    #endregion
+
+    #region Result
+
+    [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial CanvasDocument CanvasDocument { get; set; } = new();
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial StageMap ScanStageMap { get; set; } = new();
 
     #endregion
 
@@ -79,6 +87,7 @@ public sealed partial class StageMapCache : ObservableCacheBase
         CIBInformation,
         OpticsConfiguration,
         CIBConfiguration,
+        IsDarkFieldAlignment,
         AlgorithmTemplateTypeEnum,
         ImageWidth,
         DiePitchWidth,
@@ -90,13 +99,13 @@ public sealed partial class StageMapCache : ObservableCacheBase
 public sealed partial class StageMapTemplatePoint : ObservableObject
 {
     [ObservableProperty]
-    public partial Point FindBrightFieldMachinePosition { get; set; }
+    public partial Point DFPosition { get; set; }
 
     [ObservableProperty]
-    public partial string DarkTemplateFilePath { get; set; } = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string DarkTemplateImageFilePath { get; set; } = string.Empty;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 }
 
 public sealed class StageMap : ICloneable<StageMap>

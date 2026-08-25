@@ -82,7 +82,7 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPi
     public partial double WaferRadius { get; set; } = 140_000;
 
     [ObservableProperty]
-    public partial double DiePitchWith { get; set; } = 5100;
+    public partial double DiePitchWidth { get; set; } = 5100;
 
     [ObservableProperty]
     public partial int ReticleDieCountX { get; set; } = 3;
@@ -102,7 +102,7 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPi
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath,
         WaferRadius = WaferRadius,
-        DiePitchWith = DiePitchWith,
+        DiePitchWidth = DiePitchWidth,
         ReticleDieCountX = ReticleDieCountX,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

@@ -11,8 +11,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public partial class StageMapDie : AbstractDrawable
 {
-    [ObservableProperty]
-    public partial LineStyle LineStyle { get; set; } = new(new SKColor(100, 100, 100));
+    public static readonly LineStyle DieLineStyle = new(new SKColor(100, 100, 100));
+    private static readonly LineStyle MarkerBorderLineStyle = new(SKColors.Blue);
 
     [ObservableProperty]
     public partial WaferMapDieIndex Index { get; set; } = WaferMapDieIndex.Empty;
@@ -26,9 +26,22 @@ public partial class StageMapDie : AbstractDrawable
     [ObservableProperty]
     public partial Rect Rect { get; set; }
 
+    [ObservableProperty]
+    public partial Vector[] Markers { get; set; } = [];
+
     public override void Draw(Renderer renderer)
     {
-        renderer.DrawRectangle(LineStyle, Rect);
+        renderer.DrawRectangle(DieLineStyle, Rect);
+
+        foreach (var marker in Markers)
+        {
+            var (centerX, centerY) = Rect.Point + marker;
+
+            var defectSelectionCrossDistance = renderer.View.ScreenToWorldDistance(10d);
+
+            renderer.DrawLine(MarkerBorderLineStyle, new Point(centerX - defectSelectionCrossDistance, centerY), new Point(centerX + defectSelectionCrossDistance, centerY));
+            renderer.DrawLine(MarkerBorderLineStyle, new Point(centerX, centerY - defectSelectionCrossDistance), new Point(centerX, centerY + defectSelectionCrossDistance));
+        }
     }
 
     public override Extents GetExtents() => (Extents)Rect;

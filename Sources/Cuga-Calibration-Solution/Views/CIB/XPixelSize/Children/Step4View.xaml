@@ -60,7 +60,7 @@
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.DiePitchWith}" />
+                                          Value="{Binding Cache.Item.DiePitchWidth}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Reticle Die Count X: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"
