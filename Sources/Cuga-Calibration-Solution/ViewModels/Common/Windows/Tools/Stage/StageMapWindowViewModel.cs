@@ -607,11 +607,12 @@ public sealed partial class StageMapWindowViewModel(
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
 
         var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
-        if (pyResidualTable.IsNone()) return needMoreMeasurement == false;
+        var isCompleted = needMoreMeasurement == false;
+        if (isCompleted == false || pyResidualTable.IsNone()) return isCompleted;
 
         ApplyPythonErrorArray(stageMap, pyResidualTable);
 
-        return needMoreMeasurement == false;
+        return true;
     }
 
     private static PyList ToPythonPointArray(StageMap stageMap)
