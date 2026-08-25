@@ -302,9 +302,14 @@ public sealed partial class StageMapWindowViewModel(
         Cache.StageMap.Refresh();
 
         await ScanStageMapAsync(Cache.StageMap, cancellationToken).ConfigureAwait(false);
+        
         ProcessFirstMeasurement(Cache.StageMap);
         Cache.StageMap.Refresh();
-        LogStageMap("StageMap", Cache.StageMap);
+
+        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+            .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+            .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+        ]), HtmlLogUniqueId.LoggingHtml());
 
         return true;
     }, isSilent).ConfigureAwait(false);
@@ -326,10 +331,14 @@ public sealed partial class StageMapWindowViewModel(
             await ScanStageMapAsync(scanStageMap, cancellationToken).ConfigureAwait(false);
             repeatStageMaps.Add(scanStageMap);
             Cache.RepeatStageMaps = [.. repeatStageMaps];
-            LogStageMap($"Repeat StageMap {repeatStageMaps.Count}", scanStageMap);
+            
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+            ]), HtmlLogUniqueId.LoggingHtml());
 
-            var isCompleted = ProcessStage2Residuals(Cache.StageMap, Cache.RepeatStageMaps, Cache.StageMapRetryCount);
-            LogStageMap($"StageMap Residual {repeatStageMaps.Count}", Cache.StageMap);
+            var isCompleted = ProcessStage2Residuals(Cache.StageMap);
+
             if (isCompleted) break;
         }
 
@@ -558,31 +567,6 @@ public sealed partial class StageMapWindowViewModel(
         return stageMapDto;
     }
 
-    private void LogStageMap(string title, StageMap stageMap)
-    {
-        logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-        var rowCount = stageMap.IdealMatrix.GetLength(0);
-        var columnCount = stageMap.IdealMatrix.GetLength(1);
-        for (var row = 0; row < rowCount; row++)
-        {
-            var points = new List<string>();
-            for (var column = 0; column < columnCount; column++)
-            {
-                if (stageMap.ValidMatrix[row, column] == false) continue;
-
-                var idealPoint = stageMap.IdealMatrix[row, column];
-                var error = stageMap.ErrorMatrix[row, column];
-                var realPoint = new Point(idealPoint.X + error.X, idealPoint.Y + error.Y);
-                points.Add($"{row}, {column}, ideal: {idealPoint}, error: {error}, real: {realPoint}");
-            }
-
-            if (points.Count == 0) continue;
-
-            logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
-        }
-    }
-
     private static void ProcessFirstMeasurement(StageMap stageMap)
     {
         using var _ = Py.GIL();
@@ -595,29 +579,31 @@ public sealed partial class StageMapWindowViewModel(
         ApplyPythonErrorArray(stageMap, result);
     }
 
-    private static bool ProcessStage2Residuals(StageMap targetStageMap, IReadOnlyList<StageMap> scanStageMaps, int retryCount)
+    private bool ProcessStage2Residuals(StageMap stageMap)
     {
+        var scanStageMaps = Cache.RepeatStageMaps;
+
         Guard.IsNotEmpty(scanStageMaps);
-        Guard.IsGreaterThanOrEqualTo(retryCount, StageMapMinimumRetryCount);
+        Guard.IsGreaterThanOrEqualTo(Cache.StageMapRetryCount, StageMapMinimumRetryCount);
 
         foreach (var scanStageMap in scanStageMaps)
         {
-            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(0), targetStageMap.IdealMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(1), targetStageMap.IdealMatrix.GetLength(1));
-            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), targetStageMap.ErrorMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), targetStageMap.ErrorMatrix.GetLength(1));
-            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(0), targetStageMap.ValidMatrix.GetLength(0));
-            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(1), targetStageMap.ValidMatrix.GetLength(1));
+            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(0), stageMap.IdealMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(1), stageMap.IdealMatrix.GetLength(1));
+            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), stageMap.ErrorMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), stageMap.ErrorMatrix.GetLength(1));
+            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(0), stageMap.ValidMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(1), stageMap.ValidMatrix.GetLength(1));
         }
 
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var process = module.GetAttr("process_stage2_residuals");
         using var pyResiduals = ToPythonErrorHistory(scanStageMaps);
-        using var pyDesiredPositions = ToPythonPointArray(targetStageMap);
+        using var pyDesiredPositions = ToPythonPointArray(stageMap);
         using var pyAlpha = StageMapResidualAlpha.ToPython();
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
-        using var pyMaximumCount = retryCount.ToPython();
+        using var pyMaximumCount = Cache.StageMapRetryCount.ToPython();
         using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount);
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
@@ -625,12 +611,12 @@ public sealed partial class StageMapWindowViewModel(
         var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
         if (pyResidualTable.IsNone()) return needMoreMeasurement == false;
 
-        ApplyPythonErrorArray(targetStageMap, pyResidualTable);
+        ApplyPythonErrorArray(stageMap, pyResidualTable);
 
         return needMoreMeasurement == false;
     }
 
-    private static PyObject ToPythonPointArray(StageMap stageMap)
+    private static PyList ToPythonPointArray(StageMap stageMap)
     {
         var result = new PyList();
         var rowCount = stageMap.IdealMatrix.GetLength(0);
@@ -657,7 +643,7 @@ public sealed partial class StageMapWindowViewModel(
         return result;
     }
 
-    private static PyObject ToPythonErrorArray(StageMap stageMap)
+    private static PyList ToPythonErrorArray(StageMap stageMap)
     {
         var result = new PyList();
         var rowCount = stageMap.ErrorMatrix.GetLength(0);
