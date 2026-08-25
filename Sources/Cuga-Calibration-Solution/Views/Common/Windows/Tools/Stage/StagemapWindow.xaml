@@ -196,6 +196,25 @@
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Mark"
+                                                            Command="{Binding MarkCommand}"
+                                                            CommandParameter="{x:Static models:Constants.False}"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                            Style="{StaticResource ButtonPrimary.Loading}">
+                                                        <Button.IsEnabled>
+                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                                <Binding Path="Step0Command.IsRunning" />
+                                                                <Binding Path="MarkCommand.IsRunning" />
+                                                                <Binding Path="Step2Command.IsRunning" />
+                                                                <Binding Path="Step3Command.IsRunning" />
+                                                                <Binding Path="Step4Command.IsRunning" />
+                                                            </MultiBinding>
+                                                        </Button.IsEnabled>
+                                                    </Button>
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding MarkCancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
                                                     <Button Content="Delete"
                                                             Command="{Binding RemoveStageMapTemplatePointsCommand}"
                                                             CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridTemplatePoints}"
@@ -204,6 +223,7 @@
                                                 </hc:UniformSpacingPanel>
                                                 <DataGrid x:Name="DataGridTemplatePoints"
                                                           MaxHeight="360"
+                                                          RowHeight="110"
                                                           hc:DataGridAttach.ShowRowNumber="True"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="All"
@@ -248,14 +268,18 @@
                                                                   Value="{Binding Cache.StageMapRetryCount}" />
                                                 <ListBox AlternationCount="10000"
                                                          ItemsSource="{Binding Cache.RepeatStageMaps}"
+                                                         HorizontalContentAlignment="Stretch"
                                                          MaxHeight="240"
                                                          Style="{StaticResource ListBox.Small}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <TextBlock Text="Repeat " />
-                                                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=(ItemsControl.AlternationIndex), StringFormat={}{0}}" />
-                                                            </StackPanel>
+                                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="Repeat " />
+                                                                    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=(ItemsControl.AlternationIndex), StringFormat={}{0}}" />
+                                                                </StackPanel>
+                                                                <v2:PlotControl Height="180" DataSource="{Binding PlotDataSource}" />
+                                                            </hc:UniformSpacingPanel>
                                                         </DataTemplate>
                                                     </ListBox.ItemTemplate>
                                                 </ListBox>
@@ -294,7 +318,7 @@
                                             <Button.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
-                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="MarkCommand.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="Step3Command.IsRunning" />
                                                     <Binding Path="Step4Command.IsRunning" />
@@ -303,28 +327,6 @@
                                         </Button>
                                         <Button Content="Cancel"
                                                 Command="{Binding Step0CancelCommand}"
-                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                Style="{StaticResource ButtonWarning}" />
-                                    </hc:UniformSpacingPanel>
-                                    <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Action"
-                                                Command="{Binding Step1Command}"
-                                                CommandParameter="{x:Static models:Constants.False}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}">
-                                            <Button.IsEnabled>
-                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                    <Binding Path="Step0Command.IsRunning" />
-                                                    <Binding Path="Step1Command.IsRunning" />
-                                                    <Binding Path="Step2Command.IsRunning" />
-                                                    <Binding Path="Step3Command.IsRunning" />
-                                                    <Binding Path="Step4Command.IsRunning" />
-                                                </MultiBinding>
-                                            </Button.IsEnabled>
-                                        </Button>
-                                        <Button Content="Cancel"
-                                                Command="{Binding Step1CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -338,7 +340,7 @@
                                             <Button.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
-                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="MarkCommand.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="Step3Command.IsRunning" />
                                                     <Binding Path="Step4Command.IsRunning" />
@@ -360,7 +362,7 @@
                                             <Button.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
-                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="MarkCommand.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="Step3Command.IsRunning" />
                                                     <Binding Path="Step4Command.IsRunning" />
@@ -382,7 +384,7 @@
                                             <Button.IsEnabled>
                                                 <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
                                                     <Binding Path="Step0Command.IsRunning" />
-                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="MarkCommand.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
                                                     <Binding Path="Step3Command.IsRunning" />
                                                     <Binding Path="Step4Command.IsRunning" />

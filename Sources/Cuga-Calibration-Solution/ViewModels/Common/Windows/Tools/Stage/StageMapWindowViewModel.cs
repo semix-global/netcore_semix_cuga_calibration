@@ -18,7 +18,6 @@ using System.IO;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
-using Core.Models.Helper;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.DarkField;
@@ -151,7 +150,7 @@ public sealed partial class StageMapWindowViewModel(
     }, isSilent).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
+    private async Task<bool> MarkAsync(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
     {
         Guard.IsEqualTo(Cache.MicroscopeLensInformation, microscopeViewModel.GetCurrentMicroscopeLensInformation());
 
@@ -200,7 +199,7 @@ public sealed partial class StageMapWindowViewModel(
             Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
 
             stageMapTemplatePoint.ROI = createDarkImageTemplateWindowViewModel.Rect;
-            stageMapTemplatePoint.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(stageMapTemplatePoint.TemplateFilePath);
+            stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
 
             if (Cache.CanvasDocument.DefaultModel.Count == 0)
             {
@@ -793,7 +792,8 @@ public sealed partial class StageMapWindowViewModel(
         {
             Step4CancelCommand.Execute(null);
             Step3CancelCommand.Execute(null);
-            Step1CancelCommand.Execute(null);
+            Step2CancelCommand.Execute(null);
+            MarkCancelCommand.Execute(null);
             Step0CancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
