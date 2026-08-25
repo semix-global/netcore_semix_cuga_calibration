@@ -38,8 +38,14 @@
         <Project Path="Net.Utilities/Net.Utilities.WPF.Behaviors.Calibration/03. Net.Utilities.WPF.Behaviors.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.WPF.CustomControl.Calibration/04. Net.Utilities.WPF.CustomControl.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.SourceGenerators.Calibration/Net.Utilities.SourceGenerators.Calibration.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.OpticsFourierImageViewer.WPF/Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
     </Folder>
-    <Folder Name="/02. Cores/">
+
+    <Folder Name="/02. Demos/">
+        <Project Path="Demos/OpticsFourierImageViewerTest/OpticsFourierImageViewerTest.csproj" />
+    </Folder>
+
+    <Folder Name="/03. Cores/">
         <Project Path="Cores/Core.Utilities.WPF/00. Core.Utilities.WPF.csproj" />
         <Project Path="Cores/Core.Wcf/01. Core.Wcf.csproj" />
         <Project Path="Cores/Core.Models/02. Core.Models.csproj" />

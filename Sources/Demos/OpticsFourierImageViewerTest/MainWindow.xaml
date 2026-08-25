@@ -1,0 +1,50 @@
+<Window x:Class="OpticsFourierImageViewerTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+        xmlns:opticsFourierImageViewerTest="clr-namespace:OpticsFourierImageViewerTest"
+        Width="1920"
+        Height="900"
+        d:DataContext="{d:DesignInstance Type=opticsFourierImageViewerTest:MainWindowViewModel,
+                                         IsDesignTimeCreatable=True}"
+        mc:Ignorable="d">
+    <Window.Title>
+        <MultiBinding StringFormat="{}Image Viewer: {0} {1}" FallbackValue="Image Viewer">
+            <Binding Path="ImageFilePath" />
+            <Binding Path="BitmapImageDrawable.BitmapImage.ImageInfo" />
+        </MultiBinding>
+    </Window.Title>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Padding="3"
+                CornerRadius="3"
+                BorderBrush="{StaticResource PrimaryBrush}"
+                BorderThickness="2"
+                Style="{StaticResource BorderRegion}">
+            <hc:SimplePanel>
+                <hc:UniformSpacingPanel Spacing="5" Orientation="Horizontal">
+                    <Button Content="Open Image File" Command="{Binding OpenImageFileCommand}" />
+                    <Button Content="Edit ROI" Command="{Binding EditROICommand}" />
+                    <Button Content="Cancel"
+                            Command="{Binding EditROICancelCommand}"
+                            Style="{StaticResource ButtonWarning}" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+        <Border Grid.Row="2"
+                Padding="1"
+                CornerRadius="3"
+                BorderBrush="{StaticResource PrimaryBrush}"
+                BorderThickness="2"
+                Style="{StaticResource BorderRegion}">
+            <wpf:OpticsFourierImageCanvasControl Document="{Binding Document}" />
+        </Border>
+    </Grid>
+</Window>
