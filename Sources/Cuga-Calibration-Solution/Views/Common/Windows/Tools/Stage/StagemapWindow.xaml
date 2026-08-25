@@ -243,6 +243,33 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
+                                    <Expander Header="{Binding Steps[3]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="5"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.StageMapRetryCount}" />
+                                                <ListBox AlternationCount="10000"
+                                                         ItemsSource="{Binding Cache.RepeatStageMaps}"
+                                                         MaxHeight="240"
+                                                         Style="{StaticResource ListBox.Small}">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="Repeat " />
+                                                                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=(ItemsControl.AlternationIndex), StringFormat={}{0}}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -277,6 +304,9 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -297,6 +327,9 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -317,11 +350,83 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
                                         <Button Content="Cancel"
                                                 Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[3]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step3Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step3CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[4]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Download"
+                                                Command="{Binding Step4Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step4CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[5]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Verify"
+                                                Command="{Binding Step5Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="Step5Command.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step5CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
@@ -343,7 +448,12 @@
                     </TabItem>
                     <TabItem Header="{Binding Steps[2]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <v2:PlotControl DataSource="{Binding Cache.ScanStageMap.PlotDataSource}" />
+                            <v2:PlotControl DataSource="{Binding Cache.StageMap.PlotDataSource}" />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="{Binding Steps[5]}">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <v2:PlotControl DataSource="{Binding Cache.VerifyStageMap.PlotDataSource}" />
                         </Border>
                     </TabItem>
                 </TabControl>

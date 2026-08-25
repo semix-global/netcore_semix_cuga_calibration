@@ -67,6 +67,13 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     #endregion
 
+    #region Step4
+
+    [ObservableProperty]
+    public partial int StageMapRetryCount { get; set; } = 20;
+
+    #endregion
+
     #region Result
 
     [ObservableProperty]
@@ -78,7 +85,15 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial StageMap ScanStageMap { get; set; } = new();
+    public partial StageMap StageMap { get; set; } = new();
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial IReadOnlyList<StageMap> RepeatStageMaps { get; set; } = [];
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial StageMap VerifyStageMap { get; set; } = new();
 
     #endregion
 
@@ -95,7 +110,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         ImageWidth,
         DiePitchWidth,
         DiePitchHeight,
-        WaferRadius
+        WaferRadius,
+        StageMapRetryCount
     };
 }
 
@@ -153,7 +169,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
     {
         IdealMatrix = CopyPointMatrix(IdealMatrix),
         ErrorMatrix = new Vector[ErrorMatrix.GetLength(0), ErrorMatrix.GetLength(1)],
-        ValidMatrix = new bool[ValidMatrix.GetLength(0), ValidMatrix.GetLength(1)]
+        ValidMatrix = CopyBoolMatrix(ValidMatrix)
     };
 
     private static Point[,] CopyPointMatrix(Point[,] source)
@@ -170,6 +186,25 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             {
                 var point = source[row, column];
                 result[row, column] = new Point(point.X, point.Y);
+            }
+        }
+
+        return result;
+    }
+
+    private static bool[,] CopyBoolMatrix(bool[,] source)
+    {
+        if (source.Length == 0) return TwoDimensionalArrayExtensions.EmptyMatrix<bool>();
+
+        var rowCount = source.GetLength(0);
+        var columnCount = source.GetLength(1);
+        var result = new bool[rowCount, columnCount];
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                result[row, column] = source[row, column];
             }
         }
 

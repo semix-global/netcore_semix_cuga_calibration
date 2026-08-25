@@ -22,6 +22,7 @@ using Core.Models.Helper;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -35,6 +36,8 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
 using Constants = Net.Utilities.Models.Constants;
+using Python.Runtime;
+using System.Reflection;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -55,6 +58,10 @@ public sealed partial class StageMapWindowViewModel(
     CalibrationSetting calibrationSetting,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
 {
+    private const int StageMapMinimumRetryCount = 5;
+    private const double StageMapResidualAlpha = 0.3d;
+    private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
+
     public string Name { get; } = "StageMap Diagnostic Tool";
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
@@ -71,7 +78,8 @@ public sealed partial class StageMapWindowViewModel(
         "Step 2 Generate Wafer Map",
         "Step 3 Scan",
         "Step 4 Repeat",
-        "Step 5 Verify"
+        "Step 5 Download",
+        "Step 6 Verify"
     ];
 
     public Guid HtmlLogUniqueId { get; private set; }
@@ -242,19 +250,26 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(2, async () =>
     {
-        Cache.ScanStageMap = new StageMap();
+        Cache.StageMap = new StageMap();
+        Cache.RepeatStageMaps = [];
+        Cache.VerifyStageMap = new StageMap();
 
         var stageMapDies = Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>().ToArray();
+        Guard.IsNotEmpty(stageMapDies);
+        Guard.IsNotEmpty(Cache.StageMapTemplatePoints);
+
         var minRow = stageMapDies.Min(t => t.Row);
         var maxRow = stageMapDies.Max(t => t.Row);
         var minColumn = stageMapDies.Min(t => t.Col);
         var maxColumn = stageMapDies.Max(t => t.Col);
+        var templatePointCount = Cache.StageMapTemplatePoints.Length;
 
         var rowCount = maxRow - minRow + 1;
         var columnCount = maxColumn - minColumn + 1;
-        Cache.ScanStageMap.IdealMatrix = new Point[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
-        Cache.ScanStageMap.ErrorMatrix = new Vector[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
-        Cache.ScanStageMap.ValidMatrix = new bool[rowCount, columnCount * Cache.StageMapTemplatePoints.Length];
+        var matrixColumnCount = columnCount * templatePointCount;
+        Cache.StageMap.IdealMatrix = new Point[rowCount, matrixColumnCount];
+        Cache.StageMap.ErrorMatrix = new Vector[rowCount, matrixColumnCount];
+        Cache.StageMap.ValidMatrix = new bool[rowCount, matrixColumnCount];
 
         for (var row = 0; row < rowCount; row++)
         {
@@ -268,21 +283,82 @@ public sealed partial class StageMapWindowViewModel(
                 var stageMapColumn = minColumn + column;
 
                 var stageMapDie = stageMapDies.Single(t => t.Row == stageMapRow && t.Col == stageMapColumn);
+                Guard.IsEqualTo(stageMapDie.Markers.Length, templatePointCount);
 
-                for (var markerIndex = 0; markerIndex < columnCount * Cache.StageMapTemplatePoints.Length; markerIndex++)
+                for (var markerIndex = 0; markerIndex < templatePointCount; markerIndex++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var dfMachinePoint = stageViewModel.DarkFieldToMachinePosition(stageMapDie.Rect.Point + stageMapDie.Markers[markerIndex]);
-                    Cache.ScanStageMap.IdealMatrix[row, column * Cache.StageMapTemplatePoints.Length + markerIndex] = dfMachinePoint;
-                    Cache.ScanStageMap.ValidMatrix[row, column * Cache.StageMapTemplatePoints.Length + markerIndex] = stageMapDie.IsInWafer;
+                    var matrixColumn = column * templatePointCount + markerIndex;
+                    Cache.StageMap.IdealMatrix[row, matrixColumn] = dfMachinePoint;
+                    Cache.StageMap.ValidMatrix[row, matrixColumn] = stageMapDie.IsInWafer;
                 }
             }
         }
 
-        Cache.ScanStageMap.Refresh();
+        Cache.StageMap.Refresh();
 
-        await ScanStageMapAsync(Cache.ScanStageMap, cancellationToken).ConfigureAwait(false);
+        await ScanStageMapAsync(Cache.StageMap, cancellationToken).ConfigureAwait(false);
+        ProcessFirstMeasurement(Cache.StageMap);
+        Cache.StageMap.Refresh();
+        LogStageMap("StageMap", Cache.StageMap);
+
+        return true;
+    }, isSilent).ConfigureAwait(false);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step3Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(3, async () =>
+    {
+        Guard.IsGreaterThanOrEqualTo(Cache.StageMapRetryCount, StageMapMinimumRetryCount);
+        Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
+
+        var repeatStageMaps = new List<StageMap>(Cache.StageMapRetryCount);
+        Cache.RepeatStageMaps = [];
+
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var scanStageMap = Cache.StageMap.Clone();
+            await ScanStageMapAsync(scanStageMap, cancellationToken).ConfigureAwait(false);
+            repeatStageMaps.Add(scanStageMap);
+            Cache.RepeatStageMaps = [.. repeatStageMaps];
+            LogStageMap($"Repeat StageMap {repeatStageMaps.Count}", scanStageMap);
+
+            var isCompleted = ProcessStage2Residuals(Cache.StageMap, Cache.RepeatStageMaps, Cache.StageMapRetryCount);
+            LogStageMap($"StageMap Residual {repeatStageMaps.Count}", Cache.StageMap);
+            if (isCompleted) break;
+        }
+
+        Cache.StageMap.Refresh();
+
+        return true;
+    }, isSilent).ConfigureAwait(false);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task<bool> Step4Async(bool isSilent, CancellationToken cancellationToken) => InvokeAsync(4, () =>
+    {
+        Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var stageMapDto = ToStageMapDto(Cache.StageMap);
+        stageViewModel.SetStageMap(stageMapDto);
+        stageViewModel.SetEnableStageMap(true);
+        logger.LogHtmlInformation("StageMap downloaded and enabled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+        return Task.FromResult(true);
+    }, isSilent);
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step5Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(5, async () =>
+    {
+        Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
+
+        Cache.VerifyStageMap = Cache.StageMap.Clone();
+        await ScanStageMapAsync(Cache.VerifyStageMap, cancellationToken).ConfigureAwait(false);
+        Cache.VerifyStageMap.Refresh();
+        LogStageMap("Verify StageMap", Cache.VerifyStageMap);
 
         return true;
     }, isSilent).ConfigureAwait(false);
@@ -375,7 +451,7 @@ public sealed partial class StageMapWindowViewModel(
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplatePoints[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({HtmlLogUniqueId:N}).jpg");
                         bitmapImage.Save(resultImageFilePath);
 
-                        var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.X * ySize.YPixelSize);
+                        var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
 
                         var htmlBullet = new HtmlBullet(new
                         {
@@ -420,11 +496,262 @@ public sealed partial class StageMapWindowViewModel(
         }
     }
 
+    private StageMapDto ToStageMapDto(StageMap stageMap)
+    {
+        var rowCount = stageMap.IdealMatrix.GetLength(0);
+        var matrixColumnCount = stageMap.IdealMatrix.GetLength(1);
+        var templatePointCount = Cache.StageMapTemplatePoints.Length;
+
+        Guard.IsGreaterThan(rowCount, 0);
+        Guard.IsGreaterThan(matrixColumnCount, 0);
+        Guard.IsGreaterThan(templatePointCount, 0);
+        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(0), rowCount);
+        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(1), matrixColumnCount);
+        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(0), rowCount);
+        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(1), matrixColumnCount);
+        Guard.IsEqualTo(matrixColumnCount % templatePointCount, 0);
+        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
+        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
+
+        // The scan matrix has one column per marker; the hardware error map has one column per die.
+        var columnCount = matrixColumnCount / templatePointCount;
+        var stageMapDto = new StageMapDto(rowCount, columnCount, Cache.DiePitchHeight, Cache.DiePitchWidth);
+
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                var matrixColumn = column * templatePointCount;
+                var idealPoint = stageMap.IdealMatrix[row, matrixColumn];
+                var isInWafer = stageMap.ValidMatrix[row, matrixColumn];
+                var errorX = 0d;
+                var errorY = 0d;
+                var validCount = 0;
+
+                for (var markerIndex = 0; markerIndex < templatePointCount; markerIndex++)
+                {
+                    var markerColumn = matrixColumn + markerIndex;
+                    if (stageMap.ValidMatrix[row, markerColumn] == false) continue;
+
+                    var error = stageMap.ErrorMatrix[row, markerColumn];
+                    errorX += error.X;
+                    errorY += error.Y;
+                    validCount++;
+                }
+
+                var errorPoint = validCount == 0
+                    ? Point.Origin
+                    : new Point(errorX / validCount, errorY / validCount);
+                var stageMapItem = stageMapDto.IdealStageMapItemMatrix[row][column];
+                stageMapItem.Row = row;
+                stageMapItem.Column = column;
+                stageMapItem.Point = idealPoint;
+                stageMapItem.IsInWafer = isInWafer;
+                stageMapItem.IsMatchOk = isInWafer;
+                stageMapDto.ErrorMatrix[row][column] = errorPoint;
+                stageMapDto.RealMatrix[row][column] = new Point(idealPoint.X + errorPoint.X, idealPoint.Y + errorPoint.Y);
+            }
+        }
+
+        return stageMapDto;
+    }
+
+    private void LogStageMap(string title, StageMap stageMap)
+    {
+        logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+        var rowCount = stageMap.IdealMatrix.GetLength(0);
+        var columnCount = stageMap.IdealMatrix.GetLength(1);
+        for (var row = 0; row < rowCount; row++)
+        {
+            var points = new List<string>();
+            for (var column = 0; column < columnCount; column++)
+            {
+                if (stageMap.ValidMatrix[row, column] == false) continue;
+
+                var idealPoint = stageMap.IdealMatrix[row, column];
+                var error = stageMap.ErrorMatrix[row, column];
+                var realPoint = new Point(idealPoint.X + error.X, idealPoint.Y + error.Y);
+                points.Add($"{row}, {column}, ideal: {idealPoint}, error: {error}, real: {realPoint}");
+            }
+
+            if (points.Count == 0) continue;
+
+            logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header4, new HtmlComment(string.Join(Environment.NewLine, points)), HtmlLogUniqueId.LoggingHtml());
+        }
+    }
+
+    private static void ProcessFirstMeasurement(StageMap stageMap)
+    {
+        var validIndexes = GetValidIndexes(stageMap);
+
+        using var _ = Py.GIL();
+        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
+        using var process = module.GetAttr("process_first_measurement");
+        using var pyResidual = ToPythonErrorArray(stageMap, validIndexes);
+        using var pyDesiredPositions = ToPythonPointArray(stageMap, validIndexes);
+        using var result = process.Invoke(pyResidual, pyDesiredPositions);
+
+        ApplyPythonErrorArray(stageMap, validIndexes, result);
+    }
+
+    private static bool ProcessStage2Residuals(StageMap targetStageMap, IReadOnlyList<StageMap> scanStageMaps, int retryCount)
+    {
+        Guard.IsNotEmpty(scanStageMaps);
+        Guard.IsGreaterThanOrEqualTo(retryCount, StageMapMinimumRetryCount);
+
+        var validIndexes = GetValidIndexes(targetStageMap);
+        foreach (var scanStageMap in scanStageMaps)
+        {
+            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(0), targetStageMap.IdealMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.IdealMatrix.GetLength(1), targetStageMap.IdealMatrix.GetLength(1));
+            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), targetStageMap.ErrorMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), targetStageMap.ErrorMatrix.GetLength(1));
+            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(0), targetStageMap.ValidMatrix.GetLength(0));
+            Guard.IsEqualTo(scanStageMap.ValidMatrix.GetLength(1), targetStageMap.ValidMatrix.GetLength(1));
+        }
+
+        using var _ = Py.GIL();
+        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
+        using var process = module.GetAttr("process_stage2_residuals");
+        using var pyResiduals = ToPythonErrorHistory(scanStageMaps, validIndexes);
+        using var pyDesiredPositions = ToPythonPointArray(targetStageMap, validIndexes);
+        using var pyAlpha = StageMapResidualAlpha.ToPython();
+        using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
+        using var pyMaximumCount = retryCount.ToPython();
+        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount);
+        using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
+        using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
+
+        var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
+        if (pyResidualTable.IsNone()) return needMoreMeasurement == false;
+
+        ApplyPythonErrorArray(targetStageMap, validIndexes, pyResidualTable);
+
+        return needMoreMeasurement == false;
+    }
+
+    private static (int Row, int Column)[] GetValidIndexes(StageMap stageMap)
+    {
+        var rowCount = stageMap.IdealMatrix.GetLength(0);
+        var columnCount = stageMap.IdealMatrix.GetLength(1);
+
+        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(0), rowCount);
+        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(1), columnCount);
+        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(0), rowCount);
+        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(1), columnCount);
+
+        var validIndexes = new List<(int Row, int Column)>();
+        for (var row = 0; row < rowCount; row++)
+        {
+            for (var column = 0; column < columnCount; column++)
+            {
+                if (stageMap.ValidMatrix[row, column]) validIndexes.Add((row, column));
+            }
+        }
+
+        Guard.IsNotEmpty(validIndexes);
+
+        return [.. validIndexes];
+    }
+
+    private static PyObject ToPythonPointArray(StageMap stageMap, IReadOnlyList<(int Row, int Column)> indexes)
+    {
+        var result = new PyList();
+
+        foreach (var index in indexes)
+        {
+            var point = stageMap.IdealMatrix[index.Row, index.Column];
+            using var pyPoint = new PyList();
+            using var pyX = point.X.ToPython();
+            using var pyY = point.Y.ToPython();
+
+            pyPoint.Append(pyX);
+            pyPoint.Append(pyY);
+            result.Append(pyPoint);
+        }
+
+        return result;
+    }
+
+    private static PyObject ToPythonErrorArray(StageMap stageMap, IReadOnlyList<(int Row, int Column)> indexes)
+    {
+        var result = new PyList();
+
+        foreach (var index in indexes)
+        {
+            var vector = stageMap.ErrorMatrix[index.Row, index.Column];
+            using var pyVector = new PyList();
+            using var pyX = vector.X.ToPython();
+            using var pyY = vector.Y.ToPython();
+
+            pyVector.Append(pyX);
+            pyVector.Append(pyY);
+            result.Append(pyVector);
+        }
+
+        return result;
+    }
+
+    private static PyObject ToPythonErrorHistory(IReadOnlyList<StageMap> stageMaps, IReadOnlyList<(int Row, int Column)> indexes)
+    {
+        var result = new PyList();
+
+        foreach (var stageMap in stageMaps)
+        {
+            using var pyScan = ToPythonErrorArray(stageMap, indexes);
+            result.Append(pyScan);
+        }
+
+        return result;
+    }
+
+    private static void ApplyPythonErrorArray(StageMap stageMap, IReadOnlyList<(int Row, int Column)> indexes, PyObject pyValues)
+    {
+        using var pyValueList = pyValues.InvokeMethod("tolist");
+        using var values = new PyList(pyValueList);
+        Guard.IsEqualTo(values.Length(), indexes.Count);
+
+        for (var index = 0; index < indexes.Count; index++)
+        {
+            using var pyVectorObject = Guard.IsNotNullAndReturn(values[index]);
+            using var pyVector = new PyList(pyVectorObject);
+            Guard.IsEqualTo(pyVector.Length(), 2);
+
+            using var pyX = Guard.IsNotNullAndReturn(pyVector[0]);
+            using var pyY = Guard.IsNotNullAndReturn(pyVector[1]);
+
+            var x = pyX.As<double>();
+            var y = pyY.As<double>();
+            Guard.IsTrue(double.IsFinite(x));
+            Guard.IsTrue(double.IsFinite(y));
+
+            var matrixIndex = indexes[index];
+            stageMap.ErrorMatrix[matrixIndex.Row, matrixIndex.Column] = new Vector(x, y);
+        }
+    }
+
+    private static string GetEmbeddedResource(string fileName)
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(t => t.EndsWith($".Assets.Python.{fileName}", StringComparison.OrdinalIgnoreCase));
+        Guard.IsNotNull(resourceName);
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        Guard.IsNotNull(stream);
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     [RelayCommand]
     private void Close()
     {
         try
         {
+            Step5CancelCommand.Execute(null);
+            Step4CancelCommand.Execute(null);
+            Step3CancelCommand.Execute(null);
             Step1CancelCommand.Execute(null);
             Step0CancelCommand.Execute(null);
 
