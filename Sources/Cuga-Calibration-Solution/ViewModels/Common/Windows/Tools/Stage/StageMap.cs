@@ -17,7 +17,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public bool[][] IsInWaferMatrix { get; set; } = [];
 
-    public bool[][] IsMatchOkMatrix { get; set; } = [];
+    public bool[][] IsMatchMatrix { get; set; } = [];
 
     [JsonIgnore]
     [ObservableProperty]
@@ -26,39 +26,34 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
     public void Refresh()
     {
         var vectorFields = PlotDataSource.GetOrAddVectorFields(1);
-        var heatmaps = PlotDataSource.GetOrAddHeatmaps(1);
 
         var vectorFieldList = new List<(Point Point, Vector Vector)>();
-        var heatmapList = new List<Point3D>();
 
-        var (rowCount, columnCount) = IdealMatrix.GetRowCountColCount();
+        var (rowCount, columnCount) = IdealMatrix.GetRowColCount();
 
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
-                if (IsInWaferMatrix[row][column])
-                {
-                    vectorFieldList.Add((IdealMatrix[row][column], ErrorMatrix[row][column]));
-                    heatmapList.Add(new Point3D(IdealMatrix[row][column].X, IdealMatrix[row][column].Y, ErrorMatrix[row][column].Length));
-                }
+                if (IsInWaferMatrix[row][column] == false) continue;
+
+                vectorFieldList.Add((IdealMatrix[row][column], ErrorMatrix[row][column]));
             }
         }
 
-        heatmaps[0].Update(string.Empty, heatmapList);
         vectorFields[0].Update(string.Empty, vectorFieldList);
     }
 
     public void Reset()
     {
-        var (rowCount, columnCount) = ErrorMatrix.GetRowCountColCount();
+        var (rowCount, columnCount) = ErrorMatrix.GetRowColCount();
 
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
-                ErrorMatrix[row][column] = default;
-                IsMatchOkMatrix[row][column] = false;
+                ErrorMatrix[row][column] = Vector.Zero;
+                IsMatchMatrix[row][column] = false;
             }
         }
     }
@@ -68,6 +63,6 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         IdealMatrix = JaggedArrayExtensions.Clone(IdealMatrix),
         ErrorMatrix = JaggedArrayExtensions.Clone(ErrorMatrix),
         IsInWaferMatrix = JaggedArrayExtensions.Clone(IsInWaferMatrix),
-        IsMatchOkMatrix = JaggedArrayExtensions.Clone(IsMatchOkMatrix)
+        IsMatchMatrix = JaggedArrayExtensions.Clone(IsMatchMatrix)
     };
 }

@@ -4,7 +4,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics;
-using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -43,10 +42,10 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     #region Step1
 
     [ObservableProperty]
-    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial int ImageWidth { get; set; } = 1000;
+    public partial double WaferRadius { get; set; }
 
     [ObservableProperty]
     public partial double DiePitchWidth { get; set; }
@@ -55,14 +54,11 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     public partial double DiePitchHeight { get; set; }
 
     [ObservableProperty]
-    public partial double WaferRadius { get; set; }
-
-    [ObservableProperty]
-    public partial StageMapTemplatePoint[] StageMapTemplatePoints { get; set; } = [];
+    public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
 
     #endregion
 
-    #region Step4
+    #region Step3
 
     [ObservableProperty]
     public partial int StageMapRetryCount { get; set; } = 20;
@@ -108,19 +104,4 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         WaferRadius,
         StageMapRetryCount
     };
-}
-
-public sealed partial class StageMapTemplatePoint : ObservableObject
-{
-    [ObservableProperty]
-    public partial Point DFPosition { get; set; }
-
-    [ObservableProperty]
-    public partial Rect ROI { get; set; }
-
-    [ObservableProperty]
-    public partial string TemplateFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 }

@@ -16,6 +16,7 @@
            xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -232,12 +233,12 @@
                                                           CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           IsReadOnly="True"
-                                                          ItemsSource="{Binding Cache.StageMapTemplatePoints}">
+                                                          ItemsSource="{Binding Cache.StageMapTemplates}">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn Header="DF Position(um)" Binding="{Binding DFPosition, Converter={StaticResource PointToStringConverter}}" />
                                                         <DataGridTemplateColumn Header="Images">
                                                             <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate DataType="{x:Type viewModels:StageMapTemplatePoint}">
+                                                                <DataTemplate DataType="{x:Type viewModels:StageMapTemplate}">
                                                                     <view:CanvasView Width="100"
                                                                                      Height="100"
                                                                                      BackgroundColor="#0A0A0A"
@@ -410,13 +411,27 @@
                     <TabItem Header="{Binding Steps[1]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
                             <graphicsWPF:WPFCanvasControl Document="{Binding Cache.StageMapDocument}" CursorTextVisibility="Collapsed">
+                                <graphicsWPF:WPFCanvasControl.Resources>
+                                    <ResourceDictionary>
+                                        <ResourceDictionary.MergedDictionaries>
+                                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl;component/Themes/ToolBarStyles.xaml" />
+                                        </ResourceDictionary.MergedDictionaries>
+                                    </ResourceDictionary>
+                                </graphicsWPF:WPFCanvasControl.Resources>
                                 <graphicsWPF:WPFCanvasControl.RightToolBars>
                                     <ToolBar Margin="3,2"
                                              Padding="3,2"
                                              Background="Transparent"
                                              Band="0"
                                              BandIndex="0">
-                                        <TextBlock Text="{Binding Cache.StageMapDocument.Position}" Style="{StaticResource ToolBarTextBlock}" />
+                                        <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{stage:StageMapDocumentCursorToStringConverter}">
+                                                    <Binding Path="Cache.StageMapDocument.View.Cursor.Point" />
+                                                    <Binding Path="Cache.StageMapDocument" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
                                     </ToolBar>
                                 </graphicsWPF:WPFCanvasControl.RightToolBars>
                             </graphicsWPF:WPFCanvasControl>
