@@ -40,7 +40,9 @@ public sealed class StageMapDieSelectionGetter(
         foreach (var item in visibleItems
                      .Where(t => selectedRows.Contains(t.item.Row))
                      .Select(t => t.item))
+        {
             results.Add(item);
+        }
 
         return results;
     }

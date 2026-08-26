@@ -37,7 +37,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         {
             var vectorFields = PlotDataSource.GetOrAddVectorFields(1);
 
-            var vectorFieldList = new List<(Point Point, Vector Vector)>();
+            var vectorFieldList = new List<(Point Point, Vector Vector, bool? IsMatch)>();
 
             var (yLength, xLength) = IdealMatrix.GetYXLength();
 
@@ -47,7 +47,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
                 {
                     if (IsInWaferMatrix[y][x] == false) continue;
 
-                    vectorFieldList.Add((IdealMatrix[y][x], ErrorMatrix[y][x]));
+                    vectorFieldList.Add((IdealMatrix[y][x], ErrorMatrix[y][x], IsMatchMatrix[y][x]));
                 }
             }
 

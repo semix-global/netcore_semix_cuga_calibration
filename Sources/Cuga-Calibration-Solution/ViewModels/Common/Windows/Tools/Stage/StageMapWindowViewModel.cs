@@ -307,6 +307,8 @@ public sealed partial class StageMapWindowViewModel(
             Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
             stageMapDies = [.. inputResult.Output];
+
+            foreach (var stageMapDie in stageMapDies) stageMapDie.IsSelected = true;
         }
         else
         {
