@@ -62,7 +62,7 @@ public sealed partial class StageMapWindowViewModel(
     private const double StageMapResidualAlpha = 0.3d;
     private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
 
-    public string Name { get; } = "StageMap Diagnostic Tool";
+    public string Name { get; } = "StageMap";
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
