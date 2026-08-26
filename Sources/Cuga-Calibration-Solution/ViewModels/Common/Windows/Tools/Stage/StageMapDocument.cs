@@ -7,8 +7,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public sealed class StageMapDocument : CanvasDocument
 {
-    public readonly ILayer WaferLayer = new ImmutableLayer("Wafer", 100);
-    public readonly ILayer DieLayer = new ImmutableLayer("Die", 200);
+    public readonly ILayer WaferLayer = new ImmutableLayer("Wafer", 200);
+    public readonly ILayer DieLayer = new ImmutableLayer("Die", 100);
 
     public Model<StageMapWafer> WaferModel { get; }
 

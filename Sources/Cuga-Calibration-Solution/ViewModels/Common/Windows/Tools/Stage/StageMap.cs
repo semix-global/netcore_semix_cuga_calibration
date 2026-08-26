@@ -77,10 +77,34 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public StageMap Clone() => new()
     {
-        IdealMatrix = JaggedArrayExtensions.Clone(IdealMatrix),
-        ErrorMatrix = JaggedArrayExtensions.Clone(ErrorMatrix),
-        IsInWaferMatrix = JaggedArrayExtensions.Clone(IsInWaferMatrix),
-        IsMatchMatrix = JaggedArrayExtensions.Clone(IsMatchMatrix)
+        IdealMatrix =
+        [
+            .. IdealMatrix.Select<Point[], Point[]>(t =>
+            [
+                .. t.Select(tt => tt)
+            ])
+        ],
+        ErrorMatrix =
+        [
+            .. ErrorMatrix.Select<Vector[], Vector[]>(t =>
+            [
+                .. t.Select(tt => tt)
+            ])
+        ],
+        IsInWaferMatrix =
+        [
+            .. IsInWaferMatrix.Select<bool[], bool[]>(t =>
+            [
+                .. t.Select(tt => tt)
+            ])
+        ],
+        IsMatchMatrix =
+        [
+            .. IsMatchMatrix.Select<bool[], bool[]>(t =>
+            [
+                .. t.Select(tt => tt)
+            ])
+        ]
     };
 
     public PyList ToPythonIdealMatrix() => ToPythonPointMatrix(IdealMatrix);

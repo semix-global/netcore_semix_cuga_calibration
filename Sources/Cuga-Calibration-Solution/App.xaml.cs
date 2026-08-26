@@ -50,7 +50,7 @@ public sealed partial class App
 
         try
         {
-            var pythonDllFilePath = GetPythonDllFilePath();
+            var pythonDllFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
             var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
             Guard.IsTrue(File.Exists(pythonDllFilePath));
             Guard.IsTrue(Directory.Exists(pythonHome));
@@ -207,9 +207,4 @@ public sealed partial class App
     }
 
     #endregion 全局异常捕获
-
-    private static string GetPythonDllFilePath()
-    {
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
-    }
 }
