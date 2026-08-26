@@ -111,6 +111,8 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public PyList ToPythonErrorMatrix() => ToPythonVectorMatrix(ErrorMatrix);
 
+    public PyList ToPythonIsMatchMatrix() => ToPythonBooleanMatrix(IsMatchMatrix);
+
     public void ApplyPythonErrorMatrix(PyObject pyValues)
     {
         var (yLength, xLength) = ErrorMatrix.GetYXLength();
@@ -152,7 +154,8 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         using var pyResidualTable = ToPythonErrorMatrix();
         using var pyDesiredPositions = ToPythonIdealMatrix();
         using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
-        using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions);
+        using var pySourceMask = ToPythonIsMatchMatrix();
+        using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask);
 
         var (yLength, xLength) = targetPoints.GetYXLength();
 
@@ -257,6 +260,27 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
                 pyVector.Append(pyX);
                 pyVector.Append(pyY);
                 pyRow.Append(pyVector);
+            }
+
+            result.Append(pyRow);
+        }
+
+        return result;
+    }
+
+    private static PyList ToPythonBooleanMatrix(bool[][] matrix)
+    {
+        var (yLength, xLength) = matrix.GetYXLength();
+        var result = new PyList();
+
+        for (var y = 0; y < yLength; y++)
+        {
+            using var pyRow = new PyList();
+
+            for (var x = 0; x < xLength; x++)
+            {
+                using var pyValue = matrix[y][x].ToPython();
+                pyRow.Append(pyValue);
             }
 
             result.Append(pyRow);

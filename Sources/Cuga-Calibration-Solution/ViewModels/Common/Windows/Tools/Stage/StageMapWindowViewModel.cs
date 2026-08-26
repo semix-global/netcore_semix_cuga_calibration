@@ -672,7 +672,8 @@ public sealed partial class StageMapWindowViewModel(
 
         using var pyResidual = stageMap.ToPythonErrorMatrix();
         using var pyDesiredPositions = stageMap.ToPythonIdealMatrix();
-        using var result = process.Invoke(pyResidual, pyDesiredPositions);
+        using var pyMask = stageMap.ToPythonIsMatchMatrix();
+        using var result = process.Invoke(pyResidual, pyDesiredPositions, pyMask);
 
         stageMap.ApplyPythonErrorMatrix(result);
     }
@@ -683,13 +684,15 @@ public sealed partial class StageMapWindowViewModel(
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var process = module.GetAttr("process_stage2_residuals");
 
-
         using var pyResiduals = new PyList();
+        using var pyMasks = new PyList();
         foreach (var stageMap in historyStageMaps)
         {
-            using var temp = stageMap.ToPythonErrorMatrix();
+            using var pyResidual = stageMap.ToPythonErrorMatrix();
+            using var pyMask = stageMap.ToPythonIsMatchMatrix();
 
-            pyResiduals.Append(temp);
+            pyResiduals.Append(pyResidual);
+            pyMasks.Append(pyMask);
         }
 
         using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
@@ -697,7 +700,7 @@ public sealed partial class StageMapWindowViewModel(
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
         using var pyMaximumCount = (Cache.StageMapRepeatTimes + 1).ToPython();
 
-        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount);
+        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount, pyMasks);
 
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
