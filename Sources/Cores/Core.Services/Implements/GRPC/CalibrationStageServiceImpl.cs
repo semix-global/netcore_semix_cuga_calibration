@@ -446,6 +446,15 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetStageMap(new SxParamObj<CgErrorMap>(stageMapDto.AdaptTo())));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)
     {
         var sxExecuteRet = Invoke(() => Service?.SetBrightFieldCenterMachinePositionValue(new SxParamObj<CgPoint>(position.ToCgPoint())));

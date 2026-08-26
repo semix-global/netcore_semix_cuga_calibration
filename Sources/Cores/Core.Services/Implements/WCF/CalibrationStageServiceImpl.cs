@@ -495,6 +495,15 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto)
+    {
+        var sxExecuteRet = Invoke(() => Service!.ExecErrorMap(stageMapDto.AdaptTo()));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)
     {
         var sxExecuteRet = Invoke(() => Service!.UpdateChuckCenter(position.ToCgPoint()));

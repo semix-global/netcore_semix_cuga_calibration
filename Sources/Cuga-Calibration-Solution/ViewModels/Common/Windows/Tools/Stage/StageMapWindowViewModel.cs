@@ -20,7 +20,6 @@ using Core.Models.Extensions;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -331,6 +330,9 @@ public sealed partial class StageMapWindowViewModel(
         Guard.IsGreaterThan(rowCount, 2);
         Guard.IsGreaterThan(columnCount, 2);
 
+        Cache.StageMap.TemplateCount = Cache.StageMapTemplates.Length;
+        Cache.StageMap.ColumnCellWidth = Cache.DiePitchWidth;
+        Cache.StageMap.RowCellHeight = Cache.DiePitchHeight;
         Cache.StageMap.IdealMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Point[columnCount * Cache.StageMapTemplates.Length])];
         Cache.StageMap.ErrorMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Vector[columnCount * Cache.StageMapTemplates.Length])];
         Cache.StageMap.IsInWaferMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new bool[columnCount * Cache.StageMapTemplates.Length])];
@@ -662,78 +664,8 @@ public sealed partial class StageMapWindowViewModel(
     {
         Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
 
-        var stageMapDto = ToStageMapDto(Cache.StageMap);
-        stageViewModel.SetStageMap(stageMapDto);
+        stageViewModel.SetStageMap(Cache.StageMap.AdaptTo());
         stageViewModel.SetEnableStageMap(true);
-    }
-
-    private StageMapDto ToStageMapDto(StageMap stageMap)
-    {
-        var (rowCount, matrixColumnCount) = stageMap.IdealMatrix.GetRowColCount();
-        var templatePointCount = Cache.StageMapTemplates.Length;
-
-        Guard.IsGreaterThan(rowCount, 0);
-        Guard.IsGreaterThan(matrixColumnCount, 0);
-        Guard.IsGreaterThan(templatePointCount, 0);
-        var (errorRowCount, errorColumnCount) = stageMap.ErrorMatrix.GetRowColCount();
-        var (isInWaferRowCount, isInWaferColumnCount) = stageMap.IsInWaferMatrix.GetRowColCount();
-        var (isMatchOkRowCount, isMatchOkColumnCount) = stageMap.IsMatchMatrix.GetRowColCount();
-        Guard.IsEqualTo(errorRowCount, rowCount);
-        Guard.IsEqualTo(errorColumnCount, matrixColumnCount);
-        Guard.IsEqualTo(isInWaferRowCount, rowCount);
-        Guard.IsEqualTo(isInWaferColumnCount, matrixColumnCount);
-        Guard.IsEqualTo(isMatchOkRowCount, rowCount);
-        Guard.IsEqualTo(isMatchOkColumnCount, matrixColumnCount);
-        Guard.IsEqualTo(matrixColumnCount % templatePointCount, 0);
-        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
-
-        // The scan matrix has one column per marker; the hardware error map has one column per die.
-        var columnCount = matrixColumnCount / templatePointCount;
-        var stageMapDto = new StageMapDto(rowCount, columnCount, Cache.DiePitchHeight, Cache.DiePitchWidth);
-
-        for (var row = 0; row < rowCount; row++)
-        {
-            for (var column = 0; column < columnCount; column++)
-            {
-                var matrixColumn = column * templatePointCount;
-                var idealPoint = stageMap.IdealMatrix[row][matrixColumn];
-                var isInWafer = stageMap.IsInWaferMatrix[row][matrixColumn];
-                var errorX = 0d;
-                var errorY = 0d;
-                var validCount = 0;
-                var isMatchOk = isInWafer;
-
-                for (var markerIndex = 0; markerIndex < templatePointCount; markerIndex++)
-                {
-                    var markerColumn = matrixColumn + markerIndex;
-                    if (stageMap.IsMatchMatrix[row][markerColumn] == false)
-                    {
-                        isMatchOk = false;
-                        continue;
-                    }
-
-                    var error = stageMap.ErrorMatrix[row][markerColumn];
-                    errorX += error.X;
-                    errorY += error.Y;
-                    validCount++;
-                }
-
-                var errorPoint = validCount == 0
-                    ? Point.Origin
-                    : new Point(errorX / validCount, errorY / validCount);
-                var stageMapItem = stageMapDto.IdealStageMapItemMatrix[row][column];
-                stageMapItem.Row = row;
-                stageMapItem.Column = column;
-                stageMapItem.Point = idealPoint;
-                stageMapItem.IsInWafer = isInWafer;
-                stageMapItem.IsMatchOk = isMatchOk;
-                stageMapDto.ErrorMatrix[row][column] = errorPoint;
-                stageMapDto.RealMatrix[row][column] = new Point(idealPoint.X + errorPoint.X, idealPoint.Y + errorPoint.Y);
-            }
-        }
-
-        return stageMapDto;
     }
 
     [RelayCommand]

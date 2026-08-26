@@ -393,6 +393,13 @@ public sealed partial class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetStageMap(CgErrorMapDto stageMapDto)
+    {
+        var ret = calibrationStageService.SetStageMap(stageMapDto);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetBrightFieldCenterMachinePositionValue(Point position)
     {
         var ret = calibrationStageService.SetBrightFieldCenterMachinePositionValue(position);

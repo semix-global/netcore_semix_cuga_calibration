@@ -357,6 +357,13 @@ public interface ICalibrationStageService
     SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto);
 
     /// <summary>
+    /// 使用 Cuga ACS ErrorMap 结构设置 StageMap。
+    /// </summary>
+    /// <param name="stageMapDto">Cuga ACS ErrorMap</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto);
+
+    /// <summary>
     /// 设置明场中心的机械位置
     /// </summary>
     /// <param name="position">新的明场中心Stage物理坐标</param>

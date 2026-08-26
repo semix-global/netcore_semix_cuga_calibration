@@ -378,6 +378,13 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)
     {
         Thread.Sleep(100);
