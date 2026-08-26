@@ -2,6 +2,8 @@
 using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Common.StageMap;
+using MathNet.Numerics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -118,7 +120,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         }
     }
 
-    private Vector[][] InterpolateErrors(Point[][] targetPoints)
+    public Vector[][] InterpolateErrors(Point[][] targetPoints)
     {
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
@@ -131,6 +133,62 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         var (rowCount, columnCount) = targetPoints.GetRowColCount();
 
         return ToVectorMatrix(result, rowCount, columnCount);
+    }
+
+    public StageMapErrorDTO AdaptTo()
+    {
+        var (yCount, xCount) = IdealMatrix.GetRowColCount();
+
+        var isReverseX = IdealMatrix[0][0].X > IdealMatrix[0][1].X;
+
+        var xWidth = isReverseX
+            ? (IdealMatrix[0][0].X - IdealMatrix[0][^1].X) / (xCount - 1)
+            : (IdealMatrix[0][^1].X - IdealMatrix[0][0].X) / (xCount - 1);
+        var yHeight = (IdealMatrix[0][^1].Y - IdealMatrix[0][0].Y) / (yCount - 1);
+        var startPoint = isReverseX
+            ? new Point(IdealMatrix[0][^1].X, IdealMatrix[0][^1].Y)
+            : new Point(IdealMatrix[0][0].X, IdealMatrix[0][0].Y);
+
+        Guard.IsGreaterThan(xWidth, 0d);
+        Guard.IsGreaterThan(yHeight, 0d);
+
+        var points = new Point[yCount][];
+        for (var y = 0; y < yCount; y++)
+        {
+            points[y] = new Point[xCount];
+            for (var x = 0; x < xCount; x++)
+            {
+                points[y][x] = startPoint + new Vector(x * xWidth, y * yHeight);
+            }
+        }
+
+        var errors = InterpolateErrors(points);
+
+        return new StageMapErrorDTO
+        {
+            Zone = 0,
+            BaseX = points[0][0].X,
+            BaseY = points[0][0].Y,
+            XStep = xWidth,
+            YStep = yHeight,
+            Rows =
+            [
+                .. Generate.LinearRangeInt32(0, yCount - 1)
+                    .Select(row => new StageMapErrorRowDTO
+                    {
+                        Id = row,
+                        Cols =
+                        [
+                            .. Generate.LinearRangeInt32(0, xCount - 1)
+                                .Select(column => new StageMapErrorColumnDTO
+                                {
+                                    Id = column,
+                                    Error = errors[row][column]
+                                })
+                        ]
+                    })
+            ]
+        };
     }
 
     private static PyList ToPythonPointMatrix(Point[][] matrix)

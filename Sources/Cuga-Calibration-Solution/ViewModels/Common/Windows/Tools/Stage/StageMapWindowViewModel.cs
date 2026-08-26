@@ -467,7 +467,7 @@ public sealed partial class StageMapWindowViewModel(
         return true;
     }, isSilent).ConfigureAwait(false);
 
-    private async Task ScanStageMapAsync(StageMap stageMap, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    private async Task ScanStageMapAsync(StageMap stageMap, Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isInterpolateErrors = false)
     {
         logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
@@ -498,9 +498,22 @@ public sealed partial class StageMapWindowViewModel(
 
             var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
 
-            var (idealRowCount, _) = stageMap.IdealMatrix.GetRowColCount();
+            var stageMapIdealMatrix = JaggedArrayExtensions.Clone(stageMap.IdealMatrix);
+            var (idealRowCount, idealColumnCount) = stageMapIdealMatrix.GetRowColCount();
 
             logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+
+            if (isInterpolateErrors)
+            {
+                var errors = Cache.StageMap.InterpolateErrors(stageMapIdealMatrix);
+                for (var row = 0; row < idealRowCount; row++)
+                {
+                    for (var column = 0; column < idealColumnCount; column++)
+                    {
+                        stageMapIdealMatrix[row][column] += errors[row][column];
+                    }
+                }
+            }
 
             for (var row = 0; row < idealRowCount; row++)
             {
@@ -512,7 +525,7 @@ public sealed partial class StageMapWindowViewModel(
                     .Select(t => t.Index)
                     .ToArray();
 
-                var points = isInWaferColumnIndexes.Select(t => stageMap.IdealMatrix[row][t]).ToArray();
+                var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[row][t]).ToArray();
                 if (points.Length == 0) continue;
 
                 logger.LogHtmlInformation($"{row + 1} row", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
@@ -661,7 +674,10 @@ public sealed partial class StageMapWindowViewModel(
     {
         Guard.IsTrue(Cache.StageMap.IdealMatrix.Length > 0, nameof(Cache.StageMap.IdealMatrix));
 
+        stageViewModel.SetEnableStageMap(false);
+
         stageViewModel.SetStageMap(Cache.StageMap.AdaptTo());
+
         stageViewModel.SetEnableStageMap(true);
     }
 
