@@ -19,7 +19,6 @@ using NLog.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using Python.Runtime;
 using SourceGenerator.AssemblyMetadata;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -184,31 +183,6 @@ public sealed partial class App
 
     private static string GetPythonDllFilePath()
     {
-        using var process = new Process();
-        process.StartInfo = new ProcessStartInfo
-        {
-            FileName = "python",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        process.StartInfo.ArgumentList.Add("-c");
-        process.StartInfo.ArgumentList.Add("""
-                                           import sys, pathlib
-                                           print(pathlib.Path(sys.base_prefix) / ('python%d%d.dll' % sys.version_info[:2]))
-                                           """);
-
-        Guard.IsTrue(process.Start());
-
-        var output = process.StandardOutput.ReadToEnd().Trim();
-        var error = process.StandardError.ReadToEnd().Trim();
-
-        Guard.IsTrue(process.WaitForExit(5000));
-
-        if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(output)) ThrowHelper.ThrowNotSupportedException(error);
-
-        return output;
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
     }
 }
