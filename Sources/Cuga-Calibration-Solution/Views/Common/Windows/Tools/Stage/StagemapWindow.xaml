@@ -235,7 +235,7 @@
                                                           IsReadOnly="True"
                                                           ItemsSource="{Binding Cache.StageMapTemplates}">
                                                     <DataGrid.Columns>
-                                                        <DataGridTextColumn Header="DF Position(um)" Binding="{Binding DFPosition, Converter={StaticResource PointToStringConverter}}" />
+                                                        <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                                                         <DataGridTemplateColumn Header="Images">
                                                             <DataGridTemplateColumn.CellTemplate>
                                                                 <DataTemplate DataType="{x:Type viewModels:StageMapTemplate}">
