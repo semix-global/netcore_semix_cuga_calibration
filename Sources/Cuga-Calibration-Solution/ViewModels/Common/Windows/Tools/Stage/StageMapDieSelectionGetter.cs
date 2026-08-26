@@ -32,13 +32,15 @@ public sealed class StageMapDieSelectionGetter(
                 select (extents, item))
             .ToArray();
 
-        foreach (var item in from x in visibleItems
-                 where SelectionWindow.IsPositiveSelection && selectionWindowExtents.Contains(x.extents) /* 正选 */
-                       || SelectionWindow.IsPositiveSelection == false && selectionWindowExtents.IntersectsWith(x.extents) /* 反选 */
-                 select x.item)
-        {
+        var selectedRows = visibleItems
+            .Where(t => selectionWindowExtents.IntersectsWith(t.extents))
+            .Select(t => t.item.Row)
+            .ToHashSet();
+
+        foreach (var item in visibleItems
+                     .Where(t => selectedRows.Contains(t.item.Row))
+                     .Select(t => t.item))
             results.Add(item);
-        }
 
         return results;
     }
