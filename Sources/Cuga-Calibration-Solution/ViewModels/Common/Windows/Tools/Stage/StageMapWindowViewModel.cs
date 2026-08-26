@@ -107,15 +107,15 @@ public sealed partial class StageMapWindowViewModel(
 
         if (Cache.StageMapTemplatePoints.Length == 0)
         {
-            Cache.CanvasDocument.RunDesign(() =>
+            Cache.StageMapDocument.RunDesign(() =>
             {
-                Cache.CanvasDocument.DefaultModel.Clear();
-                Cache.CanvasDocument.OverlayerModel.Clear();
+                Cache.StageMapDocument.DefaultModel.Clear();
+                Cache.StageMapDocument.OverlayerModel.Clear();
             });
         }
         else
         {
-            foreach (var drawable in Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>())
+            foreach (var drawable in Cache.StageMapDocument.OverlayerModel.OfType<StageMapDie>())
             {
                 drawable.Markers = [.. drawable.Markers.AsSpan()[..Cache.StageMapTemplatePoints.Length]];
             }
@@ -201,17 +201,17 @@ public sealed partial class StageMapWindowViewModel(
             stageMapTemplatePoint.ROI = createDarkImageTemplateWindowViewModel.Rect;
             stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
 
-            if (Cache.CanvasDocument.DefaultModel.Count == 0)
+            if (Cache.StageMapDocument.DefaultModel.Count == 0)
             {
-                Cache.CanvasDocument.RunDesign(() =>
+                Cache.StageMapDocument.RunDesign(() =>
                 {
-                    Cache.CanvasDocument.DefaultModel.Clear();
-                    Cache.CanvasDocument.OverlayerModel.Clear();
+                    Cache.StageMapDocument.DefaultModel.Clear();
+                    Cache.StageMapDocument.OverlayerModel.Clear();
 
                     var circle = new Circle(Point.Origin, Cache.WaferRadius);
-                    Cache.CanvasDocument.DefaultModel.Add(new StageMapCircle { Circle = circle });
+                    Cache.StageMapDocument.DefaultModel.Add(new StageMapWafer { Circle = circle });
 
-                    var stageMapReticleBuilder = new StageMapReticleBuilder
+                    var stageMapReticleBuilder = new StageMapDieBuilder
                     {
                         DiePitchSize = new Size(Cache.DiePitchWidth, Cache.DiePitchHeight),
                         OriginalDiePoint = dfPosition
@@ -219,7 +219,7 @@ public sealed partial class StageMapWindowViewModel(
 
                     var stageMapDies = stageMapReticleBuilder.BuildDie(circle);
 
-                    Cache.CanvasDocument.OverlayerModel.AddRange(stageMapDies.Select(t => new StageMapDie
+                    Cache.StageMapDocument.OverlayerModel.AddRange(stageMapDies.Select(t => new StageMapDie
                     {
                         Index = t.Index,
                         Row = t.Row,
@@ -230,11 +230,11 @@ public sealed partial class StageMapWindowViewModel(
                     }));
                 });
 
-                Cache.CanvasDocument.View.ZoomToFit();
+                Cache.StageMapDocument.View.ZoomToFit();
             }
             else
             {
-                foreach (var drawable in Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>())
+                foreach (var drawable in Cache.StageMapDocument.OverlayerModel.OfType<StageMapDie>())
                 {
                     drawable.Markers = [.. drawable.Markers, dfPosition - Cache.StageMapTemplatePoints[0].DFPosition];
                 }
@@ -257,7 +257,7 @@ public sealed partial class StageMapWindowViewModel(
         Cache.RepeatStageMaps = [];
         Cache.VerifyStageMap = new StageMap();
 
-        var stageMapDies = Cache.CanvasDocument.OverlayerModel.OfType<StageMapDie>().ToArray();
+        var stageMapDies = Cache.StageMapDocument.OverlayerModel.OfType<StageMapDie>().ToArray();
         Guard.IsNotEmpty(stageMapDies);
         Guard.IsNotEmpty(Cache.StageMapTemplatePoints);
 
@@ -270,9 +270,10 @@ public sealed partial class StageMapWindowViewModel(
         var rowCount = maxRow - minRow + 1;
         var columnCount = maxColumn - minColumn + 1;
         var matrixColumnCount = columnCount * templatePointCount;
-        Cache.StageMap.IdealMatrix = new Point[rowCount, matrixColumnCount];
-        Cache.StageMap.ErrorMatrix = new Vector[rowCount, matrixColumnCount];
-        Cache.StageMap.ValidMatrix = new bool[rowCount, matrixColumnCount];
+        Cache.StageMap.IdealMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Point[matrixColumnCount])];
+        Cache.StageMap.ErrorMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Vector[matrixColumnCount])];
+        Cache.StageMap.IsInWaferMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new bool[matrixColumnCount])];
+        Cache.StageMap.IsMatchOkMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new bool[matrixColumnCount])];
 
         for (var row = 0; row < rowCount; row++)
         {
@@ -294,8 +295,8 @@ public sealed partial class StageMapWindowViewModel(
 
                     var dfMachinePoint = stageViewModel.DarkFieldToMachinePosition(stageMapDie.Rect.Point + stageMapDie.Markers[markerIndex]);
                     var matrixColumn = column * templatePointCount + markerIndex;
-                    Cache.StageMap.IdealMatrix[row, matrixColumn] = dfMachinePoint;
-                    Cache.StageMap.ValidMatrix[row, matrixColumn] = stageMapDie.IsInWafer;
+                    Cache.StageMap.IdealMatrix[row][matrixColumn] = dfMachinePoint;
+                    Cache.StageMap.IsInWaferMatrix[row][matrixColumn] = stageMapDie.IsInWafer;
                 }
             }
         }
@@ -408,6 +409,7 @@ public sealed partial class StageMapWindowViewModel(
             ];
 
             var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+            stageMap.Reset();
             var (idealRowCount, _) = stageMap.IdealMatrix.GetRowCountColCount();
 
             logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
@@ -416,7 +418,7 @@ public sealed partial class StageMapWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var isInWaferColumnIndexes = stageMap.ValidMatrix.Row(row)
+                var isInWaferColumnIndexes = stageMap.IsInWaferMatrix.Row(row)
                     .Index()
                     .Where(t => t.Item)
                     .Select(t => t.Index)
@@ -493,7 +495,8 @@ public sealed partial class StageMapWindowViewModel(
                         if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                         else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
-                        if (isSuccess) stageMap.ErrorMatrix[row, isInWaferColumnIndex] = vector;
+                        stageMap.IsMatchOkMatrix[row][isInWaferColumnIndex] = isSuccess;
+                        if (isSuccess) stageMap.ErrorMatrix[row][isInWaferColumnIndex] = vector;
 
                         stageMap.Refresh();
                     }
@@ -520,17 +523,21 @@ public sealed partial class StageMapWindowViewModel(
 
     private StageMapDto ToStageMapDto(StageMap stageMap)
     {
-        var rowCount = stageMap.IdealMatrix.GetLength(0);
-        var matrixColumnCount = stageMap.IdealMatrix.GetLength(1);
+        var (rowCount, matrixColumnCount) = stageMap.IdealMatrix.GetRowCountColCount();
         var templatePointCount = Cache.StageMapTemplatePoints.Length;
 
         Guard.IsGreaterThan(rowCount, 0);
         Guard.IsGreaterThan(matrixColumnCount, 0);
         Guard.IsGreaterThan(templatePointCount, 0);
-        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(0), rowCount);
-        Guard.IsEqualTo(stageMap.ErrorMatrix.GetLength(1), matrixColumnCount);
-        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(0), rowCount);
-        Guard.IsEqualTo(stageMap.ValidMatrix.GetLength(1), matrixColumnCount);
+        var (errorRowCount, errorColumnCount) = stageMap.ErrorMatrix.GetRowCountColCount();
+        var (isInWaferRowCount, isInWaferColumnCount) = stageMap.IsInWaferMatrix.GetRowCountColCount();
+        var (isMatchOkRowCount, isMatchOkColumnCount) = stageMap.IsMatchOkMatrix.GetRowCountColCount();
+        Guard.IsEqualTo(errorRowCount, rowCount);
+        Guard.IsEqualTo(errorColumnCount, matrixColumnCount);
+        Guard.IsEqualTo(isInWaferRowCount, rowCount);
+        Guard.IsEqualTo(isInWaferColumnCount, matrixColumnCount);
+        Guard.IsEqualTo(isMatchOkRowCount, rowCount);
+        Guard.IsEqualTo(isMatchOkColumnCount, matrixColumnCount);
         Guard.IsEqualTo(matrixColumnCount % templatePointCount, 0);
         Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
         Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
@@ -544,18 +551,23 @@ public sealed partial class StageMapWindowViewModel(
             for (var column = 0; column < columnCount; column++)
             {
                 var matrixColumn = column * templatePointCount;
-                var idealPoint = stageMap.IdealMatrix[row, matrixColumn];
-                var isInWafer = stageMap.ValidMatrix[row, matrixColumn];
+                var idealPoint = stageMap.IdealMatrix[row][matrixColumn];
+                var isInWafer = stageMap.IsInWaferMatrix[row][matrixColumn];
                 var errorX = 0d;
                 var errorY = 0d;
                 var validCount = 0;
+                var isMatchOk = isInWafer;
 
                 for (var markerIndex = 0; markerIndex < templatePointCount; markerIndex++)
                 {
                     var markerColumn = matrixColumn + markerIndex;
-                    if (stageMap.ValidMatrix[row, markerColumn] == false) continue;
+                    if (stageMap.IsMatchOkMatrix[row][markerColumn] == false)
+                    {
+                        isMatchOk = false;
+                        continue;
+                    }
 
-                    var error = stageMap.ErrorMatrix[row, markerColumn];
+                    var error = stageMap.ErrorMatrix[row][markerColumn];
                     errorX += error.X;
                     errorY += error.Y;
                     validCount++;
@@ -569,7 +581,7 @@ public sealed partial class StageMapWindowViewModel(
                 stageMapItem.Column = column;
                 stageMapItem.Point = idealPoint;
                 stageMapItem.IsInWafer = isInWafer;
-                stageMapItem.IsMatchOk = isInWafer;
+                stageMapItem.IsMatchOk = isMatchOk;
                 stageMapDto.ErrorMatrix[row][column] = errorPoint;
                 stageMapDto.RealMatrix[row][column] = new Point(idealPoint.X + errorPoint.X, idealPoint.Y + errorPoint.Y);
             }
@@ -599,12 +611,23 @@ public sealed partial class StageMapWindowViewModel(
 
         foreach (var repeatStageMap in scanStageMaps)
         {
-            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(0), scanStageMap.IdealMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.IdealMatrix.GetLength(1), scanStageMap.IdealMatrix.GetLength(1));
-            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(0), scanStageMap.ErrorMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.ErrorMatrix.GetLength(1), scanStageMap.ErrorMatrix.GetLength(1));
-            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(0), scanStageMap.ValidMatrix.GetLength(0));
-            Guard.IsEqualTo(repeatStageMap.ValidMatrix.GetLength(1), scanStageMap.ValidMatrix.GetLength(1));
+            var (repeatIdealRowCount, repeatIdealColumnCount) = repeatStageMap.IdealMatrix.GetRowCountColCount();
+            var (scanIdealRowCount, scanIdealColumnCount) = scanStageMap.IdealMatrix.GetRowCountColCount();
+            var (repeatErrorRowCount, repeatErrorColumnCount) = repeatStageMap.ErrorMatrix.GetRowCountColCount();
+            var (scanErrorRowCount, scanErrorColumnCount) = scanStageMap.ErrorMatrix.GetRowCountColCount();
+            var (repeatIsInWaferRowCount, repeatIsInWaferColumnCount) = repeatStageMap.IsInWaferMatrix.GetRowCountColCount();
+            var (scanIsInWaferRowCount, scanIsInWaferColumnCount) = scanStageMap.IsInWaferMatrix.GetRowCountColCount();
+            var (repeatIsMatchOkRowCount, repeatIsMatchOkColumnCount) = repeatStageMap.IsMatchOkMatrix.GetRowCountColCount();
+            var (scanIsMatchOkRowCount, scanIsMatchOkColumnCount) = scanStageMap.IsMatchOkMatrix.GetRowCountColCount();
+
+            Guard.IsEqualTo(repeatIdealRowCount, scanIdealRowCount);
+            Guard.IsEqualTo(repeatIdealColumnCount, scanIdealColumnCount);
+            Guard.IsEqualTo(repeatErrorRowCount, scanErrorRowCount);
+            Guard.IsEqualTo(repeatErrorColumnCount, scanErrorColumnCount);
+            Guard.IsEqualTo(repeatIsInWaferRowCount, scanIsInWaferRowCount);
+            Guard.IsEqualTo(repeatIsInWaferColumnCount, scanIsInWaferColumnCount);
+            Guard.IsEqualTo(repeatIsMatchOkRowCount, scanIsMatchOkRowCount);
+            Guard.IsEqualTo(repeatIsMatchOkColumnCount, scanIsMatchOkColumnCount);
         }
 
         using var _ = Py.GIL();
@@ -630,18 +653,18 @@ public sealed partial class StageMapWindowViewModel(
 
     private static void SubtractStageMapError(StageMap targetStageMap, StageMap scanStageMap)
     {
-        var rowCount = targetStageMap.ErrorMatrix.GetLength(0);
-        var columnCount = targetStageMap.ErrorMatrix.GetLength(1);
-        Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(0), rowCount);
-        Guard.IsEqualTo(scanStageMap.ErrorMatrix.GetLength(1), columnCount);
+        var (rowCount, columnCount) = targetStageMap.ErrorMatrix.GetRowCountColCount();
+        var (scanRowCount, scanColumnCount) = scanStageMap.ErrorMatrix.GetRowCountColCount();
+        Guard.IsEqualTo(scanRowCount, rowCount);
+        Guard.IsEqualTo(scanColumnCount, columnCount);
 
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
-                var targetError = targetStageMap.ErrorMatrix[row, column];
-                var scanError = scanStageMap.ErrorMatrix[row, column];
-                targetStageMap.ErrorMatrix[row, column] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
+                var targetError = targetStageMap.ErrorMatrix[row][column];
+                var scanError = scanStageMap.ErrorMatrix[row][column];
+                targetStageMap.ErrorMatrix[row][column] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
             }
         }
     }
@@ -702,15 +725,14 @@ public sealed partial class StageMapWindowViewModel(
 
     private static PyObject ToPythonPointArray(StageMap stageMap)
     {
-        var rowCount = stageMap.IdealMatrix.GetLength(0);
-        var columnCount = stageMap.IdealMatrix.GetLength(1);
+        var (rowCount, columnCount) = stageMap.IdealMatrix.GetRowCountColCount();
         var matrix = new double[rowCount * columnCount, 2];
 
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
-                var point = stageMap.IdealMatrix[row, column];
+                var point = stageMap.IdealMatrix[row][column];
                 var matrixRow = row * columnCount + column;
                 matrix[matrixRow, 0] = point.X;
                 matrix[matrixRow, 1] = point.Y;
@@ -722,15 +744,14 @@ public sealed partial class StageMapWindowViewModel(
 
     private static PyObject ToPythonErrorArray(StageMap stageMap)
     {
-        var rowCount = stageMap.ErrorMatrix.GetLength(0);
-        var columnCount = stageMap.ErrorMatrix.GetLength(1);
+        var (rowCount, columnCount) = stageMap.ErrorMatrix.GetRowCountColCount();
         var matrix = new double[rowCount * columnCount, 2];
 
         for (var row = 0; row < rowCount; row++)
         {
             for (var column = 0; column < columnCount; column++)
             {
-                var vector = stageMap.ErrorMatrix[row, column];
+                var vector = stageMap.ErrorMatrix[row][column];
                 var matrixRow = row * columnCount + column;
                 matrix[matrixRow, 0] = vector.X;
                 matrix[matrixRow, 1] = vector.Y;
@@ -756,8 +777,7 @@ public sealed partial class StageMapWindowViewModel(
     private static void ApplyPythonErrorArray(StageMap stageMap, PyObject pyValues)
     {
         var values = ToDoubleMatrix(pyValues);
-        var rowCount = stageMap.ErrorMatrix.GetLength(0);
-        var columnCount = stageMap.ErrorMatrix.GetLength(1);
+        var (rowCount, columnCount) = stageMap.ErrorMatrix.GetRowCountColCount();
         Guard.IsEqualTo(values.GetLength(0), rowCount * columnCount);
         Guard.IsEqualTo(values.GetLength(1), 2);
 
@@ -766,7 +786,7 @@ public sealed partial class StageMapWindowViewModel(
             for (var column = 0; column < columnCount; column++)
             {
                 var matrixRow = row * columnCount + column;
-                stageMap.ErrorMatrix[row, column] = new Vector(values[matrixRow, 0], values[matrixRow, 1]);
+                stageMap.ErrorMatrix[row][column] = new Vector(values[matrixRow, 0], values[matrixRow, 1]);
             }
         }
     }

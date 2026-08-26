@@ -223,8 +223,8 @@
                                                 </hc:UniformSpacingPanel>
                                                 <DataGrid x:Name="DataGridTemplatePoints"
                                                           MaxHeight="360"
-                                                          RowHeight="110"
                                                           hc:DataGridAttach.ShowRowNumber="True"
+                                                          RowHeight="110"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="All"
                                                           RowHeaderWidth="60"
@@ -266,10 +266,10 @@
                                                                   Minimum="5"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.StageMapRetryCount}" />
-                                                <ListBox AlternationCount="10000"
-                                                         ItemsSource="{Binding Cache.RepeatStageMaps}"
+                                                <ListBox MaxHeight="240"
                                                          HorizontalContentAlignment="Stretch"
-                                                         MaxHeight="240"
+                                                         AlternationCount="10000"
+                                                         ItemsSource="{Binding Cache.RepeatStageMaps}"
                                                          Style="{StaticResource ListBox.Small}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate>
@@ -409,7 +409,17 @@
                 <TabControl>
                     <TabItem Header="{Binding Steps[1]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <graphicsWPF:WPFCanvasControl Document="{Binding Cache.CanvasDocument}" />
+                            <graphicsWPF:WPFCanvasControl Document="{Binding Cache.StageMapDocument}" CursorTextVisibility="Collapsed">
+                                <graphicsWPF:WPFCanvasControl.RightToolBars>
+                                    <ToolBar Margin="3,2"
+                                             Padding="3,2"
+                                             Background="Transparent"
+                                             Band="0"
+                                             BandIndex="0">
+                                        <TextBlock Text="{Binding Cache.StageMapDocument.Position}" Style="{StaticResource ToolBarTextBlock}" />
+                                    </ToolBar>
+                                </graphicsWPF:WPFCanvasControl.RightToolBars>
+                            </graphicsWPF:WPFCanvasControl>
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[2]}">

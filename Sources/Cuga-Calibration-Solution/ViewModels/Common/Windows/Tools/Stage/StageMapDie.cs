@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Drawables;
-using Net.Utilities.Graphics.Primitives.Enums.Medias.Styles;
 using Net.Utilities.Graphics.Primitives.Medias.Styles;
 using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
@@ -11,9 +10,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public partial class StageMapDie : AbstractDrawable
 {
-    public static readonly LineStyle InWaferDieLineStyle = new(new SKColor(100, 100, 100));
-    public static readonly LineStyle OutWaferDieLineStyle = new(SKColors.Red);
-    private static readonly LineStyle MarkerBorderLineStyle = new(SKColors.Blue);
+    private static readonly LineStyle DieBorderLineStyle = new(new SKColor(100, 100, 100));
+    private static readonly FillStyle DieBackgroundFillStyle = new(new SKColor(150, 150, 150));
+    private static readonly LineStyle OriginalDieBorderLineStyle = new(new SKColor(0, 120, 215), 2);
+    private static readonly LineStyle MarkerBorderLineStyle = new(SKColors.Red, 2);
 
     [ObservableProperty]
     public partial WaferMapDieIndex Index { get; set; } = WaferMapDieIndex.Empty;
@@ -35,7 +35,9 @@ public partial class StageMapDie : AbstractDrawable
 
     public override void Draw(Renderer renderer)
     {
-        renderer.DrawRectangle(IsInWafer ? InWaferDieLineStyle : OutWaferDieLineStyle, Rect);
+        if (IsInWafer) renderer.FillRectangle(DieBackgroundFillStyle, Rect);
+        renderer.DrawRectangle(DieBorderLineStyle, Rect);
+        if (Index == WaferMapDieIndex.Empty) renderer.DrawRectangle(OriginalDieBorderLineStyle, Rect);
 
         if (IsInWafer == false) return;
 
@@ -51,19 +53,4 @@ public partial class StageMapDie : AbstractDrawable
     }
 
     public override Extents GetExtents() => (Extents)Rect;
-}
-
-public partial class StageMapCircle : AbstractDrawable
-{
-    private static readonly LineStyle CircleLineStyle = new LineStyle(SKColors.Red, 2, DashEnum.Dot);
-
-    [ObservableProperty]
-    public partial Circle Circle { get; set; }
-
-    public override void Draw(Renderer renderer)
-    {
-        renderer.DrawCircle(CircleLineStyle, Circle);
-    }
-
-    public override Extents GetExtents() => (Extents)(Rect)Circle;
 }

@@ -3,10 +3,10 @@ using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
-public sealed class StageMapReticleBuilder : WaferMapDieBuilder
+public sealed class StageMapDieBuilder : WaferMapDieBuilder
 {
     protected override bool IsCheckInWafer(Circle circle, Rect rect)
     {
-        return circle.GetBoundingRect().Contains(rect);
+        return circle.GetBoundingRect().Contains(rect.Point);
     }
 }
