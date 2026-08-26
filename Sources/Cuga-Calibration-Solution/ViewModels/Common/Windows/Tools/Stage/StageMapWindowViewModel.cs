@@ -38,6 +38,7 @@ using System.Reflection;
 using MathNet.Numerics;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.WaferMap.WPF.Primitives;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -240,9 +241,7 @@ public sealed partial class StageMapWindowViewModel(
         Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
         Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
 
-        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-
-        var dfMachinePositions = new Point[Cache.StageMapTemplates.Length];
+        var dfPositions = new Point[Cache.StageMapTemplates.Length];
 
         foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
         {
@@ -254,7 +253,7 @@ public sealed partial class StageMapWindowViewModel(
                 bfPosition,
                 Cache.MicroscopeLensInformation);
 
-            dfMachinePositions[index] = stageViewModel.DarkFieldToMachinePosition(dfPosition);
+            dfPositions[index] = dfPosition;
         }
 
         Cache.StageMapDocument.RunDesign(() =>
@@ -262,34 +261,43 @@ public sealed partial class StageMapWindowViewModel(
             Cache.StageMapDocument.WaferModel.Clear();
             Cache.StageMapDocument.DieModel.Clear();
 
-            var circle = new Circle(stageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.WaferRadius);
-            Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = circle });
+            var circle = new Circle(Point.Origin, Cache.WaferRadius);
+            var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(circle.Center), circle.Radius);
+
+            Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
 
             var stageMapReticleBuilder = new StageMapDieBuilder
             {
                 DiePitchSize = new Size(Cache.DiePitchWidth, Cache.DiePitchHeight),
-                OriginalDiePoint = dfMachinePositions[0]
+                OriginalDiePoint = dfPositions[0]
             };
 
             var stageMapDies = stageMapReticleBuilder.BuildDie(circle);
             Vector[] markers =
             [
-                .. dfMachinePositions.Select(tt =>
-                {
-                    var vector = tt - dfMachinePositions[0];
-
-                    return vector.WithX(xDirection * vector.X).WithX(yDirection * vector.Y);
-                })
+                .. dfPositions.Select(tt => tt - dfPositions[0])
             ];
 
-            Cache.StageMapDocument.DieModel.AddRange(stageMapDies.Select(t => new StageMapDie
+            Cache.StageMapDocument.DieModel.AddRange(stageMapDies.Select(t =>
             {
-                Index = t.Index,
-                Row = t.Row,
-                Col = t.Col,
-                Rect = t.Rect,
-                IsInWafer = circle.Contains(t.Rect.Point),
-                Markers = markers
+                Point[] points = [.. markers.Select(tt => t.Rect.Point + tt)];
+
+                var resultExtents = new Extents();
+
+                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.Point));
+                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMaxYMax));
+
+                var resultRect = (Rect)resultExtents;
+
+                return new StageMapDie
+                {
+                    Index = t.Index,
+                    Row = t.Row,
+                    Col = t.Col,
+                    Rect = resultRect,
+                    IsInWafer = dfMachineCircle.Contains(resultRect.Point),
+                    Markers = [.. points.Select(stageViewModel.DarkFieldToMachinePosition)]
+                };
             }));
         });
 
@@ -333,10 +341,12 @@ public sealed partial class StageMapWindowViewModel(
 
         Guard.IsNotEmpty(stageMapDies);
 
-        var minY = stageMapDies.Min(t => t.Row);
-        var maxY = stageMapDies.Max(t => t.Row);
-        var minX = stageMapDies.Min(t => t.Col);
-        var maxX = stageMapDies.Max(t => t.Col);
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        var minY = stageMapDies.Min(t => t.Index.Y);
+        var maxY = stageMapDies.Max(t => t.Index.Y);
+        var minX = stageMapDies.Min(t => t.Index.X);
+        var maxX = stageMapDies.Max(t => t.Index.X);
 
         var yLength = maxY - minY + 1;
         var xLength = maxX - minX + 1;
@@ -357,16 +367,16 @@ public sealed partial class StageMapWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var stageMapRow = minY + y;
-                var stageMapColumn = minX + x;
+                var stageMapIndexX = xDirection > 0 ? minX + x : maxX - x;
+                var stageMapIndexY = yDirection > 0 ? minY + y : maxY - y;
 
-                var stageMapDie = stageMapDies.Single(t => t.Row == stageMapRow && t.Col == stageMapColumn);
+                var stageMapDie = stageMapDies.Single(t => t.Index == new WaferMapDieIndex(stageMapIndexX, stageMapIndexY));
 
                 for (var markerIndex = 0; markerIndex < Cache.StageMapTemplates.Length; markerIndex++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var dfMachinePoint = stageMapDie.Rect.Point + stageMapDie.Markers[markerIndex];
+                    var dfMachinePoint = stageMapDie.Markers[xDirection > 0 ? markerIndex : ^(markerIndex + 1)];
                     var matrixColumn = x * Cache.StageMapTemplates.Length + markerIndex;
 
                     Cache.StageMap.IdealMatrix[y][matrixColumn] = dfMachinePoint;
@@ -578,7 +588,7 @@ public sealed partial class StageMapWindowViewModel(
                         xDirection > 0 ? tempPoints : [.. tempPoints.Reverse()],
                         Cache.ImageWidth,
                         Cache.CIBInformation,
-                        (false, CalChipSiteModelEnum.ChuckModel),
+                        (true, null),
                         (false, Cache.OpticsConfiguration),
                         (false, Cache.CIBConfiguration),
                         (false, Cache.LaserLightInformation),
@@ -591,7 +601,9 @@ public sealed partial class StageMapWindowViewModel(
 
                     foreach (var (i, isInWaferColumnIndex) in isInWaferColumnIndexes.Index())
                     {
-                        var templateIdIndex = i % Cache.StageMapTemplates.Length;
+                        var templateIdIndex = xDirection > 0
+                            ? i % Cache.StageMapTemplates.Length
+                            : Cache.StageMapTemplates.Length - 1 - i % Cache.StageMapTemplates.Length;
 
                         var bitmapImage = darkFieldImages[i].Image;
 
@@ -618,7 +630,7 @@ public sealed partial class StageMapWindowViewModel(
                         bitmapImage.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
-                        vector = vector.WithY(vector.Y - Cache.StageMapDocument.DieModel[0].Markers[templateIdIndex].Y);
+                        vector = vector.WithY(vector.Y /*- (Cache.StageMapDocument.DieModel[0].Markers[templateIdIndex] - Cache.StageMapDocument.DieModel[0].Markers[0]).Y*/);
 
                         var htmlBullet = new HtmlBullet(new
                         {

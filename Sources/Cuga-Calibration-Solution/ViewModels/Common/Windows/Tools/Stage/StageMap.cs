@@ -45,8 +45,6 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             {
                 for (var x = 0; x < xLength; x++)
                 {
-                    if (IsInWaferMatrix[y][x] == false) continue;
-
                     vectorFieldList.Add((IdealMatrix[y][x], ErrorMatrix[y][x], IsMatchMatrix[y][x]));
                 }
             }

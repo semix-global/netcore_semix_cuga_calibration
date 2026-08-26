@@ -36,7 +36,7 @@ public partial class StageMapDie : AbstractDrawable
     public partial bool IsInWafer { get; set; }
 
     [ObservableProperty]
-    public partial Vector[] Markers { get; set; } = [];
+    public partial Point[] Markers { get; set; } = [];
 
     public override void Draw(Renderer renderer)
     {
@@ -50,7 +50,7 @@ public partial class StageMapDie : AbstractDrawable
 
         foreach (var (index, marker) in Markers.Index())
         {
-            var (centerX, centerY) = Rect.Point + marker;
+            var (centerX, centerY) = marker;
 
             var defectSelectionCrossDistance = renderer.View.ScreenToWorldDistance(10d);
 
