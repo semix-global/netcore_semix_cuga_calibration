@@ -1,9 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Graphics;
 using Newtonsoft.Json;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -61,7 +59,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     #region Step3
 
     [ObservableProperty]
-    public partial int StageMapRetryCount { get; set; } = 20;
+    public partial int StageMapRepeatTimes { get; set; } = 20;
 
     #endregion
 
@@ -80,7 +78,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial IReadOnlyList<StageMap> RepeatStageMaps { get; set; } = [];
+    public partial StageMap[] RepeatStageMaps { get; set; } = [];
 
     [JsonIgnore]
     [ObservableProperty]
@@ -102,6 +100,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         DiePitchWidth,
         DiePitchHeight,
         WaferRadius,
-        StageMapRetryCount
+        StageMapRepeatTimes
     };
 }
