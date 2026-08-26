@@ -393,9 +393,9 @@ public sealed partial class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetStageMap(CgErrorMapDto stageMapDto)
+    public void SetStageMap(StageMapErrorDTO stageMapError)
     {
-        var ret = calibrationStageService.SetStageMap(stageMapDto);
+        var ret = calibrationStageService.SetStageMap(stageMapError);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

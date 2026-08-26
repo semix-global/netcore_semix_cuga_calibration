@@ -359,9 +359,9 @@ public interface ICalibrationStageService
     /// <summary>
     /// 使用 Cuga ACS ErrorMap 结构设置 StageMap。
     /// </summary>
-    /// <param name="stageMapDto">Cuga ACS ErrorMap</param>
+    /// <param name="stageMapError">Cuga ACS ErrorMap</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto);
+    SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError);
 
     /// <summary>
     /// 设置明场中心的机械位置

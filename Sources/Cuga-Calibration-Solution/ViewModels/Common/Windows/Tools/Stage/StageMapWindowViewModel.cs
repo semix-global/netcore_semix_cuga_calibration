@@ -330,9 +330,6 @@ public sealed partial class StageMapWindowViewModel(
         Guard.IsGreaterThan(rowCount, 2);
         Guard.IsGreaterThan(columnCount, 2);
 
-        Cache.StageMap.TemplateCount = Cache.StageMapTemplates.Length;
-        Cache.StageMap.ColumnCellWidth = Cache.DiePitchWidth;
-        Cache.StageMap.RowCellHeight = Cache.DiePitchHeight;
         Cache.StageMap.IdealMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Point[columnCount * Cache.StageMapTemplates.Length])];
         Cache.StageMap.ErrorMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new Vector[columnCount * Cache.StageMapTemplates.Length])];
         Cache.StageMap.IsInWaferMatrix = [.. Enumerable.Range(0, rowCount).Select(_ => new bool[columnCount * Cache.StageMapTemplates.Length])];

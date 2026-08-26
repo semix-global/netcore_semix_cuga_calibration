@@ -378,7 +378,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetStageMap(CgErrorMapDto stageMapDto)
+    public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
     {
         Thread.Sleep(100);
 

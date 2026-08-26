@@ -1,44 +1,45 @@
 using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
 /// <summary>
-/// Cuga ACS ErrorMap 的传输对象。
+/// Cuga ACS ErrorMap 的传输对象
 /// </summary>
-public sealed class CgErrorMapDto : ICloneable<CgErrorMapDto>, IAdaptTo<CgErrorMap>
+public sealed class StageMapErrorDTO : ICloneable<StageMapErrorDTO>, IAdaptTo<CgErrorMap>
 {
     /// <summary>
-    /// 区域编码。
+    /// 区域编码
     /// </summary>
     public int? Zone { get; set; } = 0;
 
     /// <summary>
-    /// 标准 X 坐标。
+    /// 标准 X 坐标
     /// </summary>
     public double BaseX { get; set; }
 
     /// <summary>
-    /// X 轴步进。
+    /// X 轴步进
     /// </summary>
     public double XStep { get; set; }
 
     /// <summary>
-    /// 标准 Y 坐标。
+    /// 标准 Y 坐标
     /// </summary>
     public double BaseY { get; set; }
 
     /// <summary>
-    /// Y 轴步进。
+    /// Y 轴步进
     /// </summary>
     public double YStep { get; set; }
 
     /// <summary>
-    /// 矩阵数据。
+    /// 矩阵数据
     /// </summary>
-    public List<CgErrorMapRowDto> Rows { get; set; } = [];
+    public StageMapErrorRowDTO[] Rows { get; set; } = [];
 
-    public CgErrorMapDto Clone() => new()
+    public StageMapErrorDTO Clone() => new()
     {
         Zone = Zone,
         BaseX = BaseX,
@@ -60,15 +61,15 @@ public sealed class CgErrorMapDto : ICloneable<CgErrorMapDto>, IAdaptTo<CgErrorM
 }
 
 /// <summary>
-/// Cuga ACS ErrorMap 行的传输对象。
+/// Cuga ACS ErrorMap 行的传输对象
 /// </summary>
-public sealed class CgErrorMapRowDto : ICloneable<CgErrorMapRowDto>, IAdaptTo<CgErrorMapRow>
+public sealed class StageMapErrorRowDTO : ICloneable<StageMapErrorRowDTO>, IAdaptTo<CgErrorMapRow>
 {
     public int Id { get; set; }
 
-    public List<CgErrorMapColDto> Cols { get; set; } = [];
+    public StageMapErrorColumnDTO[] Cols { get; set; } = [];
 
-    public CgErrorMapRowDto Clone() => new()
+    public StageMapErrorRowDTO Clone() => new()
     {
         Id = Id,
         Cols = [.. Cols.Select(t => t.Clone())]
@@ -81,24 +82,21 @@ public sealed class CgErrorMapRowDto : ICloneable<CgErrorMapRowDto>, IAdaptTo<Cg
     };
 }
 
-/// <summary>
-/// Cuga ACS ErrorMap 列的传输对象。
-/// </summary>
-public sealed class CgErrorMapColDto : ICloneable<CgErrorMapColDto>, IAdaptTo<CgErrorMapCol>
+public sealed class StageMapErrorColumnDTO : ICloneable<StageMapErrorColumnDTO>, IAdaptTo<CgErrorMapCol>
 {
     public int Id { get; set; }
 
-    public CgPoint Location { get; set; } = CgPoint.Empty;
+    public Vector Error { get; set; } = Vector.Zero;
 
-    public CgErrorMapColDto Clone() => new()
+    public StageMapErrorColumnDTO Clone() => new()
     {
         Id = Id,
-        Location = Location.Clone()
+        Error = Error
     };
 
     public CgErrorMapCol AdaptTo() => new()
     {
         Id = Id,
-        Location = Location.Clone()
+        Location = new CgPoint(Error.X, Error.Y)
     };
 }
