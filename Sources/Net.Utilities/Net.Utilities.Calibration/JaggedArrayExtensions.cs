@@ -13,12 +13,12 @@ public static class JaggedArrayExtensions
     /// <summary>
     /// 获取二维交错数组的行数和列数。
     /// </summary>
-    public static (int RowCount, int ColumnCount) GetRowColCount<T>(this T[][] @this) where T : unmanaged
+    public static (int YCount, int XCount) GetYXLength<T>(this T[][] @this) where T : unmanaged
     {
-        var rowCount = @this.Length;
-        var columnCount = rowCount == 0 ? 0 : @this[0].Length;
+        var yLength = @this.Length;
+        var xLength = @this[0].Length;
 
-        return (rowCount, columnCount);
+        return (yLength, xLength);
     }
 
     /// <summary>
@@ -26,7 +26,7 @@ public static class JaggedArrayExtensions
     /// </summary>
     public static T[] ToArrayByRow<T>(this T[][] @this) where T : unmanaged
     {
-        var (rowCount, columnCount) = @this.GetRowColCount();
+        var (rowCount, columnCount) = @this.GetYXLength();
         var array = new T[rowCount * columnCount];
 
         var index = 0;
@@ -47,7 +47,7 @@ public static class JaggedArrayExtensions
     /// </summary>
     public static T[][] Transpose<T>(this T[][] @this) where T : unmanaged
     {
-        var (rowCount, columnCount) = @this.GetRowColCount();
+        var (rowCount, columnCount) = @this.GetYXLength();
         var transposedMatrix = new T[columnCount][];
 
         for (var column = 0; column < columnCount; column++)
@@ -65,7 +65,7 @@ public static class JaggedArrayExtensions
     /// </summary>
     public static T[][] HorizontalFlip<T>(this T[][] @this) where T : unmanaged
     {
-        var (rowCount, columnCount) = @this.GetRowColCount();
+        var (rowCount, columnCount) = @this.GetYXLength();
         var horizontalFlipMatrix = new T[rowCount][];
 
         for (var row = 0; row < rowCount; row++)
@@ -83,7 +83,7 @@ public static class JaggedArrayExtensions
     /// </summary>
     public static T[][] VerticalFlip<T>(this T[][] @this) where T : unmanaged
     {
-        var (rowCount, columnCount) = @this.GetRowColCount();
+        var (rowCount, columnCount) = @this.GetYXLength();
         var verticalFlipMatrix = new T[rowCount][];
 
         for (var row = 0; row < rowCount; row++)
@@ -117,7 +117,7 @@ public static class JaggedArrayExtensions
         format ??= "0.###";
         formatProvider ??= CultureInfo.CurrentCulture;
 
-        var (rowCount, columnCount) = @this.GetRowColCount();
+        var (rowCount, columnCount) = @this.GetYXLength();
         var sb = new StringBuilder();
 
         for (var row = 0; row < rowCount; row++)

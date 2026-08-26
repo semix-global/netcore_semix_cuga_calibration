@@ -39,15 +39,15 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
             var vectorFieldList = new List<(Point Point, Vector Vector)>();
 
-            var (rowCount, columnCount) = IdealMatrix.GetRowColCount();
+            var (yLength, xLength) = IdealMatrix.GetYXLength();
 
-            for (var row = 0; row < rowCount; row++)
+            for (var y = 0; y < yLength; y++)
             {
-                for (var column = 0; column < columnCount; column++)
+                for (var x = 0; x < xLength; x++)
                 {
-                    if (IsInWaferMatrix[row][column] == false) continue;
+                    if (IsInWaferMatrix[y][x] == false) continue;
 
-                    vectorFieldList.Add((IdealMatrix[row][column], ErrorMatrix[row][column]));
+                    vectorFieldList.Add((IdealMatrix[y][x], ErrorMatrix[y][x]));
                 }
             }
 
@@ -61,14 +61,14 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public void Reset()
     {
-        var (rowCount, columnCount) = ErrorMatrix.GetRowColCount();
+        var (yLength, xLength) = ErrorMatrix.GetYXLength();
 
-        for (var row = 0; row < rowCount; row++)
+        for (var y = 0; y < yLength; y++)
         {
-            for (var column = 0; column < columnCount; column++)
+            for (var x = 0; x < xLength; x++)
             {
-                ErrorMatrix[row][column] = Vector.Zero;
-                IsMatchMatrix[row][column] = false;
+                ErrorMatrix[y][x] = Vector.Zero;
+                IsMatchMatrix[y][x] = false;
             }
         }
 
@@ -89,33 +89,33 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public void ApplyPythonErrorMatrix(PyObject pyValues)
     {
-        var (rowCount, columnCount) = ErrorMatrix.GetRowColCount();
+        var (yLength, xLength) = ErrorMatrix.GetYXLength();
 
-        var vectorMatrix = ToVectorMatrix(pyValues, rowCount, columnCount);
+        var vectorMatrix = ToVectorMatrix(pyValues, yLength, xLength);
 
-        for (var row = 0; row < rowCount; row++)
+        for (var y = 0; y < yLength; y++)
         {
-            for (var column = 0; column < columnCount; column++)
+            for (var x = 0; x < xLength; x++)
             {
-                ErrorMatrix[row][column] = vectorMatrix[row][column];
+                ErrorMatrix[y][x] = vectorMatrix[y][x];
             }
         }
     }
 
     public void SubtractInplace(StageMap other)
     {
-        var (rowCount, columnCount) = ErrorMatrix.GetRowColCount();
-        var (scanRowCount, scanColumnCount) = other.ErrorMatrix.GetRowColCount();
-        Guard.IsEqualTo(scanRowCount, rowCount);
-        Guard.IsEqualTo(scanColumnCount, columnCount);
+        var (yLength, xLength) = ErrorMatrix.GetYXLength();
+        var (otherYLength, otherXLength) = other.ErrorMatrix.GetYXLength();
+        Guard.IsEqualTo(yLength, otherYLength);
+        Guard.IsEqualTo(xLength, otherXLength);
 
-        for (var row = 0; row < rowCount; row++)
+        for (var y = 0; y < yLength; y++)
         {
-            for (var column = 0; column < columnCount; column++)
+            for (var x = 0; x < xLength; x++)
             {
-                var targetError = ErrorMatrix[row][column];
-                var scanError = other.ErrorMatrix[row][column];
-                ErrorMatrix[row][column] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
+                var targetError = ErrorMatrix[y][x];
+                var scanError = other.ErrorMatrix[y][x];
+                ErrorMatrix[y][x] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
             }
         }
     }
@@ -130,33 +130,27 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
         using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions);
 
-        var (rowCount, columnCount) = targetPoints.GetRowColCount();
+        var (yLength, xLength) = targetPoints.GetYXLength();
 
-        return ToVectorMatrix(result, rowCount, columnCount);
+        return ToVectorMatrix(result, yLength, xLength);
     }
 
     public StageMapErrorDTO AdaptTo()
     {
-        var (yCount, xCount) = IdealMatrix.GetRowColCount();
+        var (yLength, xLength) = IdealMatrix.GetYXLength();
 
-        var isReverseX = IdealMatrix[0][0].X > IdealMatrix[0][1].X;
-
-        var xWidth = isReverseX
-            ? (IdealMatrix[0][0].X - IdealMatrix[0][^1].X) / (xCount - 1)
-            : (IdealMatrix[0][^1].X - IdealMatrix[0][0].X) / (xCount - 1);
-        var yHeight = (IdealMatrix[0][^1].Y - IdealMatrix[0][0].Y) / (yCount - 1);
-        var startPoint = isReverseX
-            ? new Point(IdealMatrix[0][^1].X, IdealMatrix[0][^1].Y)
-            : new Point(IdealMatrix[0][0].X, IdealMatrix[0][0].Y);
+        var xWidth = (IdealMatrix[0][^1].X - IdealMatrix[0][0].X) / (xLength - 1);
+        var yHeight = (IdealMatrix[0][^1].Y - IdealMatrix[0][0].Y) / (yLength - 1);
+        var startPoint = new Point(IdealMatrix[0][0].X, IdealMatrix[0][0].Y);
 
         Guard.IsGreaterThan(xWidth, 0d);
         Guard.IsGreaterThan(yHeight, 0d);
 
-        var points = new Point[yCount][];
-        for (var y = 0; y < yCount; y++)
+        var points = new Point[yLength][];
+        for (var y = 0; y < yLength; y++)
         {
-            points[y] = new Point[xCount];
-            for (var x = 0; x < xCount; x++)
+            points[y] = new Point[xLength];
+            for (var x = 0; x < xLength; x++)
             {
                 points[y][x] = startPoint + new Vector(x * xWidth, y * yHeight);
             }
@@ -173,13 +167,13 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             YStep = yHeight,
             Rows =
             [
-                .. Generate.LinearRangeInt32(0, yCount - 1)
+                .. Generate.LinearRangeInt32(0, yLength - 1)
                     .Select(row => new StageMapErrorRowDTO
                     {
                         Id = row,
                         Cols =
                         [
-                            .. Generate.LinearRangeInt32(0, xCount - 1)
+                            .. Generate.LinearRangeInt32(0, xLength - 1)
                                 .Select(column => new StageMapErrorColumnDTO
                                 {
                                     Id = column,
@@ -193,15 +187,16 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     private static PyList ToPythonPointMatrix(Point[][] matrix)
     {
-        var (rowCount, columnCount) = matrix.GetRowColCount();
+        var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
 
-        for (var row = 0; row < rowCount; row++)
+        for (var y = 0; y < yLength; y++)
         {
             using var pyRow = new PyList();
-            for (var column = 0; column < columnCount; column++)
+
+            for (var x = 0; x < xLength; x++)
             {
-                var point = matrix[row][column];
+                var point = matrix[y][x];
 
                 using var pyPoint = new PyList();
                 using var pyX = point.X.ToPython();
@@ -220,15 +215,16 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     public static PyList ToPythonVectorMatrix(Vector[][] matrix)
     {
-        var (rowCount, columnCount) = matrix.GetRowColCount();
+        var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
 
-        for (var row = 0; row < rowCount; row++)
+        for (var y = 0; y < yLength; y++)
         {
             using var pyRow = new PyList();
-            for (var column = 0; column < columnCount; column++)
+
+            for (var x = 0; x < xLength; x++)
             {
-                var vector = matrix[row][column];
+                var vector = matrix[y][x];
 
                 using var pyVector = new PyList();
                 using var pyX = vector.X.ToPython();
