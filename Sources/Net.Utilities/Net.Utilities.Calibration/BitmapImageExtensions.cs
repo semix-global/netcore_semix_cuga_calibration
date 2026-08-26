@@ -4,6 +4,7 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
+using Net.Utilities.Models.Geometries;
 
 namespace Net.Utilities.Calibration;
 
@@ -66,6 +67,35 @@ public static class BitmapImageExtensions
             using var resultHImage = new HImage(resultImage);
 
             return resultHImage.ToBitmapImage();
+        }
+
+        public BitmapImage ToRoi(Rect rect)
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            return hImage.CropPart((HTuple)rect.Y, (HTuple)rect.X, (HTuple)rect.Width, (HTuple)rect.Height).ToBitmapImage();
+        }
+
+        public double[] GetHorizontalProjects()
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            return hImage.GetHorizontalProjects();
+        }
+
+        public (double MaxGrayValue, Point[] maxGrayPoints, double MinGrayValue, Point[] minGrayPoints) GetMaxMinGrayValue(Rect rect)
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            return hImage.GetMaxMinGrayValue(rect);
+        }
+
+        public BitmapImage DrawRect(Rect rect)
+        {
+            using var hImage = bitmapImage.ToHImage();
+            using var drawHImage = hImage.DrawRect(rect);
+
+            return drawHImage.ToBitmapImage();
         }
     }
 }

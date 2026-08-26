@@ -2,16 +2,16 @@
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-           xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionYGhostWindowViewModel}"
@@ -85,9 +85,9 @@
                                         <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="160"
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}"
                                                      SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                                     Style="{StaticResource ComboBoxExtend}" />
                                         <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="160"
@@ -104,26 +104,6 @@
                                                 </MultiBinding>
                                             </hc:ComboBox.ItemsSource>
                                         </hc:ComboBox>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="CIB Informations: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ListBox Grid.Column="1"
-                                                     Height="300"
-                                                     ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-                                                     ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
-                                                     SelectedItem="{Binding Cache.PMTId}"
-                                                     SelectionMode="Single">
-                                                <i:Interaction.Behaviors>
-                                                    <behaviors:ListBoxScrollToCurrentBehavior />
-                                                </i:Interaction.Behaviors>
-                                            </ListBox>
-                                        </Grid>
                                         <ComboBox hc:TitleElement.Title="Cal Chip: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="160"
@@ -151,46 +131,101 @@
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.ImageWidth}" />
                                         <TextBox Text="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.TitleWidth="160"
                                                  hc:TitleElement.Title="Start Position(um): "
                                                  hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="160"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Y Range(um): "
+                                        <TextBox Text="{Binding Cache.StopPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.Title="Stop Position(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="160"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="Grab Cout: "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.YRange}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Y Step(um): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.YStep}" />
+                                                          Value="{Binding Cache.GrabCount}" />
+                                        <TextBox Text="{Binding Cache.YStep, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Y Step(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="160"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 IsReadOnly="True"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Align Value(dB): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.AligndBValue}" />
+                                        <hc:NumericUpDown hc:TitleElement.Title="YUmStandard(um): "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="160"
+                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                          Value="{Binding Cache.YUmStandard}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Threshold(dB): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.Threshold}" />
-                                        <Expander Header="Optics Configuration"
-                                                  IsExpanded="False"
-                                                  ExpandDirection="Down">
+                                        <Expander ExpandDirection="Down"
+                                                  Header="Optics Configuration"
+                                                  IsExpanded="False">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                                             </Border>
                                         </Expander>
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </GroupBox>
+                            <GroupBox Header="Actions">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                                                     hc:TitleElement.Title="Alignment Degrees(°): "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="150"
+                                                     Background="{StaticResource SecondaryRegionBrush}"
+                                                     IsReadOnly="True"
+                                                     Style="{StaticResource TextBoxExtend}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding Step0Command}"
+                                                        CommandParameter="{x:Static models:Constants.False}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}">
+                                                    <Button.IsEnabled>
+                                                        <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                            <Binding Path="Step0Command.IsRunning" />
+                                                            <Binding Path="Step1Command.IsRunning" />
+                                                        </MultiBinding>
+                                                    </Button.IsEnabled>
+                                                </Button>
+                                                <Button Content="Cancel"
+                                                        Command="{Binding Step0CancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
+                                        </hc:UniformSpacingPanel>
+                                        <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Spacing="10">
                                             <Button Content="Action"
-                                                    Command="{Binding ActionCommand}"
+                                                    Command="{Binding Step1Command}"
+                                                    CommandParameter="{x:Static models:Constants.False}"
                                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                        <Binding Path="Step0Command.IsRunning" />
+                                                        <Binding Path="Step1Command.IsRunning" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                            </Button>
                                             <Button Content="Cancel"
-                                                    Command="{Binding ActionCancelCommand}"
+                                                    Command="{Binding Step1CancelCommand}"
                                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                     Style="{StaticResource ButtonWarning}" />
                                         </hc:UniformSpacingPanel>
@@ -236,7 +271,7 @@
                                                         <Border Width="250"
                                                                 Height="300"
                                                                 Style="{StaticResource BorderRegion}">
-                                                            <hc:SimplePanel>
+                                                            <Grid>
                                                                 <view:CanvasView AxisColor="Red"
                                                                                  BackgroundColor="#0A0A0A"
                                                                                  BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
@@ -244,11 +279,32 @@
                                                                                  ShowAxes="False"
                                                                                  ShowCursor="False"
                                                                                  ShowGrid="False" />
-                                                                <TextBlock Text="{Binding FindPosition, StringFormat={}Find Position: {0:F2}}"
-                                                                           HorizontalAlignment="Center"
-                                                                           VerticalAlignment="Top"
-                                                                           Foreground="Yellow" />
-                                                            </hc:SimplePanel>
+                                                                <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition Height="Auto" />
+                                                                        <RowDefinition Height="Auto" />
+                                                                    </Grid.RowDefinitions>
+                                                                    <TextBlock Text="{Binding FindPosition, StringFormat={}Find Position: {0:F2}}"
+                                                                               HorizontalAlignment="Center"
+                                                                               Foreground="Yellow" />
+                                                                    <TextBlock Grid.Row="1"
+                                                                               Text="{Binding YGhostResultValue, StringFormat={}Y Ghost: {0:F3} dB}"
+                                                                               HorizontalAlignment="Center">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                                                                        <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                                                                    </DataTrigger>
+                                                                                    <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                                                                        <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </Grid>
+                                                            </Grid>
                                                         </Border>
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>

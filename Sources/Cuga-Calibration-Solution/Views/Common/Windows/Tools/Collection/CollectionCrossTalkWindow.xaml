@@ -1,17 +1,19 @@
 ﻿<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.Collection.CollectionCrossTalkWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
-           xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+           xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
+           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionCrossTalkWindowViewModel}"
@@ -85,9 +87,9 @@
                                         <hc:ComboBox hc:TitleElement.Title="Optics Illumination Mode: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="160"
+                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}"
                                                      SelectedItem="{Binding Cache.OpticsIlluminationModeEnum}"
-                                                     Style="{StaticResource ComboBoxExtend}"
-                                                     ItemsSource="{Binding ApplicationCookie.OpticsIlluminationModeEnums}" />
+                                                     Style="{StaticResource ComboBoxExtend}" />
                                         <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
                                                      hc:TitleElement.TitlePlacement="Left"
                                                      hc:TitleElement.TitleWidth="160"
@@ -116,11 +118,11 @@
                                             <ListBox Grid.Column="1"
                                                      Height="300"
                                                      ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
-                                                     ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}"
-                                                     SelectedItem="{Binding Cache.PMTId}"
-                                                     SelectionMode="Single">
+                                                     ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                                     SelectionMode="Extended">
                                                 <i:Interaction.Behaviors>
                                                     <behaviors:ListBoxScrollToCurrentBehavior />
+                                                    <wpf:ListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" Type="{x:Type pattern:CIBInformation}" />
                                                 </i:Interaction.Behaviors>
                                             </ListBox>
                                         </Grid>
@@ -150,32 +152,195 @@
                                                           hc:TitleElement.TitleWidth="160"
                                                           Style="{StaticResource NumericUpDownExtend}"
                                                           Value="{Binding Cache.ImageWidth}" />
-                                        <TextBox Text="{Binding Cache.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.TitleWidth="160"
-                                                 hc:TitleElement.Title="Bright Field Position(um): "
+                                        <TextBox Text="{Binding Cache.ScribeFindPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.Title="Scribe BF Position(um): "
                                                  hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="160"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(radio): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.Threshold}" />
-                                        <Expander Header="Optics Configuration"
-                                                  IsExpanded="False"
-                                                  ExpandDirection="Down">
+                                        <TextBox Text="{Binding Cache.SignalFindPosition, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.Title="Signal BF Position(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="160"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <Expander ExpandDirection="Down"
+                                                  Header="Optics Configuration"
+                                                  IsExpanded="False">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
                                             </Border>
                                         </Expander>
-                                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Spacing="10">
+                                        <StackPanel>
+                                            <TextBlock Text="Step 1 Params"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </StackPanel>
+                                        <Expander ExpandDirection="Down"
+                                                  Header="{Binding Steps[0]}"
+                                                  IsExpanded="False">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <tools:AlignmentUserControl DataContext="{Binding .AlignmentUserControlViewModel}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <StackPanel>
+                                            <TextBlock Text="Step 2 Params"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </StackPanel>
+                                        <Expander ExpandDirection="Down"
+                                                  Header="{Binding Steps[1]}"
+                                                  IsExpanded="False">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical">
+                                                    <view:CanvasView Width="150"
+                                                                     Height="150"
+                                                                     BackgroundColor="#0A0A0A"
+                                                                     BackgroundImage="{Binding Cache.CropQuietFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                     Interactive="True"
+                                                                     ShowAxes="False"
+                                                                     ShowCursor="False"
+                                                                     ShowGrid="False" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <StackPanel>
+                                            <TextBlock Text="Step 3 Params"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </StackPanel>
+                                        <Expander ExpandDirection="Down"
+                                                  Header="{Binding Steps[2]}"
+                                                  IsExpanded="False">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical">
+                                                    <view:CanvasView Width="150"
+                                                                     Height="150"
+                                                                     BackgroundColor="#0A0A0A"
+                                                                     BackgroundImage="{Binding Cache.CropSignalFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                     Interactive="True"
+                                                                     ShowAxes="False"
+                                                                     ShowCursor="False"
+                                                                     ShowGrid="False" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                        <StackPanel>
+                                            <TextBlock Text="Step 4 Params"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                        </StackPanel>
+                                        <Expander ExpandDirection="Down"
+                                                  Header="{Binding Steps[3]}"
+                                                  IsExpanded="False">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(radio): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="160"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Threshold}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Border>
+                                        </Expander>
+                                    </hc:UniformSpacingPanel>
+                                </Border>
+                            </GroupBox>
+                            <GroupBox Header="Actions">
+                                <Border Style="{StaticResource BorderRegion}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                            <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                                                     hc:TitleElement.Title="Alignment Degrees(°): "
+                                                     hc:TitleElement.TitlePlacement="Left"
+                                                     hc:TitleElement.TitleWidth="150"
+                                                     Background="{StaticResource SecondaryRegionBrush}"
+                                                     IsReadOnly="True"
+                                                     Style="{StaticResource TextBoxExtend}" />
+                                            <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Top"
+                                                                    Spacing="10">
+                                                <Button Content="Action"
+                                                        Command="{Binding Step0Command}"
+                                                        CommandParameter="{x:Static models:Constants.False}"
+                                                        hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                        Style="{StaticResource ButtonPrimary.Loading}">
+                                                    <Button.IsEnabled>
+                                                        <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                            <Binding Path="Step0Command.IsRunning" />
+                                                            <Binding Path="Step1Command.IsRunning" />
+                                                            <Binding Path="Step2Command.IsRunning" />
+                                                            <Binding Path="Step3Command.IsRunning" />
+                                                        </MultiBinding>
+                                                    </Button.IsEnabled>
+                                                </Button>
+                                                <Button Content="Cancel"
+                                                        Command="{Binding Step0CancelCommand}"
+                                                        hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </hc:UniformSpacingPanel>
+                                        </hc:UniformSpacingPanel>
+                                        <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Spacing="10">
                                             <Button Content="Action"
-                                                    Command="{Binding ActionCommand}"
+                                                    Command="{Binding Step1Command}"
+                                                    CommandParameter="{x:Static models:Constants.False}"
                                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                        <Binding Path="Step0Command.IsRunning" />
+                                                        <Binding Path="Step1Command.IsRunning" />
+                                                        <Binding Path="Step2Command.IsRunning" />
+                                                        <Binding Path="Step3Command.IsRunning" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                            </Button>
                                             <Button Content="Cancel"
-                                                    Command="{Binding ActionCancelCommand}"
+                                                    Command="{Binding Step1CancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
+                                        <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding Step2Command}"
+                                                    CommandParameter="{x:Static models:Constants.False}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                        <Binding Path="Step0Command.IsRunning" />
+                                                        <Binding Path="Step1Command.IsRunning" />
+                                                        <Binding Path="Step2Command.IsRunning" />
+                                                        <Binding Path="Step3Command.IsRunning" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                            </Button>
+                                            <Button Content="Cancel"
+                                                    Command="{Binding Step2CancelCommand}"
+                                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                    Style="{StaticResource ButtonWarning}" />
+                                        </hc:UniformSpacingPanel>
+                                        <hc:Divider Content="{Binding Steps[3]}" Margin="0" />
+                                        <hc:UniformSpacingPanel Spacing="10">
+                                            <Button Content="Action"
+                                                    Command="{Binding Step3Command}"
+                                                    CommandParameter="{x:Static models:Constants.False}"
+                                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                                <Button.IsEnabled>
+                                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                        <Binding Path="Step0Command.IsRunning" />
+                                                        <Binding Path="Step1Command.IsRunning" />
+                                                        <Binding Path="Step2Command.IsRunning" />
+                                                        <Binding Path="Step3Command.IsRunning" />
+                                                    </MultiBinding>
+                                                </Button.IsEnabled>
+                                            </Button>
+                                            <Button Content="Cancel"
+                                                    Command="{Binding Step3CancelCommand}"
                                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                     Style="{StaticResource ButtonWarning}" />
                                         </hc:UniformSpacingPanel>
@@ -187,130 +352,171 @@
                 </Border>
                 <GridSplitter Grid.Column="1" Width="5" />
 
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="3*" />
-                        <RowDefinition Height="3*" />
-                        <RowDefinition Height="3*" />
-                    </Grid.RowDefinitions>
-                    <GroupBox Grid.Row="0" Header="Zoos On">
-                        <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ListBox ItemsSource="{Binding ZoosOnResults}">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
-                                        <Border Width="250"
-                                                Height="300"
-                                                Style="{StaticResource BorderRegion}">
-                                            <hc:SimplePanel>
-                                                <view:CanvasView AxisColor="Red"
-                                                                 BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                 Interactive="True"
-                                                                 ShowAxes="False"
-                                                                 ShowCursor="False"
-                                                                 ShowGrid="False" />
-                                                <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Top"
-                                                           Foreground="Yellow" />
-                                            </hc:SimplePanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
-                    </GroupBox>
-                    <GroupBox Grid.Row="1" Header="Zoos Off">
-                        <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ListBox ItemsSource="{Binding ZoosOffResults}">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
-                                        <Border Width="250"
-                                                Height="300"
-                                                Style="{StaticResource BorderRegion}">
-                                            <hc:SimplePanel>
-                                                <view:CanvasView AxisColor="Red"
-                                                                 BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                 Interactive="True"
-                                                                 ShowAxes="False"
-                                                                 ShowCursor="False"
-                                                                 ShowGrid="False" />
-                                                <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Top"
-                                                           Foreground="Yellow" />
-                                            </hc:SimplePanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
-                    </GroupBox>
-                    <GroupBox Grid.Row="2" Header="Diff">
-                        <Border Padding="5" Style="{StaticResource BorderRegion}">
-                            <ListBox ItemsSource="{Binding Results}">
-                                <ListBox.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ListBox.ItemsPanel>
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkResult}">
-                                        <Border Width="250"
-                                                Height="300"
-                                                Style="{StaticResource BorderRegion}">
-                                            <hc:SimplePanel>
-                                                <view:CanvasView AxisColor="Red"
-                                                                 BackgroundColor="#0A0A0A"
-                                                                 BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                 Interactive="True"
-                                                                 ShowAxes="False"
-                                                                 ShowCursor="False"
-                                                                 ShowGrid="False" />
-                                                <hc:UniformSpacingPanel HorizontalAlignment="Center" Orientation="Vertical">
-                                                    <TextBlock Text="{Binding GrayValue, StringFormat={}Gray Value: {0:F3}}"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Top"
-                                                               Foreground="Yellow" />
-                                                    <TextBlock Text="{Binding RadioResult, StringFormat={}Radio Value: {0:F6}}"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Top"
-                                                               Foreground="Green">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsOk}" Value="True">
-                                                                        <Setter Property="Foreground" Value="Green" />
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding IsOk}" Value="False">
-                                                                        <Setter Property="Foreground" Value="Red" />
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </hc:UniformSpacingPanel>
 
-                                            </hc:SimplePanel>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
+                <GroupBox Grid.Column="2" Header="Data">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="8*" />
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="HistoryListView"
+                                  ItemsSource="{Binding Results}"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  Style="{StaticResource ListView.Small}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.ItemContainerStyle>
+                                <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkSuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsOk}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridView.ColumnHeaderContainerStyle>
+                                        <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </GridView.ColumnHeaderContainerStyle>
+                                    <GridViewColumn DisplayMemberBinding="{Binding CIBInformation}" Header="CIB Information" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding BackgroundNoise, StringFormat={}{0:F3}}" Header="Background Gray" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding ScribeResult.SubGray, StringFormat={}{0:F3}}" Header="Cross Talk" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Diff, StringFormat={}{0:F3}}" Header="Diff Gray" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Radio, StringFormat={}{0:F3}}" Header="Radio" />
+                                    <GridViewColumn DisplayMemberBinding="{Binding Log10, StringFormat={}{0:F6}}" Header="Log10" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <GridSplitter Grid.Row="1" Height="5" />
+                        <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                            <TabControl>
+                                <TabItem Header="Details">
+                                    <ListBox HorizontalContentAlignment="Stretch" ItemsSource="{Binding Results}">
+                                        <ListBox.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <VirtualizingStackPanel Orientation="Vertical" />
+                                            </ItemsPanelTemplate>
+                                        </ListBox.ItemsPanel>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type viewModels:CollectionCrossTalkDTO}">
+                                                <Border Height="300"
+                                                        HorizontalAlignment="Stretch"
+                                                        Style="{StaticResource BorderRegion}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <GroupBox Header="CIB Information">
+                                                            <Label Content="{Binding CIBInformation}"
+                                                                   Padding="0"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Background="Transparent"
+                                                                   BorderBrush="Transparent"
+                                                                   BorderThickness="0" />
+                                                        </GroupBox>
+                                                        <GroupBox Grid.Column="1" Header="Diff">
+                                                            <Label Content="{Binding Diff, StringFormat={}{0:F3}}"
+                                                                   Padding="0"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Background="Transparent"
+                                                                   BorderBrush="Transparent"
+                                                                   BorderThickness="0" />
+                                                        </GroupBox>
+                                                        <Grid Grid.Column="2">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <GroupBox Header="Scribe">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Grid Margin="5">
+                                                                        <view:CanvasView AxisColor="Red"
+                                                                                         BackgroundColor="#0A0A0A"
+                                                                                         BackgroundImage="{Binding ScribeResult.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                         Interactive="True"
+                                                                                         ShowAxes="False"
+                                                                                         ShowCursor="False"
+                                                                                         ShowGrid="False" />
+                                                                    </Grid>
+                                                                    <Grid Grid.Column="1" Margin="5">
+                                                                        <view:CanvasView AxisColor="Red"
+                                                                                         BackgroundColor="#0A0A0A"
+                                                                                         BackgroundImage="{Binding ScribeResult.SubImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                         Interactive="True"
+                                                                                         ShowAxes="False"
+                                                                                         ShowCursor="False"
+                                                                                         ShowGrid="False" />
+                                                                        <TextBlock Text="{Binding ScribeResult.SubGray, StringFormat={}Gray Value: {0:F3}}"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Top"
+                                                                                   Foreground="Yellow" />
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </GroupBox>
+                                                            <GroupBox Grid.Column="1" Header="Signal">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="*" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <Grid Margin="5">
+                                                                        <view:CanvasView AxisColor="Red"
+                                                                                         BackgroundColor="#0A0A0A"
+                                                                                         BackgroundImage="{Binding SignalResult.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                         Interactive="True"
+                                                                                         ShowAxes="False"
+                                                                                         ShowCursor="False"
+                                                                                         ShowGrid="False" />
+                                                                    </Grid>
+                                                                    <Grid Grid.Column="1" Margin="5">
+                                                                        <view:CanvasView AxisColor="Red"
+                                                                                         BackgroundColor="#0A0A0A"
+                                                                                         BackgroundImage="{Binding SignalResult.SubImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                         Interactive="True"
+                                                                                         ShowAxes="False"
+                                                                                         ShowCursor="False"
+                                                                                         ShowGrid="False" />
+                                                                        <TextBlock Text="{Binding SignalResult.SubGray, StringFormat={}Gray Value: {0:F3}}"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Top"
+                                                                                   Foreground="Yellow" />
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </GroupBox>
+                                                        </Grid>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </TabItem>
+                            </TabControl>
                         </Border>
-                    </GroupBox>
-                </Grid>
-
+                    </Grid>
+                </GroupBox>
             </Grid>
         </Border>
     </Grid>
