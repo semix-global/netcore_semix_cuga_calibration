@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
@@ -8,86 +9,62 @@ namespace Core.Models.Models.Optics.CollectPolarization;
 public sealed partial class CollectPolarizationCache : CalibrationCacheBase<CollectPolarizationCache>
 {
     [ObservableProperty]
-    public partial Point HazeWaferPosition { get; set; }
+    public partial OpticsPolarizationModeEnum OpticsPolarizationModeEnum { get; set; } = OpticsPolarizationModeEnum.P;
 
     [ObservableProperty]
-    public partial double FindAngleMin { get; set; } = 1;
+    public partial OpticsCollectorPolarizationModeEnum OpticsCollectorPolarizationMode { get; set; } = OpticsCollectorPolarizationModeEnum.N;
 
     [ObservableProperty]
-    public partial double FindAngleMax { get; set; } = 180;
+    public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    public partial double FindAngleInterval { get; set; } = 2;
+    public partial double StartNDFRotaryMotorPos { get; set; } = 0;
+
+    [ObservableProperty]
+    public partial double StopNDFRotaryMotorPos { get; set; } = 360;
+
+    [ObservableProperty]
+    public partial double StepNDFRotaryMotorPos { get; set; } = 30;
+
+    [ObservableProperty]
+    public partial double RangeRefinedNDFRotaryMotorPos { get; set; } = 15;
+
+    [ObservableProperty]
+    public partial double StepRefinedNDFRotaryMotorPos { get; set; } = 1;
 
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFSListCH1 { get; set; } = [];
+    public partial double Threshold { get; set; } = 20d;
 
     [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFSListCH2 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFSListCH3 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFSCH1 { get; set; }
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFSCH2 { get; set; }
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFSCH3 { get; set; }
-
-    [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFPListCH1 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFPListCH2 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial Point[] PolarizationPositionNDFPListCH3 { get; set; } = [];
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFPCH1 { get; set; }
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFPCH2 { get; set; }
-
-    [ObservableProperty]
-    public partial double PolarizationPositionNDFPCH3 { get; set; }
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
     public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
+    public partial int PMTId { get; set; } = -1;
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     public override CollectPolarizationCache Clone() => new()
     {
-        HazeWaferPosition = HazeWaferPosition,
-        FindAngleMin = FindAngleMin,
-        FindAngleMax = FindAngleMax,
-        FindAngleInterval = FindAngleInterval,
+        OpticsPolarizationModeEnum = OpticsPolarizationModeEnum,
+        OpticsCollectorPolarizationMode = OpticsCollectorPolarizationMode,
+        FindBFMachinePosition = FindBFMachinePosition,
+        StartNDFRotaryMotorPos = StartNDFRotaryMotorPos,
+        StopNDFRotaryMotorPos = StopNDFRotaryMotorPos,
+        StepNDFRotaryMotorPos = StepNDFRotaryMotorPos,
+        RangeRefinedNDFRotaryMotorPos = RangeRefinedNDFRotaryMotorPos,
+        StepRefinedNDFRotaryMotorPos = StepRefinedNDFRotaryMotorPos,
         ImageWidth = ImageWidth,
-        PolarizationPositionNDFSListCH1 = [.. PolarizationPositionNDFSListCH1],
-        PolarizationPositionNDFSListCH2 = [.. PolarizationPositionNDFSListCH2],
-        PolarizationPositionNDFSListCH3 = [.. PolarizationPositionNDFSListCH3],
-        PolarizationPositionNDFSCH1 = PolarizationPositionNDFSCH1,
-        PolarizationPositionNDFSCH2 = PolarizationPositionNDFSCH2,
-        PolarizationPositionNDFSCH3 = PolarizationPositionNDFSCH3,
-        PolarizationPositionNDFPListCH1 = [.. PolarizationPositionNDFPListCH1],
-        PolarizationPositionNDFPListCH2 = [.. PolarizationPositionNDFPListCH2],
-        PolarizationPositionNDFPListCH3 = [.. PolarizationPositionNDFPListCH3],
-        PolarizationPositionNDFPCH1 = PolarizationPositionNDFPCH1,
-        PolarizationPositionNDFPCH2 = PolarizationPositionNDFPCH2,
-        PolarizationPositionNDFPCH3 = PolarizationPositionNDFPCH3,
+        Threshold = Threshold,
+        ProductivityInformation = ProductivityInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
-        CIBInformation = CIBInformation.Clone(),
+        PMTId = PMTId,
         CIBConfiguration = CIBConfiguration.Clone(),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

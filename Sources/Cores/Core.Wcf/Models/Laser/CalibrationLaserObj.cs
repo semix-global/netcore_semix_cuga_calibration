@@ -107,6 +107,12 @@ public sealed class CalibrationLaserObj
     /// 采集偏振校准, CollectionPolarization对象数据
     /// </summary>
     public CalibrationCollectionPolarization CalibrationCollectionPolarization { get; set; } = new CalibrationCollectionPolarization();
+
+    /// <summary>
+    /// Collection Polarization 校准对象列表 
+    /// </summary>
+    public CalibrationCollectionPolarizationItem[] CalibrationCollectionPolarizations { get; set; } = [];
+
 }
 
 /// <summary>
@@ -981,4 +987,26 @@ public sealed class CalibrationCollectionPolarization : CalibrationBase
     /// CH3通道NDF电机的P偏振位置, **需要记录**
     /// </summary> 
     public double PolarizationPositionNDFPCH3 { get; set; }
+}
+
+/// <summary>
+/// 采集偏振校准, CollectionPolarization校准下发Cuga参数
+/// </summary>
+[Serializable]
+public sealed class CalibrationCollectionPolarizationItem : CalibrationBase
+{
+    /// <summary>
+    /// NDF Type
+    /// </summary>
+    public CgNDFTypeEnum CgNDFTypeEnum { get; set; }
+
+    /// <summary>
+    /// CIB Channel ID
+    /// </summary>
+    public int ChannelId { get; set; }
+
+    /// <summary>
+    /// NDF电机位置, **需要记录**
+    /// </summary> 
+    public double NDFMotorPosition { get; set; }
 }

@@ -10,7 +10,6 @@ using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Bases;
@@ -209,6 +208,9 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
+    public partial string RawImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
     public partial Point AlignPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
@@ -228,7 +230,8 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
         FindPosition,
         IsOk,
         YGhostResultValue,
-        ResultImageh = new HtmlImage(ImageFilePath)
+        ResultImageh = new HtmlImage(ImageFilePath),
+        RawImageFilePath
     };
 }
 
@@ -238,7 +241,6 @@ public sealed partial class CollectionYGhostWindowViewModel(
     OpticsViewModel opticsViewModel,
     CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
     ApplicationCookie applicationCookie,
     ICacheProvider cacheProvider,
     IHostEnvironment hostEnvironment,
@@ -394,6 +396,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
                         var resultItem = GetResultItem(bitmapImage);
                         resultItem.FindPosition = findPosition;
+                        if (hostEnvironment.IsDevelopment() == false)
+                            resultItem.RawImageFilePath = darkFieldImages[index].RawImageFilePath;
                         YGhostResults[index].Items = [.. YGhostResults[index].Items, resultItem];
                     }
 
