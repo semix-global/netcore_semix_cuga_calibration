@@ -2,12 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Ads"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:AdsXGainsCalibrationViewModel}"
              d:DesignHeight="800"
@@ -25,34 +22,18 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Start Position: "
-                           Status="{Binding Cache.PositiveStartPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="End Position: "
-                           Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="Start Position: "
-                           Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="End Position: "
-                           Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.EndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Margin="0,0,0,-104"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <Border Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}"
-                            Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <StackPanel>
                                 <TextBlock Text="1. Find"
@@ -61,47 +42,45 @@
                                            FontWeight="Bold"
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX1P1}"
+                            <TextBox Text="{Binding Calibrating.X1P0}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X1P0: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X1P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX1P2}"
+                            <TextBox Text="{Binding Calibrating.X1P1}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X1P1: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X1P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX1P3}"
+                            <TextBox Text="{Binding Calibrating.X1P2}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X1P2: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X1P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX2P1}"
+                            <TextBox Text="{Binding Calibrating.X2P0}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X2P0: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X2P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX2P2}"
+                            <TextBox Text="{Binding Calibrating.X2P1}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X2P1: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X2P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.PositiveX2P3}"
+                            <TextBox Text="{Binding Calibrating.X2P2}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X2P2: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X2P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
                     </Border>
-                    <Border Style="{StaticResource BorderRegion}"
-                            Effect="{StaticResource EffectShadow1}"
-                            Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <StackPanel>
                                 <TextBlock Text="2. Find"
@@ -110,40 +89,40 @@
                                            FontWeight="Bold"
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX3P1}"
+                            <TextBox Text="{Binding Calibrating.X3P0}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X3P0: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X3P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX3P2}"
+                            <TextBox Text="{Binding Calibrating.X3P1}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X3P1: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X3P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX3P3}"
+                            <TextBox Text="{Binding Calibrating.X3P2}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X3P2: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X3P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX4P1}"
+                            <TextBox Text="{Binding Calibrating.X4P0}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X4P0: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X4P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX4P2}"
+                            <TextBox Text="{Binding Calibrating.X4P1}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X4P1: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X4P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding ResultAdsXGainsItemDto.NegativeX4P3}"
+                            <TextBox Text="{Binding Calibrating.X4P2}"
                                      hc:TitleElement.TitleWidth="90"
-                                     hc:InfoElement.Title="X4P2: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="X4P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                         </hc:UniformSpacingPanel>
@@ -153,12 +132,12 @@
                                             Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
+                                Command="{Binding Step2Command}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                                Command="{Binding Step2CancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
@@ -170,61 +149,22 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="10" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <GridSplitter Grid.Row="0" />
-            <TabControl Grid.Row="1">
-                <TabItem Header="Positive Plot">
-                    <GroupBox Header="Plot">
-                        <Grid>
-                            <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="PositiveFeedforwardPlot"
-                                                                    Plot0Title="X1"
-                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                    Plot0="{Binding ResultAdsXGainsItemDto.PositiveX1Plots}"
-                                                                    Plot1Title="SmoothX1"
-                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                    Plot1="{Binding ResultAdsXGainsItemDto.PositiveX1SmoothPlots}"
-                                                                    Plot2Title="X2"
-                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                                    Plot2="{Binding ResultAdsXGainsItemDto.PositiveX2Plots}"
-                                                                    Plot3Title="SmoothX2"
-                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                                    Plot3="{Binding ResultAdsXGainsItemDto.PositiveX2SmoothPlots}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                        </Grid>
-                    </GroupBox>
-                </TabItem>
-                <TabItem Header="Negative Plot">
-                    <GroupBox Header="Plot">
-                        <Grid>
-                            <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:WpfPlotMultiBehavior Title="NegativeFeedforwardPlot"
-                                                                    Plot0Title="X3"
-                                                                    Plot0Color="{x:Static scottPlot:Colors.Green}"
-                                                                    Plot0="{Binding ResultAdsXGainsItemDto.NegativeX3Plots}"
-                                                                    Plot1Title="SmoothX3"
-                                                                    Plot1Color="{x:Static scottPlot:Colors.Red}"
-                                                                    Plot1="{Binding ResultAdsXGainsItemDto.NegativeX3SmoothPlots}"
-                                                                    Plot2Title="X4"
-                                                                    Plot2Color="{x:Static scottPlot:Colors.DarkGreen}"
-                                                                    Plot2="{Binding ResultAdsXGainsItemDto.NegativeX4Plots}"
-                                                                    Plot3Title="SmoothX4"
-                                                                    Plot3Color="{x:Static scottPlot:Colors.DarkRed}"
-                                                                    Plot3="{Binding ResultAdsXGainsItemDto.NegativeX4SmoothPlots}" />
-                                </i:Interaction.Behaviors>
-                            </wpf:WpfPlot>
-                        </Grid>
-                    </GroupBox>
-                </TabItem>
-            </TabControl>
-        </Grid>
+        <TabControl Grid.Column="2">
+            <TabItem Header="Positive Plot">
+                <GroupBox Header="Plot">
+                    <Grid>
+                        <v2:PlotControl Margin="5" DataSource="{Binding Calibrating.X1X2PlotDataSource}" />
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+            <TabItem Header="Negative Plot">
+                <GroupBox Header="Plot">
+                    <Grid>
+                        <v2:PlotControl Margin="5" DataSource="{Binding Calibrating.X3X4PlotDataSource}" />
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+        </TabControl>
         <!--#endregion-->
     </Grid>
 </UserControl>

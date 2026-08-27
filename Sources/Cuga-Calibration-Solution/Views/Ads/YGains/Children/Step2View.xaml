@@ -2,11 +2,9 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Ads"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:AdsYGainsCalibrationViewModel}"
              d:DesignHeight="800"
@@ -25,137 +23,158 @@
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
 
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Start Position: "
-                           Status="{Binding Cache.PositiveStartPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="End Position: "
-                           Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="Start Position: "
-                           Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="End Position: "
-                           Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.EndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="1. Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown x:Name="FindIntervalNumeric1"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y1Interval: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input FindInterval"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.FindInterval1}" />
-                        <hc:NumericUpDown x:Name="FindIntervalNumeric2"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y2Interval: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input FindInterval"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.FindInterval2}" />
-                        <hc:NumericUpDown x:Name="FindIntervalNumeric3"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y3Interval: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input FindInterval"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.FindInterval3}" />
-                        <hc:NumericUpDown x:Name="Y1Number"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y1Number: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Y1 Number"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Y1Number}" />
-                        <hc:NumericUpDown x:Name="Y2Number"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y2Number: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Y2 Number"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Y2Number}" />
-                        <hc:NumericUpDown x:Name="Y3Number"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Y3Number: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Y3 Number"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Y3Number}" />
-                        <hc:NumericUpDown x:Name="ThresholdNumeric"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Threshold: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input Find Focus Offset"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Minimum="0"
-                                          Maximum="10000000"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.VerifyThreshold}" />
-                    </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="1. Find"
+                                           HorizontalAlignment="Center"
+                                           FontSize="13"
+                                           FontWeight="Bold"
+                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                            </StackPanel>
+                            <TextBox Text="{Binding Calibrating.Y1P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y1P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y1P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y1P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y1P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y1P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y2P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y2P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y2P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y2P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y2P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y2P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y3P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y3P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y3P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y3P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y3P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y3P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                    <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+                            <StackPanel>
+                                <TextBlock Text="2. Find"
+                                           HorizontalAlignment="Center"
+                                           FontSize="13"
+                                           FontWeight="Bold"
+                                           Style="{StaticResource TextBlockDefaultInfo}" />
+                            </StackPanel>
+                            <TextBox Text="{Binding Calibrating.Y4P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y4P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y4P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y4P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y4P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y4P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y5P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y5P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y5P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y5P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y5P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y5P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y6P0}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y6P0: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y6P1}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y6P1: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                            <TextBox Text="{Binding Calibrating.Y6P2}"
+                                     hc:TitleElement.TitleWidth="90"
+                                     hc:TitleElement.Title="Y6P2: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource TextBoxExtend}" />
+                        </hc:UniformSpacingPanel>
+                    </Border>
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
-                                Command="{Binding Step2CalibrateActionCommand}"
+                                Command="{Binding Step2Command}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
-                                Command="{Binding Step2CalibrateActionCancelCommand}"
+                                Command="{Binding Step2CancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
@@ -167,194 +186,22 @@
         <GridSplitter Grid.Column="1" Width="5" />
 
         <!--#region Right-->
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="10" />
-                <RowDefinition Height="0.5*" />
-                <RowDefinition Height="0.5*" />
-            </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="History">
-                <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsHrpCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="100"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y1"
-                                                DisplayMemberBinding="{Binding PositiveY1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y2"
-                                                DisplayMemberBinding="{Binding PositiveY2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y3"
-                                                DisplayMemberBinding="{Binding PositiveY3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z1"
-                                                DisplayMemberBinding="{Binding PositiveZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z2"
-                                                DisplayMemberBinding="{Binding PositiveZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z3"
-                                                DisplayMemberBinding="{Binding PositiveZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </GroupBox>
-            <GroupBox Grid.Row="1" Header="History">
-                <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsHrpCacheConverseItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="100"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y4"
-                                                DisplayMemberBinding="{Binding NegativeY4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y5"
-                                                DisplayMemberBinding="{Binding NegativeY5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y6"
-                                                DisplayMemberBinding="{Binding NegativeY6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z4"
-                                                DisplayMemberBinding="{Binding NegativeZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z5"
-                                                DisplayMemberBinding="{Binding NegativeZ5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Z6"
-                                                DisplayMemberBinding="{Binding NegativeZ6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="60"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </GroupBox>
-            <GridSplitter Grid.Row="2" />
-            <GroupBox Grid.Row="3" Header="Plot">
-                <Grid>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotListBehavior Title="Plot" PlotList="{Binding PlotY1Y2Y3List, Mode=TwoWay}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Grid>
-            </GroupBox>
-            <GroupBox Grid.Row="4" Header="Plot">
-                <Grid>
-                    <wpf:WpfPlot Margin="5" Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotListBehavior Title="Plot" PlotList="{Binding PlotY4Y5Y6List, Mode=TwoWay}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Grid>
-            </GroupBox>
-        </Grid>
+        <TabControl Grid.Column="2">
+            <TabItem Header="Positive Plot">
+                <GroupBox Header="Plot">
+                    <Grid>
+                        <v2:PlotControl Margin="5" DataSource="{Binding Calibrating.Y1Y2Y3PlotDataSource}" />
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+            <TabItem Header="Negative Plot">
+                <GroupBox Header="Plot">
+                    <Grid>
+                        <v2:PlotControl Margin="5" DataSource="{Binding Calibrating.Y4Y5Y6PlotDataSource}" />
+                    </Grid>
+                </GroupBox>
+            </TabItem>
+        </TabControl>
         <!--#endregion-->
     </Grid>
 </UserControl>
