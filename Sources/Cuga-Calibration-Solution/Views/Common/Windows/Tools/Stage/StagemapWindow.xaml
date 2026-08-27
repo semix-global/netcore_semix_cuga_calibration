@@ -446,6 +446,17 @@
                                         </TextBlock>
                                     </ToolBar>
                                 </graphicsWPF:WPFCanvasControl.RightToolBars>
+                                <graphicsWPF:WPFCanvasControl.ContextMenu>
+                                    <ContextMenu ItemsSource="{Binding Cache.StageMapTemplates}" AlternationCount="1000">
+                                        <ContextMenu.ItemContainerStyle>
+                                            <Style TargetType="MenuItem">
+                                                <Setter Property="Header" Value="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex), StringFormat='Goto {0}'}" />
+                                                <Setter Property="Command" Value="{Binding PlacementTarget.DataContext.GotoTemplateCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                                <Setter Property="CommandParameter" Value="{Binding}" />
+                                            </Style>
+                                        </ContextMenu.ItemContainerStyle>
+                                    </ContextMenu>
+                                </graphicsWPF:WPFCanvasControl.ContextMenu>
                             </graphicsWPF:WPFCanvasControl>
                         </Border>
                     </TabItem>

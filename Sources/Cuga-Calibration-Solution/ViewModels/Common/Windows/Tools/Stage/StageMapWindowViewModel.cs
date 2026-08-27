@@ -36,6 +36,8 @@ using Constants = Net.Utilities.Models.Constants;
 using Python.Runtime;
 using System.Reflection;
 using MathNet.Numerics;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.WaferMap.WPF.Primitives;
@@ -152,7 +154,6 @@ public sealed partial class StageMapWindowViewModel(
 
                     Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
                 }
-
                 finally
                 {
                     stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(bfPosition, CalChipSiteModelEnum.ChuckModel);
@@ -175,6 +176,51 @@ public sealed partial class StageMapWindowViewModel(
         }, cancellationToken).ConfigureAwait(false);
     }
 
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task GotoStageMapDocumentCurrentPositionAsync(int? index, CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                if (index is null) return;
+
+                var selectionPickDistance = Cache.StageMapDocument.View.ScreenToWorldDistance(Cache.StageMapDocument.Settings.SelectionPickDistance);
+
+                using var scope = Cache.StageMapDocument.View.Sync.EnterScope();
+
+                var isSuccess = false;
+                foreach (var die in Cache.StageMapDocument.DieModel)
+                {
+                    die.IsSelected = false;
+
+                    if (isSuccess || die.Contains(Cache.StageMapDocument.View.Cursor.Point, selectionPickDistance) == false) continue;
+
+                    die.IsSelected = true;
+
+                    stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(die.Markers[index.Value]));
+
+                    isSuccess = true;
+                }
+
+                dialogWindowProvider.ShowDialog($"Goto Stage Map Document Current Position {(isSuccess ? "OK!" : "Warning: Don't Find Die!")}", DialogButtonsEnum.OK, isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            }
+            catch (Exception ex)
+            {
+                if (ex is OperationCanceledException)
+                {
+                    dialogWindowProvider.ShowDialog($"{Name}: Goto Stage Map Document Current Position Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    return;
+                }
+
+                dialogWindowProvider.ShowDialog($"""
+                                                 {Name}: Goto Stage Map Document Current Position Failed
+                                                 {ex.Message}
+                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogError(ex, "Goto Stage Map Document Current Position");
+            }
+        }, cancellationToken).ConfigureAwait(false);
+    }
 
     [RelayCommand]
     private void RemoveStageMapTemplates(IEnumerable? selectedItems)
@@ -261,8 +307,8 @@ public sealed partial class StageMapWindowViewModel(
             Cache.StageMapDocument.WaferModel.Clear();
             Cache.StageMapDocument.DieModel.Clear();
 
-            var circle = new Circle(Point.Origin, Cache.WaferRadius);
-            var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(circle.Center), circle.Radius);
+            var dfCircle = new Circle(Point.Origin, Cache.WaferRadius);
+            var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
 
             Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
 
@@ -272,7 +318,7 @@ public sealed partial class StageMapWindowViewModel(
                 OriginalDiePoint = dfPositions[0]
             };
 
-            var stageMapDies = stageMapReticleBuilder.BuildDie(circle);
+            var stageMapDies = stageMapReticleBuilder.BuildDie(dfCircle);
             Vector[] markers =
             [
                 .. dfPositions.Select(tt => tt - dfPositions[0])
@@ -283,25 +329,20 @@ public sealed partial class StageMapWindowViewModel(
                 Point[] points = [.. markers.Select(tt => t.Rect.Point + tt)];
 
                 var resultExtents = new Extents();
-
-                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.Point));
+                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMinYMin));
                 resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMaxYMax));
-
-                var resultRect = (Rect)resultExtents;
 
                 return new StageMapDie
                 {
                     Index = t.Index,
                     Row = t.Row,
                     Col = t.Col,
-                    Rect = resultRect,
-                    IsInWafer = dfMachineCircle.Contains(resultRect.Point),
+                    Rect = (Rect)resultExtents,
+                    IsInWafer = points.All(dfCircle.Contains),
                     Markers = [.. points.Select(stageViewModel.DarkFieldToMachinePosition)]
                 };
             }));
-        });
-
-        Cache.StageMapDocument.View.ZoomToFit();
+        }, true);
 
         return Task.FromResult(true);
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -311,9 +352,12 @@ public sealed partial class StageMapWindowViewModel(
     {
         Cache.StageMap = new StageMap();
 
-        foreach (var stageMapDie in Cache.StageMapDocument.DieModel) stageMapDie.IsSelected = false;
-
         StageMapDie[] stageMapDies;
+        using (Cache.StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. Cache.StageMapDocument.DieModel];
+
+        foreach (var stageMapDie in stageMapDies) stageMapDie.IsInStageMapScan = false;
+
+        StageMapDie[] selectStageMapDies;
         if (dialogWindowProvider.TryShowDialog("Yes: Manually select dies? No: Select all dies?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
@@ -328,25 +372,23 @@ public sealed partial class StageMapWindowViewModel(
 
             Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
-            stageMapDies = [.. inputResult.Output];
-
-            foreach (var stageMapDie in stageMapDies) stageMapDie.IsSelected = true;
+            selectStageMapDies = [.. inputResult.Output];
         }
         else
         {
-            foreach (var stageMapDie in Cache.StageMapDocument.DieModel) stageMapDie.IsSelected = true;
-
-            stageMapDies = [.. Cache.StageMapDocument.DieModel];
+            selectStageMapDies = [.. stageMapDies];
         }
 
-        Guard.IsNotEmpty(stageMapDies);
+        foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
+
+        Guard.IsNotEmpty(selectStageMapDies);
 
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
 
-        var minY = stageMapDies.Min(t => t.Index.Y);
-        var maxY = stageMapDies.Max(t => t.Index.Y);
-        var minX = stageMapDies.Min(t => t.Index.X);
-        var maxX = stageMapDies.Max(t => t.Index.X);
+        var minY = selectStageMapDies.Min(t => t.Index.Y);
+        var maxY = selectStageMapDies.Max(t => t.Index.Y);
+        var minX = selectStageMapDies.Min(t => t.Index.X);
+        var maxX = selectStageMapDies.Max(t => t.Index.X);
 
         var yLength = maxY - minY + 1;
         var xLength = maxX - minX + 1;
@@ -370,7 +412,7 @@ public sealed partial class StageMapWindowViewModel(
                 var stageMapIndexX = xDirection > 0 ? minX + x : maxX - x;
                 var stageMapIndexY = yDirection > 0 ? minY + y : maxY - y;
 
-                var stageMapDie = stageMapDies.Single(t => t.Index == new WaferMapDieIndex(stageMapIndexX, stageMapIndexY));
+                var stageMapDie = selectStageMapDies.Single(t => t.Index == new WaferMapDieIndex(stageMapIndexX, stageMapIndexY));
 
                 for (var markerIndex = 0; markerIndex < Cache.StageMapTemplates.Length; markerIndex++)
                 {
@@ -585,7 +627,7 @@ public sealed partial class StageMapWindowViewModel(
                     var tempDarkFieldImages = await cibViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,
                         StageCoordinateSystemEnum.Machine,
-                        xDirection > 0 ? tempPoints : [.. tempPoints.Reverse()],
+                        tempPoints,
                         Cache.ImageWidth,
                         Cache.CIBInformation,
                         (true, null),
@@ -601,11 +643,12 @@ public sealed partial class StageMapWindowViewModel(
 
                     foreach (var (i, isInWaferColumnIndex) in isInWaferColumnIndexes.Index())
                     {
-                        var templateIdIndex = xDirection > 0
-                            ? i % Cache.StageMapTemplates.Length
-                            : Cache.StageMapTemplates.Length - 1 - i % Cache.StageMapTemplates.Length;
+                        var templateIdIndex = i % Cache.StageMapTemplates.Length;
 
-                        var bitmapImage = darkFieldImages[i].Image;
+                        using var hImage = darkFieldImages[i].Image.ToHImage();
+                        using var horizontalFlipHImage = hImage.HorizontalFlip();
+
+                        using var image = xDirection > 0 ? darkFieldImages[i].Image : horizontalFlipHImage.ToBitmapImage();
 
                         /*var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
                         var roi = templateROI.Inflate(templateROI.Width, templateROI.Height);
@@ -615,7 +658,7 @@ public sealed partial class StageMapWindowViewModel(
                         using var temp2 = temp1.ToBitmapImage();*/
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             Cache.AlgorithmTemplateTypeEnum,
-                            bitmapImage,
+                            image,
                             templateIds[templateIdIndex],
                             out var matchPoint,
                             out var matchOffset,
@@ -627,7 +670,7 @@ public sealed partial class StageMapWindowViewModel(
                         matchOffset.WithY(-matchOffset.Y);*/
 
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({htmlLogUniqueId:N}).jpg");
-                        bitmapImage.SaveImage(resultImageFilePath);
+                        image.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
                         vector = vector.WithY(vector.Y /*- (Cache.StageMapDocument.DieModel[0].Markers[templateIdIndex] - Cache.StageMapDocument.DieModel[0].Markers[0]).Y*/);
@@ -640,6 +683,7 @@ public sealed partial class StageMapWindowViewModel(
                             matchAngle,
                             templateMatchScoreThreshold,
                             vector,
+                            darkFieldImages[i].RawImageFilePath,
                             HtmlTab = new HtmlTab(new
                             {
                                 ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [ /*new HtmlImageRectangleOverlay(roi), new HtmlImageRectangleOverlay(templateROI),*/ new HtmlImageCrossOverlay(matchPoint)]),
@@ -647,8 +691,8 @@ public sealed partial class StageMapWindowViewModel(
                             })
                         });
 
-                        if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
-                        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                        if (isSuccess) logger.LogHtmlInformation($"{isInWaferColumnIndex} Ok", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
+                        else logger.LogHtmlError($"{isInWaferColumnIndex} Error", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
 
                         stageMap.IsMatchMatrix[y][isInWaferColumnIndex] = isSuccess;
                         if (isSuccess) stageMap.ErrorMatrix[y][isInWaferColumnIndex] = vector;

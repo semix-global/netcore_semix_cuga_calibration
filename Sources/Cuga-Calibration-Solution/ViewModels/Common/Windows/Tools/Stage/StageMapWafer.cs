@@ -9,7 +9,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public partial class StageMapWafer : AbstractDrawable
 {
-    private static readonly LineStyle WaferBackgroundFillStyle = new(SKColors.Blue, 2);
+    private static readonly LineStyle WaferBackgroundFillStyle = new(SKColors.Blue, 2d);
 
     [ObservableProperty]
     public partial Circle Circle { get; set; }

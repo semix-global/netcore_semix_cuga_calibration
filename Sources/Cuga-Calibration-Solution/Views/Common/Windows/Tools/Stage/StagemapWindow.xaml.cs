@@ -29,6 +29,7 @@ internal sealed class StageMapDocumentCursorToStringConverter : MarkupExtension,
 
         var selectionPickDistance = document.View.ScreenToWorldDistance(document.Settings.SelectionPickDistance);
 
+        using var scope = document.View.Sync.EnterScope();
         foreach (var die in document.DieModel)
         {
             if (die.Contains(point, selectionPickDistance)) return $"{die.Index} | {point.ToString(document.Settings.NumberFormat)}";

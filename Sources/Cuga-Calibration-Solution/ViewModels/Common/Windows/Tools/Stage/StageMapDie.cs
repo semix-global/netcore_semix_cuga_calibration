@@ -16,9 +16,9 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 public partial class StageMapDie : AbstractDrawable
 {
     private static readonly LineStyle DieBorderLineStyle = new(new SKColor(100, 100, 100));
+    private static readonly LineStyle InStageMapScanDieBorderLineStyle = new(SKColors.Red, 2d);
     private static readonly FillStyle DieBackgroundFillStyle = new(new SKColor(240, 240, 240));
     private static readonly FillStyle DieSelectionBackgroundFillStyle = new(new SKColor(240, 240, 240), HatchEnum.DiagonalUp, new SKColor(100, 100, 100));
-    private static readonly LineStyle OriginalDieBorderLineStyle = new(new SKColor(0, 120, 215), 2);
 
     [ObservableProperty]
     public partial WaferMapDieIndex Index { get; set; } = WaferMapDieIndex.Empty;
@@ -38,13 +38,15 @@ public partial class StageMapDie : AbstractDrawable
     [ObservableProperty]
     public partial Point[] Markers { get; set; } = [];
 
+    [ObservableProperty]
+    public partial bool IsInStageMapScan { get; set; }
+
     public override void Draw(Renderer renderer)
     {
         if (IsInWafer) renderer.FillRectangle(DieBackgroundFillStyle, Rect);
         if (IsSelected) renderer.FillRectangle(DieSelectionBackgroundFillStyle, Rect);
 
-        renderer.DrawRectangle(DieBorderLineStyle, Rect);
-        if (Index == WaferMapDieIndex.Empty) renderer.DrawRectangle(OriginalDieBorderLineStyle, Rect);
+        renderer.DrawRectangle(IsInStageMapScan ? InStageMapScanDieBorderLineStyle : DieBorderLineStyle, Rect);
 
         if (IsInWafer == false) return;
 
