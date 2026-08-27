@@ -358,10 +358,14 @@ public sealed partial class StageMapWindowViewModel(
         foreach (var stageMapDie in stageMapDies) stageMapDie.IsInStageMapScan = false;
 
         StageMapDie[] selectStageMapDies;
-        if (dialogWindowProvider.TryShowDialog("Yes: Manually select dies? No: Select all dies?",
+        if (dialogWindowProvider.TryShowDialog("Yes: Select all dies? No: Manually select dies?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
+        {
+            selectStageMapDies = [.. stageMapDies];
+        }
+        else
         {
             var inputResult = await StageMapDieSelectionGetter
                 .RunAsync<StageMapDieSelectionGetter>(Cache.StageMapDocument.Edit, new SelectionInputOptions<StageMapDie>
@@ -373,10 +377,6 @@ public sealed partial class StageMapWindowViewModel(
             Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
             selectStageMapDies = [.. inputResult.Output];
-        }
-        else
-        {
-            selectStageMapDies = [.. stageMapDies];
         }
 
         foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
