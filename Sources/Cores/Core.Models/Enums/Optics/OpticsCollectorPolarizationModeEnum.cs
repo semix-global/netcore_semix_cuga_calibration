@@ -7,7 +7,8 @@ public enum OpticsCollectorPolarizationModeEnum
 {
     N,
     P,
-    S
+    S,
+    None
 }
 
 /// <summary>

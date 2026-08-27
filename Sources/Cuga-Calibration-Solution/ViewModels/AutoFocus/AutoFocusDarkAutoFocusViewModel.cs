@@ -239,7 +239,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var currentBCalibrationTask = Task.Run(() => GetCurrentResultAsync(CalibratingItem.CurrentBDTO, false),
                     cancellationToken);
 
-                await Task.WhenAll(currentBCalibrationTask, currentBCalibrationTask);
+                await Task.WhenAll(currentACalibrationTask, currentBCalibrationTask);
 
                 var result = await currentACalibrationTask && await currentBCalibrationTask;
 

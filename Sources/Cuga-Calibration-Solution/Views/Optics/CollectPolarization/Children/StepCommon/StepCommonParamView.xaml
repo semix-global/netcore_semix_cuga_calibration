@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Optics.CollectPolarization.Children.StepCommon.StepCommonParamView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             d:DataContext="{d:DesignInstance Type=viewModels:CollectionPolarizationViewModel}"
+             d:DesignWidth="600"
+             d:DesignHeight="800"
+             mc:Ignorable="d">
+    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+        <StackPanel>
+            <TextBlock Text="Param"
+                       HorizontalAlignment="Center"
+                       FontSize="13"
+                       FontWeight="Bold"
+                       Style="{StaticResource TextBlockDefaultInfo}" />
+            <hc:NumericUpDown hc:TitleElement.Title="Start Motor Pos(°): "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="220"
+                              Minimum="0"
+                              Maximum="360"
+                              Style="{StaticResource NumericUpDownExtend}"
+                              Value="{Binding Cache.StartNDFRotaryMotorPos}" />
+            <hc:NumericUpDown hc:TitleElement.Title="Stop Motor Pos(°): "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="220"
+                              Minimum="0"
+                              Maximum="360"
+                              Style="{StaticResource NumericUpDownExtend}"
+                              Value="{Binding Cache.StopNDFRotaryMotorPos}" />
+            <hc:NumericUpDown hc:TitleElement.Title="Step Motor Pos(°): "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="220"
+                              Minimum="0"
+                              Maximum="30"
+                              Style="{StaticResource NumericUpDownExtend}"
+                              Value="{Binding Cache.StepNDFRotaryMotorPos}" />
+            <hc:NumericUpDown hc:TitleElement.Title="Range Refined Motor Pos(±(°)): "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="220"
+                              Minimum="0"
+                              Maximum="50"
+                              Style="{StaticResource NumericUpDownExtend}"
+                              Value="{Binding Cache.RangeRefinedNDFRotaryMotorPos}" />
+            <hc:NumericUpDown hc:TitleElement.Title="Step Refined Motor Pos(°) : "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="220"
+                              Minimum="0"
+                              Maximum="30"
+                              Style="{StaticResource NumericUpDownExtend}"
+                              Value="{Binding Cache.StepRefinedNDFRotaryMotorPos}" />
+        </StackPanel>
+    </hc:UniformSpacingPanel>
+</UserControl>

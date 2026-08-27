@@ -498,6 +498,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                         QuietGray = quietGrayValue,
                         SignalGray = signalGrayValue,
                         SubGray = grayValue,
+                        RawImageFilePath = dto.RawImageFilePath,
                         ImageFilePath = filePath,
                         SubImageFilePath = subFilePath,
                         SignalRoi = signalRoi,

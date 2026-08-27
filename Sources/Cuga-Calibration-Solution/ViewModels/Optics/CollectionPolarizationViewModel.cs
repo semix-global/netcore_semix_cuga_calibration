@@ -1,20 +1,33 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.CollectPolarization;
 using MathNet.Numerics;
-using Net.Utilities.Algorithms.Halcon.Extensions;
+using MathNet.Numerics.LinearAlgebra;
+using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Extensions;
+using Net.Utilities.Algorithms.Modules;
+using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
+using Net.Utilities.WPF.Enums;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Text;
+using Constants = Net.Utilities.Models.Constants;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 
@@ -27,18 +40,21 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
-        new() { StepName = "Select Haze Wafer Position" },
-        new() { StepName = "Set Laser Light And CIB Configuration" },
-        new() { StepName = "Get S Polarization Position Of CH123" },
-        new() { StepName = "Get P Polarization Position Of CH123" }
+        new() { StepName = "Image Param" },
+        new() { StepName = "Find Position" },
+        new() { StepName = "Polarization P" },
+        new() { StepName = "Polarization S" }
     ];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<CollectPolarizationDTO> Reviews { get; set; } = [];
 
     #endregion 界面相关
 
     #region 缓存
 
     [ObservableProperty]
-    public partial CollectPolarizationDTO ResultCollectItemDto { get; set; } = new();
+    public partial IReadOnlyList<CollectPolarizationDTO> CalibratingItems { get; set; } = [];
 
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
@@ -49,9 +65,17 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
     [DefaultCache]
     [ObservableProperty]
-    public partial CollectPolarizationDTO Calibration { get; set; } = new();
+    public partial CollectPolarizationDTO[] Calibrations { get; set; } = [];
+
+    /// <summary>
+    /// 激光光强信息列表
+    /// </summary>
+    [ObservableProperty]
+    public partial IReadOnlyList<LaserLightInformation> LaserLightInformations { get; set; } = [];
 
     #endregion 缓存
+
+    #region 控制校准业务
 
     protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
     {
@@ -60,9 +84,19 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CollectPolarizationCache>(cancellationToken);
-        Calibration = ApplicationCookieService.GetCalibration<CollectPolarizationDTO>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<CollectPolarizationDTO>(cancellationToken);
 
-        UpdateEntryStatus(Calibration, cancellationToken);
+        // 方案限定CIB配置，小光强
+        Cache.CIBConfiguration = new CIBConfiguration
+        {
+            Gain = 0,
+            CIBProfileMode = CIBProfileModeEnum.PMTVoltage,
+            IsAutoGainControl = false,
+            IsL0K = false
+        };
+        LaserLightInformations = [.. ApplicationCookie.LaserLightInformations.Where(t => t.Coefficient < 0.5)];
+
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
         return true;
     }
@@ -78,7 +112,46 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        return true;
+        Reviews =
+        [
+            .. Calibrations
+                .OrderBy(t => t.OpticsCollectorPolarizationMode)
+                .ThenBy(t => t.ChannelId)
+        ];
+
+        return Reviews.All(t => t.IsCalibrated);
+    }
+
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
+                    ? Cache.FindBFMachinePosition
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                return true;
+
+            case 3:
+
+                Cache.OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S;
+                Cache.OpticsCollectorPolarizationMode = OpticsCollectorPolarizationModeEnum.P;
+
+                return true;
+
+            default:
+                return false;
+        }
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
@@ -86,17 +159,23 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         await Task.CompletedTask.ConfigureAwait(false);
         switch (CalibrationStepIndex)
         {
+            case 0:
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
+                    ? Cache.FindBFMachinePosition
+                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+
+                return true;
+
             case 1:
+                Cache.OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S;
+                Cache.OpticsCollectorPolarizationMode = OpticsCollectorPolarizationModeEnum.P;
 
                 return true;
-
             case 2:
+                Cache.OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P;
+                Cache.OpticsCollectorPolarizationMode = OpticsCollectorPolarizationModeEnum.S;
 
-                return true;
-
-            case 3:
-
-                Save(ResultCollectItemDto, cancellationToken);
                 return true;
 
             default:
@@ -110,24 +189,25 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         return Task.FromResult(true);
     }
 
+    #endregion
+
+    #region 校准
+
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step0Async(CancellationToken cancellationToken)
     {
-        Cache.HazeWaferPosition = Cache.HazeWaferPosition != Point.Origin
-            ? Cache.HazeWaferPosition
-            : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
-
-        StageViewModel.SetAbsoluteStageTheta(0d);
-        StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition));
-        AfViewModel.ToggleDarkFieldEnable(true);
-
         return InvokeCalibrateAsync(() =>
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.HazeWaferPosition
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                Cache.PMTId,
+                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-            return true;
+
+            return ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation)
+                   && ApplicationCookie.CIBInformationPMTIds.Contains(Cache.PMTId);
         });
     }
 
@@ -136,265 +216,444 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
     {
         return InvokeCalibrateAsync(() =>
         {
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            Cache.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
-                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous())
+                Cache.PMTId,
+                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
+                Cache.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation);
+            return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2Async(CancellationToken cancellationToken)
     {
-        OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.P);
         return InvokeCalibrateAsync(async () =>
         {
-            Cache.PolarizationPositionNDFSListCH1 = [];
-            Cache.PolarizationPositionNDFSListCH2 = [];
-            Cache.PolarizationPositionNDFSListCH3 = [];
+            var result = await GetResultAsync(cancellationToken).ConfigureAwait(false);
 
-            var cibInfors = ApplicationCookie.CIBInformations.Where(x => x.PMTId == 8).ToArray();
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[0].ChannelId, OpticsCollectorPolarizationModeEnum.S);
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[1].ChannelId, OpticsCollectorPolarizationModeEnum.S);
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[2].ChannelId, OpticsCollectorPolarizationModeEnum.S);
+            Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-            {
-                if (angleArray[^1] < Cache.FindAngleMax)
-                    angleArray = [.. angleArray, Cache.FindAngleMax];
-
-                foreach (double i in angleArray)
-                {
-                    var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
-                        ApplicationCookie.OILowProductivityInformation,
-                        StageCoordinateSystemEnum.Dark,
-                        StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                        Cache.ImageWidth,
-                        cibInfors,
-                        (false, CalChipSiteModelEnum.HazeModel),
-                        (true, OpticsConfiguration: null),
-                        (false, Cache.CIBConfiguration),
-                        (false, Cache.LaserLightInformation),
-                        false,
-                        cancellationToken);
-
-                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[0].ChannelId, i);
-
-                    using var intensity0 = darkFieldImages[0].Image.ToHImage();
-                    double pmtValue = intensity0.GetIntensity().Average;
-                    Cache.PolarizationPositionNDFSListCH1 = [.. Cache.PolarizationPositionNDFSListCH1, new Point(i, pmtValue)];
-
-                    var originImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                    intensity0.Save(originImageFilePath);
-                    Logger.LogHtmlInformation("CH1Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                    {
-                        ResultImage = new HtmlImage(originImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-
-                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[1].ChannelId, i);
-
-                    using var intensity1 = darkFieldImages[1].Image.ToHImage();
-                    pmtValue = intensity1.GetIntensity().Average;
-                    Cache.PolarizationPositionNDFSListCH2 = [.. Cache.PolarizationPositionNDFSListCH2, new Point(i, pmtValue)];
-
-                    originImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                    intensity1.Save(originImageFilePath);
-                    Logger.LogHtmlInformation("CH2Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                    {
-                        ResultImage = new HtmlImage(originImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-
-
-                    OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[2].ChannelId, i);
-
-                    using var intensity2 = darkFieldImages[2].Image.ToHImage();
-                    pmtValue = intensity2.GetIntensity().Average;
-                    Cache.PolarizationPositionNDFSListCH3 = [.. Cache.PolarizationPositionNDFSListCH3, new Point(i, pmtValue)];
-
-                    originImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "SInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                    intensity2.Save(originImageFilePath);
-                    Logger.LogHtmlInformation("CH3Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                    {
-                        ResultImage = new HtmlImage(originImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-            }
-
-            var pointWithMinY = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH1 = pointWithMinY.X;
-
-            pointWithMinY = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH2 = pointWithMinY.X;
-
-            pointWithMinY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFSCH3 = pointWithMinY.X;
-
-            double[] values = [Cache.PolarizationPositionNDFSCH1, Cache.PolarizationPositionNDFSCH2, Cache.PolarizationPositionNDFSCH3];
-            Cache.FindAngleMin = values.Average() - 30;
-            Cache.FindAngleMax = values.Average() + 30;
-
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                CH1MINY = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).Min(p => p.Y),
-                CH1MINX = Cache.PolarizationPositionNDFSListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                CH2MINY = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).Min(p => p.Y),
-                CH2MINX = Cache.PolarizationPositionNDFSListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                CH3MINY = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).Min(p => p.Y),
-                CH3MINX = Cache.PolarizationPositionNDFSListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFSListCH1 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH1)], string.Empty),
-                PolarizationPositionNDFSListCH2 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH2)], string.Empty),
-                PolarizationPositionNDFSListCH3 = new HtmlPlot2DLinesChart([("SList", Cache.PolarizationPositionNDFSListCH3)], string.Empty)
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
+            return result;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        OpticsViewModel.SetPolarizationMode(OpticsPolarizationModeEnum.S);
         return InvokeCalibrateAsync(async () =>
         {
-            Cache.PolarizationPositionNDFPListCH1 = [];
-            Cache.PolarizationPositionNDFPListCH2 = [];
-            Cache.PolarizationPositionNDFPListCH3 = [];
+            var result = await GetResultAsync(cancellationToken).ConfigureAwait(false);
 
-            var cibInfors = ApplicationCookie.CIBInformations.Where(x => x.PMTId == 8).ToArray();
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[0].ChannelId, OpticsCollectorPolarizationModeEnum.P);
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[1].ChannelId, OpticsCollectorPolarizationModeEnum.P);
-            OpticsViewModel.SetCollectorPolarizationMode(cibInfors[2].ChannelId, OpticsCollectorPolarizationModeEnum.P);
+            Guard.IsTrue(Save(CalibratingItems, cancellationToken));
 
-            double[] angleArray = Generate.LinearRange(
-                Cache.FindAngleMin,
-                Cache.FindAngleInterval,
-                Cache.FindAngleMax);
-
-            if (angleArray[^1] < Cache.FindAngleMax)
-                angleArray = [.. angleArray, Cache.FindAngleMax];
-
-            foreach (double i in angleArray)
+            Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header2, new HtmlQuote(new
             {
-                var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
-                    ApplicationCookie.OILowProductivityInformation,
-                    StageCoordinateSystemEnum.Dark,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeWaferPosition),
-                    Cache.ImageWidth,
-                    cibInfors,
-                    (false, CalChipSiteModelEnum.HazeModel),
-                    (true, OpticsConfiguration: null),
-                    (false, Cache.CIBConfiguration),
-                    (false, Cache.LaserLightInformation),
-                    false,
-                    cancellationToken);
+                Result = new HtmlTable([
+                    .. Calibrations
+                        .OrderBy(t => t.ChannelId)
+                        .ThenBy(t => t.OpticsCollectorPolarizationMode)
+                        .Select(t => new
+                        {
+                            t.ChannelId,
+                            t.OpticsCollectorPolarizationMode,
+                            t.NDFRotaryMotorPosition,
+                            t.GrayValue
+                        })
+                ]),
+            }), HtmlLogUniqueId.LoggingHtml());
+            return result;
+        });
+    }
 
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[0].ChannelId, i);
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        await InvokeVerifyAsync(async () =>
+        {
+            var errorMessageStringBuilder = new StringBuilder();
+            var detectImageDirectory = ImageFileDirectory;
 
-                using var intensity0 = darkFieldImages[0].Image.ToHImage();
-                double pmtValue = intensity0.GetIntensity().Average;
-                Cache.PolarizationPositionNDFPListCH1 = [.. Cache.PolarizationPositionNDFPListCH1, new Point(i, pmtValue)];
+            var defaultOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+            var defaultOpticsCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
+            try
+            {
+                var collectPolarizationGroups = Reviews.GroupBy(t => t.OpticsCollectorPolarizationMode).ToList();
 
-                var originImageFilePath = Path.Combine(ImageFileDirectory, "CH1", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                intensity0.Save(originImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                foreach (var collectPolarizationGroup in collectPolarizationGroups)
                 {
-                    ResultImage = new HtmlImage(originImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
+                    var dtos = collectPolarizationGroup.Select(t => t).ToList();
 
+                    Cache.OpticsCollectorPolarizationMode = collectPolarizationGroup.Key;
+                    Cache.OpticsPolarizationModeEnum = dtos[0].OpticsPolarizationModeEnum;
 
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[1].ChannelId, i);
+                    var title = "Polarization" + Cache.OpticsCollectorPolarizationMode;
 
-                using var intensity1 = darkFieldImages[1].Image.ToHImage();
-                pmtValue = intensity1.GetIntensity().Average;
-                Cache.PolarizationPositionNDFPListCH2 = [.. Cache.PolarizationPositionNDFPListCH2, new Point(i, pmtValue)];
+                    Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                originImageFilePath = Path.Combine(ImageFileDirectory, "CH2", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                intensity1.Save(originImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    {
+                        defaultOpticsPolarizationModeEnum,
+                        defaultOpticsCollectorPolarizationModeEnum,
+                        Cache.OpticsPolarizationModeEnum,
+                        Cache.OpticsCollectorPolarizationMode,
+                        CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
+                        Cache.LaserLightInformation,
+                        Cache.FindBFMachinePosition,
+                        Cache.ImageWidth,
+                        Cache.Threshold,
+                        detectImageDirectory,
+                    }), HtmlLogUniqueId.LoggingHtml());
+
+                    SetOpticsConfig(Cache.OpticsPolarizationModeEnum, Cache.OpticsCollectorPolarizationMode);
+                    await SetAllChannelCollectionPolarizationMotorValueAsync([.. dtos.Select(t => (t.ChannelId, NDFMotorPosition: t.NDFRotaryMotorPosition))], cancellationToken).ConfigureAwait(false);
+
+                    var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
+                        Cache.ImageWidth,
+                        [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)],
+                        (false, CalChipSiteModelEnum.HazeModel),
+                        (true, null),
+                        (false, Cache.CIBConfiguration),
+                        (false, Cache.LaserLightInformation),
+                        false,
+                        cancellationToken);
+
+                    foreach (var darkFieldImageDTO in darkFieldImages)
+                    {
+                        var logTitle = $"{title}_Channel{darkFieldImageDTO.CIBInformation.ChannelId}";
+
+                        var currentCIBItem = Reviews.Single(t => t.ChannelId == darkFieldImageDTO.CIBInformation.ChannelId &&
+                                                                 t.OpticsCollectorPolarizationMode == Cache.OpticsCollectorPolarizationMode);
+                        var intensity = darkFieldImageDTO.Image.GetIntensity();
+
+                        var imageFilePath = Path.Combine(detectImageDirectory, "Verify", $"Channel {darkFieldImageDTO.CIBInformation}", $"Pos({currentCIBItem.NDFRotaryMotorPosition:0.###})_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        darkFieldImageDTO.Image.SaveImage(imageFilePath);
+
+                        currentCIBItem.GrayValue = intensity.Average;
+                        currentCIBItem.IsVerified = currentCIBItem.GrayValue < Cache.Threshold;
+
+                        var htmlBullet = new HtmlBullet(new
+                        {
+                            currentCIBItem.OpticsCollectorPolarizationMode,
+                            currentCIBItem.OpticsPolarizationModeEnum,
+                            NDFMotorPosition = currentCIBItem.NDFRotaryMotorPosition,
+                            intensity.Average,
+                            Image = new HtmlImage(imageFilePath)
+                        });
+
+                        if (currentCIBItem.IsVerified)
+                            Logger.LogHtmlInformation($"{logTitle} OK", HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        else
+                        {
+                            errorMessageStringBuilder.AppendLine($"{logTitle}: Error");
+                            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                SetOpticsConfig(defaultOpticsPolarizationModeEnum, defaultOpticsCollectorPolarizationModeEnum);
+            }
+
+            Guard.IsTrue(Save(Reviews, cancellationToken));
+
+            var result = Reviews.All(t => t.IsOk);
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    #endregion
+
+    private async Task<bool> GetResultAsync(CancellationToken cancellationToken)
+    {
+        CalibratingItems = [];
+
+        var defaultOpticsPolarizationModeEnum = OpticsViewModel.GetPolarizationMode();
+        var defaultOpticsCollectorPolarizationModeEnum = OpticsViewModel.GetCollectorPolarizationMode();
+        var motorRange = (Min: 0d, Max: 359d);
+        try
+        {
+            var detectImageDirectory = ImageFileDirectory;
+
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                Cache.PMTId,
+                CIBConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
+                defaultOpticsPolarizationModeEnum,
+                defaultOpticsCollectorPolarizationModeEnum,
+                Cache.OpticsPolarizationModeEnum,
+                Cache.OpticsCollectorPolarizationMode,
+                Cache.FindBFMachinePosition,
+                Cache.ImageWidth,
+                Cache.StartNDFRotaryMotorPos,
+                Cache.StopNDFRotaryMotorPos,
+                Cache.StepNDFRotaryMotorPos,
+                Cache.Threshold,
+                detectImageDirectory
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            SetOpticsConfig(Cache.OpticsPolarizationModeEnum, Cache.OpticsCollectorPolarizationMode);
+
+            CIBInformation[] cibInformations = [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId)];
+
+            // 粗找
+            Logger.LogHtmlInformation("Roughly", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            await ActionAsync([
+                .. ApplicationCookie.CIBInformationChannelIds.Select(t => (t, Generate.LinearRangeContainsEdge(
+                    Math.Max(motorRange.Min, Cache.StartNDFRotaryMotorPos),
+                    Cache.StepNDFRotaryMotorPos,
+                    Math.Min(motorRange.Max, Cache.StopNDFRotaryMotorPos))))
+            ]).ConfigureAwait(false);
+
+            // 精找
+            Logger.LogHtmlInformation("Refined", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                RangeRefinedNDFMotorPos = Cache.RangeRefinedNDFRotaryMotorPos,
+                StepRefinedNDFMotorPos = Cache.StepRefinedNDFRotaryMotorPos
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            await ActionAsync([
+                .. CalibratingItems.Select(t => (t.ChannelId, Generate.LinearRangeContainsEdge(
+                    Math.Max(motorRange.Min, t.NDFRotaryMotorPosition - Cache.RangeRefinedNDFRotaryMotorPos),
+                    Cache.StepRefinedNDFRotaryMotorPos,
+                    Math.Min(motorRange.Max, t.NDFRotaryMotorPosition + Cache.RangeRefinedNDFRotaryMotorPos))))
+            ]).ConfigureAwait(false);
+
+            Logger.LogHtmlInformation("Fit", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+            foreach (var calibratingItem in CalibratingItems)
+            {
+                // 先拟合，后采样
+                var (p0, p1, p2, _, _) = PolynomialCurve.Fit2(
+                    Vector<double>.Build.Dense([.. calibratingItem.Items.Select(t => t.NDFRotaryMotorPosition)]),
+                    Vector<double>.Build.Dense([.. calibratingItem.Items.Select(t => t.GrayValue)]));
+
+                // 抛物线很平缓时（p2 很小但为正），顶点公式 -p1 / (2 * p2) 会对噪声极其敏感，算出来的最小值位置可能大幅跳动，增加校验
+                if (HostEnvironment.IsDevelopment() == false)
+                    Guard.IsTrue(p2 > 1e-6, "Parabola too flat, minimum is unreliable，Does not conform to physical trends. Please check parameter ranges and hardware status");
+
+                // x 按 0.1 精度取整
+                var minX = -p1 / (2 * p2);
+                minX = Math.Max(motorRange.Min, Math.Min(motorRange.Max, minX));
+                var minPos = Math.Round(minX * 10, MidpointRounding.AwayFromZero) / 10;
+                calibratingItem.NDFRotaryMotorPosition = minPos;
+                calibratingItem.GrayValue = p2 * minPos * minPos
+                                            + p1 * minPos
+                                            + p0;
+
+                // 用 0.1 步长在数据范围内生成拟合曲线，并显式加入最小点
+                var minXData = calibratingItem.Items.Min(t => t.NDFRotaryMotorPosition);
+                var maxXData = calibratingItem.Items.Max(t => t.NDFRotaryMotorPosition);
+
+                // 确保采样点包围minX
+                if (HostEnvironment.IsDevelopment() == false)
+                    Guard.IsTrue(minX >= minXData && minX <= maxXData, "Estimated minimum is outside sampled range.");
+
+                calibratingItem.FitPoints =
+                [
+                    .. Generate.LinearRange(minXData, 0.1, maxXData)
+                        .Select(x => new Point(x, p2 * x * x + p1 * x + p0))
+                        .Append(new Point(minPos, calibratingItem.GrayValue))
+                        .OrderBy(p => p.X)
+                ];
+
+                calibratingItem.IsCalibrated = true;
+
+                Logger.LogHtmlInformation($"Channel {calibratingItem.ChannelId} Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
-                    ResultImage = new HtmlImage(originImageFilePath)
-                }), HtmlLogUniqueId.LoggingHtml());
-
-
-                OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(cibInfors[2].ChannelId, i);
-
-                using var intensity2 = darkFieldImages[2].Image.ToHImage();
-                pmtValue = intensity2.GetIntensity().Average;
-                Cache.PolarizationPositionNDFPListCH3 = [.. Cache.PolarizationPositionNDFPListCH3, new Point(i, pmtValue)];
-
-                originImageFilePath = Path.Combine(ImageFileDirectory, "CH3", "PInitial" + "__" + i + "__" + $"{Guid.NewGuid():N}.jpg");
-                intensity2.Save(originImageFilePath);
-                Logger.LogHtmlInformation("Angle:" + i, HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    ResultImage = new HtmlImage(originImageFilePath)
+                    calibratingItem.ChannelId,
+                    calibratingItem.NDFRotaryMotorPosition,
+                    calibratingItem.GrayValue,
+                    calibratingItem.IsCalibrated,
+                    Plots = new HtmlContainer(calibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
-            var pointWithMinY = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFPCH1 = pointWithMinY.X;
-            pointWithMinY = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFPCH2 = pointWithMinY.X;
-            pointWithMinY = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First();
-            Cache.PolarizationPositionNDFPCH3 = pointWithMinY.X;
-
-            double[] values = [Cache.PolarizationPositionNDFPCH1, Cache.PolarizationPositionNDFPCH2, Cache.PolarizationPositionNDFPCH3];
-            Cache.FindAngleMin = values.Average() - 30;
-            Cache.FindAngleMax = values.Average() + 30;
-
-            Logger.LogHtmlInformation("SlopeParam", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                CH1MINY = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).Min(p => p.Y),
-                CH1MINX = Cache.PolarizationPositionNDFPListCH1.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                CH2MINY = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).Min(p => p.Y),
-                CH2MINX = Cache.PolarizationPositionNDFPListCH2.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                CH3MINY = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).Min(p => p.Y),
-                CH3MINX = Cache.PolarizationPositionNDFPListCH3.Where(p => p.X > 20).OrderBy(p => p.Y).First().X,
-                PolarizationPositionNDFPListCH1 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH1)], string.Empty),
-                PolarizationPositionNDFPListCH2 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH2)], string.Empty),
-                PolarizationPositionNDFPListCH3 = new HtmlPlot2DLinesChart([("PList", Cache.PolarizationPositionNDFPListCH3)], string.Empty)
+                Result = new HtmlTable([
+                    .. CalibratingItems.Select(t => new
+                    {
+                        t.ChannelId,
+                        t.NDFRotaryMotorPosition,
+                        t.GrayValue
+                    })
+                ]),
             }), HtmlLogUniqueId.LoggingHtml());
 
-            ResultCollectItemDto.PolarizationPositionNDFSCH1 = Cache.PolarizationPositionNDFSCH1;
-            ResultCollectItemDto.PolarizationPositionNDFSCH2 = Cache.PolarizationPositionNDFSCH2;
-            ResultCollectItemDto.PolarizationPositionNDFSCH3 = Cache.PolarizationPositionNDFSCH3;
-            ResultCollectItemDto.PolarizationPositionNDFPCH1 = Cache.PolarizationPositionNDFPCH1;
-            ResultCollectItemDto.PolarizationPositionNDFPCH2 = Cache.PolarizationPositionNDFPCH2;
-            ResultCollectItemDto.PolarizationPositionNDFPCH3 = Cache.PolarizationPositionNDFPCH3;
-
             return true;
-        });
-    }
 
-    private void Save(CollectPolarizationDTO itemDto, CancellationToken cancellationToken)
-    {
-        InvokeSave(update =>
+            async Task ActionAsync(IReadOnlyList<(int channelID, IReadOnlyList<double> motorPoses)> posInfos)
+            {
+                var currentDetectImageDirectory = Path.Combine(detectImageDirectory, $"{Cache.OpticsCollectorPolarizationMode.ToDescriptionOrString()} Polarization");
+
+                CalibratingItems =
+                [
+                    .. ApplicationCookie.CIBInformationChannelIds.Select(channelId => new CollectPolarizationDTO
+                    {
+                        OpticsPolarizationModeEnum = Cache.OpticsPolarizationModeEnum,
+                        OpticsCollectorPolarizationMode = Cache.OpticsCollectorPolarizationMode,
+                        ChannelId = channelId
+                    })
+                ];
+
+                for (var i = 0; i < posInfos.Max(t => t.motorPoses.Count); i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    // 超出索引的忽略
+                    var allChannelCurrentPoses = posInfos
+                        .Where(info => i < info.motorPoses.Count)
+                        .Select(info => (info.channelID, pos: info.motorPoses[i]))
+                        .ToList();
+
+                    await SetAllChannelCollectionPolarizationMotorValueAsync(allChannelCurrentPoses, cancellationToken).ConfigureAwait(false);
+
+                    var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition),
+                        Cache.ImageWidth,
+                        cibInformations,
+                        (false, CalChipSiteModelEnum.HazeModel),
+                        (true, null),
+                        (false, Cache.CIBConfiguration),
+                        (false, Cache.LaserLightInformation),
+                        false,
+                        cancellationToken,
+                        isKeepRawImageCIBProfileModeEnum: false);
+
+                    foreach (var darkFieldImageDTO in darkFieldImages.Where(t => allChannelCurrentPoses.Select(tt => tt.channelID).Contains(t.CIBInformation.ChannelId)))
+                    {
+                        var currentPosInfo = allChannelCurrentPoses.Single(t => t.channelID == darkFieldImageDTO.CIBInformation.ChannelId);
+                        var currentCIBItem = CalibratingItems.Single(t => t.ChannelId == darkFieldImageDTO.CIBInformation.ChannelId);
+                        var intensity = darkFieldImageDTO.Image.GetIntensity();
+
+                        var imageFilePath = Path.Combine(currentDetectImageDirectory, $"Channel {darkFieldImageDTO.CIBInformation}", $"Pos({currentPosInfo.pos:0.###})_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        darkFieldImageDTO.Image.SaveImage(imageFilePath);
+
+                        currentCIBItem.Items =
+                        [
+                            .. currentCIBItem.Items,
+                            new CollectPolarizationDTOItem
+                            {
+                                GrayValue = intensity.Average,
+                                ImageFilePath = imageFilePath,
+                                NDFRotaryMotorPosition = currentPosInfo.pos
+                            }
+                        ];
+                    }
+                }
+
+                foreach (var calibratingItem in CalibratingItems)
+                {
+                    var resultPoint = Point.Origin;
+                    if (HostEnvironment.IsDevelopment() == false)
+                    {
+                        var (_, results) = Extremumor.FindMinima([.. calibratingItem.Items.Select(t => new Point(t.NDFRotaryMotorPosition, t.GrayValue))], isContainsEdge: true);
+                        resultPoint = results.Minima(t => t.Y).First();
+                    }
+
+                    calibratingItem.NDFRotaryMotorPosition = resultPoint.X;
+                    calibratingItem.GrayValue = resultPoint.Y;
+
+                    var posInfo = posInfos.Single(t => t.channelID == calibratingItem.ChannelId);
+                    Logger.LogHtmlInformation($"Channel {calibratingItem.ChannelId}", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                    {
+                        StartPos = posInfo.motorPoses[0],
+                        StopPos = posInfo.motorPoses[^1],
+                        Details = new HtmlExpand("Details", new HtmlBullet(calibratingItem.ToFlatnessHtmlAnonymous()))
+                    }), HtmlLogUniqueId.LoggingHtml());
+                }
+
+                Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    Result = new HtmlTable([
+                        .. CalibratingItems.Select(t => new
+                        {
+                            t.ChannelId,
+                            t.NDFRotaryMotorPosition,
+                            t.GrayValue
+                        })
+                    ]),
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+        }
+        finally
         {
-            update(itemDto);
-            update(Cache);
+            SetOpticsConfig(defaultOpticsPolarizationModeEnum, defaultOpticsCollectorPolarizationModeEnum);
+        }
+    }
 
-            Calibration = itemDto.Clone();
+    private Task SetAllChannelCollectionPolarizationMotorValueAsync(IReadOnlyList<(int channelID, double motorPos)> posInfos, CancellationToken cancellationToken)
+    {
+        return Parallel.ForEachAsync(posInfos, cancellationToken, (info, token) =>
+        {
+            token.ThrowIfCancellationRequested();
 
-            ApplicationCookieService.SetCalibration(Calibration, cancellationToken);
-            ApplicationCookieService.SetCache(Cache, cancellationToken);
+            OpticsViewModel.SetCollectorPolarizationMotorAbsoluteValue(info.channelID, info.motorPos);
+
+            return ValueTask.CompletedTask;
         });
     }
 
-    public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
+    private void SetOpticsConfig(OpticsPolarizationModeEnum opticsPolarizationModeEnum, OpticsCollectorPolarizationModeEnum opticsCollectorPolarizationModeEnum)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO>(calibration);
+        OpticsViewModel.SetPolarizationMode(opticsPolarizationModeEnum);
+        OpticsViewModel.SetCollectorPolarizationMode(opticsCollectorPolarizationModeEnum);
+    }
+
+    private bool Save(IReadOnlyList<CollectPolarizationDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    {
+        update(Cache);
+
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                dto,
+                .. Calibrations.Where(t => (t.OpticsCollectorPolarizationMode == dto.OpticsCollectorPolarizationMode && t.ChannelId == dto.ChannelId) == false)
+            ];
+        }
+
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temp = Guard.IsAssignableToTypeAndReturn<CollectPolarizationDTO[]>(calibrations);
         var status = Entry.Status;
 
-        Calibration = temp;
+        Calibrations = temp;
 
         status.TotalCalibrationCount = 1;
-        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.CalibratedCount = Calibrations.All(t => t.IsCalibrated) ? 1 : 0;
+        status.VerifiedCount = Calibrations.All(t => t.IsVerified) ? 1 : 0;
         status.Details = [];
     }
 }
