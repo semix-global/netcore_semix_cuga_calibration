@@ -176,14 +176,14 @@ public sealed partial class StageMapWindowViewModel(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task GotoStageMapDocumentCurrentPositionAsync(int? index, CancellationToken cancellationToken)
+    [RelayCommand]
+    private async Task GotoStageMapDocumentCurrentPositionAsync(StageMapTemplate stageMapTemplate)
     {
         await Task.Run(() =>
         {
             try
             {
-                if (index is null) return;
+                var index = Array.IndexOf(Cache.StageMapTemplates, stageMapTemplate);
 
                 var selectionPickDistance = Cache.StageMapDocument.View.ScreenToWorldDistance(Cache.StageMapDocument.Settings.SelectionPickDistance);
 
@@ -198,7 +198,7 @@ public sealed partial class StageMapWindowViewModel(
 
                     die.IsSelected = true;
 
-                    stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(die.Markers[index.Value]));
+                    stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(die.Markers[index]));
 
                     isSuccess = true;
                 }
@@ -219,7 +219,7 @@ public sealed partial class StageMapWindowViewModel(
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 logger.LogError(ex, "Goto Stage Map Document Current Position");
             }
-        }, cancellationToken).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     [RelayCommand]
@@ -366,7 +366,7 @@ public sealed partial class StageMapWindowViewModel(
             var inputResult = await StageMapDieSelectionGetter
                 .RunAsync<StageMapDieSelectionGetter>(Cache.StageMapDocument.Edit, new SelectionInputOptions<StageMapDie>
                 {
-                    IsMultipleSelection = false,
+                    IsMultipleSelection = true,
                     CancellationToken = cancellationToken
                 });
 
