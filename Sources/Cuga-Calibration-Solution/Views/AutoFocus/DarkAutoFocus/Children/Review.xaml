@@ -5,9 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:scottplot="http://schemas.scottplot.net/2008/xaml/presentation"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignHeight="700"
@@ -264,29 +262,26 @@
                                  IsReadOnly="True"
                                  Foreground="{Binding Review.IsVerified, Converter={StaticResource BoolToBrushConverter}}" />
                     </UniformGrid>
-                    <scottplot:WpfPlot Grid.Row="2">
-                        <b:Interaction.Behaviors>
-                            <behaviors:WpfPlotMultiBehavior Title="Trace Buffer"
-                                                            Plot0Title="Original ECS"
-                                                            Plot0Color="{x:Static scottPlot:Colors.LightGreen}"
-                                                            Plot0="{Binding Review.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot1Title="Original NSC"
-                                                            Plot1Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                            Plot1="{Binding Review.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot2Title="Original Lvdt"
-                                                            Plot2Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                            Plot2="{Binding Review.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot3Title="Calibration ECS"
-                                                            Plot3Color="{x:Static scottPlot:Colors.LightGreen}"
-                                                            Plot3="{Binding Calibration.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot4Title="Calibration NSC"
-                                                            Plot4Color="{x:Static scottPlot:Colors.LightBlue}"
-                                                            Plot4="{Binding Calibration.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
-                                                            Plot5Title="Calibration Lvdt"
-                                                            Plot5Color="{x:Static scottPlot:Colors.LightCoral}"
-                                                            Plot5="{Binding Calibration.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
-                        </b:Interaction.Behaviors>
-                    </scottplot:WpfPlot>
+                    <controls:ScatterMultiPlotControl Grid.Row="2"
+                                                      Title="Trace Buffer"
+                                                      ScatterLine0Title="Original ECS"
+                                                      ScatterLine0Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                      ScatterLine0Points="{Binding Review.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                      ScatterLine1Title="Original NSC"
+                                                      ScatterLine1Color="{x:Static scottPlot:Colors.LightBlue}"
+                                                      ScatterLine1Points="{Binding Review.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                      ScatterLine2Title="Original Lvdt"
+                                                      ScatterLine2Color="{x:Static scottPlot:Colors.LightCoral}"
+                                                      ScatterLine2Points="{Binding Review.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}"
+                                                      ScatterLine3Title="Calibration ECS"
+                                                      ScatterLine3Color="{x:Static scottPlot:Colors.LightGreen}"
+                                                      ScatterLine3Points="{Binding Calibration.NSCGainResultDTO.CalibrationEcs, Converter={StaticResource DoublesToPointsConverter}}"
+                                                      ScatterLine4Title="Calibration NSC"
+                                                      ScatterLine4Color="{x:Static scottPlot:Colors.LightBlue}"
+                                                      ScatterLine4Points="{Binding Calibration.NSCGainResultDTO.CalibrationNsc, Converter={StaticResource DoublesToPointsConverter}}"
+                                                      ScatterLine5Title="Calibration Lvdt"
+                                                      ScatterLine5Color="{x:Static scottPlot:Colors.LightCoral}"
+                                                      ScatterLine5Points="{Binding Calibration.NSCGainResultDTO.CalibrationLvdt, Converter={StaticResource DoublesToPointsConverter}}" />
 
                 </Grid>
             </Border>

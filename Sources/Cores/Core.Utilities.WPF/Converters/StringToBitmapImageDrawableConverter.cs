@@ -1,7 +1,7 @@
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.ImageViewer.WPF.Drawables;
-using Net.Utilities.WPF.Converters;
+using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 using System.IO;
 using System.Windows;

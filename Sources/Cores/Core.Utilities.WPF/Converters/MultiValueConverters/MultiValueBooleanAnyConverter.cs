@@ -1,8 +1,7 @@
 using CommunityToolkit.Diagnostics;
-using Net.Utilities.WPF.Converters.MultiValueConverters;
+using Net.Utilities.WPF.Converters.MultiValue;
 using System.Globalization;
 using System.Windows;
-using ValueConverters;
 
 namespace Core.Utilities.WPF.Converters.MultiValueConverters;
 
@@ -11,7 +10,7 @@ public sealed class MultiValueBooleanAnyConverter : AbstractSingletonMultiConver
     public static readonly DependencyProperty IsNegationProperty = DependencyProperty.Register(
         nameof(IsNegation),
         typeof(bool),
-        typeof(BoolToVisibilityConverter),
+        typeof(MultiValueBooleanAnyConverter),
         new PropertyMetadata(false));
 
     /// <summary>

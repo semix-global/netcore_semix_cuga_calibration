@@ -7,9 +7,10 @@
            xmlns:converters="clr-namespace:CugaCalibration.Core.Converters"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
            xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-           xmlns:wpfAttachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:wpfAttachedHelper="clr-namespace:Net.Utilities.WPF.AttachedProperties;assembly=Net.Utilities.WPF.AttachedProperties"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
-           xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
+           xmlns:nlog="clr-namespace:Net.Utilities.WPF.NLogViewer.Controls;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:valueConverters="clr-namespace:ValueConverters;assembly=ValueConverters"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
@@ -106,7 +107,7 @@
                                     <Condition Binding="{Binding StatusViewModel.IsEnable}" Value="{x:Static constants:Constants.False}" />
                                     <Condition Binding="{Binding IsEnabled, RelativeSource={RelativeSource Self}}" Value="{x:Static constants:Constants.False}" />
                                 </MultiDataTrigger.Conditions>
-                                <Setter Property="wpfAttachedHelper:LoadingHelper.IsShow" Value="True" />
+                                <Setter Property="attachedHelper:LoadingHelper.IsShow" Value="True" />
                             </MultiDataTrigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Background" Value="{StaticResource SecondaryBorderBrush}" />

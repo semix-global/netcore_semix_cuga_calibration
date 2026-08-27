@@ -1,4 +1,4 @@
-using Net.Utilities.WPF.Converters;
+using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 using System.Windows;
 

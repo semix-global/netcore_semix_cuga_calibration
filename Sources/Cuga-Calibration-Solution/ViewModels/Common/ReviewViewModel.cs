@@ -339,7 +339,7 @@ public sealed partial class ReviewViewModel(
                 return;
             }
 
-            dialogWindowProvider.ShowImage([(filePath, "")]);
+          //  dialogWindowProvider.ShowImage([(filePath, "")]);
         }
         catch (Exception ex)
         {
