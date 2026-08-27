@@ -31,14 +31,14 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     #region Calibrate
 
     [ObservableProperty]
-    public partial AdsPressureGainsDto ResultAdsPressureGainsDto { get; set; } = new();
+    public partial AdsPressureGainsDTO ResultAdsPressureGainsDto { get; set; } = new();
 
     #endregion Calibrate
 
     #region Review
 
     [ObservableProperty]
-    public partial AdsPressureGainsDto? ReviewDto { get; set; }
+    public partial AdsPressureGainsDTO? ReviewDto { get; set; }
 
     #endregion Review
 
@@ -52,7 +52,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
     [DefaultCache]
     [ObservableProperty]
-    public partial AdsPressureGainsDto Calibration { get; set; } = new();
+    public partial AdsPressureGainsDTO Calibration { get; set; } = new();
 
     #endregion 缓存
 
@@ -65,7 +65,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         await Task.CompletedTask.ConfigureAwait(false);
 
         Cache = ApplicationCookieService.GetCache<AdsPressureGainsCache>(cancellationToken);
-        Calibration = ApplicationCookieService.GetCalibration<AdsPressureGainsDto>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<AdsPressureGainsDTO>(cancellationToken);
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -179,7 +179,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             var pressureValue2 = transBuffer.Average(x => x.PressureValue2);
             var pressureValue3 = transBuffer.Average(x => x.PressureValue3);
 
-            ResultAdsPressureGainsDto = new AdsPressureGainsDto
+            ResultAdsPressureGainsDto = new AdsPressureGainsDTO
             {
                 FindPosition = Cache.FindPosition,
                 PressureValue1 = pressureValue1,
@@ -225,10 +225,10 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         return result;
     }
 
-    private async Task<bool> VerifyCalibrationAsync(AdsPressureGainsDto selectAdsPressureGainsDto, CancellationToken cancellationToken)
+    private async Task<bool> VerifyCalibrationAsync(AdsPressureGainsDTO? selectAdsPressureGainsDto, CancellationToken cancellationToken)
     {
         var result = false;
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             if (selectAdsPressureGainsDto is null)
             {
@@ -248,8 +248,11 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation($"{Name} Start", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Get Sensor Height, Roll, Pitch Trans Buffer Value Start! "), HtmlLogUniqueId.LoggingHtml());
-            var transBuffer = AdsViewModel.GetSensorHeightRollPitchTraceBufferList(TimeSpan.FromSeconds(HostEnvironment.IsDevelopment() ? 1 : 5));
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var task = AdsViewModel.GetSensorHeightRollPitchTraceBufferListAsync(cancellationTokenSource.Token);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(HostEnvironment.IsDevelopment() ? 1 : 5));
 
+            var transBuffer = await task.ConfigureAwait(false);
             var heightMax = transBuffer.Select(t => t.Height).Max(Math.Abs);
             var rollMax = transBuffer.Select(t => t.Roll).Max(Math.Abs);
             var pitchMax = transBuffer.Select(t => t.Pitch).Max(Math.Abs);
@@ -286,7 +289,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
         return result;
     }
 
-    private bool Save(AdsPressureGainsDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(AdsPressureGainsDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(dto);
         update(Cache);
@@ -298,7 +301,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
 
     public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<AdsPressureGainsDto>(calibration);
+        var temp = Guard.IsAssignableToTypeAndReturn<AdsPressureGainsDTO>(calibration);
         var status = Entry.Status;
 
         Calibration = temp;

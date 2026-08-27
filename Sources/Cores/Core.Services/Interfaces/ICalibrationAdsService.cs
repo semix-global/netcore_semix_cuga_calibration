@@ -65,23 +65,24 @@ public interface ICalibrationAdsService
     /// <summary>
     /// 获取传感器: TransBuffer 高度、横滚、俯仰的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TransBuffer 高度、横滚、俯仰的值</returns>
-    SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>>> GetSensorHeightRollPitchTraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 根据速度获取传感器: ADS 高度传感器 Z1 Z2 Z3的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TraceBuffer ADS 高度传感器 Z1 Z2 Z3</returns>
-    SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<(List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed)>> GetSensorSpeedZ1Z2Z3TraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 根据速度获取传感器: ADS 高度传感器XyX0、XyX1、XyY0、XyY1的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="isAxisX">是否X轴</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TraceBuffer ADS 高度传感器 XyX0、XyX1、XyY0、XyY1</returns>
-    SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan);
+    Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double> Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken);
 
     /// <summary>
     /// 设置ADS XY伺服使能

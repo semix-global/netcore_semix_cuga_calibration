@@ -25,90 +25,27 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="1. Find Positive Position"
+                        <TextBlock Text="1. Find Position"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding Cache.PositiveStartPosition, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
                                  Width="275"
-                                 hc:InfoElement.Title="Start Position(um): "
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Start Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="120"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <hc:ButtonGroup Width="275">
-                            <Button x:Name="PositiveStartGetButton"
-                                    Content="Get"
-                                    Command="{Binding GetPointCommand}"
-                                    CommandParameter="PositiveStartPosition" />
-                            <Button x:Name="PositiveStartGotoButton"
-                                    Content="Goto"
-                                    Command="{Binding GotoPointCommand}"
-                                    CommandParameter="PositiveStartPosition" />
-                        </hc:ButtonGroup>
                     </hc:UniformSpacingPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
+                        <TextBox Text="{Binding Cache.EndPosition, Converter={StaticResource PointToStringConverter}}"
                                  Width="275"
-                                 hc:InfoElement.Title="End Position(um): "
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="End Position(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="120"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <hc:ButtonGroup Width="275">
-                            <Button x:Name="PositiveEndGetButton"
-                                    Content="Get"
-                                    Command="{Binding GetPointCommand}"
-                                    CommandParameter="PositiveEndPosition" />
-                            <Button x:Name="PositiveEndGotoButton"
-                                    Content="Goto"
-                                    Command="{Binding GotoPointCommand}"
-                                    CommandParameter="PositiveEndPosition" />
-                        </hc:ButtonGroup>
-                    </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="2. Find Negative Position"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
-                                 Width="275"
-                                 hc:InfoElement.Title="Start Position(um): "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <hc:ButtonGroup Width="275">
-                            <Button x:Name="NegativeStartGetButton"
-                                    Content="Get"
-                                    Command="{Binding GetPointCommand}"
-                                    CommandParameter="NegativeStartPosition" />
-                            <Button x:Name="NegativeStartGotoButton"
-                                    Content="Goto"
-                                    Command="{Binding GotoPointCommand}"
-                                    CommandParameter="NegativeStartPosition" />
-                        </hc:ButtonGroup>
-                    </hc:UniformSpacingPanel>
-                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
-                                 Width="275"
-                                 hc:InfoElement.Title="End Position(um): "
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <hc:ButtonGroup Width="275">
-                            <Button x:Name="NegativeEndGetButton"
-                                    Content="Get"
-                                    Command="{Binding GetPointCommand}"
-                                    CommandParameter="NegativeEndPosition" />
-                            <Button x:Name="NegativeEndGotoButton"
-                                    Content="Goto"
-                                    Command="{Binding GotoPointCommand}"
-                                    CommandParameter="NegativeEndPosition" />
-                        </hc:ButtonGroup>
                     </hc:UniformSpacingPanel>
 
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
@@ -116,11 +53,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step0CalibrateActionCommand}"
+                                    Command="{Binding Step0Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step0CalibrateActionCancelCommand}"
+                                    Command="{Binding Step0CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

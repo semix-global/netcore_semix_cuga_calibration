@@ -7,6 +7,7 @@ using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.Board;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
@@ -106,7 +107,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         return SxExecuteRetHelper.CreateSuccess(pressureList);
     }
 
-    public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>>> GetSensorHeightRollPitchTraceBufferListAsync(CancellationToken cancellationToken)
     {
         var calibrationRegList = new List<CgADSTraceBufferReg>
         {
@@ -116,13 +117,23 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum(),
             AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
-        var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
-        if (sxExecuteRet.Anything.Count != 5
-            || sxExecuteRet.Anything.Any(t => t.Count == 0)
-            || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
-            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double AcsXSpeed, double AcsYSpeed)>>("Ads error trans buffer is empty", []);
+        var sxExecuteRetStartADSTraceBuffExec = Invoke(() => Service!.StartADSTraceBuff(calibrationRegList));
+
+        if (sxExecuteRetStartADSTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double AcsXSpeed, double AcsYSpeed)>>(sxExecuteRetStartADSTraceBuffExec.Msg, []);
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopADSTraceBuffExec = Invoke(() => Service!.StopADSTraceBuff(calibrationRegList));
+
+        if (sxExecuteRetStopADSTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double AcsXSpeed, double AcsYSpeed)>>(sxExecuteRetStopADSTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopADSTraceBuffExec.Anything.Count != 5
+            || sxExecuteRetStopADSTraceBuffExec.Anything.Any(t => t.Count == 0)
+            || sxExecuteRetStopADSTraceBuffExec.Anything[0].Count != sxExecuteRetStopADSTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[1].Count != sxExecuteRetStopADSTraceBuffExec.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Height, double Roll, double Pitch, double AcsXSpeed, double AcsYSpeed)>>("Ads error trans buffer is empty", []);
+
         // 将三个地址的traceBuffer的数据合并成一个列表
-        var traceBufferList = sxExecuteRet.Anything
+        var traceBufferList = sxExecuteRetStopADSTraceBuffExec.Anything
             .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
         var resultList = traceBufferList[0]
@@ -132,7 +143,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         return SxExecuteRetHelper.CreateSuccess(resultList);
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<(List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed)>> GetSensorSpeedZ1Z2Z3TraceBufferListAsync(CancellationToken cancellationToken)
     {
         var calibrationRegList = new List<CgADSTraceBufferReg>
         {
@@ -145,25 +156,46 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum(),
             AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
-        var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var sxExecuteRetStartADSTraceBuffExec = Invoke(() => Service!.StartADSTraceBuff(calibrationRegList));
 
-        if (sxExecuteRet.Anything.Count != 8
-            || sxExecuteRet.Anything.Any(t => t.Count == 0)
-            || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
-            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count
-            || sxExecuteRet.Anything[2].Count != sxExecuteRet.Anything[3].Count
-            || sxExecuteRet.Anything[3].Count != sxExecuteRet.Anything[4].Count
-            || sxExecuteRet.Anything[4].Count != sxExecuteRet.Anything[5].Count) return SxExecuteRetHelper.CreateError<List<List<double>>>("Ads error trans buffer is empty", []);
+        if (sxExecuteRetStartADSTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2,
+                List<double> Height, List<double> Roll, List<double> Pitch,
+                List<double> X_Speed, List<double> Y_Speed)>(sxExecuteRetStartADSTraceBuffExec.Msg, ([], [], [], [], [], [], [], []));
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopADSTraceBuffExec = Invoke(() => Service!.StopADSTraceBuff(calibrationRegList));
+
+        if (sxExecuteRetStopADSTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2,
+                List<double> Height, List<double> Roll, List<double> Pitch,
+                List<double> X_Speed, List<double> Y_Speed)>(sxExecuteRetStopADSTraceBuffExec.Msg, ([], [], [], [], [], [], [], []));
+
+        if (sxExecuteRetStopADSTraceBuffExec.Anything.Count != 8
+            || sxExecuteRetStopADSTraceBuffExec.Anything.Any(t => t.Count == 0)
+            || sxExecuteRetStopADSTraceBuffExec.Anything[0].Count != sxExecuteRetStopADSTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[1].Count != sxExecuteRetStopADSTraceBuffExec.Anything[2].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[2].Count != sxExecuteRetStopADSTraceBuffExec.Anything[3].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[3].Count != sxExecuteRetStopADSTraceBuffExec.Anything[4].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[4].Count != sxExecuteRetStopADSTraceBuffExec.Anything[5].Count)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2,
+                List<double> Height, List<double> Roll, List<double> Pitch,
+                List<double> X_Speed, List<double> Y_Speed)>("Ads error trans buffer is empty", ([], [], [], [], [], [], [], []));
 
         // 将三个地址的tracebuffer的数据合并成一个列表
-        var tracebufferList = sxExecuteRet.Anything
+        var tracebufferList = sxExecuteRetStopADSTraceBuffExec.Anything
             .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
 
-        return SxExecuteRetHelper.CreateSuccess(tracebufferList);
+        return SxExecuteRetHelper.CreateSuccess((tracebufferList[0], tracebufferList[1], tracebufferList[2], tracebufferList[3],
+            tracebufferList[4], tracebufferList[5], tracebufferList[6], tracebufferList[7]));
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
+    public async Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double>Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
     {
         var calibrationRegList = new List<CgADSTraceBufferReg>
         {
@@ -175,21 +207,38 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
                 ? AdsTracebufferRegEnum.ACS_X_Speed.ToCgADSTraceBufferRegEnum()
                 : AdsTracebufferRegEnum.ACS_Y_Speed.ToCgADSTraceBufferRegEnum()
         };
-        var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuffByReg(calibrationRegList, Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var sxExecuteRetStartADSTraceBuffExec = Invoke(() => Service!.StartADSTraceBuff(calibrationRegList));
 
-        if (sxExecuteRet.Anything.Count != 5
-            || sxExecuteRet.Anything.Any(t => t.Count == 0)
-            || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
-            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count
-            || sxExecuteRet.Anything[2].Count != sxExecuteRet.Anything[3].Count
-            || sxExecuteRet.Anything[3].Count != sxExecuteRet.Anything[4].Count) return SxExecuteRetHelper.CreateError<List<List<double>>>("Ads error trans buffer is empty", []);
+        if (sxExecuteRetStartADSTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> X0, List<double> X1,
+                List<double> Y0, List<double>Y1, List<double> Speed)>(sxExecuteRetStartADSTraceBuffExec.Msg, ([], [], [], [], []));
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopADSTraceBuffExec = Invoke(() => Service!.StopADSTraceBuff(calibrationRegList));
+
+        if (sxExecuteRetStopADSTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> X0, List<double> X1,
+                List<double> Y0, List<double>Y1, List<double> Speed)>(sxExecuteRetStopADSTraceBuffExec.Msg, ([], [], [], [], []));
+
+        if (sxExecuteRetStopADSTraceBuffExec.Anything.Count != 5
+            || sxExecuteRetStopADSTraceBuffExec.Anything.Any(t => t.Count == 0)
+            || sxExecuteRetStopADSTraceBuffExec.Anything[0].Count != sxExecuteRetStopADSTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[1].Count != sxExecuteRetStopADSTraceBuffExec.Anything[2].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[2].Count != sxExecuteRetStopADSTraceBuffExec.Anything[3].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[3].Count != sxExecuteRetStopADSTraceBuffExec.Anything[4].Count)
+            return SxExecuteRetHelper.CreateError<
+                (List<double> X0, List<double> X1,
+                List<double> Y0, List<double>Y1, List<double> Speed)>("Ads error trans buffer is empty", ([], [], [], [], []));
 
         // 将四个地址的tracebuffer数据合并成一个列表
-        var tracebufferList = sxExecuteRet.Anything
+        var tracebufferList = sxExecuteRetStopADSTraceBuffExec.Anything
             .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
 
-        return SxExecuteRetHelper.CreateSuccess(tracebufferList);
+        return SxExecuteRetHelper.CreateSuccess((tracebufferList[0], tracebufferList[1], tracebufferList[2], tracebufferList[3], tracebufferList[4]));
     }
 
     public SxExecuteRet<bool> SetAdsXyEnabled(bool isEnabled)

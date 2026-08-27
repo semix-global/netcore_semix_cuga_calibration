@@ -90,7 +90,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<AODDelayCache>(cancellationToken);
