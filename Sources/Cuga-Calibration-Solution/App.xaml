@@ -13,10 +13,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/SkinDefault.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/Themes/Theme.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Converters.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.Converters;component/Themes/allconverters.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Geometries.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/DrawingImages.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Styles.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.HandyControl;component/Themes/Styles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Core.Utilities.WPF;component/UI/Themes/ConvertersTest.xaml" />
             </ResourceDictionary.MergedDictionaries>
 

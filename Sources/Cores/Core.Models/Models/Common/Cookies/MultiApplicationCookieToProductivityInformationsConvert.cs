@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.WPF.Converters.MultiValueConverters;
+using Net.Utilities.WPF.Converters.MultiValue;
 using System.Globalization;
 using System.Windows;
 

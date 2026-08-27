@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Diagnostics;
-using Net.Utilities.WPF.Converters;
+using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 
 namespace Core.Utilities.WPF.Converters;

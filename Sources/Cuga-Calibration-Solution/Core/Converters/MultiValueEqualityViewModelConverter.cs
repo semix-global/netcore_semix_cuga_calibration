@@ -1,5 +1,5 @@
 using CugaCalibration.ViewModels;
-using Net.Utilities.WPF.Converters.MultiValueConverters;
+using Net.Utilities.WPF.Converters.MultiValue;
 using System.Globalization;
 using System.Windows;
 

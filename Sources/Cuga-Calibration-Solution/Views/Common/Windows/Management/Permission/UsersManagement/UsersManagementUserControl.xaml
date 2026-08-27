@@ -5,9 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:childrenView="clr-namespace:CugaCalibration.Views.Common.Windows.Management.Permission.UsersManagement.Children"
-             xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Permission"
              xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -81,7 +80,7 @@
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dbEnum:SexEnum}}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
@@ -96,7 +95,7 @@
                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dbEnum:EnableStatusEnum}}}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>

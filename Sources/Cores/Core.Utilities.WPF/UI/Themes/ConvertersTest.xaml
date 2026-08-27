@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+                    xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
                     xmlns:converters="clr-namespace:Core.Utilities.WPF.Converters"
                     xmlns:multiValueConverters="clr-namespace:Core.Utilities.WPF.Converters.MultiValueConverters"
                     xmlns:valueConverters="http://schemas.superdev.ch/valueconverters/2016/xaml">
@@ -14,6 +14,11 @@
     <converters:CollectionNotEmptyToVisibilityConverter x:Key="CollectionNotEmptyToVisibilityConverter" />
     <converters:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <converters:ListToStringFormatConverter x:Key="ListToStringFormatConverter" />
+    <converters:StringToNullableBoolConverter x:Key="EnumDescriptionToEnableConverter"
+                                              EnumType="EnableStatusEnum"
+                                              IgnoreObject="Ignore"
+                                              TrueObject="Enable"
+                                              FalseObject="Disable" />
 
     <valueConverters:NullToBoolConverter x:Key="NullToBoolConverter" />
     <valueConverters:NullToBoolConverter x:Key="NotNullToBoolConverter" IsInverted="True" />

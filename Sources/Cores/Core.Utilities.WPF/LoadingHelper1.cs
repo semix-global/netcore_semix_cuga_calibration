@@ -1,14 +1,14 @@
 ﻿using HandyControl.Controls;
 using HandyControl.Data;
 using HandyControl.Interactivity;
-using Net.Utilities.WPF.Helper;
+using Net.Utilities.WPF.Helpers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Window = HandyControl.Controls.Window;
 
-namespace Net.Utilities.WPF.AttachedHelper;
+namespace Net.Utilities.WPF.HandyControl.AttachedHelper;
 
 public static class LoadingHelper1
 {

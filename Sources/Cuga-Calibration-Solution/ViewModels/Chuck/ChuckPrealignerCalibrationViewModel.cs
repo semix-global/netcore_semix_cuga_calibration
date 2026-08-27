@@ -19,7 +19,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.Helper;
+using Net.Utilities.WPF.Helpers;
 
 namespace CugaCalibration.ViewModels.Chuck;
 

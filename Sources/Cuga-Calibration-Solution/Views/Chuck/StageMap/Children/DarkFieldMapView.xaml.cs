@@ -2,7 +2,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.StageMap;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.WPF.Extensions;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.Colormaps;
@@ -286,7 +285,7 @@ public sealed partial class DarkFieldMapView
     {
         _logger ??= HostApplication.GetRequiredService<ILogger<DarkFieldMapView>>();
 
-        wpfPlot.ConfigureWpfPlotCommon();
+       // wpfPlot.ConfigureWpfPlotCommon();
 
         wpfPlot.Plot.Title("Map");
         wpfPlot.Plot.HideAxesAndGrid();

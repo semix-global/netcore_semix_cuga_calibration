@@ -1,6 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
-using Net.Utilities.WPF.Converters.MultiValueConverters;
+using Net.Utilities.WPF.Converters.MultiValue;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows;
