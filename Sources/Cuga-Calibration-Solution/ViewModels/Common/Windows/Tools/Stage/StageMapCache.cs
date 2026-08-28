@@ -31,6 +31,12 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     [ObservableProperty]
     public partial bool IsROIMatchEnabled { get; set; }
 
+    [ObservableProperty]
+    public partial double ROIMatchWidthScale { get; set; } = 1d;
+
+    [ObservableProperty]
+    public partial double ROIMatchHeightScale { get; set; } = 1d;
+
     #endregion
 
     #region Step0
@@ -100,6 +106,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum,
         IsROIMatchEnabled,
+        ROIMatchWidthScale,
+        ROIMatchHeightScale,
         IsDarkFieldAlignment,
         ImageWidth,
         WaferRadius,

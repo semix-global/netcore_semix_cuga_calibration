@@ -561,6 +561,9 @@ public sealed partial class StageMapWindowViewModel(
     {
         logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
+        Guard.IsGreaterThan(Cache.ROIMatchWidthScale, 0d);
+        Guard.IsGreaterThan(Cache.ROIMatchHeightScale, 0d);
+
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
 
         var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
@@ -655,7 +658,9 @@ public sealed partial class StageMapWindowViewModel(
                         var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
                         var imageBounds = new Rect(Point.Origin, darkFieldImages[i].Image.Size);
                         var searchROI = Cache.IsROIMatchEnabled
-                            ? templateROI.Inflate(templateROI.Width, templateROI.Height).Intersect(imageBounds)
+                            ? templateROI.Inflate(
+                                templateROI.Width * Cache.ROIMatchWidthScale,
+                                templateROI.Height * Cache.ROIMatchHeightScale).Intersect(imageBounds)
                             : imageBounds;
 
                         using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
