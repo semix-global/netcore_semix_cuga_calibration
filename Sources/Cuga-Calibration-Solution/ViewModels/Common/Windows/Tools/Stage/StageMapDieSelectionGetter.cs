@@ -19,14 +19,14 @@ public sealed class StageMapDieSelectionGetter(
 
     protected override SelectionSet<StageMapDie> GetSelectionFromWindow()
     {
-        var document = Guard.IsAssignableToTypeAndReturn<StageMapDocument>(Edit.Document);
+        var stageMapDocument = Guard.IsAssignableToTypeAndReturn<StageMapDocument>(Edit.Document);
 
         Guard.IsNotNull(SelectionWindow);
 
         var results = new SelectionSet<StageMapDie>();
 
         var selectionWindowExtents = SelectionWindow.GetExtents();
-        var visibleItems = (from item in document.DieModel
+        var visibleItems = (from item in stageMapDocument.DieModel
                 where item.IsVisible
                 let extents = item.GetExtents()
                 select (extents, item))

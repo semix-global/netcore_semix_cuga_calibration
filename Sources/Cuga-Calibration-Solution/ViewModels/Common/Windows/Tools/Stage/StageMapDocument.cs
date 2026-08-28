@@ -1,4 +1,5 @@
 ﻿using Net.Utilities.Graphics;
+using Net.Utilities.Graphics.Editors;
 using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
@@ -18,5 +19,7 @@ public sealed class StageMapDocument : CanvasDocument
     {
         WaferModel = ModelStorages.GetOrAddLayer<StageMapWafer>(WaferLayer);
         DieModel = ModelStorages.GetOrAddLayer<StageMapDie>(DieLayer);
+
+        BackgroundEditor.GetOrAdd<StageMapSelectionBackgroundEditor>(Edit);
     }
 }

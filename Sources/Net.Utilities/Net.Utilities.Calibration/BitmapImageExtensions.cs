@@ -43,6 +43,15 @@ public static class BitmapImageExtensions
             return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
+        public BitmapImage HorizontalFlip()
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            using var temp = hImage.HorizontalFlip();
+
+            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+        }
+
         public BitmapImage VerticalFlip()
         {
             using var hImage = bitmapImage.ToHImage();
