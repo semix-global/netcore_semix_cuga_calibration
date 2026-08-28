@@ -181,11 +181,13 @@ def interpolate_residual_table(
         如果传入的源坐标网格按 ``positions[i, j] = [x_i, y_j]`` 排列，
         函数会自动识别并转置处理。源坐标轴为降序时，函数也会先翻转内部
         残差表和坐标轴，再进行同样的插值计算。
-        每个目标点所在源网格单元至少需要三个有效角点。四个角点均有效时
-        执行普通双线性插值；恰有一个角点无效时发出一次 ``RuntimeWarning``，
-        并对剩余三个角点的权重重新归一化；两个或更多角点无效时抛出
-        ``ValueError``。如果目标点落在无效角点上，导致剩余有效角点的总权重
-        为零，即使该单元有三个有效角点，也会抛出 ``ValueError``。
+        每个目标点所在源网格单元优先使用有效角点插值。四个角点均有效时
+        执行普通双线性插值；存在无效角点时对剩余角点的权重重新归一化。
+        如果有效角点少于三个，或目标点落在无效角点上导致有效权重为零，
+        则直接使用距离目标坐标最近的源节点残差。最近邻优先选择
+        ``source_mask=True`` 且有限的节点；如果没有这样的节点，则使用源表中
+        最近的有限节点；如果源表没有有限值，则将非有限值按零处理后使用最近
+        节点，不因有效节点数量触发异常。
     """
     # 转为浮点数组，避免整数输入在插值计算中发生截断；不修改调用方数据。
     values = np.asarray(residual_table, dtype=float)
@@ -305,6 +307,31 @@ def interpolate_residual_table(
         grid_values = grid_values[::-1, :, :]
         grid_valid_mask = grid_valid_mask[::-1, :]
 
+    # 最近邻回退使用统一后的源网格坐标。优先使用 mask=True 且有限的节点；
+    # 当一个这样的节点都没有时，退回到所有有限节点，避免有效点数量导致
+    # 插值失败。若源表完全没有有限值，则将非有限值转换为零后继续处理。
+    finite_source_mask = np.all(np.isfinite(grid_values), axis=-1)
+    nearest_source_mask = grid_valid_mask.copy()
+    if not np.any(nearest_source_mask):
+        nearest_source_mask = finite_source_mask
+    if np.any(nearest_source_mask):
+        nearest_source_values = grid_values[nearest_source_mask]
+    else:
+        nearest_source_mask = np.ones_like(finite_source_mask, dtype=bool)
+        nearest_source_values = np.nan_to_num(
+            grid_values,
+            nan=0.0,
+            posinf=0.0,
+            neginf=0.0,
+        )[nearest_source_mask]
+    source_x_grid, source_y_grid = np.meshgrid(x_axis, y_axis)
+    nearest_source_coordinates = np.column_stack(
+        (
+            source_x_grid[nearest_source_mask],
+            source_y_grid[nearest_source_mask],
+        )
+    )
+
     # 将任意形状的目标网格展平成查询点列表；最后恢复为原目标形状。
     flat_targets = targets.reshape(-1, 2)
     target_x = flat_targets[:, 0]
@@ -360,13 +387,6 @@ def interpolate_residual_table(
     )
     valid_corner_count = np.sum(corner_valid, axis=1)
     insufficient_corner_points = valid_corner_count < 3
-    if np.any(insufficient_corner_points):
-        first_bad_target = int(np.flatnonzero(insufficient_corner_points)[0])
-        raise ValueError(
-            "目标点所在源网格单元至少需要 3 个有效角点；"
-            f"第 {first_bad_target} 个目标点只有 "
-            f"{int(valid_corner_count[first_bad_target])} 个有效角点"
-        )
 
     three_corner_points = valid_corner_count == 3
     if np.any(three_corner_points):
@@ -393,19 +413,33 @@ def interpolate_residual_table(
         np.where(corner_valid, corner_weights, 0.0), axis=1
     )
     zero_weight_points = np.isclose(valid_weight_sum, 0.0, atol=1e-12, rtol=0.0)
-    if np.any(zero_weight_points):
-        first_bad_target = int(np.flatnonzero(zero_weight_points)[0])
-        raise ValueError(
-            "目标点没有有效角点插值权重；"
-            f"第 {first_bad_target} 个目标点无法进行插值"
-        )
+    nearest_neighbor_points = insufficient_corner_points | zero_weight_points
 
     weighted_corner_values = np.where(
         corner_valid[..., None], corner_values, 0.0
     )
-    interpolated = np.sum(
-        corner_weights[..., None] * weighted_corner_values, axis=1
-    ) / valid_weight_sum[:, None]
+    interpolated = np.empty((flat_targets.shape[0], 2), dtype=float)
+    interpolation_points = ~nearest_neighbor_points
+    interpolated[interpolation_points] = np.sum(
+        corner_weights[interpolation_points, :, None]
+        * weighted_corner_values[interpolation_points],
+        axis=1,
+    ) / valid_weight_sum[interpolation_points, None]
+
+    if np.any(nearest_neighbor_points):
+        fallback_targets = flat_targets[nearest_neighbor_points]
+        distances = np.sum(
+            (
+                fallback_targets[:, None, :]
+                - nearest_source_coordinates[None, :, :]
+            )
+            ** 2,
+            axis=-1,
+        )
+        nearest_source_indices = np.argmin(distances, axis=1)
+        interpolated[nearest_neighbor_points] = nearest_source_values[
+            nearest_source_indices
+        ]
     # 恢复目标坐标网格的原始形状，并保持最后一维为 [X, Y] 残差。
     return interpolated.reshape(targets.shape)
 

@@ -304,8 +304,9 @@ your_download_or_apply_correction_api(final_download_table)
 插值时：
 
 - 四个源网格角点都有效：正常双线性插值；
-- 只有三个有效角点：发出 `RuntimeWarning`，对剩余权重重新归一化；
-- 少于三个有效角点：抛出 `ValueError`；
+- 至少三个有效角点但存在无效角点：发出 `RuntimeWarning`，对剩余有效角点的权重重新归一化；
+- 少于三个有效角点，或有效权重为零：直接使用距离目标坐标最近的源节点误差；
+- `source_mask` 没有有效节点时，使用源表中最近的有限误差；源表没有有限值时按零处理，不因有效点数量报错；
 - 不要省略 `source_mask`，否则有限的 fallback 值会被误认为是可靠校准值。
 
 ## 7. Python 适配层的完整调用骨架
