@@ -3,13 +3,10 @@ using Net.Utilities.Graphics.Drawables;
 using Net.Utilities.Graphics.Primitives.Enums.Medias.Styles;
 using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.WaferMap.WPF.Primitives;
-using ScottPlot;
 using SkiaSharp;
 using FillStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.FillStyle;
 using LineStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.LineStyle;
-using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -55,10 +52,12 @@ public partial class StageMapDie : AbstractDrawable
 
             var markerBorderLineStyle =
                 new LineStyle(IsInStageMapScan
-                    ? SKColors.Red
+                    ? IsInWafer
+                        ? SKColors.DarkRed
+                        : SKColors.IndianRed
                     : IsInWafer
-                        ? SKColors.Blue
-                        : SKColors.YellowGreen, index == 0 ? 3d : 1d);
+                        ? SKColors.DarkGreen
+                        : SKColors.LimeGreen, index == 0 ? 2d : 1d);
             renderer.DrawLine(markerBorderLineStyle, new Point(centerX - defectSelectionCrossDistance, centerY), new Point(centerX + defectSelectionCrossDistance, centerY));
             renderer.DrawLine(markerBorderLineStyle, new Point(centerX, centerY - defectSelectionCrossDistance), new Point(centerX, centerY + defectSelectionCrossDistance));
         }

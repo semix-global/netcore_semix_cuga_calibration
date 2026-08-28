@@ -421,7 +421,7 @@ public sealed partial class StageMapWindowViewModel(
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var dfMachinePoint = stageMapDie.Markers[xDirection > 0 ? markerIndex : ^(markerIndex + 1)];
-                    dfMachinePoint = dfMachinePoint.WithY(stageMapDie.Markers[xDirection > 0 ? 0 : ^1].Y);
+                    dfMachinePoint = dfMachinePoint.WithY(stageMapDie.Markers[0].Y);
 
                     var matrixColumn = x * Cache.StageMapTemplates.Length + markerIndex;
 

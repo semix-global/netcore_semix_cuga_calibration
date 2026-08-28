@@ -11,11 +11,11 @@ public sealed class StageMapSelectionBackgroundEditor(CanvasEdit edit) : Backgro
     public override void OnCursorClick(CursorEventArgs e) => Edit.Document.RunDesign(() =>
     {
         var stageMapDocument = Guard.IsAssignableToTypeAndReturn<StageMapDocument>(Edit.Document);
-
+        
+        if (e is not { CursorButtonEnum: CursorButtonEnum.Left }) return;
+        
         foreach (var stageMapDie in Edit.SelectedItems) stageMapDie.IsSelected = false;
         Edit.SelectedItems.Clear();
-
-        if (e is not { CursorButtonEnum: CursorButtonEnum.Left }) return;
 
         var selectionPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.SelectionPickDistance);
         var item = stageMapDocument.DieModel
