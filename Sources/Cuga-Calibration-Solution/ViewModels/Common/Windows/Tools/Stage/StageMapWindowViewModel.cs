@@ -132,7 +132,8 @@ public sealed partial class StageMapWindowViewModel(
                         (false, Cache.CIBConfiguration),
                         (false, Cache.LaserLightInformation),
                         false,
-                        cancellationToken);
+                        cancellationToken,
+                        isKeepRawImageCIBProfileModeEnum: true);
 
                     using var _ = darkFieldImageDto;
 
@@ -199,11 +200,18 @@ public sealed partial class StageMapWindowViewModel(
             {
                 var index = Array.IndexOf(Cache.StageMapTemplates, stageMapTemplate);
 
+                var (xDirection, _) = stageViewModel.GetMachineDirection();
+
                 var drawable = Cache.StageMapDocument.Edit.SelectedItems.FirstOrDefault();
-                if (drawable is null) dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position Warning: Don't Select Die!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                if (drawable is null)
+                {
+                    dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position Warning: Don't Select Die!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                    return;
+                }
 
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
-                stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]));
+                stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[xDirection > 0 ? index : ^(index + 1)]));
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -634,20 +642,22 @@ public sealed partial class StageMapWindowViewModel(
 
                 try
                 {
-                    var tempDarkFieldImages = await cibViewModel.GetPMTImagesAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Machine,
-                        points,
-                        Cache.ImageWidth,
-                        Cache.CIBInformation,
-                        (true, null),
-                        (false, Cache.OpticsConfiguration),
-                        (false, Cache.CIBConfiguration),
-                        (false, Cache.LaserLightInformation),
-                        false,
-                        cancellationToken);
-
-                    darkFieldImages = [.. xDirection > 0 ? tempDarkFieldImages : tempDarkFieldImages.Reverse()];
+                    darkFieldImages =
+                    [
+                        .. await cibViewModel.GetPMTImagesAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Machine,
+                            points,
+                            Cache.ImageWidth,
+                            Cache.CIBInformation,
+                            (true, null),
+                            (false, Cache.OpticsConfiguration),
+                            (false, Cache.CIBConfiguration),
+                            (false, Cache.LaserLightInformation),
+                            false,
+                            cancellationToken,
+                            isKeepRawImageCIBProfileModeEnum: true)
+                    ];
 
                     Guard.IsEqualTo(points.Length, darkFieldImages.Length);
 
@@ -674,10 +684,17 @@ public sealed partial class StageMapWindowViewModel(
                             out var matchOffset,
                             out var matchScore,
                             out var matchAngle);
+                        var oldMatchPoint = matchPoint;
+                        var oldMatchOffset = matchOffset;
                         if (Cache.IsROIMatchEnabled)
                         {
                             matchPoint += (Vector)searchROI.Point;
-                            var offset = matchPoint - templateROI.Center;
+                            var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
+                            matchOffset = new Point(offset.X, -offset.Y);
+                        }
+                        else
+                        {
+                            var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
                             matchOffset = new Point(offset.X, -offset.Y);
                         }
 
@@ -689,6 +706,12 @@ public sealed partial class StageMapWindowViewModel(
 
                         var htmlBullet = new HtmlBullet(new
                         {
+                            templateROI,
+                            imageBounds,
+                            searchROI,
+                            roiImage.Size,
+                            oldMatchPoint,
+                            oldMatchOffset,
                             matchPoint,
                             matchOffset,
                             matchScore,

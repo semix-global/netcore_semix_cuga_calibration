@@ -165,7 +165,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         var (yLength, xLength) = IdealMatrix.GetYXLength();
 
         var xWidth = (IdealMatrix[0][^1].X - IdealMatrix[0][0].X) / (xLength - 1);
-        var yHeight = (IdealMatrix[0][^1].Y - IdealMatrix[0][0].Y) / (yLength - 1);
+        var yHeight = (IdealMatrix[^1][0].Y - IdealMatrix[0][0].Y) / (yLength - 1);
         var startPoint = new Point(IdealMatrix[0][0].X, IdealMatrix[0][0].Y);
 
         Guard.IsGreaterThan(xWidth, 0d);
