@@ -18,76 +18,75 @@ public static class BitmapImageExtensions
 
 #pragma warning restore IDISP012
 
-    extension(BitmapImage bitmapImage)
+    extension(BitmapImage @this)
     {
         public void SaveImage(string filePath)
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
+
             hImage.Save(filePath);
         }
 
         public BitmapImage ToLinearImage()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
             using var temp = RAWImageFactory.RAW12BitsPerPixelLogToLinear(hImage);
 
-            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
         public BitmapImage RotateCounterClockwise90Degree()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             using var temp = hImage.RotateCounterClockwise90Degree();
 
-            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
         public BitmapImage HorizontalFlip()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             using var temp = hImage.HorizontalFlip();
 
-            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
         public BitmapImage VerticalFlip()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             using var temp = hImage.VerticalFlip();
 
-            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
 
         public BitmapImage ToROI(Rect rect)
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             using var temp = hImage.ToRoi(rect);
 
-            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+            return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
         public (double Average, double Deviation) GetIntensity()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             return hImage.GetIntensity();
         }
 
         public BitmapImage SubImage(BitmapImage subImage)
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
             using var hSubImage = subImage.ToHImage();
 
             using var resultImage = hImage.SubImage(hSubImage, 1d, 0d);
 
-            using var resultHImage = new HImage(resultImage);
-
-            return resultHImage.ToBitmapImage();
+            return resultImage.ToBitmapImage();
         }
 
         public BitmapImage ToRoi(Rect rect)

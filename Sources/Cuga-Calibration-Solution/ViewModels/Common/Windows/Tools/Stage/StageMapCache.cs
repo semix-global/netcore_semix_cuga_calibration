@@ -81,15 +81,12 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 
-    [JsonIgnore]
     [ObservableProperty]
     public partial StageMap StageMap { get; set; } = new();
 
-    [JsonIgnore]
     [ObservableProperty]
     public partial StageMap[] RepeatStageMaps { get; set; } = [];
 
-    [JsonIgnore]
     [ObservableProperty]
     public partial StageMap VerifyStageMap { get; set; } = new();
 

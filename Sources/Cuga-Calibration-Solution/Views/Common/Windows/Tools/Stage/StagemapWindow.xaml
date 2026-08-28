@@ -294,23 +294,6 @@
                                                                   Minimum="5"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.StageMapRepeatTimes}" />
-                                                <ListBox MaxHeight="240"
-                                                         HorizontalContentAlignment="Stretch"
-                                                         AlternationCount="10000"
-                                                         ItemsSource="{Binding Cache.RepeatStageMaps}"
-                                                         Style="{StaticResource ListBox.Small}">
-                                                    <ListBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <TextBlock Text="Repeat " />
-                                                                    <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=(ItemsControl.AlternationIndex), StringFormat={}{0}}" />
-                                                                </StackPanel>
-                                                                <v2:PlotControl Height="180" DataSource="{Binding PlotDataSource}" />
-                                                            </hc:UniformSpacingPanel>
-                                                        </DataTemplate>
-                                                    </ListBox.ItemTemplate>
-                                                </ListBox>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -523,7 +506,7 @@
                                      ItemsSource="{Binding Cache.RepeatStageMaps}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:StageMap}">
-                                        <Border Height="400"
+                                        <Border Height="1000"
                                                 Margin="0,5"
                                                 Style="{StaticResource BorderRegion}">
                                             <v2:PlotControl DataSource="{Binding PlotDataSource}" />

@@ -267,6 +267,8 @@ public sealed partial class StageMapWindowViewModel(
 
         Cache.AlignmentResult = newAlignmentResult;
 
+        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum,
@@ -642,6 +644,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 try
                 {
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], CalChipSiteModelEnum.ChuckModel);
                     darkFieldImages =
                     [
                         .. await cibViewModel.GetPMTImagesAsync(
@@ -752,6 +755,7 @@ public sealed partial class StageMapWindowViewModel(
         finally
         {
             foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId);
+            stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }
     }
 
@@ -806,7 +810,27 @@ public sealed partial class StageMapWindowViewModel(
     {
         stageViewModel.SetEnableStageMap(false);
 
-        stageViewModel.SetStageMap(Cache.StageMap.AdaptTo());
+        var stageMapErrorDTO = Cache.StageMap.AdaptTo();
+        var xPoint3DList = new List<Point3D>();
+        var yPoint3DList = new List<Point3D>();
+
+        foreach (var (y, row) in stageMapErrorDTO.Rows.Index())
+        {
+            foreach (var (x, col) in row.Cols.Index())
+            {
+                xPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.X));
+                yPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.Y));
+            }
+        }
+
+        logger.LogHtmlInformation("Download", HtmlHeaderLevelEnum.Header3, new HtmlContainer(
+        [
+            new HtmlPlot3DChart(xPoint3DList, "X Error", HtmlPlot3DType.Surface),
+            new HtmlPlot3DChart(yPoint3DList, "Y Error", HtmlPlot3DType.Surface)
+        ]), HtmlLogUniqueId.LoggingHtml());
+
+        stageViewModel.SetStageMap(stageMapErrorDTO);
+
 
         stageViewModel.SetEnableStageMap(true);
     }
