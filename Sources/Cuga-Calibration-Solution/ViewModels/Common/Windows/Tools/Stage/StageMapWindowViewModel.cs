@@ -151,6 +151,8 @@ public sealed partial class StageMapWindowViewModel(
                     stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
 
                     Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
+
+                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
                 }
                 finally
                 {
@@ -172,6 +174,20 @@ public sealed partial class StageMapWindowViewModel(
                 logger.LogError(ex, "Add Stage Map Template");
             }
         }, cancellationToken).ConfigureAwait(false);
+    }
+
+    [RelayCommand]
+    private void RemoveStageMapTemplates(IEnumerable? selectedItems)
+    {
+        if (selectedItems is null) return;
+
+        var stageMapTemplates = Cache.StageMapTemplates.ToList();
+
+        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
+
+        Cache.StageMapTemplates = [.. stageMapTemplates];
+
+        foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
     }
 
     [RelayCommand]
@@ -206,18 +222,6 @@ public sealed partial class StageMapWindowViewModel(
                 logger.LogError(ex, "Goto Stage Map Document Selected Item Position");
             }
         }).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
-    private void RemoveStageMapTemplates(IEnumerable? selectedItems)
-    {
-        if (selectedItems is null) return;
-
-        var stageMapTemplates = Cache.StageMapTemplates.ToList();
-
-        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
-
-        Cache.StageMapTemplates = [.. stageMapTemplates];
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -294,7 +298,7 @@ public sealed partial class StageMapWindowViewModel(
         [
             .. Cache.StageMapTemplates.Index().Select(t => new
             {
-                t.Index,
+                t.Item.Index,
                 t.Item.FindBFMachinePosition,
                 t.Item.FindBFMachineVector,
                 t.Item.TemplateROI,

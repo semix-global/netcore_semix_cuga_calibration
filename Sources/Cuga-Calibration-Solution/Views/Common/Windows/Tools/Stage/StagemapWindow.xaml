@@ -453,6 +453,31 @@
                                         </ResourceDictionary.MergedDictionaries>
                                     </ResourceDictionary>
                                 </graphicsWPF:WPFCanvasControl.Resources>
+                                <graphicsWPF:WPFCanvasControl.LeftToolBars>
+                                    <ToolBar Margin="3,2"
+                                             Padding="3,2"
+                                             Background="Transparent"
+                                             Band="0"
+                                             BandIndex="0">
+                                        <ItemsControl ItemsSource="{Binding Cache.StageMapTemplates}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="{Binding Index}"
+                                                            Command="{Binding DataContext.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Margin="3,0"
+                                                            Padding="5,3"
+                                                            ContentStringFormat="Goto {0}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ToolBar>
+                                </graphicsWPF:WPFCanvasControl.LeftToolBars>
                                 <graphicsWPF:WPFCanvasControl.RightToolBars>
                                     <ToolBar Margin="3,2"
                                              Padding="3,2"
@@ -469,17 +494,6 @@
                                         </TextBlock>
                                     </ToolBar>
                                 </graphicsWPF:WPFCanvasControl.RightToolBars>
-                                <graphicsWPF:WPFCanvasControl.ContextMenu>
-                                    <ContextMenu ItemsSource="{Binding PlacementTarget.DataContext.Cache.StageMapTemplates, RelativeSource={RelativeSource Self}}" AlternationCount="1000">
-                                        <ContextMenu.ItemContainerStyle>
-                                            <Style TargetType="MenuItem">
-                                                <Setter Property="Header" Value="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex), StringFormat='Goto {0}'}" />
-                                                <Setter Property="Command" Value="{Binding PlacementTarget.DataContext.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
-                                                <Setter Property="CommandParameter" Value="{Binding}" />
-                                            </Style>
-                                        </ContextMenu.ItemContainerStyle>
-                                    </ContextMenu>
-                                </graphicsWPF:WPFCanvasControl.ContextMenu>
                             </graphicsWPF:WPFCanvasControl>
                         </Border>
                     </TabItem>
