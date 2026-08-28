@@ -27,6 +27,9 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
+    
+    [ObservableProperty]
+    public partial bool IsROIMatchEnabled { get; set; }
 
     #endregion
 
@@ -94,12 +97,14 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         CIBInformation,
         OpticsConfiguration,
         CIBConfiguration,
-        IsDarkFieldAlignment,
         AlgorithmTemplateTypeEnum,
+        AlgorithmTemplateSizeEnum,
+        IsROIMatchEnabled,
+        IsDarkFieldAlignment,
         ImageWidth,
+        WaferRadius,
         DiePitchWidth,
         DiePitchHeight,
-        WaferRadius,
         StageMapRepeatTimes
     };
 }

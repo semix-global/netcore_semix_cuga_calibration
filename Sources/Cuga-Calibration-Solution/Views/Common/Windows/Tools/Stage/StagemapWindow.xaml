@@ -138,6 +138,42 @@
                                             <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                         </Border>
                                     </Expander>
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Template Type: "
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <ComboBox HorizontalAlignment="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.Title="Template Size: "
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              SelectedItem="{Binding Cache.AlgorithmTemplateSizeEnum}"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Enable ROI Match: "
+                                                   Width="200"
+                                                   VerticalAlignment="Center" />
+                                        <ToggleButton IsChecked="{Binding Cache.IsROIMatchEnabled}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource DangerBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}" />
+                                    </StackPanel>
                                     <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
@@ -152,19 +188,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <ComboBox HorizontalAlignment="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.Title="Template Type: "
-                                                          Style="{StaticResource ComboBoxExtend}"
-                                                          SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
-                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
-                                                    <ComboBox.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        </DataTemplate>
-                                                    </ComboBox.ItemTemplate>
-                                                </ComboBox>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

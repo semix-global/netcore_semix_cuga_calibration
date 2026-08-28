@@ -61,6 +61,16 @@ public static class BitmapImageExtensions
             return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
+
+        public BitmapImage ToROI(Rect rect)
+        {
+            using var hImage = bitmapImage.ToHImage();
+
+            using var temp = hImage.ToRoi(rect);
+
+            return temp.ToBitmapImage(bitmapImage.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
+        }
+
         public (double Average, double Deviation) GetIntensity()
         {
             using var hImage = bitmapImage.ToHImage();

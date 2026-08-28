@@ -648,27 +648,29 @@ public sealed partial class StageMapWindowViewModel(
                     {
                         var templateIdIndex = xDirection > 0 ? i % Cache.StageMapTemplates.Length : ^(i % Cache.StageMapTemplates.Length + 1);
 
-                        using var horizontalFlipHImage = darkFieldImages[i].Image.HorizontalFlip();
-                        using var image = xDirection > 0 ? darkFieldImages[i].Image : horizontalFlipHImage;
+                        var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
+                        var imageBounds = new Rect(Point.Origin, darkFieldImages[i].Image.Size);
+                        var searchROI = Cache.IsROIMatchEnabled
+                            ? templateROI.Inflate(templateROI.Width, templateROI.Height).Intersect(imageBounds)
+                            : imageBounds;
 
-                        /*var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
-                        var roi = templateROI.Inflate(templateROI.Width, templateROI.Height);
+                        using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
+                        using var roiImage = image.ToROI(searchROI);
 
-                        using var temp0 = bitmapImage.ToHImage();
-                        using var temp1 = temp0.ToRoi(roi);
-                        using var temp2 = temp1.ToBitmapImage();*/
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             Cache.AlgorithmTemplateTypeEnum,
-                            image,
+                            roiImage,
                             templateIds[templateIdIndex],
                             out var matchPoint,
                             out var matchOffset,
                             out var matchScore,
                             out var matchAngle);
-
-                        /*matchPoint = new Point(matchPoint.X + roi.X, matchPoint.Y + roi.Y);
-                        matchOffset = matchPoint - (Vector)templateROI.Center;
-                        matchOffset.WithY(-matchOffset.Y);*/
+                        if (Cache.IsROIMatchEnabled)
+                        {
+                            matchPoint += (Vector)searchROI.Point;
+                            var offset = matchPoint - templateROI.Center;
+                            matchOffset = new Point(offset.X, -offset.Y);
+                        }
 
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({htmlLogUniqueId:N}).jpg");
                         image.SaveImage(resultImageFilePath);
@@ -687,7 +689,7 @@ public sealed partial class StageMapWindowViewModel(
                             darkFieldImages[i].RawImageFilePath,
                             HtmlTab = new HtmlTab(new
                             {
-                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [ /*new HtmlImageRectangleOverlay(roi), new HtmlImageRectangleOverlay(templateROI),*/ new HtmlImageCrossOverlay(matchPoint)]),
+                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(searchROI), new HtmlImageRectangleOverlay(templateROI), new HtmlImageCrossOverlay(matchPoint)]),
                                 TemplateImage = new HtmlImage(Cache.StageMapTemplates[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                             })
                         });
