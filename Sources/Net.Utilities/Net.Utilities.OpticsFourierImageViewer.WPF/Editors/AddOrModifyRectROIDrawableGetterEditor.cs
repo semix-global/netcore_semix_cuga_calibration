@@ -6,11 +6,11 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Editors.Getters;
 using Net.Utilities.Graphics.Primitives.Enums.Inputs;
 using Net.Utilities.Graphics.Primitives.EventArgs.Inputs;
-using Net.Utilities.ImageViewer.WPF.Drawables;
-using Net.Utilities.ImageViewer.WPF.Extensions;
 using Net.Utilities.ImageViewer.WPF.Primitives.Enums;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 
