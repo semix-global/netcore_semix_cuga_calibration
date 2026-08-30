@@ -31,9 +31,17 @@
             <hc:SimplePanel>
                 <hc:UniformSpacingPanel Spacing="5" Orientation="Horizontal">
                     <Button Content="Open Image File" Command="{Binding OpenImageFileCommand}" />
-                    <Button Content="Edit ROI" Command="{Binding EditROICommand}" />
+                    <TextBlock Text="ROI Count:" VerticalAlignment="Center" />
+                    <TextBox Width="60"
+                             Text="{Binding ROICount, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Content="All Anchors + Move"
+                            Command="{Binding EditAllAnchorROIsCommand}" />
+                    <Button Content="Bottom Anchor Only + No Move"
+                            Command="{Binding EditBottomAnchorROICommand}" />
+                    <Button Content="Three Bottom Anchors + Move"
+                            Command="{Binding EditThreeBottomAnchorROIsCommand}" />
                     <Button Content="Cancel"
-                            Command="{Binding EditROICancelCommand}"
+                            Command="{Binding CancelEditROICommand}"
                             Style="{StaticResource ButtonWarning}" />
                 </hc:UniformSpacingPanel>
             </hc:SimplePanel>
