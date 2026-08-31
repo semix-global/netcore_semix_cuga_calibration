@@ -369,7 +369,7 @@ public sealed partial class StageMapWindowViewModel(
     private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(2, async () =>
     {
         stageViewModel.SetEnableStageMap(false);
-        
+
         Cache.StageMap = new StageMap();
 
         StageMapDie[] stageMapDies;
@@ -500,20 +500,14 @@ public sealed partial class StageMapWindowViewModel(
                     cancellationToken,
                     isInterpolateErrors: true).ConfigureAwait(false);
 
-                logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
                 (isSuccess, var tempStateMap) = ProcessStage2Residuals();
-                scanStageMap.Refresh();
-
-                logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
-                    .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
-                ]), HtmlLogUniqueId.LoggingHtml());
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                     .. tempStateMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                     .. tempStateMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
-                ]), HtmlLogUniqueId.LoggingHtml());
+                ]), currentHtmlLogUniqueId.LoggingHtml());
 
                 if (isSuccess)
                 {
@@ -759,6 +753,7 @@ public sealed partial class StageMapWindowViewModel(
                 }
             }
 
+            stageMap.Refresh();
             logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                 .. stageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                 .. stageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
@@ -816,11 +811,11 @@ public sealed partial class StageMapWindowViewModel(
 
         var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
 
-        var temp = Cache.RepeatStageMaps[0].Clone();
-        temp.Reset();
+        var temp = Cache.RepeatStageMaps[^1].Clone();
         temp.ApplyPythonErrorMatrix(pyResidualTable);
+        temp.Refresh();
 
-        return (needMoreMeasurement, temp);
+        return (needMoreMeasurement == false, temp);
     }
 
     private void DownloadStageMap()
