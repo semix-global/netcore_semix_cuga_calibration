@@ -506,7 +506,7 @@
                                      ItemsSource="{Binding Cache.RepeatStageMaps}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:StageMap}">
-                                        <Border Height="1000"
+                                        <Border Height="500"
                                                 Margin="0,5"
                                                 Style="{StaticResource BorderRegion}">
                                             <v2:PlotControl DataSource="{Binding PlotDataSource}" />

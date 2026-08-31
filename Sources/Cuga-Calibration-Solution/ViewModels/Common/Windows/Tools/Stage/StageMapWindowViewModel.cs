@@ -213,10 +213,7 @@ public sealed partial class StageMapWindowViewModel(
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
                 var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[xDirection > 0 ? index : ^(index + 1)]);
 
-                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
-                    Cache.MicroscopeLensInformation,
-                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition));
+                stageViewModel.SetBrightFieldAbsoluteStageXy(darkFieldPosition);
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -371,6 +368,8 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(2, async () =>
     {
+        stageViewModel.SetEnableStageMap(false);
+        
         Cache.StageMap = new StageMap();
 
         StageMapDie[] stageMapDies;

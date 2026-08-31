@@ -451,7 +451,7 @@ def process_stage2_residuals(
     m_min: int = 5,
     m_max: int = 20,
     masks: np.ndarray | None = None,
-) -> tuple[bool, np.ndarray | None]:
+) -> tuple[bool, np.ndarray]:
     """判断阶段2是否需要再次测量，并计算残余重复信号表。
 
     参数:
@@ -466,7 +466,7 @@ def process_stage2_residuals(
             点集只扣除 X、Y 分量均值。
         alpha: 停止比例。每个网格点保留的有效测量数须达到
             ``ceil(1 / alpha**2)``。
-        m_min: 执行 MAD 剔除和计算残差表前所需的最少扫描次数。
+        m_min: 执行 MAD 剔除和生成正式残差表前所需的最少扫描次数。
         m_max: 最大扫描次数。达到该次数后，即使未满足精度要求也停止。
         masks: 可选的逐扫描有效点掩码，形状必须为
             ``(M, ...)``，其中每个 ``masks[i]`` 与 ``residuals[i, ..., 0]``
@@ -479,20 +479,24 @@ def process_stage2_residuals(
         ``(need_more_measurement, residual_table)``：
 
         - ``need_more_measurement`` 为 ``True`` 时，调用方应再次测量。
-        - ``residual_table`` 是方案中的残余重复信号 ``delta C``；扫描次数少于
-          ``m_min`` 时为 ``None``，否则为形状 ``(..., 2)`` 的数组。没有任何
-          有效观测的点保留为 ``NaN``；达到 ``m_max`` 仍未获得足够有效观测的
-          点也保留为 ``NaN``。
+        - ``residual_table`` 始终是形状 ``(..., 2)`` 的数组。扫描次数少于
+          ``m_min`` 时，返回逐点去漂移后的简单平均值，不执行 MAD 异常值
+          剔除；该数组仅用于日志记录，不能作为最终的 ``delta C`` 使用。
+          达到 ``m_min`` 后才返回包含 MAD 剔除的 ``delta C``。没有任何有效
+          观测的点保留为 ``NaN``；达到 ``m_max`` 仍未获得足够有效观测的点
+          也保留为 ``NaN``。
 
     说明:
         对二维非共线网格，每次扫描只用该次 mask 有效的点拟合并扣除完整二维
         仿射漂移场（线性变换和平移共 6 个参数）；如果某次扫描的有效点不足
         以拟合完整二维仿射，则直接报错。对于整个输入本来就是单行等共线点
-        集的情况，仍只分别扣除 X、Y 残差均值。达到 ``m_min`` 后，对每个网
-        格点的 X、Y 分量分别在各自有效扫描上执行 3 倍稳健标准差的 MAD 异常
-        值剔除，再对保留值取算术均值。每个点的停止条件同时要求其有效样本
-        数达到 ``m_min`` 和 ``ceil(1 / alpha**2)``；达到 ``m_max`` 仍未满足
-        时，会返回当前结果并发出 ``RuntimeWarning``。
+        集的情况，仍只分别扣除 X、Y 残差均值。扫描次数少于 ``m_min`` 时，
+        先完成逐扫描去漂移，再对各点的有效观测直接取算术均值，仅用于日志
+        记录，不执行 MAD 异常值剔除。达到 ``m_min`` 后，对每个网格点的 X、Y
+        分量分别在各自有效扫描上执行 3 倍稳健标准差的 MAD 异常值剔除，再对
+        保留值取算术均值。每个点的停止条件同时要求其有效样本数达到
+        ``m_min`` 和 ``ceil(1 / alpha**2)``；达到 ``m_max`` 仍未满足时，会
+        返回当前结果并发出 ``RuntimeWarning``。
     """
     # 统一转换为浮点数组：既允许调用方传入 list，也避免整数输入在减去
     # 仿射拟合结果时发生截断。这里只创建数组视图或副本，不修改调用方数据。
@@ -572,11 +576,6 @@ def process_stage2_residuals(
                     "至少需要 3 个不共线有效点"
                 )
 
-    # 方案规定累计达到 m_min 后才估计统计量。在此之前明确要求继续测量，
-    # 并用 None 表示尚未形成可用的 delta C 表。
-    if scan_count < m_min:
-        return True, None
-
     # 每次扫描独立使用自己的 mask 拟合仿射漂移 A_i(x)，计算 r_i(x)-A_i(x)。
     # 无效点不参与拟合，也不进入后续跨扫描统计，内部统一保留为 NaN。
     drift_removed = np.full(values.shape, np.nan, dtype=float)
@@ -600,6 +599,22 @@ def process_stage2_residuals(
             flat_drift[flat_scan_valid] = (
                 flat_scan[flat_scan_valid] - component_mean
             )
+
+    # m_min 之前不执行 MAD。仍返回逐点去漂移后的简单平均值，便于调用方
+    # 写入日志；need_more=True 时调用方不得把该数组当作最终 delta C 使用。
+    if scan_count < m_min:
+        observation_count = np.sum(scan_valid, axis=0)
+        observation_sum = np.sum(
+            np.where(scan_valid[..., None], drift_removed, 0.0),
+            axis=0,
+        )
+        residual_table_without_mad = np.divide(
+            observation_sum,
+            observation_count[..., None],
+            out=np.full(values.shape[1:], np.nan, dtype=float),
+            where=observation_count[..., None] > 0,
+        )
+        return True, residual_table_without_mad
 
     # 以下统计均沿最前面的扫描序号维进行，网格位置及最后一维的 X/Y 分量
     # 保持不变。nanmedian/nanmax 只在逐扫描 mask 有效的观测上计算；全程没有
@@ -691,9 +706,10 @@ def combine_correction_tables(
             :func:`process_first_measurement` 的 ``fill_value`` 填补无效点，
             因而所有分量都必须是有限数值。
         residual_table: 阶段2输出的 ``delta C``，形状必须与
-            ``initial_correction`` 相同。没有达到 ``m_min`` 时传入 ``None``
-            会直接报错，因为此时不能形成最终修正表。阶段2长期无效的点可
-            以是 ``NaN``。
+            ``initial_correction`` 相同。``process_stage2_residuals`` 在未达到
+            ``m_min`` 时也会返回数组，但该数组仅用于日志，调用方必须等到
+            ``need_more=False`` 后再传入此函数；显式传入 ``None`` 仍会报错。
+            阶段2长期无效的点可以是 ``NaN``。
         stage1_mask: 阶段1原始有效点 mask，形状为
             ``initial_correction.shape[:-1]``。``True`` 表示该点的 ``C0``
             来自有效的阶段1测量；``False`` 表示 ``C0`` 是填充值。
