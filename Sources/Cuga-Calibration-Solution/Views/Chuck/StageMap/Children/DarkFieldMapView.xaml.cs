@@ -285,7 +285,7 @@ public sealed partial class DarkFieldMapView
     {
         _logger ??= HostApplication.GetRequiredService<ILogger<DarkFieldMapView>>();
 
-       // wpfPlot.ConfigureWpfPlotCommon();
+        // wpfPlot.ConfigureWpfPlotCommon();
 
         wpfPlot.Plot.Title("Map");
         wpfPlot.Plot.HideAxesAndGrid();

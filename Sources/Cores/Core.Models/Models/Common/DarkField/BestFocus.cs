@@ -173,37 +173,51 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         RefreshYPlot();
     }
 
+    partial void OnXStrehlRatioScatterPlotControlChanged(IScatterPlotControl value) => RefreshXPlot();
+
+    partial void OnYStrehlRatioScatterPlotControlChanged(IScatterPlotControl value) => RefreshYPlot();
+
     // ReSharper restore UnusedParameterInPartialMethod
 
-    private void RefreshXPlot() => Refresh(
-        XStrehlRatioScatterPlotControl,
-        XStrehlRatioPoints,
-        XStrehlRatioFitPoints,
-        XStrehlRatioColumnPoints,
-        BestXStrehlRatioPoint,
-        BestXStrehlRatioECS,
-        XIntraRibbonFieldsPoints,
-        XFieldTiltPoints,
-        XFieldTiltFitPoints,
-        XFieldTiltFitIntercept,
-        XFieldTiltFitSlope,
-        XFieldTiltFitRSquared,
-        SpotAreaPercentMean);
+    private void RefreshXPlot()
+    {
+        if (XStrehlRatioScatterPlotControl is null) return;
 
-    private void RefreshYPlot() => Refresh(
-        YStrehlRatioScatterPlotControl,
-        YStrehlRatioPoints,
-        YStrehlRatioFitPoints,
-        YStrehlRatioColumnPoints,
-        BestYStrehlRatioPoint,
-        BestYStrehlRatioECS,
-        YIntraRibbonFieldsPoints,
-        YFieldTiltPoints,
-        YFieldTiltFitPoints,
-        YFieldTiltFitIntercept,
-        YFieldTiltFitSlope,
-        YFieldTiltFitRSquared,
-        SpotAreaPercentMean);
+        Refresh(
+            XStrehlRatioScatterPlotControl,
+            XStrehlRatioPoints,
+            XStrehlRatioFitPoints,
+            XStrehlRatioColumnPoints,
+            BestXStrehlRatioPoint,
+            BestXStrehlRatioECS,
+            XIntraRibbonFieldsPoints,
+            XFieldTiltPoints,
+            XFieldTiltFitPoints,
+            XFieldTiltFitIntercept,
+            XFieldTiltFitSlope,
+            XFieldTiltFitRSquared,
+            SpotAreaPercentMean);
+    }
+
+    private void RefreshYPlot()
+    {
+        if (YStrehlRatioScatterPlotControl is null) return;
+
+        Refresh(
+            YStrehlRatioScatterPlotControl,
+            YStrehlRatioPoints,
+            YStrehlRatioFitPoints,
+            YStrehlRatioColumnPoints,
+            BestYStrehlRatioPoint,
+            BestYStrehlRatioECS,
+            YIntraRibbonFieldsPoints,
+            YFieldTiltPoints,
+            YFieldTiltFitPoints,
+            YFieldTiltFitIntercept,
+            YFieldTiltFitSlope,
+            YFieldTiltFitRSquared,
+            SpotAreaPercentMean);
+    }
 
     private static void Refresh(
         IScatterPlotControl scatterPlotControl,

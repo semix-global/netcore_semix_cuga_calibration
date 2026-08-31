@@ -9,6 +9,8 @@ namespace Core.Services.Interfaces;
 
 public interface ICalibrationAlgorithmService
 {
+    void InitialAlgorithmEngine();
+    
     #region 清晰度
 
     /// <summary>

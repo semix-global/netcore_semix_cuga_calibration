@@ -1,9 +1,7 @@
 <Project>
-
     <Import Project="$(BuildToolsDirectory)\Common.Packages.props" />
-
     <ItemGroup>
+        <PackageVersion Include="algocv_sharp" Version="1.0.10" />
         <PackageVersion Include="Net.Utilities.ScottPlot.WPF" Version="2.9.3-preview2.0-yan" />
     </ItemGroup>
-
 </Project>

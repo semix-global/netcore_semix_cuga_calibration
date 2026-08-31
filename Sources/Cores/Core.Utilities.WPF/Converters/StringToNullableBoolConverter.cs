@@ -1,16 +1,17 @@
+using Net.Utilities.Helpers.Helpers.Structs;
 using System.Globalization;
 using System.Windows;
-using Net.Utilities.Helpers.Helpers.Structs;
 
 namespace Core.Utilities.WPF.Converters;
+
 using Net.Utilities.WPF.Converters.SingleValue;
 
 public sealed class StringToNullableBoolConverter : AbstractSingletonConverterBase<StringToNullableBoolConverter>
 {
-    public  string EnumType { get; set; } = "EnableStatusEnum";
-    public  string IgnoreObject { get; set; } = "Ignore";
-    public  string TrueObject { get; set; } = "Enable";
-    public  string FalseObject { get; set; } = "Disable";
+    public string EnumType { get; set; } = "EnableStatusEnum";
+    public string IgnoreObject { get; set; } = "Ignore";
+    public string TrueObject { get; set; } = "Enable";
+    public string FalseObject { get; set; } = "Disable";
 
     private Type? _enumType;
 

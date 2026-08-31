@@ -18,6 +18,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Services.Interfaces;
 
 namespace CugaCalibration.ViewModels;
 
@@ -41,6 +42,7 @@ public sealed partial class LoadingWindowViewModel(
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
@@ -97,6 +99,8 @@ public sealed partial class LoadingWindowViewModel(
                 Message = "Loading Calibration Cache...";
                 await LoadCalibrationCacheAsync();
                 Message = "Loading Calibration Cache OK!!!";
+
+                InitialEngines();
 
                 contextProvider.Send(() => CloseView(true));
 
@@ -165,6 +169,11 @@ public sealed partial class LoadingWindowViewModel(
 
             if (calibrationRelationService.RefreshRelationConfigCookies(out var message) == false)
                 dialogWindowProvider.ShowDialog($"Refresh Relation Config Cookies Failed: {message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+
+        void InitialEngines()
+        {
+            calibrationAlgorithmService.InitialAlgorithmEngine();
         }
     }
 

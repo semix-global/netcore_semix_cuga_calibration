@@ -476,7 +476,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         var xSpeedStartIndex = Convert.ToInt32(speedChangedList[0].X);
         var xSpeedEndIndex = Convert.ToInt32(speedChangedList[^1].X);
-  
+
         var listZ1 = transBuffer.Z_ECS0.Take(xSpeedEndIndex).ToList();
         var listZ2 = transBuffer.Z_ECS1.Take(xSpeedEndIndex).ToList();
 
