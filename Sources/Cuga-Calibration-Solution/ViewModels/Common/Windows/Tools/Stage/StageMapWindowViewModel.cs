@@ -472,9 +472,8 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step3Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(3, async () =>
     {
-        DownloadStageMap();
-
         Cache.RepeatStageMaps = [];
+        var historyStageMapList = new List<StageMap>();
 
         bool isSuccess;
         var times = 0;
@@ -483,7 +482,9 @@ public sealed partial class StageMapWindowViewModel(
             cancellationToken.ThrowIfCancellationRequested();
 
             var currentHtmlLogUniqueId = Guid.NewGuid();
-            var fileName = $"Details_{Steps[3].Replace(" ", string.Empty)}_{times}";
+            var fileName = $"Details_{Steps[3].Replace(" ", string.Empty)}_{times + 1}";
+
+            if (times == 0) DownloadStageMap(currentHtmlLogUniqueId);
 
             logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
@@ -492,6 +493,7 @@ public sealed partial class StageMapWindowViewModel(
             {
                 var scanStageMap = Cache.StageMap.Clone();
                 scanStageMap.Reset();
+
                 Cache.RepeatStageMaps = [.. Cache.RepeatStageMaps, scanStageMap];
 
                 await ScanStageMapAsync(
@@ -500,18 +502,24 @@ public sealed partial class StageMapWindowViewModel(
                     cancellationToken,
                     isInterpolateErrors: true).ConfigureAwait(false);
 
+                historyStageMapList.Add(scanStageMap.Clone());
+
                 logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
-                (isSuccess, var tempStateMap) = ProcessStage2Residuals();
+                isSuccess = ProcessStage2Residuals(historyStageMapList, scanStageMap);
+
+                scanStageMap.Refresh();
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
-                    .. tempStateMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                    .. tempStateMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                    .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
                 ]), currentHtmlLogUniqueId.LoggingHtml());
 
                 if (isSuccess)
                 {
-                    Cache.StageMap.SubtractInplace(tempStateMap);
+                    CombineCorrectionTables(scanStageMap);
+
+                    Cache.StageMap.Refresh();
 
                     logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
                         .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
@@ -543,7 +551,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        DownloadStageMap();
+        DownloadStageMap(HtmlLogUniqueId);
 
         Cache.VerifyStageMap = Cache.StageMap.Clone();
         Cache.VerifyStageMap.Reset();
@@ -780,9 +788,9 @@ public sealed partial class StageMapWindowViewModel(
         stageMap.ApplyPythonErrorMatrix(result);
     }
 
-    private (bool IsSuccess, StageMap StageMap) ProcessStage2Residuals()
+    private bool ProcessStage2Residuals(IReadOnlyList<StageMap> historyStageMaps, StageMap scanStageMap)
     {
-        Guard.IsNotEmpty(Cache.RepeatStageMaps);
+        Guard.IsNotEmpty(historyStageMaps);
 
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
@@ -790,7 +798,7 @@ public sealed partial class StageMapWindowViewModel(
 
         using var pyResiduals = new PyList();
         using var pyMasks = new PyList();
-        foreach (var stageMap in Cache.RepeatStageMaps)
+        foreach (var stageMap in historyStageMaps)
         {
             using var pyResidual = stageMap.ToPythonErrorMatrix();
             using var pyMask = stageMap.ToPythonIsMatchMatrix();
@@ -799,26 +807,55 @@ public sealed partial class StageMapWindowViewModel(
             pyMasks.Append(pyMask);
         }
 
-        using var pyDesiredPositions = Cache.RepeatStageMaps[0].ToPythonIdealMatrix();
+        using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
         using var pyAlpha = StageMapResidualAlpha.ToPython();
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
         using var pyMaximumCount = (Cache.StageMapRepeatTimes + 1).ToPython();
+        using var pyKeywordArguments = new PyDict();
+        pyKeywordArguments.SetItem("masks", pyMasks);
 
-        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount, pyMasks);
+        using var result = process.Invoke(
+            [pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount],
+            pyKeywordArguments);
 
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
+        using var pyStage2ValidMask = Guard.IsNotNullAndReturn(result[2]);
 
         var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
 
-        var temp = Cache.RepeatStageMaps[^1].Clone();
-        temp.ApplyPythonErrorMatrix(pyResidualTable);
-        temp.Refresh();
+        scanStageMap.ApplyPythonErrorMatrix(pyResidualTable);
+        scanStageMap.ApplyPythonIsMatchMatrix(pyStage2ValidMask);
 
-        return (needMoreMeasurement == false, temp);
+        return needMoreMeasurement == false;
     }
 
-    private void DownloadStageMap()
+    private void CombineCorrectionTables(StageMap residualStageMap)
+    {
+        using var _ = Py.GIL();
+        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
+        using var combine = module.GetAttr("combine_correction_tables");
+
+        // 阶段 1 mask 表示初始修正值的来源, 阶段 2 mask 表示残差是否可参与合并.
+        using var pyInitialCorrection = Cache.StageMap.ToPythonErrorMatrix();
+        using var pyResidualTable = residualStageMap.ToPythonErrorMatrix();
+        using var pyStage1Mask = Cache.StageMap.ToPythonIsMatchMatrix();
+        using var pyStage2ValidMask = residualStageMap.ToPythonIsMatchMatrix();
+        using var pyKeywordArguments = new PyDict();
+        pyKeywordArguments.SetItem("stage2_valid_mask", pyStage2ValidMask);
+
+        using var result = combine.Invoke(
+            [pyInitialCorrection, pyResidualTable, pyStage1Mask],
+            pyKeywordArguments);
+
+        using var pyFinalCorrection = Guard.IsNotNullAndReturn(result[0]);
+        using var pyInterpolationMask = Guard.IsNotNullAndReturn(result[1]);
+
+        Cache.StageMap.ApplyPythonErrorMatrix(pyFinalCorrection);
+        Cache.StageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
+    }
+
+    private void DownloadStageMap(Guid htmlLogUniqueId)
     {
         stageViewModel.SetEnableStageMap(false);
 
@@ -839,7 +876,7 @@ public sealed partial class StageMapWindowViewModel(
         [
             new HtmlPlot3DChart(xPoint3DList, "X Error", HtmlPlot3DType.Surface),
             new HtmlPlot3DChart(yPoint3DList, "Y Error", HtmlPlot3DType.Surface)
-        ]), HtmlLogUniqueId.LoggingHtml());
+        ]), htmlLogUniqueId.LoggingHtml());
 
         stageViewModel.SetStageMap(stageMapErrorDTO);
 

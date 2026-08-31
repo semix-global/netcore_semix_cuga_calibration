@@ -126,6 +126,21 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         }
     }
 
+    public void ApplyPythonIsMatchMatrix(PyObject pyValues)
+    {
+        var (yLength, xLength) = ErrorMatrix.GetYXLength();
+
+        var boolMatrix = ToBoolMatrix(pyValues, yLength, xLength);
+
+        for (var y = 0; y < yLength; y++)
+        {
+            for (var x = 0; x < xLength; x++)
+            {
+                IsMatchMatrix[y][x] = boolMatrix[y][x];
+            }
+        }
+    }
+
     public void SubtractInplace(StageMap other)
     {
         var (yLength, xLength) = ErrorMatrix.GetYXLength();
@@ -329,6 +344,37 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
                 Guard.IsFalse(double.IsNaN(x) || double.IsNaN(y));
 
                 result[row][column] = new Vector(x, y);
+            }
+        }
+
+        return result;
+    }
+
+    private static bool[][] ToBoolMatrix(PyObject pyValues, int rowCount, int columnCount)
+    {
+        using var pyValueArray = pyValues.InvokeMethod("tolist");
+
+        using var rows = new PyList(pyValueArray);
+        Guard.IsEqualTo(rows.Length(), rowCount);
+
+        var result = new bool[rowCount][];
+        for (var row = 0; row < rowCount; row++)
+        {
+            using var pyRowObject = Guard.IsNotNullAndReturn(rows[row]);
+            using var pyRow = new PyList(pyRowObject);
+
+            Guard.IsEqualTo(pyRow.Length(), columnCount);
+
+            result[row] = new bool[columnCount];
+            for (var column = 0; column < columnCount; column++)
+            {
+                using var pyBoolObject = Guard.IsNotNullAndReturn(pyRow[column]);
+                using var pyVector = new PyList(pyBoolObject);
+                Guard.IsEqualTo(pyVector.Length(), 1);
+
+                using var pyBool = Guard.IsNotNullAndReturn(pyVector[0]);
+
+                result[row][column] = pyBool.As<bool>();
             }
         }
 
