@@ -211,7 +211,12 @@ public sealed partial class StageMapWindowViewModel(
                 }
 
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
-                stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[xDirection > 0 ? index : ^(index + 1)]));
+                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[xDirection > 0 ? index : ^(index + 1)]);
+
+                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
+                    Cache.MicroscopeLensInformation,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
+                    darkFieldPosition));
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }

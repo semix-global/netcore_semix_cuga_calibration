@@ -13,6 +13,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 public partial class StageMapDie : AbstractDrawable
 {
     private static readonly LineStyle DieBorderLineStyle = new(new SKColor(100, 100, 100));
+    private static readonly LineStyle OriginalDieBorderLineStyle = new(new SKColor(0, 120, 215), 2);
     private static readonly FillStyle DieBackgroundFillStyle = new(new SKColor(240, 240, 240));
     private static readonly FillStyle DieSelectionBackgroundFillStyle = new(new SKColor(240, 240, 240), HatchEnum.DiagonalUp, new SKColor(100, 100, 100));
 
@@ -42,7 +43,7 @@ public partial class StageMapDie : AbstractDrawable
         if (IsInWafer) renderer.FillRectangle(DieBackgroundFillStyle, Rect);
         if (IsSelected) renderer.FillRectangle(DieSelectionBackgroundFillStyle, Rect);
 
-        renderer.DrawRectangle(DieBorderLineStyle, Rect);
+        renderer.DrawRectangle(Index == WaferMapDieIndex.Empty ? OriginalDieBorderLineStyle : DieBorderLineStyle, Rect);
 
         foreach (var (index, marker) in Markers.Index())
         {
