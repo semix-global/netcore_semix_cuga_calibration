@@ -1,8 +1,14 @@
 """
 贝叶斯优化器——单一函数接口，供外部硬件程序调用。
 
-优化器只处理归一化变量，每一维都位于 [0, 1]。相位、幅值、scale、
-slope 等物理量应由外部程序按各自规则解码。
+优化器直接处理两类搜索变量，保持与旧版本相同的归一化表示：
+
+* 前 ``n_phase`` 维是参考频率相位差的归一化表示，范围为 [0, 1]；
+  调用方将其解码为 ``phase_ref = 2π * x_phase``。
+* 后 ``n_normal`` 维是归一化普通变量（当前用于幅值锚点），范围为 [0, 1]。
+
+相位差的参考频率以及从相位差换算为延时的工作由外部程序完成。例如，
+参考频率为 ``f_ref`` 时，``delay = x_phase / f_ref``。
 
 典型用法::
 
@@ -12,13 +18,13 @@ slope 等物理量应由外部程序按各自规则解码。
     while True:
         result = po.suggest(
             cost,
-            n_periodic=n_electrodes - 1,
+            n_phase=n_electrodes - 1,
             n_normal=n_amplitude_anchors,
         )
         if result["done"]:
             break
         physical_parameters = decode(
-            result["x_periodic"], result["x_normal"]
+            result["x_phase"], result["x_normal"]
         )
         cost = hardware(physical_parameters)
 """
@@ -38,11 +44,15 @@ from skopt.space import Real
 # 状态文件放在调用程序的当前工作目录。整个公开接口刻意只保留 suggest()，
 # 因而优化器、历史观测、待测点和早停计数都必须通过这个文件跨调用保存。
 _STATE_FILE = "optimizer_state.pkl"
+_STATE_VERSION = 3
 
-# 对外统一使用归一化搜索空间。这里的上下界不是实际电压、相位或幅值；
-# 调用方负责把 [0, 1] 解码为硬件能够接受的物理量。
-_LOWER_BOUND = 0.0
-_UPPER_BOUND = 1.0
+# 相位变量保持旧版本的归一化表示；本版本只改变 GP 的距离模型。
+_PHASE_LOWER_BOUND = 0.0
+_PHASE_UPPER_BOUND = 1.0
+
+# 普通变量目前是归一化幅值锚点。
+_NORMAL_LOWER_BOUND = 0.0
+_NORMAL_UPPER_BOUND = 1.0
 
 # GP 核超参数的优化比较昂贵。前 50 次拟合每次优化，之后每 5 次优化一次；
 # 每 25 次再用多个起点进行一次较完整的校准，兼顾速度和长期稳定性。
@@ -128,9 +138,10 @@ class CalibratedNoiseGaussianProcessRegressor(GaussianProcessRegressor):
 
 
 class MixedPeriodicMatern(Matern):
-    """相位维使用周期距离、其余维使用线性距离的 Matérn 5/2 核。
+    """兼容旧方案的混合 Matérn 5/2 核。
 
-    归一化相位的周期固定为 1，因此 0 与 1 表示同一相位。每一维仍有
+    当 ``n_periodic_dimensions`` 大于 0 时，前若干维使用周期距离；当前
+    ``suggest`` 固定传入 0，因此实际优化只使用普通线性距离。每一维仍有
     独立 length_scale，可继续通过最大似然做 ARD 参数敏感度学习。
     """
 
@@ -300,48 +311,59 @@ def _coerce_dimension_count(value, name):
     return integer
 
 
-def _resolve_initial_dimensions(n_periodic, n_normal):
-    """解析首次调用的两类参数数量。"""
-    if n_periodic is None or n_normal is None:
-        raise ValueError("首次调用必须同时指定 n_periodic 和 n_normal")
+def _resolve_phase_count(n_phase, n_periodic):
+    """解析新的相位参数名，并兼容旧的 ``n_periodic`` 调用。"""
+    if n_phase is not None and n_periodic is not None:
+        raise ValueError("n_phase 与兼容参数 n_periodic 不能同时指定")
+    return n_phase if n_phase is not None else n_periodic
 
-    n_periodic = _coerce_dimension_count(n_periodic, "n_periodic")
+
+def _resolve_initial_dimensions(n_phase, n_normal, n_periodic=None):
+    """解析首次调用的相位参数和普通参数数量。"""
+    n_phase = _resolve_phase_count(n_phase, n_periodic)
+    if n_phase is None or n_normal is None:
+        raise ValueError("首次调用必须同时指定 n_phase 和 n_normal")
+
+    n_phase = _coerce_dimension_count(n_phase, "n_phase")
     n_normal = _coerce_dimension_count(n_normal, "n_normal")
 
-    total = n_periodic + n_normal
+    total = n_phase + n_normal
     if total <= 0:
-        raise ValueError("n_periodic 与 n_normal 不能同时为 0")
-    return n_periodic, n_normal, total
+        raise ValueError("n_phase 与 n_normal 不能同时为 0")
+    return n_phase, n_normal, total
 
 
 def _state_dimension_counts(state):
-    """读取状态中的两类参数数量。"""
+    """读取状态中的相位参数和普通参数数量。"""
     try:
-        n_periodic = _coerce_dimension_count(
-            state["n_periodic"], "状态中的 n_periodic"
+        n_phase = _coerce_dimension_count(
+            state["n_phase"], "状态中的 n_phase"
         )
         n_normal = _coerce_dimension_count(
             state["n_normal"], "状态中的 n_normal"
         )
     except KeyError:
         raise RuntimeError("优化状态缺少参数分类信息") from None
-    total = n_periodic + n_normal
+    total = n_phase + n_normal
     if total <= 0:
         raise RuntimeError("优化状态中的总参数数量无效")
-    return n_periodic, n_normal, total
+    return n_phase, n_normal, total
 
 
-def _validate_resume_dimensions(state, n_periodic, n_normal):
+def _validate_resume_dimensions(
+    state, n_phase, n_normal, n_periodic=None
+):
     """校验恢复调用给出的维度，允许调用方全部省略。"""
-    state_periodic, state_normal, _ = _state_dimension_counts(state)
+    state_phase, state_normal, _ = _state_dimension_counts(state)
+    supplied_phase = _resolve_phase_count(n_phase, n_periodic)
 
-    if n_periodic is not None:
-        supplied_periodic = _coerce_dimension_count(
-            n_periodic, "n_periodic"
+    if supplied_phase is not None:
+        supplied_phase = _coerce_dimension_count(
+            supplied_phase, "n_phase"
         )
-        if supplied_periodic != state_periodic:
+        if supplied_phase != state_phase:
             raise ValueError(
-                "n_periodic 与状态中的周期参数数量不一致；"
+                "n_phase 与状态中的相位参数数量不一致；"
                 "不能混用不同参数布局的优化状态。"
             )
     if n_normal is not None:
@@ -355,7 +377,12 @@ def _validate_resume_dimensions(state, n_periodic, n_normal):
 def _make_aod_kernel(
     n_periodic_dimensions, n_normal_dimensions, length_scale=None
 ):
-    """创建混合核；周期维和普通维的数量由调用方分别指定。"""
+    """创建兼容旧接口的混合核。
+
+    当前 ``suggest`` 始终以 ``n_periodic_dimensions=0`` 调用，使所有
+    优化变量都使用普通线性距离。保留该类和工厂函数，便于读取旧代码和
+    对核实现本身做独立回归测试。
+    """
     n_periodic_dimensions = _coerce_dimension_count(
         n_periodic_dimensions, "n_periodic_dimensions"
     )
@@ -410,6 +437,11 @@ def _load_state():
 
     if not isinstance(state, dict):
         raise RuntimeError("优化状态格式无效")
+    if state.get("state_version") != _STATE_VERSION:
+        raise RuntimeError(
+            "optimizer_state.pkl 是旧版或不兼容的优化状态；"
+            "请备份后删除该状态文件，再按新的相位变量定义重新开始。"
+        )
     return state
 
 
@@ -461,7 +493,7 @@ def _compact_optimizer(opt):
 
 
 def _dedup(opt, x, max_attempts=10):
-    """若建议点与已评估点重合，在 [0,1] 内反复加入小扰动。"""
+    """若建议点与已评估点重合，在各维搜索边界内加入小扰动。"""
     # 重复测量通常不会增加空间信息，还会浪费一次约 20 秒以上的硬件采样。
     # 这里只处理数值上几乎完全重合的点，不强制设置较大的最小点间距。
     candidate = np.asarray(x, dtype=float)
@@ -470,41 +502,49 @@ def _dedup(opt, x, max_attempts=10):
 
     evaluated = np.asarray(opt.Xi, dtype=float)
     rng = getattr(opt, "rng", np.random)
+    bounds = np.asarray(opt.space.bounds, dtype=float)
+    lower_bounds = bounds[:, 0]
+    upper_bounds = bounds[:, 1]
+    spans = upper_bounds - lower_bounds
 
     for _ in range(max_attempts):
         distances = np.linalg.norm(evaluated - candidate, axis=1)
         if np.all(distances >= 1e-6):
             return candidate.tolist()
-        candidate = candidate + rng.uniform(-0.01, 0.01, candidate.shape)
-        candidate = np.clip(candidate, _LOWER_BOUND, _UPPER_BOUND)
+        candidate = candidate + rng.uniform(-0.01, 0.01, candidate.shape) * spans
+        candidate = np.clip(candidate, lower_bounds, upper_bounds)
 
     raise RuntimeError("连续多次生成重复建议点，请检查搜索空间或历史状态")
 
 
-def _split_parameter_values(values, n_periodic):
-    """把内部的一维参数向量拆成周期段和普通段。"""
+def _split_parameter_values(values, n_phase):
+    """把内部的一维参数向量拆成相位段和普通段。"""
     if values is None:
         return None, None
     flat_values = [float(value) for value in values]
-    return flat_values[:n_periodic], flat_values[n_periodic:]
+    return flat_values[:n_phase], flat_values[n_phase:]
 
 
 def _format_result(state, x, done=False):
     """格式化分段结果。"""
     # 显式转为内置 float/bool，便于调用方做 JSON 序列化或跨进程传输。
-    n_periodic, _, _ = _state_dimension_counts(state)
+    n_phase, _, _ = _state_dimension_counts(state)
     x_values = [float(value) for value in x]
-    x_periodic, x_normal = _split_parameter_values(x_values, n_periodic)
+    x_phase, x_normal = _split_parameter_values(x_values, n_phase)
     best_x = state["best_x"]
-    best_periodic, best_normal = _split_parameter_values(
-        best_x, n_periodic
+    best_phase, best_normal = _split_parameter_values(
+        best_x, n_phase
     )
     best_cost = state["best_cost"]
     return {
-        "x_periodic": x_periodic,
+        "x_phase": x_phase,
         "x_normal": x_normal,
-        "best_x_periodic": best_periodic,
+        "best_x_phase": best_phase,
         "best_x_normal": best_normal,
+        # 兼容旧调用方：这些键名保留，但其值仍是旧版本的归一化相位变量，
+        # 不再表示使用周期核的变量。
+        "x_periodic": x_phase,
+        "best_x_periodic": best_phase,
         "best_cost": (
             None if not np.isfinite(best_cost) else float(best_cost)
         ),
@@ -528,15 +568,18 @@ def _resolve_early_stop(value, n_dim):
 
 
 def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
-            noise=None, n_early_stop="auto", acq_func="LCB"):
+            noise=None, n_early_stop="auto", acq_func="LCB", *,
+            n_phase=None):
     """
-    输入上一次实验的 cost，返回下一组分段的归一化参数。
+    输入上一次实验的 cost，返回下一组相位段和普通段参数。
 
     参数:
-        cost: 上一次实验的代价；首次调用或恢复待测点时传 None。
-        n_periodic: 周期参数数量。首次调用时须与 n_normal 一起指定；可为 0。
-        n_normal: 普通参数数量。首次调用时须与 n_periodic 一起指定；可为 0。
-        n_initial: Sobol 初始采样点数；None 时按 2×总维度（向上取 2 的幂）自动计算。
+         cost: 上一次实验的代价；首次调用或恢复待测点时传 None。
+         n_periodic: 兼容旧调用的参数名，表示相位参数数量；不再启用周期核。
+         n_phase: 相位参数数量。建议使用此名称；首次调用时须与 n_normal
+                  一起指定；可为 0。不能与 n_periodic 同时指定。
+         n_normal: 普通参数数量。首次调用时须与相位参数数量一起指定；可为 0。
+         n_initial: Sobol 初始采样点数；None 时按 2×总维度（向上取 2 的幂）自动计算。
         noise: 实测 cost/score 的噪声方差，仅首次调用使用；默认 1e-4。
                其平方根用于判断改善是否显著；同时在每次 GP 拟合时按
                历史 score 方差换算到 normalize_y=True 的归一化尺度，作为
@@ -546,8 +589,11 @@ def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
         acq_func: skopt 采集函数，常用值为 "LCB"、"EI"、"PI"。
 
     返回:
-        包含 x_periodic、x_normal、best_x_periodic、best_x_normal、
-        best_cost、done 的字典。x_periodic 和 x_normal 分别位于 [0,1]。
+         包含 x_phase、x_normal、best_x_phase、best_x_normal、best_cost、done
+         的字典。x_phase 和 x_normal 均位于 [0,1]；x_phase 由调用方解码为
+         参考频率下的相位弧度。
+         为兼容旧调用方，同时返回 x_periodic 和 best_x_periodic；这两个键
+         只是旧名称，不代表周期变量。
 
         若进程重启后仍有一个待评估点，传入 cost=None 会再次返回同一点，
         不会静默跳过该次实验。
@@ -561,8 +607,8 @@ def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
 
     # ---- 首次调用：创建 Optimizer 并返回第一个采样点 ----
     if not state_exists:
-        n_periodic, n_normal, n_dimensions = _resolve_initial_dimensions(
-            n_periodic, n_normal
+        n_phase, n_normal, n_dimensions = _resolve_initial_dimensions(
+            n_phase, n_normal, n_periodic
         )
         if n_initial is None:
             # 缺省时按总维度自适应：2×总维度，向上取 2 的幂。
@@ -580,11 +626,19 @@ def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
         if not np.isfinite(measurement_noise) or measurement_noise < 0:
             raise ValueError("noise 必须是有限的非负方差")
 
-        dimensions = [
-            Real(_LOWER_BOUND, _UPPER_BOUND)
-            for _ in range(n_dimensions)
-        ]
-        kernel = _make_aod_kernel(n_periodic, n_normal)
+        dimensions = (
+            [
+                Real(_PHASE_LOWER_BOUND, _PHASE_UPPER_BOUND)
+                for _ in range(n_phase)
+            ]
+            + [
+                Real(_NORMAL_LOWER_BOUND, _NORMAL_UPPER_BOUND)
+                for _ in range(n_normal)
+            ]
+        )
+        # 与旧版本保持相同的归一化坐标和初始长度尺度；唯一的 GP 建模
+        # 变化是把相位维也按普通线性距离处理，而不是周期距离。
+        kernel = _make_aod_kernel(0, n_dimensions)
 
         # normalize_y 消除不同实验 cost 量级对核优化的影响；自定义 GP 会把
         # 外部给出的噪声方差同步换算到归一化后的 y 尺度。
@@ -613,9 +667,10 @@ def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
         )
         x = _dedup(opt, opt.ask())
         state = {
+            "state_version": _STATE_VERSION,
             # opt 内含 Xi/yi、随机数状态和下一点缓存，是恢复优化所需的主体。
             "opt": opt,
-            "n_periodic": n_periodic,
+            "n_phase": n_phase,
             "n_normal": n_normal,
             "n_initial": n_initial,
             "step": 1,
@@ -638,7 +693,7 @@ def suggest(cost=None, n_periodic=None, n_normal=None, n_initial=None,
     opt = state["opt"]
     # 提取最新模型的 kernel_，以便下一次拟合使用同一套暖启动参数。
     _compact_optimizer(opt)
-    _validate_resume_dimensions(state, n_periodic, n_normal)
+    _validate_resume_dimensions(state, n_phase, n_normal, n_periodic)
 
     if n_early_stop != "auto":
         _, _, n_dimensions = _state_dimension_counts(state)
