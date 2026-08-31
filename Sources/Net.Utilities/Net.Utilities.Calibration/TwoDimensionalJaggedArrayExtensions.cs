@@ -10,7 +10,7 @@ public static class TwoDimensionalJaggedArrayExtensions
         /// <summary>
         /// 获取二维交错数组的行数和列数
         /// </summary>
-        public (int YCount, int XCount) GetYXLength()
+        public (int YLength, int XLength) GetYXLength()
         {
             var yLength = @this.Length;
             var xLength = @this[0].Length;

@@ -144,8 +144,18 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         }
     }
 
-    public Vector[][] InterpolateErrors(Point[][] targetPoints)
+    public Vector[][] InterpolateErrors(Point[][] targetPoints, Circle targetCircle)
     {
+        var (yLength, xLength) = targetPoints.GetYXLength();
+        bool[][] targetMask = [.. targetPoints.Select(row => new bool[row.Length])];
+        for (var y = 0; y < yLength; y++)
+        {
+            for (var x = 0; x < xLength; x++)
+            {
+                targetMask[y][x] = targetCircle.Contains(targetPoints[y][x]);
+            }
+        }
+
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var interpolate = module.GetAttr("interpolate_residual_table");
@@ -153,14 +163,14 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         using var pyDesiredPositions = ToPythonIdealMatrix();
         using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
         using var pySourceMask = ToPythonIsMatchMatrix();
-        using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask);
+        using var pyTargetMask = ToPythonBooleanMatrix(targetMask);
+        using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
 
-        var (yLength, xLength) = targetPoints.GetYXLength();
 
         return ToVectorMatrix(result, yLength, xLength);
     }
 
-    public StageMapErrorDTO AdaptTo()
+    public StageMapErrorDTO AdaptTo(Circle targetCircle)
     {
         var (yLength, xLength) = IdealMatrix.GetYXLength();
 
@@ -181,7 +191,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             }
         }
 
-        var errors = InterpolateErrors(points);
+        var errors = InterpolateErrors(points, targetCircle);
 
         return new StageMapErrorDTO
         {

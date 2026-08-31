@@ -1,8 +1,9 @@
 """闭环校准的首次测量与阶段2多次扫描残差处理。
 
-首次测量使用 :func:`process_first_measurement` 生成粗修正表 ``C0``；下发
-``C0`` 后，调用方在每次阶段2扫描后，把截至当前累计的二维残差和对应的
-期望位置以及逐扫描有效 mask 传给 :func:`process_stage2_residuals`。
+首次测量使用 :func:`process_first_measurement` 生成去仿射后的测量误差表
+``C0``；调用方按设备约定处理并下发 ``C0`` 后，在每次阶段2扫描后把截至当前
+累计的二维残差和对应的期望位置以及逐扫描有效 mask 传给
+:func:`process_stage2_residuals`。
 
 数组最后一维统一使用 ``[..., 0] = X``、``[..., 1] = Y``。函数本身不保存
 历史状态，因此调用方需要保留每次扫描结果，并在下一次调用时传入完整历史。
@@ -38,7 +39,7 @@ def process_first_measurement(
     mask: np.ndarray | None = None,
     fill_value: float = 0.0,
 ) -> np.ndarray:
-    """处理阶段1的首次测量，生成粗修正表 ``C0``。
+    """处理阶段1的首次测量，生成去仿射后的测量误差表 ``C0``。
 
     参数:
         residual: 第一次测量得到的二维误差场
@@ -49,20 +50,20 @@ def process_first_measurement(
             依次为 X、Y 坐标。
         mask: 可选的单次扫描有效点掩码，形状为 ``residual.shape[:-1]``。
             ``True`` 表示该点参与阶段1拟合，``False`` 表示该点不参与计算；
-            无效点在返回的粗修正表中使用 ``fill_value``。
-        fill_value: 阶段1 mask=False 点的初始修正值，必须是有限标量，默认
-            为 ``0.0``，表示该点先不施加修正，后续由阶段2测量结果补偿。
+            无效点在返回的测量误差表中使用 ``fill_value``。
+        fill_value: 阶段1 mask=False 点的初始填充值，必须是有限标量，默认
+            为 ``0.0``，表示该点暂时没有可用的测量误差值，后续由阶段2测量结果补偿。
 
     返回:
-        粗修正表 ``C0``，形状与 ``residual`` 相同。二维非共线网格按
-        ``C0 = -(E - A0)`` 扣除完整 6 参数仿射场；单行等共线点集只分别
-        扣除 X、Y 残差均值，再取相反数。mask=False 点使用 ``fill_value``，
-        因此返回表可以作为完整的阶段1初始修正表下发。
+        处理后的测量误差表 ``C0``，形状与 ``residual`` 相同。二维非共线网格
+        按 ``C0 = E - A0`` 扣除完整 6 参数仿射场；单行等共线点集只分别
+        扣除 X、Y 残差均值，不改变符号。mask=False 点使用 ``fill_value``。
 
     说明:
-        mask 有效位置的返回值由阶段1测量得到；无效位置使用初始填充值，
-        并在该完整 ``C0`` 实际下发后开始阶段2。阶段2函数的输入仍应是
-        下发 ``C0`` 后重新测得的残差，而不是本函数返回的原始测量结果。
+        mask 有效位置的返回值由阶段1测量得到；无效位置使用初始填充值。
+        本函数只输出去仿射后的测量误差，不将其转换为相反方向的修正量；
+        阶段2函数的输入仍应是调用方按设备约定处理并下发 ``C0`` 后重新测得的
+        残差，而不是本函数返回的原始测量结果。
     """
     # 转为浮点数组，保证后续最小二乘及减法不会发生整数截断；不修改输入。
     values = np.asarray(residual, dtype=float)
@@ -124,11 +125,11 @@ def process_first_measurement(
             flat_values[flat_valid] - component_mean
         )
 
-    # 修正方向与测量误差相反：控制器下发 C0 后用于抵消首次测得的误差场。
-    correction = -residual_without_drift.reshape(values.shape)
+    # 输出去仿射后的测量误差，不转换为与测量误差相反的修正方向。
+    processed_residual = residual_without_drift.reshape(values.shape)
     if mask is not None:
-        correction[~valid_mask] = fill_value_scalar
-    return correction
+        processed_residual[~valid_mask] = fill_value_scalar
+    return processed_residual
 
 
 def interpolate_residual_table(
@@ -136,8 +137,9 @@ def interpolate_residual_table(
     desired_positions: np.ndarray,
     target_positions: np.ndarray,
     source_mask: np.ndarray | None = None,
+    target_mask: np.ndarray | None = None,
 ) -> np.ndarray:
-    """将二维残差表按期望坐标双线性插值到另一组坐标网格。
+    """将规则二维残差源网格双线性插值/外插到另一组坐标网格。
 
     ``residual_table`` 和 ``desired_positions`` 共同定义源网格：前者给出
     每个源网格节点的 X/Y 残差，后者给出这些节点的期望 X/Y 坐标。函数不
@@ -148,10 +150,9 @@ def interpolate_residual_table(
             ``[..., 0]``、``[..., 1]`` 依次为 X、Y 残差。
         desired_positions: 源网格点的期望二维坐标，形状必须为
             ``(N_y, N_x, 2)``。最后一维的 ``[..., 0]``、``[..., 1]`` 依次
-            为 X、Y 坐标；前两个维度组成轴对齐的二维规则网格，其中行方向
-            对应 Y、列方向对应 X。两个坐标轴可以非均匀、升序或降序，但不能
-            包含重复或交错的坐标。这里的“轴对齐”表示，在通常布局下有
-            ``desired_positions[i, j] == [x[j], y[i]]``；不支持弯曲网格或散点。
+            为 X、Y 坐标；前两个维度对应源表节点。源坐标必须构成轴对齐的
+            规则矩形网格：X 只能沿列方向变化，Y 只能沿行方向变化；每个
+            方向允许使用非均匀间距，也允许坐标轴递减。
         target_positions: 需要查询的期望二维坐标网格，形状为
             ``(..., 2)``。最后一维的 ``[..., 0]``、``[..., 1]`` 依次为待
             查询点的 X、Y 坐标；其前置维度可以与源网格不同，也不要求本身是
@@ -161,33 +162,27 @@ def interpolate_residual_table(
             表示该节点无效。未传入时，函数根据 ``residual_table`` 每个节点
             的 X/Y 分量是否均为有限数值自动判断有效性，因此源表允许在无效
             节点包含 ``NaN``。
+        target_mask: 可选的目标网格插值掩码，形状必须为
+            ``target_positions.shape[:-1]``。``True`` 表示该目标点需要插值；
+            ``False`` 表示不需要插值，返回数组中该点的 X/Y 两个分量都设为
+            ``0.0``。未传入时所有目标点都需要插值。
 
     返回:
-        形状与 ``target_positions`` 相同的双线性插值残差表。目标点落在
-        源网格范围内时，使用其所在源网格单元的四个节点进行双线性插值。
-        目标点落在源网格范围外时，使用对应边界侧相邻的第一个或最后一个
-        单元进行线性外插，并发出一次 ``RuntimeWarning``；函数不会静默地把
-        外部点裁剪为边界值。
+        形状与 ``target_positions`` 相同的插值残差表。对每个
+        ``target_mask=True`` 的目标点，使用其所在源网格单元的四个角点做
+        双线性插值。若角点无效，则用距离该角点最近且尚未使用的有效源点
+        替代该角点的值，并保留原角点的双线性权重；发生这种补替时发出
+        ``RuntimeWarning``。
 
-    插值公式（对 X/Y 两个残差分量分别计算）为：对单元格四角
-    ``R00 = R(x0, y0)``、``R01 = R(x1, y0)``、``R10 = R(x0, y1)``、
-    ``R11 = R(x1, y1)``，令
-
-    ``tx = (x - x0) / (x1 - x0)``，``ty = (y - y0) / (y1 - y0)``，则
-
-    ``R(x, y) = (1-tx)(1-ty)R00 + tx(1-ty)R01 + (1-tx)ty R10 + tx ty R11``。
+        目标点落在源网格范围外时，使用最靠近的边界网格单元，并允许双线性
+        坐标超出 ``[0, 1]``，因此会沿边界局部趋势外插，同时发出一次
+        ``RuntimeWarning``。有效源节点少于 4 个时抛出 ``ValueError``。
 
     说明:
-        如果传入的源坐标网格按 ``positions[i, j] = [x_i, y_j]`` 排列，
-        函数会自动识别并转置处理。源坐标轴为降序时，函数也会先翻转内部
-        残差表和坐标轴，再进行同样的插值计算。
-        每个目标点所在源网格单元优先使用有效角点插值。四个角点均有效时
-        执行普通双线性插值；存在无效角点时对剩余角点的权重重新归一化。
-        如果有效角点少于三个，或目标点落在无效角点上导致有效权重为零，
-        则直接使用距离目标坐标最近的源节点残差。最近邻优先选择
-        ``source_mask=True`` 且有限的节点；如果没有这样的节点，则使用源表中
-        最近的有限节点；如果源表没有有限值，则将非有限值按零处理后使用最近
-        节点，不因有效节点数量触发异常。
+        源坐标必须是规则矩形网格；目标点可以是任意形状。角点补替只针对
+        双线性权重非零的无效角点，并且优先保证同一个目标点使用的四个源点
+        不重复。目标 mask 为 ``False`` 的点不会执行源点数量检查，也不会
+        触发插值警告。
     """
     # 转为浮点数组，避免整数输入在插值计算中发生截断；不修改调用方数据。
     values = np.asarray(residual_table, dtype=float)
@@ -222,12 +217,29 @@ def interpolate_residual_table(
         raise ValueError("target_positions 的网格维不能为空")
     if not np.all(np.isfinite(targets)):
         raise ValueError("target_positions 只能包含有限数值")
-    if values.shape[0] < 2 or values.shape[1] < 2:
-        raise ValueError("双线性插值要求源网格的行数和列数都至少为 2")
 
-    # 通常的布局是 positions[row, column] = [x[column], y[row]]：
-    # X 坐标沿列方向变化，Y 坐标沿行方向变化。这里用 allclose 而不是精确
-    # 相等，以兼容 meshgrid 或计算坐标时产生的浮点舍入误差。
+    if target_mask is None:
+        target_interpolation_mask = np.ones(targets.shape[:-1], dtype=bool)
+    else:
+        target_mask_array = np.asarray(target_mask)
+        if target_mask_array.shape != targets.shape[:-1]:
+            raise ValueError(
+                "target_mask 的形状必须与 target_positions 的前置维度相同"
+            )
+        if target_mask_array.dtype != np.bool_:
+            raise TypeError("target_mask 必须是布尔数组")
+        target_interpolation_mask = target_mask_array
+
+    # target_mask=False 的点不需要源点检查，也不执行任何插值，输出保持为 0。
+    interpolated = np.zeros(targets.shape, dtype=float)
+    flat_interpolated = interpolated.reshape(-1, 2)
+    flat_target_mask = target_interpolation_mask.reshape(-1)
+    active_target_indices = np.flatnonzero(flat_target_mask)
+    if active_target_indices.size == 0:
+        return interpolated
+
+    # 源表可能按 [Y 行, X 列] 或 meshgrid(indexing="ij") 的 [X 行, Y 列]
+    # 布局传入；统一转换为 grid_values[y, x]，不改变调用方数组。
     x_by_column = positions[0, :, 0]
     y_by_row = positions[:, 0, 1]
     canonical_layout = (
@@ -244,9 +256,6 @@ def interpolate_residual_table(
             atol=1e-12,
         )
     )
-
-    # 也兼容 positions[row, column] = [x[row], y[column]] 的布局；这种布局
-    # 常见于 meshgrid(..., indexing="ij")。转置后即可统一为上面的布局。
     x_by_row = positions[:, 0, 0]
     y_by_column = positions[0, :, 1]
     transposed_layout = (
@@ -263,185 +272,176 @@ def interpolate_residual_table(
             atol=1e-12,
         )
     )
-
     if canonical_layout:
         grid_values = values
+        grid_positions = positions
         grid_valid_mask = source_valid_mask
         x_axis = x_by_column
         y_axis = y_by_row
     elif transposed_layout:
         grid_values = np.transpose(values, (1, 0, 2))
+        grid_positions = np.transpose(positions, (1, 0, 2))
         grid_valid_mask = np.transpose(source_valid_mask, (1, 0))
-        x_axis = x_by_row.copy()
-        y_axis = y_by_column.copy()
+        x_axis = x_by_row
+        y_axis = y_by_column
     else:
         raise ValueError(
-            "desired_positions 必须表示轴对齐的二维规则网格；"
-            "X 坐标应沿一个网格轴变化，Y 坐标应沿另一个网格轴变化"
+            "desired_positions 必须构成轴对齐的规则矩形源网格；"
+            "X 只能沿一个网格轴变化，Y 只能沿另一个网格轴变化"
         )
 
-    x_axis = np.asarray(x_axis, dtype=float)
-    y_axis = np.asarray(y_axis, dtype=float)
+    source_row_count, source_column_count = grid_values.shape[:-1]
+    if source_row_count < 2 or source_column_count < 2:
+        raise ValueError("双线性插值要求源网格至少包含 2 行和 2 列")
 
-    # 允许非均匀网格，但每个坐标轴必须严格单调；重复或交错坐标无法唯一
-    # 确定目标点所在的源网格单元。
+    # 双线性插值要求源坐标是轴对齐的矩形网格。先验证网格结构，再把
+    # 递减坐标轴翻转为递增，便于使用 searchsorted 定位网格单元。
     x_differences = np.diff(x_axis)
     y_differences = np.diff(y_axis)
-    x_increasing = bool(np.all(x_differences > 0))
-    x_decreasing = bool(np.all(x_differences < 0))
-    y_increasing = bool(np.all(y_differences > 0))
-    y_decreasing = bool(np.all(y_differences < 0))
-    if not (x_increasing or x_decreasing):
-        raise ValueError("desired_positions 的 X 坐标轴必须严格单调")
-    if not (y_increasing or y_decreasing):
-        raise ValueError("desired_positions 的 Y 坐标轴必须严格单调")
+    if not (np.all(x_differences > 0) or np.all(x_differences < 0)):
+        raise ValueError("desired_positions 的 X 轴坐标必须严格单调")
+    if not (np.all(y_differences > 0) or np.all(y_differences < 0)):
+        raise ValueError("desired_positions 的 Y 轴坐标必须严格单调")
 
-    # 统一为升序轴；同步翻转残差表，后续 searchsorted 才能处理两种方向。
-    # 这只是内部视图/重排，不会改变调用方传入的 residual_table。
-    if x_decreasing:
-        x_axis = x_axis[::-1]
+    if x_differences[0] < 0:
         grid_values = grid_values[:, ::-1, :]
+        grid_positions = grid_positions[:, ::-1, :]
         grid_valid_mask = grid_valid_mask[:, ::-1]
-    if y_decreasing:
-        y_axis = y_axis[::-1]
+    if y_differences[0] < 0:
         grid_values = grid_values[::-1, :, :]
+        grid_positions = grid_positions[::-1, :, :]
         grid_valid_mask = grid_valid_mask[::-1, :]
 
-    # 最近邻回退使用统一后的源网格坐标。优先使用 mask=True 且有限的节点；
-    # 当一个这样的节点都没有时，退回到所有有限节点，避免有效点数量导致
-    # 插值失败。若源表完全没有有限值，则将非有限值转换为零后继续处理。
-    finite_source_mask = np.all(np.isfinite(grid_values), axis=-1)
-    nearest_source_mask = grid_valid_mask.copy()
-    if not np.any(nearest_source_mask):
-        nearest_source_mask = finite_source_mask
-    if np.any(nearest_source_mask):
-        nearest_source_values = grid_values[nearest_source_mask]
-    else:
-        nearest_source_mask = np.ones_like(finite_source_mask, dtype=bool)
-        nearest_source_values = np.nan_to_num(
-            grid_values,
-            nan=0.0,
-            posinf=0.0,
-            neginf=0.0,
-        )[nearest_source_mask]
-    source_x_grid, source_y_grid = np.meshgrid(x_axis, y_axis)
-    nearest_source_coordinates = np.column_stack(
-        (
-            source_x_grid[nearest_source_mask],
-            source_y_grid[nearest_source_mask],
+    x_axis = grid_positions[0, :, 0]
+    y_axis = grid_positions[:, 0, 1]
+    flat_positions = grid_positions.reshape(-1, 2)
+    flat_values = grid_values.reshape(-1, 2)
+    flat_source_valid = grid_valid_mask.reshape(-1)
+    valid_flat_indices = np.flatnonzero(flat_source_valid)
+    valid_source_count = valid_flat_indices.size
+    if valid_source_count < 4:
+        raise ValueError(
+            "需要至少 4 个有效源点，"
+            f"当前只有 {valid_source_count} 个"
         )
-    )
 
-    # 将任意形状的目标网格展平成查询点列表；最后恢复为原目标形状。
     flat_targets = targets.reshape(-1, 2)
-    target_x = flat_targets[:, 0]
-    target_y = flat_targets[:, 1]
-    outside_x = (target_x < x_axis[0]) | (target_x > x_axis[-1])
-    outside_y = (target_y < y_axis[0]) | (target_y > y_axis[-1])
-    if np.any(outside_x | outside_y):
+    active_targets = flat_targets[active_target_indices]
+    # 范围判断使用完整源网格的边界，而不是有效点的包围盒。这样某个边界
+    # 节点失效时，仍能把目标点视为同一标定网格内的点，并对缺失角点补替。
+    source_min = np.array([x_axis[0], y_axis[0]], dtype=float)
+    source_max = np.array([x_axis[-1], y_axis[-1]], dtype=float)
+    outside_source_range = np.any(
+        (active_targets < source_min) | (active_targets > source_max), axis=1
+    )
+    if np.any(outside_source_range):
         warnings.warn(
-            "target_positions 中至少有一个点位于源网格范围外，将执行线性外插。",
+            "target_positions 中至少有一个需要插值的点位于源网格范围外，"
+            "将使用边界网格单元进行双线性外插。",
             RuntimeWarning,
             stacklevel=2,
         )
 
-    # searchsorted 找到满足 axis[index] <= target < axis[index + 1] 的单元格。
-    # 对范围外的点，夹住的是“单元格索引”而不是插值系数，因此保留 tx/ty
-    # 小于 0 或大于 1，得到真正的线性外插而不是边界值复制。
-    x_index = np.searchsorted(x_axis, target_x, side="right") - 1
-    y_index = np.searchsorted(y_axis, target_y, side="right") - 1
-    x_index = np.clip(x_index, 0, x_axis.size - 2)
-    y_index = np.clip(y_index, 0, y_axis.size - 2)
+    # searchsorted 的 cell index 在范围外会落到两端之外；clip 到边界单元，
+    # 但不裁剪归一化坐标 u/v，使边界单元可以真正外插。
+    x_cell_indices = np.searchsorted(x_axis, active_targets[:, 0], side="right") - 1
+    y_cell_indices = np.searchsorted(y_axis, active_targets[:, 1], side="right") - 1
+    x_cell_indices = np.clip(x_cell_indices, 0, source_column_count - 2)
+    y_cell_indices = np.clip(y_cell_indices, 0, source_row_count - 2)
 
-    x0 = x_axis[x_index]
-    x1 = x_axis[x_index + 1]
-    y0 = y_axis[y_index]
-    y1 = y_axis[y_index + 1]
-    tx = (target_x - x0) / (x1 - x0)
-    ty = (target_y - y0) / (y1 - y0)
+    fallback_used = False
+    for target_index, target, x_cell_index, y_cell_index in zip(
+        active_target_indices,
+        active_targets,
+        x_cell_indices,
+        y_cell_indices,
+    ):
+        x_cell_index = int(x_cell_index)
+        y_cell_index = int(y_cell_index)
+        x0 = x_axis[x_cell_index]
+        x1 = x_axis[x_cell_index + 1]
+        y0 = y_axis[y_cell_index]
+        y1 = y_axis[y_cell_index + 1]
+        u = (target[0] - x0) / (x1 - x0)
+        v = (target[1] - y0) / (y1 - y0)
 
-    # 取每个目标点所在单元格的四个角点。此时 grid_values 已统一为
-    # grid_values[行(y), 列(x), 分量]，因此四个角分别对应下左、下右、上左、上右。
-    lower_left = grid_values[y_index, x_index]
-    lower_right = grid_values[y_index, x_index + 1]
-    upper_left = grid_values[y_index + 1, x_index]
-    upper_right = grid_values[y_index + 1, x_index + 1]
-    lower_left_valid = grid_valid_mask[y_index, x_index]
-    lower_right_valid = grid_valid_mask[y_index, x_index + 1]
-    upper_left_valid = grid_valid_mask[y_index + 1, x_index]
-    upper_right_valid = grid_valid_mask[y_index + 1, x_index + 1]
-
-    # 将四个角点统一为 (目标点, 角点, X/Y 分量)，便于按目标点统计有效角点
-    # 数量并对缺失角点执行掩码插值。
-    corner_values = np.stack(
-        (lower_left, lower_right, upper_left, upper_right), axis=1
-    )
-    corner_valid = np.stack(
-        (
-            lower_left_valid,
-            lower_right_valid,
-            upper_left_valid,
-            upper_right_valid,
-        ),
-        axis=1,
-    )
-    valid_corner_count = np.sum(corner_valid, axis=1)
-    insufficient_corner_points = valid_corner_count < 3
-
-    three_corner_points = valid_corner_count == 3
-    if np.any(three_corner_points):
-        warnings.warn(
-            "至少有一个目标点所在源网格单元只有 3 个有效角点；"
-            "将对剩余角点执行归一化插值。",
-            RuntimeWarning,
-            stacklevel=2,
+        # 角点顺序：左下、右下、左上、右上；数组行对应 Y，列对应 X。
+        corner_rows = np.array(
+            [y_cell_index, y_cell_index, y_cell_index + 1, y_cell_index + 1],
+            dtype=int,
+        )
+        corner_columns = np.array(
+            [x_cell_index, x_cell_index + 1, x_cell_index, x_cell_index + 1],
+            dtype=int,
+        )
+        corner_flat_indices = (
+            corner_rows * source_column_count + corner_columns
+        )
+        corner_values = flat_values[corner_flat_indices].copy()
+        corner_valid = grid_valid_mask[corner_rows, corner_columns]
+        corner_weights = np.array(
+            [(1.0 - u) * (1.0 - v), u * (1.0 - v), (1.0 - u) * v, u * v],
+            dtype=float,
         )
 
-    # 每个权重都是一个目标点对应一个标量；axis=1 对四个角点求和，最后
-    # 一维的 X/Y 两个残差分量同时参与计算。无效角点的值先置零，避免
-    # 0 * NaN 仍然传播 NaN；其权重在分母中也一并排除。
-    corner_weights = np.stack(
-        (
-            (1.0 - tx) * (1.0 - ty),
-            tx * (1.0 - ty),
-            (1.0 - tx) * ty,
-            tx * ty,
-        ),
-        axis=1,
-    )
-    valid_weight_sum = np.sum(
-        np.where(corner_valid, corner_weights, 0.0), axis=1
-    )
-    zero_weight_points = np.isclose(valid_weight_sum, 0.0, atol=1e-12, rtol=0.0)
-    nearest_neighbor_points = insufficient_corner_points | zero_weight_points
+        # 角点有效时直接使用；无效角点只在其权重非零时补替。先把当前
+        # 单元内的有效角点加入 used，保证替代点不与其他角点重复。
+        used_source_indices = {
+            int(index)
+            for index in corner_flat_indices[corner_valid]
+        }
+        for corner_index, (is_valid, corner_weight) in enumerate(
+            zip(corner_valid, corner_weights)
+        ):
+            if is_valid:
+                continue
+            if corner_weight == 0.0:
+                corner_values[corner_index] = 0.0
+                continue
 
-    weighted_corner_values = np.where(
-        corner_valid[..., None], corner_values, 0.0
-    )
-    interpolated = np.empty((flat_targets.shape[0], 2), dtype=float)
-    interpolation_points = ~nearest_neighbor_points
-    interpolated[interpolation_points] = np.sum(
-        corner_weights[interpolation_points, :, None]
-        * weighted_corner_values[interpolation_points],
-        axis=1,
-    ) / valid_weight_sum[interpolation_points, None]
-
-    if np.any(nearest_neighbor_points):
-        fallback_targets = flat_targets[nearest_neighbor_points]
-        distances = np.sum(
-            (
-                fallback_targets[:, None, :]
-                - nearest_source_coordinates[None, :, :]
+            candidate_flat_indices = np.array(
+                [
+                    index
+                    for index in valid_flat_indices
+                    if int(index) not in used_source_indices
+                ],
+                dtype=int,
             )
-            ** 2,
-            axis=-1,
+            if candidate_flat_indices.size == 0:
+                raise ValueError(
+                    "无法为无效网格角点找到不重复的有效源点替代值"
+                )
+            candidate_distances = np.sum(
+                (
+                    flat_positions[candidate_flat_indices]
+                    - grid_positions[
+                        corner_rows[corner_index], corner_columns[corner_index]
+                    ]
+                )
+                ** 2,
+                axis=1,
+            )
+            nearest_order = np.lexsort(
+                (candidate_flat_indices, candidate_distances)
+            )
+            replacement_index = int(candidate_flat_indices[nearest_order[0]])
+            corner_values[corner_index] = flat_values[replacement_index]
+            used_source_indices.add(replacement_index)
+            fallback_used = True
+
+        flat_interpolated[target_index] = np.sum(
+            corner_values * corner_weights[:, None],
+            axis=0,
         )
-        nearest_source_indices = np.argmin(distances, axis=1)
-        interpolated[nearest_neighbor_points] = nearest_source_values[
-            nearest_source_indices
-        ]
-    # 恢复目标坐标网格的原始形状，并保持最后一维为 [X, Y] 残差。
-    return interpolated.reshape(targets.shape)
+
+    if fallback_used:
+        warnings.warn(
+            "至少有一个双线性网格角点无效，已使用距离该角点最近的有效源点补替。",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+
+    return interpolated
 
 
 def process_stage2_residuals(
@@ -702,11 +702,12 @@ def combine_correction_tables(
         ``(final_correction, interpolation_mask)``：
 
         - ``final_correction``：阶段2有效点使用
-          ``C_final = C0_used - delta C``；阶段2无效点保留 ``C0_used``，
-          以保证仍可生成完整的设备下发表。
+          ``C_final = C0_used - delta C``；阶段2无效但阶段1有效的点保留
+          ``C0_used``。阶段1和阶段2都无效的点置为 ``NaN``，等待后续插值
+          使用其他有效源点生成设备下发表。
         - ``interpolation_mask``：后续插值可使用的源点 mask，定义为
-          ``stage1_mask | stage2_valid``。阶段1和阶段2都无效的点虽然在
-          ``final_correction`` 中保留了填充值，但不会参与后续插值。
+          ``stage1_mask | stage2_valid``。阶段1和阶段2都无效的点在
+          ``final_correction`` 中为 ``NaN``，不会参与后续插值。
     """
     initial_values = np.asarray(initial_correction, dtype=float)
     if initial_values.ndim < 2 or initial_values.shape[-1] != 2:
@@ -740,4 +741,5 @@ def combine_correction_tables(
         initial_values[stage2_valid] - delta_values[stage2_valid]
     )
     interpolation_mask = stage1_valid | stage2_valid
+    final_correction[~interpolation_mask] = np.nan
     return final_correction, interpolation_mask

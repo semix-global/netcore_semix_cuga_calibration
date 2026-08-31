@@ -622,7 +622,7 @@ public sealed partial class StageMapWindowViewModel(
 
             if (isInterpolateErrors)
             {
-                var errors = Cache.StageMap.InterpolateErrors(stageMapIdealMatrix);
+                var errors = Cache.StageMap.InterpolateErrors(stageMapIdealMatrix, new Circle(stageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.WaferRadius));
                 for (var y = 0; y < yLength; y++)
                 {
                     for (var x = 0; x < xLength; x++)
@@ -823,7 +823,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         stageViewModel.SetEnableStageMap(false);
 
-        var stageMapErrorDTO = Cache.StageMap.AdaptTo();
+        var stageMapErrorDTO = Cache.StageMap.AdaptTo(new Circle(stageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.WaferRadius));
         var xPoint3DList = new List<Point3D>();
         var yPoint3DList = new List<Point3D>();
 
