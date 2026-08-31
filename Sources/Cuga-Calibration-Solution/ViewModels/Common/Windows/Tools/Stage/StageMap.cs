@@ -312,69 +312,69 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         return result;
     }
 
-    private static Vector[][] ToVectorMatrix(PyObject pyValues, int rowCount, int columnCount)
+    private static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
 
         using var rows = new PyList(pyValueArray);
-        Guard.IsEqualTo(rows.Length(), rowCount);
+        Guard.IsEqualTo(rows.Length(), yLength);
 
-        var result = new Vector[rowCount][];
-        for (var row = 0; row < rowCount; row++)
+        var result = new Vector[yLength][];
+        for (var y = 0; y < yLength; y++)
         {
-            using var pyRowObject = Guard.IsNotNullAndReturn(rows[row]);
+            using var pyRowObject = Guard.IsNotNullAndReturn(rows[y]);
             using var pyRow = new PyList(pyRowObject);
 
-            Guard.IsEqualTo(pyRow.Length(), columnCount);
+            Guard.IsEqualTo(pyRow.Length(), xLength);
 
-            result[row] = new Vector[columnCount];
-            for (var column = 0; column < columnCount; column++)
+            result[y] = new Vector[xLength];
+            for (var x = 0; x < xLength; x++)
             {
-                using var pyVectorObject = Guard.IsNotNullAndReturn(pyRow[column]);
+                using var pyVectorObject = Guard.IsNotNullAndReturn(pyRow[x]);
                 using var pyVector = new PyList(pyVectorObject);
                 Guard.IsEqualTo(pyVector.Length(), 2);
 
                 using var pyX = Guard.IsNotNullAndReturn(pyVector[0]);
                 using var pyY = Guard.IsNotNullAndReturn(pyVector[1]);
 
-                var x = pyX.As<double>();
-                var y = pyY.As<double>();
+                var xValue = pyX.As<double>();
+                var yValue = pyY.As<double>();
 
-                Guard.IsFalse(double.IsInfinity(x) || double.IsInfinity(y));
-                Guard.IsFalse(double.IsNaN(x) || double.IsNaN(y));
+                Guard.IsFalse(double.IsInfinity(xValue) || double.IsInfinity(yValue));
+                Guard.IsFalse(double.IsNaN(xValue) || double.IsNaN(yValue));
 
-                result[row][column] = new Vector(x, y);
+                result[y][x] = new Vector(xValue, yValue);
             }
         }
 
         return result;
     }
 
-    private static bool[][] ToBoolMatrix(PyObject pyValues, int rowCount, int columnCount)
+    private static bool[][] ToBoolMatrix(PyObject pyValues, int yLength, int xLength)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
 
         using var rows = new PyList(pyValueArray);
-        Guard.IsEqualTo(rows.Length(), rowCount);
+        Guard.IsEqualTo(rows.Length(), yLength);
 
-        var result = new bool[rowCount][];
-        for (var row = 0; row < rowCount; row++)
+        var result = new bool[yLength][];
+        for (var y = 0; y < yLength; y++)
         {
-            using var pyRowObject = Guard.IsNotNullAndReturn(rows[row]);
+            using var pyRowObject = Guard.IsNotNullAndReturn(rows[y]);
             using var pyRow = new PyList(pyRowObject);
 
-            Guard.IsEqualTo(pyRow.Length(), columnCount);
+            Guard.IsEqualTo(pyRow.Length(), xLength);
 
-            result[row] = new bool[columnCount];
-            for (var column = 0; column < columnCount; column++)
+            result[y] = new bool[xLength];
+            for (var x = 0; x < xLength; x++)
             {
-                using var pyBoolObject = Guard.IsNotNullAndReturn(pyRow[column]);
+                using var pyBoolObject = Guard.IsNotNullAndReturn(pyRow[x]);
                 using var pyVector = new PyList(pyBoolObject);
                 Guard.IsEqualTo(pyVector.Length(), 1);
 
                 using var pyBool = Guard.IsNotNullAndReturn(pyVector[0]);
 
-                result[row][column] = pyBool.As<bool>();
+                result[y][x] = pyBool.As<bool>();
             }
         }
 
