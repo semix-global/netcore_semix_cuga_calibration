@@ -4,7 +4,6 @@ using Cuga.Data.DataStruct.Board;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Interface.Calibration;
 using Net.Utilities.Attributes;
-using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
 

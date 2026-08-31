@@ -195,7 +195,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             tracebufferList[4], tracebufferList[5], tracebufferList[6], tracebufferList[7]));
     }
 
-    public async Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double>Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
+    public async Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double> Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
     {
         var calibrationRegList = new List<CgADSTraceBufferReg>
         {
@@ -212,7 +212,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         if (sxExecuteRetStartADSTraceBuffExec.IsSuccess == false)
             return SxExecuteRetHelper.CreateError<
                 (List<double> X0, List<double> X1,
-                List<double> Y0, List<double>Y1, List<double> Speed)>(sxExecuteRetStartADSTraceBuffExec.Msg, ([], [], [], [], []));
+                List<double> Y0, List<double> Y1, List<double> Speed)>(sxExecuteRetStartADSTraceBuffExec.Msg, ([], [], [], [], []));
 
         await cancellationToken.WaitUntilCanceledAsync();
 
@@ -221,7 +221,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         if (sxExecuteRetStopADSTraceBuffExec.IsSuccess == false)
             return SxExecuteRetHelper.CreateError<
                 (List<double> X0, List<double> X1,
-                List<double> Y0, List<double>Y1, List<double> Speed)>(sxExecuteRetStopADSTraceBuffExec.Msg, ([], [], [], [], []));
+                List<double> Y0, List<double> Y1, List<double> Speed)>(sxExecuteRetStopADSTraceBuffExec.Msg, ([], [], [], [], []));
 
         if (sxExecuteRetStopADSTraceBuffExec.Anything.Count != 5
             || sxExecuteRetStopADSTraceBuffExec.Anything.Any(t => t.Count == 0)
@@ -231,7 +231,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             || sxExecuteRetStopADSTraceBuffExec.Anything[3].Count != sxExecuteRetStopADSTraceBuffExec.Anything[4].Count)
             return SxExecuteRetHelper.CreateError<
                 (List<double> X0, List<double> X1,
-                List<double> Y0, List<double>Y1, List<double> Speed)>("Ads error trans buffer is empty", ([], [], [], [], []));
+                List<double> Y0, List<double> Y1, List<double> Speed)>("Ads error trans buffer is empty", ([], [], [], [], []));
 
         // 将四个地址的tracebuffer数据合并成一个列表
         var tracebufferList = sxExecuteRetStopADSTraceBuffExec.Anything

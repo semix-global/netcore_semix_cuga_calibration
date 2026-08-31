@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
@@ -17,6 +16,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.Helpers;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 

@@ -179,7 +179,7 @@ public sealed partial class BrightFieldMapView
     {
         _logger ??= HostApplication.GetRequiredService<ILogger<BrightFieldMapView>>();
 
-       // wpfPlot.ConfigureWpfPlotCommon();
+        // wpfPlot.ConfigureWpfPlotCommon();
 
         wpfPlot.Plot.Title("Map");
         wpfPlot.Plot.HideAxesAndGrid();

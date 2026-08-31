@@ -87,14 +87,13 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
-
-        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         Cache = ApplicationCookieService.GetCache<ChuckGantryCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckGantryDto>(cancellationToken);
+
+        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
+        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         UpdateEntryStatus(Calibration, cancellationToken);
 

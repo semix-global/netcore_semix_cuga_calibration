@@ -304,7 +304,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
         if (windowManagerService.ShowDialog(createRoiWindowViewModel) == false) ThrowHelper.ThrowOperationCanceledException<bool>("Generate ROI");
 
-        using var drawImage = darkFieldImageDto.Image.DrawRect(createRoiWindowViewModel.Rect);
+        using var drawImage = darkFieldImageDto.Image.ToRoi(createRoiWindowViewModel.Rect);
         var drawFilePath = Path.Combine(directory, $"Draw_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         drawImage.SaveImage(drawFilePath);
 
@@ -341,6 +341,8 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 Cache.ScribeFindPosition,
                 Cache.SignalFindPosition,
                 Cache.LaserLightInformation,
+                Cache.QuietROI,
+                Cache.SignalROI,
                 Cache.Threshold,
                 CibConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous())
@@ -475,8 +477,8 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 var filePath = Path.Combine(ImageDirectory, imageFileName);
                 var subFilePath = Path.Combine(ImageDirectory, "SubImages", imageFileName);
 
-                using var signalDrawImage = dto.Image.DrawRect(Cache.SignalROI);
-                using var quietDrawImage = signalDrawImage.DrawRect(Cache.QuietROI);
+                using var signalDrawImage = dto.Image.ToRoi(Cache.SignalROI);
+                using var quietDrawImage = signalDrawImage.ToRoi(Cache.QuietROI);
                 quietDrawImage.Save(filePath);
 
                 var (signalRoi, quietRoi) = Cache.SignalROI.Intersection(Cache.QuietROI);

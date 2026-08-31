@@ -1,8 +1,10 @@
+using algocv_sharp;
 using HalconDotNet;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
+using Net.Utilities.Graphics.Primitives.Enums.Medias.Imaging;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 
@@ -90,12 +92,40 @@ public static class BitmapImageExtensions
             return hImage.GetMaxMinGrayValue(rect);
         }
 
-        public BitmapImage DrawRect(Rect rect)
+        public algocv_sharp.Image ToAlgoCVImage()
         {
-            using var hImage = bitmapImage.ToHImage();
-            using var drawHImage = hImage.DrawRect(rect);
+            if (bitmapImage.IsDisposed)
+            {
+                throw new ObjectDisposedException(nameof(bitmapImage));
+            }
 
-            return drawHImage.ToBitmapImage();
+            if (bitmapImage.IsEmpty)
+            {
+                throw new ArgumentException("Cannot convert an empty BitmapImage.", nameof(bitmapImage));
+            }
+
+            var (channels, dataType, bitsPerPixel) = bitmapImage.PixelFormatEnum switch
+            {
+                PixelFormatEnum.Gray8 => (1, ImageDataType.UInt8, 8),
+                PixelFormatEnum.Gray12 => (1, ImageDataType.UInt16, 16),
+                PixelFormatEnum.Gray16 => (1, ImageDataType.UInt16, 16),
+                PixelFormatEnum.Bgr8888 => (3, ImageDataType.UInt8, 24),
+                PixelFormatEnum.Bgra8888 => (4, ImageDataType.UInt8, 32),
+                _ => throw new NotSupportedException($"Pixel format '{bitmapImage.PixelFormatEnum}' is not supported for algocv_sharp.Image conversion.")
+            };
+
+            var width = bitmapImage.Width;
+            var height = bitmapImage.Height;
+            var image = new algocv_sharp.Image(width, height, channels, dataType);
+
+            var destImageInfo = ImageInfoFactory.Create(width, height, channels, bitsPerPixel);
+            if (!bitmapImage.ReadPixels(destImageInfo, image.DataPtr, image.Stride, 0, 0))
+            {
+                image.Dispose();
+                throw new InvalidOperationException("Failed to read pixels from BitmapImage into algocv_sharp.Image.");
+            }
+
+            return image;
         }
     }
 }
