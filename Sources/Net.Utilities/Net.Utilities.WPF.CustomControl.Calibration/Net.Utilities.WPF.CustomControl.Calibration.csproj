@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.3-preview2.0-yan" />
         <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.3-preview2.0-yan" />
         <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.3-preview2.0-yan" />
         <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.3-preview2.0-yan" />
