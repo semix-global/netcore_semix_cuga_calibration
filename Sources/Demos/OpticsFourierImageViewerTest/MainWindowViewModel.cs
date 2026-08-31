@@ -7,7 +7,6 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace OpticsFourierImageViewerTest;
 
@@ -59,7 +58,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditAllAnchorROIsAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            RectROIDrawableControlPointTypesEnum.All,
+            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.All,
             isEnableDragMove: true,
             cancellationToken: cancellationToken);
     }
@@ -68,7 +67,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            RectROIDrawableControlPointTypesEnum.XCenterYMin,
+            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin,
             isEnableDragMove: false,
             cancellationToken: cancellationToken);
     }
@@ -77,9 +76,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditThreeBottomAnchorROIsAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            RectROIDrawableControlPointTypesEnum.XMinYMin |
-            RectROIDrawableControlPointTypesEnum.XCenterYMin |
-            RectROIDrawableControlPointTypesEnum.XMaxYMin,
+            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMinYMin |
+            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin |
+            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMaxYMin,
             isEnableDragMove: true,
             cancellationToken: cancellationToken);
     }
@@ -93,7 +92,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     }
 
     private async Task EditROIsAsync(
-        RectROIDrawableControlPointTypesEnum controlPointTypesEnum,
+        BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
         bool isEnableDragMove,
         CancellationToken cancellationToken)
     {
@@ -121,27 +120,27 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
 
-                    Document.OverlayerModel.Add(new RectROIDrawable
+                    Document.OverlayerModel.Add(new BitmapImageROIDrawable
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
-                        ControlPointTypesEnum = controlPointTypesEnum,
+                        ControlPointTypeEnum = controlPointTypeEnum,
                         IsModified = false
                     });
                 }
             });
 
-            var options = new AddOrModifyRectROIDrawableInputOptions(BitmapImageDrawable)
+            var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
                 IsEnableDragMove = isEnableDragMove,
                 CancellationToken = cancellationToken
             };
 
-            await AddOrModifyRectROIDrawableGetterEditor.RunAsync<AddOrModifyRectROIDrawableGetterEditor>(Document.Edit, options);
+            await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
         }, cancellationToken).ConfigureAwait(false);
     }
 
     private void ClearRectROIs()
     {
-        Document.OverlayerModel.RemoveRange(Document.OverlayerModel.OfType<RectROIDrawable>().ToArray());
+        Document.OverlayerModel.RemoveRange(Document.OverlayerModel.OfType<BitmapImageROIDrawable>().ToArray());
     }
 }

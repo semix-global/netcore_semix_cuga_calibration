@@ -22,7 +22,6 @@ internal sealed class MultiBitmapImageDrawableToStringConverter : IMultiValueCon
         var pointString = "-";
         var pixelString = "-";
 
-        if (values[0] == DependencyProperty.UnsetValue || values is [Point, null]) return DefaultString;
         if (values is not [Point point, CanvasDocument document]) return ThrowHelper.ThrowNotSupportedException<object>(nameof(values));
 
         using var scope = document.View.Sync.EnterScope();
@@ -34,38 +33,36 @@ internal sealed class MultiBitmapImageDrawableToStringConverter : IMultiValueCon
 
         if (bitmapImageDrawable?.BitmapImage is null)
         {
-            foreach (var temp in document.View.VisibleItems.OfType<BitmapImageDrawable>())
-            {
-                temp.CursorPoint = null;
-                temp.CursorPointColor = null;
-            }
+            foreach (var temp in document.View.VisibleItems.OfType<BitmapImageDrawable>()) temp.CursorPoint = null;
 
             return DefaultString;
         }
 
         var cursorPosition = bitmapImageDrawable.CartesianCoordinateToImageCoordinate(point);
-
-        if (new Rect(Point.Origin, new Size(bitmapImageDrawable.BitmapImage.Width, bitmapImageDrawable.BitmapImage.Height)).Contains(cursorPosition))
+        uint? cursorPointColor;
+        if (new Rect(Point.Origin, bitmapImageDrawable.BitmapImage.Size).Contains(cursorPosition))
         {
             bitmapImageDrawable.CursorPoint = cursorPosition;
+
             var (x, y) = (PointI)cursorPosition;
-            bitmapImageDrawable.CursorPointColor = bitmapImageDrawable.BitmapImage.GetPixel(x, y);
+            cursorPointColor = bitmapImageDrawable.BitmapImage.GetPixel(x, y);
         }
         else
         {
             bitmapImageDrawable.CursorPoint = null;
-            bitmapImageDrawable.CursorPointColor = null;
+
+            cursorPointColor = null;
         }
 
         if (bitmapImageDrawable.CursorPoint is not null) pointString = bitmapImageDrawable.CursorPoint.ToString();
-        if (bitmapImageDrawable.CursorPointColor is null) return $"{pointString} | {pixelString}";
+        if (cursorPointColor is null) return $"{pixelString} | {pointString}";
 
-        if (bitmapImageDrawable.BitmapImage?.ImageInfo.BytesPerPixel == 4)
+        if (bitmapImageDrawable.BitmapImage.ImageInfo.BytesPerPixel == 4)
         {
-            var skColor = new SKColor(bitmapImageDrawable.CursorPointColor.Value);
+            var skColor = new SKColor(cursorPointColor.Value);
             pixelString = $"{skColor.Red}, {skColor.Green}, {skColor.Blue}, {skColor.Alpha}";
         }
-        else pixelString = bitmapImageDrawable.CursorPointColor.Value.ToString();
+        else pixelString = cursorPointColor.Value.ToString();
 
         return $"{pixelString} | {pointString}";
     }

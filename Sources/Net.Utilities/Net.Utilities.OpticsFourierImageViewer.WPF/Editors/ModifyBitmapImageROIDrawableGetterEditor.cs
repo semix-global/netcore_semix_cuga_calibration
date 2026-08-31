@@ -11,28 +11,22 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using ROIOperationModeEnum = Net.Utilities.ImageViewer.WPF.Primitives.Enums.ROIOperationModeEnum;
-using ResizeJoystickStateEnum = Net.Utilities.ImageViewer.WPF.Primitives.Enums.ResizeJoystickStateEnum;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 
-public sealed class AddOrModifyRectROIDrawableGetterEditor(
+public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     CanvasEdit edit,
-    AddOrModifyRectROIDrawableInputOptions options,
-    TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<AddOrModifyRectROIDrawableInputOptions, Unit>(edit, options, completion)
+    ModifyBitmapImageROIDrawableInputOptions options,
+    TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
     // 取消、超时或外部取消时使用快照恢复；Enter 成功结束时保留当前修改。
-    private readonly Dictionary<RectROIDrawable, (Rect Rect, bool IsModified)> _originalROIStates = [];
+    private readonly Dictionary<BitmapImageROIDrawable, (Rect Rect, bool IsModified)> _originalROIStates = [];
 
     // 每次鼠标拖拽都从同一份原始矩形计算，保证多选对象使用相同位移或缩放向量。
-    private readonly Dictionary<RectROIDrawable, Rect> _dragOriginalRects = [];
+    private readonly Dictionary<BitmapImageROIDrawable, Rect> _dragOriginalRects = [];
 
     private SelectionWindow? _selectionWindow;
-    private RectROIDrawable? _editRectROIDrawable;
+    private BitmapImageROIDrawable? _editRectROIDrawable;
     private Point _dragStartPoint;
     private CursorTypeEnum _defaultCursorTypeEnum;
     private EditorStateEnum _editorStateEnum;
@@ -235,7 +229,7 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
         UpdateEditorState();
     }
 
-    private RectROIDrawable[] GetSelectionFromWindow(SelectionWindow selectionWindow)
+    private BitmapImageROIDrawable[] GetSelectionFromWindow(SelectionWindow selectionWindow)
     {
         var rectROIDrawables = GetVisibleRectROIDrawables();
 
@@ -253,12 +247,12 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
         return [.. rectROIDrawables.Where(t => selectionWindowExtents.IntersectsWith(t.GetExtents()))];
     }
 
-    private bool TryGetModifyTarget(Point point, out RectROIDrawable? target, out ControlPoint? controlPoint)
+    private bool TryGetModifyTarget(Point point, out BitmapImageROIDrawable? target, out ControlPoint? controlPoint)
     {
         target = null;
         controlPoint = null;
 
-        var selectedRectROIDrawables = Edit.SelectedItems.OfType<RectROIDrawable>().ToArray();
+        var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().ToArray();
         if (selectedRectROIDrawables.Length == 0) return false;
 
         var controlPointPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.ControlPointPickDistance);
@@ -289,14 +283,14 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
         return false;
     }
 
-    private void BeginModification(RectROIDrawable target, ControlPoint? controlPoint, Point point)
+    private void BeginModification(BitmapImageROIDrawable target, ControlPoint? controlPoint, Point point)
     {
         _editorStateEnum = EditorStateEnum.Modify;
         _editRectROIDrawable = target;
         _dragStartPoint = point;
         _dragOriginalRects.Clear();
 
-        foreach (var rectROIDrawable in Edit.SelectedItems.OfType<RectROIDrawable>())
+        foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>())
         {
             _dragOriginalRects[rectROIDrawable] = rectROIDrawable.Rect;
         }
@@ -442,9 +436,9 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
         return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
     }
 
-    private RectROIDrawable[] GetRectROIDrawables() => Edit.Document.OverlayerModel.OfType<RectROIDrawable>().ToArray();
+    private BitmapImageROIDrawable[] GetRectROIDrawables() => Edit.Document.OverlayerModel.OfType<BitmapImageROIDrawable>().ToArray();
 
-    private RectROIDrawable[] GetVisibleRectROIDrawables() => Edit.Document.View.VisibleItems.OfType<RectROIDrawable>().ToArray();
+    private BitmapImageROIDrawable[] GetVisibleRectROIDrawables() => Edit.Document.View.VisibleItems.OfType<BitmapImageROIDrawable>().ToArray();
 
     private void RestoreOriginalROIStates()
     {
@@ -463,25 +457,25 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
         Edit.SelectedItems.Clear();
     }
 
-    private void Select(RectROIDrawable rectROIDrawable)
+    private void Select(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
-        if (Edit.SelectedItems.Contains(rectROIDrawable)) return;
+        if (Edit.SelectedItems.Contains(bitmapImageROIDrawable)) return;
 
-        rectROIDrawable.IsSelected = true;
-        Edit.SelectedItems.Add(rectROIDrawable);
+        bitmapImageROIDrawable.IsSelected = true;
+        Edit.SelectedItems.Add(bitmapImageROIDrawable);
     }
 
-    private void ToggleSelection(RectROIDrawable rectROIDrawable)
+    private void ToggleSelection(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
         // SelectedItems 与 drawable.IsSelected 必须同步维护，CanvasView 依赖二者绘制选择状态。
-        if (Edit.SelectedItems.Contains(rectROIDrawable))
+        if (Edit.SelectedItems.Contains(bitmapImageROIDrawable))
         {
-            rectROIDrawable.IsSelected = false;
-            Edit.SelectedItems.Remove(rectROIDrawable);
+            bitmapImageROIDrawable.IsSelected = false;
+            Edit.SelectedItems.Remove(bitmapImageROIDrawable);
         }
         else
         {
-            Select(rectROIDrawable);
+            Select(bitmapImageROIDrawable);
         }
 
         UpdateEditorState();
@@ -489,7 +483,7 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
 
     private void UpdateEditorState()
     {
-        _editorStateEnum = Edit.SelectedItems.OfType<RectROIDrawable>().Any()
+        _editorStateEnum = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Any()
             ? EditorStateEnum.Modify
             : EditorStateEnum.Select;
     }
@@ -511,5 +505,31 @@ public sealed class AddOrModifyRectROIDrawableGetterEditor(
 
         Edit.Document.Transients.Remove(_selectionWindow);
         _selectionWindow = null;
+    }
+
+    private enum EditorStateEnum
+    {
+        Select,
+        Modify
+    }
+
+    private enum ResizeJoystickStateEnum
+    {
+        None,
+        LeftTop,
+        Top,
+        RightTop,
+        Right,
+        RightBottom,
+        Bottom,
+        LeftBottom,
+        Left
+    }
+
+    private enum ROIOperationModeEnum
+    {
+        None,
+        Move,
+        Resize
     }
 }

@@ -18,9 +18,6 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable
     private static readonly LineStyle CursorPointWhiteStyle = new(SKColors.White, ScreenRingGap);
 
     [ObservableProperty]
-    public partial bool IsShowCrossLine { get; set; }
-
-    [ObservableProperty]
     public partial Point Point { get; set; } = Point.Origin;
 
     public BitmapImage? BitmapImage
@@ -30,15 +27,16 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable
         {
             field?.Dispose();
             GC.Collect();
+
             SetProperty(ref field, value);
         }
     }
 
     [ObservableProperty]
-    public partial Point? CursorPoint { get; set; }
+    public partial bool IsShowCrossLine { get; set; }
 
     [ObservableProperty]
-    public partial uint? CursorPointColor { get; set; }
+    public partial Point? CursorPoint { get; set; }
 
     public override void Draw(Renderer renderer)
     {
@@ -58,18 +56,17 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable
 
         if (CursorPoint is null) return;
 
-        var screen1Distance = renderer.View.WorldToScreenDistance(1d);
+        var screenDistanceOf1 = renderer.View.WorldToScreenDistance(1d);
         var wordRingGap = renderer.View.ScreenToWorldDistance(ScreenRingGap);
 
         double wordWidth;
-        if (screen1Distance > ScreenCursorPointRectLength)
-            wordWidth = 1d;
+        if (screenDistanceOf1 > ScreenCursorPointRectLength) wordWidth = 1d;
         else
         {
-            var screenCount = (int)Math.Floor(ScreenCursorPointRectLength / screen1Distance);
+            var screenCount = (int)Math.Floor(ScreenCursorPointRectLength / screenDistanceOf1);
             if ((screenCount & 0x1) == 0) screenCount += 1; //偶数
 
-            wordWidth = renderer.View.ScreenToWorldDistance(screenCount * screen1Distance);
+            wordWidth = renderer.View.ScreenToWorldDistance(screenCount * screenDistanceOf1);
         }
 
         var wordOffset = (wordWidth - 1d) / 2d;
