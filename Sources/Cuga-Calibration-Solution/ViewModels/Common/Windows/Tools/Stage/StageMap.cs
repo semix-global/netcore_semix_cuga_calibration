@@ -238,7 +238,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         return result;
     }
 
-    public static PyList ToPythonVectorMatrix(Vector[][] matrix)
+    private static PyList ToPythonVectorMatrix(Vector[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
@@ -287,7 +287,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         return result;
     }
 
-    public static Vector[][] ToVectorMatrix(PyObject pyValues, int rowCount, int columnCount)
+    private static Vector[][] ToVectorMatrix(PyObject pyValues, int rowCount, int columnCount)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
 

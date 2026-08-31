@@ -488,9 +488,7 @@ public sealed partial class StageMapWindowViewModel(
             {
                 var scanStageMap = Cache.StageMap.Clone();
                 scanStageMap.Reset();
-
-                var historyStageMaps = Cache.RepeatStageMaps;
-                Cache.RepeatStageMaps = [.. historyStageMaps, scanStageMap];
+                Cache.RepeatStageMaps = [.. Cache.RepeatStageMaps, scanStageMap];
 
                 await ScanStageMapAsync(
                     scanStageMap,
@@ -500,17 +498,27 @@ public sealed partial class StageMapWindowViewModel(
 
                 logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                isSuccess = ProcessStage2Residuals(historyStageMaps, scanStageMap);
+                (isSuccess, var tempStateMap) = ProcessStage2Residuals();
                 scanStageMap.Refresh();
 
-                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                     .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                ]), HtmlLogUniqueId.LoggingHtml());
+
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                    .. tempStateMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                    .. tempStateMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
                 ]), HtmlLogUniqueId.LoggingHtml());
 
                 if (isSuccess)
                 {
-                    Cache.StageMap.SubtractInplace(scanStageMap);
+                    Cache.StageMap.SubtractInplace(tempStateMap);
+
+                    logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                        .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                        .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                    ]), HtmlLogUniqueId.LoggingHtml());
 
                     break;
                 }
@@ -773,15 +781,17 @@ public sealed partial class StageMapWindowViewModel(
         stageMap.ApplyPythonErrorMatrix(result);
     }
 
-    private bool ProcessStage2Residuals(StageMap[] historyStageMaps, StageMap scanStageMap)
+    private (bool IsSuccess, StageMap StageMap) ProcessStage2Residuals()
     {
+        Guard.IsNotEmpty(Cache.RepeatStageMaps);
+
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var process = module.GetAttr("process_stage2_residuals");
 
         using var pyResiduals = new PyList();
         using var pyMasks = new PyList();
-        foreach (var stageMap in historyStageMaps)
+        foreach (var stageMap in Cache.RepeatStageMaps)
         {
             using var pyResidual = stageMap.ToPythonErrorMatrix();
             using var pyMask = stageMap.ToPythonIsMatchMatrix();
@@ -790,7 +800,7 @@ public sealed partial class StageMapWindowViewModel(
             pyMasks.Append(pyMask);
         }
 
-        using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
+        using var pyDesiredPositions = Cache.RepeatStageMaps[0].ToPythonIdealMatrix();
         using var pyAlpha = StageMapResidualAlpha.ToPython();
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
         using var pyMaximumCount = (Cache.StageMapRepeatTimes + 1).ToPython();
@@ -801,9 +811,12 @@ public sealed partial class StageMapWindowViewModel(
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
 
         var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
-        scanStageMap.ApplyPythonErrorMatrix(pyResidualTable);
 
-        return needMoreMeasurement;
+        var temp = Cache.RepeatStageMaps[0].Clone();
+        temp.Reset();
+        temp.ApplyPythonErrorMatrix(pyResidualTable);
+
+        return (needMoreMeasurement, temp);
     }
 
     private void DownloadStageMap()
