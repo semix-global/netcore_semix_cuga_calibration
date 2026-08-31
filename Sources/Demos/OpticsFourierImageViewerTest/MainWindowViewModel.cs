@@ -7,6 +7,7 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace OpticsFourierImageViewerTest;
 
@@ -59,7 +60,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         return EditROIsAsync(
             BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.All,
-            isEnableDragMove: true,
+            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
             cancellationToken: cancellationToken);
     }
 
@@ -68,7 +69,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         return EditROIsAsync(
             BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin,
-            isEnableDragMove: false,
+            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
             cancellationToken: cancellationToken);
     }
 
@@ -79,7 +80,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
             BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMinYMin |
             BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin |
             BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMaxYMin,
-            isEnableDragMove: true,
+            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
             cancellationToken: cancellationToken);
     }
 
@@ -93,7 +94,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     private async Task EditROIsAsync(
         BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
-        bool isEnableDragMove,
+        BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
         CancellationToken cancellationToken)
     {
         var roiCount = ROICount;
@@ -131,7 +132,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
-                IsEnableDragMove = isEnableDragMove,
+                IsEnableDragMove = dragMoveTypeEnum,
                 CancellationToken = cancellationToken
             };
 

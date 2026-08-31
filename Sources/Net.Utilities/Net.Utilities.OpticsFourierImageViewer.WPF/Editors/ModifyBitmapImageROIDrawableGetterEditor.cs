@@ -11,6 +11,8 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using BitmapImageROIControlPointTypeEnum = Net.Utilities.OpticsFourierImageViewer.WPF.Drawables.BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 
@@ -31,7 +33,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private CursorTypeEnum _defaultCursorTypeEnum;
     private EditorStateEnum _editorStateEnum;
     private ROIOperationModeEnum _roiOperationModeEnum;
-    private ResizeJoystickStateEnum _resizeJoystickStateEnum;
+    private BitmapImageROIControlPointTypeEnum _resizeControlPointTypeEnum;
     private bool _isCursorDown;
     private bool _isToggleSelection;
     private bool _isAccepted;
@@ -49,7 +51,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _dragOriginalRects.Clear();
         _originalROIStates.Clear();
         _roiOperationModeEnum = ROIOperationModeEnum.None;
-        _resizeJoystickStateEnum = ResizeJoystickStateEnum.None;
+        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
 
         ClearSelection();
 
@@ -108,7 +110,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _editRectROIDrawable = null;
         _dragOriginalRects.Clear();
         _roiOperationModeEnum = ROIOperationModeEnum.None;
-        _resizeJoystickStateEnum = ResizeJoystickStateEnum.None;
+        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
 
         var isControlPressed = eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control);
 
@@ -124,7 +126,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 ToggleSelection(target);
                 _isCursorDown = false;
             }
-            else if (controlPoint is null && Options.IsEnableDragMove == false)
+            else if (controlPoint is null && Options.IsEnableDragMove == BitmapImageROIDragMoveTypeEnum.None)
             {
                 // 禁止移动时保留当前选择，但不创建拖拽操作。
                 _isCursorDown = false;
@@ -298,30 +300,30 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         if (controlPoint is null)
         {
             _roiOperationModeEnum = ROIOperationModeEnum.Move;
-            _resizeJoystickStateEnum = ResizeJoystickStateEnum.None;
-            Edit.Document.View.CanvasControl?.CursorTypeEnum = CursorTypeEnum.SizeAll;
+            _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
+            Edit.Document.View.CanvasControl?.CursorTypeEnum = GetMoveCursorType(Options.IsEnableDragMove);
 
             return;
         }
 
         _roiOperationModeEnum = ROIOperationModeEnum.Resize;
-        (_resizeJoystickStateEnum, var cursorTypeEnum) = GetResizeConfiguration(controlPoint.Name);
+        (_resizeControlPointTypeEnum, var cursorTypeEnum) = GetResizeConfiguration(controlPoint.Name);
 
         Edit.Document.View.CanvasControl?.CursorTypeEnum = cursorTypeEnum;
     }
 
-    private static (ResizeJoystickStateEnum ResizeJoystickStateEnum, CursorTypeEnum CursorTypeEnum) GetResizeConfiguration(string controlPointName)
+    private static (BitmapImageROIControlPointTypeEnum ControlPointTypeEnum, CursorTypeEnum CursorTypeEnum) GetResizeConfiguration(string controlPointName)
     {
         return controlPointName switch
         {
-            nameof(Rect.XMaxYMax) => (ResizeJoystickStateEnum.RightTop, CursorTypeEnum.SizeNESW),
-            nameof(Rect.XMinYMax) => (ResizeJoystickStateEnum.LeftTop, CursorTypeEnum.SizeNWSE),
-            nameof(Rect.XMinYMin) => (ResizeJoystickStateEnum.LeftBottom, CursorTypeEnum.SizeNESW),
-            nameof(Rect.XMaxYMin) => (ResizeJoystickStateEnum.RightBottom, CursorTypeEnum.SizeNWSE),
-            nameof(Rect.XCenterYMax) => (ResizeJoystickStateEnum.Top, CursorTypeEnum.SizeNS),
-            nameof(Rect.XMinYCenter) => (ResizeJoystickStateEnum.Left, CursorTypeEnum.SizeWE),
-            nameof(Rect.XCenterYMin) => (ResizeJoystickStateEnum.Bottom, CursorTypeEnum.SizeNS),
-            nameof(Rect.XMaxYCenter) => (ResizeJoystickStateEnum.Right, CursorTypeEnum.SizeWE),
+            nameof(Rect.XMaxYMax) => (BitmapImageROIControlPointTypeEnum.XMaxYMax, CursorTypeEnum.SizeNESW),
+            nameof(Rect.XMinYMax) => (BitmapImageROIControlPointTypeEnum.XMinYMax, CursorTypeEnum.SizeNWSE),
+            nameof(Rect.XMinYMin) => (BitmapImageROIControlPointTypeEnum.XMinYMin, CursorTypeEnum.SizeNESW),
+            nameof(Rect.XMaxYMin) => (BitmapImageROIControlPointTypeEnum.XMaxYMin, CursorTypeEnum.SizeNWSE),
+            nameof(Rect.XCenterYMax) => (BitmapImageROIControlPointTypeEnum.XCenterYMax, CursorTypeEnum.SizeNS),
+            nameof(Rect.XMinYCenter) => (BitmapImageROIControlPointTypeEnum.XMinYCenter, CursorTypeEnum.SizeWE),
+            nameof(Rect.XCenterYMin) => (BitmapImageROIControlPointTypeEnum.XCenterYMin, CursorTypeEnum.SizeNS),
+            nameof(Rect.XMaxYCenter) => (BitmapImageROIControlPointTypeEnum.XMaxYCenter, CursorTypeEnum.SizeWE),
             _ => throw new ArgumentOutOfRangeException(nameof(controlPointName), controlPointName, "Unknown rectangle control point.")
         };
     }
@@ -350,7 +352,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void ApplyMove(Vector delta, Rect imageRect)
     {
         // 多选移动使用共同合法位移，保持每个 ROI 之间的相对位置。
-        var constrainedDelta = ConstrainMoveDelta(delta, imageRect);
+        var constrainedDelta = ConstrainMoveDelta(ApplyMoveDirection(delta), imageRect);
 
         foreach (var (rectROIDrawable, originalRect) in _dragOriginalRects)
         {
@@ -363,7 +365,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         // 多选缩放使用相同锚点和拖动向量，但每个 ROI 独立限制在图片内。
         foreach (var (rectROIDrawable, originalRect) in _dragOriginalRects)
         {
-            var modifiedRect = ResizeRect(originalRect, _resizeJoystickStateEnum, delta);
+            var modifiedRect = ResizeRect(originalRect, _resizeControlPointTypeEnum, delta);
             rectROIDrawable.Rect = ClampRectToImage(modifiedRect, imageRect);
         }
     }
@@ -382,36 +384,56 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             Math.Clamp(delta.Y, imageRect.YMin - minY, imageRect.YMax - maxY));
     }
 
-    private static Rect ResizeRect(Rect rect, ResizeJoystickStateEnum resizeJoystickStateEnum, Vector delta)
+    private static CursorTypeEnum GetMoveCursorType(BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum)
     {
-        return resizeJoystickStateEnum switch
+        return dragMoveTypeEnum switch
         {
-            ResizeJoystickStateEnum.LeftTop => (Rect)new Extents(
+            BitmapImageROIDragMoveTypeEnum.None => CursorTypeEnum.Arrow,
+            BitmapImageROIDragMoveTypeEnum.X => CursorTypeEnum.SizeWE,
+            BitmapImageROIDragMoveTypeEnum.Y => CursorTypeEnum.SizeNS,
+            BitmapImageROIDragMoveTypeEnum.All => CursorTypeEnum.SizeAll,
+            _ => CursorTypeEnum.SizeAll
+        };
+    }
+
+    private Vector ApplyMoveDirection(Vector delta)
+    {
+        var dragMoveTypeEnum = Options.IsEnableDragMove;
+        return new Vector(
+            (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.X) == BitmapImageROIDragMoveTypeEnum.X ? delta.X : 0,
+            (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.Y) == BitmapImageROIDragMoveTypeEnum.Y ? delta.Y : 0);
+    }
+
+    private static Rect ResizeRect(Rect rect, BitmapImageROIControlPointTypeEnum controlPointTypeEnum, Vector delta)
+    {
+        return controlPointTypeEnum switch
+        {
+            BitmapImageROIControlPointTypeEnum.XMinYMax => (Rect)new Extents(
                 new Point(rect.XMin, rect.YMax) + delta,
                 new Point(rect.XMax, rect.YMin)),
-            ResizeJoystickStateEnum.Top => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XCenterYMax => (Rect)new Extents(
                 new Point(rect.XMax, rect.YMax) + new Vector(0, delta.Y),
                 new Point(rect.XMin, rect.YMin)),
-            ResizeJoystickStateEnum.RightTop => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XMaxYMax => (Rect)new Extents(
                 new Point(rect.XMax, rect.YMax) + delta,
                 new Point(rect.XMin, rect.YMin)),
-            ResizeJoystickStateEnum.Right => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XMaxYCenter => (Rect)new Extents(
                 new Point(rect.XMax, rect.YMax) + new Vector(delta.X, 0),
                 new Point(rect.XMin, rect.YMin)),
-            ResizeJoystickStateEnum.RightBottom => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XMaxYMin => (Rect)new Extents(
                 new Point(rect.XMax, rect.YMin) + delta,
                 new Point(rect.XMin, rect.YMax)),
-            ResizeJoystickStateEnum.Bottom => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XCenterYMin => (Rect)new Extents(
                 new Point(rect.XMin, rect.YMin) + new Vector(0, delta.Y),
                 new Point(rect.XMax, rect.YMax)),
-            ResizeJoystickStateEnum.LeftBottom => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XMinYMin => (Rect)new Extents(
                 new Point(rect.XMin, rect.YMin) + delta,
                 new Point(rect.XMax, rect.YMax)),
-            ResizeJoystickStateEnum.Left => (Rect)new Extents(
+            BitmapImageROIControlPointTypeEnum.XMinYCenter => (Rect)new Extents(
                 new Point(rect.XMin, rect.YMin) + new Vector(delta.X, 0),
                 new Point(rect.XMax, rect.YMax)),
-            ResizeJoystickStateEnum.None => rect,
-            _ => throw new ArgumentOutOfRangeException(nameof(resizeJoystickStateEnum), resizeJoystickStateEnum, "Unknown rectangle resize operation.")
+            BitmapImageROIControlPointTypeEnum.None => rect,
+            _ => throw new ArgumentOutOfRangeException(nameof(controlPointTypeEnum), controlPointTypeEnum, "Unknown rectangle resize operation.")
         };
     }
 
@@ -494,7 +516,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _editRectROIDrawable = null;
         _dragOriginalRects.Clear();
         _roiOperationModeEnum = ROIOperationModeEnum.None;
-        _resizeJoystickStateEnum = ResizeJoystickStateEnum.None;
+        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
         _isToggleSelection = false;
         Edit.Document.View.CanvasControl?.CursorTypeEnum = _defaultCursorTypeEnum;
     }
@@ -511,19 +533,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         Select,
         Modify
-    }
-
-    private enum ResizeJoystickStateEnum
-    {
-        None,
-        LeftTop,
-        Top,
-        RightTop,
-        Right,
-        RightBottom,
-        Bottom,
-        LeftBottom,
-        Left
     }
 
     private enum ROIOperationModeEnum

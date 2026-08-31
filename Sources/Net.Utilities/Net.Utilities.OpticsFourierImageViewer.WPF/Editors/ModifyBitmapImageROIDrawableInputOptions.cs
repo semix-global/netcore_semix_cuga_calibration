@@ -3,6 +3,7 @@ using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 
@@ -14,9 +15,9 @@ public sealed class ModifyBitmapImageROIDrawableInputOptions : InputOptions<Unit
     public BitmapImageDrawable BitmapImageDrawable { get; }
 
     /// <summary>
-    /// 是否允许拖拽ROI本体移动. 关闭时仍然可以通过锚点调整ROI大小
+    /// ROI 本体允许移动的方向。None 表示不允许移动，All 表示允许 X、Y 两个方向移动。
     /// </summary>
-    public bool IsEnableDragMove { get; set; } = true;
+    public BitmapImageROIDragMoveTypeEnum IsEnableDragMove { get; set; } = BitmapImageROIDragMoveTypeEnum.All;
 
     /// <summary>
     /// 创建只编辑已有Rect ROI的输入选项
