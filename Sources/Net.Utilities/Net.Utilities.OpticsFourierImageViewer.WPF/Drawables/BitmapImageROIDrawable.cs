@@ -4,6 +4,7 @@ using Net.Utilities.Graphics.Primitives.Editors;
 using Net.Utilities.Graphics.Primitives.Medias.Styles;
 using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 using SkiaSharp;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
@@ -71,20 +72,5 @@ public sealed partial class BitmapImageROIDrawable : AbstractDrawable
         }
 
         return [.. controlPoints];
-    }
-
-    [Flags]
-    public enum BitmapImageROIControlPointTypeEnum
-    {
-        None = 0,
-        XMaxYMax = 1 << 0,
-        XMinYMax = 1 << 1,
-        XMinYMin = 1 << 2,
-        XMaxYMin = 1 << 3,
-        XCenterYMax = 1 << 4,
-        XMinYCenter = 1 << 5,
-        XCenterYMin = 1 << 6,
-        XMaxYCenter = 1 << 7,
-        All = XMaxYMax | XMinYMax | XMinYMin | XMaxYMin | XCenterYMax | XMinYCenter | XCenterYMin | XMaxYCenter
     }
 }

@@ -59,7 +59,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditAllAnchorROIsAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.All,
+            BitmapImageROIControlPointTypeEnum.All,
             dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
             cancellationToken: cancellationToken);
     }
@@ -68,7 +68,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin,
+            BitmapImageROIControlPointTypeEnum.XCenterYMin,
             dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
             cancellationToken: cancellationToken);
     }
@@ -77,9 +77,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditThreeBottomAnchorROIsAsync(CancellationToken cancellationToken)
     {
         return EditROIsAsync(
-            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMinYMin |
-            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XCenterYMin |
-            BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum.XMaxYMin,
+            BitmapImageROIControlPointTypeEnum.XMinYMin |
+            BitmapImageROIControlPointTypeEnum.XCenterYMin |
+            BitmapImageROIControlPointTypeEnum.XMaxYMin,
             dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
             cancellationToken: cancellationToken);
     }
@@ -93,7 +93,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     }
 
     private async Task EditROIsAsync(
-        BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
+        BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
         CancellationToken cancellationToken)
     {
@@ -132,7 +132,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
-                IsEnableDragMove = dragMoveTypeEnum,
+                BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 CancellationToken = cancellationToken
             };
 

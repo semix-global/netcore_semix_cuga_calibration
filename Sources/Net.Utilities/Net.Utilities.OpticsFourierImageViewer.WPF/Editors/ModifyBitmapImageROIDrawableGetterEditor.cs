@@ -12,7 +12,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
-using BitmapImageROIControlPointTypeEnum = Net.Utilities.OpticsFourierImageViewer.WPF.Drawables.BitmapImageROIDrawable.BitmapImageROIControlPointTypeEnum;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 
@@ -31,8 +30,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private BitmapImageROIDrawable? _editRectROIDrawable;
     private Point _dragStartPoint;
     private CursorTypeEnum _defaultCursorTypeEnum;
-    private EditorStateEnum _editorStateEnum;
-    private ROIOperationModeEnum _roiOperationModeEnum;
+    private BitmapImageROIDrawableEditorStateEnum _bitmapImageROIDrawableEditorStateEnum;
+    private BitmapImageROIDrawableROIOperationModeEnum _bitmapImageROIDrawableROIOperationModeEnum;
     private BitmapImageROIControlPointTypeEnum _resizeControlPointTypeEnum;
     private bool _isCursorDown;
     private bool _isToggleSelection;
@@ -43,14 +42,14 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         base.Init(args);
 
         // 编辑器只选择和修改已有 ROI，不创建新的 RectROIDrawable。
-        _editorStateEnum = EditorStateEnum.Select;
+        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
         _isCursorDown = false;
         _isToggleSelection = false;
         _isAccepted = false;
         _editRectROIDrawable = null;
         _dragOriginalRects.Clear();
         _originalROIStates.Clear();
-        _roiOperationModeEnum = ROIOperationModeEnum.None;
+        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
         _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
 
         ClearSelection();
@@ -92,7 +91,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        if (_editorStateEnum != EditorStateEnum.Modify || _editRectROIDrawable is null) return;
+        if (_bitmapImageROIDrawableEditorStateEnum != BitmapImageROIDrawableEditorStateEnum.Modify || _editRectROIDrawable is null) return;
 
         Edit.Document.RunDesign(() => ApplyModification(currentPoint));
     }
@@ -109,7 +108,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _dragStartPoint = point;
         _editRectROIDrawable = null;
         _dragOriginalRects.Clear();
-        _roiOperationModeEnum = ROIOperationModeEnum.None;
+        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
         _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
 
         var isControlPressed = eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control);
@@ -126,7 +125,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 ToggleSelection(target);
                 _isCursorDown = false;
             }
-            else if (controlPoint is null && Options.IsEnableDragMove == BitmapImageROIDragMoveTypeEnum.None)
+            else if (controlPoint is null && Options.BitmapImageROIDragMoveTypeEnum == BitmapImageROIDragMoveTypeEnum.None)
             {
                 // 禁止移动时保留当前选择，但不创建拖拽操作。
                 _isCursorDown = false;
@@ -194,7 +193,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void BeginSelection(Point point, bool isToggleSelection)
     {
-        _editorStateEnum = EditorStateEnum.Select;
+        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
         _isToggleSelection = isToggleSelection;
 
         // 普通选择替换旧选择，Ctrl 框选则在结束时逐项切换选择状态。
@@ -287,7 +286,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void BeginModification(BitmapImageROIDrawable target, ControlPoint? controlPoint, Point point)
     {
-        _editorStateEnum = EditorStateEnum.Modify;
+        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
         _editRectROIDrawable = target;
         _dragStartPoint = point;
         _dragOriginalRects.Clear();
@@ -299,14 +298,14 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         if (controlPoint is null)
         {
-            _roiOperationModeEnum = ROIOperationModeEnum.Move;
+            _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
             _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
-            Edit.Document.View.CanvasControl?.CursorTypeEnum = GetMoveCursorType(Options.IsEnableDragMove);
+            Edit.Document.View.CanvasControl?.CursorTypeEnum = GetMoveCursorType(Options.BitmapImageROIDragMoveTypeEnum);
 
             return;
         }
 
-        _roiOperationModeEnum = ROIOperationModeEnum.Resize;
+        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
         (_resizeControlPointTypeEnum, var cursorTypeEnum) = GetResizeConfiguration(controlPoint.Name);
 
         Edit.Document.View.CanvasControl?.CursorTypeEnum = cursorTypeEnum;
@@ -337,13 +336,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         var delta = currentPoint - _dragStartPoint;
 
-        switch (_roiOperationModeEnum)
+        switch (_bitmapImageROIDrawableROIOperationModeEnum)
         {
-            case ROIOperationModeEnum.Move:
+            case BitmapImageROIDrawableROIOperationModeEnum.Move:
                 ApplyMove(delta, imageRect);
                 break;
 
-            case ROIOperationModeEnum.Resize:
+            case BitmapImageROIDrawableROIOperationModeEnum.Resize:
                 ApplyResize(delta, imageRect);
                 break;
         }
@@ -398,7 +397,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private Vector ApplyMoveDirection(Vector delta)
     {
-        var dragMoveTypeEnum = Options.IsEnableDragMove;
+        var dragMoveTypeEnum = Options.BitmapImageROIDragMoveTypeEnum;
         return new Vector(
             (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.X) == BitmapImageROIDragMoveTypeEnum.X ? delta.X : 0,
             (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.Y) == BitmapImageROIDragMoveTypeEnum.Y ? delta.Y : 0);
@@ -505,9 +504,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void UpdateEditorState()
     {
-        _editorStateEnum = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Any()
-            ? EditorStateEnum.Modify
-            : EditorStateEnum.Select;
+        _bitmapImageROIDrawableEditorStateEnum = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Any()
+            ? BitmapImageROIDrawableEditorStateEnum.Modify
+            : BitmapImageROIDrawableEditorStateEnum.Select;
     }
 
     private void ResetInteractionState()
@@ -515,7 +514,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _isCursorDown = false;
         _editRectROIDrawable = null;
         _dragOriginalRects.Clear();
-        _roiOperationModeEnum = ROIOperationModeEnum.None;
+        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
         _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
         _isToggleSelection = false;
         Edit.Document.View.CanvasControl?.CursorTypeEnum = _defaultCursorTypeEnum;
@@ -527,18 +526,5 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         Edit.Document.Transients.Remove(_selectionWindow);
         _selectionWindow = null;
-    }
-
-    private enum EditorStateEnum
-    {
-        Select,
-        Modify
-    }
-
-    private enum ROIOperationModeEnum
-    {
-        None,
-        Move,
-        Resize
     }
 }
