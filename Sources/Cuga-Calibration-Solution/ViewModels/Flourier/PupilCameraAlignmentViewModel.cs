@@ -237,7 +237,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             {
                 FourierViewModel.SetFFHome(FFCH.Ch1);
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    1,
+                    0,
                     Cache.ProductivityInformation,
                     Cache.LaserLightInformation.Level,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
@@ -286,7 +286,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             {
                 FourierViewModel.SetFFHome(FFCH.Ch2);
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    2,
+                    1,
                     Cache.ProductivityInformation,
                     Cache.LaserLightInformation.Level,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
@@ -336,7 +336,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 FourierViewModel.SetFFHome(FFCH.Ch3_X);
                 FourierViewModel.SetFFHome(FFCH.Ch3_Y);
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    3,
+                    2,
                     Cache.ProductivityInformation,
                     Cache.LaserLightInformation.Level,
                     StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
