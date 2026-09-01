@@ -208,6 +208,12 @@
                                              hc:TitleElement.TitleWidth="200"
                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                              Style="{StaticResource TextBoxExtend}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DetailLogInterval}" />
                                     <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
@@ -309,12 +315,6 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.DetailLogInterval}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>

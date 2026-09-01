@@ -21,6 +21,9 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double[] Frequencies { get; set; } = [];
 
     [ObservableProperty]
+    public partial int DetailLogInterval { get; set; } = 5;
+
+    [ObservableProperty]
     public partial int NoiseMeasureTimes { get; set; } = 20;
 
     [ObservableProperty]
@@ -50,9 +53,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
-
-    [ObservableProperty]
-    public partial int DetailLogInterval { get; set; } = 20;
 
     #endregion Step1 Param
 
@@ -115,6 +115,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     {
         OffsetFrequency,
         Frequencies,
+        DetailLogInterval,
         NoiseMeasureTimes,
         ScoreLambda,
         ScoreGamma,
@@ -124,7 +125,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         AlgorithmAcquisitionFunctionEnum,
         AlgorithmUniformityAnchorCount,
         AlgorithmRetryTimes,
-        DetailLogInterval,
         Noise,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };
