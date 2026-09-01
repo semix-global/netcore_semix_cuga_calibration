@@ -1,6 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Drawables;
 using Net.Utilities.Graphics.Primitives.Editors;
+using Net.Utilities.Graphics.Primitives.Enums.Medias;
+using Net.Utilities.Graphics.Primitives.Enums.Medias.Styles;
+using Net.Utilities.Graphics.Primitives.Medias;
 using Net.Utilities.Graphics.Primitives.Medias.Styles;
 using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
@@ -11,6 +14,11 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
+    private static readonly TextStyle TextStyle = new(Fonts.Monospace, 18d, true, false, true);
+    private static readonly FillStyle TextForeground = new(SKColors.Red);
+    private static readonly FillStyle TextBackground = new(SKColors.Transparent);
+    private static readonly LineStyle TextBorder = new(SKColors.Transparent, 1d, DashEnum.Solid, true);
+
     private static readonly (BitmapImageROIResizeJoystickStateEnum Type, string Name, Func<Rect, Point> GetPoint)[] ControlPointDefinitions =
     [
         (BitmapImageROIResizeJoystickStateEnum.XMaxYMax, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYMax), rect => rect.XMaxYMax),
@@ -38,6 +46,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial bool IsShowCrossLine { get; set; }
 
     [ObservableProperty]
+    public partial string Text { get; set; } = string.Empty;
+
+    [ObservableProperty]
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
     [ObservableProperty]
@@ -56,10 +67,25 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         renderer.FillRectangle(FillStyle, Rect);
         renderer.DrawRectangle(LineStyle, Rect);
 
-        if (IsShowCrossLine == false) return;
+        if (IsShowCrossLine)
+        {
+            renderer.DrawLine(LineStyle, new Point(Rect.Center.X, Rect.YMin), new Point(Rect.Center.X, Rect.YMax));
+            renderer.DrawLine(LineStyle, new Point(Rect.XMin, Rect.Center.Y), new Point(Rect.XMax, Rect.Center.Y));
+        }
 
-        renderer.DrawLine(LineStyle, new Point(Rect.Center.X, Rect.YMin), new Point(Rect.Center.X, Rect.YMax));
-        renderer.DrawLine(LineStyle, new Point(Rect.XMin, Rect.Center.Y), new Point(Rect.XMax, Rect.Center.Y));
+        if (string.IsNullOrEmpty(Text) == false)
+        {
+            renderer.DrawString(
+                TextStyle,
+                TextForeground,
+                Rect.Center,
+                Text,
+                AlignmentEnum.MiddleCenter,
+                TextBackground,
+                TextBorder,
+                new Vector(0d, 0d),
+                new Padding(0d));
+        }
     }
 
     public override Extents GetExtents() => (Extents)Rect;
