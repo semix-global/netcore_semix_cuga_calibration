@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Drawables;
@@ -20,39 +22,27 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     ModifyBitmapImageROIDrawableInputOptions options,
     TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
-    // 取消、超时或外部取消时使用快照恢复；Enter 成功结束时保留当前修改。
-    private readonly Dictionary<BitmapImageROIDrawable, (Rect Rect, bool IsModified)> _originalROIStates = [];
+    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, bool OriginalIsModified)> _originals = [];
+    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _edits = [];
 
-    // 每次鼠标拖拽都从同一份原始矩形计算，保证多选对象使用相同位移或缩放向量。
-    private readonly Dictionary<BitmapImageROIDrawable, Rect> _dragOriginalRects = [];
+    private CursorTypeEnum _lastCursorTypeEnum;
+    private Point _lastMousePoint;
+    private bool _isCursorDown;
 
     private SelectionWindow? _selectionWindow;
-    private BitmapImageROIDrawable? _editRectROIDrawable;
-    private Point _dragStartPoint;
-    private CursorTypeEnum _defaultCursorTypeEnum;
-    private BitmapImageROIDrawableEditorStateEnum _bitmapImageROIDrawableEditorStateEnum;
-    private BitmapImageROIDrawableROIOperationModeEnum _bitmapImageROIDrawableROIOperationModeEnum;
-    private BitmapImageROIControlPointTypeEnum _resizeControlPointTypeEnum;
-    private bool _isCursorDown;
-    private bool _isToggleSelection;
+
+    private BitmapImageROIDrawableEditorStateEnum _editorStateEnum;
+    private BitmapImageROIDrawableROIOperationModeEnum _roiOperationModeEnum;
+    private BitmapImageROIResizeJoystickStateEnum _resizeJoystickStateEnum;
+
     private bool _isAccepted;
 
     protected override void Init(InitArgs<Unit> args)
     {
         base.Init(args);
 
-        // 编辑器只选择和修改已有 ROI，不创建新的 RectROIDrawable。
-        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
-        _isCursorDown = false;
-        _isToggleSelection = false;
-        _isAccepted = false;
-        _editRectROIDrawable = null;
-        _dragOriginalRects.Clear();
-        _originalROIStates.Clear();
-        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
-        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
-
-        ClearSelection();
+        ImmutableInterlocked.Update(ref _originals, _ => []);
+        ResetInteractionState();
 
         if (Options.BitmapImageDrawable.BitmapImage?.IsEmpty != false)
         {
@@ -63,12 +53,12 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        var imageRect = GetImageRect();
-        foreach (var rectROIDrawable in GetRectROIDrawables())
+        using var scope = Edit.Document.View.Sync.EnterScope();
+        foreach (var bitmapImageROIDrawable in Edit.Document.OverlayerModel.OfType<BitmapImageROIDrawable>()
+                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable)))
         {
-            // 进入编辑器时先修正已有数据，保证后续快照本身就在图片范围内。
-            rectROIDrawable.Rect = ClampRectToImage(rectROIDrawable.Rect, imageRect);
-            _originalROIStates[rectROIDrawable] = (rectROIDrawable.Rect, rectROIDrawable.IsModified);
+            bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ClampToBounds(Options.GetImageRect());
+            ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsModified)));
         }
 
         args.IsInputValid = true;
@@ -81,80 +71,123 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         if (_isCursorDown == false) return;
 
-        var currentPoint = point.ImageCoordinateRound();
+        var currentMousePoint = point.ImageCoordinateRound();
 
         if (_selectionWindow is not null)
         {
-            // 框选期间只更新临时窗口，不修改 ROI。
-            Edit.Document.RunDesign(() => _selectionWindow.EndPoint = currentPoint);
+            _selectionWindow.EndPoint = currentMousePoint;
 
             return;
         }
 
-        if (_bitmapImageROIDrawableEditorStateEnum != BitmapImageROIDrawableEditorStateEnum.Modify || _editRectROIDrawable is null) return;
+        if (_editorStateEnum == BitmapImageROIDrawableEditorStateEnum.Select || _edits.IsEmpty) return;
 
-        Edit.Document.RunDesign(() => ApplyModification(currentPoint));
+        ApplyModification(currentMousePoint - _lastMousePoint);
     }
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        _defaultCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum ?? CursorTypeEnum.Arrow;
+        _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum ?? _lastCursorTypeEnum;
 
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
 
         var point = eventInputArgs.Event.Point.ImageCoordinateRound();
 
+        _lastMousePoint = point;
         _isCursorDown = true;
-        _dragStartPoint = point;
-        _editRectROIDrawable = null;
-        _dragOriginalRects.Clear();
-        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
-        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
+
+        Guard.IsTrue(_edits.IsEmpty);
+
+        Guard.IsTrue(_editorStateEnum == BitmapImageROIDrawableEditorStateEnum.Select);
+        Guard.IsTrue(_roiOperationModeEnum == BitmapImageROIDrawableROIOperationModeEnum.None);
+        Guard.IsTrue(_resizeJoystickStateEnum == BitmapImageROIResizeJoystickStateEnum.None);
 
         var isControlPressed = eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control);
-
-        var hasModifyTarget = TryGetModifyTarget(point, out var target, out var controlPoint);
-
-        if (hasModifyTarget)
+        if (TryGetModifyTarget(out var target, out var controlPoint))
         {
-            Guard.IsNotNull(target);
-
-            // Ctrl 点击已选 ROI 时切换其选中状态；否则继续进行普通修改流程。
             if (isControlPressed)
             {
                 ToggleSelection(target);
+
                 _isCursorDown = false;
             }
-            else if (controlPoint is null && Options.BitmapImageROIDragMoveTypeEnum == BitmapImageROIDragMoveTypeEnum.None)
+            else if (controlPoint is null && Options.BitmapImageROIDragMoveTypeEnum == BitmapImageROIDragMoveTypeEnum.None) // 不支持拖拽移动
             {
-                // 禁止移动时保留当前选择，但不创建拖拽操作。
                 _isCursorDown = false;
             }
             else
             {
-                BeginModification(target, controlPoint, point);
+                _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
+                foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>())
+                {
+                    ImmutableInterlocked.Update(ref _edits, t => t.Add((rectROIDrawable, rectROIDrawable.Rect)));
+                }
+
+                if (controlPoint is not null)
+                {
+                    _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
+                    (_resizeJoystickStateEnum, var cursorTypeEnum) = controlPoint.GetControlPointInformation();
+
+                    Edit.Document.View.CanvasControl?.CursorTypeEnum = cursorTypeEnum;
+                }
+                else
+                {
+                    _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
+                    _resizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None;
+
+                    Edit.Document.View.CanvasControl?.CursorTypeEnum = Options.BitmapImageROIDragMoveTypeEnum.GetMoveCursorTypeEnum();
+                }
             }
         }
-        else
-        {
-            BeginSelection(point, isControlPressed);
-        }
+        else BeginSelection(point, isControlPressed);
 
         eventInputArgs.IsInputValid = true;
         eventInputArgs.IsInputCompleted = false;
+
+        return;
+
+        bool TryGetModifyTarget([NotNullWhen(true)] out BitmapImageROIDrawable? selectedBitmapImageROIDrawable, out ControlPoint? selectedControlPoint)
+        {
+            using var scope = Edit.Document.View.Sync.EnterScope();
+
+            selectedBitmapImageROIDrawable = null;
+            selectedControlPoint = null;
+
+            var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().ToArray();
+            if (selectedRectROIDrawables.Length == 0) return false;
+
+            var controlPointPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.ControlPointPickDistance);
+
+            foreach (var rectROIDrawable in selectedRectROIDrawables)
+            {
+                selectedControlPoint = rectROIDrawable.GetControlPoints()
+                    .FirstOrDefault(t => (t.BasePoint - point).Length <= controlPointPickDistance);
+
+                if (selectedControlPoint is null) continue;
+
+                selectedBitmapImageROIDrawable = rectROIDrawable;
+
+                return true;
+            }
+
+            foreach (var rectROIDrawable in selectedRectROIDrawables)
+            {
+                if (rectROIDrawable.Contains(point, controlPointPickDistance) == false) continue;
+
+                selectedBitmapImageROIDrawable = rectROIDrawable;
+
+                return true;
+            }
+
+            return false;
+        }
     }
 
     protected override void CursorUpInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Released) == false) return;
+        if (_selectionWindow is not null) CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
 
-        var point = eventInputArgs.Event.Point.ImageCoordinateRound();
-
-        if (_selectionWindow is not null)
-        {
-            Edit.Document.RunDesign(() => _selectionWindow.EndPoint = point);
-            CompleteSelection();
-        }
+        Edit.Document.View.CanvasControl?.CursorTypeEnum = _lastCursorTypeEnum;
 
         ResetInteractionState();
 
@@ -164,367 +197,251 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
-        if (eventInputArgs.Event.KeyEnum == KeyEnum.Enter)
+        switch (eventInputArgs.Event.KeyEnum)
         {
-            // 标记为成功结束，基础编辑器清理时不会执行回滚。
-            _isAccepted = true;
-            eventInputArgs.Output = Unit.Default;
-            eventInputArgs.IsInputValid = true;
-            eventInputArgs.IsInputCompleted = true;
+            case KeyEnum.Enter:
+                _isAccepted = true;
 
-            return;
+                eventInputArgs.Output = Unit.Default;
+
+                eventInputArgs.IsInputValid = true;
+                eventInputArgs.IsInputCompleted = true;
+
+                return;
+
+            case KeyEnum.Escape:
+                _isAccepted = false;
+
+                eventInputArgs.ErrorInputMessage = "Escape";
+                eventInputArgs.Output = Unit.Default;
+
+                eventInputArgs.IsInputValid = false;
+                eventInputArgs.IsInputCompleted = true;
+
+                return;
+
+            default:
+                eventInputArgs.IsInputValid = true;
+                eventInputArgs.IsInputCompleted = false;
+
+                break;
         }
-
-        // Escape 留给基础 GetterEditor 生成取消结果，CancelInput 负责回滚快照。
-        eventInputArgs.IsInputValid = true;
-        eventInputArgs.IsInputCompleted = false;
     }
 
     protected override void CancelInput()
     {
-        // _isAccepted 为 false 时涵盖 Escape、超时和外部取消。
-        if (_isAccepted == false) Edit.Document.RunDesign(RestoreOriginalROIStates);
+        if (_isAccepted == false)
+        {
+            foreach (var (rectROIDrawable, originalRect, originalIsModified) in _originals)
+            {
+                rectROIDrawable.Rect = originalRect;
+                rectROIDrawable.IsModified = originalIsModified;
+            }
+        }
 
-        RemoveSelectionWindow();
-        ClearSelection();
-
+        ImmutableInterlocked.Update(ref _originals, _ => []);
         ResetInteractionState();
     }
 
-    private void BeginSelection(Point point, bool isToggleSelection)
+    private void ResetInteractionState()
     {
-        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
-        _isToggleSelection = isToggleSelection;
+        RemoveSelectionWindow();
+        ClearSelection();
 
-        // 普通选择替换旧选择，Ctrl 框选则在结束时逐项切换选择状态。
-        if (_isToggleSelection == false) ClearSelection();
+        ImmutableInterlocked.Update(ref _edits, _ => []);
+
+        _lastCursorTypeEnum = CursorTypeEnum.Arrow;
+        _lastMousePoint = Point.Origin;
+        _isCursorDown = false;
+
+        _selectionWindow = null;
+
+        _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
+        _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
+        _resizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None;
+
+        _isAccepted = false;
+    }
+
+    #region 选择编辑的ROI
+
+    private void BeginSelection(Point point, bool isControlPressed)
+    {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
+        _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
+
+        if (isControlPressed == false) ClearSelection();
 
         RemoveSelectionWindow();
+
         _selectionWindow = new SelectionWindow(point, point);
+
         Edit.Document.Transients.Add(_selectionWindow);
     }
 
-    private void CompleteSelection()
+    private void CompleteSelection(bool isControlPressed)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         Guard.IsNotNull(_selectionWindow);
 
         var selectionWindow = _selectionWindow;
         RemoveSelectionWindow();
 
-        var selectedItems = GetSelectionFromWindow(selectionWindow);
-        if (_isToggleSelection == false) ClearSelection();
+        BitmapImageROIDrawable[] selectedItems =
+        [
+            .. Edit.Document.View.VisibleItems
+                .OfType<BitmapImageROIDrawable>()
+                .Where(t => selectionWindow.GetExtents().IntersectsWith(t.GetExtents()))
+        ];
+
+        if (isControlPressed == false) ClearSelection();
 
         foreach (var rectROIDrawable in selectedItems)
         {
-            // Ctrl 框选支持同时加入多个 ROI，也支持再次框选取消这些 ROI。
-            if (_isToggleSelection)
-            {
-                ToggleSelection(rectROIDrawable);
-            }
-            else
-            {
-                Select(rectROIDrawable);
-            }
-        }
-
-        UpdateEditorState();
-    }
-
-    private BitmapImageROIDrawable[] GetSelectionFromWindow(SelectionWindow selectionWindow)
-    {
-        var rectROIDrawables = GetVisibleRectROIDrawables();
-
-        if (selectionWindow.StartPoint == selectionWindow.EndPoint)
-        {
-            var selectionPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.SelectionPickDistance);
-            var item = rectROIDrawables.FirstOrDefault(t => t.Contains(selectionWindow.StartPoint, selectionPickDistance));
-
-            return item is null ? [] : [item];
-        }
-
-        var selectionWindowExtents = selectionWindow.GetExtents();
-
-        // 框选不区分拖拽方向，只要 ROI 与选择框相交就选中。
-        return [.. rectROIDrawables.Where(t => selectionWindowExtents.IntersectsWith(t.GetExtents()))];
-    }
-
-    private bool TryGetModifyTarget(Point point, out BitmapImageROIDrawable? target, out ControlPoint? controlPoint)
-    {
-        target = null;
-        controlPoint = null;
-
-        var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().ToArray();
-        if (selectedRectROIDrawables.Length == 0) return false;
-
-        var controlPointPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.ControlPointPickDistance);
-
-        // 先命中锚点，再命中 ROI 本体，避免拖拽锚点被识别为移动操作。
-        foreach (var rectROIDrawable in selectedRectROIDrawables)
-        {
-            var selectedControlPoint = rectROIDrawable.GetControlPoints()
-                .FirstOrDefault(t => (t.BasePoint - point).Length <= controlPointPickDistance);
-
-            if (selectedControlPoint is null) continue;
-
-            target = rectROIDrawable;
-            controlPoint = selectedControlPoint;
-
-            return true;
-        }
-
-        foreach (var rectROIDrawable in selectedRectROIDrawables)
-        {
-            if (rectROIDrawable.Contains(point, controlPointPickDistance) == false) continue;
-
-            target = rectROIDrawable;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    private void BeginModification(BitmapImageROIDrawable target, ControlPoint? controlPoint, Point point)
-    {
-        _bitmapImageROIDrawableEditorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
-        _editRectROIDrawable = target;
-        _dragStartPoint = point;
-        _dragOriginalRects.Clear();
-
-        foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>())
-        {
-            _dragOriginalRects[rectROIDrawable] = rectROIDrawable.Rect;
-        }
-
-        if (controlPoint is null)
-        {
-            _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
-            _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
-            Edit.Document.View.CanvasControl?.CursorTypeEnum = GetMoveCursorType(Options.BitmapImageROIDragMoveTypeEnum);
-
-            return;
-        }
-
-        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
-        (_resizeControlPointTypeEnum, var cursorTypeEnum) = GetResizeConfiguration(controlPoint.Name);
-
-        Edit.Document.View.CanvasControl?.CursorTypeEnum = cursorTypeEnum;
-    }
-
-    private static (BitmapImageROIControlPointTypeEnum ControlPointTypeEnum, CursorTypeEnum CursorTypeEnum) GetResizeConfiguration(string controlPointName)
-    {
-        return controlPointName switch
-        {
-            nameof(Rect.XMaxYMax) => (BitmapImageROIControlPointTypeEnum.XMaxYMax, CursorTypeEnum.SizeNESW),
-            nameof(Rect.XMinYMax) => (BitmapImageROIControlPointTypeEnum.XMinYMax, CursorTypeEnum.SizeNWSE),
-            nameof(Rect.XMinYMin) => (BitmapImageROIControlPointTypeEnum.XMinYMin, CursorTypeEnum.SizeNESW),
-            nameof(Rect.XMaxYMin) => (BitmapImageROIControlPointTypeEnum.XMaxYMin, CursorTypeEnum.SizeNWSE),
-            nameof(Rect.XCenterYMax) => (BitmapImageROIControlPointTypeEnum.XCenterYMax, CursorTypeEnum.SizeNS),
-            nameof(Rect.XMinYCenter) => (BitmapImageROIControlPointTypeEnum.XMinYCenter, CursorTypeEnum.SizeWE),
-            nameof(Rect.XCenterYMin) => (BitmapImageROIControlPointTypeEnum.XCenterYMin, CursorTypeEnum.SizeNS),
-            nameof(Rect.XMaxYCenter) => (BitmapImageROIControlPointTypeEnum.XMaxYCenter, CursorTypeEnum.SizeWE),
-            _ => throw new ArgumentOutOfRangeException(nameof(controlPointName), controlPointName, "Unknown rectangle control point.")
-        };
-    }
-
-    private void ApplyModification(Point currentPoint)
-    {
-        if (_dragOriginalRects.Count == 0) return;
-
-        var imageRect = GetImageRect();
-        if (imageRect.IsEmpty) return;
-
-        var delta = currentPoint - _dragStartPoint;
-
-        switch (_bitmapImageROIDrawableROIOperationModeEnum)
-        {
-            case BitmapImageROIDrawableROIOperationModeEnum.Move:
-                ApplyMove(delta, imageRect);
-                break;
-
-            case BitmapImageROIDrawableROIOperationModeEnum.Resize:
-                ApplyResize(delta, imageRect);
-                break;
+            if (isControlPressed) ToggleSelection(rectROIDrawable);
+            else Select(rectROIDrawable);
         }
     }
 
-    private void ApplyMove(Vector delta, Rect imageRect)
+    private void ToggleSelection(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
-        // 多选移动使用共同合法位移，保持每个 ROI 之间的相对位置。
-        var constrainedDelta = ConstrainMoveDelta(ApplyMoveDirection(delta), imageRect);
+        using var scope = Edit.Document.View.Sync.EnterScope();
 
-        foreach (var (rectROIDrawable, originalRect) in _dragOriginalRects)
+        if (Edit.SelectedItems.Contains(bitmapImageROIDrawable))
         {
-            rectROIDrawable.Rect = ClampRectToImage(originalRect + constrainedDelta, imageRect);
+            bitmapImageROIDrawable.IsSelected = false;
+
+            Edit.SelectedItems.Remove(bitmapImageROIDrawable);
         }
-    }
-
-    private void ApplyResize(Vector delta, Rect imageRect)
-    {
-        // 多选缩放使用相同锚点和拖动向量，但每个 ROI 独立限制在图片内。
-        foreach (var (rectROIDrawable, originalRect) in _dragOriginalRects)
-        {
-            var modifiedRect = ResizeRect(originalRect, _resizeControlPointTypeEnum, delta);
-            rectROIDrawable.Rect = ClampRectToImage(modifiedRect, imageRect);
-        }
-    }
-
-    private Vector ConstrainMoveDelta(Vector delta, Rect imageRect)
-    {
-        // 用全部选中 ROI 的外接范围计算共同位移边界，避免任何对象越过图片边缘。
-        var originalRects = _dragOriginalRects.Values.ToArray();
-        var minX = originalRects.Min(t => t.XMin);
-        var maxX = originalRects.Max(t => t.XMax);
-        var minY = originalRects.Min(t => t.YMin);
-        var maxY = originalRects.Max(t => t.YMax);
-
-        return new Vector(
-            Math.Clamp(delta.X, imageRect.XMin - minX, imageRect.XMax - maxX),
-            Math.Clamp(delta.Y, imageRect.YMin - minY, imageRect.YMax - maxY));
-    }
-
-    private static CursorTypeEnum GetMoveCursorType(BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum)
-    {
-        return dragMoveTypeEnum switch
-        {
-            BitmapImageROIDragMoveTypeEnum.None => CursorTypeEnum.Arrow,
-            BitmapImageROIDragMoveTypeEnum.X => CursorTypeEnum.SizeWE,
-            BitmapImageROIDragMoveTypeEnum.Y => CursorTypeEnum.SizeNS,
-            BitmapImageROIDragMoveTypeEnum.All => CursorTypeEnum.SizeAll,
-            _ => CursorTypeEnum.SizeAll
-        };
-    }
-
-    private Vector ApplyMoveDirection(Vector delta)
-    {
-        var dragMoveTypeEnum = Options.BitmapImageROIDragMoveTypeEnum;
-        return new Vector(
-            (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.X) == BitmapImageROIDragMoveTypeEnum.X ? delta.X : 0,
-            (dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.Y) == BitmapImageROIDragMoveTypeEnum.Y ? delta.Y : 0);
-    }
-
-    private static Rect ResizeRect(Rect rect, BitmapImageROIControlPointTypeEnum controlPointTypeEnum, Vector delta)
-    {
-        return controlPointTypeEnum switch
-        {
-            BitmapImageROIControlPointTypeEnum.XMinYMax => (Rect)new Extents(
-                new Point(rect.XMin, rect.YMax) + delta,
-                new Point(rect.XMax, rect.YMin)),
-            BitmapImageROIControlPointTypeEnum.XCenterYMax => (Rect)new Extents(
-                new Point(rect.XMax, rect.YMax) + new Vector(0, delta.Y),
-                new Point(rect.XMin, rect.YMin)),
-            BitmapImageROIControlPointTypeEnum.XMaxYMax => (Rect)new Extents(
-                new Point(rect.XMax, rect.YMax) + delta,
-                new Point(rect.XMin, rect.YMin)),
-            BitmapImageROIControlPointTypeEnum.XMaxYCenter => (Rect)new Extents(
-                new Point(rect.XMax, rect.YMax) + new Vector(delta.X, 0),
-                new Point(rect.XMin, rect.YMin)),
-            BitmapImageROIControlPointTypeEnum.XMaxYMin => (Rect)new Extents(
-                new Point(rect.XMax, rect.YMin) + delta,
-                new Point(rect.XMin, rect.YMax)),
-            BitmapImageROIControlPointTypeEnum.XCenterYMin => (Rect)new Extents(
-                new Point(rect.XMin, rect.YMin) + new Vector(0, delta.Y),
-                new Point(rect.XMax, rect.YMax)),
-            BitmapImageROIControlPointTypeEnum.XMinYMin => (Rect)new Extents(
-                new Point(rect.XMin, rect.YMin) + delta,
-                new Point(rect.XMax, rect.YMax)),
-            BitmapImageROIControlPointTypeEnum.XMinYCenter => (Rect)new Extents(
-                new Point(rect.XMin, rect.YMin) + new Vector(delta.X, 0),
-                new Point(rect.XMax, rect.YMax)),
-            BitmapImageROIControlPointTypeEnum.None => rect,
-            _ => throw new ArgumentOutOfRangeException(nameof(controlPointTypeEnum), controlPointTypeEnum, "Unknown rectangle resize operation.")
-        };
-    }
-
-    private Rect GetImageRect()
-    {
-        var bitmapImage = Options.BitmapImageDrawable.BitmapImage;
-        if (bitmapImage?.IsEmpty != false) return Rect.Empty;
-
-        return new Rect(
-            Options.BitmapImageDrawable.Point,
-            new Size(bitmapImage.Width, bitmapImage.Height));
-    }
-
-    private static Rect ClampRectToImage(Rect rect, Rect imageRect)
-    {
-        // 统一处理初始化、移动和缩放，确保 ROI 始终位于图片范围内。
-        var xMin = Math.Clamp(Math.Min(rect.XMin, rect.XMax), imageRect.XMin, imageRect.XMax);
-        var xMax = Math.Clamp(Math.Max(rect.XMin, rect.XMax), imageRect.XMin, imageRect.XMax);
-        var yMin = Math.Clamp(Math.Min(rect.YMin, rect.YMax), imageRect.YMin, imageRect.YMax);
-        var yMax = Math.Clamp(Math.Max(rect.YMin, rect.YMax), imageRect.YMin, imageRect.YMax);
-
-        return new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
-    }
-
-    private BitmapImageROIDrawable[] GetRectROIDrawables() => Edit.Document.OverlayerModel.OfType<BitmapImageROIDrawable>().ToArray();
-
-    private BitmapImageROIDrawable[] GetVisibleRectROIDrawables() => Edit.Document.View.VisibleItems.OfType<BitmapImageROIDrawable>().ToArray();
-
-    private void RestoreOriginalROIStates()
-    {
-        // 恢复矩形和修改标记，保证取消编辑不会留下任何状态变化。
-        foreach (var (rectROIDrawable, state) in _originalROIStates)
-        {
-            rectROIDrawable.Rect = state.Rect;
-            rectROIDrawable.IsModified = state.IsModified;
-        }
-    }
-
-    private void ClearSelection()
-    {
-        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
-
-        Edit.SelectedItems.Clear();
+        else Select(bitmapImageROIDrawable);
     }
 
     private void Select(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (Edit.SelectedItems.Contains(bitmapImageROIDrawable)) return;
 
         bitmapImageROIDrawable.IsSelected = true;
         Edit.SelectedItems.Add(bitmapImageROIDrawable);
     }
 
-    private void ToggleSelection(BitmapImageROIDrawable bitmapImageROIDrawable)
-    {
-        // SelectedItems 与 drawable.IsSelected 必须同步维护，CanvasView 依赖二者绘制选择状态。
-        if (Edit.SelectedItems.Contains(bitmapImageROIDrawable))
-        {
-            bitmapImageROIDrawable.IsSelected = false;
-            Edit.SelectedItems.Remove(bitmapImageROIDrawable);
-        }
-        else
-        {
-            Select(bitmapImageROIDrawable);
-        }
-
-        UpdateEditorState();
-    }
-
-    private void UpdateEditorState()
-    {
-        _bitmapImageROIDrawableEditorStateEnum = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Any()
-            ? BitmapImageROIDrawableEditorStateEnum.Modify
-            : BitmapImageROIDrawableEditorStateEnum.Select;
-    }
-
-    private void ResetInteractionState()
-    {
-        _isCursorDown = false;
-        _editRectROIDrawable = null;
-        _dragOriginalRects.Clear();
-        _bitmapImageROIDrawableROIOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
-        _resizeControlPointTypeEnum = BitmapImageROIControlPointTypeEnum.None;
-        _isToggleSelection = false;
-        Edit.Document.View.CanvasControl?.CursorTypeEnum = _defaultCursorTypeEnum;
-    }
-
     private void RemoveSelectionWindow()
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (_selectionWindow is null) return;
 
         Edit.Document.Transients.Remove(_selectionWindow);
         _selectionWindow = null;
     }
+
+    private void ClearSelection()
+    {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
+        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
+
+        Edit.SelectedItems.Clear();
+    }
+
+    #endregion
+
+    #region 修改
+
+    private void ApplyModification(Vector delta)
+    {
+        if (_edits.IsEmpty) return;
+
+        switch (_roiOperationModeEnum)
+        {
+            case BitmapImageROIDrawableROIOperationModeEnum.Move:
+                ApplyMove(delta);
+
+                break;
+
+            case BitmapImageROIDrawableROIOperationModeEnum.Resize:
+                ApplyResize(delta);
+
+                break;
+
+            case BitmapImageROIDrawableROIOperationModeEnum.None:
+            default:
+                ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_roiOperationModeEnum));
+
+                break;
+        }
+    }
+
+    private void ApplyMove(Vector delta)
+    {
+        var imageRect = Options.GetImageRect();
+
+        var dragMoveTypeEnum = Options.BitmapImageROIDragMoveTypeEnum;
+
+        // 根据拖拽移动类型, 决定是否允许在 X 或 Y 方向移动
+        delta = delta
+            .WithX((dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.X) == BitmapImageROIDragMoveTypeEnum.X ? delta.X : 0)
+            .WithY((dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.Y) == BitmapImageROIDragMoveTypeEnum.Y ? delta.Y : 0);
+
+        // 强制移动的范围: 用全部选中ROI的外接范围计算共同位移边界, 避免任何对象越过图片边缘
+        var minX = _edits.Min(t => t.OriginalRect.XMin);
+        var maxX = _edits.Max(t => t.OriginalRect.XMax);
+        var minY = _edits.Min(t => t.OriginalRect.YMin);
+        var maxY = _edits.Max(t => t.OriginalRect.YMax);
+
+        var constrainedDelta = new Vector(
+            Math.Clamp(delta.X, imageRect.XMin - minX, imageRect.XMax - maxX),
+            Math.Clamp(delta.Y, imageRect.YMin - minY, imageRect.YMax - maxY));
+
+        foreach (var (bitmapImageROIDrawable, originalRect) in _edits)
+        {
+            bitmapImageROIDrawable.Rect = (originalRect + constrainedDelta).ClampToBounds(imageRect);
+        }
+    }
+
+    private void ApplyResize(Vector delta)
+    {
+        var imageRect = Options.GetImageRect();
+
+        // 多选缩放使用相同锚点和拖动向量, 但每个 ROI 独立限制在图片内
+        foreach (var (bitmapImageROIDrawable, originalRect) in _edits)
+        {
+            var modifiedRect = _resizeJoystickStateEnum switch
+            {
+                BitmapImageROIResizeJoystickStateEnum.None => originalRect,
+                BitmapImageROIResizeJoystickStateEnum.XMinYMax => (Rect)new Extents(
+                    new Point(originalRect.XMin, originalRect.YMax) + delta,
+                    new Point(originalRect.XMax, originalRect.YMin)),
+                BitmapImageROIResizeJoystickStateEnum.XCenterYMax => (Rect)new Extents(
+                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMin, originalRect.YMin)),
+                BitmapImageROIResizeJoystickStateEnum.XMaxYMax => (Rect)new Extents(
+                    new Point(originalRect.XMax, originalRect.YMax) + delta,
+                    new Point(originalRect.XMin, originalRect.YMin)),
+                BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => (Rect)new Extents(
+                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(delta.X, 0),
+                    new Point(originalRect.XMin, originalRect.YMin)),
+                BitmapImageROIResizeJoystickStateEnum.XMaxYMin => (Rect)new Extents(
+                    new Point(originalRect.XMax, originalRect.YMin) + delta,
+                    new Point(originalRect.XMin, originalRect.YMax)),
+                BitmapImageROIResizeJoystickStateEnum.XCenterYMin => (Rect)new Extents(
+                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMax, originalRect.YMax)),
+                BitmapImageROIResizeJoystickStateEnum.XMinYMin => (Rect)new Extents(
+                    new Point(originalRect.XMin, originalRect.YMin) + delta,
+                    new Point(originalRect.XMax, originalRect.YMax)),
+                BitmapImageROIResizeJoystickStateEnum.XMinYCenter => (Rect)new Extents(
+                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(delta.X, 0),
+                    new Point(originalRect.XMax, originalRect.YMax)),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
+            };
+
+            bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
+        }
+    }
+
+    #endregion
 }

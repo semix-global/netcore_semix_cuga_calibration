@@ -58,21 +58,21 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task EditAllAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
-        BitmapImageROIControlPointTypeEnum.All,
+        BitmapImageROIResizeJoystickStateEnum.All,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
         cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task EditThreeBottomAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
-        BitmapImageROIControlPointTypeEnum.XMinYMin |
-        BitmapImageROIControlPointTypeEnum.XCenterYMin |
-        BitmapImageROIControlPointTypeEnum.XMaxYMin,
+        BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+        BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+        BitmapImageROIResizeJoystickStateEnum.XMaxYMin,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
         cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
-        BitmapImageROIControlPointTypeEnum.XCenterYMin,
+        BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
         cancellationToken: cancellationToken);
 
@@ -85,7 +85,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     }
 
     private async Task EditROIAsync(
-        BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
+        BitmapImageROIResizeJoystickStateEnum resizeJoystickStateEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
         CancellationToken cancellationToken)
     {
@@ -114,7 +114,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     Document.OverlayerModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
-                        ControlPointTypeEnum = controlPointTypeEnum,
+                        ResizeJoystickStateEnum = resizeJoystickStateEnum,
                         IsModified = false
                     });
                 }

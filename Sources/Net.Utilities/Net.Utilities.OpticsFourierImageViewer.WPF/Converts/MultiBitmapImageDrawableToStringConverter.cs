@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.Graphics;
@@ -9,7 +8,6 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using SkiaSharp;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
-using Size = Net.Utilities.Models.Geometries.Size;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Converts;
 

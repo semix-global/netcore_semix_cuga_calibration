@@ -9,19 +9,21 @@ using SkiaSharp;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
-public sealed partial class BitmapImageROIDrawable : AbstractDrawable
+public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
-    private static readonly (BitmapImageROIControlPointTypeEnum Type, string Name, Func<Rect, Point> GetPoint)[] ControlPointDefinitions =
+    private static readonly (BitmapImageROIResizeJoystickStateEnum Type, string Name, Func<Rect, Point> GetPoint)[] ControlPointDefinitions =
     [
-        (BitmapImageROIControlPointTypeEnum.XMaxYMax, nameof(Rect.XMaxYMax), rect => rect.XMaxYMax),
-        (BitmapImageROIControlPointTypeEnum.XMinYMax, nameof(Rect.XMinYMax), rect => rect.XMinYMax),
-        (BitmapImageROIControlPointTypeEnum.XMinYMin, nameof(Rect.XMinYMin), rect => rect.XMinYMin),
-        (BitmapImageROIControlPointTypeEnum.XMaxYMin, nameof(Rect.XMaxYMin), rect => rect.XMaxYMin),
-        (BitmapImageROIControlPointTypeEnum.XCenterYMax, nameof(Rect.XCenterYMax), rect => rect.XCenterYMax),
-        (BitmapImageROIControlPointTypeEnum.XMinYCenter, nameof(Rect.XMinYCenter), rect => rect.XMinYCenter),
-        (BitmapImageROIControlPointTypeEnum.XCenterYMin, nameof(Rect.XCenterYMin), rect => rect.XCenterYMin),
-        (BitmapImageROIControlPointTypeEnum.XMaxYCenter, nameof(Rect.XMaxYCenter), rect => rect.XMaxYCenter)
+        (BitmapImageROIResizeJoystickStateEnum.XMaxYMax, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYMax), rect => rect.XMaxYMax),
+        (BitmapImageROIResizeJoystickStateEnum.XMinYMax, nameof(BitmapImageROIResizeJoystickStateEnum.XMinYMax), rect => rect.XMinYMax),
+        (BitmapImageROIResizeJoystickStateEnum.XMinYMin, nameof(BitmapImageROIResizeJoystickStateEnum.XMinYMin), rect => rect.XMinYMin),
+        (BitmapImageROIResizeJoystickStateEnum.XMaxYMin, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYMin), rect => rect.XMaxYMin),
+        (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, nameof(BitmapImageROIResizeJoystickStateEnum.XCenterYMax), rect => rect.XCenterYMax),
+        (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, nameof(BitmapImageROIResizeJoystickStateEnum.XMinYCenter), rect => rect.XMinYCenter),
+        (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, nameof(BitmapImageROIResizeJoystickStateEnum.XCenterYMin), rect => rect.XCenterYMin),
+        (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYCenter), rect => rect.XMaxYCenter)
     ];
+
+    public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 
     [ObservableProperty]
     public partial FillStyle FillStyle { get; set; } = new(SKColors.Transparent);
@@ -36,7 +38,7 @@ public sealed partial class BitmapImageROIDrawable : AbstractDrawable
     public partial bool IsShowCrossLine { get; set; }
 
     [ObservableProperty]
-    public partial BitmapImageROIControlPointTypeEnum ControlPointTypeEnum { get; set; } = BitmapImageROIControlPointTypeEnum.All;
+    public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
     [ObservableProperty]
     public partial bool IsModified { get; set; }
@@ -64,13 +66,13 @@ public sealed partial class BitmapImageROIDrawable : AbstractDrawable
 
     public override ControlPoint[] GetControlPoints()
     {
-        var controlPoints = new List<ControlPoint>(ControlPointDefinitions.Length);
+        var controlPointList = new List<ControlPoint>(ControlPointDefinitions.Length);
 
         foreach (var (type, name, getPoint) in ControlPointDefinitions)
         {
-            if ((ControlPointTypeEnum & type) == type) controlPoints.Add(new ControlPoint(name, getPoint(Rect)));
+            if ((ResizeJoystickStateEnum & type) == type) controlPointList.Add(new ControlPoint(name, getPoint(Rect)));
         }
 
-        return [.. controlPoints];
+        return [.. controlPointList];
     }
 }
