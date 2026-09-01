@@ -484,12 +484,13 @@ def process_stage2_residuals(
           没有可用统计值的点填为 ``0.0``。达到 ``m_min`` 后才返回包含 MAD
           剔除的 ``delta C``；达到 ``m_max`` 仍未达到精度要求但有可用结果的
           点保留当前 ``delta C``，只有没有可用结果的点填为 ``0.0`` 并标记为无效。
-        - ``stage2_valid_mask`` 形状为 ``(...,)``，表示对应点是否至少有一个
-          经过逐扫描 mask 和 MAD 判定后仍可用的 X/Y 结果，可以作为最终
-          ``delta C`` 的来源。扫描次数少于 ``m_min`` 时，返回表仅用于日志，
-          因此该 mask 全为 ``False``。达到 ``m_max`` 时，即使某点尚未达到
-          ``point_precision_reached``，只要仍有可用结果也保留并标记为 ``True``；
-          只有始终没有有效结果的点才标记为 ``False``。
+        - ``stage2_valid_mask`` 形状为 ``(...,)``，表示对应点截至当前累计扫描
+          是否至少有一个经过当前阶段有效性判定后仍可用的 X/Y 结果，可以作为
+          ``delta C`` 的来源。扫描次数少于 ``m_min`` 时，虽然返回表仅用于日志
+          且尚未执行 MAD，但已有至少一次有效观测的点仍标记为 ``True``；只有
+          始终没有有效结果的点才标记为 ``False``。达到 ``m_max`` 时，即使某点
+          尚未达到 ``point_precision_reached``，只要仍有可用结果也保留并标记为
+          ``True``。
 
     说明:
         对二维非共线网格，每次扫描只用该次 mask 有效的点拟合并扣除完整二维
@@ -621,7 +622,9 @@ def process_stage2_residuals(
             out=np.zeros(values.shape[1:], dtype=float),
             where=observation_count[..., None] > 0,
         )
-        stage2_valid_mask = np.zeros(values.shape[1:-1], dtype=bool)
+        # 即使尚未达到 m_min，已有至少一次有效观测的点也属于“有结果”点；
+        # 该 mask 只在 need_more=False 时用于合并，当前返回表仍仅供日志记录。
+        stage2_valid_mask = observation_count > 0
         return True, residual_table_without_mad, stage2_valid_mask
 
     # 以下统计均沿最前面的扫描序号维进行，网格位置及最后一维的 X/Y 分量

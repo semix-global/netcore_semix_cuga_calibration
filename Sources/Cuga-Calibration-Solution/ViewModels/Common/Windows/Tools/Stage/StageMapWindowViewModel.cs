@@ -616,8 +616,8 @@ public sealed partial class StageMapWindowViewModel(
             Cache.ProductivityInformation,
             xDirection,
             yDirection,
-            xSize,
-            ySize
+            xSize.XPixelSize,
+            ySize.YPixelSize
         }), htmlLogUniqueId.LoggingHtml());
 
         HTuple[] templateIds = [];
