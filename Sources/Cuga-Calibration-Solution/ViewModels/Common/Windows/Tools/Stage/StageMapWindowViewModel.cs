@@ -35,6 +35,7 @@ using Net.Utilities.ScottPlot.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 using Python.Runtime;
 using System.Reflection;
+using Core.Models.Models.CIB.LineCentricity;
 using MathNet.Numerics;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
@@ -153,7 +154,11 @@ public sealed partial class StageMapWindowViewModel(
 
                     Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
 
-                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
+                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
+                    {
+                        stageMapTemplate.Index = index + 1;
+                        stageMapTemplate.FindBFMachineVector = stageMapTemplate.FindBFMachinePosition - Cache.StageMapTemplates[0].FindBFMachinePosition;
+                    }
                 }
                 finally
                 {
@@ -200,8 +205,6 @@ public sealed partial class StageMapWindowViewModel(
             {
                 var index = Array.IndexOf(Cache.StageMapTemplates, stageMapTemplate);
 
-                var (xDirection, _) = stageViewModel.GetMachineDirection();
-
                 var drawable = Cache.StageMapDocument.Edit.SelectedItems.FirstOrDefault();
                 if (drawable is null)
                 {
@@ -211,9 +214,13 @@ public sealed partial class StageMapWindowViewModel(
                 }
 
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
-                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[xDirection > 0 ? index : ^(index + 1)]);
+                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
 
-                stageViewModel.SetBrightFieldAbsoluteStageXy(darkFieldPosition);
+                var currentCIBLineCentricity = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>().Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.CIBInformation.PMTId);
+                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
+                    currentCIBLineCentricity.MicroscopeLensInformation,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
+                    darkFieldPosition));
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -293,8 +300,6 @@ public sealed partial class StageMapWindowViewModel(
 
         foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
         {
-            stageMapTemplate.FindBFMachineVector = stageMapTemplate.FindBFMachinePosition - Cache.StageMapTemplates[0].FindBFMachinePosition;
-
             var bfPosition = stageViewModel.MachineToBrightFieldPosition(stageMapTemplate.FindBFMachinePosition);
             var dfPosition = cibViewModel.GetCIBInformationPosition(
                 StageCoordinateSystemEnum.Dark,
@@ -583,7 +588,18 @@ public sealed partial class StageMapWindowViewModel(
         CancellationToken cancellationToken,
         bool isInterpolateErrors = false)
     {
-        logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+        logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, new HtmlTable(
+        [
+            .. Cache.StageMapTemplates.Index().Select(t => new
+            {
+                t.Item.Index,
+                t.Item.FindBFMachinePosition,
+                t.Item.FindBFMachineVector,
+                t.Item.TemplateROI,
+                t.Item.TemplateFilePath,
+                t.Item.TemplateImageFilePath
+            })
+        ]), htmlLogUniqueId.LoggingHtml());
 
         Guard.IsGreaterThan(Cache.ROIMatchWidthScale, 0d);
         Guard.IsGreaterThan(Cache.ROIMatchHeightScale, 0d);
@@ -597,6 +613,15 @@ public sealed partial class StageMapWindowViewModel(
                                                                                                                              && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
                                                                                                                              && t.PmtId == Cache.CIBInformation.PMTId);
         Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        {
+            Cache.ProductivityInformation,
+            xDirection,
+            yDirection,
+            xSize,
+            ySize
+        }), htmlLogUniqueId.LoggingHtml());
 
         HTuple[] templateIds = [];
 
@@ -723,6 +748,7 @@ public sealed partial class StageMapWindowViewModel(
 
                         var htmlBullet = new HtmlBullet(new
                         {
+                            IdealPoint = stageMap.IdealMatrix[y][isInWaferColumnIndex],
                             templateROI,
                             imageBounds,
                             searchROI,
