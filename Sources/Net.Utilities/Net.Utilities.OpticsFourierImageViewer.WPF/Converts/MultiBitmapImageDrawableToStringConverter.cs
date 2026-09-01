@@ -1,9 +1,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using CommunityToolkit.Diagnostics;
-using Net.Utilities.Graphics;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using SkiaSharp;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -20,18 +18,17 @@ internal sealed class MultiBitmapImageDrawableToStringConverter : IMultiValueCon
         var pointString = "-";
         var pixelString = "-";
 
-        if (values is not [Point point, CanvasDocument document]) return ThrowHelper.ThrowNotSupportedException<object>(nameof(values));
+        if (values is not [Point point, OpticsFourierImageDocument opticsFourierImageDocument]) return ThrowHelper.ThrowNotSupportedException<object>(nameof(values));
 
-        using var scope = document.View.Sync.EnterScope();
+        using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
 
-        var selectionPickDistance = document.View.ScreenToWorldDistance(document.Settings.SelectionPickDistance);
-        var bitmapImageDrawable = document.View.VisibleItems
-            .OfType<BitmapImageDrawable>()
+        var selectionPickDistance = opticsFourierImageDocument.View.ScreenToWorldDistance(opticsFourierImageDocument.Settings.SelectionPickDistance);
+        var bitmapImageDrawable = opticsFourierImageDocument.ImageModel
             .FirstOrDefault(d => d.Contains(point, selectionPickDistance));
 
         if (bitmapImageDrawable?.BitmapImage is null)
         {
-            foreach (var temp in document.View.VisibleItems.OfType<BitmapImageDrawable>()) temp.CursorPoint = null;
+            foreach (var temp in opticsFourierImageDocument.ImageModel) temp.CursorPoint = null;
 
             return DefaultString;
         }

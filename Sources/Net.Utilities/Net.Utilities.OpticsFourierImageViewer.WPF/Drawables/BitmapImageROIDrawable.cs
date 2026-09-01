@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Drawables;
 using Net.Utilities.Graphics.Primitives.Editors;
 using Net.Utilities.Graphics.Primitives.Enums.Medias;
-using Net.Utilities.Graphics.Primitives.Enums.Medias.Styles;
 using Net.Utilities.Graphics.Primitives.Medias;
 using Net.Utilities.Graphics.Primitives.Medias.Styles;
 using Net.Utilities.Graphics.Renderings;
@@ -14,10 +13,8 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
-    private static readonly TextStyle TextStyle = new(Fonts.Monospace, 18d, true, false, true);
-    private static readonly FillStyle TextForeground = new(SKColors.Red);
     private static readonly FillStyle TextBackground = new(SKColors.Transparent);
-    private static readonly LineStyle TextBorder = new(SKColors.Transparent, 1d, DashEnum.Solid, true);
+    private static readonly LineStyle TextBorder = new(SKColors.Transparent);
 
     private static readonly (BitmapImageROIResizeJoystickStateEnum Type, string Name, Func<Rect, Point> GetPoint)[] ControlPointDefinitions =
     [
@@ -38,6 +35,12 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
 
     [ObservableProperty]
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
+
+    [ObservableProperty]
+    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 16d);
+
+    [ObservableProperty]
+    public partial FillStyle TextForeground { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
     public partial Rect Rect { get; set; }

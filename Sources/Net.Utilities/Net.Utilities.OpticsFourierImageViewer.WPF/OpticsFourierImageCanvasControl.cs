@@ -18,11 +18,11 @@ public class OpticsFourierImageCanvasControl : Control
         nameof(Document),
         typeof(CanvasDocument),
         typeof(OpticsFourierImageCanvasControl),
-        new FrameworkPropertyMetadata(new CanvasDocument()));
+        new FrameworkPropertyMetadata(new OpticsFourierImageDocument()));
 
-    public CanvasDocument Document
+    public OpticsFourierImageDocument Document
     {
-        get => (CanvasDocument)GetValue(DocumentProperty);
+        get => (OpticsFourierImageDocument)GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
 

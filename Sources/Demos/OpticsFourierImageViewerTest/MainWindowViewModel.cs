@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
-using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.OpticsFourierImageViewer.WPF;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
@@ -20,7 +20,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial CanvasDocument Document { get; set; }
+    public partial OpticsFourierImageDocument Document { get; set; }
 
     [ObservableProperty]
     public partial int ROICount { get; set; } = 4;
@@ -28,9 +28,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public MainWindowViewModel()
     {
         BitmapImageDrawable = new BitmapImageDrawable();
-        Document = new CanvasDocument();
+        Document = new OpticsFourierImageDocument();
 
-        Document.DefaultModel.Add(BitmapImageDrawable);
+        Document.RunDesign(() => Document.ImageModel.Add(BitmapImageDrawable));
     }
 
     [RelayCommand]
@@ -49,7 +49,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         {
             ImageFilePath = dialog.FileName;
 
-            Document.RunDesign(() => Document.OverlayerModel.RemoveRange([.. Document.OverlayerModel.OfType<BitmapImageROIDrawable>()]));
+            Document.RunDesign(() => Document.ROIModel.Clear());
             BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(dialog.FileName);
 
             Document.View.ZoomToFit();
@@ -105,16 +105,17 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             Document.RunDesign(() =>
             {
-                Document.OverlayerModel.RemoveRange([.. Document.OverlayerModel.OfType<BitmapImageROIDrawable>()]);
+                Document.ROIModel.Clear();
 
                 for (var i = 0; i < ROICount; i++)
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
 
-                    Document.OverlayerModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
+                    Document.ROIModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
                         ResizeJoystickStateEnum = resizeJoystickStateEnum,
+                        Text = $"{i + 1}",
                         IsModified = false
                     });
                 }

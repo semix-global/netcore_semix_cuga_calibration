@@ -54,8 +54,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        using var scope = Edit.Document.View.Sync.EnterScope();
-        foreach (var bitmapImageROIDrawable in Edit.Document.OverlayerModel.OfType<BitmapImageROIDrawable>()
+        var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+
+        using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
+        foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable)))
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ClampToBounds(Options.GetImageRect());
@@ -283,7 +285,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void CompleteSelection(bool isControlPressed)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
+        var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+
+        using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
 
         Guard.IsNotNull(_selectionWindow);
 
@@ -292,8 +296,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         BitmapImageROIDrawable[] selectedItems =
         [
-            .. Edit.Document.View.VisibleItems
-                .OfType<BitmapImageROIDrawable>()
+            .. opticsFourierImageDocument.ROIModel
                 .Where(t => selectionWindow.GetExtents().IntersectsWith(t.GetExtents()))
         ];
 
