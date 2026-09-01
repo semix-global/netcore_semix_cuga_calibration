@@ -368,12 +368,7 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             result[y] = new bool[xLength];
             for (var x = 0; x < xLength; x++)
             {
-                using var pyBoolObject = Guard.IsNotNullAndReturn(pyRow[x]);
-                using var pyVector = new PyList(pyBoolObject);
-                Guard.IsEqualTo(pyVector.Length(), 1);
-
-                using var pyBool = Guard.IsNotNullAndReturn(pyVector[0]);
-
+                using var pyBool = Guard.IsNotNullAndReturn(pyRow[x]);
                 result[y][x] = pyBool.As<bool>();
             }
         }

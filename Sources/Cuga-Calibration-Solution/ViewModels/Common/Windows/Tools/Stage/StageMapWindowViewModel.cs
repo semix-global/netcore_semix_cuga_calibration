@@ -809,7 +809,8 @@ public sealed partial class StageMapWindowViewModel(
         using var pyResidual = stageMap.ToPythonErrorMatrix();
         using var pyDesiredPositions = stageMap.ToPythonIdealMatrix();
         using var pyMask = stageMap.ToPythonIsMatchMatrix();
-        using var result = process.Invoke(pyResidual, pyDesiredPositions, pyMask);
+        using var pyFillValue = 0d.ToPython();
+        using var result = process.Invoke(pyResidual, pyDesiredPositions, pyMask, pyFillValue);
 
         stageMap.ApplyPythonErrorMatrix(result);
     }
@@ -836,13 +837,8 @@ public sealed partial class StageMapWindowViewModel(
         using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
         using var pyAlpha = StageMapResidualAlpha.ToPython();
         using var pyMinimumCount = StageMapMinimumRetryCount.ToPython();
-        using var pyMaximumCount = (Cache.StageMapRepeatTimes + 1).ToPython();
-        using var pyKeywordArguments = new PyDict();
-        pyKeywordArguments.SetItem("masks", pyMasks);
-
-        using var result = process.Invoke(
-            [pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount],
-            pyKeywordArguments);
+        using var pyMaximumCount = Cache.StageMapRepeatTimes.ToPython();
+        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount, pyMasks);
 
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
@@ -867,12 +863,7 @@ public sealed partial class StageMapWindowViewModel(
         using var pyResidualTable = residualStageMap.ToPythonErrorMatrix();
         using var pyStage1Mask = Cache.StageMap.ToPythonIsMatchMatrix();
         using var pyStage2ValidMask = residualStageMap.ToPythonIsMatchMatrix();
-        using var pyKeywordArguments = new PyDict();
-        pyKeywordArguments.SetItem("stage2_valid_mask", pyStage2ValidMask);
-
-        using var result = combine.Invoke(
-            [pyInitialCorrection, pyResidualTable, pyStage1Mask],
-            pyKeywordArguments);
+        using var result = combine.Invoke(pyInitialCorrection, pyResidualTable, pyStage1Mask, pyStage2ValidMask);
 
         using var pyFinalCorrection = Guard.IsNotNullAndReturn(result[0]);
         using var pyInterpolationMask = Guard.IsNotNullAndReturn(result[1]);
