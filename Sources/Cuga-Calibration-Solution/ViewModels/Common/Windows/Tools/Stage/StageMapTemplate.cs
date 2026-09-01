@@ -12,9 +12,6 @@ public sealed partial class StageMapTemplate : ObservableObject
     public partial Point FindBFMachinePosition { get; set; }
 
     [ObservableProperty]
-    public partial Vector FindBFMachineVector { get; set; }
-
-    [ObservableProperty]
     public partial Rect TemplateROI { get; set; }
 
     [ObservableProperty]

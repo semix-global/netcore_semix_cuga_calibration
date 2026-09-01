@@ -110,6 +110,9 @@ public sealed partial class StageMapWindowViewModel(
                     FindBFMachinePosition = stageViewModel.GetMachineStagePosition()
                 };
 
+                // 选择的点Y必须相同： (之前计算与第一个点的差不准, 因为是明场下相减不是暗场, 实际上应该是两个暗场模版中心位置的差)
+                if (Cache.StageMapTemplates.Length > 0) Guard.IsEqualTo(stageMapTemplatePoint.FindBFMachinePosition.Y, Cache.StageMapTemplates[0].FindBFMachinePosition.Y);
+
                 var bfPosition = stageViewModel.MachineToBrightFieldPosition(stageMapTemplatePoint.FindBFMachinePosition);
                 var dfPosition = cibViewModel.GetCIBInformationPosition(
                     StageCoordinateSystemEnum.Dark,
@@ -154,11 +157,7 @@ public sealed partial class StageMapWindowViewModel(
 
                     Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
 
-                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
-                    {
-                        stageMapTemplate.Index = index + 1;
-                        stageMapTemplate.FindBFMachineVector = stageMapTemplate.FindBFMachinePosition - Cache.StageMapTemplates[0].FindBFMachinePosition;
-                    }
+                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
                 }
                 finally
                 {
@@ -317,7 +316,6 @@ public sealed partial class StageMapWindowViewModel(
             {
                 t.Item.Index,
                 t.Item.FindBFMachinePosition,
-                t.Item.FindBFMachineVector,
                 t.Item.TemplateROI,
                 t.Item.TemplateFilePath,
                 t.Item.TemplateImageFilePath,
@@ -594,7 +592,6 @@ public sealed partial class StageMapWindowViewModel(
             {
                 t.Item.Index,
                 t.Item.FindBFMachinePosition,
-                t.Item.FindBFMachineVector,
                 t.Item.TemplateROI,
                 t.Item.TemplateFilePath,
                 t.Item.TemplateImageFilePath
@@ -712,7 +709,7 @@ public sealed partial class StageMapWindowViewModel(
                         var searchROI = Cache.IsROIMatchEnabled
                             ? templateROI.Inflate(
                                 templateROI.Width * Cache.ROIMatchWidthScale,
-                                templateROI.Height * Cache.ROIMatchHeightScale).Intersect(imageBounds)
+                                templateROI.Height * Cache.ROIMatchHeightScale).ClampToBounds(imageBounds)
                             : imageBounds;
 
                         using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
@@ -744,7 +741,6 @@ public sealed partial class StageMapWindowViewModel(
                         image.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
-                        vector = vector.WithY(vector.Y - Cache.StageMapTemplates[templateIdIndex].FindBFMachineVector.Y);
 
                         var htmlBullet = new HtmlBullet(new
                         {
