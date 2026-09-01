@@ -19,21 +19,21 @@ namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>
 {
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem ChannelId1 { get; set; } = new() { ChannelId = 1 };
+    public partial PupilCameraAlignmentDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem ChannelId2 { get; set; } = new() { ChannelId = 2 };
+    public partial PupilCameraAlignmentDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem ChannelId3 { get; set; } = new() { ChannelId = 3 };
+    public partial PupilCameraAlignmentDTOItem Channel3Item { get; set; } = new() { ChannelId = 3 };
 
     #region Mapper
 
     public override PupilCameraAlignmentDTO Clone() => new()
     {
-        ChannelId1 = ChannelId1.Clone(),
-        ChannelId2 = ChannelId2.Clone(),
-        ChannelId3 = ChannelId3.Clone(),
+        Channel1Item = Channel1Item.Clone(),
+        Channel2Item = Channel2Item.Clone(),
+        Channel3Item = Channel3Item.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -43,9 +43,9 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCa
 
     public CalibrationPupilCameraAlignment AdaptTo() => new()
     {
-        RectCh1 = ChannelId1.ImageROI.ToRectD(),
-        RectCh2 = ChannelId2.ImageROI.ToRectD(),
-        RectCh3 = ChannelId3.ImageROI.ToRectD(),
+        RectCh1 = Channel1Item.ImageROI.ToRectD(),
+        RectCh2 = Channel2Item.ImageROI.ToRectD(),
+        RectCh3 = Channel3Item.ImageROI.ToRectD(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -110,6 +110,8 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
 
     public void Review()
     {
+        if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+
         _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
         _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI).ClampToBounds(new Rect(_bitmapImageDrawable.Point, _bitmapImageDrawable.BitmapImage.Size));
 

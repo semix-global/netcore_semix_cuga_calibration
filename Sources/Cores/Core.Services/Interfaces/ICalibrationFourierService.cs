@@ -30,7 +30,7 @@ public interface ICalibrationFourierService
     /// <param name="param">光强</param>
     /// <param name="pos">晶圆位置</param>
     /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800);
+    SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800);
 
     /// <summary>
     /// 获取傅里叶相机的配置
