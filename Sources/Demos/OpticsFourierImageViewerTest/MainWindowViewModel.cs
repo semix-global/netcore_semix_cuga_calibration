@@ -48,57 +48,48 @@ public sealed partial class MainWindowViewModel : ObservableObject
         await Task.Run(() =>
         {
             ImageFilePath = dialog.FileName;
+
+            Document.RunDesign(() => Document.OverlayerModel.RemoveRange([.. Document.OverlayerModel.OfType<BitmapImageROIDrawable>()]));
             BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(dialog.FileName);
 
-            Document.RunDesign(ClearRectROIs);
             Document.View.ZoomToFit();
         }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task EditAllAnchorROIsAsync(CancellationToken cancellationToken)
-    {
-        return EditROIsAsync(
-            BitmapImageROIControlPointTypeEnum.All,
-            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
-            cancellationToken: cancellationToken);
-    }
+    private Task EditAllAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIControlPointTypeEnum.All,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
+        cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken)
-    {
-        return EditROIsAsync(
-            BitmapImageROIControlPointTypeEnum.XCenterYMin,
-            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
-            cancellationToken: cancellationToken);
-    }
+    private Task EditThreeBottomAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIControlPointTypeEnum.XMinYMin |
+        BitmapImageROIControlPointTypeEnum.XCenterYMin |
+        BitmapImageROIControlPointTypeEnum.XMaxYMin,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
+        cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task EditThreeBottomAnchorROIsAsync(CancellationToken cancellationToken)
-    {
-        return EditROIsAsync(
-            BitmapImageROIControlPointTypeEnum.XMinYMin |
-            BitmapImageROIControlPointTypeEnum.XCenterYMin |
-            BitmapImageROIControlPointTypeEnum.XMaxYMin,
-            dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
-            cancellationToken: cancellationToken);
-    }
+    private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIControlPointTypeEnum.XCenterYMin,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
+        cancellationToken: cancellationToken);
 
     [RelayCommand]
     private void CancelEditROI()
     {
-        EditAllAnchorROIsCancelCommand.Execute(null);
+        EditAllAnchorROICancelCommand.Execute(null);
+        EditThreeBottomAnchorROICancelCommand.Execute(null);
         EditBottomAnchorROICancelCommand.Execute(null);
-        EditThreeBottomAnchorROIsCancelCommand.Execute(null);
     }
 
-    private async Task EditROIsAsync(
+    private async Task EditROIAsync(
         BitmapImageROIControlPointTypeEnum controlPointTypeEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
         CancellationToken cancellationToken)
     {
-        var roiCount = ROICount;
-        if (roiCount <= 0) return;
+        if (ROICount <= 0) return;
 
         await Task.Run(async () =>
         {
@@ -107,21 +98,20 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             var imageWidth = (double)bitmapImage.Width;
             var imageHeight = (double)bitmapImage.Height;
-            var roiWidth = imageWidth / (roiCount * 2d - 1d);
+            var roiWidth = imageWidth / (ROICount * 2d - 1d);
             var roiHeight = imageHeight / 2d;
-            // 画布使用笛卡尔坐标，图片顶部对应 Point.Y + imageHeight。
+
             var roiY = BitmapImageDrawable.Point.Y + imageHeight - roiHeight;
 
             Document.RunDesign(() =>
             {
-                // 矩形宽度与矩形之间的间距相同，因此 N 个矩形正好均匀铺满图片宽度。
-                ClearRectROIs();
+                Document.OverlayerModel.RemoveRange([.. Document.OverlayerModel.OfType<BitmapImageROIDrawable>()]);
 
-                for (var i = 0; i < roiCount; i++)
+                for (var i = 0; i < ROICount; i++)
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
 
-                    Document.OverlayerModel.Add(new BitmapImageROIDrawable
+                    Document.OverlayerModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
                         ControlPointTypeEnum = controlPointTypeEnum,
@@ -138,10 +128,5 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
         }, cancellationToken).ConfigureAwait(false);
-    }
-
-    private void ClearRectROIs()
-    {
-        Document.OverlayerModel.RemoveRange(Document.OverlayerModel.OfType<BitmapImageROIDrawable>().ToArray());
     }
 }

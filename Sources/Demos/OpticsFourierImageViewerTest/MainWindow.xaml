@@ -31,15 +31,15 @@
             <hc:SimplePanel>
                 <hc:UniformSpacingPanel Spacing="5" Orientation="Horizontal">
                     <Button Content="Open Image File" Command="{Binding OpenImageFileCommand}" />
-                    <TextBlock Text="ROI Count:" VerticalAlignment="Center" />
-                    <TextBox Width="60"
-                             Text="{Binding ROICount, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button Content="All Anchors + Move"
-                            Command="{Binding EditAllAnchorROIsCommand}" />
-                    <Button Content="Bottom Anchor Only + No Move"
-                            Command="{Binding EditBottomAnchorROICommand}" />
-                    <Button Content="Three Bottom Anchors + Move"
-                            Command="{Binding EditThreeBottomAnchorROIsCommand}" />
+                    <hc:NumericUpDown Width="200"
+                                      hc:TitleElement.Title="ROI Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding ROICount}" />
+                    <Button Content="All Anchors + Move" Command="{Binding EditAllAnchorROICommand}" />
+                    <Button Content="Three Bottom Anchors + Move" Command="{Binding EditThreeBottomAnchorROICommand}" />
+                    <Button Content="Bottom Anchor Only + No Move" Command="{Binding EditBottomAnchorROICommand}" />
                     <Button Content="Cancel"
                             Command="{Binding CancelEditROICommand}"
                             Style="{StaticResource ButtonWarning}" />
