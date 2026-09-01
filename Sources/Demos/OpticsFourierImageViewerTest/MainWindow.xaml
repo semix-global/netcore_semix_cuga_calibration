@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+        xmlns:converters="clr-namespace:OpticsFourierImageViewerTest.Converters"
         xmlns:opticsFourierImageViewerTest="clr-namespace:OpticsFourierImageViewerTest"
         Width="1920"
         Height="900"
         d:DataContext="{d:DesignInstance Type=opticsFourierImageViewerTest:MainWindowViewModel,
                                          IsDesignTimeCreatable=True}"
         mc:Ignorable="d">
+    <Window.Resources>
+        <converters:CartesianCoordinateToImageRectConverter x:Key="CartesianCoordinateToImageRectConverter" />
+    </Window.Resources>
     <Window.Title>
         <MultiBinding StringFormat="{}Image Viewer: {0} {1}" FallbackValue="Image Viewer">
             <Binding Path="ImageFilePath" />
@@ -46,13 +50,60 @@
                 </hc:UniformSpacingPanel>
             </hc:SimplePanel>
         </Border>
-        <Border Grid.Row="2"
-                Padding="1"
-                CornerRadius="3"
-                BorderBrush="{StaticResource PrimaryBrush}"
-                BorderThickness="2"
-                Style="{StaticResource BorderRegion}">
-            <wpf:OpticsFourierImageCanvasControl Document="{Binding Document}" />
-        </Border>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="420" />
+            </Grid.ColumnDefinitions>
+            <Border Padding="1"
+                    CornerRadius="3"
+                    BorderBrush="{StaticResource PrimaryBrush}"
+                    BorderThickness="2"
+                    Style="{StaticResource BorderRegion}">
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document}" />
+            </Border>
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Stretch" />
+            <Border Grid.Column="2"
+                    Padding="3"
+                    CornerRadius="3"
+                    BorderBrush="{StaticResource PrimaryBrush}"
+                    BorderThickness="2"
+                    Style="{StaticResource BorderRegion}">
+                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                          Style="{StaticResource DataGrid.Small}"
+                          HeadersVisibility="All"
+                          IsReadOnly="True"
+                          RowHeaderWidth="60"
+                          CanUserSortColumns="False"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding BitmapImageROIDrawables}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="*"
+                                            Header="Text"
+                                            Binding="{Binding Text}" />
+                        <DataGridTextColumn Width="2*"
+                                            Header="Rect"
+                                            Binding="{Binding Rect}" />
+                        <DataGridTemplateColumn Width="2*" Header="ImageRect">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource CartesianCoordinateToImageRectConverter}">
+                                                <Binding Path="Rect" />
+                                                <Binding />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

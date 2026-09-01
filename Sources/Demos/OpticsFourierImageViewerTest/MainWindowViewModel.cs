@@ -23,6 +23,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public partial OpticsFourierImageDocument Document { get; set; }
 
     [ObservableProperty]
+    public partial BitmapImageROIDrawable[] BitmapImageROIDrawables { get; set; } = [];
+
+    [ObservableProperty]
     public partial int ROICount { get; set; } = 4;
 
     public MainWindowViewModel()
@@ -48,6 +51,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         await Task.Run(() =>
         {
             ImageFilePath = dialog.FileName;
+            BitmapImageROIDrawables = [];
 
             Document.RunDesign(() => Document.ROIModel.Clear());
             BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(dialog.FileName);
@@ -121,6 +125,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 }
             });
 
+            BitmapImageROIDrawables = [.. Document.ROIModel];
+
             var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
@@ -128,6 +134,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
             };
 
             await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
+
+            BitmapImageROIDrawables = [.. Document.ROIModel];
         }, cancellationToken).ConfigureAwait(false);
     }
 }
