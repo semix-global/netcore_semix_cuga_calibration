@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.OpticsFourierImageViewer.WPF\Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
         <ProjectReference Include="..\Core.Utilities.WPF\00. Core.Utilities.WPF.csproj" />
         <ProjectReference Include="..\Core.Wcf\01. Core.Wcf.csproj" />
     </ItemGroup>

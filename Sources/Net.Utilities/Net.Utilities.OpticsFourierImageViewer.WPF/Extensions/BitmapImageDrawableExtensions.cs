@@ -8,14 +8,14 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 
 public static class BitmapImageDrawableExtensions
 {
-    extension(Point point)
+    extension(Point @this)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
         public Point ImageCoordinateRound()
         {
             // 向左上角收敛 (图片坐标系左上角origin点)
-            return new Point(Math.Floor(point.X), Math.Ceiling(point.Y));
+            return new Point(Math.Floor(@this.X), Math.Ceiling(@this.Y));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -23,7 +23,32 @@ public static class BitmapImageDrawableExtensions
         public Point CartesianCoordinateRound()
         {
             // 向左下角收敛 (图片坐标系左下角origin点)
-            return new Point(Math.Floor(point.X), Math.Floor(point.Y));
+            return new Point(Math.Floor(@this.X), Math.Floor(@this.Y));
+        }
+    }
+
+    extension(Rect @this)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
+        public Rect ImageCoordinateRound()
+        {
+            var extents = new Extents();
+            extents.Add(@this.XMinYMin.ImageCoordinateRound());
+            extents.Add(@this.XMaxYMax.ImageCoordinateRound());
+
+            return (Rect)extents;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
+        public Rect CartesianCoordinateRound()
+        {
+            var extents = new Extents();
+            extents.Add(@this.XMinYMin.CartesianCoordinateRound());
+            extents.Add(@this.XMaxYMax.CartesianCoordinateRound());
+
+            return (Rect)extents;
         }
     }
 

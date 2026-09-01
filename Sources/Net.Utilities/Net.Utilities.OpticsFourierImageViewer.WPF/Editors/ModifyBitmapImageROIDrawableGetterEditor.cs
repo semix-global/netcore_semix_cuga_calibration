@@ -60,7 +60,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable)))
         {
-            bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ClampToBounds(Options.GetImageRect());
+            bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
             ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsModified)));
         }
 
