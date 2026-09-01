@@ -503,7 +503,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
             using var result = suggest.Invoke(pyCost, pyPhaseCount, pyUniformityAnchorCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
-            using var pyPhases = Guard.IsNotNullAndReturn(result["x_periodic"]);
+            using var pyPhases = Guard.IsNotNullAndReturn(result["x_phase"]);
             using var pyUniformities = Guard.IsNotNullAndReturn(result["x_normal"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
