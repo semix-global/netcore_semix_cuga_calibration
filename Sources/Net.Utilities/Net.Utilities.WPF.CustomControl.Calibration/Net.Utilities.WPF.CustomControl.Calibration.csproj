@@ -8,18 +8,18 @@
     <ItemGroup>
         <PackageReference Include="Net.Utilities.WPF.CustomControl" />
 
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.5-preview5.0-xuan" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.5-preview5.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.5-preview5.0-xuan" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.5-preview6-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.5-preview6-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.5-preview6-xuan" />
         <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.5-preview5.0-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.5-preview5.0-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.5-preview6-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.5-preview6-xuan" />
 
-        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.5-preview5.0-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.5-preview5.0-xuan" />
-        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.5-preview5.0-xuan" />
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.5-preview6-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.5-preview6-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.5-preview6-xuan" />
 
-        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.5-preview5.0-xuan" />
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.5-preview6-xuan" />
     </ItemGroup>
 
     <ItemGroup>
