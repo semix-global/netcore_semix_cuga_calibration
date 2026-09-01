@@ -81,7 +81,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     public partial CIBLineOrientationOffsetDTO[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizes { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
     public partial CreateDarkImageTemplateWindowViewModel CreateDarkImageTemplateWindowViewModel { get; set; } = HostApplication.GetRequiredService<CreateDarkImageTemplateWindowViewModel>();
@@ -100,14 +100,14 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         await Task.CompletedTask.ConfigureAwait(false);
 
 
-        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBLineOrientationOffsetCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBLineOrientationOffsetDTO>(cancellationToken);
 
         if (Cache.Item.MicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.Item.MicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
+        Cache.PmtInterval = ApplicationCookie.PMTInterval;
 
         UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
@@ -116,23 +116,20 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         Cache.Item.FindPosition = Cache.Item.FindPosition.ToOriginLength >= Cache.Item.WaferRadius
             ? new Point(0, 0)
             : Cache.Item.FindPosition;
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
         return true;
     }
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
@@ -140,7 +137,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         if (Reviews.All(t => t.IsCalibrated == false))
             return false;
 
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
 
         return true;
@@ -148,8 +145,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 1:
@@ -162,7 +157,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
                 return true;
 
@@ -253,7 +248,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             Cache.Item.FindPosition = result;
 
             Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.Item.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
 
@@ -328,6 +323,9 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
             darkFieldImageDto.Image.SaveImage(filePath);
+
+            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
             CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
@@ -643,7 +641,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations
                     .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
             ];

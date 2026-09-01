@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
              d:DesignWidth="1920"
@@ -89,10 +89,20 @@
                         <GridViewColumn Header="CalChip Mode" DisplayMemberBinding="{Binding Value.CalChipSiteModelEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                         <GridViewColumn Header="AF ECS" DisplayMemberBinding="{Binding Value.ECSValue}" />
                         <GridViewColumn Header="AF Motor" DisplayMemberBinding="{Binding Value.MotorValue, StringFormat={}{0:F3}}" />
+                        <GridViewColumn Header="Action Review">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <hc:ButtonGroup>
+                                        <Button Content="Goto DF"
+                                                Command="{Binding Path=DataContext.GotoDarkFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
+                                                CommandParameter="{Binding Key}" />
+                                    </hc:ButtonGroup>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
         </GroupBox>
-
     </Grid>
 </UserControl>

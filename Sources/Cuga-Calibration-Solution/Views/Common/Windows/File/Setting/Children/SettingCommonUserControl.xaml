@@ -20,12 +20,12 @@
                 <Border>
                     <ListBox HorizontalAlignment="Center"
                              VerticalAlignment="Center"
-                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumsUtilities:LogLevelEnum}}}"
-                             SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum}"
-                             BorderThickness="0"
                              Background="Transparent"
+                             BorderThickness="0"
+                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumsUtilities:LogLevelEnum}}}"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                             ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                             SelectedItem="{Binding CalibrationSetting.SettingCommonParam.MinLogLevelEnum}">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Template">
@@ -84,11 +84,6 @@
                                     <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
-                            <hc:NumericUpDown hc:TitleElement.Title="PMT Interval(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding CalibrationSetting.SettingCommonParam.PMTInterval}" />
                             <ComboBox hc:TitleElement.Title="Main CIB Information: "
                                       hc:TitleElement.TitlePlacement="Left"
                                       hc:TitleElement.TitleWidth="200"

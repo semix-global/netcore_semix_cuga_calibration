@@ -6,9 +6,11 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:calChip="clr-namespace:Core.Models.Models.Microscope.CalChip;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:generic="clr-namespace:System.Collections.Generic;assembly=mscorlib"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -134,8 +136,7 @@
                                         <hc:ButtonGroup>
                                             <Button Content="Goto BF"
                                                     Command="{Binding Path=DataContext.GotoBrightFieldPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding CalChipSiteModelEnum}"
-                                                    d:DataContext="{d:DesignInstance Type=calChip:MicroscopeCalChipDTOItem}" />
+                                                    CommandParameter="{Binding Key}" />
                                         </hc:ButtonGroup>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

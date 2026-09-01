@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Alignment;
@@ -149,6 +148,13 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public AlgorithmWaferTypeEnum GetAlgorithmWaferType()
+    {
+        var ret = calibrationStageService.GetAlgorithmWaferType();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public Point BrightFieldToMachinePosition(Point brightPosition)
     {
         var ret = calibrationStageService.BrightFieldToMachinePosition(brightPosition);
@@ -243,16 +249,16 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? (ret.Anything, bitmapMemoryBytes) : throw new CugaException(ret.ErrorMsg);
     }
 
-    public AlignmentSiteDto MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public AlignmentSiteDto MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum)
     {
-        var ret = calibrationStageService.MarkAlignSite1(algorithmTemplateSizeEnum, algorithmTemplateTypeEnum, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite1(algorithmTemplateSizeEnum, algorithmTemplateTypeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public AlignmentSiteDto MarkAlignSite2(AlignmentSiteDto site, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public AlignmentSiteDto MarkAlignSite2(AlignmentSiteDto site)
     {
-        var ret = calibrationStageService.MarkAlignSite2(site, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite2(site);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
@@ -264,13 +270,12 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         SetAbsoluteStageTheta(0);
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
 
-        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
+        var ret = calibrationStageService.Alignment(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
@@ -289,12 +294,11 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
 
-        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, algorithmWaferTypeEnum, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
+        var ret = calibrationStageService.AlignmentVerify(lowSite1, lowSite2, highSite1, highSite2, lowMicroscopeLensInformation, highMicroscopeLensInformation, calChipSiteModelEnum is not CalChipSiteModelEnum.ChuckModel);
 
         if (ret.IsSuccess == false)
             throw new CugaException(ret.ErrorMsg);
@@ -308,13 +312,10 @@ public sealed partial class StageViewModel(
     public AlignmentSiteDto MarkAlignSite1DarkField(
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI,
         LaserLightInformation? laserLightInformation = null)
     {
-        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
-        var ret = calibrationStageService.MarkAlignSite1DarkField(opticsIlluminationModeEnum, productivityInformation, algorithmTemplateSizeEnum, algorithmWaferTypeEnum, laserLightInformation);
+        var ret = calibrationStageService.MarkAlignSite1DarkField(productivityInformation, algorithmTemplateSizeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -324,13 +325,9 @@ public sealed partial class StageViewModel(
 
     public AlignmentSiteDto MarkAlignSite2DarkField(
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI
-    )
+        AlignmentSiteDto site)
     {
-        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
-        var ret = calibrationStageService.MarkAlignSite2DarkField(opticsIlluminationModeEnum, productivityInformation, site, algorithmWaferTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite2DarkField(productivityInformation, site);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
@@ -345,21 +342,16 @@ public sealed partial class StageViewModel(
         AlignmentSiteDto darkFieldHighSite2,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
-        LaserLightInformation? laserLightInformation = null,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI)
+        LaserLightInformation? laserLightInformation = null)
     {
-        if (opticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI) throw new NotImplementedException("NI Optics Illumination Mode is not supported.");
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
             brightFieldLowSite2,
             darkFieldHighSite1,
             darkFieldHighSite2,
-            opticsIlluminationModeEnum,
             productivityInformation,
             lowMicroscopeLensInformation,
-            algorithmWaferTypeEnum,
             laserLightInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);

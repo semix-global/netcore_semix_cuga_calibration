@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
@@ -100,6 +101,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
     [ObservableProperty]
     public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
+    [ObservableProperty]
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
+
     [DefaultCache]
     [ObservableProperty]
     public partial CIBXPixelSizeDTO[] Calibrations { get; set; } = [];
@@ -117,6 +121,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBXPixelSizeCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
@@ -149,6 +154,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -157,8 +163,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -174,7 +178,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
@@ -186,8 +190,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -199,13 +201,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch
                     {
-                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition,
-                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition == Point.Origin ? ChuckCenter.NewBFCenterStagePosition : Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
                         _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
                     }), Cache.CalChipSiteModelEnum);
 
@@ -890,7 +892,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             using var resultImage = RAWImageFactory.CreateImage(buffer, sizeI, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
             using var bitmapImage = resultImage.ToBitmapImage();
-            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, bitmapImage, templateId, out var matchPoint, out _, out var score, out _);
+            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, bitmapImage, templateId, HtmlLogUniqueId, out var matchPoint, out _, out var score, out _);
 
             itemItem.IsMatchOk = isMathOk;
             itemItem.MatchPoint = new Point(itemItem.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
@@ -943,7 +945,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

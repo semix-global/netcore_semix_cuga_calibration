@@ -1,9 +1,15 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Recipe.Services;
 using Core.Services;
+using Core.Utilities.WPF.Tray.Model;
+using Core.Utilities.WPF.Tray.Service.Implements;
+using Core.Utilities.WPF.Tray.Service.Interfaces;
+using Core.Utilities.WPF.Tray.UI;
 using CugaCalibration.Core;
+using CugaCalibration.ViewModels;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
 using Local.SQL.DB.Providers;
@@ -22,6 +28,7 @@ using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace CugaCalibration;
@@ -29,6 +36,7 @@ namespace CugaCalibration;
 public sealed partial class App
 {
     private static readonly Logger Logger = LogManager.Setup().GetCurrentClassLogger();
+    private static readonly ITrayService TrayService = new TrayService();
 
     [STAThread]
     private static void Main(string[] args)
@@ -89,6 +97,23 @@ public sealed partial class App
             app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
             app.MainWindow.Visibility = Visibility.Visible;
 
+            // 创建托盘图标实例并持有引用，避免被 GC 回收
+            var trayViewModel = HostApplication.GetRequiredService<TrayViewModel>();
+            var applicationCookies = HostApplication.GetRequiredService<ApplicationCookie>();
+            var icon = (BitmapImage)app.FindResource("AppIcon");
+
+            TrayService.Initialize(
+                new TrayOptions
+                {
+                    ToolTip = $"{applicationCookies.ApplicationName}",
+                    Icon = icon,
+                    DataContext = trayViewModel,
+                    ContextMenu = new TrayMenu
+                    {
+                        DataContext = trayViewModel
+                    }
+                });
+
             // todo: 等后续ScottPlot改造好移动到static中
             CugaCalibrationSolutionCalibrationViewModelEntriesCollector.Init();
 
@@ -110,6 +135,8 @@ public sealed partial class App
                 app.DispatcherUnhandledException -= AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
                 TaskScheduler.UnobservedTaskException -= TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
                 AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
+
+                TrayService.Dispose();
 
                 await host.StopAsync().ConfigureAwait(false);
             };

@@ -109,4 +109,9 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibMicro
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default((double min, double max)))
             : SxExecuteRetHelper.CreateSuccess((Convert.ToDouble(sxExecuteRet.Anything.Lower), Convert.ToDouble(sxExecuteRet.Anything.Upper)));
     }
+
+    public SxExecuteRet<bool> SetAFParams(MicroscopeLensInformation microscopeLensInformation, double ecs, double voltage)
+    {
+        throw new NotImplementedException();
+    }
 }

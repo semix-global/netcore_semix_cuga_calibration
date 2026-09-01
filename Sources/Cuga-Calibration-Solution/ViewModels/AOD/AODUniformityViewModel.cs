@@ -26,6 +26,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -129,6 +130,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -137,8 +139,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -154,7 +154,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -173,8 +173,6 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -186,7 +184,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -407,7 +405,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                 Logger.LogHtmlInformation("Forward & Reverse", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     CalibratingItem.IsReverse,
-                    Plot = new HtmlContainer(CalibratingItem.IsReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    Plot = new HtmlContainer(CalibratingItem.IsReversePlotDataSource.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 var mappingMinIndexes = mappingRegions.Select(t => t.VMiddleIndex).ToArray();
@@ -474,7 +472,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                 Logger.LogHtmlInformation("Mapping", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     Mappings = new HtmlExpand(string.Empty, new HtmlTable(CalibratingItem.Mappings)),
-                    Plot = new HtmlContainer(CalibratingItem.MappingScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    Plot = new HtmlContainer(CalibratingItem.MappingPlotDataSource.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 if (HostEnvironment.IsProduction())
@@ -655,7 +653,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Plot = new HtmlContainer(CalibratingItem.InitializeWindowScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    Plot = new HtmlContainer(CalibratingItem.InitializeWindowPlotDataSource.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -896,8 +894,8 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                         CalibratingItem.Item.Items[times].MinRate,
                         CalibratingItem.Item.Items[times].MaxRate,
                         mappingStatuses = new HtmlExpand(string.Empty, new HtmlTable([.. CalibratingItem.Item.Items[times].MappingStatuses.Index().Select(t => new { t.Index, t.Item })])),
-                        Plot = new HtmlContainer(CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
-                        Plots = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))]),
+                        Plot = new HtmlContainer(CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()),
+                        Plots = new HtmlContainer([.. CalibratingItem.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))]),
                         windowIntervals = new HtmlExpand(string.Empty, new HtmlTable([.. windowIntervals.Index().Select(t => new { t.Index, t.Item })]))
                     });
 
@@ -1067,7 +1065,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                 var htmlBullet = new HtmlBullet(new
                 {
                     selectedReviewItem.ProductivityInformation,
-                    Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                    Plot = new HtmlContainer([.. selectedReviewItem.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
                 if (selectedReviewItem.IsVerified)
@@ -1151,7 +1149,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.LaserLightInformation == dto.LaserLightInformation) == false)
             ];
         }

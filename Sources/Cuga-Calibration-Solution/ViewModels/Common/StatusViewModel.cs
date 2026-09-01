@@ -131,6 +131,7 @@ public sealed partial class StatusViewModel(
             var productivityInformations = opticsViewModel.GetProductivityInformations();
 
             var cibInformations = cibViewModel.GetCIBInformations();
+            var pmtInterval = opticsViewModel.GetPMTInterval();
 
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.DeviceCUGAVersion = deviceCUGAVersion;
@@ -139,6 +140,7 @@ public sealed partial class StatusViewModel(
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
             applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
+            applicationCookie.PMTInterval = pmtInterval;
 
             if (new Version(applicationCookie.DeviceCUGAVersion) < new Version(ApplicationCookie.ApplicationCUGAVersion))
             {

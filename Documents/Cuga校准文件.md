@@ -1855,34 +1855,9 @@ public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
 public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
 {
     /// <summary>
-    /// 入射方式
-    /// </summary>
-    public CgNIOIType CgNIOITypeEnum { get; set; }
-
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    /// <summary>
-    /// 速度
-    /// </summary>
-    public CgSpeedLevelType Speed { get; set; }
-
-    /// <summary>
-    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
-    /// </summary>
-    public bool IsAFServo { get; set; }
-
-   /// <summary>
     /// Chuck暗场最佳Ecs
     /// </summary>
     public double ChuckEcsValue { get; set; }
-
-    /// <summary>
-    /// Chuck暗场电机值
-    /// </summary>
-    public double ChuckMotorValue { get; set; }
 
     /// <summary>
     /// Dsw暗场最佳Ecs
@@ -1890,19 +1865,19 @@ public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
     public double DswEcsValue { get; set; }
 
     /// <summary>
-    /// Dsw暗场电机值
-    /// </summary>
-    public double DswMotorValue { get; set; }
-
-    /// <summary>
     /// Haze暗场最佳Ecs
     /// </summary>
     public double HazeEcsValue { get; set; }
 
     /// <summary>
-    /// Haze暗场电机值
+    /// Undefined暗场最佳Ecs
     /// </summary>
-    public double HazeMotorValue { get; set; }
+    public double UndefineEcsValue { get; set; }
+
+    /// <summary>
+    /// ShinyWafer暗场最佳Ecs
+    /// </summary>
+    public double ShinyWaferEcsValue { get; set; }
 }
 ```
 

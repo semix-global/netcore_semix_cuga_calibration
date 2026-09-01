@@ -16,6 +16,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -108,6 +109,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -179,7 +181,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
                     ConfigSaturationCoefficient = currentSaturationCoefficient,
                     CalibratingItem.SaturationCoefficient,
                     CalibratingItem.MaxMeasurePower,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -241,7 +243,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
                     {
                         selectedReviewItem.MaxMeasurePower,
                         selectedReviewItem.SaturationCoefficient,
-                        ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                        PlotDataSource = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                     });
 
                     LaserViewModel.SetLaserLightSaturationCoefficient(selectedReviewItem.SaturationCoefficient);
@@ -374,7 +376,7 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

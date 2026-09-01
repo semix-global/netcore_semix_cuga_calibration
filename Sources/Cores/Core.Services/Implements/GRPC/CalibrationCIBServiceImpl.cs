@@ -113,7 +113,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> ToggleRTFCParam(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetGlobalRTFCParams(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();
     }

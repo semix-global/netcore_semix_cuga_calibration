@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(rg -n --no-heading -g '*.cs' '^\\\\s*\\(?:\\(?:public|protected|private|internal|protected\\\\s+internal\\)\\\\s+\\)?\\(?:static\\\\s+\\)?\\(?:override\\\\s+\\)?\\(?:async\\\\s+\\)?\\(?:Task\\(?:<[^>]+>\\)?|void|bool|int|string|IEnumerable<[^>]+>|[\\\\w<>.]+\\)\\\\s+\\\\w+\\\\s*\\\\\\([^\\)]*\\\\\\)\\\\s*$' E:/CalibrationHQ/netcore_semix_cuga_calibration/Sources/Cuga-Calibration-Solution/ViewModels/Optics/OpticsSCViewModel.cs)"
+    ]
+  }
+}

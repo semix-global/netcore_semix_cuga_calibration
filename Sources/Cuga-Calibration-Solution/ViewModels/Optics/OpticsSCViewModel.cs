@@ -16,6 +16,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -114,6 +115,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
@@ -122,8 +124,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -139,7 +139,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
 
                 return true;
@@ -151,8 +151,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -164,7 +162,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
                     ? Cache.Item.DSWFindBFMachinePosition
                     : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
@@ -377,7 +375,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
                     try
                     {
-                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS);
+                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, HtmlLogUniqueId);
                         item.BestFocus = bestFocus;
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
@@ -387,8 +385,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
                             item.SCMotorAbsoluteValueL1,
                             item.SCMotorAbsoluteValueL3,
                             item.BestFocus.RawImageFilePath,
-                            XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                            YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                            XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                            YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                         }), HtmlLogUniqueId.LoggingHtml());
                     }
                     catch (Exception ex)
@@ -416,7 +414,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
                     CalibratingItem.Lambda,
                     CalibratingItem.SCMotorAbsoluteValueL1,
                     CalibratingItem.SCMotorAbsoluteValueL3,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -479,7 +477,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
                     selectedReviewItem.SCMotorAbsoluteValueL1,
                     selectedReviewItem.SCMotorAbsoluteValueL3,
                     selectedReviewItem.IsVerified,
-                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
@@ -515,7 +513,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum)
             ];
         }

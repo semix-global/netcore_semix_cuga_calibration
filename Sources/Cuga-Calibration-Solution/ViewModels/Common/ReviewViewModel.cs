@@ -75,9 +75,16 @@ public sealed partial class ReviewViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetQuality(BitmapImage image)
+    public Size GetDefaultPixelSize()
     {
-        var quality = calibrationAlgorithmService.GetQuality(image);
+        var ret = calibrationReviewService.GetDefaultPixelSize();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public double GetQuality(BitmapImage image, Guid guid)
+    {
+        var quality = calibrationAlgorithmService.GetQuality(image, guid);
         return quality;
     }
 
@@ -90,13 +97,13 @@ public sealed partial class ReviewViewModel(
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="algorithmTemplateSizeEnum">模板尺寸</param>
     /// <returns>是否成功</returns>
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, Guid guid)
     {
         using var image = GetBrightFieldImage();
 
         var rect = new Rect(image.Width / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, image.Height / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, Convert.ToInt32(algorithmTemplateSizeEnum), Convert.ToInt32(algorithmTemplateSizeEnum));
 
-        return TryGenerateTemplate(image, algorithmTemplateTypeEnum, templateFilePath, rect);
+        return TryGenerateTemplate(image, algorithmTemplateTypeEnum, templateFilePath, rect, guid);
     }
 
     /// <summary>
@@ -107,7 +114,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="rect">ROI尺寸</param>
     /// <returns>是否成功</returns>
-    public bool TryGenerateTemplate(BitmapImage image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect)
+    public bool TryGenerateTemplate(BitmapImage image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect, Guid guid)
     {
         var size = new Size(image.Width, image.Height);
         if (new Rect(Point.Origin, size).Contains(rect) == false)
@@ -116,7 +123,7 @@ public sealed partial class ReviewViewModel(
             return false;
         }
 
-        var isSuccess = calibrationAlgorithmService.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, out var roiImage);
+        var isSuccess = calibrationAlgorithmService.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, guid, out var roiImage);
         using var _ = roiImage;
         if (isSuccess == false) throw new AlgorithmException("Generate Template Error");
 
@@ -145,7 +152,7 @@ public sealed partial class ReviewViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
+        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
         Point position,
         MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
@@ -166,7 +173,7 @@ public sealed partial class ReviewViewModel(
         resultImageFilePath = string.Empty;
         originImageFilePath = string.Empty;
 
-        var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+        var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.MicroscopeLensInformation == microscopeLensInformation);
 
         Size pixelSize;
         if (size is null || size.IsOk == false)
@@ -175,9 +182,10 @@ public sealed partial class ReviewViewModel(
                 logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
             else logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
 
-            pixelSize = new Size(3.45 / microscopeLensInformation.ObjectiveMagnification, 3.45 / microscopeLensInformation.ObjectiveMagnification);
+            var defaultPixelSize = GetDefaultPixelSize();
+            pixelSize = new Size(defaultPixelSize.Width / microscopeLensInformation.ObjectiveMagnification, defaultPixelSize.Height / microscopeLensInformation.ObjectiveMagnification);
         }
-        else pixelSize = size.PixelSize;
+        else pixelSize = size.Result.PixelSize;
 
         var isSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
         using var _1 = templateId;
@@ -194,13 +202,13 @@ public sealed partial class ReviewViewModel(
         {
             var currentMag = microscopeViewModel.GetCurrentMicroscopeLensInformation();
             if (microscopeLensInformation != currentMag)
-                microscopeViewModel.SwitchMicroscopeLensInformation(microscopeLensInformation);
+                microscopeViewModel.SwitchMicroscopeLensInformationAsync(microscopeLensInformation).GetAwaiter().GetResult();
             stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
             Thread.Sleep(500);
 
             using var image = GetBrightFieldImage();
 
-            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var resultPoint, out var offset, out resultScore, out resultAngle);
+            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, logGuid ?? Guid.NewGuid(), out var resultPoint, out var offset, out resultScore, out resultAngle);
             if (isSuccess == false)
             {
                 var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
@@ -282,7 +290,7 @@ public sealed partial class ReviewViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
+        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
         Point position,
         MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
@@ -308,7 +316,7 @@ public sealed partial class ReviewViewModel(
     /// <returns>是否成功</returns>
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeItemDto> microscopePixelSizeHistoryList,
+        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
         Point position,
         MicroscopeLensInformation microscopeLensInformation,
         string templateFilePath,
@@ -339,7 +347,7 @@ public sealed partial class ReviewViewModel(
                 return;
             }
 
-            //  dialogWindowProvider.ShowImage([(filePath, "")]);
+            // dialogWindowProvider.ShowImage([(filePath, "")]);
         }
         catch (Exception ex)
         {
@@ -354,17 +362,20 @@ public sealed partial class ReviewViewModel(
         {
             if (point is null) return;
 
-            var microscopePixelSizes = applicationCookieCacheProvider.GetCalibrations<MicroscopePixelSizeItemDto>();
+            var microscopePixelSizes = applicationCookieCacheProvider.GetCalibrations<MicroscopePixelSizeDTO>();
             var currentMicroscopeLensInformation = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-            var size = microscopePixelSizes.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
+            var size = microscopePixelSizes.SingleOrDefault(t => t.MicroscopeLensInformation == currentMicroscopeLensInformation);
 
             Size pixelSize;
             if (size is null || size.IsOk == false)
             {
                 logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
-                pixelSize = new Size(3.45 / currentMicroscopeLensInformation.ObjectiveMagnification, 3.45 / currentMicroscopeLensInformation.ObjectiveMagnification);
+
+                var defaultPixelSize = GetDefaultPixelSize();
+
+                pixelSize = new Size(defaultPixelSize.Width / currentMicroscopeLensInformation.ObjectiveMagnification, defaultPixelSize.Height / currentMicroscopeLensInformation.ObjectiveMagnification);
             }
-            else pixelSize = size.PixelSize;
+            else pixelSize = size.Result.PixelSize;
 
             var tmp = new Point(point.Value.X, point.Value.Y);
             var pointEnd = new Point(tmp.X * pixelSize.Width, tmp.Y * pixelSize.Height);

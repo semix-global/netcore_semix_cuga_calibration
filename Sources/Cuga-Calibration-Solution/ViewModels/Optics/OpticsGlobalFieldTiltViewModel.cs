@@ -25,6 +25,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -146,6 +147,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
@@ -341,7 +343,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    Result = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                    Result = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
                     Details = new HtmlQuote(resultDTOItem.ToFlatnessHtmlAnonymous())
                 });
 
@@ -433,7 +435,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                 foreach (var pmtId in Cache.PMTIds.OrderBy(t => t))
                 {
                     var verifyPosition = new Point
-                        (Cache.Item.FindPosition.X, Cache.Item.FindPosition.Y + (pmtId - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval);
+                        (Cache.Item.FindPosition.X, Cache.Item.FindPosition.Y + (pmtId - CalibrationConstantsHelper.MainPmtId) * ApplicationCookie.PMTInterval);
                     var darkFieldImageDto = await CIBViewModel.GetPMTImageAsync(
                         Cache.Item.ProductivityInformation,
                         StageCoordinateSystemEnum.Bright,
@@ -446,7 +448,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         (false, Cache.Item.LaserLightInformation),
                         false,
                         cancellationToken);
-                    var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
+                    var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image, HtmlLogUniqueId);
 
                     var imageFilePath = $@"{ImageFileDirectory}\Verify\{selectedReviewItem.OpticsIlluminationModeEnum}_PMT{pmtId}_Guid{HtmlLogUniqueId.LoggingHtml()}.jpg";
                     darkFieldImageDto.Image.SaveImage(imageFilePath);
@@ -714,7 +716,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                             cancellationToken,
                             isAutoFocus: false);
 
-                        var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
+                        var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image, HtmlLogUniqueId);
 
                         var imageFilePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.SaveImage(imageFilePath);
@@ -747,7 +749,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                         channelItem.XBestFocusEcs,
                         channelItem.XBestFocusQuality,
                         channelItem.RawFilePath,
-                        Qualitys = new HtmlContainer(channelItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
+                        Qualitys = new HtmlContainer(channelItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()),
                         Image = new HtmlImage(channelItem.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -764,7 +766,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum)
             ];
         }

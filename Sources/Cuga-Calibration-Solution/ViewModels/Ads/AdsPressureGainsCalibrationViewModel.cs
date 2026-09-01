@@ -100,14 +100,6 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                 return true;
 
             case 1:
-                ResultAdsPressureGainsDto.IsCalibrated = true;
-                if (Save(ResultAdsPressureGainsDto, cancellationToken) == false)
-                {
-                    ResultAdsPressureGainsDto.IsCalibrated = false;
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
                 return true;
 
             default:
@@ -201,6 +193,10 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
                 ], "AdsPressure")
             }), HtmlLogUniqueId.LoggingHtml());
             result = true;
+
+            ResultAdsPressureGainsDto.IsCalibrated = result;
+            Guard.IsTrue(Save(ResultAdsPressureGainsDto, cancellationToken));
+
             return result;
         }).ConfigureAwait(false);
         return result;
@@ -275,12 +271,8 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             }), HtmlLogUniqueId.LoggingHtml());
 
             selectAdsPressureGainsDto.IsVerified = result;
-            if (Save(selectAdsPressureGainsDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                selectAdsPressureGainsDto.IsVerified = false;
-                return false;
-            }
+
+            Guard.IsTrue(Save(selectAdsPressureGainsDto, cancellationToken));
 
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, HeightMax: ({heightMax:f3}) RollMax: ({rollMax:f3}) PitchMax: ({pitchMax:f3})", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 

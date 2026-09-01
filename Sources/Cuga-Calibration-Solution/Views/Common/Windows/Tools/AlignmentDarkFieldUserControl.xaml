@@ -78,9 +78,6 @@
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
                             <hc:UniformSpacingPanel Spacing="5">
-                                <hc:Shield Subject="DF Optics Illumination Mode: "
-                                           Status="{Binding Cache.OpticsIlluminationModeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                           Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="DF Productivity Information: "
                                            Status="{Binding Cache.ProductivityInformation}"
                                            Color="{StaticResource SuccessBrush}" />

@@ -7,10 +7,11 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
 
@@ -43,7 +44,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -75,15 +76,15 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
 
     public AODDelayDTO()
     {
-        ScatterPlotControl.SetTitle("AOD Delay(Y: PMT Value - X: sa)");
+        PlotDataSource.SetTitle("AOD Delay(Y: PMT Value - X: sa)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
-            var xLines = ScatterPlotControl.GetOrAddXLines(MaxItemAODDelay is not null ? 1 : 0);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
+            var xLines = PlotDataSource.GetOrAddXLines(MaxItemAODDelay is not null ? 1 : 0);
 
             scatterLines.ElementAtOrDefault(0)?.Update(
                 "AOD Delay",
@@ -99,7 +100,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

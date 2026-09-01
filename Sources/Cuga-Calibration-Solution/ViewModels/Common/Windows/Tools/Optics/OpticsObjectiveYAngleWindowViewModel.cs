@@ -340,7 +340,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     diameter,
                     horizontalDegree,
                     centerChannelLightCenterPosition,
-                    reflectedLightCenterPosition) = calibrationAlgorithmService.GetOpticsObjectiveYAngleResult(hazeFourierImage, shinyWaferFourierImage, Cache.RotateAngle);
+                    reflectedLightCenterPosition) = calibrationAlgorithmService.GetOpticsObjectiveYAngleResult(hazeFourierImage, shinyWaferFourierImage, Cache.RotateAngle, HtmlLogUniqueId);
                 Cache.Result.CenterChannelLightCenterPosition = centerChannelLightCenterPosition;
                 Cache.Result.ReflectedLightCenterPosition = reflectedLightCenterPosition;
                 Cache.Result.HorizontalDegree = horizontalDegree;

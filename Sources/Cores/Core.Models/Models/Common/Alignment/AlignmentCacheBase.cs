@@ -14,12 +14,6 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
 
     /// <summary>
-    /// 晶圆类型
-    /// </summary>
-    [ObservableProperty]
-    public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
-
-    /// <summary>
     /// 对准低倍率
     /// </summary>
     [ObservableProperty]

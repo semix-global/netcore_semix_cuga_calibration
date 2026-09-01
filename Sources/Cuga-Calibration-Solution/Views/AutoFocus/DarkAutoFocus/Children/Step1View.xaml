@@ -4,9 +4,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -306,10 +307,10 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <GroupBox Header="Current A">
-                        <ContentControl Content="{Binding CalibratingItem.CurrentADTO.ScatterPlotControl, Mode=OneWay}" />
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.CurrentADTO.PlotDataSource}" />
                     </GroupBox>
                     <GroupBox Grid.Column="1" Header="Current B">
-                        <ContentControl Content="{Binding CalibratingItem.CurrentBDTO.ScatterPlotControl, Mode=OneWay}" />
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.CurrentBDTO.PlotDataSource}" />
                     </GroupBox>
                 </Grid>
 

@@ -6,6 +6,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:uniformity="clr-namespace:Core.Models.Models.AOD.Uniformity;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AODUniformityViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -102,12 +103,12 @@
             <TabControl>
                 <TabItem Header="IsReverse Plots">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.IsReverseScatterPlotControl, Mode=OneWay}" />
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.IsReversePlotDataSource}" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Mapping Plots">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentControl Content="{Binding CalibratingItem.MappingScatterPlotControl, Mode=OneWay}" />
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.MappingPlotDataSource}" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Mapping Details">

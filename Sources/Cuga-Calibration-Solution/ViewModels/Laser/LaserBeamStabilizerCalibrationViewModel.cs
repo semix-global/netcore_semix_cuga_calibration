@@ -99,22 +99,6 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                 return true;
 
             case 1:
-                var isCalibrated = CalibrationStepIndex == 1;
-
-                FirstLaserBeamStabilizerObjDto.IsCalibrated = isCalibrated;
-                Cache.CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1;
-                Cache.CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2;
-                Cache.OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1;
-                Cache.OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2;
-                Cache.Interval = FirstLaserBeamStabilizerObjDto.Interval;
-                if (Save(FirstLaserBeamStabilizerObjDto, cancellationToken) == false)
-                {
-                    FirstLaserBeamStabilizerObjDto.IsCalibrated = false;
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    DialogWindowProvider.ShowDialog("Save Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    return false;
-                }
-
                 return true;
 
             default:
@@ -177,6 +161,15 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
                 }
             }
 
+            FirstLaserBeamStabilizerObjDto.IsCalibrated = true;
+            Cache.CurrentPDPosition1 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition1;
+            Cache.CurrentPDPosition2 = FirstLaserBeamStabilizerObjDto.CurrentPDPosition2;
+            Cache.OriginPosition1 = FirstLaserBeamStabilizerObjDto.OriginPosition1;
+            Cache.OriginPosition2 = FirstLaserBeamStabilizerObjDto.OriginPosition2;
+            Cache.Interval = FirstLaserBeamStabilizerObjDto.Interval;
+
+            Guard.IsTrue(Save(FirstLaserBeamStabilizerObjDto, cancellationToken));
+
             Logger.LogHtmlInformation("Beam Stabilizer calibration result OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 FirstLaserBeamStabilizerObjDto.CurrentPDPosition1,
@@ -235,12 +228,8 @@ public sealed partial class LaserBeamStabilizerCalibrationViewModel : Calibratio
             }
 
             ReviewDto.IsVerified = true;
-            if (Save(ReviewDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ReviewDto.IsVerified = false;
-                return false;
-            }
+
+            Guard.IsTrue(Save(ReviewDto, cancellationToken));
 
             Logger.LogHtmlInformation(" Verify Beam Stabilizer calibration result OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {

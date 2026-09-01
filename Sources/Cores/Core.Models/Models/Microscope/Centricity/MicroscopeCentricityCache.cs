@@ -3,6 +3,7 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Microscope.Centricity;
@@ -10,16 +11,17 @@ namespace Core.Models.Models.Microscope.Centricity;
 public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<MicroscopeCentricityCache>
 {
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Item))]
     public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
     public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
 
-    [ObservableProperty]
-    public partial ConcurrentDictionary<string, MicroscopeCentricityCacheItem> MicroscopeCentricityCacheItemDic { get; set; } = [];
+    [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<MicroscopeLensInformation, MicroscopeCentricityCacheItem>))]
+    public ConcurrentDictionary<MicroscopeLensInformation, MicroscopeCentricityCacheItem> Items { get; init; } = [];
 
     [Newtonsoft.Json.JsonIgnore]
-    public MicroscopeCentricityCacheItem CurrentCalibrationCacheItem => MicroscopeCentricityCacheItemDic.GetOrAdd(MicroscopeLensInformation.LensName, new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
+    public MicroscopeCentricityCacheItem Item => Items.GetOrAdd(MicroscopeLensInformation, _ => new MicroscopeCentricityCacheItem { LensInformation = MicroscopeLensInformation.Clone() });
 
     [ObservableProperty]
     public partial Point VerifyResultPosition { get; set; }
@@ -33,26 +35,12 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<Mic
     [ObservableProperty]
     public partial double ConcentricThreshold { get; set; }
 
-    public void SetFindPosition(Point position)
-    {
-        CurrentCalibrationCacheItem.FindPosition = position;
-    }
-
-    public void SetTemplateFilePath(string templateFilePath)
-    {
-        CurrentCalibrationCacheItem.TemplateFilePath = templateFilePath;
-    }
-
-    public void SetTemplateImageFilePath(string templateImageFilePath)
-    {
-        CurrentCalibrationCacheItem.TemplateImageFilePath = templateImageFilePath;
-    }
 
     public override MicroscopeCentricityCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         CalChipSiteModelEnum = CalChipSiteModelEnum,
-        MicroscopeCentricityCacheItemDic = new ConcurrentDictionary<string, MicroscopeCentricityCacheItem>(MicroscopeCentricityCacheItemDic.Select(t => new KeyValuePair<string, MicroscopeCentricityCacheItem>(t.Key, t.Value.Clone()))),
+        Items = new ConcurrentDictionary<MicroscopeLensInformation, MicroscopeCentricityCacheItem>(Items.Select(t => new KeyValuePair<MicroscopeLensInformation, MicroscopeCentricityCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         VerifyResultPosition = VerifyResultPosition,
         VerifyResultError = VerifyResultError,
         Threshold = Threshold,

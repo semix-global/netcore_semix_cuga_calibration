@@ -67,6 +67,11 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<double> GetPMTInterval()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
     {
         throw new NotImplementedException();

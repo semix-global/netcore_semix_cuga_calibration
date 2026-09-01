@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Serializations;
@@ -15,12 +14,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
 
     [ObservableProperty]
     public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
-
-    /// <summary>
-    /// 晶圆类型
-    /// </summary>
-    [ObservableProperty]
-    public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -45,7 +38,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
-        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = new ConcurrentDictionary<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, ChuckAlignmentDegreeOffsetCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,

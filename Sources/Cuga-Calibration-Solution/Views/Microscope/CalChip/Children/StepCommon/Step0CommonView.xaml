@@ -1,0 +1,63 @@
+<UserControl x:Class="CugaCalibration.Views.Microscope.CalChip.Children.StepCommon.Step0CommonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
+             d:DesignWidth="430"
+             d:DesignHeight="1080"
+             mc:Ignorable="d">
+    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+            <hc:UniformSpacingPanel.Style>
+                <Style TargetType="hc:UniformSpacingPanel">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </hc:UniformSpacingPanel.Style>
+            <StackPanel>
+                <TextBlock Text="Param"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Style="{StaticResource TextBlockDefaultInfo}" />
+            </StackPanel>
+            <hc:ComboBox x:Name="LowMagCombobox"
+                         HorizontalAlignment="Left"
+                         hc:TitleElement.TitleWidth="250"
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.Title="Low Magnification: "
+                         SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                         ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
+            <hc:ComboBox x:Name="HighMagCombobox"
+                         HorizontalAlignment="Left"
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.Title="High Magnification: "
+                         hc:TitleElement.TitleWidth="250"
+                         SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                         ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
+        </hc:UniformSpacingPanel>
+
+        <StackPanel>
+            <TextBlock Text="Find Ecs Left Top Position"
+                       HorizontalAlignment="Center"
+                       FontSize="13"
+                       FontWeight="Bold"
+                       Style="{StaticResource TextBlockDefaultInfo}" />
+        </StackPanel>
+        <TextBox Text="{Binding Cache.Item.LeftTopMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                 hc:TitleElement.Title="Left-Top Position(um): "
+                 hc:TitleElement.TitlePlacement="Left"
+                 hc:TitleElement.TitleWidth="250"
+                 IsReadOnly="True"
+                 Background="{StaticResource SecondaryRegionBrush}"
+                 Style="{StaticResource TextBoxExtend}" />
+    </hc:UniformSpacingPanel>
+</UserControl>

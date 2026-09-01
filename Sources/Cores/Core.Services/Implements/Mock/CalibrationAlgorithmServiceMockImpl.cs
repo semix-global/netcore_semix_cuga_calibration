@@ -38,27 +38,27 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         _calibrationAlgorithmServiceImpl.InitialAlgorithmEngine();
     }
 
-    public double GetQuality(BitmapImage image)
+    public double GetQuality(BitmapImage image, Guid guid)
     {
         return Random.Shared.Next(100, 1000);
     }
 
-    public double GetDarkFieldQuality(BitmapImage image)
+    public double GetDarkFieldQuality(BitmapImage image, Guid guid)
     {
         return Random.Shared.Next(100, 1000);
     }
 
-    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image)
+    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image, Guid guid)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect)
+    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect, Guid guid)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, Guid guid)
     {
         // var size = image.Size;
         //
@@ -114,10 +114,10 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         using var hImage = RAWImageFactory.CreateImage(filePath, true);
 
         using var linerImage = hImage.ToBitmapImage();
-        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS);
+        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS,guid);
     }
 
-    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
         drawingImage = image.Copy();
@@ -126,14 +126,17 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return pixelSize;
     }
 
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
     {
         drawingImage = image.Copy();
+
+        yProjects = [.. Enumerable.Range(0, 1064).Select(t => new Point(Random.Shared.Next(), Random.Shared.NextDouble()))];
+        resultIndexs = [.. Enumerable.Range(0, 10).Select(t => Random.Shared.Next())];
 
         return Random.Shared.NextDouble();
     }
 
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, Guid guid, out BitmapImage templateImage)
     {
         if (IsUseMock)
         {
@@ -159,7 +162,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
             return true;
         }
 
-        return _calibrationAlgorithmServiceImpl.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, out templateImage);
+        return _calibrationAlgorithmServiceImpl.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, guid, out templateImage);
     }
 
     public bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId)
@@ -181,7 +184,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return _calibrationAlgorithmServiceImpl.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
     }
 
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, Guid guid, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         if (IsUseMock)
         {
@@ -195,19 +198,18 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
             return true;
         }
 
-        return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out markPoint, out offsetPoint, out score, out angle);
+        return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, guid, out markPoint, out offsetPoint, out score, out angle);
     }
 
-    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle)
+    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle, Guid guid)
     {
         using var hazeImageTemp = new BitmapImage(_hazeImagePath);
         using var shinyWaferImageTemp = new BitmapImage(_shinyImagePath);
 
-        return _calibrationAlgorithmServiceImpl.GetOpticsObjectiveYAngleResult(hazeImageTemp, shinyWaferImage, rotateAngle);
+        return _calibrationAlgorithmServiceImpl.GetOpticsObjectiveYAngleResult(hazeImageTemp, shinyWaferImage, rotateAngle, guid);
     }
 
-    public Point GetChuckCenter(
-        Point firstTopLeftPosition,
+    public Point GetChuckCenter(Point firstTopLeftPosition,
         Point secondTopLeftPosition,
         Point secondTopRightPosition,
         Point firstTopRightPosition,
@@ -219,10 +221,9 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
     }
 
-    public bool CalculateChuckStageMapError(
-        StageMapDto stageMapDto,
+    public bool CalculateChuckStageMapError(StageMapDto stageMapDto,
         bool isXOnlyGantryError,
-        Guid htmlLogUniqueId,
+        Guid guid,
         int calculateContainRowMinCount,
         int calculateContainColumnMinCount,
         double alignmentThreshold,
@@ -230,49 +231,42 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         double scaleThreshold,
         double diameter)
     {
-        try
+        var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
+        var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
+
+        var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
+        var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
+        var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
+        var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
+        var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
+        var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
+
+        var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
+            idealXMatrix,
+            idealYMatrix,
+            realXMatrix,
+            realYMatrix,
+            isInWaferMatrix,
+            templateMathIsOkMatrix,
+            isXOnlyGantryError,
+            guid,
+            calculateContainRowMinCount,
+            calculateContainColumnMinCount: calculateContainColumnMinCount,
+            diameter: diameter,
+            alignmentThreshold: alignmentThreshold,
+            gantryThreshold: gantryThreshold,
+            scaleThreshold: scaleThreshold
+        );
+
+        for (var row = 0; row < stageMapDto.RowNumber; row++)
         {
-            var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
-            var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
-
-            var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
-            var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
-            var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
-            var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
-            var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
-            var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
-
-            var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
-                idealXMatrix,
-                idealYMatrix,
-                realXMatrix,
-                realYMatrix,
-                isInWaferMatrix,
-                templateMathIsOkMatrix,
-                isXOnlyGantryError,
-                htmlLogUniqueId,
-                calculateContainRowMinCount,
-                calculateContainColumnMinCount: calculateContainColumnMinCount,
-                diameter: diameter,
-                alignmentThreshold: alignmentThreshold,
-                gantryThreshold: gantryThreshold,
-                scaleThreshold: scaleThreshold
-            );
-
-            for (var row = 0; row < stageMapDto.RowNumber; row++)
+            for (var column = 0; column < stageMapDto.ColumnNumber; column++)
             {
-                for (var column = 0; column < stageMapDto.ColumnNumber; column++)
-                {
-                    stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
-                }
+                stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
             }
+        }
 
-            return isSuccess;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
+        return isSuccess;
     }
 
     public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)
@@ -280,9 +274,9 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public double[] GetImageGrayYProjectionsPixels(BitmapImage image)
+    public double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid)
     {
-        return _calibrationAlgorithmServiceImpl.GetImageGrayYProjectionsPixels(image);
+        return _calibrationAlgorithmServiceImpl.GetImageGrayYProjectionsPixels(image, guid);
     }
 
     public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)

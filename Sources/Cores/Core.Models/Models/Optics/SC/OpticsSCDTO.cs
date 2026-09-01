@@ -7,9 +7,10 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
@@ -42,7 +43,7 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdap
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -70,7 +71,7 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdap
 
     public OpticsSCDTO()
     {
-        ScatterPlotControl.SetTitle("SC(Y: Strehl Ratio - X: λ)");
+        PlotDataSource.SetTitle("SC(Y: Strehl Ratio - X: λ)");
     }
 
     private void RefreshPlot()
@@ -79,7 +80,7 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdap
         {
             if (Items.Count <= 0) return;
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(3);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(3);
 
             scatterLines[0].Update(
                 "Y Strehl Ratio",
@@ -98,7 +99,7 @@ public sealed partial class OpticsSCDTO : CalibrationDTOBase<OpticsSCDTO>, IAdap
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

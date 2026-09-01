@@ -224,6 +224,13 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
+    public SxExecuteRet<double> GetSensorNscRelativeZero()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(0d);
+    }
+
     public SxExecuteRet<bool> SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)
     {
         Thread.Sleep(100);
@@ -299,10 +306,5 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess((12d, 32d));
-    }
-
-    public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
-    {
-        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));
     }
 }

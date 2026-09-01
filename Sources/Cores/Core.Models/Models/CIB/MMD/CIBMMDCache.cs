@@ -5,10 +5,11 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 
 namespace Core.Models.Models.CIB.MMD;
@@ -171,7 +172,7 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     // ReSharper disable UnusedParameterInPartialMethod
 
@@ -204,24 +205,24 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
 
     public CIBMMDCache()
     {
-        ScatterPlotControl.SetTitle("Measure Power(Y: mW X: Coefficient)");
+        PlotDataSource.SetTitle("Measure Power(Y: mW X: Coefficient)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear();
+            PlotDataSource.Clear();
 
-            if (OriginMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine("Origin", OriginMeasurePowerPoints, Constants.Category10.GetColor(0));
-            if (MeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Filter OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(1));
-            if (FitMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(2));
-            if (NotUseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, Constants.Category10.GetColor(3), MarkerShape.FilledDiamond);
-            if (UseODFilterMeasurePowerPoints.Count > 0) ScatterPlotControl.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, Constants.Category10.GetColor(4), MarkerShape.OpenDiamond);
+            if (OriginMeasurePowerPoints.Count > 0) PlotDataSource.GetOrAddScatterLine("Origin", OriginMeasurePowerPoints, Constants.Category10.GetColor(0));
+            if (MeasurePowerPoints.Count > 0) PlotDataSource.GetOrAddScatterLine($"Filter OD = {ODFilterRatio:0.######}", MeasurePowerPoints, Constants.Category10.GetColor(1));
+            if (FitMeasurePowerPoints.Count > 0) PlotDataSource.GetOrAddScatterLine($"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}", FitMeasurePowerPoints, Constants.Category10.GetColor(2));
+            if (NotUseODFilterMeasurePowerPoints.Count > 0) PlotDataSource.GetOrAddScatterMarkers("Not Use OD", NotUseODFilterMeasurePowerPoints, Constants.Category10.GetColor(3), MarkerShape.FilledDiamond);
+            if (UseODFilterMeasurePowerPoints.Count > 0) PlotDataSource.GetOrAddScatterMarkers("Use OD", UseODFilterMeasurePowerPoints, Constants.Category10.GetColor(4), MarkerShape.OpenDiamond);
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

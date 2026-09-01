@@ -28,8 +28,10 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -109,7 +111,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -133,20 +135,20 @@ public sealed partial class CollectionYGhostResult : ObservableObject
 
     public CollectionYGhostResult()
     {
-        ScatterPlotControl.Configure(new Rows(), 2);
-        ScatterPlotControl.SetTitle(0, "Y Ghost(Y: dB - X: pix)");
-        ScatterPlotControl.SetTitle(1, "Align Y Ghost(Y: dB - X: um)");
+        PlotDataSource.Configure(new Rows(), 2);
+        PlotDataSource.SetTitle(0, "Y Ghost(Y: dB - X: pix)");
+        PlotDataSource.SetTitle(1, "Align Y Ghost(Y: dB - X: um)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var yGhostScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, Items.Count);
-            var alignMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count);
+            var yGhostScatterLines = PlotDataSource.GetOrAddScatterLines(0, Items.Count);
+            var alignMarkerses = PlotDataSource.GetOrAddScatterMarkerses(0, Items.Count);
 
-            var yGhostAlignScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, Items.Count);
-            var markerses = ScatterPlotControl.GetOrAddScatterMarkerses(1, Items.Count);
+            var yGhostAlignScatterLines = PlotDataSource.GetOrAddScatterLines(1, Items.Count);
+            var markerses = PlotDataSource.GetOrAddScatterMarkerses(1, Items.Count);
 
             foreach (var (index, item) in Items.Index())
             {
@@ -184,7 +186,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -192,7 +194,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
     {
         CIBInformation,
         Details = new HtmlTable([.. Items.Select(t => t.ToHtmlAnonymous())]),
-        ScatterPlotControl = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+        ScatterPlotControl = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
     };
 }
 

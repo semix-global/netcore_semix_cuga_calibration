@@ -1,6 +1,5 @@
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.EFEM;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
@@ -192,6 +191,14 @@ public sealed class CalibrationStageServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(_direction.Value);
     }
 
+    public SxExecuteRet<AlgorithmWaferTypeEnum> GetAlgorithmWaferType()
+    {
+        var sxExecuteRetWaferSetting = Invoke(() => Service!.ReadSystemWaferSetting());
+        if (sxExecuteRetWaferSetting.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetWaferSetting.ErrorMsg, AlgorithmWaferTypeEnum.D300);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRetWaferSetting.Anything.ToAlgorithmWaferTypeEnum());
+    }
+
     public SxExecuteRet<bool> InitYAxis()
     {
         var sxExecuteRet = Invoke(() => Service!.InitYAxis());
@@ -281,12 +288,8 @@ public sealed class CalibrationStageServiceImpl(
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
-
         var sxExecuteRet = Invoke(() => Service!.MarkAlignSite1(
             algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(),
             algorithmTemplateTypeEnum.ToAlgorithmTemplateType()));
@@ -297,12 +300,9 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(
-        AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlignmentSiteDto site
+    )
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
-
         site.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         var sxExecuteRet = Invoke(() => Service!.MarkAlignSite2(site.AdaptTo()));
 
@@ -318,12 +318,8 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
-
         lowSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         lowSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
@@ -359,12 +355,8 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
-
         lowSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         lowSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
@@ -395,15 +387,10 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
-
         var sxExecuteRet = Invoke(() => Service!.MarkAlignDFSite1(
             ((SxMAGEnum)productivityInformation.OpticsMagType).ToESxLevelEnum(),
             ((SxSpeedEnum)productivityInformation.StageSpeedType).ToESxLevelEnum(),
@@ -416,14 +403,9 @@ public sealed class CalibrationStageServiceImpl(
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+        AlignmentSiteDto site)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentSiteDto());
-
         var sxExecuteRet = Invoke(() => Service!.MarkAlignDFSite2(
             ((SxMAGEnum)productivityInformation.OpticsMagType).ToESxLevelEnum(),
             ((SxSpeedEnum)productivityInformation.StageSpeedType).ToESxLevelEnum(),
@@ -439,15 +421,10 @@ public sealed class CalibrationStageServiceImpl(
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
     {
-        var (isSuccess, message) = CheckAlignment(algorithmWaferTypeEnum);
-        if (isSuccess == false) return SxExecuteRetHelper.CreateError(message, new AlignmentResultDto());
-
         brightFieldLowSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         brightFieldLowSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         darkFieldHighSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
@@ -482,15 +459,6 @@ public sealed class CalibrationStageServiceImpl(
         return sxExecuteRetBlankWaferAlignment.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRetBlankWaferAlignment.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    private (bool IsSuccess, string Message) CheckAlignment(AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
-    {
-        var sxExecuteRetWaferSetting = Invoke(() => Service!.ReadSystemWaferSetting());
-        if (sxExecuteRetWaferSetting.IsSuccess == false) return (false, sxExecuteRetWaferSetting.Msg);
-        return sxExecuteRetWaferSetting.Anything.ToAlgorithmWaferTypeEnum() == algorithmWaferTypeEnum
-            ? (true, string.Empty)
-            : (false, $"Cuga Wafer type is not match({sxExecuteRetWaferSetting.Anything.ToAlgorithmWaferTypeEnum()}), Please modify!");
     }
 
     public SxExecuteRet<bool> SetGantryOffset(double gantryOffset)

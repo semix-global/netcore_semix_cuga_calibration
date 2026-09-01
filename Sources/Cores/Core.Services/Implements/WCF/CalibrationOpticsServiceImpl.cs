@@ -125,6 +125,14 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess((l1SxExecuteRet.Anything, l3SxExecuteRet.Anything));
     }
 
+    public SxExecuteRet<double> GetPMTInterval()
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetSpotSize());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, 0d);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
     {
         var l1SxExecuteRet = SetMotorAbsoluteValue(opticsIlluminationModeEnum switch

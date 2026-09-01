@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CugaCalibration.Core.Services.Interfaces;
@@ -18,6 +19,8 @@ namespace CugaCalibration.ViewModels;
 [IOCAppService(ServiceType = typeof(LoginWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public partial class LoginWindowViewModel(
     ISysUserService sysUserService,
+    ISysRoleService sysRoleService,
+    ISysMenuService sysMenuService,
     ILogger<LoginWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     IHostEnvironment hostEnvironment,
@@ -39,17 +42,55 @@ public partial class LoginWindowViewModel(
     {
         try
         {
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            if (configViewModel.Connect() == false)
+            {
+                dialogWindowProvider.ShowDialog("Login Failed: Connect Login Service Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-            var users = await sysUserService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                return;
+            }
+
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(150000));
+            sysUserService.EnableCascadeSave(true);
+
+            var cugaRegisterUsers = configViewModel.GetRegisteredUsersInformation();
+
+            var allUsers = await sysUserService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+            var adminUser = allUsers.First(t => t.IsAdmin);
+
+            foreach (var registerUser in cugaRegisterUsers)
+            {
+                SysUserDTO userDTO;
+                var user = allUsers.SingleOrDefault(t => t.UserName == registerUser.UserName);
+
+                if (user != null)
+                {
+                    // 已存在用户: 仅同步基本信息
+                    user.Password = registerUser.Password;
+                    userDTO = user;
+                }
+                else
+                {
+                    // 首次加入的用户: 分配 admin 角色
+                    registerUser.SysRoleList = [adminUser.SysRoleList.Single(t => t.IsAdmin)];
+                    userDTO = registerUser;
+                }
+
+                if (await sysUserService.InsertAsync(userDTO, cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                    ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
+            }
+
+            var users = await sysUserService.GetAllAsync(CancellationToken.None).ConfigureAwait(false);
 
             UserNames = [.. users.OrderBy(t => t.Id).Select(t => t.UserName)];
 
-            if (users.Count > 0) SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = users[0].UserName, Password = "GePLqiqO" } : new SysUserDTO { UserName = users[0].UserName, Password = "666666" };
+            Guard.IsNotEmpty(users, "The user list is empty, please register a user first!");
+
+            SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = "Admin", Password = "FxEiw4b0" } : new SysUserDTO { UserName = "Admin", Password = "666666" };
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "{@Name}: LoadedAsync", nameof(LoginWindowViewModel));
+            CloseView(false);
         }
     }
 
@@ -60,13 +101,6 @@ public partial class LoginWindowViewModel(
         {
             await Task.Run(async () =>
             {
-                if (configViewModel.Connect() == false)
-                {
-                    dialogWindowProvider.ShowDialog("Login Failed: Connect Login Service Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                    return;
-                }
-
                 var tempSysUserDto = await configViewModel.LoginAsync(SysUserDTO, cancellationToken).ConfigureAwait(false);
 
                 await applicationCookieService.LoadingSystemMenuCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Services.Interfaces;
 using Core.Utilities.WPF.Entities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
@@ -18,7 +19,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Core.Services.Interfaces;
 
 namespace CugaCalibration.ViewModels;
 

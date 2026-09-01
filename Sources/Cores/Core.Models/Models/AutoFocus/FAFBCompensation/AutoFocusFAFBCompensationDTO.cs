@@ -55,6 +55,9 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
     public partial IPlotDataSource CalibratingPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
+    public partial double NSCRelativeZeroValue { get; set; }
+
+    [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource VerifyPlotDataSource { get; set; } = new PlotDataSource();
 
@@ -255,6 +258,7 @@ public sealed partial class AutoFocusFAFBCompensationDTO : CalibrationDTOBase<Au
         LeastSquaresMinECS = LeastSquaresMinECS,
         LeastSquaresMaxECS = LeastSquaresMaxECS,
         LeastSquareFindPoints = [.. LeastSquareFindPoints],
+        NSCRelativeZeroValue = NSCRelativeZeroValue,
         VerifyItems = [.. VerifyItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

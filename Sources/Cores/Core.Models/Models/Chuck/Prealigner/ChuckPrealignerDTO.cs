@@ -6,9 +6,10 @@ using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
@@ -53,7 +54,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -61,25 +62,25 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
     public ChuckPrealignerDTO()
     {
         var customGrid = new CustomGrid();
-        ScatterPlotControl.Configure(customGrid, 2,
+        PlotDataSource.Configure(customGrid, 2,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 1, 2));
                 customGrid.Set(plots[1], new GridCell(0, 1, 1, 2));
             });
 
-        ScatterPlotControl.SetTitle(0, "Center Offset(Y: Offset - X: Times )");
-        ScatterPlotControl.SetTitle(1, "Angle(Y: Angle - X: Times)");
+        PlotDataSource.SetTitle(0, "Center Offset(Y: Offset - X: Times )");
+        PlotDataSource.SetTitle(1, "Angle(Y: Angle - X: Times)");
     }
 
     private void RefreshPlot()
     {
-        ScatterPlotControl.Clear(0);
-        ScatterPlotControl.Clear(1);
+        PlotDataSource.Clear(0);
+        PlotDataSource.Clear(1);
 
         if (Items.Count == 0) return;
 
-        ScatterPlotControl.GetOrAddScatterLine(
+        PlotDataSource.GetOrAddScatterLine(
             0,
             "Center Offset X",
             [
@@ -94,7 +95,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             0,
             new ScottPlot.Range(0, Items.Count - 1));
 
-        ScatterPlotControl.GetOrAddScatterLine(
+        PlotDataSource.GetOrAddScatterLine(
             0,
             "Center Offset Y",
             [
@@ -108,7 +109,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             ],
             1,
             new ScottPlot.Range(0, Items.Count - 1));
-        ScatterPlotControl.GetOrAddScatterLine(
+        PlotDataSource.GetOrAddScatterLine(
             1,
             "Angle",
             [
@@ -123,7 +124,7 @@ public sealed partial class ChuckPrealignerDTO : CalibrationDTOBase<ChuckPrealig
             2,
             new ScottPlot.Range(0, Items.Count - 1));
 
-        ScatterPlotControl.AutoScaleRefresh();
+        PlotDataSource.AutoScaleRefresh();
     }
 
     #region Mapper

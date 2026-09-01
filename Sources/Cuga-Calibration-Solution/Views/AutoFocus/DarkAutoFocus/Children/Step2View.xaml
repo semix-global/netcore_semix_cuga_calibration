@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -34,12 +35,12 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
+                            <hc:NumericUpDown hc:TitleElement.Title="Ecs Range(±ecs): "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
                                               Minimum="0"
                                               Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.HalfEcsLength}" />
+                                              Value="{Binding Cache.EcsRange}" />
                             <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
                                               hc:TitleElement.TitleWidth="180"
                                               hc:TitleElement.TitlePlacement="Left"
@@ -128,7 +129,7 @@
                     </hc:UniformSpacingPanel>
                     <GridSplitter Grid.Row="1" />
                     <GroupBox Grid.Row="2" Header="Plot">
-                        <ContentControl Content="{Binding CalibratingItem.NSCProfileResultDTO.ScatterPlotControl, Mode=OneWay}" />
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.NSCProfileResultDTO.PlotDataSource}" />
                     </GroupBox>
                 </Grid>
 

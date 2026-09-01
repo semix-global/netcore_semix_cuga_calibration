@@ -5,6 +5,7 @@ using Core.Models.Models.Common.EFEM;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.IOC.Providers;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
@@ -58,6 +59,17 @@ public sealed partial class EFEMWindowViewModel(
     public ObservableCollection<EFEMFoupItem> EFEMFoupLoadPort2 { get; } = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P2, SlotId = 25 - i, IsHasWafer = false })];
 
     [RelayCommand]
+    private Task LoadedAsync()
+    {
+        return InvokeAsync(() =>
+        {
+            foreach (var efemStationEnum in EnumHelper.Enums<EFEMStationEnum>())
+            {
+                GetMapData(efemStationEnum);
+            }
+        });
+    }
+
     private Task LoadFoupAsync(EFEMStationEnum stationEnum)
     {
         return InvokeAsync(() =>
@@ -67,7 +79,6 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
-    [RelayCommand]
     private Task UnLoadFoupAsync(EFEMStationEnum stationEnum)
     {
         return InvokeAsync(() =>
@@ -79,13 +90,11 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
-    [RelayCommand]
     private Task GetMapDataAsync(EFEMStationEnum efemStationEnum)
     {
         return InvokeAsync(() => { GetMapData(efemStationEnum); });
     }
 
-    [RelayCommand]
     private Task LoadWaferAsync()
     {
         return InvokeAsync(() =>
@@ -113,10 +122,11 @@ public sealed partial class EFEMWindowViewModel(
             SelectedFoupItem.IsLoadWafer = true;
             GetMapData(SelectedFoupItem.StationEnum);
             dialogWindowProvider.TryShowDialog("Information", "Load wafer success!", out _);
+
+            Close();
         });
     }
 
-    [RelayCommand]
     private Task UnLoadWaferAsync()
     {
         return InvokeAsync(() =>

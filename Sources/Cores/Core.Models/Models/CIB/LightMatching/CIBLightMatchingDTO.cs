@@ -8,10 +8,10 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Plottables;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
+using Net.Utilities.ScottPlot.Plottables;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -55,7 +55,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<int, IPlotDataSource> PlotDataSources { get; set; } = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -93,7 +93,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
 
     public CIBLightMatchingDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
+        PlotDataSources = new ConcurrentDictionary<int, IPlotDataSource>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IPlotDataSource>(t, GetPlotDataSource())));
     }
 
     private void RefreshPlot()
@@ -110,12 +110,12 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, _ => GetScatterPlotControl());
+            var plotDataSource = PlotDataSources.GetOrAdd(channelId, _ => GetPlotDataSource());
 
-            scatterPlotControl.Clear(0);
-            scatterPlotControl.Clear(1);
-            scatterPlotControl.Clear(3);
-            scatterPlotControl.Clear(4);
+            plotDataSource.Clear(0);
+            plotDataSource.Clear(1);
+            plotDataSource.Clear(3);
+            plotDataSource.Clear(4);
 
             try
             {
@@ -128,7 +128,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                             .Select(t => (t.CIBInformation.PMTId, Item: t.HazeItems[i]))
                             .ToArray();
 
-                        WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                        WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                             0,
                             $"{i + 1}",
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
@@ -136,7 +136,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                             new Range(0, hazeCount - 1),
                             MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
 
-                        WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                        WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                             1,
                             $"Error: {i + 1}",
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.Error))],
@@ -144,7 +144,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                             new Range(0, hazeCount - 1),
                             MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
 
-                        WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                        WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                             1,
                             $"Digital Gain: {i + 1}",
                             [.. hazes.Select(t => new Point(t.PMTId, t.Item.Result))],
@@ -153,10 +153,10 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                             MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == hazeCount - 1;
                     }
 
-                    scatterPlotControl.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
+                    plotDataSource.GetOrAddYLine(0, "Target", hazeTargetPMTValueKvp.Value, Colors.Red);
                 }
 
-                WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                     2,
                     "Result",
                     [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGain))],
@@ -167,7 +167,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                 {
                     if (SilicaSphereAveragePMTValues.TryGetSingle(t => t.Key == channelId, out var silicaSphereAveragePMTValueKvp))
                     {
-                        var yLine = scatterPlotControl.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, Colors.Yellow);
+                        var yLine = plotDataSource.GetOrAddYLine(3, "Average", silicaSphereAveragePMTValueKvp.Value, Colors.Yellow);
                         yLine.LinePattern = LinePattern.Solid;
 
                         var silicaSphereCount = itemItems.Max(t => t.SilicaSphereItems.Count);
@@ -177,7 +177,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                                 .Select(t => (t.CIBInformation.PMTId, Item: t.SilicaSphereItems[i]))
                                 .ToArray();
 
-                            WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                            WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                                 3,
                                 $"{i + 1}",
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.PMTValue))],
@@ -185,7 +185,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                                 new Range(0, silicaSphereCount - 1),
                                 MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
 
-                            WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                            WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                                 4,
                                 $"Error: {i + 1}",
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Error))],
@@ -193,7 +193,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                                 new Range(0, silicaSphereCount - 1),
                                 MarkerShape.HorizontalBar)).IsVisible = i == 0 || i == silicaSphereCount - 1;
 
-                            WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                            WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                                 4,
                                 $"Multiplicative Factors: {i + 1}",
                                 [.. silicaSpheres.Select(t => new Point(t.PMTId, t.Item.Result))],
@@ -203,10 +203,10 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                         }
                     }
 
-                    scatterPlotControl.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
+                    plotDataSource.GetOrAddYLine(3, "Target", SilicaSphereTargetPMTValue.Value, Colors.Red);
                 }
 
-                WithScatterMarkersStyle(scatterPlotControl.GetOrAddScatterMarkers(
+                WithScatterMarkersStyle(plotDataSource.GetOrAddScatterMarkers(
                     5,
                     "Result",
                     [.. itemItems.Select(t => new Point(t.CIBInformation.PMTId, t.DigitalGainPlusMultiplicativeFactors))],
@@ -215,7 +215,7 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
             }
             finally
             {
-                scatterPlotControl.AutoScaleRefresh();
+                plotDataSource.AutoScaleRefresh();
             }
         }
 
@@ -230,12 +230,12 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
         }
     }
 
-    private static IScatterPlotControl GetScatterPlotControl()
+    private static IPlotDataSource GetPlotDataSource()
     {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        var plotDataSource = new PlotDataSource();
 
         var customGrid = new CustomGrid();
-        scatterPlotControl.Configure(customGrid, 6,
+        plotDataSource.Configure(customGrid, 6,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 3, 2));
@@ -246,18 +246,18 @@ public sealed partial class CIBLightMatchingDTO : CalibrationDTOBase<CIBLightMat
                 customGrid.Set(plots[5], new GridCell(2, 1, 3, 2));
             });
 
-        scatterPlotControl.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
-        scatterPlotControl.SetTitle(1, "Haze Details(Y: PMT Value(Log) - X: PMT Id)");
-        scatterPlotControl.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
-        scatterPlotControl.SetTitle(3, "Silica Spheres(Y: PMT Value(Log) - X: PMT Id)");
-        scatterPlotControl.SetTitle(4, "Silica Spheres Details(Y: PMT Value(Log) - X: PMT Id)");
-        scatterPlotControl.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
-        scatterPlotControl.ToggleInvisibleLegendItem(0, false);
-        scatterPlotControl.ToggleInvisibleLegendItem(1, false);
-        scatterPlotControl.ToggleInvisibleLegendItem(3, false);
-        scatterPlotControl.ToggleInvisibleLegendItem(4, false);
+        plotDataSource.SetTitle(0, "Haze(Y: Log - X: PMT Id)");
+        plotDataSource.SetTitle(1, "Haze Details(Y: PMT Value(Log) - X: PMT Id)");
+        plotDataSource.SetTitle(2, "Haze Result(Y: Digital Gain - X: PMT Id)");
+        plotDataSource.SetTitle(3, "Silica Spheres(Y: PMT Value(Log) - X: PMT Id)");
+        plotDataSource.SetTitle(4, "Silica Spheres Details(Y: PMT Value(Log) - X: PMT Id)");
+        plotDataSource.SetTitle(5, "Silica Spheres Result(Y: Digital Gain + Multiplicative Factors - X: PMT Id)");
+        plotDataSource.ToggleInvisibleLegendItem(0, false);
+        plotDataSource.ToggleInvisibleLegendItem(1, false);
+        plotDataSource.ToggleInvisibleLegendItem(3, false);
+        plotDataSource.ToggleInvisibleLegendItem(4, false);
 
-        return scatterPlotControl;
+        return plotDataSource;
     }
 
     #region Mapper

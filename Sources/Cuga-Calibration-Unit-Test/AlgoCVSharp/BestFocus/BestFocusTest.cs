@@ -2,12 +2,13 @@
 
 using algocv_sharp;
 using AwesomeAssertions;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.WPF.V2;
 using Xunit.Abstractions;
 
 #if BestFocusTest
 using System.Windows;
 using System.Windows.Controls;
-using Net.Utilities.ScottPlot.WPF.WPF;
 using ScottPlot.MultiplotLayouts;
 #endif
 
@@ -77,8 +78,8 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-            var xScatterPlotControl = new ScatterPlotControl();
-            var yScatterPlotControl = new ScatterPlotControl();
+            var xScatterPlotControl = new PlotControl();
+            var yScatterPlotControl = new PlotControl();
             System.Windows.Controls.Grid.SetRow(xScatterPlotControl, 0);
             System.Windows.Controls.Grid.SetRow(yScatterPlotControl, 1);
             grid.Children.Add(xScatterPlotControl);
@@ -86,18 +87,22 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
 
             window.Content = grid;
 
-            xScatterPlotControl.Configure(new Columns(), 3);
-            xScatterPlotControl.SetTitle(0, "Peek X Strehl Ratio(Y: Strehl Ratio - X: px)");
-            xScatterPlotControl.SetTitle(1, "X Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
-            xScatterPlotControl.SetTitle(2, "X Field Tilt(Y: px - X: Intra-Ribbon)");
+            var xPlotDataSource = new PlotDataSource();
+            xScatterPlotControl.DataSource = xPlotDataSource;
+            xPlotDataSource.Configure(new Columns(), 3);
+            xPlotDataSource.SetTitle(0, "Peek X Strehl Ratio(Y: Strehl Ratio - X: px)");
+            xPlotDataSource.SetTitle(1, "X Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
+            xPlotDataSource.SetTitle(2, "X Field Tilt(Y: px - X: Intra-Ribbon)");
 
-            yScatterPlotControl.Configure(new Columns(), 3);
-            yScatterPlotControl.SetTitle(0, "Peek Y Strehl Ratio(Y: Strehl Ratio - X: px)");
-            yScatterPlotControl.SetTitle(1, "Y Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
-            yScatterPlotControl.SetTitle(2, "Y Field Tilt(Y: px - X: Intra-Ribbon)");
+            var yPlotDataSource = new PlotDataSource();
+            yScatterPlotControl.DataSource = yPlotDataSource;
+            yPlotDataSource.Configure(new Columns(), 3);
+            yPlotDataSource.SetTitle(0, "Peek Y Strehl Ratio(Y: Strehl Ratio - X: px)");
+            yPlotDataSource.SetTitle(1, "Y Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
+            yPlotDataSource.SetTitle(2, "Y Field Tilt(Y: px - X: Intra-Ribbon)");
 
-            bestFocus.XStrehlRatioScatterPlotControl = xScatterPlotControl;
-            bestFocus.YStrehlRatioScatterPlotControl = yScatterPlotControl;
+            bestFocus.XStrehlRatioPlotDataSource = xPlotDataSource;
+            bestFocus.YStrehlRatioPlotDataSource = yPlotDataSource;
 
             window.ShowDialog();
         });

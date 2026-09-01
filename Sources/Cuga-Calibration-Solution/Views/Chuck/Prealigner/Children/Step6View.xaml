@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Chuck.Prealigner.Children.Step6View"
+<UserControl x:Class="CugaCalibration.Views.Chuck.Prealigner.Children.Step6View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
              d:DesignHeight="1080"
              d:DesignWidth="1800"
@@ -157,7 +158,7 @@
                     <TabControl>
                         <TabItem Header="Summary">
                             <hc:ScrollViewer>
-                                <ContentControl Content="{Binding CalibrateDTO.ScatterPlotControl, Mode=OneWay}" />
+                                <v2:PlotControl DataSource="{Binding CalibrateDTO.PlotDataSource}" />
                             </hc:ScrollViewer>
                         </TabItem>
                     </TabControl>

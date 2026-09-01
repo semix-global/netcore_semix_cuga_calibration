@@ -173,6 +173,12 @@ public interface ICalibrationAfService
     /// <returns></returns>
     SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan);
 
+    /// <summary>
+    /// 获取传感器: Nsc相对零点
+    /// </summary>
+    /// <returns>TraceBuffer error当前值</returns>
+    SxExecuteRet<double> GetSensorNscRelativeZero();
+
     #region 自动聚焦下发参数
 
     /// <summary>
@@ -256,10 +262,4 @@ public interface ICalibrationAfService
     SxExecuteRet<(double, double)> GetDarkFieldAutoFocusMotorMoveRange();
 
     #endregion 自动聚焦下发参数
-
-    /// <summary>
-    /// Nsc 诊断
-    /// </summary>
-    /// <returns>Ecs-Nsc traceBuffer</returns>
-    SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis();
 }

@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Semix.CoreLib;
@@ -63,6 +64,22 @@ public sealed class CalibrationConfigServiceMockImpl(
         var filePath = filesName.Length > 0 ? filesName.Last() : $"{fileCacheDirectoryPath}\\Result_{Net.Utilities.Models.Constants.LongFileDateTimeFormat}.dat";
 
         return SxExecuteRetHelper.CreateSuccess(filePath);
+    }
+
+    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    {
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([new SysUserDTO
+        {
+           UserName = "Test1", Password =  EncryptUtils.Encrypt32("123"), NickName = "Test1", Remark = "Test1"
+        },
+        new SysUserDTO
+        {
+            UserName = "Test2", Password = EncryptUtils.Encrypt32("2"), NickName = "Test2", Remark = "Test2"
+        },
+        new SysUserDTO
+        {
+            UserName = "Test4", Password =  EncryptUtils.Encrypt32("12345"), NickName = "Test3", Remark = "Test3"
+        }]);
     }
 
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)

@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckAlignmentDegreeOffsetCalibrationViewModel}"
              d:DesignHeight="700"
@@ -101,9 +101,6 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Width="150"
-                                            Header="Optics Illumination"
-                                            DisplayMemberBinding="{Binding OpticsIlluminationMode, Converter={StaticResource EnumDescriptionConverter}}" />
                             <GridViewColumn Width="120"
                                             Header="Productivity"
                                             DisplayMemberBinding="{Binding ProductivityInformation}" />

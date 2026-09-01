@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Mapper.Interfaces;
 
@@ -13,18 +12,10 @@ public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase, IClone
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    /// <summary>
-    /// HighSite照明方式(todo:NI方案待定)
-    /// </summary>
-    [ObservableProperty]
-    public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
-
     public AlignmentCacheDarkField Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
         LowMag = LowMag.Clone(),
         LowSizeEnum = LowSizeEnum,
         HighMag = HighMag.Clone(),

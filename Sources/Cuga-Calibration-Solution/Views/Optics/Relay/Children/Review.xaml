@@ -4,13 +4,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:optics="clr-namespace:Core.Models.Models.Optics.Relay;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsRelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -141,7 +142,7 @@
                                             </i:Interaction.Behaviors>
                                             <TabItem Header="Plots">
                                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding XZScatterPlotControl, Mode=OneWay}" />
+                                                    <v2:PlotControl DataSource="{Binding XZPlotDataSource}" />
                                                 </Border>
                                             </TabItem>
                                             <TabItem Header="X/Z Sync Plots">
@@ -181,7 +182,7 @@
                                             </i:Interaction.Behaviors>
                                             <TabItem Header="Plots">
                                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                    <v2:PlotControl DataSource="{Binding PlotDataSource}" />
                                                 </Border>
                                             </TabItem>
                                             <TabItem Header="Images">

@@ -5,11 +5,12 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.XTC;assembly=Core.Models"
              xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBXTCViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -127,7 +128,7 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBXTCDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
+                                    <TabControl ItemsSource="{Binding PlotDataSources}">
                                         <i:Interaction.Behaviors>
                                             <wpf:SelectorAutoSelectFirstBehavior />
                                         </i:Interaction.Behaviors>
@@ -141,7 +142,7 @@
                                         <TabControl.ContentTemplate>
                                             <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
                                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
+                                                    <v2:PlotControl DataSource="{Binding Value, Mode=OneWay}" />
                                                 </Border>
                                             </DataTemplate>
                                         </TabControl.ContentTemplate>
