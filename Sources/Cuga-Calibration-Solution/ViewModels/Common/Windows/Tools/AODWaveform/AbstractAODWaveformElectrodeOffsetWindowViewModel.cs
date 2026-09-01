@@ -472,7 +472,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             frequencyPeriodItem.FrequencyItems = [.. frequencyPeriodItem.FrequencyItems, item];
         }
 
-        var vector = 10d * (Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower).Map(d => Math.Log10(Math.Max(d, 1e-12)));
+        var vector = Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower;
         frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
