@@ -41,6 +41,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         base.Init(args);
 
+        ClearSelection();
         ImmutableInterlocked.Update(ref _originals, _ => []);
         ResetInteractionState();
 
@@ -239,6 +240,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             }
         }
 
+        ClearSelection();
         ImmutableInterlocked.Update(ref _originals, _ => []);
         ResetInteractionState();
     }
@@ -246,7 +248,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void ResetInteractionState()
     {
         RemoveSelectionWindow();
-        ClearSelection();
 
         ImmutableInterlocked.Update(ref _edits, _ => []);
 
