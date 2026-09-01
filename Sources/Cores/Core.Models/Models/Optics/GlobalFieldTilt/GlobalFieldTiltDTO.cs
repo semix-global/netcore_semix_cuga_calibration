@@ -7,9 +7,10 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
@@ -52,7 +53,7 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -60,18 +61,18 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
 
     public GlobalFieldTiltDTO()
     {
-        ScatterPlotControl.Configure(new Columns());
+        PlotDataSource.Configure(new Columns());
 
-        ScatterPlotControl.SetTitle(0, "Summary(Y: Global Field Tilt(ECS) - X: DOE Pos)");
+        PlotDataSource.SetTitle(0, "Summary(Y: Global Field Tilt(ECS) - X: DOE Pos)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear();
+            PlotDataSource.Clear();
 
-            ScatterPlotControl.GetOrAddScatterLine(
+            PlotDataSource.GetOrAddScatterLine(
                 0,
                 "Origin",
                 [.. Items.Select(t => new Point(t.AppliedDOEPos, t.GlobalFieldTiltError))],
@@ -79,7 +80,7 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -136,9 +137,9 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 
     public GlobalFieldTiltDTOItem()
     {
-        ScatterPlotControl.Configure(new Columns());
+        PlotDataSource.Configure(new Columns());
 
-        ScatterPlotControl.SetTitle(0, "Global Field Tilt(Y: Focus(ECS) - X: PMT(um))");
+        PlotDataSource.SetTitle(0, "Global Field Tilt(Y: Focus(ECS) - X: PMT(um))");
     }
 
     partial void OnBestFocusChannelItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
@@ -167,7 +168,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -178,8 +179,8 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         {
             if (OriginPoints.Count == 0) return;
 
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.GetOrAddScatterLine(
+            PlotDataSource.Clear(0);
+            PlotDataSource.GetOrAddScatterLine(
                 0,
                 "Origin",
                 OriginPoints,
@@ -187,7 +188,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
                 new Range(0, OriginPoints.Count - 1));
 
             if (FitPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     0,
                     $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}",
                     FitPoints,
@@ -195,7 +196,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -207,7 +208,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
         Intercept,
         RSquared,
         GlobalFieldTiltEcsError = GlobalFieldTiltError,
-        Analysis = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+        Analysis = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
         MultiLightBestFocusResult = new HtmlTable([.. BestFocusChannelItems.Select(t => t.ToFlatnessHtmlAnonymous())])
     };
 
@@ -267,12 +268,12 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 
         [ObservableProperty]
         [Newtonsoft.Json.JsonIgnore]
-        public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+        public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
         public Item()
         {
-            ScatterPlotControl.Configure(new Columns());
-            ScatterPlotControl.SetTitle(0, "(X Focus)(Y: X Quality - X: X(pix/ECS))");
+            PlotDataSource.Configure(new Columns());
+            PlotDataSource.SetTitle(0, "(X Focus)(Y: X Quality - X: X(pix/ECS))");
         }
 
 #pragma warning restore CS0657
@@ -280,18 +281,18 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
 
         private void RefreshPlot()
         {
-            ScatterPlotControl.GetOrAddScatterMarkers(
+            PlotDataSource.GetOrAddScatterMarkers(
                 0,
                 "X Quality",
                 XQualitys);
-            ScatterPlotControl.GetOrAddScatterLine(
+            PlotDataSource.GetOrAddScatterLine(
                 0,
                 "Fit Points",
                 XFitPositions);
 
             if (XFitPositions.Count != 0)
             {
-                var scatterMarkersX = ScatterPlotControl.GetOrAddScatterMarkers(
+                var scatterMarkersX = PlotDataSource.GetOrAddScatterMarkers(
                     0,
                     "X Best Focus",
                     [XFitPositions.Maxima(t => t.Y).First()],
@@ -300,7 +301,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
                 scatterMarkersX.MarkerSize = 25;
             }
 
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
 
         public object ToFlatnessHtmlAnonymous() => new
@@ -312,7 +313,7 @@ public sealed partial class GlobalFieldTiltDTOItem : ObservableObject, ICloneabl
             RawFilePath,
             Plot = new HtmlTab(new
             {
-                Analysis = new HtmlContainer(ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
+                Analysis = new HtmlContainer(PlotDataSource.GetAllHtmlPlot2DLinesCharts()),
                 OriginImage = new HtmlImage(FilePath)
                 // LinearImage = new HtmlImage(File.Exists(LinearFilePath) ? LinearFilePath : OriginFilePath)
             })

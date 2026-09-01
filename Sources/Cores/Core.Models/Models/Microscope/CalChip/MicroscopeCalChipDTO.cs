@@ -7,14 +7,15 @@ using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -54,6 +55,14 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
 
     [ObservableProperty]
     public partial Point DSWBrightFieldMachineAffinePosition { get; set; }
+
+    public MicroscopeCalChipDTO()
+    {
+        foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
+        {
+            Results.GetOrAdd(calChipSiteModelEnum, new MicroscopeCalChipDTOItem { CalChipSiteModelEnum = calChipSiteModelEnum });
+        }
+    }
 
     public Point GetBFMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
     {
@@ -152,51 +161,51 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
     public MicroscopeCalChipDTOItem()
     {
-        ScatterPlotControl.Configure(new Columns(), 2);
+        PlotDataSource.Configure(new Columns(), 2);
 
-        ScatterPlotControl.SetTitle(0, "Trace Buffers");
-        ScatterPlotControl.SetTitle(1, "Ecs AFError Curve And Slope (Y: AF Error - X: ECS)");
+        PlotDataSource.SetTitle(0, "Trace Buffers");
+        PlotDataSource.SetTitle(1, "Ecs AFError Curve And Slope (Y: AF Error - X: ECS)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.Clear(1);
+            PlotDataSource.Clear(0);
+            PlotDataSource.Clear(1);
 
             if (Ecs.Count != 0)
-                ScatterPlotControl.GetOrAddScatterLine(0,
+                PlotDataSource.GetOrAddScatterLine(0,
                     "ECS",
                     [.. Ecs.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(0));
 
             if (AFError.Count != 0)
-                ScatterPlotControl.GetOrAddScatterLine(0,
+                PlotDataSource.GetOrAddScatterLine(0,
                     "AFError",
                     [.. AFError.Select((t, i) => new Point(i, t))],
                     Constants.Category10.GetColor(1));
 
             if (EcsAFErrorPoints.Length != 0)
-                ScatterPlotControl.GetOrAddScatterLine(1,
+                PlotDataSource.GetOrAddScatterLine(1,
                     "Ecs AfError Curve",
                     [.. EcsAFErrorPoints],
                     Constants.Category10.GetColor(1));
 
             if (EcsAFErrorMaxMins.Length != 0)
             {
-                ScatterPlotControl.GetOrAddScatterLine(1,
+                PlotDataSource.GetOrAddScatterLine(1,
                     "Ecs AfError Slope",
                     [.. EcsAFErrorMaxMins],
                     Constants.Category10.GetColor(2));
-                var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
+                var scatterMarkers = PlotDataSource.GetOrAddScatterMarkers(
                     1,
                     "AF ECS",
                     [new Point(EcsValue, 0)],
@@ -207,7 +216,7 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -228,7 +237,7 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
     {
         EcsValue,
         Quality,
-        Plot = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+        Plot = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
         Image = new HtmlImage(FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
     };
 }

@@ -6,7 +6,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             xmlns:stepCommon="clr-namespace:CugaCalibration.Views.Microscope.CalChip.Children.StepCommon"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -45,87 +46,18 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="1. Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.Style>
-                                <Style TargetType="hc:UniformSpacingPanel">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:UniformSpacingPanel.Style>
-                            <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
-                                              hc:TitleElement.TitleWidth="180"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.HalfEcsLength}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
-                                              hc:TitleElement.TitleWidth="180"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.SpeedEcsPerSecond}" />
-                        </hc:UniformSpacingPanel>
-                        <StackPanel>
-                            <TextBlock Text="2. Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.CenterMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.TitleWidth="180"
-                                 hc:TitleElement.Title="Bright Machine Position(um): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 IsReadOnly="True"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Ecs Value: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.CurrentItem.EcsValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Quality(score): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.CurrentItem.Quality}" />
+                        <stepCommon:Step2CommonView />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button x:Name="ActionButton"
                                     Content="Action"
-                                    Command="{Binding Step1Command}"
+                                    Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button x:Name="CancelButton"
                                     Content="Cancel"
-                                    Command="{Binding Step1CancelCommand}"
+                                    Command="{Binding Step2CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>
@@ -142,7 +74,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="4*" />
                 </Grid.RowDefinitions>
-                <ContentControl Content="{Binding CalibratingItem.CurrentItem.ScatterPlotControl, Mode=OneWay}" />
+                <v2:PlotControl DataSource="{Binding CalibratingItem.DswItem.PlotDataSource}" />
                 <GridSplitter Grid.Row="1" Height="5" />
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl>
@@ -151,12 +83,12 @@
                                 <hc:SimplePanel>
                                     <view:CanvasView AxisColor="Red"
                                                      BackgroundColor="#0A0A0A"
-                                                     BackgroundImage="{Binding CalibratingItem.CurrentItem.FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                     BackgroundImage="{Binding CalibratingItem.DswItem.FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
                                                      Interactive="True"
                                                      ShowAxes="False"
                                                      ShowCursor="False"
                                                      ShowGrid="False" />
-                                    <TextBlock Text="{Binding CalibratingItem.CurrentItem.EcsValue, StringFormat='0.###'}"
+                                    <TextBlock Text="{Binding CalibratingItem.DswItem.EcsValue, StringFormat='0.###'}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Top"
                                                Foreground="Yellow" />

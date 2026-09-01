@@ -19,7 +19,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
     public partial double SpeedEcsPerSecond { get; set; } = 500;
 
     [ObservableProperty]
-    public partial double HalfEcsLength { get; set; } = 250;
+    public partial double EcsRange { get; set; } = 250;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -36,7 +36,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ProductivityInformation = ProductivityInformation.Clone(),
         SpeedEcsPerSecond = SpeedEcsPerSecond,
-        HalfEcsLength = HalfEcsLength,
+        EcsRange = EcsRange,
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         Items = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>(Items.Select(x => new KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>(x.Key, x.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,

@@ -294,6 +294,7 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 FontSize="10"
+                                                Visibility="{Binding ActiveItem.IsCalibrating, Converter={StaticResource BoolToVisibilityConverter}}"
                                                 StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
                                                 ItemsSource="{Binding ActiveItem.CalibrationSteps}">
                                         <hc:StepBar.ItemTemplate>
@@ -303,6 +304,7 @@
                                     <ProgressBar Grid.Row="4"
                                                  Margin="5"
                                                  Style="{StaticResource ProgressBarSuccess}"
+                                                 Visibility="{Binding ActiveItem.IsCalibrating, Converter={StaticResource BoolToVisibilityConverter}}"
                                                  Value="{Binding ActiveItem.CalibrationProgress, Mode=OneWay}" />
                                 </Grid>
                             </Border>
@@ -335,8 +337,15 @@
                         <hc:StepBar Margin="0,0,10,0"
                                     Dock="Right"
                                     StepIndex="{Binding ActiveItem.CalibrationStepIndex}"
-                                    ItemsSource="{Binding ActiveItem.CalibrationSteps}"
-                                    Visibility="{Binding IsExpanded, ElementName=HorizontalExpandPanel, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                    ItemsSource="{Binding ActiveItem.CalibrationSteps}">
+                            <hc:StepBar.Visibility>
+                                <MultiBinding Converter="{StaticResource BooleanArr2VisibilityConverter}">
+                                    <Binding Path="IsExpanded"
+                                             ElementName="HorizontalExpandPanel"
+                                             Converter="{StaticResource Boolean2BooleanReConverter}" />
+                                    <Binding Path="ActiveItem.IsCalibrating" />
+                                </MultiBinding>
+                            </hc:StepBar.Visibility>
                             <hc:StepBar.ItemTemplate>
                                 <DataTemplate />
                             </hc:StepBar.ItemTemplate>

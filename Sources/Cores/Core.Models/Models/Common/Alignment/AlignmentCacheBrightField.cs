@@ -12,7 +12,6 @@ public sealed partial class AlignmentCacheBrightField : AlignmentCacheBase, IClo
     public AlignmentCacheBrightField Clone() => new()
     {
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
         LowMag = LowMag,
         LowSizeEnum = LowSizeEnum,
         HighMag = HighMag,

@@ -21,6 +21,7 @@ using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -115,6 +116,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsCollectorPolarizationMode)
                 .ThenBy(t => t.ChannelId)
         ];
@@ -487,7 +489,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                     calibratingItem.NDFRotaryMotorPosition,
                     calibratingItem.GrayValue,
                     calibratingItem.IsCalibrated,
-                    Plots = new HtmlContainer(calibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    Plots = new HtmlContainer(calibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
@@ -634,7 +636,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => (t.OpticsCollectorPolarizationMode == dto.OpticsCollectorPolarizationMode && t.ChannelId == dto.ChannelId) == false)
             ];
         }

@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusDarkAutoFocusViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -34,22 +35,32 @@
                     Style="{StaticResource BorderRegion}"
                     Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <hc:NumericUpDown hc:TitleElement.Title="Start AF(mm): "
+                    <hc:NumericUpDown hc:TitleElement.Title="AF Step(mm): "
                                       hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StartAFMotorAbsoluteValue}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Step AF(mm): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.TitleWidth="210"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.StepAFMotorAbsoluteValue}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Stop AF(mm): "
+                    <hc:NumericUpDown hc:TitleElement.Title="AF Range(±mm): "
                                       hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
+                                      hc:TitleElement.TitleWidth="210"
+                                      Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.StopAFMotorAbsoluteValue}" />
+                                      Value="{Binding Cache.AFMotorRange}" />
+                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(RSquared): "
+                                      hc:TitleElement.TitleWidth="210"
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Maximum="1"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding Cache.RSquaredThreshold}" />
+                    <TextBox Text="{Binding CalibratingItem.AfMotor, Mode=OneWay, StringFormat={}{0:f3}}"
+                             hc:TitleElement.Title="AF Origin Motor(mm): "
+                             hc:TitleElement.TitleWidth="210"
+                             hc:TitleElement.TitlePlacement="Left"
+                             IsReadOnly="True"
+                             Background="{StaticResource SecondaryRegionBrush}"
+                             Style="{StaticResource TextBoxExtend}" />
                     <TextBox Text="{Binding CalibratingItem.EcsMotorPositionRelationSlope, Mode=OneWay, StringFormat={}{0:f3}}"
                              hc:TitleElement.Title="Motor Calibration Result:(ecs/mm): "
                              hc:TitleElement.TitleWidth="210"
@@ -80,7 +91,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
                 <GridSplitter Grid.Row="1" Height="5" />
             </Grid>
         </GroupBox>

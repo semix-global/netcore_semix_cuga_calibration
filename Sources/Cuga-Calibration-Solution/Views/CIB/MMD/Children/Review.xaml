@@ -4,12 +4,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.MMD;assembly=Core.Models"
              xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -264,7 +265,7 @@
                                PopupAnimation="Slide"
                                IsOpen="{Binding IsChecked, ElementName=ToggleButtonODFilterResult, Mode=TwoWay}">
                             <Border Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding Cache.ScatterPlotControl, Mode=OneWay}" />
+                                <v2:PlotControl DataSource="{Binding Cache.PlotDataSource}" />
                             </Border>
                         </Popup>
                     </hc:UniformSpacingPanel>
@@ -374,7 +375,7 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBMMDDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                    <v2:PlotControl DataSource="{Binding PlotDataSource}" />
                                 </Border>
                             </DataTemplate>
                         </TabControl.ContentTemplate>

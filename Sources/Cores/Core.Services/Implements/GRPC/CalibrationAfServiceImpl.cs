@@ -213,6 +213,11 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<double> GetSensorNscRelativeZero()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetSensorBrightFieldChuckStandardEcsValue(MicroscopeLensInformation microscopeLensInformation, double standardEcsValue)
     {
         var sxExecuteRet = Invoke(() => Service?.SetMicroscopeEcs(new SxParamObj<(CgMicroscopeLens lens, ushort ecs)>((microscopeLensInformation.AdaptTo().LensCode, Convert.ToUInt16(standardEcsValue)))));
@@ -306,10 +311,5 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess((16d, 32d));
-    }
-
-    public SxExecuteRet<(Point[] tracebuffer, double k)> NscDiagnosis()
-    {
-        return SxExecuteRetHelper.CreateSuccess<(Point[], double)>(([Point.Origin], 1d));
     }
 }

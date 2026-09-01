@@ -156,7 +156,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     [RelayCommand]
     private Task LoadedAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             try
             {
@@ -190,7 +190,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 MicroscopeCalChip.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
 
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(
                     Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
                         ? new Point(0, 0)
@@ -207,33 +207,33 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     [RelayCommand(CanExecute = nameof(IsPreviousEnable))]
     private Task PreviousAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             StepList[StepIndex].StepIsNextEnable = StepList[StepIndex].DefaultIsNextEnable; // 恢复默认值
             Cache.IsVerified = false;
             _contextProvider.Send(() => StepIndex--);
 
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
     [RelayCommand(CanExecute = nameof(IsNextEnable))]
     private Task NextAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             StepList[StepIndex].StepIsNextEnable = StepList[StepIndex].DefaultIsNextEnable; // 恢复默认值
             Cache.IsVerified = false;
             _contextProvider.Send(() => StepIndex++);
 
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
     [RelayCommand(CanExecute = nameof(IsEnable))]
     private Task MarkSiteAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             var magnificationEnum = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
 
@@ -247,7 +247,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum);
 
                     Cache.LowSite1 = resultLowSite1;
                     Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -259,7 +259,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
                     Cache.LowSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -271,7 +271,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1, Cache.AlgorithmWaferTypeEnum);
+                    var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(resultLowSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.LowSite2 = resultLowSite2;
@@ -288,7 +288,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
                     Cache.HighSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -300,7 +300,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum);
 
                     Cache.HighSite1 = resultHighSite1;
                     Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -308,7 +308,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
 
                     StepList[2].StepIsNextEnable = true;
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -320,7 +320,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1, Cache.AlgorithmWaferTypeEnum);
+                    var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1);
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(resultHighSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.HighSite2 = resultHighSite2;
@@ -346,13 +346,14 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 Cache.HighSite2,
                 Cache.LowMag,
                 Cache.HighMag,
-                Cache.AlgorithmWaferTypeEnum,
                 Cache.CalChipSiteModelEnum);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;
             Cache.IsVerified = true;
             _contextProvider.Send(() => SaveCommand.NotifyCanExecuteChanged());
+
+            return Task.CompletedTask;
         });
     }
 
@@ -376,6 +377,8 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                 _logger.LogError(ex, "{@Name}: Failed to save alignment cache!", nameof(AlignmentWindowBrightFieldViewModel));
                 _dialogWindowProvider.ShowDialog("Failed to save alignment cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             }
+
+            return Task.CompletedTask;
         });
     }
 
@@ -399,10 +402,10 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
     [RelayCommand(CanExecute = nameof(IsAdvancedEnable))]
     private Task AdvancedAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             Advanced();
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
@@ -419,7 +422,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         }
     }
 
-    private void MovePositionAndSwitchMag()
+    private async Task MovePositionAndSwitchMagAsync()
     {
         try
         {
@@ -427,22 +430,22 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
             {
                 case 0:
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 1:
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, Cache.CalChipSiteModelEnum);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 2:
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 3:
                     StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
             }
         }
@@ -468,14 +471,14 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
         _cancellationTokenSource = null;
     }
 
-    private Task InvokeAsync(Action action)
+    private Task InvokeAsync(Func<Task> func)
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             try
             {
                 _contextProvider.Send(() => IsEnable = false);
-                action();
+                await func();
             }
             catch (Exception e)
             {

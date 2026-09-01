@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
+using Local.SQL.DB.Providers.Models.Enums;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -69,6 +70,7 @@ public sealed partial class RolesManagementViewModel(
     protected override async Task<bool> InsertingAsync()
     {
         OperateSysRoleDto!.SysMenuList = [.. allMenuList.Where(t => t.IsDistributed)];
+
         return await sysRoleService.InsertAsync(OperateSysRoleDto!).ConfigureAwait(false);
     }
 
@@ -156,6 +158,10 @@ public sealed partial class RolesManagementViewModel(
     private void AssignMenu()
     {
         IsAssignMenu = 1;
+        foreach (var sysMenuDTO in MenuAllocationTreeList.Where(t => t.MenuTypeEnum == MenuTypeEnum.Catalog))
+        {
+            sysMenuDTO.IsDistributed = true;
+        }
     }
 
     #endregion Command

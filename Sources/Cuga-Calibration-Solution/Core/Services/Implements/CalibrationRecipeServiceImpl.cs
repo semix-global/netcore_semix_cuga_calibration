@@ -9,6 +9,7 @@ using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Drawables;
 
@@ -73,7 +74,7 @@ public class CalibrationRecipeServiceImpl(
             .Single(t => t.Rect.Contains(waferPosition));
     }
 
-    public bool GetWaferMapDieMachinePosition<T>(WaferDTO waferDto, WaferMapDie<T> waferMapDie, out Point position) where T : Net.Utilities.Graphics.Primitives.Medias.Layer, new()
+    public bool GetWaferMapDieMachinePosition<T>(WaferDTO waferDto, WaferMapDie<T> waferMapDie, out Point position) where T : Layer, new()
     {
         try
         {

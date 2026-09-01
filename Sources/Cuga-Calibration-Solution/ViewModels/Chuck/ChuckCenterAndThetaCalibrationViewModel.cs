@@ -9,7 +9,6 @@ using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Common.Alignment;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -81,7 +80,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     public partial ChuckGantryDto ChuckGantry { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizeItems { get; set; } = [];
 
     #endregion 缓存
 
@@ -95,15 +94,11 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<ChuckCenterAndThetaCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
         AlignmentCacheBrightField = ApplicationCookieService.GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
-
-        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -130,23 +125,21 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowBaseTemplateFilePath))
                        && File.Exists(Cache.LowBaseTemplateImageFilePath);
 
             case 2:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition);
                 return true;
 
@@ -166,23 +159,6 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 return true;
 
             case 7:
-                if (ResultCenterAndThetaItemDto is null)
-                {
-                    DialogWindowProvider.TryShowDialog("Calibration result is Empty!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
-                }
-                else
-                {
-                    ResultCenterAndThetaItemDto.IsCalibrated = true;
-                    if (Save(ResultCenterAndThetaItemDto, cancellationToken) == false)
-                    {
-                        ResultCenterAndThetaItemDto.IsCalibrated = false;
-                        Logger.LogError("{@Name} Error: Save Failed!", Name);
-                        DialogWindowProvider.ShowDialog("Save Failed!", DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                        return false;
-                    }
-                }
-
                 return true;
 
             default:
@@ -192,17 +168,15 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
                 break;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighSiteFindPosition);
                 break;
 
@@ -223,7 +197,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
             case 7:
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition);
                 break;
         }
@@ -247,8 +221,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 AlignmentCacheBrightField.HighSite1,
                 AlignmentCacheBrightField.HighSite2,
                 AlignmentCacheBrightField.LowMag,
-                AlignmentCacheBrightField.HighMag,
-                AlignmentCacheBrightField.AlgorithmWaferTypeEnum);
+                AlignmentCacheBrightField.HighMag);
 
             Cache.P5Angle = alignmentResultDto.Degrees;
 
@@ -335,7 +308,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             Cache.RightLowSitePosition = currentRowReticles[^1].Rect.Point;
 
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
@@ -368,7 +341,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             Cache.BaseHighSiteFindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
@@ -502,6 +475,10 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
             result = scaleCalibrationResult && chuckCenterCalibrationResult;
 
+            ResultCenterAndThetaItemDto.IsCalibrated = result;
+
+            Guard.IsTrue(Save(ResultCenterAndThetaItemDto, cancellationToken));
+
             Logger.LogHtmlInformation($"Calibration Result {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 ChuckCenterIsOK = chuckCenterCalibrationResult,
@@ -609,13 +586,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 chuckCenterAndThetaItemDto.IsVerified = result;
-                if (Save(chuckCenterAndThetaItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    chuckCenterAndThetaItemDto.IsVerified = false;
-                    result = false;
-                    return;
-                }
+
+                Guard.IsTrue(Save(chuckCenterAndThetaItemDto, cancellationToken));
 
                 StageViewModel.SetBrightFieldCenterMachinePositionValue(result ? chuckCenterAndThetaItemDto.NewBFCenterStagePosition : chuckCenterAndThetaItemDto.BFCenterStagePosition);
 

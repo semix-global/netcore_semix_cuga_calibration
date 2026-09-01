@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBAGCDelayViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -111,7 +112,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <Border Style="{StaticResource BorderRegion}">
-                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
             </Border>
         </GroupBox>
     </Grid>

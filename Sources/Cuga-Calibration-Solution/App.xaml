@@ -20,6 +20,8 @@
                 <ResourceDictionary Source="pack://application:,,,/Core.Utilities.WPF;component/UI/Themes/ConvertersTest.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <BitmapImage x:Key="AppIcon" UriSource="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/CugaCalibration.ico" />
+
             <wpfMvvmConverters:ViewModel2ViewConverter x:Key="ViewModel2ViewConverter" />
             <cookies:MultiApplicationCookieToProductivityInformationsConvert x:Key="MultiApplicationCookieToProductivityInformationsConvert" />
             <converts:MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert x:Key="MultiOpticsIlluminationModeAndProductivityInformationStatusesToProductivityInformationsCalibrationStatusesConvert" />

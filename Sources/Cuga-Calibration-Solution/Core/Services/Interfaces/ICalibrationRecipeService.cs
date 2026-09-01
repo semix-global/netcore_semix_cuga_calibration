@@ -3,6 +3,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Recipe.Models.Wafer;
 using Core.Recipe.Models.Wafer.ReticleMask;
+using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Drawables;
 
@@ -35,7 +36,7 @@ public interface ICalibrationRecipeService
     /// <param name="position"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    bool GetWaferMapDieMachinePosition<T>(WaferDTO waferDto, WaferMapDie<T> waferMapDie, out Point position) where T : Net.Utilities.Graphics.Primitives.Medias.Layer, new();
+    bool GetWaferMapDieMachinePosition<T>(WaferDTO waferDto, WaferMapDie<T> waferMapDie, out Point position) where T : Layer, new();
 
     /// <summary>
     /// 获取指定Die/Reticle对应的Mask明场机械坐标位置

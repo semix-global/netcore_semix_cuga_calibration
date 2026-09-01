@@ -184,9 +184,9 @@ public sealed class CalibrationCIBServiceImpl(
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
     }
 
-    public SxExecuteRet<bool> ToggleRTFCParam(ProductivityInformation productivityInformation)
+    public SxExecuteRet<bool> SetGlobalRTFCParams(ProductivityInformation productivityInformation)
     {
-        var sxExecuteRet = Invoke(() => Service!.SetFocusCacheToMachine(productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(), productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType()));
+        var sxExecuteRet = Invoke(() => Service!.SetAllFocusCacheToMachine(productivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum(), productivityInformation.AdaptTo().Mag.ToCgMagTypeEnum(), productivityInformation.AdaptTo().Speed.ToCgSpeedLevelType()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

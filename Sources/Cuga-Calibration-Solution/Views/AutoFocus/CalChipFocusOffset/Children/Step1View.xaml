@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             xmlns:stepCommon="clr-namespace:CugaCalibration.Views.AutoFocus.CalChipFocusOffset.Children.StepCommon"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -39,69 +40,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="1. Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.Style>
-                                <Style TargetType="hc:UniformSpacingPanel">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                            <Setter Property="IsEnabled" Value="False" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="IsEnabled" Value="True" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:UniformSpacingPanel.Style>
-                            <hc:NumericUpDown hc:TitleElement.Title="Half Length Ecs: "
-                                              hc:TitleElement.TitleWidth="180"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.HalfEcsLength}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Speed Ecs(ecs/s): "
-                                              hc:TitleElement.TitleWidth="180"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              Minimum="0"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.SpeedEcsPerSecond}" />
-                        </hc:UniformSpacingPanel>
-                        <StackPanel>
-                            <TextBlock Text="2. Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Ecs Value: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.CurrentItem.ECSValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Motor Value: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="180"
-                                          IsReadOnly="True"
-                                          Background="{StaticResource SecondaryRegionBrush}"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.CurrentItem.MotorValue}" />
+                        <stepCommon:Step1CommonView />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -120,7 +59,7 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Plot">
-            <ContentControl Content="{Binding CalibratingItem.CurrentItem.ScatterPlotControl, Mode=OneWay}" />
+            <v2:PlotControl DataSource="{Binding CalibratingItem.ChuckItem.PlotDataSource}" />
         </GroupBox>
     </Grid>
 </UserControl>

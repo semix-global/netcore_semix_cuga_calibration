@@ -6,9 +6,10 @@ using Local.SQL.Cache.Providers.Bases;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
@@ -42,7 +43,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -78,18 +79,18 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
     public AODAlignmentDTO()
     {
-        ScatterPlotControl.Configure(new Columns(), 2);
+        PlotDataSource.Configure(new Columns(), 2);
 
-        ScatterPlotControl.SetTitle(0, "Projection Y(Y: PMT Value - X: px)");
-        ScatterPlotControl.SetTitle(1, "Alignment(Y: px - X: MHz)");
+        PlotDataSource.SetTitle(0, "Projection Y(Y: PMT Value - X: px)");
+        PlotDataSource.SetTitle(1, "Alignment(Y: px - X: MHz)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.Clear(1);
+            PlotDataSource.Clear(0);
+            PlotDataSource.Clear(1);
 
             var isNeedRefreshes = new bool[Items.Count];
 
@@ -97,7 +98,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
             {
                 if (item.ImageHorizontalProjects.Count <= 0) continue;
 
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     0,
                     $"{item.PrescanFrequency:0.###}(MHz)",
                     [.. item.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
@@ -111,7 +112,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
             if (isNeedRefreshes.All(b => b))
             {
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     1,
                     "Alignment",
                     [.. Items.Select(t => new Point(t.PrescanFrequency, Guard.IsNotNullAndReturn(t.ProjectMaxPixel)))],
@@ -119,7 +120,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
             }
 
             if (FitAlignmentPoints.Count > 0)
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     1,
                     $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}",
                     FitAlignmentPoints,
@@ -127,7 +128,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

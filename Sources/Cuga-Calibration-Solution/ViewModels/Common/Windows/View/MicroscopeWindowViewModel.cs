@@ -31,7 +31,7 @@ public sealed partial class MicroscopeWindowViewModel(
     [RelayCommand]
     private async Task SwitchMagnificationAsync(MicroscopeLensInformation microscopeLensInformation)
     {
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             if (Interlocked.CompareExchange(ref StatusViewModel.IsSwitchMicroscopeLensInformationRunning, 1, 0) == 1) throw new InvalidOperationException("Task is already running");
 
@@ -39,7 +39,7 @@ public sealed partial class MicroscopeWindowViewModel(
             {
                 StatusViewModel.MicroscopeLensInformation = microscopeLensInformation;
 
-                microscopeViewModel.SwitchMicroscopeLensInformation(microscopeLensInformation, true);
+                await microscopeViewModel.SwitchMicroscopeLensInformationAsync(microscopeLensInformation, isMoveToMicroscopeCenter: true, cancellationToken: CancellationToken.None).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

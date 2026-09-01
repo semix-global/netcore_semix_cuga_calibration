@@ -7,7 +7,6 @@ using Core.Models.Events;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.AlignmentDegreeOffset;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -70,7 +69,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
     public partial ChuckAlignmentDegreeOffsetItemDto[] Calibrations { get; set; } = [];
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -86,13 +85,10 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
         await Task.CompletedTask.ConfigureAwait(false);
 
 
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<ChuckAlignmentDegreeOffsetCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<ChuckAlignmentDegreeOffsetItemDto>(cancellationToken);
-
-        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         StageViewModel.SetAbsoluteStageTheta(0d);
 
@@ -103,8 +99,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         Reviews =
         [
             .. Calibrations
@@ -116,7 +110,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
             return false;
 
         StageViewModel.SetAbsoluteStageTheta(0d);
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         return true;
@@ -326,12 +320,8 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
         }), HtmlLogUniqueId.LoggingHtml());
 
         reviewDto.IsVerified = result;
-        if (Save(reviewDto, cancellationToken) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-            reviewDto.IsVerified = false;
-            return false;
-        }
+
+        Guard.IsTrue(Save(reviewDto, cancellationToken));
 
         return result;
     }
@@ -343,7 +333,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
         Calibrations =
         [
-            itemDto,
+            itemDto.Clone(),
             .. Calibrations
                 .Where(t => t.ProductivityInformation != itemDto.ProductivityInformation)
         ];

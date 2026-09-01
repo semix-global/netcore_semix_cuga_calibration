@@ -99,6 +99,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 return;
             }
 
+
+
             _windowManagerService.ShowWindow(HostApplication.GetRequiredService<StageWindowViewModel>());
             _windowManagerService.ShowWindow(HostApplication.GetRequiredService<MicroscopeWindowViewModel>());
 

@@ -16,12 +16,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
     [ObservableProperty]
     public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
-    /// <summary>
-    /// 晶圆类型
-    /// </summary>
-    [ObservableProperty]
-    public partial AlgorithmWaferTypeEnum AlgorithmWaferTypeEnum { get; set; } = AlgorithmWaferTypeEnum.D300;
-
     [ObservableProperty]
     public partial AlgorithmTemplateSizeEnum LowSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 
@@ -169,7 +163,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
-        AlgorithmWaferTypeEnum = AlgorithmWaferTypeEnum,
         LowSizeEnum = LowSizeEnum,
         HighSizeEnum = HighSizeEnum,
         NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,

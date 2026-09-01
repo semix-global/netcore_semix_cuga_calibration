@@ -41,6 +41,7 @@ public sealed partial class ApplicationCookieServiceImpl(
 
         applicationCookie.CalibrationMenu = BuildCalibrationMenuTree();
         applicationCookie.TitleMenu = BuildTitleMenuTree();
+        applicationCookie.ManagementMenu = await BuildManagementMenuTreeAsync().ConfigureAwait(false);
         UpdateCalibrationMenuEntry(applicationCookie.CalibrationMenu);
 
         return;
@@ -96,6 +97,33 @@ public sealed partial class ApplicationCookieServiceImpl(
             }
         }
 
+        async Task<SysManagementDTO> BuildManagementMenuTreeAsync()
+        {
+            var sysManagementService = HostApplication.GetRequiredService<ISysManagementService>();
+            var allSysManagementMenus = await sysManagementService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+            var baseSysMenu = allSysManagementMenus.Single(t => t.Name == options.Value.ManagementMenuName && t.MenuTypeEnum == MenuTypeEnum.Catalog);
+            RecursionFn(baseSysMenu);
+
+            return baseSysMenu;
+
+            void RecursionFn(SysManagementDTO calibrationItem)
+            {
+                var children = allSysManagementMenus
+                    .Where(p => p.ParentId == calibrationItem.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)
+                    .OrderBy(t => t.OrderNum)
+                    .ToList();
+                calibrationItem.ChildList = children;
+
+                foreach (var child in children) child.Parent = calibrationItem;
+
+                foreach (var item in children.Where(item => allSysManagementMenus.Any(p => p.ParentId == item.Id && p.MenuTypeEnum is MenuTypeEnum.Catalog or MenuTypeEnum.Menu)))
+                {
+                    RecursionFn(item);
+                }
+            }
+        }
+
         static void UpdateCalibrationMenuEntry(CalibrationMenu calibrationMenu)
         {
             if (calibrationMenu.SysMenu.MenuTypeEnum == MenuTypeEnum.Menu)
@@ -145,7 +173,7 @@ public sealed partial class ApplicationCookieServiceImpl(
             .Select(t =>
             {
                 var centerOffset = t.DFMachineCenterPosition - (Vector)centerItemDto.DFMachineCenterPosition;
-                return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, calibrationSetting.SettingCommonParam.PMTInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
+                return (t.PmtId, new Point(xDirection * centerOffset.X, yDirection * centerOffset.Y) - (Vector)new Point(0, applicationCookie.PMTInterval * (t.PmtId - CalibrationConstantsHelper.MainPmtId)));
             })
             .ToList();
 

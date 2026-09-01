@@ -1,6 +1,5 @@
 using algocv_sharp;
 using Core.Models.Enums.Algorithm;
-using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
@@ -24,11 +23,14 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
 using System.IO;
 using Core.Models;
 using Microsoft.Extensions.Options;
 using Net.Utilities.WPF.MVVM;
 using Constants = Net.Utilities.Models.Constants;
+using CommunityToolkit.Diagnostics;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
@@ -42,6 +44,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
     private bool _isAlgorithmEngineInitialized = false;
     private readonly Algorithm _algorithm = new();
 
+    public static readonly string ErrorImageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorImages");
+    
     public void InitialAlgorithmEngine()
     {
         if(_isAlgorithmEngineInitialized) return;
@@ -51,51 +55,87 @@ public sealed class CalibrationAlgorithmServiceImpl(
         _isAlgorithmEngineInitialized = true;
     }
 
-    public double GetQuality(BitmapImage image)
+    public double GetQuality(BitmapImage image, Guid guid)
     {
-        // 适应彩色和灰度图像, 方差越大, 说明图像越清晰
-        using var hImage = image.ToHImage();
-        _algorithm.LaplaceDefinition(hImage, out var meanTuple);
-        using var _ = meanTuple;
-
-        return meanTuple.D;
+        try
+        {
+            using var hImage = image.ToHImage();
+            _algorithm.LaplaceDefinition(hImage, out var meanTuple);
+            using var _ = meanTuple;
+            return meanTuple.D;
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetQuality));
+            LogAlgorithmError(ex, nameof(GetQuality), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public double GetDarkFieldQuality(BitmapImage image)
+    public double GetDarkFieldQuality(BitmapImage image, Guid guid)
     {
-        using var hImage = image.ToHImage();
-        _algorithm.DarkLaplaceDefinition(hImage, out var meanTuple);
-        using var _ = meanTuple;
+        try
+        {
+            using var hImage = image.ToHImage();
+            _algorithm.DarkLaplaceDefinition(hImage, out var meanTuple);
+            using var _ = meanTuple;
 
-        return meanTuple.D;
+            return meanTuple.D;
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetDarkFieldQuality));
+            LogAlgorithmError(ex, nameof(GetDarkFieldQuality), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image)
+    public (double XQuality, double YQuality) GetXyQuality(BitmapImage image, Guid guid)
     {
-        using var hImage = image.ToHImage();
-        _algorithm.DarkDefinition(hImage, out var meanTupleY, out var meanTupleX);
+        try
+        {
+            using var hImage = image.ToHImage();
+            _algorithm.DarkDefinition(hImage, out var meanTupleY, out var meanTupleX);
 
-        using var _1 = meanTupleX;
-        using var _2 = meanTupleY;
+            using var _1 = meanTupleX;
+            using var _2 = meanTupleY;
 
-        return (meanTupleX.D, meanTupleY.D);
+            return (meanTupleX.D, meanTupleY.D);
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetXyQuality));
+            LogAlgorithmError(ex, nameof(GetXyQuality), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect)
+    public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect, Guid guid)
     {
-        using var hImage = image.ToHImage();
-        using var roiImage = hImage.ToRoi(roiRect);
+        try
+        {
+            using var hImage = image.ToHImage();
+            using var roiImage = hImage.ToRoi(roiRect);
 
-        _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
+            _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
 
-        using var _1 = mtfX;
-        using var _2 = mtfY;
+            using var _1 = mtfX;
+            using var _2 = mtfY;
 
-        return (mtfX.D, mtfY.D);
+            return (mtfX.D, mtfY.D);
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(ModulationTransferFunction));
+            LogAlgorithmError(ex, nameof(ModulationTransferFunction), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, Guid guid)
     {
+        try
+        {
         var bestFocus = GetAlgoCVSharpBestFocus(image);
 
         bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / image.Size.Width * (stopECS - startECS);
@@ -103,6 +143,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
         bestFocus.IsAlgorithmOk = true;
 
         return bestFocus;
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetBestFocus));
+            LogAlgorithmError(ex, nameof(GetBestFocus), guid, errorImagePath);
+            throw;
+        }
     }
 
     private BestFocus GetHAlgorithemBestFocus(BitmapImage image)
@@ -110,101 +157,101 @@ public sealed class CalibrationAlgorithmServiceImpl(
         using var hImage = image.ToHImage();
         var size = hImage.GetSize();
 
-        #region 算法调用
+            #region 算法调用
 
-        _algorithm.STLR_kla(
-            hImage,
-            out var hvXListHTuple,
-            out var hvXRatioMaxHTuple,
-            out var hvXRatioMeanHTuple,
-            out var hvXRatioMinHTuple,
-            out var hvYRatioMaxHTuple,
-            out var hvYRatioMeanHTuple,
-            out var hvYRatioMinHTuple,
-            out var hvXValuesHTuple,
-            out var hvIndXHTuple,
-            out var hvXMaxHTuple,
-            out var hvYValuesHTuple,
-            out var hvIndYHTuple,
-            out var hvYMaxHTuple,
-            out var hvPlotXHTuple,
-            out var hvPlotYHTuple,
-            out var xStrehlList,
-            out var yStrehlList,
-            out var hvRowBeginXHTuple,
-            out var hvColBeginXHTuple,
-            out var hvRowEndXHTuple,
-            out var hvColEndXHTuple,
-            out var hvKxHTuple,
-            out var hvRowBeginYHTuple,
-            out var hvColBeginYHTuple,
-            out var hvRowEndYHTuple,
-            out var hvColEndYHTuple,
-            out var hvKyHTuple,
-            out var hvPercentMeanHTuple);
+            _algorithm.STLR_kla(
+                hImage,
+                out var hvXListHTuple,
+                out var hvXRatioMaxHTuple,
+                out var hvXRatioMeanHTuple,
+                out var hvXRatioMinHTuple,
+                out var hvYRatioMaxHTuple,
+                out var hvYRatioMeanHTuple,
+                out var hvYRatioMinHTuple,
+                out var hvXValuesHTuple,
+                out var hvIndXHTuple,
+                out var hvXMaxHTuple,
+                out var hvYValuesHTuple,
+                out var hvIndYHTuple,
+                out var hvYMaxHTuple,
+                out var hvPlotXHTuple,
+                out var hvPlotYHTuple,
+                out var xStrehlList,
+                out var yStrehlList,
+                out var hvRowBeginXHTuple,
+                out var hvColBeginXHTuple,
+                out var hvRowEndXHTuple,
+                out var hvColEndXHTuple,
+                out var hvKxHTuple,
+                out var hvRowBeginYHTuple,
+                out var hvColBeginYHTuple,
+                out var hvRowEndYHTuple,
+                out var hvColEndYHTuple,
+                out var hvKyHTuple,
+                out var hvPercentMeanHTuple);
 
-        using var _0 = hvXListHTuple;
-        using var _1 = hvXRatioMaxHTuple;
-        using var _2 = hvXRatioMeanHTuple;
-        using var _3 = hvXRatioMinHTuple;
-        using var _4 = hvYRatioMaxHTuple;
-        using var _5 = hvYRatioMeanHTuple;
-        using var _6 = hvYRatioMinHTuple;
-        using var _7 = hvXValuesHTuple;
-        using var _8 = hvIndXHTuple;
-        using var _9 = hvXMaxHTuple;
-        using var _10 = hvYValuesHTuple;
-        using var _11 = hvIndYHTuple;
-        using var _12 = hvYMaxHTuple;
-        using var _13 = hvPlotXHTuple;
-        using var _14 = hvPlotYHTuple;
-        using var _15 = hvRowBeginXHTuple;
-        using var _16 = hvColBeginXHTuple;
-        using var _17 = hvRowEndXHTuple;
-        using var _18 = hvColEndXHTuple;
-        using var _19 = hvKxHTuple;
-        using var _20 = hvRowBeginYHTuple;
-        using var _21 = hvColBeginYHTuple;
-        using var _22 = hvRowEndYHTuple;
-        using var _23 = hvColEndYHTuple;
-        using var _24 = hvKyHTuple;
-        using var _25 = hvPercentMeanHTuple;
+            using var _0 = hvXListHTuple;
+            using var _1 = hvXRatioMaxHTuple;
+            using var _2 = hvXRatioMeanHTuple;
+            using var _3 = hvXRatioMinHTuple;
+            using var _4 = hvYRatioMaxHTuple;
+            using var _5 = hvYRatioMeanHTuple;
+            using var _6 = hvYRatioMinHTuple;
+            using var _7 = hvXValuesHTuple;
+            using var _8 = hvIndXHTuple;
+            using var _9 = hvXMaxHTuple;
+            using var _10 = hvYValuesHTuple;
+            using var _11 = hvIndYHTuple;
+            using var _12 = hvYMaxHTuple;
+            using var _13 = hvPlotXHTuple;
+            using var _14 = hvPlotYHTuple;
+            using var _15 = hvRowBeginXHTuple;
+            using var _16 = hvColBeginXHTuple;
+            using var _17 = hvRowEndXHTuple;
+            using var _18 = hvColEndXHTuple;
+            using var _19 = hvKxHTuple;
+            using var _20 = hvRowBeginYHTuple;
+            using var _21 = hvColBeginYHTuple;
+            using var _22 = hvRowEndYHTuple;
+            using var _23 = hvColEndYHTuple;
+            using var _24 = hvKyHTuple;
+            using var _25 = hvPercentMeanHTuple;
 
-        #endregion
+            #endregion
 
-        var xs = Generate.LinearRangeInt32(0, hvXListHTuple.Length - 1);
-        var xFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotXHTuple.Length - 1).Select(t => new Point(t, hvPlotXHTuple[t].D)).ToArray();
-        var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.Y)]));
-        var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
+            var xs = Generate.LinearRangeInt32(0, hvXListHTuple.Length - 1);
+            var xFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotXHTuple.Length - 1).Select(t => new Point(t, hvPlotXHTuple[t].D)).ToArray();
+            var (xFieldTiltFitSlope, xFieldTiltFitIntercept, xFieldTiltFitRSquared, xFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. xFieldTiltPoints.Select(t => t.Y)]));
+            var xFieldTiltFitPoints = xFieldTiltPoints.Index().Select(t => new Point(t.Item.X, xFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        var yFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotYHTuple.Length - 1).Select(t => new Point(t, hvPlotYHTuple[t].D)).ToArray();
-        var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.Y)]));
-        var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
+            var yFieldTiltPoints = Generate.LinearRangeInt32(0, hvPlotYHTuple.Length - 1).Select(t => new Point(t, hvPlotYHTuple[t].D)).ToArray();
+            var (yFieldTiltFitSlope, yFieldTiltFitIntercept, yFieldTiltFitRSquared, yFieldTiltFitYPredicted) = PolynomialCurve.Fit1(Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.X)]), Vector<double>.Build.Dense([.. yFieldTiltPoints.Select(t => t.Y)]));
+            var yFieldTiltFitPoints = yFieldTiltPoints.Index().Select(t => new Point(t.Item.X, yFieldTiltFitYPredicted[t.Index])).ToArray();
 
-        var bestFocus = new BestFocus
-        {
-            XStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
-            XStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
-            XStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvXRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvXRatioMaxHTuple[t].D)])],
-            BestXStrehlRatioPoint = new Point(hvIndXHTuple.D, hvXMaxHTuple.D),
-            XIntraRibbonFieldsPoints = [.. xStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
-            XFieldTiltPoints = xFieldTiltPoints,
-            XFieldTiltFitSlope = xFieldTiltFitSlope,
-            XFieldTiltFitIntercept = xFieldTiltFitIntercept,
-            XFieldTiltFitRSquared = xFieldTiltFitRSquared,
-            XFieldTiltFitPoints = xFieldTiltFitPoints,
-            YStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYRatioMeanHTuple[t].D))],
-            YStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYValuesHTuple[t].D))],
-            YStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvYRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvYRatioMaxHTuple[t].D)])],
-            BestYStrehlRatioPoint = new Point(hvIndYHTuple.D, hvYMaxHTuple.D),
-            YIntraRibbonFieldsPoints = [.. yStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
-            YFieldTiltPoints = yFieldTiltPoints,
-            YFieldTiltFitSlope = yFieldTiltFitSlope,
-            YFieldTiltFitIntercept = yFieldTiltFitIntercept,
-            YFieldTiltFitRSquared = yFieldTiltFitRSquared,
-            YFieldTiltFitPoints = yFieldTiltFitPoints,
-            SpotAreaPercentMean = hvPercentMeanHTuple.D
-        };
+            var bestFocus = new BestFocus
+            {
+                XStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXRatioMeanHTuple[t].D))],
+                XStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvXValuesHTuple[t].D))],
+                XStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvXRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvXRatioMaxHTuple[t].D)])],
+                BestXStrehlRatioPoint = new Point(hvIndXHTuple.D, hvXMaxHTuple.D),
+                XIntraRibbonFieldsPoints = [.. xStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+                XFieldTiltPoints = xFieldTiltPoints,
+                XFieldTiltFitSlope = xFieldTiltFitSlope,
+                XFieldTiltFitIntercept = xFieldTiltFitIntercept,
+                XFieldTiltFitRSquared = xFieldTiltFitRSquared,
+                XFieldTiltFitPoints = xFieldTiltFitPoints,
+                YStrehlRatioPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYRatioMeanHTuple[t].D))],
+                YStrehlRatioFitPoints = [.. xs.Select(t => new Point(hvXListHTuple[t].D, hvYValuesHTuple[t].D))],
+                YStrehlRatioColumnPoints = [.. xs.Select<int, IReadOnlyList<Point>>(t => [new Point(hvXListHTuple[t].D, hvYRatioMinHTuple[t].D), new Point(hvXListHTuple[t].D, hvYRatioMaxHTuple[t].D)])],
+                BestYStrehlRatioPoint = new Point(hvIndYHTuple.D, hvYMaxHTuple.D),
+                YIntraRibbonFieldsPoints = [.. yStrehlList.Select<double[], IReadOnlyList<Point>>(t => [.. xs.Select(tt => new Point(hvXListHTuple[tt].D, t[tt]))])],
+                YFieldTiltPoints = yFieldTiltPoints,
+                YFieldTiltFitSlope = yFieldTiltFitSlope,
+                YFieldTiltFitIntercept = yFieldTiltFitIntercept,
+                YFieldTiltFitRSquared = yFieldTiltFitRSquared,
+                YFieldTiltFitPoints = yFieldTiltFitPoints,
+                SpotAreaPercentMean = hvPercentMeanHTuple.D
+            };
 
         return bestFocus;
     }
@@ -218,54 +265,77 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return ConvertToBestFocus(result);
     }
 
-    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)
     {
-        using var hImage = image.ToHImage();
-        _algorithm.CalculatePixSize(hImage, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
-        using var _1 = xTuple;
-        using var _2 = yTuple;
-        using var _3 = angleX;
-        angle = angleX.D;
+        try
+        {
+            using var hImage = image.ToHImage();
+            _algorithm.CalculatePixSize(hImage, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
+            using var _1 = xTuple;
+            using var _2 = yTuple;
+            using var _3 = angleX;
+            angle = angleX.D;
 
-        using var drawingHImage = new HImage(drawingImageObj);
-        drawingImage = drawingHImage.ToBitmapImage();
-        return new Size(xTuple.D, yTuple.D);
+            using var drawingHImage = new HImage(drawingImageObj);
+            drawingImage = drawingHImage.ToBitmapImage();
+            return new Size(xTuple.D, yTuple.D);
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetPixelSize));
+            drawingImage = BitmapImage.Random(1, 1, 0);
+            angle = 0;
+            LogAlgorithmError(ex, nameof(GetPixelSize), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
     {
-        using var hImage = image.ToHImage();
-        var data = hImage.RAW16BitsPerPixelToMatrix();
-        var matrix = Matrix<double>.Build.DenseOfArray(data);
-        var projectionYs = matrix.RowSums() / matrix.ColumnCount;
+        try
+        {
+            using var hImage = image.ToHImage();
+            var data = hImage.RAW16BitsPerPixelToMatrix();
+            var matrix = Matrix<double>.Build.DenseOfArray(data);
+            var projectionYs = matrix.RowSums() / matrix.ColumnCount;
 
-        // 使用AMPD算法找出波峰
-        var signal = Vector<double>.Build.DenseOfEnumerable(projectionYs.Select(t => -t));
-        var peaks = AutomaticMPeakDetection.Ampd(signal);
+            // 使用AMPD算法找出波峰
+            var signal = Vector<double>.Build.DenseOfEnumerable(projectionYs.Select(t => -t));
+            var peaks = AutomaticMPeakDetection.Ampd(signal);
 
-        var xDifferences = peaks
-            .Zip(peaks.Skip(1), (prev, next) => (double)next - prev)
-            .ToArray();
-        var (indexes, filterXDifferences) = Filter.MAD(xDifferences);
+            var xDifferences = peaks
+                .Zip(peaks.Skip(1), (prev, next) => (double)next - prev)
+                .ToArray();
+            var (indexes, filterXDifferences) = Filter.MAD(xDifferences);
 
-        // 所有后一个减去前一个，得到差值, 然后取得均值
-        var mean = filterXDifferences.Average();
+            // 所有后一个减去前一个，得到差值, 然后取得均值
+            var mean = filterXDifferences.Average();
 
-        using var drawHImage = hImage.DrawLines(
-            [
-                .. indexes
+            using var drawHImage = hImage.DrawLines(
+                [
+                    .. indexes
                     .SelectMany(t => (int[])[t, t + 1])
                     .Distinct()
                     .OrderBy(t => t)
                     .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
-            ],
-            5);
-        drawingImage = drawHImage.ToBitmapImage();
+                ],
+                5);
+            drawingImage = drawHImage.ToBitmapImage();
 
-        return standardMaskSquareYSize / mean;
+            yProjects = [.. projectionYs.Select((t, i) => new Point(i, t))];
+            resultIndexs = [.. peaks];
+            return standardMaskSquareYSize / mean;
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetYPixelSize));
+            drawingImage = BitmapImage.Random(1, 1, 0);
+            LogAlgorithmError(ex, nameof(GetYPixelSize), guid, errorImagePath);
+            throw;
+        }
     }
 
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, out BitmapImage templateImage)
+    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, Guid guid, out BitmapImage templateImage)
     {
         templateImage = BitmapImage.Random(2448, 2048, 10);
 
@@ -289,8 +359,11 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
         catch (Exception ex)
         {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Generate Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
+            templateImage.Dispose();
+            templateImage = BitmapImage.Random(2448, 2048, 10);
+            var errorImagePath = SaveErrorImage(image, guid, nameof(TryGenerateTemplate));
+            LogAlgorithmError(ex, nameof(TryGenerateTemplate), guid, errorImagePath);
+            throw;
         }
     }
 
@@ -298,38 +371,22 @@ public sealed class CalibrationAlgorithmServiceImpl(
     {
         templateId = HalconFactory.EmptyHTuple;
 
-        try
-        {
-            var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
-            if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
+        var temp = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
+        if (File.Exists(temp) == false) throw new FileNotFoundException(nameof(templateFilePath), temp);
 
-            _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
+        _algorithm.HReadModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateFilePath, out templateId);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Read Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
+        return true;
     }
 
     public bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId)
     {
-        try
-        {
-            _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
+        _algorithm.HClearModel(algorithmTemplateTypeEnum.ToAlgorithmTemplateType(), templateId);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Clean Template Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
-        }
+        return true;
     }
 
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, out Point markPoint, out Point offsetPoint, out double score, out double angle)
+    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, Guid guid, out Point markPoint, out Point offsetPoint, out double score, out double angle)
     {
         markPoint = Point.Origin;
         offsetPoint = Point.Origin;
@@ -356,7 +413,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
             var tryGetMatchPosition = score >= templateMatchScoreThreshold;
             if (tryGetMatchPosition == false)
             {
-                //logger.LogWarning("{@Name} Error: Match Score is Less Than Threshold {@MatchScoreThreshold} > {@Score}", nameof(CalibrationAlgorithmServiceImpl), templateMatchScoreThreshold, score);
                 return false;
             }
 
@@ -367,21 +423,40 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
         catch (Exception ex)
         {
-            logger.LogError(new AlgorithmException(ex), "{@Name}: Try Template Math To Offset Failed", nameof(CalibrationAlgorithmServiceImpl));
-            return false;
+            var errorImagePath = SaveErrorImage(image, guid, nameof(TryTemplateMatchToOffset));
+            LogAlgorithmError(ex, nameof(TryTemplateMatchToOffset), guid, errorImagePath);
+            throw;
         }
     }
 
-    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle)
+    public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle, Guid guid)
     {
-        using var hHazeImage = hazeImage.ToHImage();
-        using var hShinyWaferImage = shinyWaferImage.ToHImage();
-        _algorithm.CalculateTwoRegionCenter(hHazeImage, hShinyWaferImage, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
+        try
+        {
+            using var hHazeImage = hazeImage.ToHImage();
+            using var hShinyWaferImage = shinyWaferImage.ToHImage();
+            _algorithm.CalculateTwoRegionCenter(hHazeImage, hShinyWaferImage, out var resultImage, rotateAngle, out var diameter, out var angle, out var dRow, out var dCol, out var row, out var col);
 
-        using var drawingHImage = new HImage(resultImage);
-        var drawingImage = drawingHImage.ToBitmapImage();
+            using var drawingHImage = new HImage(resultImage);
+            var drawingImage = drawingHImage.ToBitmapImage();
 
-        return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
+            return (drawingImage, diameter.D, angle.D, new Point(dCol.D, dRow.D), new Point(col.D, row.D));
+        }
+        catch (Exception ex)
+        {
+            var hazeErrorImagePath = SaveErrorImage(hazeImage, guid, $"{nameof(GetOpticsObjectiveYAngleResult)}_Haze");
+            var shinyErrorImagePath = SaveErrorImage(shinyWaferImage, guid, $"{nameof(GetOpticsObjectiveYAngleResult)}_Shiny");
+            logger.LogHtmlError(ex, $"{nameof(GetOpticsObjectiveYAngleResult)} Error", HtmlHeaderLevelEnum.Header3,
+                new HtmlBullet(new
+                {
+                    HazeErrorImage = new HtmlImage(hazeErrorImagePath),
+                    HazeImagePath = hazeErrorImagePath,
+                    ShinyErrorImage = new HtmlImage(shinyErrorImagePath),
+                    ShinyImagePath = shinyErrorImagePath,
+                    ErrorMessage = ex.Message
+                }), guid.LoggingHtml());
+            throw;
+        }
     }
 
     public Point GetChuckCenter(
@@ -409,7 +484,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
     public bool CalculateChuckStageMapError(
         StageMapDto stageMapDto,
         bool isXOnlyGantryError,
-        Guid htmlLogUniqueId,
+        Guid guid,
         int calculateContainRowMinCount,
         int calculateContainColumnMinCount,
         double alignmentThreshold,
@@ -435,7 +510,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
             isInWaferMatrix,
             templateMathIsOkMatrix,
             isXOnlyGantryError,
-            htmlLogUniqueId,
+            guid,
             calculateContainRowMinCount: calculateContainRowMinCount,
             calculateContainColumnMinCount: calculateContainColumnMinCount,
             diameter: diameter,
@@ -460,12 +535,21 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public double[] GetImageGrayYProjectionsPixels(BitmapImage image)
+    public double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid)
     {
-        using var hImage = image.ToHImage();
-        _algorithm.LightSpot(hImage, out var yValue);
+        try
+        {
+            using var hImage = image.ToHImage();
+            _algorithm.LightSpot(hImage, out var yValue);
 
-        return yValue.ToDArr();
+            return yValue.ToDArr();
+        }
+        catch (Exception ex)
+        {
+            var errorImagePath = SaveErrorImage(image, guid, nameof(GetImageGrayYProjectionsPixels));
+            LogAlgorithmError(ex, nameof(GetImageGrayYProjectionsPixels), guid, errorImagePath);
+            throw;
+        }
     }
 
     public (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points)
@@ -559,4 +643,34 @@ public sealed class CalibrationAlgorithmServiceImpl(
     }
 
     #endregion
+
+    private string SaveErrorImage(BitmapImage image, Guid guid, string methodName)
+    {
+        var errorImagePath = Path.Combine(ErrorImageDirectory, $"{methodName}_{guid}.jpg");
+        DirectoryHelper.CreateFileDirectoryIfNotExists(errorImagePath);
+        image.SaveImage(errorImagePath);
+        return errorImagePath;
+    }
+
+    private void LogAlgorithmError(Exception ex, string methodName, Guid guid, string? errorImagePath = null)
+    {
+        if (string.IsNullOrEmpty(errorImagePath))
+        {
+            logger.LogHtmlError(ex, $"{methodName} Error", HtmlHeaderLevelEnum.Header6,
+                new HtmlBullet(new
+                {
+                    ErrorMessage = ex.Message
+                }), guid.LoggingHtml());
+        }
+        else
+        {
+            logger.LogHtmlError(ex, $"{methodName} Error", HtmlHeaderLevelEnum.Header6,
+                new HtmlBullet(new
+                {
+                    ErrorImage = new HtmlImage(errorImagePath),
+                    ImagePath = errorImagePath,
+                    ErrorMessage = ex.Message
+                }), guid.LoggingHtml());
+        }
+    }
 }

@@ -48,6 +48,13 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public IReadOnlyList<SysUserDTO> GetRegisteredUsersInformation()
+    {
+        var ret = calibrationConfigService.GetRegisteredUsersInformation();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     public IReadOnlyList<PrescanAODWaveformProfile> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         var ret = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);

@@ -1,5 +1,4 @@
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
@@ -157,6 +156,13 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         return SxExecuteRetHelper.CreateSuccess(XYDirection);
     }
 
+    public SxExecuteRet<AlgorithmWaferTypeEnum> GetAlgorithmWaferType()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(AlgorithmWaferTypeEnum.D300);
+    }
+
     public SxExecuteRet<bool> InitYAxis()
     {
         return SxExecuteRetHelper.CreateSuccess(true);
@@ -215,8 +221,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
+
     )
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
@@ -236,7 +242,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         );
     }
 
-    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site, AlgorithmWaferTypeEnum algorithmWaferTypeEnum)
+    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site)
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
@@ -262,7 +268,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2
     )
     {
@@ -279,7 +284,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2)
     {
         Thread.Sleep(100);
@@ -289,10 +293,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
@@ -313,11 +315,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
-    )
+        AlignmentSiteDto site)
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
         Thread.Sleep(100);
@@ -341,10 +340,8 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation)
     {
         Thread.Sleep(100);

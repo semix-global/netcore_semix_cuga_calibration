@@ -64,5 +64,11 @@ public sealed class EFEMViewModel(ICalibrationEFEMService calibrationEfemService
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public bool IsChuckLoadedWafer()
+    {
+        var ret = calibrationEfemService.IsChuckLoadedWafer();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
     # endregion 服务
 }

@@ -80,7 +80,7 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
     #region NSC
 
     [ObservableProperty]
-    public partial double HalfEcsLength { get; set; } = 250;
+    public partial double EcsRange { get; set; } = 250;
 
     [ObservableProperty]
     public partial double SpeedEcsPerSecond { get; set; } = 500;
@@ -104,13 +104,13 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
     public partial int RetryCount { get; set; } = 10;
 
     [ObservableProperty]
-    public partial double StartAFMotorAbsoluteValue { get; set; }
+    public partial double AFMotorRange { get; set; }
 
     [ObservableProperty]
     public partial double StepAFMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial double StopAFMotorAbsoluteValue { get; set; }
+    public partial double RSquaredThreshold { get; set; }
 
     #endregion NSC
 
@@ -131,7 +131,7 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
         FindCurrentStop = FindCurrentStop,
         LowCoefficient = LowCoefficient,
         HighCoefficient = HighCoefficient,
-        HalfEcsLength = HalfEcsLength,
+        EcsRange = EcsRange,
         SpeedEcsPerSecond = SpeedEcsPerSecond,
         NscStandardNscPerNm = NscStandardNscPerNm,
         ThresholdNscStandardSymmetryRatio = ThresholdNscStandardSymmetryRatio,
@@ -139,9 +139,9 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
         CalibrationThresholdNscSymmetryRatio = CalibrationThresholdNscSymmetryRatio,
         CalibrationThresholdNscNscPerNmRange = CalibrationThresholdNscNscPerNmRange,
         RetryCount = RetryCount,
-        StartAFMotorAbsoluteValue = StartAFMotorAbsoluteValue,
+        AFMotorRange = AFMotorRange,
         StepAFMotorAbsoluteValue = StepAFMotorAbsoluteValue,
-        StopAFMotorAbsoluteValue = StopAFMotorAbsoluteValue,
+        RSquaredThreshold = RSquaredThreshold,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

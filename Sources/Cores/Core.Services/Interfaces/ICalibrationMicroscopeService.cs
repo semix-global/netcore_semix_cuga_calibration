@@ -56,4 +56,13 @@ public interface ICalibrationMicroscopeService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<(double min, double max)> GetVoltageRange();
+
+    /// <summary>
+    /// 下发AF参数
+    /// </summary>
+    /// <param name="microscopeLensInformation">倍率</param>
+    /// <param name="ecs">ecs</param>
+    /// <param name="voltage">电压</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetAFParams(MicroscopeLensInformation microscopeLensInformation, double ecs, double voltage);
 }

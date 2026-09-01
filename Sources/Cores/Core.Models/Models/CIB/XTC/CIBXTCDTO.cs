@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.AOD.Uniformity;
@@ -9,9 +9,10 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -40,7 +41,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource ForwardAndReverseScatterPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     public partial IReadOnlyList<CIBXTCDTOItem> Items { get; set; } = [];
@@ -51,7 +52,11 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
+    public partial IPlotDataSource ForwardAndReversePlotDataSource { get; set; } = new PlotDataSource();
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial ConcurrentDictionary<int, IPlotDataSource> PlotDataSources { get; set; } = [];
 
     #region Partial Method
 
@@ -120,15 +125,15 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
     public CIBXTCDTO()
     {
-        ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
+        ForwardAndReversePlotDataSource.Configure(new Columns(), 2);
 
-        ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        ForwardAndReversePlotDataSource.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        ForwardAndReversePlotDataSource.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
 
     public CIBXTCDTO(IReadOnlyList<int> cibInformationPMTIds) : this()
     {
-        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationPMTIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
+        PlotDataSources = new ConcurrentDictionary<int, IPlotDataSource>(cibInformationPMTIds.Select(t => new KeyValuePair<int, IPlotDataSource>(t, GetPlotDataSource())));
     }
 
     private void RefreshForwardAndReversePlot()
@@ -140,7 +145,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         }
         finally
         {
-            ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
+            ForwardAndReversePlotDataSource.AutoScaleRefresh();
         }
 
         return;
@@ -148,14 +153,14 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
         {
             if (windowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReversePlotDataSource.GetOrAddScatterLine(
                     0,
                     title,
                     [.. windowItem.Window.ToPoints()],
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReversePlotDataSource.GetOrAddScatterLine(
                     1,
                     title,
                     [.. windowItem.ImageHorizontalProjects.ToPoints()],
@@ -163,13 +168,13 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
             {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReversePlotDataSource.GetOrAddScatterLine(
                     1,
                     $"{title} Smooth",
                     [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
                     secondaryColor);
 
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                ForwardAndReversePlotDataSource.GetOrAddXLine(
                     1,
                     $"{title} Smooth Min Pixel",
                     windowItem.HorizontalProjectMinPixel,
@@ -192,7 +197,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
         foreach (var (pmtId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(pmtId, _ => GetScatterPlotControl());
+            var scatterPlotControl = PlotDataSources.GetOrAdd(pmtId, _ => GetPlotDataSource());
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
@@ -258,19 +263,19 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
         }
     }
 
-    private static IScatterPlotControl GetScatterPlotControl()
+    private static IPlotDataSource GetPlotDataSource()
     {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        var plotDataSource = new PlotDataSource();
 
-        scatterPlotControl.Configure(new Rows(), 3);
+        plotDataSource.Configure(new Rows(), 3);
 
-        scatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
-        scatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        scatterPlotControl.SetTitle(2, "Result(Y: Delay - X: Channel Id)");
-        scatterPlotControl.ToggleInvisibleLegendItem(0, false);
-        scatterPlotControl.ToggleInvisibleLegendItem(1, false);
+        plotDataSource.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        plotDataSource.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        plotDataSource.SetTitle(2, "Result(Y: Delay - X: Channel Id)");
+        plotDataSource.ToggleInvisibleLegendItem(0, false);
+        plotDataSource.ToggleInvisibleLegendItem(1, false);
 
-        return scatterPlotControl;
+        return plotDataSource;
     }
 
     #region Mapper
@@ -356,6 +361,8 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
 
         [ObservableProperty]
         public partial bool IsOk { get; set; }
+
+        protected override AODUniformityDTO.WindowItem CreateInstance() => new Item();
 
         public new Item Clone()
         {

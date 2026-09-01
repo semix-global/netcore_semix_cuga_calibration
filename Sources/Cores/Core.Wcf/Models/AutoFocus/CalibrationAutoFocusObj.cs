@@ -105,40 +105,9 @@ public sealed class CalibrationAutoFocusGlobalFocusOffset : CalibrationBase
 public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
 {
     /// <summary>
-    /// 入射方式
-    /// </summary>
-    public CgNIOIType CgNIOITypeEnum { get; set; }
-
-    public string CgNIOIType => CgNIOITypeEnum.ToString();
-
-    /// <summary>
-    /// Mag类型
-    /// </summary>
-    public CgMagTypeEnum CgMagTypeEnum { get; set; }
-
-    public string CgMagType => CgMagTypeEnum.ToString();
-
-    /// <summary>
-    /// 速度
-    /// </summary>
-    public CgSpeedLevelType Speed { get; set; }
-
-    public string SpeedString => Speed.ToString();
-
-    /// <summary>
-    /// 伺服电机 True:AF, False:Relay, **Cuga内部使用**
-    /// </summary>
-    public bool IsAFServo { get; set; }
-
-    /// <summary>
     /// Chuck暗场最佳Ecs
     /// </summary>
     public double ChuckEcsValue { get; set; }
-
-    /// <summary>
-    /// Chuck暗场电机值
-    /// </summary>
-    public double ChuckMotorValue { get; set; }
 
     /// <summary>
     /// Dsw暗场最佳Ecs
@@ -146,19 +115,9 @@ public sealed class CalibrationAutoFocusCalChipFocusOffset : CalibrationBase
     public double DswEcsValue { get; set; }
 
     /// <summary>
-    /// Dsw暗场电机值
-    /// </summary>
-    public double DswMotorValue { get; set; }
-
-    /// <summary>
     /// Haze暗场最佳Ecs
     /// </summary>
     public double HazeEcsValue { get; set; }
-
-    /// <summary>
-    /// Haze暗场电机值
-    /// </summary>
-    public double HazeMotorValue { get; set; }
 
     /// <summary>
     /// Undefined暗场最佳Ecs

@@ -33,9 +33,6 @@
                 <hc:Shield Subject="Microscope: "
                            Status="{Binding Cache.Item.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Alignment Degrees(°): "
-                           Status="{Binding Cache.Item.AlignmentResult.Degrees, StringFormat='0.##########'}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

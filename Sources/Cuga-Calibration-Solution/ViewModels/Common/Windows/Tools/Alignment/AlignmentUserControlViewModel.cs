@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
+using Net.Utilities.WPF.MVVM.Events;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -92,24 +93,24 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                     AlignmentCacheDarkFields = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
 
                     AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                            t.OpticsIlluminationModeEnum == ProductivityInformation.OpticsIlluminationModeEnum
-                            && t.ProductivityInformation == ProductivityInformation
+                       t.ProductivityInformation == ProductivityInformation
                         , new AlignmentCacheDarkField
                         {
-                            ProductivityInformation = ProductivityInformation,
-                            OpticsIlluminationModeEnum = ProductivityInformation.OpticsIlluminationModeEnum
+                            ProductivityInformation = ProductivityInformation
                         });
 
                     if (AlignmentCacheDarkField.IsOk == false)
                     {
+                        // 校准期间 UpdateDisableAll 已将其 IsEnable 置 false, 此处必须恢复, 否则窗口内容灰化无法操作
+                        _messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
+
                         _alignmentWindowDarkFieldViewModel.Cache = AlignmentCacheDarkField;
 
                         Guard.IsTrue(_windowManagerService.ShowDialog(_alignmentWindowDarkFieldViewModel) == true, nameof(_alignmentWindowDarkFieldViewModel));
 
                         AlignmentCacheDarkFields = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
                         AlignmentCacheDarkField = AlignmentCacheDarkFields.Single(t =>
-                            t.ProductivityInformation == ProductivityInformation
-                            && t.OpticsIlluminationModeEnum == ProductivityInformation.OpticsIlluminationModeEnum);
+                            t.ProductivityInformation == ProductivityInformation);
                     }
 
                     alignmentResult = _stageViewModel.AlignmentDarkField(
@@ -118,9 +119,7 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
                         ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag,
-                        AlignmentCacheDarkField.AlgorithmWaferTypeEnum,
-                        opticsIlluminationModeEnum: ProductivityInformation.OpticsIlluminationModeEnum);
+                        AlignmentCacheDarkField.LowMag);
                 }
                 else
                 {
@@ -134,6 +133,9 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
 
                     if (AlignmentCacheBrightField.IsOk == false)
                     {
+                        // 校准期间 UpdateDisableAll 已将其 IsEnable 置 false, 此处必须恢复, 否则窗口内容灰化无法操作
+                        _messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
+
                         _alignmentWindowBrightFieldViewModel.Cache = AlignmentCacheBrightField;
                         Guard.IsTrue(_windowManagerService.ShowDialog(_alignmentWindowBrightFieldViewModel) == true,
                             nameof(_alignmentWindowBrightFieldViewModel));
@@ -149,7 +151,6 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                         AlignmentCacheBrightField.HighSite2,
                         AlignmentCacheBrightField.LowMag,
                         AlignmentCacheBrightField.HighMag,
-                        AlignmentCacheBrightField.AlgorithmWaferTypeEnum,
                         CalChipSiteModelEnum);
                 }
 

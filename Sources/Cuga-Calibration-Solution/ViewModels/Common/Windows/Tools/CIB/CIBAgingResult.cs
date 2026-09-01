@@ -5,9 +5,10 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using System.ComponentModel;
 using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
@@ -48,7 +49,7 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
     public partial bool IsOk { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     partial void OnSelectItemsChanged(IReadOnlyList<CIBMMDDTOItem>? oldValue, IReadOnlyList<CIBMMDDTOItem> newValue)
     {
@@ -93,7 +94,7 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
 
     public CIBAgingItem()
     {
-        ScatterPlotControl.SetTitle("Origin(Y: PMT Value(DC) - X: V)");
+        PlotDataSource.SetTitle("Origin(Y: PMT Value(DC) - X: V)");
     }
 
     private void RefreshPlot()
@@ -110,8 +111,8 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
                                    }
                 ).ToArray();
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(tempSelectItems.Length * 2);
-            var xLines = ScatterPlotControl.GetOrAddXLines(SampleItems.Count > 0
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(tempSelectItems.Length * 2);
+            var xLines = PlotDataSource.GetOrAddXLines(SampleItems.Count > 0
                 ? SampleItems.Select(t => t.Items.Count).Aggregate((t1, t2) => t1 + t2)
                 : 0);
 
@@ -152,7 +153,7 @@ public sealed partial class CIBAgingItem : ObservableObject, ICloneable<CIBAging
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

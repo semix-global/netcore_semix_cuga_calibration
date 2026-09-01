@@ -57,6 +57,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.WaferBuilder.Circle.Radius;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.WaferBuilder.Circle = new Circle(WaferDTO.WaferMapDataDTO.WaferCircleCenter, value);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -68,6 +69,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -79,6 +81,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Height;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DiePitchSize.Width, value);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -90,6 +93,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -101,6 +105,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Height;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.DieBuilder.DieScribeSize.Width, value);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -112,6 +117,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -123,6 +129,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Height;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DiePitchSize.Width, value);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -134,6 +141,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(value, WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -145,6 +153,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Height;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize = new Size(WaferMapCanvasViewModel.Document.ReticleBuilder.DieScribeSize.Width, value);
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -156,6 +165,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.XCount;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { XCount = value };
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -167,6 +177,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         get => WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount.YCount;
         set
         {
+            Lock();
             WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount = WaferMapCanvasViewModel.Document.ReticleBuilder.ReticleDieCount with { YCount = value };
             RefreshWaferMapDataSource();
             OnPropertyChanged();
@@ -234,6 +245,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
 
         WaferMapCanvasViewModel.Document = WaferMapCanvasDocument;
 
+        // Die 选择后台任务: 循环等待用户在 WaferMap 上点选 Die, 供 Goto Position 使用
         _ = Task.Run(async () =>
         {
             try
@@ -243,19 +255,19 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
                 WaferMapDieSelectionInputOptions.CancellationToken = token;
                 WaferMapDieSelectionInputOptions.Initialize();
 
-                while (!token.IsCancellationRequested)
+                while (token.IsCancellationRequested == false)
                 {
-                    var inputResult = await WaferMapDieSelectionGetter
-                        .RunAsync<WaferMapDieSelectionGetter>(WaferMapCanvasViewModel.Document.Editor, WaferMapDieSelectionInputOptions);
+                    var outputResult = await WaferMapDieSelectionGetter
+                        .RunAsync<WaferMapDieSelectionGetter>(WaferMapCanvasViewModel.Document.Edit, WaferMapDieSelectionInputOptions);
 
-                    if (inputResult.Output.Count > 1) continue;
-                    if (inputResult.InputResultModeEnum == InputResultModeEnum.Ok)
+                    if (outputResult.Output.Count > 1) continue;
+                    if (outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok)
                     {
-                        foreach (var die in inputResult.Output)
+                        foreach (var die in outputResult.Output)
                             die.IsSelected = true;
                     }
 
-                    SelectionDies = inputResult.Output;
+                    SelectionDies = outputResult.Output;
                 }
             }
             catch (OperationCanceledException)
@@ -274,7 +286,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
     [RelayCommand]
     private async Task RefreshWaferMapAsync()
     {
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
             try
             {
@@ -296,12 +308,13 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
                         $"The generation wafermap must to be done under a {configHighLens.LensName}. Please re-obtain the origin die coordinates",
                         DialogButtonsEnum.OK,
                         DialogIconEnum.Warning);
-                    _microscopeViewModel.SwitchMicroscopeLensInformation(configHighLens);
+                    await _microscopeViewModel.SwitchMicroscopeLensInformationAsync(configHighLens, cancellationToken: CancellationToken.None).ConfigureAwait(false);
                     return;
                 }
 
                 var originDieWaferPosition = _stageViewModel.GetBrightFieldStagePosition();
 
+                Lock();
                 WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = originDieWaferPosition;
                 WaferMapCanvasDocument.ReticleBuilder.OriginalDiePoint = originDieWaferPosition;
                 _contextProvider.Send(() =>
@@ -327,9 +340,9 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         {
             try
             {
-                if (WaferMapCanvasViewModel.Document.ActiveView is null || SelectionDies is null)
+                if (SelectionDies is null)
                 {
-                    _logger.LogWarning("WaferMapCanvasViewModel or SelectionDies is null");
+                    _logger.LogWarning("SelectionDies is null");
                     return;
                 }
 
@@ -423,6 +436,8 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
     /// </summary>
     private void RefreshWaferMapCanvasDocument()
     {
+        using var scope = WaferMapCanvasDocument.View.Sync.EnterScope();
+
         WaferMapCanvasDocument.WaferBuilder.Circle = new Circle(WaferDTO.WaferMapDataDTO.WaferCircleCenter, WaferDTO.WaferMapDataDTO.WaferDiameter / 2d);
         WaferMapCanvasDocument.DieBuilder.OriginalDiePoint = WaferDTO.WaferMapDataDTO.WaferOriginalDiePoint;
         WaferMapCanvasDocument.DieBuilder.DiePitchSize = new Size(WaferDTO.WaferMapDataDTO.CellDieWidth, WaferDTO.WaferMapDataDTO.CellDieHeight);
@@ -467,6 +482,11 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
         OnPropertyChanged(nameof(WaferReticleDieScribeSizeHeight));
         OnPropertyChanged(nameof(WaferReticleDieCountX));
         OnPropertyChanged(nameof(WaferReticleDieCountY));
+    }
+
+    private void Lock()
+    {
+        using var scope = WaferMapCanvasDocument.View.Sync.EnterScope();
     }
 
     #endregion

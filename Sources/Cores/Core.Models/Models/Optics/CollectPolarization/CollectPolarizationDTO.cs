@@ -6,10 +6,11 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
 
@@ -51,7 +52,7 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 
 #pragma warning restore CS0657
@@ -79,20 +80,20 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
 
     public CollectPolarizationDTO()
     {
-        ScatterPlotControl.Configure();
+        PlotDataSource.Configure();
 
-        ScatterPlotControl.SetTitle(0, "Relation (Y: Gray Value - X: NDF Rotary Pos(°))");
+        PlotDataSource.SetTitle(0, "Relation (Y: Gray Value - X: NDF Rotary Pos(°))");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear(0);
+            PlotDataSource.Clear(0);
 
             if (Items.Count == 0) return;
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(0, 2);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(0, 2);
 
             Point[] points = [.. Items.Select(t => new Point(t.NDFRotaryMotorPosition, t.GrayValue)).OrderBy(t => t.X)];
             scatterLines[0].Update(
@@ -101,7 +102,7 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
                 Constants.Turbo.GetColor(0));
 
             if (NDFRotaryMotorPosition == 0 || GrayValue == 0) return;
-            var scatterMarkers = ScatterPlotControl.GetOrAddScatterMarkers(
+            var scatterMarkers = PlotDataSource.GetOrAddScatterMarkers(
                 0,
                 "Result Point",
                 [new Point(NDFRotaryMotorPosition, GrayValue)],
@@ -117,7 +118,7 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -156,7 +157,7 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
         IsCalibrated,
         NDFRotaryMotorPosition,
         GrayValue,
-        Analysis = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+        Analysis = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
         Images = new HtmlExpand("Images", new HtmlContainer([
             ..Items.Select(t =>
                 new HtmlBullet(new

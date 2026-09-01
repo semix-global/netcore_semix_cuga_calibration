@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models;
 using Core.Models.Models.AutoFocus.DarkAutoFocus;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
@@ -15,6 +14,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
@@ -80,15 +80,10 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<DarkAutoFocusCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<DarkAutoFocusDTO>(cancellationToken);
-
-        if (Cache.MicroscopeLensInformation == MicroscopeLensInformation.Default)
-            Cache.MicroscopeLensInformation =
-                CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -97,9 +92,8 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
         Cache.FindPosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(
             StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
@@ -109,47 +103,15 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         Review = Calibration.Clone();
 
         if (Review.IsCalibrated == false) return false;
 
-        MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetCalChipShinyWaferBrightFieldAbsoluteStageXy(
             StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
 
         return true;
-    }
-
-    protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
-
-        switch (CalibrationStepIndex)
-        {
-            case 1:
-            case 2:
-            case 3:
-                return true;
-
-            case 4:
-                Guard.IsNotNull(CalibratingItem);
-
-                CalibratingItem.IsCalibrated = true;
-                if (Save(CalibratingItem, cancellationToken) == false)
-                {
-                    CalibratingItem.IsCalibrated = false;
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3,
-                        new HtmlComment($"{Name} Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
-
-                return true;
-
-            default:
-                return true;
-        }
     }
 
     #endregion 控制校准业务
@@ -177,9 +139,9 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
     private async Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var lightAHtmlContainer =
-            new ConcurrentBag<(string Title, HtmlHeaderLevelEnum HeaderLevel, HtmlContainer Container)>();
+            new ConcurrentBag<(string Title, HtmlHeaderLevelEnum HeaderLevel, HtmlContainer Container, bool isOK)>();
         var lightBHtmlContainer =
-            new ConcurrentBag<(string Title, HtmlHeaderLevelEnum HeaderLevel, HtmlContainer Container)>();
+            new ConcurrentBag<(string Title, HtmlHeaderLevelEnum HeaderLevel, HtmlContainer Container, bool isOK)>();
 
         await InvokeCalibrateAsync(async () =>
         {
@@ -226,7 +188,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -248,26 +210,25 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     CalibratingItem.LowCoefficient = Cache.LowCoefficient;
                     CalibratingItem.HighCoefficient = Cache.HighCoefficient;
                 }
+                OnPropertyChanged(nameof(CalibratingItem));
 
                 Logger.LogHtmlInformation("A Brightness", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                foreach (var (title, headerLevel, container) in lightAHtmlContainer)
+                foreach (var (title, headerLevel, container, isOk) in lightAHtmlContainer)
                 {
-                    Logger.LogHtmlInformation(title, headerLevel,
-                        container, HtmlLogUniqueId.LoggingHtml());
+                    if (isOk == false) Logger.LogHtmlHeaderIsError(headerLevel, container, HtmlLogUniqueId.LoggingHtml());
+                    else Logger.LogHtmlInformation(title, headerLevel, container, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 Logger.LogHtmlInformation("B Brightness", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                foreach (var (title, headerLevel, container) in lightBHtmlContainer)
+                foreach (var (title, headerLevel, container, isOk) in lightBHtmlContainer)
                 {
-                    Logger.LogHtmlInformation(title, headerLevel,
-                        container, HtmlLogUniqueId.LoggingHtml());
+                    if (isOk == false) Logger.LogHtmlHeaderIsError(headerLevel, container, HtmlLogUniqueId.LoggingHtml());
+                    else Logger.LogHtmlInformation(title, headerLevel, container, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3,
                     new HtmlBullet(new
                     {
-                        CurrentAResult = new HtmlQuote(CalibratingItem.CurrentADTO.ToFlatnessHtmlAnonymous()),
-                        CurrentBResult = new HtmlQuote(CalibratingItem.CurrentBDTO.ToFlatnessHtmlAnonymous()),
                         CalibratingItem.LowCoefficient,
                         CalibratingItem.HighCoefficient,
                         LowCurrentA = CalibratingItem.LowCoefficient * CalibratingItem.CurrentA,
@@ -335,9 +296,12 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             if (slopeF <= 0 || slopeN <= 0)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3,
-                    new HtmlComment($"{(isA ? "A" : "B")} Current: F/N linear fit is not monotonically increasing!"),
-                    HtmlLogUniqueId.LoggingHtml());
+                var errorLogComment = new HtmlComment($"{(isA ? "A" : "B")} Current: F/N linear fit is not monotonically increasing!");
+                if (isA)
+                    lightAHtmlContainer.Add(("Error", HtmlHeaderLevelEnum.Header4, new HtmlContainer([errorLogComment]), false));
+                else
+                    lightBHtmlContainer.Add(("Error", HtmlHeaderLevelEnum.Header4, new HtmlContainer([errorLogComment]), false));
+
                 if (HostEnvironment.IsDevelopment() == false) return false;
             }
 
@@ -348,13 +312,22 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             double CurrentFromF(double f) => (f - interceptF) / slopeF;
             double CurrentFromN(double n) => (n - interceptN) / slopeN;
 
+            double FFromCurrent(double current) => slopeF * current + interceptF;
+            double NFromCurrent(double current) => slopeN * current + interceptN;
+
             // Current range satisfying F ∈ [FMin, FMax]
             var fCurrentMin = CurrentFromF(Cache.CalibratingThresholdFMin);
             var fCurrentMax = CurrentFromF(Cache.CalibratingThresholdFMax);
 
+            var fMin = FFromCurrent(fCurrentMin);
+            var fMax = FFromCurrent(fCurrentMax);
+
             // Current range satisfying N ∈ [NMin, NMax]
             var nCurrentMin = CurrentFromN(Cache.CalibratingThresholdNMin);
             var nCurrentMax = CurrentFromN(Cache.CalibratingThresholdNMax);
+
+            var nMin = NFromCurrent(nCurrentMin);
+            var nMax = NFromCurrent(nCurrentMax);
 
             currentDTO.FDomain = new Point(fCurrentMin, fCurrentMax);
             currentDTO.NDomain = new Point(nCurrentMin, nCurrentMax);
@@ -363,19 +336,36 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             var intersectMin = Math.Max(Cache.ThresholdCurrentMin, Math.Max(fCurrentMin, nCurrentMin));
             var intersectMax = Math.Min(Cache.ThresholdCurrentMax, Math.Min(fCurrentMax, nCurrentMax));
 
+            var fIntersectionRangeMin = FFromCurrent(intersectMin);
+            var fIntersectionRangeMax = FFromCurrent(intersectMax);
+
+            var nIntersectionRangeMin = NFromCurrent(intersectMin);
+            var nIntersectionRangeMax = NFromCurrent(intersectMax);
+
+            var middleCurrent = (intersectMin + intersectMax) / 2d;
+            currentDTO.ResultDTO = new DarkAutoFocusCurrentDTOItem
+            {
+                Current = middleCurrent,
+                F = slopeF * middleCurrent + interceptF,
+                N = slopeN * middleCurrent + interceptN
+            };
+
             var rangeHtmlBullet = new HtmlBullet(new
             {
-                Domain = $"[{Cache.ThresholdCurrentMin}, {Cache.ThresholdCurrentMax}]",
-                FCurrentRange = $"[{fCurrentMin:0.###}, {fCurrentMax:0.###}]",
-                NCurrentRange = $"[{nCurrentMin:0.###}, {nCurrentMax:0.###}]",
-                IntersectRange = $"[{intersectMin:0.###}, {intersectMax:0.###}]"
+                CurrentDomain = $"[{Cache.ThresholdCurrentMin}, {Cache.ThresholdCurrentMax}]",
+                FDomain = $"[{fCurrentMin:0.###}, {fCurrentMax:0.###}]",
+                FRange = $"[{fMin:0.###}, {fMax:0.###}]",
+                NDomain = $"[{nCurrentMin:0.###}, {nCurrentMax:0.###}]",
+                NRange = $"[{nMin:0.###}, {nMax:0.###}]",
+                IntersectDomain = $"[{intersectMin:0.###}, {intersectMax:0.###}]",
+                IntersectFRange = $"[{fIntersectionRangeMin:0.###}, {fIntersectionRangeMax:0.###}]",
+                IntersectNRange = $"[{nIntersectionRangeMin:0.###}, {nIntersectionRangeMax:0.###}]",
+                Plots = new HtmlQuote(currentDTO.ToFlatnessHtmlAnonymous())
             });
             if (isA)
-                lightAHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4,
-                    new HtmlContainer([rangeHtmlBullet])));
+                lightAHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4, new HtmlContainer([rangeHtmlBullet]), true));
             else
-                lightBHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4,
-                    new HtmlContainer([rangeHtmlBullet])));
+                lightBHtmlContainer.Add(("Intersection", HtmlHeaderLevelEnum.Header4, new HtmlContainer([rangeHtmlBullet]), true));
 
             if (intersectMin > intersectMax)
             {
@@ -386,55 +376,32 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             #endregion
 
-            #region Verify
+            #region result
 
-            var middleCurrent = (intersectMin + intersectMax) / 2d;
-            AfViewModel.SetSensorCurrentValue(isA, middleCurrent);
+            AfViewModel.SetSensorCurrentValue(isA, currentDTO.ResultDTO.Current);
             await Task.Delay(1000, cancellationToken);
 
             var (verifyF, verifyN) = AfViewModel.GetSensorFnValue(isA);
-
-            var verifyHtmlBullet = new HtmlBullet(new
-            {
-                verifyCurrent = middleCurrent,
-                verifyF,
-                verifyN
-            });
-
-            if (isA)
-                lightAHtmlContainer.Add(("Verify", HtmlHeaderLevelEnum.Header4, new HtmlContainer([verifyHtmlBullet])));
-            else
-                lightBHtmlContainer.Add(("Verify", HtmlHeaderLevelEnum.Header4, new HtmlContainer([verifyHtmlBullet])));
-
-            if (verifyF > Cache.CalibratingThresholdFMax || verifyF < Cache.CalibratingThresholdFMin ||
-                verifyN > Cache.CalibratingThresholdNMax || verifyN < Cache.CalibratingThresholdNMin)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4,
-                    new HtmlBullet(new { Message = $"{(isA ? "A" : "B")} Current: Verify Failed." }),
-                    HtmlLogUniqueId.LoggingHtml());
-                if (HostEnvironment.IsDevelopment() == false) return false;
-            }
-
-            currentDTO.ResultDTO = new DarkAutoFocusCurrentDTOItem
-            {
-                Current = middleCurrent,
-                F = slopeF * middleCurrent + interceptF,
-                N = slopeN * middleCurrent + interceptN
-            };
+            var verifyResult = verifyF <= Cache.CalibratingThresholdFMax && verifyF >= Cache.CalibratingThresholdFMin &&
+                               verifyN <= Cache.CalibratingThresholdNMax && verifyN >= Cache.CalibratingThresholdNMin;
 
             var resultHtmlBullet = new HtmlBullet(new
             {
-                CurrentResult = middleCurrent,
-                currentDTO.ResultDTO.F,
-                currentDTO.ResultDTO.N
+                Messege = $"Light {(isA ? "A" : "B")} {(verifyResult ? "Success" : "Failed:Real F/N out of the threshold")}",
+                CalibrationCurrent = middleCurrent,
+                IdealF = currentDTO.ResultDTO.F,
+                IdealN = currentDTO.ResultDTO.N,
+                RealF = verifyF,
+                RealN = verifyN,
             });
-
             if (isA)
-                lightAHtmlContainer.Add(("Result", HtmlHeaderLevelEnum.Header4, new HtmlContainer([resultHtmlBullet])));
+                lightAHtmlContainer.Add(("Result", HtmlHeaderLevelEnum.Header4, new HtmlContainer([resultHtmlBullet]), verifyResult));
             else
-                lightBHtmlContainer.Add(("Result", HtmlHeaderLevelEnum.Header4, new HtmlContainer([resultHtmlBullet])));
+                lightBHtmlContainer.Add(("Result", HtmlHeaderLevelEnum.Header4, new HtmlContainer([resultHtmlBullet]), verifyResult));
 
             #endregion
+
+            if (verifyResult == false && HostEnvironment.IsDevelopment() == false) return false;
 
             return true;
         }
@@ -459,7 +426,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 nmPerEcs,
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
-                Cache.HalfEcsLength,
+                Cache.EcsRange,
                 Cache.SpeedEcsPerSecond,
                 Cache.NscStandardNscPerNm,
                 Cache.ThresholdNscStandardSymmetryRatio,
@@ -472,7 +439,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -485,8 +452,8 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 await Task.Delay(100, cancellationToken);
 
                 var averageEcs = AfViewModel.GetSensorAverageEcsValue();
-                var startEcs = averageEcs - Cache.HalfEcsLength;
-                var endEcs = averageEcs + Cache.HalfEcsLength;
+                var startEcs = averageEcs - Cache.EcsRange;
+                var endEcs = averageEcs + Cache.EcsRange;
 
                 AfViewModel.SetSensorEcsValue(startEcs);
                 await Task.Delay(100, cancellationToken);
@@ -640,7 +607,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                         CalibratingItem.OriginalSymmetryRatio,
                         CalibratingItem.EcsToNmRange,
                         CalibratingItem.NscStandard,
-                        Plot = new HtmlContainer(CalibratingItem.NSCProfileResultDTO.ScatterPlotControl
+                        Plot = new HtmlContainer(CalibratingItem.NSCProfileResultDTO.PlotDataSource
                             .GetAllHtmlPlot2DLinesCharts())
                     });
 
@@ -661,7 +628,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                             startEcs,
                             endEcs,
                             averageEcs,
-                            Plot = CalibratingItem.NSCProfileResultDTO.ScatterPlotControl.GetHtmlPlot2DLinesChart(0)
+                            Plot = CalibratingItem.NSCProfileResultDTO.PlotDataSource.GetHtmlPlot2DLinesChart(0)
                         }), HtmlLogUniqueId.LoggingHtml());
 
                 return false;
@@ -694,7 +661,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 originCurrentBValue,
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
-                Cache.HalfEcsLength,
+                Cache.EcsRange,
                 Cache.SpeedEcsPerSecond,
                 Cache.NscStandardNscPerNm,
                 Cache.ThresholdNscStandardSymmetryRatio,
@@ -711,7 +678,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.ResetSensorNscCompensation();
                 await Task.Delay(100, cancellationToken);
@@ -726,8 +693,8 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var nmPerEcs = AfViewModel.GetNmPerEcs() * 1000;
 
                 var averageEcs = AfViewModel.GetSensorAverageEcsValue();
-                var startEcs = averageEcs - Cache.HalfEcsLength;
-                var endEcs = averageEcs + Cache.HalfEcsLength;
+                var startEcs = averageEcs - Cache.EcsRange;
+                var endEcs = averageEcs + Cache.EcsRange;
 
                 double offset = 0, gain = 1;
                 var count = 1;
@@ -842,7 +809,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                         nscGainResultDTO.NscGain,
                         nscGainResultDTO.NscCurrentNscPerNm,
                         nscGainResultDTO.NscCurrentSymmetryRatio,
-                        Plot = new HtmlContainer(CalibratingItem.NSCProfileResultDTO.ScatterPlotControl
+                        Plot = new HtmlContainer(CalibratingItem.NSCProfileResultDTO.PlotDataSource
                             .GetAllHtmlPlot2DLinesCharts())
                     });
 
@@ -916,9 +883,10 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
             StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                 StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-            CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
+            CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.OILowProductivityInformation);
 
             var originPosition = AfViewModel.GetDarkFieldAutoFocusMotorAbsoluteValue();
+            CalibratingItem.AfMotor = originPosition;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -929,14 +897,14 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 originPosition,
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.FindPosition,
-                Cache.StartAFMotorAbsoluteValue,
+                Cache.AFMotorRange,
                 Cache.StepAFMotorAbsoluteValue,
-                Cache.StopAFMotorAbsoluteValue
+                Cache.RSquaredThreshold
             }), HtmlLogUniqueId.LoggingHtml());
 
             try
             {
-                var afMotorAbsoluteValues = Generate.LinearRangeContainsEdge(Cache.StartAFMotorAbsoluteValue, Cache.StepAFMotorAbsoluteValue, Cache.StopAFMotorAbsoluteValue);
+                var afMotorAbsoluteValues = Generate.LinearRangeContainsEdge(originPosition - Cache.AFMotorRange, Cache.StepAFMotorAbsoluteValue, originPosition + Cache.AFMotorRange);
                 var closestIndex = afMotorAbsoluteValues
                     .Index()
                     .OrderBy(x => Math.Abs(x.Item - originPosition))
@@ -992,6 +960,8 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 CalibratingItem.EcsMotorPositionRelationIntercept = intercept;
                 CalibratingItem.EcsMotorPositionRelationRSquare = rSquared;
 
+                var result = rSquared >= Cache.RSquaredThreshold;
+
                 Logger.LogHtmlInformation("Slope Result", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
                     CalibratingItem.EcsMotorPositionRelationSlope,
@@ -999,10 +969,13 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     CalibratingItem.EcsMotorPositionRelationRSquare,
                     CalibratingItem.MinAFMotorAbsoluteValue,
                     CalibratingItem.MaxAFMotorAbsoluteValue,
-                    Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    Plot = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                return true;
+                CalibratingItem.IsCalibrated = result;
+                Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+
+                return result;
             }
             finally
             {
@@ -1044,7 +1017,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 Cache.ReviewThresholdNMin,
                 Cache.ReviewThresholdNMax,
                 Cache.FindCurrentStep,
-                Cache.HalfEcsLength,
+                Cache.EcsRange,
                 Cache.SpeedEcsPerSecond,
                 Cache.NscStandardNscPerNm,
                 Cache.ThresholdNscStandardSymmetryRatio,
@@ -1058,7 +1031,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
             {
                 StageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(
                     StageViewModel.MachineToBrightFieldPosition(Cache.FindPosition));
-                CIBViewModel.ToggleRTFCParam(ApplicationCookie.OILowProductivityInformation);
+                CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.OILowProductivityInformation);
 
                 AfViewModel.SetSensorNscCompensation(Review.NSCGainResultDTO.NscOffset,
                     Review.NSCGainResultDTO.NscGain);
@@ -1078,8 +1051,8 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var (fb, nb) = AfViewModel.GetSensorFnValue(false);
                 var averageEcs = AfViewModel.GetSensorAverageEcsValue();
 
-                var startEcs = averageEcs - Cache.HalfEcsLength;
-                var endEcs = averageEcs + Cache.HalfEcsLength;
+                var startEcs = averageEcs - Cache.EcsRange;
+                var endEcs = averageEcs + Cache.EcsRange;
                 var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond,
                     TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
                 var ecsBuffer = traceBufferList.Select(t => t.Ecs).ToArray();
@@ -1156,7 +1129,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     ReviewDtoNscGain = Review.NSCGainResultDTO.NscGain,
                     ReviewDtoNscCurrentNscPerNm = Review.NSCGainResultDTO.NscCurrentNscPerNm,
                     ReviewDtoNscCurrentSymmetryRatio = Review.NSCGainResultDTO.NscCurrentSymmetryRatio,
-                    ReviewPlot = Review.NSCGainResultDTO.ScatterPlotControl.GetHtmlPlot2DLinesChart(0),
+                    ReviewPlot = Review.NSCGainResultDTO.PlotDataSource.GetHtmlPlot2DLinesChart(0),
                     Fa = fa,
                     Na = na,
                     Fb = fb,
@@ -1173,7 +1146,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     nbIsOk,
                     perNmIsOk,
                     symmetryRatioIsOk,
-                    Plot = new HtmlContainer([.. Review.NSCGainResultDTO.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    Plot = new HtmlContainer([.. Review.NSCGainResultDTO.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (result)
@@ -1184,13 +1157,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 var reviewDTO = Calibration.Clone();
                 Review.IsVerified = reviewDTO.IsVerified = result;
 
-                if (Save(reviewDTO, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3,
-                        new HtmlComment($"{Name}Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    Review.IsVerified = false;
-                    return false;
-                }
+                Guard.IsTrue(Save(reviewDTO, cancellationToken));
 
                 DialogWindowProvider.ShowDialog($"""
                                                  Verify:

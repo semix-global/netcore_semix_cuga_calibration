@@ -64,7 +64,7 @@ public sealed partial class CreateRoiWindowViewModel(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "{@Name}: Get Template Failed", nameof(CreateDarkImageTemplateWindowViewModel));
+            logger.LogError(ex, "{@Name}: Get Template Failed", nameof(CreateRoiWindowViewModel));
         }
     }
 

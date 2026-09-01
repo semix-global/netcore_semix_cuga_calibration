@@ -47,6 +47,11 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)
     {
         throw new NotImplementedException();

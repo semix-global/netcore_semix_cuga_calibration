@@ -105,10 +105,9 @@
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
                             <hc:ComboBox HorizontalAlignment="Left"
-                                         hc:InfoElement.TitleWidth="120"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="Template Type: "
-                                         hc:InfoElement.Necessary="True"
+                                         hc:TitleElement.TitleWidth="120"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Template Type: "
                                          SelectedItem="{Binding AlgorithmTemplateTypeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
@@ -117,10 +116,9 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <hc:ComboBox hc:InfoElement.TitleWidth="120"
-                                         hc:InfoElement.TitlePlacement="Left"
-                                         hc:InfoElement.Title="Template Size: "
-                                         hc:InfoElement.Necessary="True"
+                            <hc:ComboBox hc:TitleElement.TitleWidth="120"
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.Title="Template Size: "
                                          SelectedItem="{Binding AlgorithmTemplateSizeEnum}"
                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
@@ -130,16 +128,16 @@
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
                             <TextBox Text="{Binding Rect, Converter={StaticResource RectToStringConverter}}"
-                                     hc:InfoElement.TitleWidth="120"
-                                     hc:InfoElement.Title="ROI: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="120"
+                                     hc:TitleElement.Title="ROI: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      IsTabStop="False"
                                      Style="{StaticResource TextBoxExtend}" />
                             <TextBox Text="{Binding TemplateFilePath}"
                                      TextWrapping="Wrap"
-                                     hc:InfoElement.TitleWidth="120"
-                                     hc:InfoElement.Title="Template Path: "
-                                     hc:InfoElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="120"
+                                     hc:TitleElement.Title="Template Path: "
+                                     hc:TitleElement.TitlePlacement="Left"
                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />

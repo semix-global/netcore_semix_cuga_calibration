@@ -75,7 +75,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 系统管理菜单
     /// </summary>
     [ObservableProperty]
-    public partial List<SystemManageMenu> SystemManageMenuList { get; set; } = [];
+    public partial SysManagementDTO ManagementMenu { get; set; } = new();
 
     /// <summary>
     /// 倍镜列表
@@ -229,6 +229,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     [ObservableProperty]
     public partial HardwareStateConfig? HardwareStateConfig { get; set; }
+
+    /// <summary>
+    /// PMT间隔
+    /// </summary>
+    [ObservableProperty]
+    public partial double PMTInterval { get; set; }
 
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {

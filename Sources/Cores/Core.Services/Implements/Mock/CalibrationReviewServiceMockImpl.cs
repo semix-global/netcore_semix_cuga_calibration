@@ -50,4 +50,10 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
     {
         return SxExecuteRetHelper.CreateSuccess(new Size(Width, Height));
     }
+
+    public SxExecuteRet<Size> GetDefaultPixelSize()
+    {
+        return SxExecuteRetHelper.CreateSuccess(new Size(3.45, 3.45));
+
+    }
 }

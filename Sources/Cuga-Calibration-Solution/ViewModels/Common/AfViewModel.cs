@@ -319,5 +319,12 @@ public sealed class AfViewModel(
         SetDarkFieldAutoFocusMotorAbsoluteValue(offsetMotor);
     }
 
+    public double GetSensorNscRelativeZero()
+    {
+        var ret = calibrationAfService.GetSensorNscRelativeZero();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     #endregion 服务
 }

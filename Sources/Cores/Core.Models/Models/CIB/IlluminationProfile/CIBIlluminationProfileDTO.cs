@@ -11,9 +11,10 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -49,7 +50,7 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<CIBInformation, IPlotDataSource> PlotDataSources { get; set; } = [];
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -83,24 +84,24 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
 
     public CIBIlluminationProfileDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
     {
-        ScatterPlotControls = new ConcurrentDictionary<CIBInformation, IScatterPlotControl>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl())));
+        PlotDataSources = new ConcurrentDictionary<CIBInformation, IPlotDataSource>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IPlotDataSource>(t, GetPlotDataSource())));
     }
 
     private void RefreshPlot()
     {
         foreach (var itemItem in Items)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(itemItem.CIBInformation, _ => GetScatterPlotControl());
+            var plotDataSource = PlotDataSources.GetOrAdd(itemItem.CIBInformation, _ => GetPlotDataSource());
 
-            scatterPlotControl.Clear(0);
-            scatterPlotControl.Clear(1);
+            plotDataSource.Clear(0);
+            plotDataSource.Clear(1);
 
             try
             {
                 if (TargetPMTValues.TryGetSingle(t => t.Key == itemItem.CIBInformation, out var targetPMTValueKvp) == false) return;
-                scatterPlotControl.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
+                plotDataSource.GetOrAddYLine(0, "Target", targetPMTValueKvp.Value, Colors.Red);
 
-                scatterPlotControl.GetOrAddScatterLine(
+                plotDataSource.GetOrAddScatterLine(
                     2,
                     "Result",
                     [.. itemItem.Window.Index().Select(t => new Point(t.Index, t.Item))],
@@ -108,14 +109,14 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
 
                 foreach (var (i, itemItemData) in itemItem.Items.Index())
                 {
-                    scatterPlotControl.GetOrAddScatterLine(
+                    plotDataSource.GetOrAddScatterLine(
                         0,
                         $"{i + 1} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                         [.. itemItemData.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
                         i,
                         new Range(0, itemItem.Items.Count - 1));
 
-                    scatterPlotControl.GetOrAddScatterLine(
+                    plotDataSource.GetOrAddScatterLine(
                         1,
                         $"{i + 1}",
                         [.. itemItemData.Window.Index().Select(t => new Point(t.Index, t.Item))],
@@ -125,22 +126,22 @@ public sealed partial class CIBIlluminationProfileDTO : CalibrationDTOBase<CIBIl
             }
             finally
             {
-                scatterPlotControl.AutoScaleRefresh();
+                plotDataSource.AutoScaleRefresh();
             }
         }
     }
 
-    private static IScatterPlotControl GetScatterPlotControl()
+    private static IPlotDataSource GetPlotDataSource()
     {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        var plotDataSource = new PlotDataSource();
 
-        scatterPlotControl.Configure(new Rows(), 3);
+        plotDataSource.Configure(new Rows(), 3);
 
-        scatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        scatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
-        scatterPlotControl.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
+        plotDataSource.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        plotDataSource.SetTitle(1, "Window(Y: Coefficient - X: sa)");
+        plotDataSource.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
 
-        return scatterPlotControl;
+        return plotDataSource;
     }
 
     #region Mapper
@@ -233,6 +234,8 @@ public sealed partial class CIBIlluminationProfileDTOItem : ObservableObject, IC
 
         [ObservableProperty]
         public partial bool IsOk { get; set; }
+
+        protected override AODUniformityDTO.WindowItem CreateInstance() => new Item();
 
         public new Item Clone()
         {
