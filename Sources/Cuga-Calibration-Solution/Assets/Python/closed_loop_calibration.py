@@ -450,8 +450,7 @@ def process_stage2_residuals(
     alpha: float = 0.3,
     m_min: int = 5,
     m_max: int = 20,
-    *,
-    masks: np.ndarray,
+    masks: np.ndarray | None = None,
 ) -> tuple[bool, np.ndarray, np.ndarray]:
     """判断阶段2是否需要再次测量，并计算残余重复信号表。
 
@@ -717,8 +716,7 @@ def combine_correction_tables(
     initial_correction: np.ndarray,
     residual_table: np.ndarray | None,
     stage1_mask: np.ndarray,
-    *,
-    stage2_valid_mask: np.ndarray,
+    stage2_valid_mask: np.ndarray | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """合并阶段1初始表和阶段2残差表，并生成插值有效 mask。
 

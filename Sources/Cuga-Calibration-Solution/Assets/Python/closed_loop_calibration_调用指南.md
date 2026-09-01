@@ -77,6 +77,14 @@ Python 适配层
 | 阶段 2 处理 | 累计 `residuals`、必传 `masks`、阶段 2 坐标及参数 | `need_more`、`deltaC`、`stage2_valid_mask` |
 | 合并和最终插值 | 初始表、`deltaC`、`stage1_mask`、`stage2_valid_mask`、目标坐标及目标插值 mask | `final_download_table`、`interpolation_mask` |
 
+适配层按固定位置传参，参数顺序为：
+
+```text
+process_stage2_residuals(residuals, positions, alpha, m_min, m_max, masks)
+combine_correction_tables(initial_correction, deltaC, stage1_mask, stage2_valid_mask)
+interpolate_residual_table(residual_table, positions, target_positions, source_mask, target_mask)
+```
+
 建议适配层统一使用以下数据约定：
 
 - 数值数组使用双精度浮点；
@@ -152,8 +160,8 @@ stage1_mask = ...               # shape: (Ny, Nx), dtype=bool
 C0_on_calibration_grid = process_first_measurement(
     stage1_residual,
     calibration_positions,
-    mask=stage1_mask,
-    fill_value=0.0,
+    stage1_mask,
+    0.0,
 )
 
 # 实际下发的是插值后的表，不是校准源网格上的 C0。
@@ -181,8 +189,8 @@ your_stage_download_api(C0_download)
 C0_on_calibration_grid = process_first_measurement(
     stage1_residual,
     calibration_positions,
-    mask=stage1_mask,
-    fill_value=some_initial_value,
+    stage1_mask,
+    some_initial_value,
 )
 ```
 
@@ -225,10 +233,10 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         residuals,
         stage2_positions,
-        alpha=0.3,
-        m_min=5,
-        m_max=20,
-        masks=masks,
+        0.3,
+        5,
+        20,
+        masks,
     )
 
     if not need_more:
@@ -276,7 +284,7 @@ C_final, interpolation_mask = combine_correction_tables(
     C0_download,
     deltaC,
     stage1_mask_on_stage2_grid,
-    stage2_valid_mask=stage2_valid_mask,
+    stage2_valid_mask,
 )
 ```
 
@@ -322,8 +330,8 @@ final_download_table = interpolate_residual_table(
     C_final,
     stage2_positions,
     final_download_positions,
-    source_mask=interpolation_mask,
-    target_mask=final_target_mask,
+    interpolation_mask,
+    final_target_mask,
 )
 ```
 
@@ -374,8 +382,8 @@ stage1_mask = your_load_stage1_mask().astype(bool)        # (Ny, Nx)
 C0_on_calibration_grid = process_first_measurement(
     stage1_residual,
     calibration_positions,
-    mask=stage1_mask,
-    fill_value=0.0,
+    stage1_mask,
+    0.0,
 )
 
 # 初始实际下发表：先插值，再下发。
@@ -408,10 +416,10 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         np.stack(residual_history, axis=0),
         stage2_positions,
-        alpha=0.3,
-        m_min=5,
-        m_max=20,
-        masks=np.stack(mask_history, axis=0),
+        0.3,
+        5,
+        20,
+        np.stack(mask_history, axis=0),
     )
 
     if not need_more:
@@ -423,7 +431,7 @@ C_final, interpolation_mask = combine_correction_tables(
     C0_download,
     deltaC,
     stage1_mask_on_stage2_grid,
-    stage2_valid_mask=stage2_valid_mask,
+    stage2_valid_mask,
 )
 
 
@@ -434,8 +442,8 @@ final_download_table = interpolate_residual_table(
     C_final,
     stage2_positions,
     final_download_positions,
-    source_mask=interpolation_mask,
-    target_mask=final_target_mask,
+    interpolation_mask,
+    final_target_mask,
 )
 your_download_or_apply_correction_api(final_download_table)
 ```
