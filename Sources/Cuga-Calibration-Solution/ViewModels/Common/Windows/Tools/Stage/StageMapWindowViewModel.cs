@@ -160,8 +160,6 @@ public sealed partial class StageMapWindowViewModel(
                     stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
 
                     Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
-
-                    foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
                 }
                 finally
                 {
@@ -195,8 +193,6 @@ public sealed partial class StageMapWindowViewModel(
         foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
 
         Cache.StageMapTemplates = [.. stageMapTemplates];
-
-        foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index()) stageMapTemplate.Index = index + 1;
     }
 
     [RelayCommand]
@@ -318,7 +314,7 @@ public sealed partial class StageMapWindowViewModel(
         [
             .. Cache.StageMapTemplates.Index().Select(t => new
             {
-                t.Item.Index,
+                t.Index,
                 t.Item.FindBFMachinePosition,
                 t.Item.TemplateROI,
                 t.Item.TemplateFilePath,
@@ -595,7 +591,7 @@ public sealed partial class StageMapWindowViewModel(
         [
             .. Cache.StageMapTemplates.Index().Select(t => new
             {
-                t.Item.Index,
+                t.Index,
                 t.Item.FindBFMachinePosition,
                 t.Item.TemplateROI,
                 t.Item.TemplateFilePath,
