@@ -18,7 +18,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double OffsetFrequency { get; set; }
 
     [ObservableProperty]
-    public partial double[] Frequencies { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequency[] AODWaveformElectrodeOffsetFrequencies { get; set; } = [];
 
     [ObservableProperty]
     public partial int DetailLogInterval { get; set; } = 5;
@@ -77,6 +77,21 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #endregion Result
 
     [RelayCommand]
+    private void AddAODWaveformElectrodeOffsetFrequency() => AODWaveformElectrodeOffsetFrequencies = [.. AODWaveformElectrodeOffsetFrequencies, new AODWaveformElectrodeOffsetFrequency()];
+
+    [RelayCommand]
+    private void RemoveAODWaveformElectrodeOffsetFrequencies(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var frequencyList = AODWaveformElectrodeOffsetFrequencies.ToList();
+
+        foreach (AODWaveformElectrodeOffsetFrequency selectItem in selectItems) frequencyList.Remove(selectItem);
+
+        AODWaveformElectrodeOffsetFrequencies = [.. frequencyList];
+    }
+
+    [RelayCommand]
     private void AddElectrodeOffsetFrequencyPeriodParam()
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
@@ -114,7 +129,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public override object ToHtmlAnonymous() => new
     {
         OffsetFrequency,
-        Frequencies,
+        AODWaveformElectrodeOffsetFrequencies = new HtmlTable([.. AODWaveformElectrodeOffsetFrequencies.Select(t => t.ToHtmlAnonymous())]),
         DetailLogInterval,
         NoiseMeasureTimes,
         ScoreLambda,

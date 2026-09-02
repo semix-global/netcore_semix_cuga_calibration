@@ -56,14 +56,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
+            Guard.IsGreaterThanOrEqualTo(Cache.DefaultAmplitude, 0);
+            Guard.IsLessThanOrEqualTo(Cache.DefaultAmplitude, 1);
             Guard.IsGreaterThan(Cache.WaitTime, 0);
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
-            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
-            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
+            Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeOffsetFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
@@ -203,14 +206,17 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
         return await InvokeAsync(stepIndex, async () =>
         {
-            Guard.IsGreaterThan(Cache.DefaultAmplitude, 0);
+            Guard.IsGreaterThanOrEqualTo(Cache.DefaultAmplitude, 0);
+            Guard.IsLessThanOrEqualTo(Cache.DefaultAmplitude, 1);
             Guard.IsGreaterThan(Cache.WaitTime, 0);
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
-            Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));
-            Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Length, 2);
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
+            Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeOffsetFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
@@ -276,7 +282,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         (isSuccess, var phases, var uniformities) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
                         if (isSuccess) break;
 
-                        var linearSpaced = Generate.LinearSpaced(uniformities.Length, Cache.Frequencies.Min(), Cache.Frequencies.Max());
+                        var linearSpaced = Generate.LinearSpaced(uniformities.Length, Cache.AODWaveformElectrodeOffsetFrequencies.Min(t => t.Frequency), Cache.AODWaveformElectrodeOffsetFrequencies.Max(t => t.Frequency));
                         var linearSpline = LinearSpline.InterpolateSorted(linearSpaced, uniformities);
 
                         var item = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
@@ -439,13 +445,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
     {
-        foreach (var frequency in Cache.Frequencies)
+        foreach (var aodWaveformElectrodeOffsetFrequency in Cache.AODWaveformElectrodeOffsetFrequencies)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var amplitude = linearSpline?.Interpolate(frequency) * Cache.DefaultAmplitude ?? Cache.DefaultAmplitude;
+            var amplitude = linearSpline?.Interpolate(aodWaveformElectrodeOffsetFrequency.Frequency) * aodWaveformElectrodeOffsetFrequency.Amplitude ?? aodWaveformElectrodeOffsetFrequency.Amplitude;
 
-            Logger.LogHtmlInformation($"{frequency}(MHz)-[{amplitude}]", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequency.Frequency}(MHz)-[{amplitude}]", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
             var item = new TItem
             {
@@ -463,7 +469,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                             UniformityConfigurations = []
                         })
                 ],
-                Frequency = frequency,
+                Frequency = aodWaveformElectrodeOffsetFrequency.Frequency,
                 Amplitude = amplitude
             };
 

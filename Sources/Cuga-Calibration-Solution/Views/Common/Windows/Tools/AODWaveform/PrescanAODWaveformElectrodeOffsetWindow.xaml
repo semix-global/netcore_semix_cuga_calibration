@@ -200,14 +200,36 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.OffsetFrequency}" />
-                                    <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
-                                             Height="40"
-                                             TextWrapping="Wrap"
-                                             hc:TitleElement.Title="Frequencies(MHz): "
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                             Style="{StaticResource TextBoxExtend}" />
+                                    <StackPanel>
+                                        <TextBlock Text="Frequencies"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                        <Button Content="Add"
+                                                Command="{Binding Cache.AddAODWaveformElectrodeOffsetFrequencyCommand}"
+                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                Style="{StaticResource ButtonInfo}" />
+                                        <Button Content="Delete"
+                                                Command="{Binding Cache.RemoveAODWaveformElectrodeOffsetFrequenciesCommand}"
+                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridFrequencies}"
+                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                Style="{StaticResource ButtonDanger}" />
+                                    </hc:UniformSpacingPanel>
+                                    <DataGrid x:Name="DataGridFrequencies"
+                                              MaxHeight="500"
+                                              hc:DataGridAttach.ShowRowNumber="False"
+                                              Style="{StaticResource DataGrid.Small}"
+                                              HeadersVisibility="Column"
+                                              RowHeaderWidth="60"
+                                              CanUserSortColumns="False"
+                                              AutoGenerateColumns="False"
+                                              ItemsSource="{Binding Cache.AODWaveformElectrodeOffsetFrequencies}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                            <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                     <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
