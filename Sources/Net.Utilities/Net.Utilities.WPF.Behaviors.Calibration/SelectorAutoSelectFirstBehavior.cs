@@ -1,11 +1,11 @@
-using CommunityToolkit.Diagnostics;
-using Microsoft.Xaml.Behaviors;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using CommunityToolkit.Diagnostics;
+using Microsoft.Xaml.Behaviors;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.Behaviors.Calibration;
 
 public sealed class SelectorAutoSelectFirstBehavior : Behavior<Selector>
 {

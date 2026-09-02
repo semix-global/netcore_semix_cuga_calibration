@@ -1,10 +1,9 @@
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 using System.Windows;
 
-namespace Core.Utilities.WPF.Converters;
-
-using Net.Utilities.WPF.Converters.SingleValue;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class StringToNullableBoolConverter : AbstractSingletonConverterBase<StringToNullableBoolConverter>
 {

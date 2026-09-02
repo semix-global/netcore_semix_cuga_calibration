@@ -159,13 +159,18 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
     private async Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
         var result = false;
-        await InvokeCalibrateAsync(() =>
+        await InvokeCalibrateAsync(async () =>
         {
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.FindPosition);
 
             Thread.Sleep(1000);
+            cancellationToken.ThrowIfCancellationRequested();
+
             Logger.LogHtmlInformation($"{Name} Start", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Get Sensor All Pressure Trans Buffer Value Start! "), HtmlLogUniqueId.LoggingHtml());
-            var transBuffer = AdsViewModel.GetSensorAllPressureTraceBufferList(TimeSpan.FromSeconds(3));
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var task = AdsViewModel.GetSensorAllPressureTraceBufferListAsync(cancellationTokenSource.Token);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(3));
+            var transBuffer = await task.ConfigureAwait(false);
 
             var pressureValue1 = transBuffer.Average(x => x.PressureValue1);
             var pressureValue2 = transBuffer.Average(x => x.PressureValue2);

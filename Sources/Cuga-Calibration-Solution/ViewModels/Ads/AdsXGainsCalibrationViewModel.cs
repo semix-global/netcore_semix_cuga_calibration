@@ -323,7 +323,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             var task = AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationTokenSource.Token);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(endPos);
-            cancellationTokenSource.CancelAfter(Cache.WaitTime);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Cache.WaitTime));
             transBuffer = await task.ConfigureAwait(false);
 
             if (repeatCount > 5) return (false, transBuffer);

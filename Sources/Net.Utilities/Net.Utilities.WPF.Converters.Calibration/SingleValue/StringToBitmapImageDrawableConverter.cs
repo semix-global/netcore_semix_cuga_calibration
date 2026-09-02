@@ -6,7 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class StringToBitmapImageDrawableConverter : AbstractSingletonConverterBase<StringToBitmapImageDrawableConverter>
 {

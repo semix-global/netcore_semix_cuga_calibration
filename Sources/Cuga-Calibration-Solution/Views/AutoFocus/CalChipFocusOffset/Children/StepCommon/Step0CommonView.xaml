@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
@@ -38,7 +38,7 @@
                       Style="{StaticResource ComboBoxExtend}"
                       ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                 <b:Interaction.Behaviors>
-                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                 </b:Interaction.Behaviors>
             </ComboBox>
             <ComboBox hc:TitleElement.Title="Productivity Information: "
@@ -47,7 +47,7 @@
                       Style="{StaticResource ComboBoxExtend}"
                       ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
                 <b:Interaction.Behaviors>
-                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                 </b:Interaction.Behaviors>
             </ComboBox>
         </hc:UniformSpacingPanel>

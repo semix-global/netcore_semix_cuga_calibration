@@ -9,7 +9,7 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            d:DataContext="{d:DesignInstance Type=viewModels:AlignmentParamWindowDarkFieldViewModel}"
            SizeToContent="WidthAndHeight"
            WindowStartupLocation="CenterScreen"
@@ -116,7 +116,7 @@
                                          Style="{StaticResource ComboBoxExtend}"
                                          ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </hc:ComboBox>
                         </hc:UniformSpacingPanel>

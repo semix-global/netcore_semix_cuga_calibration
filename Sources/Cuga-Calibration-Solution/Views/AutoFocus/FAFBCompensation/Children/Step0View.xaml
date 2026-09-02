@@ -7,7 +7,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:AutoFocusFAFBCompensationViewModel}"
@@ -47,7 +47,7 @@
                                   ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
                                   Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox HorizontalAlignment="Left"

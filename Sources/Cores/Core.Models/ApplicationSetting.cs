@@ -69,7 +69,7 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfigur
     /// 文档根目录路径
     /// </summary>
     public string DocumentDirectory { get; init; } = string.Empty;
-    
+
     /// <summary>
     /// 算法日志根目录路径
     /// </summary>

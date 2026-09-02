@@ -6,7 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsSCViewModel}"
              d:DesignWidth="1920"
@@ -48,7 +48,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="Productivity Information: "
@@ -56,7 +56,7 @@
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
                             <ComboBox.ItemsSource>
                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
@@ -71,7 +71,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="CIB Information: "
@@ -80,7 +80,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.CIBInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />

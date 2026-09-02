@@ -8,7 +8,6 @@
              xmlns:lineOrientationOffset="clr-namespace:Core.Models.Models.CIB.LineOrientationOffset;assembly=Core.Models"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLineOrientationOffsetViewModel}"
              d:DesignHeight="1080"
              d:DesignWidth="1920"
@@ -72,7 +71,7 @@
                       Style="{StaticResource ListView.Small}">
                 <i:Interaction.Behaviors>
                     <behaviors:ListBoxScrollToCurrentBehavior />
-                    <wpf:ListBoxSelectedItemsBehavior BindableSelectedItems="{Binding SelectedReviewItems}" Type="{x:Type lineOrientationOffset:CIBLineOrientationOffsetDTO}" />
+                    <behaviors:ListBoxSelectedItemsBehavior BindableSelectedItems="{Binding SelectedReviewItems}" Type="{x:Type lineOrientationOffset:CIBLineOrientationOffsetDTO}" />
                 </i:Interaction.Behaviors>
                 <ListView.ItemContainerStyle>
                     <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">

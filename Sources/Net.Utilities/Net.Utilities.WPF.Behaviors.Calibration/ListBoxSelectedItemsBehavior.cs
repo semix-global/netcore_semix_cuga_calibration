@@ -1,13 +1,13 @@
-using CommunityToolkit.Diagnostics;
-using Microsoft.Xaml.Behaviors;
-using Net.Utilities.Helpers.Helpers;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using CommunityToolkit.Diagnostics;
+using Microsoft.Xaml.Behaviors;
+using Net.Utilities.Helpers.Helpers;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.Behaviors.Calibration;
 
 public sealed class ListBoxSelectedItemsBehavior : Behavior<ListBox>
 {

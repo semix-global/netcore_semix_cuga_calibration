@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.Behaviors.Calibration;
 
 public sealed class ComboBoxSelectedItemBehavior : Behavior<ComboBox>
 {

@@ -320,7 +320,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             var task = AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationTokenSource.Token);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(endPos);
-            cancellationTokenSource.CancelAfter(Cache.WaitTime);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Cache.WaitTime));
             transBuffer = await task.ConfigureAwait(false);
 
             if (repeatCount > 5) return (false, transBuffer);
@@ -478,8 +478,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         if (speedChangedList.Count == 0) return;
 
-        var ySpeedStartIndex = Convert.ToInt32(speedChangedList[0].X);
-        var ySpeedEndIndex = Convert.ToInt32(speedChangedList[^1].X);
+        /*var ySpeedStartIndex = Convert.ToInt32(speedChangedList[0].X);
+        var ySpeedEndIndex = Convert.ToInt32(speedChangedList[^1].X);*/
+
+        var ySpeedStartIndex = 100;
+        var ySpeedEndIndex = 4900;
 
         var listZ1 = transBuffer.Z_ECS0.Take(ySpeedEndIndex).ToList();
         var listZ2 = transBuffer.Z_ECS1.Take(ySpeedEndIndex).ToList();

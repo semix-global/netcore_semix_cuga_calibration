@@ -9,7 +9,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:SettingWindowViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="800"
@@ -63,7 +63,7 @@
                                       ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <ComboBox hc:TitleElement.Title="High Microscope: "
@@ -72,7 +72,7 @@
                                       ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <ComboBox hc:TitleElement.Title="Light Information: "
@@ -81,7 +81,7 @@
                                       ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <ComboBox hc:TitleElement.Title="Main CIB Information: "
@@ -90,7 +90,7 @@
                                       ItemsSource="{Binding ApplicationCookie.CIBInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainCIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding CalibrationSetting.SettingCommonParam.MainCIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <hc:NumericUpDown hc:TitleElement.Title="Measure Power Min Value(mW): "

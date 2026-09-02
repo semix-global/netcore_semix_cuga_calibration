@@ -12,7 +12,7 @@
                                                 xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedProperties;assembly=Net.Utilities.WPF.AttachedProperties"
                                                 xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern"
                                                 xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-                                                xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+                                                xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
                                                 d:DataContext="{d:DesignInstance Type=generates:AbstractGenerateAODWaveformParam}"
                                                 d:DesignWidth="400"
                                                 d:DesignHeight="1000"
@@ -44,7 +44,7 @@
                               Style="{StaticResource ComboBoxExtend}"
                               Visibility="{Binding IsVisibleProductivityInformation, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
                         <i:Interaction.Behaviors>
-                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                         </i:Interaction.Behaviors>
                     </ComboBox>
                     <ContentControl Content="{Binding HeaderContent, RelativeSource={RelativeSource AncestorType=UserControl}}" />

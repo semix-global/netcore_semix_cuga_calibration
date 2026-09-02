@@ -6,7 +6,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:cibXPixelSize="clr-namespace:Core.Models.Models.CIB.XPixelSize;assembly=Core.Models"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
@@ -81,7 +80,7 @@
                           SelectionMode="Extended">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type cibXPixelSize:CIBXPixelSizeDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type cibXPixelSize:CIBXPixelSizeDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -122,7 +121,7 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
                         <i:Interaction.Behaviors>
-                            <wpf:SelectorAutoSelectFirstBehavior />
+                            <behaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>

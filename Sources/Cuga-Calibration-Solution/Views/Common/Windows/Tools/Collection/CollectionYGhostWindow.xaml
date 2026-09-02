@@ -8,7 +8,7 @@
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
@@ -96,7 +96,7 @@
                                                      IsReadOnly="True"
                                                      Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                             <hc:ComboBox.ItemsSource>
                                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
@@ -123,7 +123,7 @@
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Width(px): "
@@ -243,7 +243,7 @@
                     <Border Padding="5" Style="{StaticResource BorderRegion}">
                         <TabControl ItemsSource="{Binding YGhostResults}">
                             <i:Interaction.Behaviors>
-                                <wpf:SelectorAutoSelectFirstBehavior />
+                                <behaviors:SelectorAutoSelectFirstBehavior />
                             </i:Interaction.Behaviors>
                             <TabControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type viewModels:CollectionYGhostResult}">

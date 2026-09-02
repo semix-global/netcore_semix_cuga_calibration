@@ -7,8 +7,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-             xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviorsCommon="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBMMDViewModel}"
              d:DesignWidth="1920"
@@ -47,7 +47,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="Productivity Information: "
@@ -56,7 +56,7 @@
                                   ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                   Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
@@ -85,7 +85,7 @@
                  ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
                  SelectionMode="Extended">
             <i:Interaction.Behaviors>
-                <behaviors:ListBoxSelectedItemsCIBInformationStatusBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" />
+                <behaviorsCommon:ListBoxSelectedItemsCIBInformationStatusBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" />
             </i:Interaction.Behaviors>
             <ListBox.ItemTemplate>
                 <DataTemplate>

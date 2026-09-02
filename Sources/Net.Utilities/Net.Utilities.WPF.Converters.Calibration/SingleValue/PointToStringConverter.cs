@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Windows;
 using Point = Net.Utilities.Models.Geometries.Point;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class PointYToStringConverter : AbstractSingletonConverterBase<PointYToStringConverter>
 {

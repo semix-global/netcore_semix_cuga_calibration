@@ -5,7 +5,7 @@ using Net.Utilities.WPF.Converters.SingleValue;
 using ScottPlot;
 using System.Globalization;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class ScatterPlotControlToTitleConverter : AbstractSingletonConverterBase<ScatterPlotControlToTitleConverter>
 {

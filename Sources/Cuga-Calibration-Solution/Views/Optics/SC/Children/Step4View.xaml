@@ -8,7 +8,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:relay="clr-namespace:Core.Models.Models.Optics.SC;assembly=Core.Models"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
              xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsSCViewModel}"
@@ -197,7 +197,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type relay:OpticsSCDTOItem}">
                                         <TextBlock TextWrapping="Wrap">
-                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
+                                            <Hyperlink Command="{x:Static cmd:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
                                                 <Run Text="{Binding BestFocus.RawImageFilePath}" />
                                             </Hyperlink>
                                         </TextBlock>

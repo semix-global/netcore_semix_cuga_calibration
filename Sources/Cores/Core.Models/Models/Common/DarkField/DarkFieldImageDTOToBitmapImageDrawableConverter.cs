@@ -18,8 +18,8 @@ public sealed class DarkFieldImageDTOToBitmapImageDrawableConverter : AbstractSi
         };
 
         var (min, max) = bitmapImageDrawable.BitmapImage.GetChannelRange();
-        
-        bitmapImageDrawable.ChannelMinValue = min; 
+
+        bitmapImageDrawable.ChannelMinValue = min;
         bitmapImageDrawable.ChannelMaxValue = max;
 
         return bitmapImageDrawable;
