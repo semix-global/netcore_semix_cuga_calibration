@@ -27,10 +27,10 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial int NoiseMeasureTimes { get; set; } = 20;
 
     [ObservableProperty]
-    public partial double ScoreLambda { get; set; } = 1d;
+    public partial double ScoreLambda { get; set; } = 0d;
 
     [ObservableProperty]
-    public partial double ScoreGamma { get; set; } = 0.5;
+    public partial double ScoreGamma { get; set; } = 0d;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
