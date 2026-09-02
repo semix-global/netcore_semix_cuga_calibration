@@ -93,6 +93,10 @@ public sealed partial class StageMapWindowViewModel(
     private async Task LoadedAsync()
     {
         Cache = await Task.Run(() => cacheProvider.GetOrDefault<StageMapCache>()).ConfigureAwait(true);
+
+        Cache.StageMap.Refresh();
+        foreach (var cacheRepeatStageMap in Cache.RepeatStageMaps) cacheRepeatStageMap.Refresh();
+        Cache.VerifyStageMap.Refresh();
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -491,6 +495,7 @@ public sealed partial class StageMapWindowViewModel(
 
             logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
             try
             {
