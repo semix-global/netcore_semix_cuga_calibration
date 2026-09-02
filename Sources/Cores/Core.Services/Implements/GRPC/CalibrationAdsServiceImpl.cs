@@ -85,7 +85,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

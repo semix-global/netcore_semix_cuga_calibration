@@ -10,7 +10,7 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
            xmlns:wpfImageViewer="clr-namespace:Net.Utilities.ImageViewer.WPF;assembly=Net.Utilities.ImageViewer.WPF"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
@@ -97,7 +97,7 @@
                                       ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <ComboBox hc:TitleElement.Title="Stage Coordinate System: "
@@ -128,7 +128,7 @@
                                          SelectionMode="Extended">
                                     <i:Interaction.Behaviors>
                                         <behaviors:ListBoxScrollToCurrentBehavior />
-                                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding Cache.CIBInformations}" />
+                                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding Cache.CIBInformations}" />
                                     </i:Interaction.Behaviors>
                                 </ListBox>
                             </Grid>
@@ -164,7 +164,7 @@
                                       ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                       Style="{StaticResource ComboBoxExtend}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                 </i:Interaction.Behaviors>
                             </ComboBox>
                             <StackPanel Orientation="Horizontal">
@@ -512,7 +512,7 @@
                                                                            HorizontalAlignment="Left"
                                                                            VerticalAlignment="Bottom"
                                                                            ToolTip="{Binding RawImageFilePath}">
-                                                                    <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
+                                                                    <Hyperlink Command="{x:Static cmd:Commands.OpenFilePathCommand}" CommandParameter="{Binding RawImageFilePath}">
                                                                         <Run Text="{Binding Mode=OneWay}" />
                                                                     </Hyperlink>
                                                                 </TextBlock>

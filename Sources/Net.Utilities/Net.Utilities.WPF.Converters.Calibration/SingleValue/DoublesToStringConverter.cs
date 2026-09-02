@@ -2,7 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class DoublesToStringConverter : AbstractSingletonConverterBase<DoublesToStringConverter>
 {

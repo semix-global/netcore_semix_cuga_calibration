@@ -13,10 +13,6 @@
     <Import Project="$(BuildToolsDirectory)\XUnit.Build.props" />
 
     <ItemGroup>
-        <PackageReference Include="halconxl" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Reference Include="HAlgorithm">
             <HintPath>$(RepositoryDirectory)\Dependencies\HAlgorithm.dll</HintPath>
         </Reference>

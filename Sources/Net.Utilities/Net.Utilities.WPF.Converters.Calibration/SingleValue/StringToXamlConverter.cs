@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class StringToXamlConverter : AbstractSingletonConverterBase<StringToXamlConverter>
 {

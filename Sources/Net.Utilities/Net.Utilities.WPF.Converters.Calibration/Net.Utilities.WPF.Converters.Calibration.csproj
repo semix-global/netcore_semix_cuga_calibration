@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.3-preview2.0-yan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.4-preview1.1-han" />
+
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.Helpers" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.AttachedProperties" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.Behaviors" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.Converters" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.Triggers" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.HandyControl" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.NLogViewer" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.4-preview1.1-han" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.4-preview1.1-han" />
+
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.4-preview1.1-han" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities.Calibration\Net.Utilities.Calibration.csproj" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Page Update="Themes\ConvertersTest.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+    
+</Project>

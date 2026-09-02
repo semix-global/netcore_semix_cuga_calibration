@@ -58,9 +58,9 @@ public interface ICalibrationAdsService
     /// <summary>
     /// 获取传感器: TransBuffer 压力1、压力2、压力3的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TransBuffer 压力1、压力2、压力3的值</returns>
-    SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 获取传感器: TransBuffer 高度、横滚、俯仰的Buffer值

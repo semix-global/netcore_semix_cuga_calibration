@@ -33,6 +33,9 @@
 
     <Folder Name="/01. Net.Utilities/">
         <Project Path="Net.Utilities/Net.Utilities.Calibration/Net.Utilities.Calibration.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.WPF.Behaviors.Calibration/Net.Utilities.WPF.Behaviors.Calibration.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.WPF.Commands.Calibration/Net.Utilities.WPF.Commands.Calibration.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.WPF.Converters.Calibration/Net.Utilities.WPF.Converters.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.WPF.CustomControl.Calibration/Net.Utilities.WPF.CustomControl.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.SourceGenerators.Calibration/Net.Utilities.SourceGenerators.Calibration.csproj" />
     </Folder>

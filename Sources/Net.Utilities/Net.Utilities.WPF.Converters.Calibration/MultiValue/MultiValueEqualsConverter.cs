@@ -2,7 +2,7 @@ using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters.MultiValue;
 using System.Globalization;
 
-namespace Core.Utilities.WPF.Converters.MultiValueConverters;
+namespace Net.Utilities.WPF.Converters.Calibration.MultiValue;
 
 public sealed class MultiValueEqualsConverter : AbstractSingletonMultiConverterBase<MultiValueEqualsConverter>
 {

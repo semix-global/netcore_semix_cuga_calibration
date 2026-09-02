@@ -7,7 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Ads"
              xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:behaviors="clr-namespace:Core.Utilities.WPF.Behaviors;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:AdsXGainsCalibrationViewModel}"
              d:DesignHeight="800"
              d:DesignWidth="1000"

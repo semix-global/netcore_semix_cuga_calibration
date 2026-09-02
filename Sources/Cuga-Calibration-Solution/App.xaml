@@ -17,7 +17,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/Geometries.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF;component/UI/Themes/DrawingImages.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.HandyControl;component/Themes/Styles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Core.Utilities.WPF;component/UI/Themes/ConvertersTest.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.Converters.Calibration;component/Themes/ConvertersTest.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <BitmapImage x:Key="AppIcon" UriSource="pack://application:,,,/Cuga-Calibration-Solution;component/Assets/Images/CugaCalibration.ico" />

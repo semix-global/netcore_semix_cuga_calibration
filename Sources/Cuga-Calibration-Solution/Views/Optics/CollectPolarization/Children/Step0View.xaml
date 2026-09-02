@@ -6,7 +6,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:CollectionPolarizationViewModel}"
              d:DesignWidth="1920"
@@ -45,7 +45,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="Laser Light Information: "
@@ -54,7 +54,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding LaserLightInformations}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="CIB Information: "
@@ -63,7 +63,7 @@
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}">
                             <i:Interaction.Behaviors>
-                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.PMTId}" FallbackSelectItem="-1" />
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.PMTId}" FallbackSelectItem="-1" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"

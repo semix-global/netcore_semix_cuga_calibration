@@ -62,10 +62,10 @@ public sealed class AdsViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double PressureValue1, double PressureValue2, double PressureValue3)> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
-        var ret = calibrationAdsService.GetSensorAllPressureTraceBufferList(timeSpan);
+        var ret = await calibrationAdsService.GetSensorAllPressureTraceBufferListAsync(cancellationToken);
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

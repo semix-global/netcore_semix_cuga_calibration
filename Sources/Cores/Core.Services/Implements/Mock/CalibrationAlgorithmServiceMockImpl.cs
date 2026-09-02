@@ -16,7 +16,6 @@ using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using System.IO;
-using Core.Models;
 
 namespace Core.Services.Implements.Mock;
 
@@ -114,7 +113,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         using var hImage = RAWImageFactory.CreateImage(filePath, true);
 
         using var linerImage = hImage.ToBitmapImage();
-        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS,guid);
+        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS, guid);
     }
 
     public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)

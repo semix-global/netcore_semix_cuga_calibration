@@ -3,7 +3,7 @@ using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 using System.Windows;
 
-namespace Core.Utilities.WPF.Converters;
+namespace Net.Utilities.WPF.Converters.Calibration.SingleValue;
 
 public sealed class DoubleToGridLengthConverter : AbstractSingletonConverterBase<DoubleToGridLengthConverter>
 {

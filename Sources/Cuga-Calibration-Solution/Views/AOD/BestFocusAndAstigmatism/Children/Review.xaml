@@ -7,7 +7,6 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:bestFocusAndAstigmatism="clr-namespace:Core.Models.Models.AOD.BestFocusAndAstigmatism;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
@@ -91,7 +90,7 @@
                           SelectionMode="Extended">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -168,7 +167,7 @@
             <GroupBox Grid.Row="2" Header="Details Plot">
                 <TabControl ItemsSource="{Binding SelectedItems, ElementName=HistoryListView}" SelectedIndex="0">
                     <i:Interaction.Behaviors>
-                        <wpf:SelectorAutoSelectFirstBehavior />
+                        <behaviors:SelectorAutoSelectFirstBehavior />
                     </i:Interaction.Behaviors>
                     <TabControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type bestFocusAndAstigmatism:AODBestFocusAndAstigmatismDTO}">

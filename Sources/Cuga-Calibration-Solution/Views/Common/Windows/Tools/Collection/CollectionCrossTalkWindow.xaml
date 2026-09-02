@@ -7,13 +7,12 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Collection"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CollectionCrossTalkWindowViewModel}"
@@ -97,7 +96,7 @@
                                                      IsReadOnly="True"
                                                      Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                             <hc:ComboBox.ItemsSource>
                                                 <MultiBinding Converter="{StaticResource MultiApplicationCookieToProductivityInformationsConvert}">
@@ -122,7 +121,7 @@
                                                      SelectionMode="Extended">
                                                 <i:Interaction.Behaviors>
                                                     <behaviors:ListBoxScrollToCurrentBehavior />
-                                                    <wpf:ListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" Type="{x:Type pattern:CIBInformation}" />
+                                                    <behaviors:ListBoxSelectedItemsBehavior BindableSelectedItems="{Binding Cache.CIBInformations}" Type="{x:Type pattern:CIBInformation}" />
                                                 </i:Interaction.Behaviors>
                                             </ListBox>
                                         </Grid>
@@ -144,7 +143,7 @@
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Width(px): "

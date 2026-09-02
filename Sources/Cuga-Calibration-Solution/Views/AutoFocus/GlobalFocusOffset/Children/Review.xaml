@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.AutoFocus.GlobalFocusOffset.Children.Review"
+<UserControl x:Class="CugaCalibration.Views.AutoFocus.GlobalFocusOffset.Children.Review"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +7,6 @@
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:globalFocusOffset="clr-namespace:Core.Models.Models.AutoFocus.GlobalFocusOffset;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusGlobalFocusOffsetViewModel}"
@@ -79,7 +78,7 @@
                           SelectionMode="Extended">
                     <b:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type globalFocusOffset:AutoFocusGlobalFocusOffsetDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type globalFocusOffset:AutoFocusGlobalFocusOffsetDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </b:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">

@@ -88,20 +88,34 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetADSTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var calibrationRegList = new List<CgADSTraceBufferReg>
+        {
+            AdsTracebufferRegEnum.PropOutput0.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.PropOutput1.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.PropOutput2.ToCgADSTraceBufferRegEnum(),
+        };
+        var sxExecuteRetStartADSTraceBuffExec = Invoke(() => Service!.StartADSTraceBuff(calibrationRegList));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Pressure1.Count == 0
-            || sxExecuteRet.Anything.Pressure2.Count == 0
-            || sxExecuteRet.Anything.Pressure3.Count == 0
-            || sxExecuteRet.Anything.Pressure1.Count != sxExecuteRet.Anything.Pressure2.Count
-            || sxExecuteRet.Anything.Pressure2.Count != sxExecuteRet.Anything.Pressure3.Count) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>("Ads error trans buffer is empty", []);
+        if (sxExecuteRetStartADSTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<
+                List<(double PressureValue1, double PressureValue2, double PressureValue3)>>(sxExecuteRetStartADSTraceBuffExec.Msg, []);
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopADSTraceBuffExec = Invoke(() => Service!.StopADSTraceBuff(calibrationRegList));
+
+        if (sxExecuteRetStopADSTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>(sxExecuteRetStopADSTraceBuffExec.Msg, []);
+        if (sxExecuteRetStopADSTraceBuffExec.Anything[0].Count == 0
+            || sxExecuteRetStopADSTraceBuffExec.Anything[1].Count == 0
+            || sxExecuteRetStopADSTraceBuffExec.Anything[2].Count == 0
+            || sxExecuteRetStopADSTraceBuffExec.Anything[0].Count != sxExecuteRetStopADSTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopADSTraceBuffExec.Anything[1].Count != sxExecuteRetStopADSTraceBuffExec.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>("Ads error trans buffer is empty", []);
 
         // 将三个压力值的数据合并成一个列表
-        var pressureList = sxExecuteRet.Anything.Pressure1
-            .Select((t, i) => (PressureValue1: Convert.ToDouble(t), PressureValue2: Convert.ToDouble(sxExecuteRet.Anything.Pressure2[i]), PressureValue3: Convert.ToDouble(sxExecuteRet.Anything.Pressure3[i])))
+        var pressureList = sxExecuteRetStopADSTraceBuffExec.Anything[0]
+            .Select((t, i) => (PressureValue1: Convert.ToDouble(t), PressureValue2: Convert.ToDouble(sxExecuteRetStopADSTraceBuffExec.Anything[1][i]), PressureValue3: Convert.ToDouble(sxExecuteRetStopADSTraceBuffExec.Anything[2][i])))
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess(pressureList);

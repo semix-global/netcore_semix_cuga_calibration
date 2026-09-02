@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 
-namespace Core.Utilities.WPF;
+namespace Net.Utilities.WPF.Commands.Calibration;
 
 public static class Commands
 {
