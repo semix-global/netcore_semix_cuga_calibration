@@ -51,8 +51,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Cuga-Calibration-Solution\Cuga-Calibration-Solution.csproj" />
-        <PackageReference Include="algocv_sharp" />
-        <PackageReference Include="halconxl" />
     </ItemGroup>
 
 </Project>

@@ -91,53 +91,53 @@ public static class BitmapImageExtensions
 
         public BitmapImage ToRoi(Rect rect)
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             return hImage.CropPart((HTuple)rect.Y, (HTuple)rect.X, (HTuple)rect.Width, (HTuple)rect.Height).ToBitmapImage();
         }
 
         public double[] GetHorizontalProjects()
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             return hImage.GetHorizontalProjects();
         }
 
         public (double MaxGrayValue, Point[] maxGrayPoints, double MinGrayValue, Point[] minGrayPoints) GetMaxMinGrayValue(Rect rect)
         {
-            using var hImage = bitmapImage.ToHImage();
+            using var hImage = @this.ToHImage();
 
             return hImage.GetMaxMinGrayValue(rect);
         }
 
         public algocv_sharp.Image ToAlgoCVImage()
         {
-            if (bitmapImage.IsDisposed)
+            if (@this.IsDisposed)
             {
-                throw new ObjectDisposedException(nameof(bitmapImage));
+                throw new ObjectDisposedException(nameof(@this));
             }
 
-            if (bitmapImage.IsEmpty)
+            if (@this.IsEmpty)
             {
-                throw new ArgumentException("Cannot convert an empty BitmapImage.", nameof(bitmapImage));
+                throw new ArgumentException("Cannot convert an empty BitmapImage.", nameof(@this));
             }
 
-            var (channels, dataType, bitsPerPixel) = bitmapImage.PixelFormatEnum switch
+            var (channels, dataType, bitsPerPixel) = @this.PixelFormatEnum switch
             {
                 PixelFormatEnum.Gray8 => (1, ImageDataType.UInt8, 8),
                 PixelFormatEnum.Gray12 => (1, ImageDataType.UInt16, 16),
                 PixelFormatEnum.Gray16 => (1, ImageDataType.UInt16, 16),
                 PixelFormatEnum.Bgr8888 => (3, ImageDataType.UInt8, 24),
                 PixelFormatEnum.Bgra8888 => (4, ImageDataType.UInt8, 32),
-                _ => throw new NotSupportedException($"Pixel format '{bitmapImage.PixelFormatEnum}' is not supported for algocv_sharp.Image conversion.")
+                _ => throw new NotSupportedException($"Pixel format '{@this.PixelFormatEnum}' is not supported for algocv_sharp.Image conversion.")
             };
 
-            var width = bitmapImage.Width;
-            var height = bitmapImage.Height;
+            var width = @this.Width;
+            var height = @this.Height;
             var image = new algocv_sharp.Image(width, height, channels, dataType);
 
             var destImageInfo = ImageInfoFactory.Create(width, height, channels, bitsPerPixel);
-            if (!bitmapImage.ReadPixels(destImageInfo, image.DataPtr, image.Stride, 0, 0))
+            if (!@this.ReadPixels(destImageInfo, image.DataPtr, image.Stride, 0, 0))
             {
                 image.Dispose();
                 throw new InvalidOperationException("Failed to read pixels from BitmapImage into algocv_sharp.Image.");

@@ -720,6 +720,7 @@ public sealed partial class StageMapWindowViewModel(
                             Cache.AlgorithmTemplateTypeEnum,
                             roiImage,
                             templateIds[templateIdIndex],
+                            htmlLogUniqueId,
                             out var matchPoint,
                             out var matchOffset,
                             out var matchScore,

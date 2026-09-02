@@ -7,7 +7,6 @@
              xmlns:cookies="clr-namespace:Core.Models.Models.Common.Cookies;assembly=Core.Models"
              xmlns:converts="clr-namespace:Core.Models.Models.Common.Status.Converts;assembly=Core.Models"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
-             xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
              ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
@@ -118,7 +117,6 @@
                 <valueConverters:ValueToBoolConverter TrueValue="{x:Static coreModels:CalibrationItemViewEnum.Review}" FalseValue="{x:Static coreModels:CalibrationItemViewEnum.Loading}" />
                 <valueConverters:BoolToVisibilityConverter TrueValue="Visible" FalseValue="Collapsed" />
             </valueConverters:ValueConverterGroup>
-            <converters:OrdinalIndexConverter x:Key="OrdinalIndexConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
