@@ -130,16 +130,16 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         {
             case 0:
                 CalibratingItem = new PupilCameraAlignmentDTO();
-
-                return true;
-
-            case 1:
                 MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.HazeFindBFMachinePosition != Point.Origin
                         ? Cache.HazeFindBFMachinePosition
                         : MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)), CalChipSiteModelEnum.HazeModel);
+
+                return true;
+
+            case 1:
 
                 return true;
 
@@ -236,6 +236,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             try
             {
                 FourierViewModel.SetFFHome(FFCH.Ch1);
+
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
                     0,
                     Cache.ProductivityInformation,
@@ -245,12 +246,14 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 var imageFilePath = Path.Combine(detectImageDirectory, "Channel1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 bitmapImage.SaveImage(imageFilePath);
 
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+
                 await CalibratingItem.Channel1Item.CalibratingAsync(imageFilePath, cancellationToken);
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlImage(imageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(CalibratingItem.Channel1Item.ImageROI)
-                ]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
             }
@@ -285,6 +288,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             try
             {
                 FourierViewModel.SetFFHome(FFCH.Ch2);
+
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
                     1,
                     Cache.ProductivityInformation,
@@ -294,12 +298,14 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 var imageFilePath = Path.Combine(detectImageDirectory, "Channel2", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 bitmapImage.SaveImage(imageFilePath);
 
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+
                 await CalibratingItem.Channel2Item.CalibratingAsync(imageFilePath, cancellationToken);
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlImage(imageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(CalibratingItem.Channel2Item.ImageROI)
-                ]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
             }
@@ -335,6 +341,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
             {
                 FourierViewModel.SetFFHome(FFCH.Ch3_X);
                 FourierViewModel.SetFFHome(FFCH.Ch3_Y);
+
                 using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
                     2,
                     Cache.ProductivityInformation,
@@ -344,12 +351,16 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 bitmapImage.SaveImage(imageFilePath);
 
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+
                 await CalibratingItem.Channel3Item.CalibratingAsync(imageFilePath, cancellationToken);
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlImage(imageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(CalibratingItem.Channel3Item.ImageROI)
-                ]), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                CalibratingItem.IsCalibrated = true;
 
                 Guard.IsTrue(Save(CalibratingItem, cancellationToken));
 
@@ -379,18 +390,9 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Channel1 = new HtmlImage(Review.Channel1Item.ChannelImageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(Review.Channel1Item.ImageROI)
-                ]),
-                Channel2 = new HtmlImage(Review.Channel2Item.ChannelImageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(Review.Channel2Item.ImageROI)
-                ]),
-                Channel3 = new HtmlImage(Review.Channel3Item.ChannelImageFilePath, htmlImageOverlays:
-                [
-                    new HtmlImageRectangleOverlay(Review.Channel3Item.ImageROI)
-                ])
+                Channel1Item = new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()),
+                Channel2Item = new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()),
+                Channel3Item = new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = true;

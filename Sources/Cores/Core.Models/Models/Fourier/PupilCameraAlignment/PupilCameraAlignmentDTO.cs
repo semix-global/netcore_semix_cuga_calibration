@@ -5,13 +5,16 @@ using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.Graphics.Primitives.Medias.Styles;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.OpticsFourierImageViewer.WPF;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using SkiaSharp;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
@@ -77,7 +80,8 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         _bitmapImageDrawable = new BitmapImageDrawable();
         _bitmapImageROIDrawable = new BitmapImageROIDrawable(_bitmapImageDrawable)
         {
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All
+            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All,
+            FillStyle = new FillStyle(SKColors.Red.WithAlpha(128))
         };
 
         Document = new OpticsFourierImageDocument();
@@ -91,8 +95,9 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
     {
         ChannelImageFilePath = channelImageFilePath;
         _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+        var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
         _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(
-            new Rect((Point)(PointI)_bitmapImageDrawable.BitmapImage.Size / 2d, (Size)_bitmapImageDrawable.BitmapImage.Size / 2d));
+            new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
         Document.View.ZoomToFit();
 
         var options = new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
@@ -123,5 +128,15 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         ChannelId = ChannelId,
         ChannelImageFilePath = ChannelImageFilePath,
         ImageROI = ImageROI
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        ImageROI,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ])
     };
 }
