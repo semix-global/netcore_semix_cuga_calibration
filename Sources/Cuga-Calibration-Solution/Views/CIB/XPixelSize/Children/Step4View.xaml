@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.V2.Controls;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBXPixelSizeViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -60,7 +60,7 @@
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.DiePitchWith}" />
+                                          Value="{Binding Cache.Item.DiePitchWidth}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Reticle Die Count X: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"

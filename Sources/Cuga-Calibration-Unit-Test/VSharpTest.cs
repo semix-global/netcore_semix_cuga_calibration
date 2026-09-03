@@ -10,7 +10,7 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.ScottPlot.WPF.WPF;
+using Net.Utilities.ScottPlot.WPF.V2;
 using ScottPlot;
 using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -19,10 +19,10 @@ using Point = Net.Utilities.Models.Geometries.Point;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Core.Utilities.WPF.Converters;
 using ScottPlot.MultiplotLayouts;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.WPF.Converters.Calibration.SingleValue;
+using Net.Utilities.ScottPlot.Extensions;
 #endif
 
 namespace CugaCalibrationUnitTest;
@@ -61,17 +61,17 @@ public class VSharpTest
         {
             var wpfWindow = new Window { Title = nameof(TestVSharp1), WindowState = WindowState.Maximized };
 
-            var scatterPlotControl = new ScatterPlotControl();
-            wpfWindow.Content = scatterPlotControl;
+            var plotControl = new PlotControl();
+            wpfWindow.Content = plotControl;
 
-            scatterPlotControl.Configure(new Rows(), 2);
+            plotControl.DataSource.Configure(new Rows(), 2);
 
             RefreshVSharpPlot(
                 filePath,
                 segmentCount,
                 segmentIndex,
                 isLog,
-                scatterPlotControl,
+                plotControl,
                 vSharpResult,
                 0,
                 1);
@@ -269,8 +269,8 @@ public class VSharpTest
         {
             #region Plot
 
-            var scatterPlotControl = new ScatterPlotControl();
-            scatterPlotControl.Configure(new Rows(), 8);
+            var plotControl = new PlotControl();
+            plotControl.DataSource.Configure(new Rows(), 8);
 
             #endregion
 
@@ -299,7 +299,7 @@ public class VSharpTest
             tabControl.Items.Add(new TabItem
             {
                 Header = "Plot",
-                Content = scatterPlotControl
+                Content = plotControl
             });
             tabControl.Items.Add(new TabItem
             {
@@ -317,7 +317,7 @@ public class VSharpTest
                 segmentCount,
                 startSegmentIndex,
                 isLog,
-                scatterPlotControl,
+                plotControl,
                 startVSharpResult,
                 0,
                 1);
@@ -327,7 +327,7 @@ public class VSharpTest
                 segmentCount,
                 stopSegmentIndex,
                 isLog,
-                scatterPlotControl,
+                plotControl,
                 stopVSharpResult,
                 2,
                 3);
@@ -336,46 +336,46 @@ public class VSharpTest
 
             #region Mapping VShape
 
-            scatterPlotControl.SetTitle(4, $"{nameof(segmentCount)}: {segmentCount}, {nameof(isLog)}: {isLog}, {nameof(filePath)}: {filePath}, {nameof(segmentIndexes)}: {string.Join(",", segmentIndexes)}");
+            plotControl.DataSource.SetTitle(4, $"{nameof(segmentCount)}: {segmentCount}, {nameof(isLog)}: {isLog}, {nameof(filePath)}: {filePath}, {nameof(segmentIndexes)}: {string.Join(",", segmentIndexes)}");
 
-            var scatterLine = scatterPlotControl.AddScatterLine(4);
+            var scatterLine = plotControl.DataSource.AddScatterLine(4);
             scatterLine.Update(string.Empty, originHorizontalProjects.ToPoints(), Colors.Gray);
-            scatterLine = scatterPlotControl.AddScatterLine(4);
+            scatterLine = plotControl.DataSource.AddScatterLine(4);
             scatterLine.Update(string.Empty, lineHorizontalProjects.ToPoints(), Colors.Aqua);
-            scatterLine = scatterPlotControl.AddScatterLine(4);
+            scatterLine = plotControl.DataSource.AddScatterLine(4);
             scatterLine.Update(string.Empty, smoothImageHorizontalProjectPoints, Colors.Brown);
 
             foreach (var (_, (vStartIndexTemp, vMiddleIndexTemp, vStopIndexTemp)) in imageRegions.Index())
             {
-                var xLineTemp = scatterPlotControl.AddXLine(4);
+                var xLineTemp = plotControl.DataSource.AddXLine(4);
                 xLineTemp.Update(string.Empty, vStartIndexTemp, Colors.LightSalmon);
-                xLineTemp = scatterPlotControl.AddXLine(4);
+                xLineTemp = plotControl.DataSource.AddXLine(4);
                 xLineTemp.Update(string.Empty, vMiddleIndexTemp, Colors.Salmon);
-                xLineTemp = scatterPlotControl.AddXLine(4);
+                xLineTemp = plotControl.DataSource.AddXLine(4);
                 xLineTemp.Update(string.Empty, vStopIndexTemp, Colors.DarkSalmon);
             }
 
-            var scatterMarkers = scatterPlotControl.AddScatterMarkers(4);
+            var scatterMarkers = plotControl.DataSource.AddScatterMarkers(4);
             scatterMarkers.Update(string.Empty, smoothImageHorizontalProjectMinimaPoints, Colors.Blue, MarkerShape.FilledTriangleDown);
             scatterMarkers.MarkerSize = 20;
 
             foreach (var (vSharpIndex, vSharpPoints) in vSharps)
             {
-                var xLine = scatterPlotControl.AddXLine(4);
+                var xLine = plotControl.DataSource.AddXLine(4);
                 xLine.Update(string.Empty, vSharpIndex, Colors.DarkRed);
                 xLine.LineWidth = 5;
                 xLine.LinePattern = LinePattern.Solid;
 
-                scatterMarkers = scatterPlotControl.AddScatterMarkers(4);
+                scatterMarkers = plotControl.DataSource.AddScatterMarkers(4);
                 scatterMarkers.Update(string.Empty, [vSharpPoints], Colors.DarkBlue, MarkerShape.FilledSquare);
                 scatterMarkers.MarkerSize = 40;
             }
 
             #region Window
 
-            scatterPlotControl.SetTitle(5, nameof(window));
+            plotControl.DataSource.SetTitle(5, nameof(window));
 
-            scatterLine = scatterPlotControl.AddScatterLine(5);
+            scatterLine = plotControl.DataSource.AddScatterLine(5);
             scatterLine.Update(string.Empty, window.ToPoints(), Colors.Gray);
 
             #endregion
@@ -384,16 +384,16 @@ public class VSharpTest
 
             #region Prescan Index to Pixel Index
 
-            scatterPlotControl.SetTitle(6, "pixel/prescan");
+            plotControl.DataSource.SetTitle(6, "pixel/prescan");
 
-            scatterLine = scatterPlotControl.AddScatterLine(6);
+            scatterLine = plotControl.DataSource.AddScatterLine(6);
             scatterLine.Update(string.Empty, prescanToImageIndexMappings, Colors.Gray);
 
             #endregion
 
             #region Pixel Index to Prescan Index
 
-            scatterPlotControl.SetTitle(7, "prescan/pixel");
+            plotControl.DataSource.SetTitle(7, "prescan/pixel");
 
             var isNotLinearSplineImageHorizontalProjectIndexes = mappingList.Where(t => t.IsNotLinearSpline).Select(t => t.ImageHorizontalProjectIndex).ToArray();
             var isNotLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline).Select(t => t.MappingIndex).ToArray();
@@ -401,10 +401,10 @@ public class VSharpTest
                 Vector<double>.Build.Dense([.. isNotLinearSplineImageHorizontalProjectIndexes]),
                 Vector<double>.Build.Dense([.. isNotLinearSplineMappingIndexes]));
 
-            var scatterLineMapping = scatterPlotControl.GetOrAddScatterLine(7, "Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
+            var scatterLineMapping = plotControl.DataSource.GetOrAddScatterLine(7, "Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
             scatterLineMapping.MarkerSize = 10;
 
-            scatterLineMapping = scatterPlotControl.GetOrAddScatterLine(7, $"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
+            scatterLineMapping = plotControl.DataSource.GetOrAddScatterLine(7, $"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
                 [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))]);
             scatterLineMapping.MarkerSize = 10;
 
@@ -412,10 +412,10 @@ public class VSharpTest
             var isLinearSplineLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline == false).Select(t => t.LinearSplineMappingIndex).ToArray();
             var isLinearSplineMappingIndexes = mappingList.Where(t => t.IsNotLinearSpline == false).Select(t => t.MappingIndex).ToArray();
 
-            var scatterMarkersMapping = scatterPlotControl.GetOrAddScatterMarkers(7, "Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
+            var scatterMarkersMapping = plotControl.DataSource.GetOrAddScatterMarkers(7, "Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
                 MarkerShape.FilledSquare);
             scatterMarkersMapping.MarkerSize = 5;
-            scatterMarkersMapping = scatterPlotControl.GetOrAddScatterMarkers(7, "Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
+            scatterMarkersMapping = plotControl.DataSource.GetOrAddScatterMarkers(7, "Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
                 MarkerShape.FilledDiamond);
             scatterMarkersMapping.MarkerSize = 5;
 
@@ -483,7 +483,7 @@ public class VSharpTest
         int segmentCount,
         int segmentIndex,
         bool isLog,
-        ScatterPlotControl scatterPlotControl,
+        PlotControl plotControl,
         VSharpResult vSharpResult,
         int imagePlotIndex,
         int windowPlotIndex)
@@ -498,59 +498,59 @@ public class VSharpTest
             vSharpIndex,
             vSharpPoints) = vSharpResult;
 
-        scatterPlotControl.SetTitle(imagePlotIndex, $"{nameof(filePath)}: {filePath}, {nameof(segmentCount)}: {segmentCount}, {nameof(segmentIndex)}: {segmentIndex}, {nameof(isLog)}: {isLog}, {vSharpPoints.ToString("0.######")}");
+        plotControl.DataSource.SetTitle(imagePlotIndex, $"{nameof(filePath)}: {filePath}, {nameof(segmentCount)}: {segmentCount}, {nameof(segmentIndex)}: {segmentIndex}, {nameof(isLog)}: {isLog}, {vSharpPoints.ToString("0.######")}");
 
-        var scatterLine = scatterPlotControl.AddScatterLine(imagePlotIndex);
+        var scatterLine = plotControl.DataSource.AddScatterLine(imagePlotIndex);
         scatterLine.Update(string.Empty, originHorizontalProjects.ToPoints(), Colors.Gray);
-        scatterLine = scatterPlotControl.AddScatterLine(imagePlotIndex);
+        scatterLine = plotControl.DataSource.AddScatterLine(imagePlotIndex);
         scatterLine.Update(string.Empty, lineHorizontalProjects.ToPoints(), Colors.Aqua);
-        scatterLine = scatterPlotControl.AddScatterLine(imagePlotIndex);
+        scatterLine = plotControl.DataSource.AddScatterLine(imagePlotIndex);
         scatterLine.Update(string.Empty, smoothImageHorizontalProjectPoints, Colors.Brown);
 
         foreach (var (_, (vStartIndexTemp, vMiddleIndexTemp, vStopIndexTemp)) in vShapeWindowBySegments.Regions.Index())
         {
-            var xLineTemp = scatterPlotControl.AddXLine(imagePlotIndex);
+            var xLineTemp = plotControl.DataSource.AddXLine(imagePlotIndex);
             xLineTemp.Update(string.Empty, vStartIndexTemp, Colors.LightSalmon);
-            xLineTemp = scatterPlotControl.AddXLine(imagePlotIndex);
+            xLineTemp = plotControl.DataSource.AddXLine(imagePlotIndex);
             xLineTemp.Update(string.Empty, vMiddleIndexTemp, Colors.Salmon);
-            xLineTemp = scatterPlotControl.AddXLine(imagePlotIndex);
+            xLineTemp = plotControl.DataSource.AddXLine(imagePlotIndex);
             xLineTemp.Update(string.Empty, vStopIndexTemp, Colors.DarkSalmon);
         }
 
         var (vStartIndex, vMiddleIndex, vStopIndex) = vShapeWindowBySegments.Regions[segmentIndex];
-        var xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        var xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, vStartIndex, Colors.DarkOrange);
         xLine.LineWidth = 5;
-        xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, vMiddleIndex, Colors.DarkOrange);
         xLine.LineWidth = 5;
-        xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, vStopIndex, Colors.DarkOrange);
         xLine.LineWidth = 5;
 
-        xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, startIndex, Colors.Red);
         xLine.LineWidth = 5;
         xLine.LinePattern = LinePattern.Solid;
-        xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, stopIndex, Colors.Red);
         xLine.LineWidth = 5;
         xLine.LinePattern = LinePattern.Solid;
 
-        xLine = scatterPlotControl.AddXLine(imagePlotIndex);
+        xLine = plotControl.DataSource.AddXLine(imagePlotIndex);
         xLine.Update(string.Empty, vSharpIndex, Colors.DarkRed);
         xLine.LineWidth = 5;
         xLine.LinePattern = LinePattern.Solid;
-        var scatterMarkers = scatterPlotControl.AddScatterMarkers(imagePlotIndex);
+        var scatterMarkers = plotControl.DataSource.AddScatterMarkers(imagePlotIndex);
         scatterMarkers.Update(string.Empty, smoothImageHorizontalProjectMinimaPoints, Colors.Blue, MarkerShape.FilledTriangleDown);
         scatterMarkers.MarkerSize = 20;
-        scatterMarkers = scatterPlotControl.AddScatterMarkers(imagePlotIndex);
+        scatterMarkers = plotControl.DataSource.AddScatterMarkers(imagePlotIndex);
         scatterMarkers.Update(string.Empty, [vSharpPoints], Colors.DarkBlue, MarkerShape.FilledSquare);
         scatterMarkers.MarkerSize = 40;
 
-        scatterPlotControl.SetTitle(windowPlotIndex, nameof(vShapeWindowBySegments.Window));
+        plotControl.DataSource.SetTitle(windowPlotIndex, nameof(vShapeWindowBySegments.Window));
 
-        scatterLine = scatterPlotControl.AddScatterLine(windowPlotIndex);
+        scatterLine = plotControl.DataSource.AddScatterLine(windowPlotIndex);
         scatterLine.Update(string.Empty, vShapeWindowBySegments.Window.ToPoints(), Colors.Gray);
     }
 

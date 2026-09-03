@@ -93,7 +93,7 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                     AlignmentCacheDarkFields = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
 
                     AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                       t.ProductivityInformation == ProductivityInformation
+                            t.ProductivityInformation == ProductivityInformation
                         , new AlignmentCacheDarkField
                         {
                             ProductivityInformation = ProductivityInformation

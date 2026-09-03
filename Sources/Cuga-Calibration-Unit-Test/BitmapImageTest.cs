@@ -73,9 +73,18 @@ public class BitmapImageTest
         using var hImage = RAWImageFactory.CreateImage(rawBytes, false);
         using var bitmapImage = hImage.ToBitmapImage(12);
 
-        var act = bitmapImage.ToAlgoCVImage;
+        using var algoImage = bitmapImage.ToAlgoCVImage();
 
-        act.Should().Throw<NotSupportedException>();
+        algoImage.Width.Should().Be(bitmapImage.Width);
+        algoImage.Height.Should().Be(bitmapImage.Height);
+        algoImage.Channels.Should().Be(1);
+        algoImage.DataType.Should().Be(ImageDataType.UInt16);
+        algoImage.DataPtr.Should().NotBe(IntPtr.Zero);
+
+        var algoPixels = algoImage.ToSpan<ushort>().ToArray();
+        var halconPixels = Array.ConvertAll(hImage.GetGrayValuesL(), value => (ushort)value);
+
+        algoPixels.Should().BeEquivalentTo(halconPixels, options => options.WithStrictOrdering());
     }
 
     [Fact]

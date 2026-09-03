@@ -2,7 +2,6 @@ using algocv_sharp;
 using AwesomeAssertions;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Helpers.Extensions;
 using System.IO;
 using Xunit.Abstractions;
 

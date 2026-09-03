@@ -263,7 +263,7 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
-        )
+    )
     {
         var sxExecuteRet = Invoke(() => Service2?.MarkBFAlignSite1(new SxParamObj<(SxSizeD size, ushort algo)>((
             algorithmTemplateSizeEnum.ToSize().ToSxSizeD(),
@@ -276,7 +276,7 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(
         AlignmentSiteDto site
-        )
+    )
     {
         var sxExecuteRet = Invoke(() => Service2?.MarkBFAlignSite2(new SxParamObj<C2MSiteDTO>(site.AdaptTo())));
 
@@ -440,6 +440,15 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
     public SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto)
     {
         var sxExecuteRet = Invoke(() => Service?.SetStageMap(new SxParamObj<CgErrorMap>(stageMapDto.AdaptTo().ToCgErrorMap())));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetStageMap(new SxParamObj<CgErrorMap>(stageMapError.AdaptTo())));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)

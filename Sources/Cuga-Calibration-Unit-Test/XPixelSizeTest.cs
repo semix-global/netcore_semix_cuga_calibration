@@ -8,7 +8,6 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 #if XPixelSizeTest
 using System.Windows;
-using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.V2;
 using Net.Utilities.Helpers.Extensions;
@@ -70,23 +69,21 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
             var plotControl = new PlotControl();
             window.Content = plotControl;
 
-            var plotDataSource = new PlotDataSource();
-            plotDataSource.Configure(new Rows(), 3);
-            plotControl.DataSource = plotDataSource;
+            plotControl.DataSource.Configure(new Rows(), 3);
 
             #region Plot0
 
-            plotDataSource.SetTitle(0, "Template Match: px/score");
+            plotControl.DataSource.SetTitle(0, "Template Match: px/score");
 
-            plotDataSource.GetOrAddScatterLine(
+            plotControl.DataSource.GetOrAddScatterLine(
                 0,
                 "Origin",
                 [.. points.Select(t => new Point(t.X, t.Y))],
                 Colors.Blue);
 
-            plotDataSource.GetOrAddYLine(0, "Threshold", threshold, Colors.LightGreen);
+            plotControl.DataSource.GetOrAddYLine(0, "Threshold", threshold, Colors.LightGreen);
 
-            var scatterMarkers = plotDataSource.GetOrAddScatterMarkers(
+            var scatterMarkers = plotControl.DataSource.GetOrAddScatterMarkers(
                 0,
                 "Maxima",
                 [.. indexes.Select(t => points[t])],
@@ -94,7 +91,7 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
                 MarkerShape.FilledTriangleDown);
             scatterMarkers.MarkerSize = 20;
 
-            scatterMarkers = plotDataSource.GetOrAddScatterMarkers(
+            scatterMarkers = plotControl.DataSource.GetOrAddScatterMarkers(
                 0,
                 "Filter Maxima",
                 matchPoints,
@@ -104,13 +101,13 @@ public class XPixelSizeTest(ITestOutputHelper testOutputHelper)
 
             #endregion
 
-            plotDataSource.GetOrAddScatterLine(
+            plotControl.DataSource.GetOrAddScatterLine(
                 1,
                 "XDifferences",
                 xDifferences.ToPoints(),
                 Colors.Blue);
 
-            plotDataSource.GetOrAddScatterLine(
+            plotControl.DataSource.GetOrAddScatterLine(
                 2,
                 "XFilterDifferences",
                 filterXDifferences.ToPoints(),

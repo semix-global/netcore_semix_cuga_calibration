@@ -68,18 +68,20 @@ public sealed class CalibrationConfigServiceMockImpl(
 
     public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
     {
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([new SysUserDTO
-        {
-           UserName = "Test1", Password =  EncryptUtils.Encrypt32("123"), NickName = "Test1", Remark = "Test1"
-        },
-        new SysUserDTO
-        {
-            UserName = "Test2", Password = EncryptUtils.Encrypt32("2"), NickName = "Test2", Remark = "Test2"
-        },
-        new SysUserDTO
-        {
-            UserName = "Test4", Password =  EncryptUtils.Encrypt32("12345"), NickName = "Test3", Remark = "Test3"
-        }]);
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([
+            new SysUserDTO
+            {
+                UserName = "Test1", Password = EncryptUtils.Encrypt32("123"), NickName = "Test1", Remark = "Test1"
+            },
+            new SysUserDTO
+            {
+                UserName = "Test2", Password = EncryptUtils.Encrypt32("2"), NickName = "Test2", Remark = "Test2"
+            },
+            new SysUserDTO
+            {
+                UserName = "Test4", Password = EncryptUtils.Encrypt32("12345"), NickName = "Test3", Remark = "Test3"
+            }
+        ]);
     }
 
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(ProductivityInformation productivityInformation)

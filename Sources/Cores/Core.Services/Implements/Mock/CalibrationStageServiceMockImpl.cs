@@ -222,7 +222,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
-
     )
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));
@@ -372,6 +371,13 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     }
 
     public SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
     {
         Thread.Sleep(100);
 

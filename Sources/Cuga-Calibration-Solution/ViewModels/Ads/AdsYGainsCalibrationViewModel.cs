@@ -267,7 +267,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
                     ReviewDTO.VerifyItems =
                     [
-                        ..ReviewDTO.VerifyItems,
+                        .. ReviewDTO.VerifyItems,
                         forwardItem,
                         reverseItem
                     ];

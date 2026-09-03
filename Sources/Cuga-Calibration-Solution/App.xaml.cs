@@ -17,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
-using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
 using NLog;
@@ -50,7 +49,7 @@ public sealed partial class App
 
         try
         {
-            var pythonDllFilePath = GetPythonDllFilePath();
+            var pythonDllFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
             var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
             Guard.IsTrue(File.Exists(pythonDllFilePath));
             Guard.IsTrue(Directory.Exists(pythonHome));
@@ -76,7 +75,6 @@ public sealed partial class App
                         .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                        .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)
                         .AddApplication(context.HostingEnvironment);
                 })
@@ -207,9 +205,4 @@ public sealed partial class App
     }
 
     #endregion 全局异常捕获
-
-    private static string GetPythonDllFilePath()
-    {
-        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
-    }
 }

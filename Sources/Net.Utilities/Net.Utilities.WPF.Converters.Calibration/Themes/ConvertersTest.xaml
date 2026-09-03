@@ -10,7 +10,6 @@
     <singleValue:PointYToStringConverter x:Key="PointYToStringConverter" />
     <singleValue:PointXToStringConverter x:Key="PointXToStringConverter" />
     <singleValue:StringToBitmapImageDrawableConverter x:Key="StringToBitmapImageDrawableConverter" />
-    <singleValue:ScatterPlotControlToTitleConverter x:Key="ScatterPlotControlToTitleConverter" />
     <singleValue:ListToStringFormatConverter x:Key="ListToStringFormatConverter" />
     <singleValue:StringToNullableBoolConverter x:Key="EnumDescriptionToEnableConverter"
                                                EnumType="EnableStatusEnum"
