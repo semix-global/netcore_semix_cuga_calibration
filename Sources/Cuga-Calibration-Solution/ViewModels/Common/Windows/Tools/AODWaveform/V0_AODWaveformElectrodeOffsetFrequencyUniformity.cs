@@ -30,7 +30,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IPlotDataSource ScatterPlotControl { get; set; } = new PlotDataSource();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -54,10 +54,10 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
 
     public V0AODWaveformElectrodeOffsetFrequencyUniformity()
     {
-        ScatterPlotControl.Configure(totalPlotCount: 3);
-        ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
-        ScatterPlotControl.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
-        ScatterPlotControl.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
+        PlotDataSource.Configure(totalPlotCount: 3);
+        PlotDataSource.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");
+        PlotDataSource.SetTitle(1, "Uniformity Amplitude Result(Y: AMP - X: MHz)");
+        PlotDataSource.SetTitle(2, "Uniformity Measure Power Result(Y: mW - X: MHz)");
     }
 
     private void RefreshPlot()
@@ -69,7 +69,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
             {
                 if (item.FrequencyItems.Count <= 0) continue;
 
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     0,
                     $"{item.FrequencyItems[0].Frequency}(MHz)",
                     [.. item.FrequencyItems.Select(t => new Point(t.Amplitude, t.MeasurePower))],
@@ -83,12 +83,12 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
 
             if (isNeedRefreshes.All(b => b))
             {
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     1,
                     "Amplitude",
                     [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).Amplitude))],
                     Colors.Blue);
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     2,
                     "Measure Power",
                     [.. Items.Select(t => new Point(t.FrequencyItems[0].Frequency, Guard.IsNotNullAndReturn(t.MaxItem).MeasurePower))],
@@ -97,7 +97,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 }

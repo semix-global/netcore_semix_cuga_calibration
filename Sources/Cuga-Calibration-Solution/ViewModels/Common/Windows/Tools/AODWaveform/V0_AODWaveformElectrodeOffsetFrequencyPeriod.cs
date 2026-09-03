@@ -36,7 +36,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IPlotDataSource ScatterPlotControl { get; set; } = new PlotDataSource();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -68,20 +68,20 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
     public V0AODWaveformElectrodeOffsetFrequencyPeriod()
     {
-        ScatterPlotControl.ToggleLegend(false);
+        PlotDataSource.ToggleLegend(false);
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
+            PlotDataSource.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
 
             foreach (var (index, item) in Items.Index())
             {
                 if (item.FrequencyItems.Count <= 0) continue;
 
-                var scatterMarkersOrigin = ScatterPlotControl.GetOrAddScatterMarkers(
+                var scatterMarkersOrigin = PlotDataSource.GetOrAddScatterMarkers(
                     $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                     [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
                     index,
@@ -89,13 +89,13 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
                     MarkerShape.OpenCircle);
                 scatterMarkersOrigin.MarkerSize = 10;
 
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     $"Interpolation {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                     item.FrequencyInterpolationPoints,
                     index,
                     new Range(0, Items.Count - 1));
 
-                var scatterMarkersMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
+                var scatterMarkersMaxima = PlotDataSource.GetOrAddScatterMarkers(
                     $"Maxima {item.FrequencyItems[0].Frequency:0.###}(MHz)",
                     item.FrequencyMaximaPoints,
                     index,
@@ -106,7 +106,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
             if (ClosestMaximaPoints.Count > 0)
             {
-                var scatterMarkersClosestMaxima = ScatterPlotControl.GetOrAddScatterMarkers(
+                var scatterMarkersClosestMaxima = PlotDataSource.GetOrAddScatterMarkers(
                     "Closest Maxima",
                     ClosestMaximaPoints,
                     Colors.Blue,
@@ -116,12 +116,12 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
             if (OffsetFrequencyPeriodCoefficient is not null)
             {
-                ScatterPlotControl.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
+                PlotDataSource.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
             }
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

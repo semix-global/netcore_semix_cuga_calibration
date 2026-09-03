@@ -781,7 +781,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding ScatterPlotControl}" />
+                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding PlotDataSource}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -811,7 +811,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <v2:PlotControl Grid.Row="1" DataContext="{Binding ScatterPlotControl}" />
+                                                <v2:PlotControl Grid.Row="1" DataContext="{Binding PlotDataSource}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
