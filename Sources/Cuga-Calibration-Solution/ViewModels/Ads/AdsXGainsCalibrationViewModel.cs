@@ -556,9 +556,9 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         var (index1, index2) = isPositive ? ("1", "2") : ("3", "4");
         Logger.LogHtmlInformation($"HRP3D:(X{index1},X{index2})", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
-            HPoint3DList = new HtmlPlot3DChart([.. hPoint3DList], $"HPlot3D(X: X1 - Y: X2 - Z: Height)", HtmlPlot3DType.Bar3D),
-            RPoint3DList = new HtmlPlot3DChart([.. rPoint3DList], $"RPlot3D(X: X1 - Y: X2 - Z: Roll)", HtmlPlot3DType.Bar3D),
-            PPoint3DList = new HtmlPlot3DChart([.. pPoint3DList], $"PPlot3D(X: X1 - Y: X2 - Z: Pitch)", HtmlPlot3DType.Bar3D)
+            HPoint3DList = new HtmlPlot3DChart([.. hPoint3DList], "HPlot3D(X: X1 - Y: X2 - Z: Height)", HtmlPlot3DType.Bar3D),
+            RPoint3DList = new HtmlPlot3DChart([.. rPoint3DList], "RPlot3D(X: X1 - Y: X2 - Z: Roll)", HtmlPlot3DType.Bar3D),
+            PPoint3DList = new HtmlPlot3DChart([.. pPoint3DList], "PPlot3D(X: X1 - Y: X2 - Z: Pitch)", HtmlPlot3DType.Bar3D)
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
