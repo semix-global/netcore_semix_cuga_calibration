@@ -27,7 +27,7 @@ using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
@@ -387,7 +387,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 Cache.Item.TemplateFilePath,
                 TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 Cache.Item.WaferRadius,
-                Cache.Item.DiePitchWith,
+                Cache.Item.DiePitchWidth,
                 Cache.Item.ReticleDieCountX,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -412,7 +412,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
-                DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
+                DiePitchSize = new Size(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX),
                 OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
             };
 
@@ -424,8 +424,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             var imageCount = currentRowDies.Length;
             Guard.IsGreaterThan(imageCount, 2);
 
-            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
-            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
+            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
+            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
 
             var darkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -610,7 +610,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return false;
             }
 
-            CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
+            CalibratingItem.XPixelSize = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
             CalibratingItem.XPixelSizeDelta = CalibratingItem.SlideSplitDifferences.Max() - CalibratingItem.SlideSplitDifferences.Min();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -682,7 +682,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     Cache.Item.TemplateFilePath,
                     TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     Cache.Item.WaferRadius,
-                    Cache.Item.DiePitchWith,
+                    Cache.Item.DiePitchWidth,
                     Cache.Item.ReticleDieCountX,
                     detectImageDirectory,
                     Cache.Threshold
@@ -696,7 +696,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
-                    DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
+                    DiePitchSize = new Size(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX),
                     OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                 };
 
@@ -709,7 +709,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 Guard.IsGreaterThan(imageCount, 2);
 
                 var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
-                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
+                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                     Cache.ProductivityInformation,
@@ -747,7 +747,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
-                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
+                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
                 var slideCount = Math.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
                 Guard.IsLessThanOrEqualTo(slideCount, imageCount);
@@ -792,7 +792,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
 
-                var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
+                var verifyRealUmPerPixel = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
                 var distancePixel = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min());

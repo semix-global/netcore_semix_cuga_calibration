@@ -4,7 +4,6 @@ using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Extensions;
 using ScottPlot;
 using System.ComponentModel;
 using Range = ScottPlot.Range;
@@ -40,7 +39,6 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     public AODWaveformElectrodeOffsetFrequencyPeriod()
     {
-        PlotDataSource.Configure();
         PlotDataSource.ToggleLegend(false);
         PlotDataSource.SetTitle("Result (Y: mW - X: MHz)");
     }

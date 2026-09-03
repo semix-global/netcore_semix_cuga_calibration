@@ -7,8 +7,6 @@
              xmlns:coreModels="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
-             xmlns:scottPlot="clr-namespace:ScottPlot;assembly=ScottPlot"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"

@@ -113,7 +113,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-
         switch (CalibrationStepIndex)
         {
             case 0:

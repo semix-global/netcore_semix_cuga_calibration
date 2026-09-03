@@ -8,9 +8,8 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
 using ScottPlot;
 using System.ComponentModel;
 
@@ -159,7 +158,7 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
         GrayValue,
         Analysis = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
         Images = new HtmlExpand("Images", new HtmlContainer([
-            ..Items.Select(t =>
+            .. Items.Select(t =>
                 new HtmlBullet(new
                 {
                     MotorPos = t.NDFRotaryMotorPosition,

@@ -31,7 +31,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -157,14 +156,14 @@ public sealed partial class CollectionYGhostResult : ObservableObject
                 yGhostScatterLines[index].Update(
                     $"No.{index}:{item.FindPosition:0.###}(um)",
                     item.YGhostPoints,
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
 
                 if (item.AlignPoint != Point.Origin)
                 {
                     alignMarkerses[index].Update(
                         $"No.{index} Align Point",
                         [item.AlignPoint],
-                        Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                        Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
                         MarkerShape.OpenCircle);
                     alignMarkerses[index].MarkerSize = 20;
                 }
@@ -174,12 +173,12 @@ public sealed partial class CollectionYGhostResult : ObservableObject
                 yGhostAlignScatterLines[index].Update(
                     $"No.{index}:{item.FindPosition:0.###}(um)",
                     item.YGhostAlignPoints,
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
 
                 markerses[index].Update(
                     $"No.{index} minimum(db),Result {(item.IsOk ? "OK" : "Failed")}:{item.YGhostResultValue:0.######}",
                     [item.YGhostMinimumPoint],
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
                     MarkerShape.OpenCircle);
                 markerses[index].MarkerSize = 20;
             }

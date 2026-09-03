@@ -117,8 +117,11 @@ public static class BestFocusEngineResultExtensions
 
         var ys = Generate.LinearRangeInt32(0, resultInfo.strehl_array_rows - 1);
 
-        IReadOnlyList<IReadOnlyList<Point>> results = [..ys.Select(rowIndex => resultInfo.strehl_array_filtered.GetRow<float>(rowIndex).ToArray().Select(t => t).ToArray())
-            .Select<float[], IReadOnlyList<Point>>(cols => [..cols.Zip(resultInfo.pixel_pos_per_col, (col, px) => new Point(px, col))])];
+        IReadOnlyList<IReadOnlyList<Point>> results =
+        [
+            .. ys.Select(rowIndex => resultInfo.strehl_array_filtered.GetRow<float>(rowIndex).ToArray().Select(t => t).ToArray())
+                .Select<float[], IReadOnlyList<Point>>(cols => [.. cols.Zip(resultInfo.pixel_pos_per_col, (col, px) => new Point(px, col))])
+        ];
 
         return results;
     }
@@ -218,6 +221,7 @@ public class ImageCsvExporter
                 if (col > 0) writer.Write(',');
                 writer.Write($"Pixel{col}");
             }
+
             writer.WriteLine();
         }
 
@@ -244,6 +248,7 @@ public class ImageCsvExporter
                     writer.Write(value.ToString(null, CultureInfo.InvariantCulture));
                 }
             }
+
             writer.WriteLine();
         }
     }

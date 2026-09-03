@@ -104,7 +104,7 @@ public sealed class CalibrationConfigServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<SysUserDTO>>(sxExecuteRet.Msg, []);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([
-            ..sxExecuteRet.Anything.Select(t => new SysUserDTO
+            .. sxExecuteRet.Anything.Select(t => new SysUserDTO
             {
                 Id = t.Id, UserName = t.UserName, Password = t.Password, NickName = t.UserName, Remark = t.UserName
             })

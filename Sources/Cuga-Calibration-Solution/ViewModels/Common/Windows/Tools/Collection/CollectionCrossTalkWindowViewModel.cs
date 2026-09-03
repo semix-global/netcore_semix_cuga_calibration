@@ -377,7 +377,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                 CollectionCrossTalkDTO[] items =
                 [
-                    ..cibInformations.Select((t, i) =>
+                    .. cibInformations.Select((t, i) =>
                     {
                         var dto = new CollectionCrossTalkDTO
                         {
@@ -393,8 +393,8 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                 Results =
                 [
-                    ..Results,
-                    ..items
+                    .. Results,
+                    .. items
                 ];
 
                 logger.LogHtmlInformation($"PMT{cibInformations[0].PMTId}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -409,7 +409,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             {
                 Results = new HtmlContainer([
                     new HtmlTable([
-                        ..Results
+                        .. Results
                             .Select(o =>
                                 new
                                 {
@@ -495,7 +495,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                 crossTalkDTOItems =
                 [
-                    ..crossTalkDTOItems, new CollectionCrossTalkDTOItem
+                    .. crossTalkDTOItems, new CollectionCrossTalkDTOItem
                     {
                         QuietGray = quietGrayValue,
                         SignalGray = signalGrayValue,

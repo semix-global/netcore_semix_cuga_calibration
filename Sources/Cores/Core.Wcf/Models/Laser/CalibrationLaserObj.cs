@@ -112,7 +112,6 @@ public sealed class CalibrationLaserObj
     /// Collection Polarization 校准对象列表 
     /// </summary>
     public CalibrationCollectionPolarizationItem[] CalibrationCollectionPolarizations { get; set; } = [];
-
 }
 
 /// <summary>
