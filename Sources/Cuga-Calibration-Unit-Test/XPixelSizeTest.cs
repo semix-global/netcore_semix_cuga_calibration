@@ -1,4 +1,4 @@
-#define XPixelSizeTest
+// #define XPixelSizeTest
 
 using AwesomeAssertions;
 using MiniExcelLibs;
@@ -8,7 +8,6 @@ using Point = Net.Utilities.Models.Geometries.Point;
 
 #if XPixelSizeTest
 using System.Windows;
-using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.WPF.V2;
 using Net.Utilities.Helpers.Extensions;

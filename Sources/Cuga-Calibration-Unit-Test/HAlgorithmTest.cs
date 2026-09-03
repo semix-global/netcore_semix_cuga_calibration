@@ -1,4 +1,4 @@
-#define HAlgorithmTest
+// #define HAlgorithmTest
 
 using AwesomeAssertions;
 using HalconDotNet;

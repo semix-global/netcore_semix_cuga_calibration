@@ -18,7 +18,6 @@ using Microsoft.Extensions.Options;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Serializations;
-using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using SourceGenerator.AssemblyMetadata;

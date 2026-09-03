@@ -1,4 +1,4 @@
-#define ImageTest
+// #define ImageTest
 
 using AwesomeAssertions;
 using Net.Utilities.Algorithms.Halcon;

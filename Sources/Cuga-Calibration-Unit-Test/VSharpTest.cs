@@ -1,4 +1,4 @@
-#define VSharpTest
+// #define VSharpTest
 
 using AwesomeAssertions;
 using CommunityToolkit.Diagnostics;
@@ -10,6 +10,7 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.ScottPlot.WPF.V2;
 using ScottPlot;
 using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
@@ -22,7 +23,6 @@ using ScottPlot.MultiplotLayouts;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.WPF.Converters.Calibration.SingleValue;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.WPF.V2;
 #endif
 
 namespace CugaCalibrationUnitTest;
