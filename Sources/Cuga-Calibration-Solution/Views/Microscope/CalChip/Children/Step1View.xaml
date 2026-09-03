@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:stepCommon="clr-namespace:CugaCalibration.Views.Microscope.CalChip.Children.StepCommon"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -40,29 +40,17 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="Find Ecs Right Bottom Position"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding Cache.Item.RightBottomMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="Right-Bottom Position(um): "
-                                 hc:TitleElement.TitleWidth="250"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <stepCommon:Step1CommonView />
                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
                             <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                     VerticalAlignment="Top"
                                                     Spacing="10">
                                 <Button Content="Action"
-                                        Command="{Binding Step0Command}"
-                                        CommandParameter="{x:Static stage:StageDirectionTypeEnum.DownRight}"
+                                        Command="{Binding Step1Command}"
                                         hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                         Style="{StaticResource ButtonPrimary.Loading}" />
                                 <Button Content="Cancel"
-                                        Command="{Binding Step0CancelCommand}"
+                                        Command="{Binding Step1CancelCommand}"
                                         hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                         Style="{StaticResource ButtonWarning}" />
                             </hc:UniformSpacingPanel>

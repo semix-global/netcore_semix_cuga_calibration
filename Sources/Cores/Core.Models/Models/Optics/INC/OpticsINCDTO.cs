@@ -8,12 +8,12 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using System.ComponentModel;
-using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 
 namespace Core.Models.Models.Optics.INC;
 
@@ -37,7 +37,7 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -69,15 +69,15 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
 
     public OpticsINCDTO()
     {
-        ScatterPlotControl.SetTitle("INC(Y: PMT Value - X: °)");
+        PlotDataSource.SetTitle("INC(Y: PMT Value - X: °)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
-            var xLines = ScatterPlotControl.GetOrAddXLines(MaxItemINCMotorAbsoluteValue is not null ? 1 : 0);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
+            var xLines = PlotDataSource.GetOrAddXLines(MaxItemINCMotorAbsoluteValue is not null ? 1 : 0);
 
             scatterLines.ElementAtOrDefault(0)?.Update(
                 "INC",
@@ -93,7 +93,7 @@ public sealed partial class OpticsINCDTO : CalibrationDTOBase<OpticsINCDTO>, IAd
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

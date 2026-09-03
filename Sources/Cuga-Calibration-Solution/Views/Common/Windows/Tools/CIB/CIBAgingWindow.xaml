@@ -5,15 +5,15 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
            xmlns:cib="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.CIB"
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:constants="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:CIBAgingWindowViewModel}"
@@ -95,7 +95,7 @@
                                                               Style="{StaticResource ComboBoxExtend}"
                                                               ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
                                                         <i:Interaction.Behaviors>
-                                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                                         </i:Interaction.Behaviors>
                                                     </ComboBox>
                                                     <ComboBox hc:TitleElement.Title="Productivity Information: "
@@ -104,7 +104,7 @@
                                                               ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
                                                               Style="{StaticResource ComboBoxExtend}">
                                                         <i:Interaction.Behaviors>
-                                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBMMDCache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                                         </i:Interaction.Behaviors>
                                                     </ComboBox>
                                                     <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.CIBMMDCache.OpticsConfiguration}" />
@@ -286,7 +286,7 @@
                                                      SelectionMode="Extended">
                                                 <i:Interaction.Behaviors>
                                                     <behaviors:ListBoxScrollToCurrentBehavior />
-                                                    <wpf:ListBoxSelectedItemsBehavior Type="{x:Type viewModels:CIBAgingSelectItem}" BindableSelectedItems="{Binding Cache.SelectedAgings}" />
+                                                    <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type viewModels:CIBAgingSelectItem}" BindableSelectedItems="{Binding Cache.SelectedAgings}" />
                                                 </i:Interaction.Behaviors>
                                             </ListBox>
                                         </Grid>
@@ -365,7 +365,7 @@
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <TabControl ItemsSource="{Binding Cache.CoefficientFindItems}">
                                                     <i:Interaction.Behaviors>
-                                                        <wpf:SelectorAutoSelectFirstBehavior />
+                                                        <behaviors:SelectorAutoSelectFirstBehavior />
                                                     </i:Interaction.Behaviors>
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type cib:CIBAgingCoefficientFindItem}">
@@ -375,7 +375,7 @@
                                                     <TabControl.ContentTemplate>
                                                         <DataTemplate DataType="{x:Type cib:CIBAgingCoefficientFindItem}">
                                                             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                                <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                                <v2:PlotControl DataSource="{Binding PlotDataSource}" />
                                                             </Border>
                                                         </DataTemplate>
                                                     </TabControl.ContentTemplate>
@@ -402,7 +402,7 @@
                                   ScrollViewer.HorizontalScrollBarVisibility="Auto">
                             <i:Interaction.Behaviors>
                                 <behaviors:ListBoxScrollToCurrentBehavior />
-                                <wpf:ListBoxSelectedItemsBehavior Type="{x:Type cib:CIBAgingItem}" BindableSelectedItems="{Binding SelectedResultItems}" />
+                                <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type cib:CIBAgingItem}" BindableSelectedItems="{Binding SelectedResultItems}" />
                             </i:Interaction.Behaviors>
                             <ListView.ItemContainerStyle>
                                 <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -440,7 +440,7 @@
                         <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                             <TabControl ItemsSource="{Binding SelectedResultItems}">
                                 <i:Interaction.Behaviors>
-                                    <wpf:SelectorAutoSelectFirstBehavior />
+                                    <behaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
                                 <TabControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
@@ -451,11 +451,11 @@
                                     <DataTemplate DataType="{x:Type cib:CIBAgingItem}">
                                         <TabControl Margin="5">
                                             <i:Interaction.Behaviors>
-                                                <wpf:SelectorAutoSelectFirstBehavior />
+                                                <behaviors:SelectorAutoSelectFirstBehavior />
                                             </i:Interaction.Behaviors>
                                             <TabItem Header="Plot">
                                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                                    <v2:PlotControl DataSource="{Binding PlotDataSource}" />
                                                 </Border>
                                             </TabItem>
                                             <TabItem Header="Sample Data">

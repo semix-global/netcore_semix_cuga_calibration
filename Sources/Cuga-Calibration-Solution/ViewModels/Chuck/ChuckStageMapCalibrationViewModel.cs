@@ -12,7 +12,6 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -91,7 +90,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     public partial ChuckStageMapDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
     public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
@@ -121,8 +120,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
@@ -138,8 +136,6 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         Cache.IsDarkField = false;
 
         Cache.ProductivityInformation = applicationCookie.NILowProductivityInformation.Clone();
-
-        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -168,12 +164,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
                 return true;
 
@@ -185,19 +179,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Cache.SetParam();
                 Cache.IsDarkField = true;
 
-                ResultChuckStageMapDto.IsCalibrationBrightField = true;
-                ResultChuckStageMapDto.VerifyBrightFieldStageMap = ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Clone();
-                if (Save(ResultChuckStageMapDto, cancellationToken) == false)
-                {
-                    ResultChuckStageMapDto.IsCalibrationBrightField = false;
-                    Logger.LogError("{@Name} Error: Save Bright Field Cache Failed!", Name);
-                    return false;
-                }
-
                 return true;
 
             case 5:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.FirstStageMapPosition);
                 return true;
 
@@ -211,16 +196,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 return true;
 
             case 9:
-                ResultChuckStageMapDto.IsCalibrated = true;
-                ResultChuckStageMapDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
                 Cache.SetParam();
-                if (Save(ResultChuckStageMapDto, cancellationToken) == false)
-                {
-                    ResultChuckStageMapDto.IsCalibrated = false;
-                    Logger.LogError("{@Name} Error: Save Failed!", Name);
-                    return false;
-                }
-
                 return true;
 
             default:
@@ -235,7 +211,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         switch (CalibrationStepIndex)
         {
             case 3 or 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
                 return true;
 
@@ -247,7 +223,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 return true;
 
             case 7 or 8:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(position);
                 return true;
@@ -343,7 +319,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private bool BrightFieldStep1Action()
     {
         Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-        var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+        var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
         if (generateTemplate == false)
         {
             DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -389,6 +365,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
         var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
         darkFieldImageDto.Image.SaveImage(filePath);
+
+        createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
+        createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
         createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
         createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 
@@ -523,6 +502,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             {
                 ResultChuckStageMapDto.IsCalibrationBrightField = false;
                 ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Reset();
+
                 OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationBrightFieldStageMap));
                 BrightFieldGetStageMap(ResultChuckStageMapDto.CalibrationBrightFieldStageMap, detectImageDirectory, () => OnPropertyChanged(nameof(ResultChuckStageMapDto.CalibrationBrightFieldStageMap)), cancellationToken);
             }
@@ -587,6 +567,13 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     calibrationStageMap.ErrorCsvFilePath
                 }), HtmlLogUniqueId.LoggingHtml());
                 return false;
+            }
+
+            if (Cache.IsDarkField == false)
+            {
+                ResultChuckStageMapDto.IsCalibrationBrightField = true;
+                ResultChuckStageMapDto.VerifyBrightFieldStageMap = ResultChuckStageMapDto.CalibrationBrightFieldStageMap.Clone();
+                Guard.IsTrue(Save(ResultChuckStageMapDto, cancellationToken));
             }
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -655,6 +642,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 ResultChuckStageMapDto.ExpandStageMapDto.RealIsMatchOkCsvFilePath,
                 ResultChuckStageMapDto.ExpandStageMapDto.ErrorCsvFilePath
             }), HtmlLogUniqueId.LoggingHtml());
+
+            ResultChuckStageMapDto.IsCalibrated = true;
+            ResultChuckStageMapDto.VerifyDarkFieldStageMap = ResultChuckStageMapDto.CalibrationDarkFieldStageMap.Clone();
+            Guard.IsTrue(Save(ResultChuckStageMapDto, cancellationToken));
+
             return true;
         });
     }
@@ -795,11 +787,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                 DialogWindowProvider.ShowDialog($"Verify Dark Field {(result ? "OK" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-                if (Save(ReviewDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Dark Field Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
+                Guard.IsTrue(Save(ReviewDto, cancellationToken));
 
                 #endregion 暗场验证
 
@@ -872,12 +860,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 #endregion 明场验证
 
                 ReviewDto.IsVerified = ReviewDto.IsVerifyDarkField && ReviewDto.IsVerifyBrightField;
-                if (Save(ReviewDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    ReviewDto.IsVerified = false;
-                    return false;
-                }
+
+                Guard.IsTrue(Save(ReviewDto, cancellationToken));
 
                 DialogWindowProvider.ShowDialog($"Verify {(ReviewDto.IsVerified ? "OK" : "Failed")}!", DialogButtonsEnum.OK, ReviewDto.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
@@ -960,7 +944,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 var tempPosition = StageViewModel.GetBrightFieldStagePosition();
                 if (ReviewViewModel.TryGetMatchPosition(
                         Cache.AlgorithmTemplateTypeEnum,
-                        MicroscopePixelSizeItems,
+                        MicroscopePixelSizes,
                         tempPosition,
                         Cache.HighMicroscopeLensInformation,
                         Cache.BrightFieldTemplateFilePath,

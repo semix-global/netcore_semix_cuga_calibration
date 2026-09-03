@@ -125,6 +125,14 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess((l1SxExecuteRet.Anything, l3SxExecuteRet.Anything));
     }
 
+    public SxExecuteRet<double> GetPMTInterval()
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetSpotSize());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, 0d);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
     {
         var l1SxExecuteRet = SetMotorAbsoluteValue(opticsIlluminationModeEnum switch
@@ -260,6 +268,14 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
         if (sxExecuteRetOpticCommonMove.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetOpticCommonMove.ErrorMsg, false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetMotorRouteRange(CgCommonType cgCommonType, [CallerMemberName] string name = Constants.EmptyString)
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetOpticRange(cgCommonType));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, (0d, 0d, 0d));
+
+        return SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.min, sxExecuteRet.Anything.max, 0.1));
     }
 
     public SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable)

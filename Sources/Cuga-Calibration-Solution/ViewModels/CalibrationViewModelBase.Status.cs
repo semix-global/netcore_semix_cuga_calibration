@@ -13,22 +13,24 @@ public partial class CalibrationViewModelBase
 {
     public virtual IReadOnlyList<CalibrationItemStep> CalibrationSteps => [];
 
+    public bool IsCalibrating => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1;
+
     public double CalibrationProgress => ViewEnum switch
     {
         CalibrationItemViewEnum.Welcome => 0d,
         CalibrationItemViewEnum.Review => 100d,
-        _ => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
+        _ => IsCalibrating
             ? CalibrationSteps[CalibrationStepIndex].StepIsNextEnable
                 ? (CalibrationStepIndex + 1d) / CalibrationSteps.Count * 100d
                 : (CalibrationStepIndex + 0d) / CalibrationSteps.Count * 100d
             : 0d
     };
 
-    public int CalibrationDisplayStepIndex => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
+    public int CalibrationDisplayStepIndex => IsCalibrating
         ? CalibrationStepIndex + 1
         : int.MinValue;
 
-    public string CalibrationStepName => 0 <= CalibrationStepIndex && CalibrationStepIndex <= CalibrationSteps.Count - 1
+    public string CalibrationStepName => IsCalibrating
         ? CalibrationSteps[CalibrationStepIndex].StepName
         : string.Empty;
 
@@ -40,6 +42,7 @@ public partial class CalibrationViewModelBase
     [NotifyPropertyChangedFor(nameof(CalibrationProgress))]
     [NotifyPropertyChangedFor(nameof(CalibrationDisplayStepIndex))]
     [NotifyPropertyChangedFor(nameof(CalibrationStepName))]
+    [NotifyPropertyChangedFor(nameof(IsCalibrating))]
     public partial int CalibrationStepIndex { get; set; } = -1;
 
     public virtual void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)

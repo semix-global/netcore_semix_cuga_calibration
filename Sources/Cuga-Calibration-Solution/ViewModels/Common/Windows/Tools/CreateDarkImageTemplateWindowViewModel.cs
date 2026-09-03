@@ -43,13 +43,6 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
     }
 
     [RelayCommand]
-    private void Loaded()
-    {
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size256;
-    }
-
-    [RelayCommand]
     private async Task OkAsync()
     {
         try
@@ -75,7 +68,7 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
                     return;
                 }
 
-                if (reviewViewModel.TryGenerateTemplate(image, AlgorithmTemplateTypeEnum, TemplateFilePath, Rect) == false)
+                if (reviewViewModel.TryGenerateTemplate(image, AlgorithmTemplateTypeEnum, TemplateFilePath, Rect, Guid.NewGuid()) == false)
                 {
                     dialogWindowProvider.ShowDialog("Error: Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Error);
                     return;

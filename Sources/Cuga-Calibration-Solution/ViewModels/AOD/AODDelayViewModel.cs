@@ -20,7 +20,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -90,7 +90,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<AODDelayCache>(cancellationToken);
@@ -115,6 +114,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -123,8 +123,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -137,7 +135,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -150,8 +148,6 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -160,7 +156,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -303,7 +299,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 {
                     CalibratingItem.PrescanAODDelay,
                     CalibratingItem.ChirpAODDelay,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 Guard.IsTrue(Save([CalibratingItem], cancellationToken));
@@ -394,7 +390,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 {
                     aodDelay.PrescanAODDelay,
                     aodDelay.ChirpAODDelay,
-                    ScatterPlotControl = new HtmlContainer([.. aodDelay.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. aodDelay.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
             }, cancellationToken)));
 
@@ -449,7 +445,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 {
                     selectedReviewItem.PrescanAODDelay,
                     selectedReviewItem.ChirpAODDelay,
-                    ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
@@ -500,7 +496,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

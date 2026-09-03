@@ -9,6 +9,7 @@ using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.AutoFocus;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
@@ -40,7 +41,8 @@ public sealed class CIBViewModel(
     AfViewModel afViewModel,
     OpticsViewModel opticsViewModel,
     LaserViewModel laserViewModel,
-    CalibrationSetting calibrationSetting) : ViewModelBase
+    CalibrationSetting calibrationSetting,
+    ApplicationCookie applicationCookie) : ViewModelBase
 {
     public bool Connect()
     {
@@ -155,11 +157,11 @@ public sealed class CIBViewModel(
 
     #region 采图
 
-    public void ToggleRTFCParam(ProductivityInformation productivityInformation)
+    public void SetGlobalRTFCParams(ProductivityInformation productivityInformation)
     {
         laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-        var ret = calibrationCIBService.ToggleRTFCParam(productivityInformation);
+        var ret = calibrationCIBService.SetGlobalRTFCParams(productivityInformation);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -654,8 +656,8 @@ public sealed class CIBViewModel(
 
         var cibLineCentricities = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>();
 
-        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId);
-        var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId);
+        var centerCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && t.IsOk);
+        var currentCIBLineCentricity = cibLineCentricities.SingleOrDefault(t => t.ProductivityInformation == productivityInformation && t.PmtId == cibInformation.PMTId && t.IsOk);
 
         Vector cartesianCIBLineCentricityOffset;
         if (centerCIBLineCentricity is not null && currentCIBLineCentricity is not null)
@@ -663,14 +665,14 @@ public sealed class CIBViewModel(
             var offset = currentCIBLineCentricity.DFMachineCenterPosition - centerCIBLineCentricity.DFMachineCenterPosition;
             cartesianCIBLineCentricityOffset = new Vector(xDirection * offset.X, yDirection * offset.Y)
                                                - (isLineCentricityOffset
-                                                   ? new Vector(0, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * calibrationSetting.SettingCommonParam.PMTInterval)
+                                                   ? new Vector(0, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * applicationCookie.PMTInterval)
                                                    : Vector.Zero);
         }
         else
         {
             cartesianCIBLineCentricityOffset = isLineCentricityOffset
                 ? Vector.Zero
-                : new Vector(0, (cibInformation.PMTId - calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) * calibrationSetting.SettingCommonParam.PMTInterval);
+                : new Vector(0, (cibInformation.PMTId - calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) * applicationCookie.PMTInterval);
         }
 
         var cartesianOffset = cartesianCIBLineCentricityOffset
@@ -753,7 +755,7 @@ public sealed class CIBViewModel(
             cancellationToken,
             isCustomAFParam: true);
 
-        var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
+        var quality = calibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image, logGuid);
 
         var verifyImageFilePath = Path.Combine(saveResultImageFileDirectory, $"Origin_Score{calChipSiteModelEnum}_Quality{quality:0.###}_({logGuid:N}).jpg");
         darkFieldImageDto.Image.SaveImage(verifyImageFilePath);
@@ -870,7 +872,7 @@ public sealed class CIBViewModel(
             using var horizontalFlipHImage = hImage.HorizontalFlip();
 
             using var image = darkFieldImage.IsForward ? darkFieldImage.Image : horizontalFlipHImage.ToBitmapImage();
-            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
+            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, logGuid, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
 
             resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
             using var temp = hImage.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));

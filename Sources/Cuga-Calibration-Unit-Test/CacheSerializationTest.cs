@@ -18,7 +18,6 @@ using Microsoft.Extensions.Options;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Serializations;
-using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using SourceGenerator.AssemblyMetadata;
@@ -55,7 +54,6 @@ public sealed class CacheSerializationTest : IDisposable
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                    .AddScottPlotServices()
                     .AddCoreService(context.HostingEnvironment)
                     .AddApplication(context.HostingEnvironment);
             })

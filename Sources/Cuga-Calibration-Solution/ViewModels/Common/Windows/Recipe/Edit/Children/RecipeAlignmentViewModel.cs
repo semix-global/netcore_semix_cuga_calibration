@@ -83,7 +83,7 @@ public sealed partial class RecipeAlignmentViewModel(
                 FindWaferCenterByManuallyWindowViewModel.Cache.PositionErrorThreshold = Cache.PositionErrorThreshold;
 
                 var result = await FindWaferCenterByManuallyWindowViewModel.ActionAsync(cancellationToken);
-                if (result == false) dialogWindowProvider.ShowDialog("Failed to find wafer center!");
+                if (result == false) return;
 
                 EditingDTO.WaferDTO.WaferMapDataDTO.WaferCircleCenter = FindWaferCenterByManuallyWindowViewModel.Cache.OffsetPosition;
 
@@ -173,7 +173,6 @@ public sealed partial class RecipeAlignmentViewModel(
     private void DarkFiledMarkSites()
     {
         alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation = Cache.ProductivityInformation;
-        alignmentWindowDarkFieldViewModel.Cache.OpticsIlluminationModeEnum = Cache.ProductivityInformation.OpticsIlluminationModeEnum;
 
         try
         {

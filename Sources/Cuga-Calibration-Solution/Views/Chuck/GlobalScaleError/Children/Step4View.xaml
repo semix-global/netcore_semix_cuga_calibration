@@ -6,7 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckGlobalScaleErrorCalibrationViewModel}"
              d:DesignHeight="1000"

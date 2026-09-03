@@ -6,7 +6,7 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Save"
-        xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+        xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
         xmlns:enums="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
         Width="800"
         Height="900"

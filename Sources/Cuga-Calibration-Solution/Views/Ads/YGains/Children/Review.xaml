@@ -5,8 +5,9 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Ads"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AdsYGainsCalibrationViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="1500"
@@ -35,9 +36,9 @@
                     </StackPanel>
                     <hc:NumericUpDown x:Name="ThresholdNumeric"
                                       Width="275"
-                                      hc:InfoElement.Title="Threshold: "
+                                      hc:TitleElement.Title="Threshold: "
                                       hc:TitleElement.TitleWidth="90"
-                                      hc:InfoElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitlePlacement="Left"
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding Cache.VerifyThreshold}" />
@@ -46,12 +47,12 @@
                                             Spacing="10">
                         <Button x:Name="ActionButton"
                                 Content="Action"
-                                Command="{Binding VerifyActionCommand}"
+                                Command="{Binding VerifyCommand}"
                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                 Style="{StaticResource ButtonPrimary.Loading}" />
                         <Button x:Name="CancelButton"
                                 Content="Cancel"
-                                Command="{Binding VerifyActionCancelCommand}"
+                                Command="{Binding VerifyCancelCommand}"
                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                 Style="{StaticResource ButtonWarning}" />
                     </hc:UniformSpacingPanel>
@@ -69,140 +70,169 @@
                 <RowDefinition Height="10" />
                 <RowDefinition Height="0.5*" />
             </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0" Header="Positive Data">
+            <GroupBox Grid.Row="0" Header="Data">
                 <Grid>
-                    <ListView d:SelectedIndex="0"
-                              ItemsSource="{Binding PositiveAdsYGainsHrpCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
+                    <DataGrid x:Name="HistoryDataGrid"
+                              hc:DataGridAttach.ShowRowNumber="True"
+                              d:SelectedIndex="0"
+                              RowHeaderWidth="60"
+                              HeadersVisibility="All"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              ItemsSource="{Binding ReviewDTO.VerifyItems}"
+                              Style="{StaticResource DataGrid.Small}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
+                            <behaviors:DataGridScrollToCurrentBehavior />
                         </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style BasedOn="{StaticResource DataGridColumnHeaderStyle.Small}" TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style BasedOn="{StaticResource DataGridCellStyle.Small}" TargetType="DataGridCell">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.RowStyle>
+                            <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
                                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
                                 <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPositive}" Value="False">
+                                        <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+                                    </DataTrigger>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y1"
-                                                DisplayMemberBinding="{Binding PositiveY1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y2"
-                                                DisplayMemberBinding="{Binding PositiveY2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y3"
-                                                DisplayMemberBinding="{Binding PositiveY3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="120"
+                                                Header="SpeedYValue"
+                                                Binding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
+                            <DataGridTemplateColumn Width="100" Header="Y1/Y4">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y1OrY4}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ1OrZ4}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="100" Header="Y2/Y5">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y2OrY5}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ2OrZ5}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="100" Header="Y3/Y6">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y3OrY6}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ3OrZ6}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Width="100"
                                                 Header="H"
-                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
+                                                Binding="{Binding H, StringFormat={}{0:f3}}" />
+                            <DataGridTextColumn Width="100"
                                                 Header="P"
-                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                                                Binding="{Binding P, StringFormat={}{0:f3}}" />
+                            <DataGridTextColumn Width="100"
+                                                Header="R"
+                                                Binding="{Binding R, StringFormat={}{0:f3}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </GroupBox>
             <GridSplitter Grid.Row="1" />
-            <GroupBox Grid.Row="2" Header="Negative Data">
-                <Grid>
-                    <ListView d:SelectedIndex="0"
-                              ItemsSource="{Binding NegativeAdsYGainsHrpCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="100"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y4"
-                                                DisplayMemberBinding="{Binding NegativeY4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y5"
-                                                DisplayMemberBinding="{Binding NegativeY5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="Y6"
-                                                DisplayMemberBinding="{Binding NegativeY6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="100" Header="Action Review">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <hc:ButtonGroup>
-                                                <Button Content="PlotHRP"
-                                                        Command="{Binding Path=DataContext.ShowPlotHRPCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Style="{StaticResource ButtonSuccess}" />
-                                            </hc:ButtonGroup>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
+            <GroupBox Grid.Row="2" Header="Plot">
+                <TabControl>
+                    <TabItem Header="Z Plot">
+                        <v2:PlotControl Margin="5" DataSource="{Binding SelectedItem.ZPlotDataSource, ElementName=HistoryDataGrid}" />
+                    </TabItem>
+                    <TabItem Header="HRP Plot">
+                        <v2:PlotControl Margin="5" DataSource="{Binding SelectedItem.HrpPlotDataSource, ElementName=HistoryDataGrid}" />
+                    </TabItem>
+                </TabControl>
             </GroupBox>
         </Grid>
         <!--#endregion-->

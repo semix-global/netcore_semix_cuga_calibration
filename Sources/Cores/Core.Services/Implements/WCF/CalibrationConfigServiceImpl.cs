@@ -5,7 +5,6 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.Config;
-using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -85,7 +84,10 @@ public sealed class CalibrationConfigServiceImpl(
 
     public SxExecuteRet<string> GetDeviceCUGAVersion()
     {
-        return SxExecuteRetHelper.CreateSuccess(ApplicationCookie.ApplicationCUGAVersion);
+        var sxExecuteRet = Invoke(() => Service!.GetCugaVersion());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, string.Empty);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<string> GetCalibrationFilePath()
@@ -94,6 +96,19 @@ public sealed class CalibrationConfigServiceImpl(
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, string.Empty);
 
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
+    }
+
+    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetUserInfoData());
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<SysUserDTO>>(sxExecuteRet.Msg, []);
+
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([
+            .. sxExecuteRet.Anything.Select(t => new SysUserDTO
+            {
+                Id = t.Id, UserName = t.UserName, Password = t.Password, NickName = t.UserName, Remark = t.UserName
+            })
+        ]);
     }
 
     public SxExecuteRet<IReadOnlyList<PrescanAODWaveformProfile>> GetPrescanAODWaveProfiles(

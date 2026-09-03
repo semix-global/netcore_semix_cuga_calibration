@@ -6,10 +6,10 @@ using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot.MultiplotLayouts;
 
 namespace Core.Models.Models.Laser.Attenuator;
@@ -58,7 +58,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenua
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -87,21 +87,21 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenua
 
     public LaserAttenuatorDTO()
     {
-        ScatterPlotControl.Configure(new Columns(), 2);
+        PlotDataSource.Configure(new Columns(), 2);
 
-        ScatterPlotControl.SetTitle(0, "Measure Power(Y: mW - X: Coefficient)");
-        ScatterPlotControl.SetTitle(1, "Laser Attenuator(Y: Rate - X: Coefficient)");
+        PlotDataSource.SetTitle(0, "Measure Power(Y: mW - X: Coefficient)");
+        PlotDataSource.SetTitle(1, "Laser Attenuator(Y: Rate - X: Coefficient)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            ScatterPlotControl.Clear(1);
+            PlotDataSource.Clear(1);
 
             if (MeasurePowerPoints.Count > 0)
             {
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     0,
                     "Measure Power",
                     MeasurePowerPoints,
@@ -110,7 +110,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenua
 
             if (AttenuatorPoints.Count > 0)
             {
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     1,
                     $"Max Measure Power = {MaxMeasurePower:0.######}(mW)",
                     AttenuatorPoints,
@@ -119,7 +119,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenua
 
             if (FitAttenuatorPoints.Count > 0)
             {
-                ScatterPlotControl.GetOrAddScatterLine(
+                PlotDataSource.GetOrAddScatterLine(
                     1,
                     $"Fit Curve: y = {P0:0.######} + {P1:0.######}x + {P2:0.######}x^2 + {P3:0.######}x^3 r^2 = {RSquared:0.######}",
                     FitAttenuatorPoints,
@@ -128,7 +128,7 @@ public sealed partial class LaserAttenuatorDTO : CalibrationDTOBase<LaserAttenua
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

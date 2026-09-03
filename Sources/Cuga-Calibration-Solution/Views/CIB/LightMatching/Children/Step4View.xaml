@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.CIB.LightMatching.Children.Step4View"
+<UserControl x:Class="CugaCalibration.Views.CIB.LightMatching.Children.Step4View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,10 +6,10 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:mmd="clr-namespace:Core.Models.Models.CIB.LightMatching;assembly=Core.Models"
              xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:CIBLightMatchingViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -155,7 +155,7 @@
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBLightMatchingDTO}" BindableSelectedItems="{Binding SelectedCalibratingItems}" />
+                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type mmd:CIBLightMatchingDTO}" BindableSelectedItems="{Binding SelectedCalibratingItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -192,7 +192,7 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedCalibratingItems}">
                         <i:Interaction.Behaviors>
-                            <wpf:SelectorAutoSelectFirstBehavior />
+                            <behaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
@@ -210,9 +210,9 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type mmd:CIBLightMatchingDTO}">
                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <TabControl ItemsSource="{Binding ScatterPlotControls}">
+                                    <TabControl ItemsSource="{Binding PlotDataSources}">
                                         <i:Interaction.Behaviors>
-                                            <wpf:SelectorAutoSelectFirstBehavior />
+                                            <behaviors:SelectorAutoSelectFirstBehavior />
                                         </i:Interaction.Behaviors>
                                         <TabControl.ItemTemplate>
                                             <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
@@ -224,7 +224,7 @@
                                         <TabControl.ContentTemplate>
                                             <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
                                                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                    <ContentControl Content="{Binding Value, Mode=OneWay}" />
+                                                    <v2:PlotControl DataSource="{Binding Value, Mode=OneWay}" />
                                                 </Border>
                                             </DataTemplate>
                                         </TabControl.ContentTemplate>

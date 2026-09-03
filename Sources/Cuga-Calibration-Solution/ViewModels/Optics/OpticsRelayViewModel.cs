@@ -22,7 +22,7 @@ using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -144,6 +144,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.OpticsIlluminationModeEnum)
         ];
 
@@ -152,8 +153,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -169,7 +168,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
 
                 return true;
@@ -178,7 +177,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                 return true;
 
             case 6:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition));
 
                 return true;
@@ -190,8 +189,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -203,7 +200,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
                     ? Cache.Item.DSWFindBFMachinePosition
                     : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
@@ -214,7 +211,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition != Point.Origin
                     ? Cache.Item.DSWFindBFMachinePosition
                     : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
@@ -490,7 +487,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                                 cancellationToken,
                                 isAutoFocus: false);
 
-                            var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image);
+                            var quality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImage.Image, HtmlLogUniqueId);
 
                             var filePath = Path.Combine(currentDetectImageDirectory, $"{ecs:0.###}ECS_{quality:0.###}Quality_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                             darkFieldImage.Image.SaveImage(filePath);
@@ -519,7 +516,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                     CalibratingItem.Slope,
                     CalibratingItem.Intercept,
                     CalibratingItem.RSquared,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -658,7 +655,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                         false,
                         cancellationToken);
 
-                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS);
+                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, HtmlLogUniqueId);
                     item.BestFocus = bestFocus;
                     item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
@@ -691,8 +688,8 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                     {
                         defaultSlope,
-                        XStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
-                        YStrehlRatioScatterPlotControl = new HtmlContainer([.. item.BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+                        XStrehlRatioPlotDataSource = new HtmlContainer([.. item.BestFocus.XStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                        YStrehlRatioPlotDataSource = new HtmlContainer([.. item.BestFocus.YStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
                         item.BestFocus.RawImageFilePath
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
@@ -711,7 +708,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                     CalibratingItem.RelayMotorRatio,
                     CalibratingItem.MinRelayMotorAbsoluteValue,
                     CalibratingItem.MaxRelayMotorAbsoluteValue,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.XZScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.XZPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -777,7 +774,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                     selectedReviewItem.MinRelayMotorAbsoluteValue,
                     selectedReviewItem.MaxRelayMotorAbsoluteValue,
                     selectedReviewItem.IsVerified,
-                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
@@ -813,7 +810,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.OpticsIlluminationModeEnum != dto.OpticsIlluminationModeEnum)
             ];
         }

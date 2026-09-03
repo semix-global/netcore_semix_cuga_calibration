@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using Core.Models.Enums.Optics;
 using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
@@ -158,7 +157,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [RelayCommand]
     private Task LoadedAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             try
             {
@@ -168,11 +167,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
                 Caches = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
                 Cache = Caches.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
-                                                    && t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum
                                                     && t is { IsOk: true, IsVerified: true })
                         ?? Cache;
-
-                var productivityInformations = _applicationCookie.GetProductivityInformations(Cache.OpticsIlluminationModeEnum);
 
                 if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
@@ -181,10 +177,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     Cache.HighMag = _calibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
                 }
 
-                if (productivityInformations.Contains(Cache.ProductivityInformation) == false)
+                if (_applicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation) == false)
                 {
                     Cache.ProductivityInformation = _applicationCookie.OILowProductivityInformation.Clone();
-                    Cache.OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
                 }
 
                 Cache.IsVerified = false;
@@ -204,7 +199,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
             }
             catch (Exception ex)
@@ -218,33 +213,33 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [RelayCommand(CanExecute = nameof(IsPreviousEnable))]
     private Task PreviousAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             StepList[StepIndex].StepIsNextEnable = StepList[StepIndex].DefaultIsNextEnable; // 恢复默认值
             Cache.IsVerified = false;
             _contextProvider.Send(() => StepIndex--);
 
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
     [RelayCommand(CanExecute = nameof(IsNextEnable))]
     private Task NextAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             StepList[StepIndex].StepIsNextEnable = StepList[StepIndex].DefaultIsNextEnable; // 恢复默认值
             Cache.IsVerified = false;
             _contextProvider.Send(() => StepIndex++);
 
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
     [RelayCommand(CanExecute = nameof(IsEnable))]
     private Task MarkSiteAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             var magnificationEnum = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
             if (StepIndex is 2 or 3)
@@ -262,7 +257,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum, Cache.AlgorithmWaferTypeEnum);
+                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum);
 
                     Cache.LowSite1 = resultLowSite1;
                     Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -274,7 +269,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
                     Cache.LowSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -286,7 +281,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1, Cache.AlgorithmWaferTypeEnum);
+                    var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
                     StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location);
 
                     Cache.LowSite2 = resultLowSite2;
@@ -303,7 +298,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
                     Cache.HighSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -315,7 +310,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.ProductivityInformation, Cache.HighSizeEnum, Cache.AlgorithmWaferTypeEnum, Cache.OpticsIlluminationModeEnum);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.ProductivityInformation, Cache.HighSizeEnum);
 
                     Cache.HighSite1 = resultHighSite1;
                     Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -323,7 +318,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
                     StepList[2].StepIsNextEnable = true;
 
-                    NextAsync().Wait();
+                    await NextAsync().ConfigureAwait(false);
 
                     break;
 
@@ -335,7 +330,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1, Cache.AlgorithmWaferTypeEnum, Cache.OpticsIlluminationModeEnum);
+                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1);
                     StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location);
 
                     Cache.HighSite2 = resultHighSite2;
@@ -361,14 +356,14 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.HighSite2,
                 Cache.ProductivityInformation,
                 Cache.LowMag,
-                Cache.AlgorithmWaferTypeEnum,
-                _calibrationSetting.SettingCommonParam.MainLaserLightInformation,
-                Cache.OpticsIlluminationModeEnum);
+                _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;
             Cache.IsVerified = true;
             _contextProvider.Send(() => SaveCommand.NotifyCanExecuteChanged());
+
+            return Task.CompletedTask;
         });
     }
 
@@ -385,12 +380,15 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
                 _dialogWindowProvider.ShowDialog("Save Ok");
                 Close();
+
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 Cache.IsOk = false;
                 _logger.LogError(ex, "{@Name}: Failed to save alignment cache!", nameof(AlignmentWindowDarkFieldViewModel));
                 _dialogWindowProvider.ShowDialog("Failed to save alignment cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                throw;
             }
         });
     }
@@ -401,8 +399,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         Caches =
         [
             .. Caches
-                .Where(t => (t.ProductivityInformation == Cache.ProductivityInformation
-                             && t.OpticsIlluminationModeEnum == Cache.OpticsIlluminationModeEnum) == false),
+                .Where(t => t.ProductivityInformation == Cache.ProductivityInformation == false),
             Cache.Clone()
         ];
 
@@ -413,10 +410,10 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     [RelayCommand(CanExecute = nameof(IsAdvancedEnable))]
     private Task AdvancedAsync()
     {
-        return InvokeAsync(() =>
+        return InvokeAsync(async () =>
         {
             Advanced();
-            MovePositionAndSwitchMag();
+            await MovePositionAndSwitchMagAsync().ConfigureAwait(false);
         });
     }
 
@@ -433,7 +430,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         }
     }
 
-    private void MovePositionAndSwitchMag()
+    private async Task MovePositionAndSwitchMagAsync()
     {
         try
         {
@@ -441,22 +438,22 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             {
                 case 0:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 1:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 2:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 3:
                     StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMag);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
             }
         }
@@ -482,18 +479,18 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         _cancellationTokenSource = null;
     }
 
-    private Task InvokeAsync(Action action)
+    private Task InvokeAsync(Func<Task> func)
     {
-        return Task.Run(() =>
+        return Task.Run(async () =>
         {
             try
             {
                 _contextProvider.Send(() => IsEnable = false);
-                action();
+                await func();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "{@Name}: Invoke Failed", nameof(EFEMWindowViewModel));
+                _logger.LogError(e, "{@Name}: Invoke Failed", nameof(AlignmentWindowDarkFieldViewModel));
             }
             finally
             {

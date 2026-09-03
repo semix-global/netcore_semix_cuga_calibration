@@ -6,10 +6,11 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:relay="clr-namespace:Core.Models.Models.Optics.SC;assembly=Core.Models"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsSCViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -196,7 +197,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate DataType="{x:Type relay:OpticsSCDTOItem}">
                                         <TextBlock TextWrapping="Wrap">
-                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
+                                            <Hyperlink Command="{x:Static cmd:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
                                                 <Run Text="{Binding BestFocus.RawImageFilePath}" />
                                             </Hyperlink>
                                         </TextBlock>
@@ -211,7 +212,7 @@
                     <TabControl>
                         <TabItem Header="Plots">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                                <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
                             </Border>
                         </TabItem>
                         <TabItem Header="X/Z Sync Plots">

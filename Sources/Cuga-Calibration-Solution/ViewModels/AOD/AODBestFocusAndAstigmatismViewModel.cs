@@ -27,7 +27,7 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -133,7 +133,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
         UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
+        Cache.PmtInterval = ApplicationCookie.PMTInterval;
 
         if (Cache.Item.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel)
             StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
@@ -170,22 +170,17 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 return true;
 
             case 2:
-                DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
-                    out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
-                Cache.Item.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
                 return true;
 
             case 3:
                 return true;
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.StartPosition,
                     Cache.Item.CalChipSiteModelEnum);
                 return true;
 
             case 5:
-                DialogWindowProvider.ShowDialog($"{Cache.ProductivityInformation}-{Cache.ApodizationModeEnum.ToHexString()} best focus and astigmatism calibration ok!");
-
                 return true;
             default:
                 return true;
@@ -564,12 +559,12 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                                         t.bestFocus.RawImageFilePath,
                                         XStrehlRatioScatterPlot =
                                             new HtmlContainer([
-                                                .. t.bestFocus.XStrehlRatioScatterPlotControl
+                                                .. t.bestFocus.XStrehlRatioPlotDataSource
                                                     .GetAllHtmlPlot2DLinesCharts()
                                             ]),
                                         YStrehlRatioScatterPlot =
                                             new HtmlContainer([
-                                                .. t.bestFocus.YStrehlRatioScatterPlotControl
+                                                .. t.bestFocus.YStrehlRatioPlotDataSource
                                                     .GetAllHtmlPlot2DLinesCharts()
                                             ])
                                     })))
@@ -633,7 +628,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 update(dto);
                 Calibrations =
                 [
-                    dto,
+                    dto.Clone(),
                     .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.ApodizationModeEnum == dto.ApodizationModeEnum) == false)
                 ];
             }
@@ -803,7 +798,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 temp.IsKeepRawImageCIBProfileModeEnum = false;
                 using var image = temp.GetImage();
 
-                item = CalibrationAlgorithmService.GetBestFocus(image, startECS, stopECS);
+                item = CalibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, HtmlLogUniqueId);
                 item.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
             }
             catch (Exception ex)

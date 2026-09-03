@@ -71,6 +71,12 @@ public interface ICalibrationOpticsService
     SxExecuteRet<(double L1, double L3)> GetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum);
 
     /// <summary>
+    /// 获取PMT Sensor高度
+    /// </summary>
+    /// <returns>PMT Sensor高度</returns>
+    SxExecuteRet<double> GetPMTInterval();
+
+    /// <summary>
     /// 设置SC电机位置
     /// </summary>
     /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>

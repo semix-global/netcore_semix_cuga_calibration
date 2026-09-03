@@ -1,5 +1,4 @@
 using Core.Models.Enums.Algorithm;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -139,6 +138,12 @@ public interface ICalibrationStageService
     SxExecuteRet<(double XDirection, double YDirection)> GetMachineDirection();
 
     /// <summary>
+    /// 获取晶圆尺寸类型
+    /// </summary>
+    /// <returns>晶圆尺寸类型</returns>
+    SxExecuteRet<AlgorithmWaferTypeEnum> GetAlgorithmWaferType();
+
+    /// <summary>
     /// Y轴初始化
     /// </summary>
     /// <returns>是否成功</returns>
@@ -221,12 +226,10 @@ public interface ICalibrationStageService
     /// </summary>
     /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <returns>标记点1的坐标和模板</returns>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum
+        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
     );
 
     /// <summary>
@@ -234,8 +237,7 @@ public interface ICalibrationStageService
     /// </summary>
     /// <param name="site">MarkAlignSite1的返回值</param>
     /// <returns>标记点2的坐标和模板</returns>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
-    SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site, AlgorithmWaferTypeEnum algorithmWaferTypeEnum);
+    SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site);
 
     /// <summary>
     /// 晶圆对准
@@ -245,7 +247,6 @@ public interface ICalibrationStageService
     /// <param name="highSite1">高倍镜下手动设置标记点1</param>
     /// <param name="highSite2">高倍镜下手动设置标记点2</param>
     /// <param name="highMicroscopeLensInformation"></param>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="lowMicroscopeLensInformation"></param>
     /// <param name="isP2">True：P2 False：自动映射找点</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
@@ -256,7 +257,6 @@ public interface ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2);
 
     /// <summary>
@@ -268,7 +268,6 @@ public interface ICalibrationStageService
     /// <param name="highSite2">高倍镜下手动设置标记点2</param>
     /// <param name="lowMicroscopeLensInformation">对准使用的低倍镜</param>
     /// <param name="highMicroscopeLensInformation">对准使用的高倍镜</param>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="isP2">True：P2 False：自动映射找点</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentVerify(
@@ -278,7 +277,6 @@ public interface ICalibrationStageService
         AlignmentSiteDto highSite2,
         MicroscopeLensInformation lowMicroscopeLensInformation,
         MicroscopeLensInformation highMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         bool isP2);
 
     #endregion 晶圆对准P5
@@ -288,32 +286,24 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点1
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="laserLightInformation">光强值</param>
     /// <returns>暗场标记点1的坐标和模板</returns>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite1DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation);
 
     /// <summary>
     /// 设置标记点2
     /// </summary>
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="site">MarkAlignSite1的返回值</param>
     /// <returns>暗场标记点2的坐标和模板</returns>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     SxExecuteRet<AlignmentSiteDto> MarkAlignSite2DarkField(
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum);
+        AlignmentSiteDto site);
 
     /// <summary>
     /// 晶圆对准
@@ -322,10 +312,8 @@ public interface ICalibrationStageService
     /// <param name="brightFieldLowSite2">低倍镜下手动设置标记点2</param>
     /// <param name="darkFieldHighSite1">暗场标记点1的坐标和模板</param>
     /// <param name="darkFieldHighSite2">暗场标记点2的坐标和模板</param>
-    /// <param name="opticsIlluminationModeEnum">照明方式</param>
     /// <param name="productivityInformation">产率</param>
     /// <param name="lowMicroscopeLensInformation">对准使用的低倍镜</param>
-    /// <param name="algorithmWaferTypeEnum">晶圆类型</param>
     /// <param name="laserLightInformation">光强值</param>
     /// <returns>晶圆的偏移角度和4个标记点的坐标</returns>
     SxExecuteRet<AlignmentResultDto> AlignmentDarkField(
@@ -333,10 +321,8 @@ public interface ICalibrationStageService
         AlignmentSiteDto brightFieldLowSite2,
         AlignmentSiteDto darkFieldHighSite1,
         AlignmentSiteDto darkFieldHighSite2,
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
-        AlgorithmWaferTypeEnum algorithmWaferTypeEnum,
         LaserLightInformation laserLightInformation);
 
     /// <summary>
@@ -369,6 +355,13 @@ public interface ICalibrationStageService
     /// <param name="stageMapDto">stage map</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto);
+
+    /// <summary>
+    /// 使用 Cuga ACS ErrorMap 结构设置 StageMap。
+    /// </summary>
+    /// <param name="stageMapError">Cuga ACS ErrorMap</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError);
 
     /// <summary>
     /// 设置明场中心的机械位置

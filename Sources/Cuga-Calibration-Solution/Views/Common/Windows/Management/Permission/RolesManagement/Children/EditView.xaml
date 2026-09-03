@@ -1,13 +1,12 @@
 ﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Management.Permission.RolesManagement.Children.EditView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Permission"
              xmlns:dataScope="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Permission"
              d:DataContext="{d:DesignInstance Type=viewModels:RolesManagementViewModel}"
              d:DesignHeight="700"
              d:DesignWidth="300"
@@ -34,31 +33,32 @@
                 <TextBox Text="{Binding OperateSysRoleDto.Name}"
                          Width="auto"
                          Margin="0,0,5,0"
+                         hc:TitleElement.Title="Name: "
+                         hc:TitleElement.TitlePlacement="Left"
                          hc:TitleElement.TitleWidth="100"
-                         hc:InfoElement.Title="Name: "
-                         hc:InfoElement.TitlePlacement="Left"
                          Style="{StaticResource TextBoxExtend}" />
                 <TextBox Text="{Binding OperateSysRoleDto.Remark}"
                          Width="auto"
                          Margin="0,0,5,0"
+                         hc:TitleElement.Title="Remark: "
+                         hc:TitleElement.TitlePlacement="Left"
                          hc:TitleElement.TitleWidth="100"
-                         hc:InfoElement.Title="Remark: "
-                         hc:InfoElement.TitlePlacement="Left"
                          Style="{StaticResource TextBoxExtend}" />
-                <hc:ComboBox Width="auto"
-                             Margin="0,0,5,0"
-                             HorizontalAlignment="Left"
-                             hc:InfoElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="100"
-                             hc:InfoElement.Title="Data Scope: "
-                             SelectedItem="{Binding OperateSysRoleDto.DataScopeEnum, UpdateSourceTrigger=PropertyChanged}"
-                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dataScope:DataScopeEnum}}}">
-                    <hc:ComboBox.ItemTemplate>
+                <ComboBox Width="auto"
+                          Margin="0,0,5,0"
+                          HorizontalAlignment="Left"
+                          hc:TitleElement.Title="Data Scope: "
+                          hc:TitleElement.TitlePlacement="Left"
+                          hc:TitleElement.TitleWidth="100"
+                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dataScope:DataScopeEnum}}}"
+                          SelectedItem="{Binding OperateSysRoleDto.DataScopeEnum, UpdateSourceTrigger=PropertyChanged}"
+                          Style="{StaticResource ComboBoxExtend}">
+                    <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                         </DataTemplate>
-                    </hc:ComboBox.ItemTemplate>
-                </hc:ComboBox>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <hc:UniformSpacingPanel Margin="5,5,5,5"
                                         VerticalAlignment="Top"
                                         Orientation="Vertical"

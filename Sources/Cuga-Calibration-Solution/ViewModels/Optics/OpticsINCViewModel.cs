@@ -22,7 +22,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -133,6 +133,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -141,8 +142,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -155,7 +154,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -168,8 +167,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -178,7 +175,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -325,7 +322,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 var htmlBullet = new HtmlBullet(new
                 {
                     CalibratingItem.MaxItemINCMotorAbsoluteValue,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -415,7 +412,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 Logger.LogHtmlInformation($"{inc.ProductivityInformation}", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     inc.MaxItemINCMotorAbsoluteValue,
-                    ScatterPlotControl = new HtmlContainer([.. inc.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    ScatterPlotControl = new HtmlContainer([.. inc.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 }), HtmlLogUniqueId.LoggingHtml());
             }, cancellationToken)));
 
@@ -468,7 +465,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 var htmlBullet = new HtmlBullet(new
                 {
                     selectedReviewItem.MaxItemINCMotorAbsoluteValue,
-                    ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
@@ -519,7 +516,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

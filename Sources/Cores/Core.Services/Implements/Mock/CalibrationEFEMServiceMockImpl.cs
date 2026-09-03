@@ -1,4 +1,5 @@
 using Core.Models.Enums.EFEM;
+using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.EFEM;
 using Core.Services.Interfaces;
@@ -13,6 +14,9 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationEFEMService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
 {
+    private static bool IsLp1Loaded;
+    private static bool IsLp2Loaded;
+
     private static readonly List<EFEMFoupItem> Lp1 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P1, SlotId = 25 - i, IsHasWafer = Random.Shared.NextDouble() > 0.5 })];
     private static readonly List<EFEMFoupItem> Lp2 = [.. Enumerable.Range(0, 25).Select(i => new EFEMFoupItem { StationEnum = EFEMStationEnum.P2, SlotId = 25 - i, IsHasWafer = Random.Shared.NextDouble() > 0.5 })];
 
@@ -32,12 +36,36 @@ public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
     {
         Thread.Sleep(2000);
 
+        switch (stationEnum)
+        {
+            case EFEMStationEnum.P1:
+                IsLp1Loaded = true;
+                break;
+            case EFEMStationEnum.P2:
+                IsLp2Loaded = true;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(stationEnum), stationEnum, null);
+        }
+
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> UnLoadFoup(EFEMStationEnum stationEnum)
     {
         Thread.Sleep(100);
+
+        switch (stationEnum)
+        {
+            case EFEMStationEnum.P1:
+                IsLp1Loaded = false;
+                break;
+            case EFEMStationEnum.P2:
+                IsLp2Loaded = false;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(stationEnum), stationEnum, null);
+        }
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -79,6 +107,12 @@ public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(stationEnum == EFEMStationEnum.P1 ? Lp1 : Lp2);
+        return SxExecuteRetHelper.CreateSuccess(stationEnum == EFEMStationEnum.P1
+            ? IsLp1Loaded
+                ? Lp1
+                : throw new CugaException("Currently in unload state, can't mapping!")
+            : IsLp2Loaded
+                ? Lp2
+                : throw new CugaException("Currently in unload state, can't mapping!"));
     }
 }

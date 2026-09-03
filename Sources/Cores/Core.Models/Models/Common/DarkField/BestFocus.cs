@@ -1,10 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using Range = ScottPlot.Range;
@@ -98,27 +99,27 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl XStrehlRatioScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource XStrehlRatioPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl YStrehlRatioScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource YStrehlRatioPlotDataSource { get; set; } = new PlotDataSource();
 
     public BestFocus()
     {
-        XStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
+        XStrehlRatioPlotDataSource.Configure(new Columns(), 3);
 
-        XStrehlRatioScatterPlotControl.SetTitle(0, "Peek X Strehl Ratio(Y: Strehl Ratio - X: px)");
-        XStrehlRatioScatterPlotControl.SetTitle(1, "X Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
-        XStrehlRatioScatterPlotControl.SetTitle(2, "X Field Tilt(Y: px - X: Intra-Ribbon)");
-        XStrehlRatioScatterPlotControl.ToggleLegend(1, false);
+        XStrehlRatioPlotDataSource.SetTitle(0, "Peek X Strehl Ratio(Y: Strehl Ratio - X: px)");
+        XStrehlRatioPlotDataSource.SetTitle(1, "X Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
+        XStrehlRatioPlotDataSource.SetTitle(2, "X Field Tilt(Y: px - X: Intra-Ribbon)");
+        XStrehlRatioPlotDataSource.ToggleLegend(1, false);
 
-        YStrehlRatioScatterPlotControl.Configure(new Columns(), 3);
+        YStrehlRatioPlotDataSource.Configure(new Columns(), 3);
 
-        YStrehlRatioScatterPlotControl.SetTitle(0, "Peek Y Strehl Ratio(Y: Strehl Ratio - X: px)");
-        YStrehlRatioScatterPlotControl.SetTitle(1, "Y Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
-        YStrehlRatioScatterPlotControl.SetTitle(2, "Y Field Tilt(Y: px - X: Intra-Ribbon)");
-        YStrehlRatioScatterPlotControl.ToggleLegend(1, false);
+        YStrehlRatioPlotDataSource.SetTitle(0, "Peek Y Strehl Ratio(Y: Strehl Ratio - X: px)");
+        YStrehlRatioPlotDataSource.SetTitle(1, "Y Intra-Ribbon Fields(Y: Strehl Ratio - X: px)");
+        YStrehlRatioPlotDataSource.SetTitle(2, "Y Field Tilt(Y: px - X: Intra-Ribbon)");
+        YStrehlRatioPlotDataSource.ToggleLegend(1, false);
     }
 
     // ReSharper disable UnusedParameterInPartialMethod
@@ -173,40 +174,54 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         RefreshYPlot();
     }
 
+    partial void OnXStrehlRatioPlotDataSourceChanged(IPlotDataSource value) => RefreshXPlot();
+
+    partial void OnYStrehlRatioPlotDataSourceChanged(IPlotDataSource value) => RefreshYPlot();
+
     // ReSharper restore UnusedParameterInPartialMethod
 
-    private void RefreshXPlot() => Refresh(
-        XStrehlRatioScatterPlotControl,
-        XStrehlRatioPoints,
-        XStrehlRatioFitPoints,
-        XStrehlRatioColumnPoints,
-        BestXStrehlRatioPoint,
-        BestXStrehlRatioECS,
-        XIntraRibbonFieldsPoints,
-        XFieldTiltPoints,
-        XFieldTiltFitPoints,
-        XFieldTiltFitIntercept,
-        XFieldTiltFitSlope,
-        XFieldTiltFitRSquared,
-        SpotAreaPercentMean);
+    private void RefreshXPlot()
+    {
+        if (XStrehlRatioPlotDataSource is null) return;
 
-    private void RefreshYPlot() => Refresh(
-        YStrehlRatioScatterPlotControl,
-        YStrehlRatioPoints,
-        YStrehlRatioFitPoints,
-        YStrehlRatioColumnPoints,
-        BestYStrehlRatioPoint,
-        BestYStrehlRatioECS,
-        YIntraRibbonFieldsPoints,
-        YFieldTiltPoints,
-        YFieldTiltFitPoints,
-        YFieldTiltFitIntercept,
-        YFieldTiltFitSlope,
-        YFieldTiltFitRSquared,
-        SpotAreaPercentMean);
+        Refresh(
+            XStrehlRatioPlotDataSource,
+            XStrehlRatioPoints,
+            XStrehlRatioFitPoints,
+            XStrehlRatioColumnPoints,
+            BestXStrehlRatioPoint,
+            BestXStrehlRatioECS,
+            XIntraRibbonFieldsPoints,
+            XFieldTiltPoints,
+            XFieldTiltFitPoints,
+            XFieldTiltFitIntercept,
+            XFieldTiltFitSlope,
+            XFieldTiltFitRSquared,
+            SpotAreaPercentMean);
+    }
+
+    private void RefreshYPlot()
+    {
+        if (YStrehlRatioPlotDataSource is null) return;
+
+        Refresh(
+            YStrehlRatioPlotDataSource,
+            YStrehlRatioPoints,
+            YStrehlRatioFitPoints,
+            YStrehlRatioColumnPoints,
+            BestYStrehlRatioPoint,
+            BestYStrehlRatioECS,
+            YIntraRibbonFieldsPoints,
+            YFieldTiltPoints,
+            YFieldTiltFitPoints,
+            YFieldTiltFitIntercept,
+            YFieldTiltFitSlope,
+            YFieldTiltFitRSquared,
+            SpotAreaPercentMean);
+    }
 
     private static void Refresh(
-        IScatterPlotControl scatterPlotControl,
+        IPlotDataSource plotDataSource,
         IReadOnlyList<Point> strehlRatioPoints,
         IReadOnlyList<Point> strehlRatioFitPoints,
         IReadOnlyList<IReadOnlyList<Point>> strehlRatioColumnPoints,
@@ -224,7 +239,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         {
             #region Plot1
 
-            var scatterLines = scatterPlotControl.GetOrAddScatterLines(0, strehlRatioColumnPoints.Count + 1);
+            var scatterLines = plotDataSource.GetOrAddScatterLines(0, strehlRatioColumnPoints.Count + 1);
             foreach (var (index, temp) in strehlRatioColumnPoints.Index())
             {
                 scatterLines[index].Update(string.Empty, temp, Colors.Blue);
@@ -236,7 +251,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
             if (strehlRatioColumnPoints.Count > 0)
             {
-                var scatterMarkers = scatterPlotControl.GetOrAddScatterMarkerses(0, 2);
+                var scatterMarkers = plotDataSource.GetOrAddScatterMarkerses(0, 2);
                 scatterMarkers[0].Update($"Spot Area Percent: {spotAreaPercentMean:0.####}", strehlRatioPoints, Colors.DarkBlue, MarkerShape.OpenCircle);
                 scatterMarkers[0].MarkerSize = 12;
                 scatterMarkers[1].Update(bestStrehlRatioECS > 0
@@ -249,7 +264,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
             #region Plot2
 
-            scatterLines = scatterPlotControl.GetOrAddScatterLines(1, intraRibbonFieldsPoints.Count);
+            scatterLines = plotDataSource.GetOrAddScatterLines(1, intraRibbonFieldsPoints.Count);
             foreach (var (index, temp) in intraRibbonFieldsPoints.Index())
             {
                 scatterLines[index].Update($"{index + 1}", temp, Constants.Turbo.GetColor(intraRibbonFieldsPoints.Count - 1 - index, new Range(0, intraRibbonFieldsPoints.Count - 1)));
@@ -259,7 +274,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
 
             #region Plot3
 
-            scatterLines = scatterPlotControl.GetOrAddScatterLines(2, 2);
+            scatterLines = plotDataSource.GetOrAddScatterLines(2, 2);
             scatterLines[0].Update(string.Empty, fieldTiltPoints, Colors.Blue);
             scatterLines[0].MarkerSize = 10;
             scatterLines[0].MarkerColor = Colors.DarkBlue;
@@ -271,7 +286,7 @@ public sealed partial class BestFocus : ObservableObject, ICloneable<BestFocus>
         }
         finally
         {
-            scatterPlotControl.AutoScaleRefresh();
+            plotDataSource.AutoScaleRefresh();
         }
     }
 

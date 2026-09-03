@@ -60,13 +60,13 @@ public sealed class MicroscopeViewModel(
         MicroscopeLensInformation previousMicroscopeLensInformation,
         MicroscopeLensInformation currentMicroscopeLensInformation)
     {
-        var microscopeCentricities = applicationCookieCacheProvider.GetCalibrations<MicroscopeCentricityItemDto>();
+        var microscopeCentricities = applicationCookieCacheProvider.GetCalibrations<MicroscopeCentricityDTO>();
 
-        var previousMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == previousMicroscopeLensInformation);
-        var currentMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.LensInformation == currentMicroscopeLensInformation);
+        var previousMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.MicroscopeLensInformation == previousMicroscopeLensInformation && t.IsOk);
+        var currentMicroscopeCentricity = microscopeCentricities.SingleOrDefault(t => t.MicroscopeLensInformation == currentMicroscopeLensInformation && t.IsOk);
 
         return previousMicroscopeCentricity is not null && currentMicroscopeCentricity is not null
-            ? currentMicroscopeCentricity.Offset - previousMicroscopeCentricity.Offset
+            ? currentMicroscopeCentricity.Result.Offset - previousMicroscopeCentricity.Result.Offset
             : Vector.Zero;
     }
 
@@ -77,83 +77,95 @@ public sealed class MicroscopeViewModel(
 
     #endregion
 
-    public void SwitchMicroscopeLensInformation(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
+    /// <summary>
+    /// 异步方式切换显微镜镜头信息（带自动对焦）
+    /// </summary>
+    public async Task SwitchMicroscopeLensInformationAsync(
+        MicroscopeLensInformation microscopeLensInformation,
+        bool isMoveToMicroscopeCenter = false,
+        CancellationToken cancellationToken = default)
     {
-        var switchMicroscopeLensInformationNotAutoFocus = SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation, isMoveToMicroscopeCenter);
-        if (switchMicroscopeLensInformationNotAutoFocus == false) throw new CugaException("Switch Microscope Lens Information Not AutoFocus Failed");
+        await SwitchMicroscopeLensInformationNotAutoFocusAsync(microscopeLensInformation, isMoveToMicroscopeCenter, cancellationToken);
 
         afViewModel.ToggleBrightFieldEnable(true);
 
-        Thread.Sleep(500);
+        await Task.Delay(500, cancellationToken);
     }
 
-    public bool SwitchMicroscopeLensInformationNotAutoFocus(MicroscopeLensInformation microscopeLensInformation, bool isMoveToMicroscopeCenter = false)
+    /// <summary>
+    /// 异步方式切换显微镜镜头信息（不带自动对焦）
+    /// </summary>
+    /// <param name="microscopeLensInformation">目标镜头信息</param>
+    /// <param name="isMoveToMicroscopeCenter">是否移动到显微镜中心</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>是否成功</returns>
+    public async Task SwitchMicroscopeLensInformationNotAutoFocusAsync(
+        MicroscopeLensInformation microscopeLensInformation,
+        bool isMoveToMicroscopeCenter = false,
+        CancellationToken cancellationToken = default)
     {
-        var resultFocusList = applicationCookieCacheProvider.GetCalibrations<MicroscopeFocusItemDto>();
+        var diagnosticId = Guid.NewGuid();
+        var startTime = DateTime.Now;
+        var actualTimeout = TimeSpan.FromSeconds(15);
 
-        var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
-        var newMicroscopeFocusItemDto = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+        var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutCts.CancelAfter(actualTimeout);
+        var token = timeoutCts.Token;
 
-        afViewModel.ToggleBrightFieldEnable(false);
-
-        var taskAf1 = Task.Run(() =>
+        await Task.Run(() =>
         {
-            if (previousMicroscopeLensInformation == microscopeLensInformation) return true;
-            if (newMicroscopeFocusItemDto?.IsOk == true)
+            try
             {
-                afViewModel.SetSensorEcsValue(newMicroscopeFocusItemDto.EcsValue);
+                token.ThrowIfCancellationRequested();
+
+                var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
+                if (previousMicroscopeLensInformation == microscopeLensInformation) return;
+
+                var resultFocusList = applicationCookieCacheProvider.GetCalibrations<MicroscopeFocusDTO>();
+                var newMicroscopeFocusDTO = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+
+                logger.LogTrace("{DiagnosticId} Start Switch MicroscopeLens", diagnosticId);
+
+                afViewModel.ToggleBrightFieldEnable(false);
+
+                if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorEcsValue(newMicroscopeFocusDTO.Result.EcsValue);
+
+                if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, newMicroscopeFocusDTO.Result.EcsValue);
+
+                afViewModel.SetSensorMicroscopeObjValue(microscopeLensInformation);
+
+                var ret = calibrationMicroscopeService.SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation);
+                if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+                if (newMicroscopeFocusDTO?.IsOk == true) SetVoltage(newMicroscopeFocusDTO.Result.MicroscopeVoltage);
+
+                if (isMoveToMicroscopeCenter)
+                {
+                    var offset = GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, microscopeLensInformation);
+                    stageViewModel.MoveRelativeStageXy((Point)offset);
+                }
+
+                logger.LogTrace("{DiagnosticId} Switch MicroscopeLens Success:times {TotalElapsed}ms",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
             }
-
-            return true;
-        });
-
-        var taskAf2 = Task.Run(() =>
-        {
-            if (newMicroscopeFocusItemDto?.IsOk == true)
+            catch (OperationCanceledException)
             {
-                afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, newMicroscopeFocusItemDto.EcsValue);
+                logger.LogError("{DiagnosticId} Switch MicroscopeLens Failed:times {elapsedTime}ms, timeout: {Timeout}s",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds, actualTimeout.TotalSeconds);
+
+                throw;
             }
-
-            return true;
-        });
-
-        var taskAf3 = Task.Run(() =>
-        {
-            afViewModel.SetSensorMicroscopeObjValue(microscopeLensInformation);
-            return true;
-        });
-
-        var taskMicroscope1 = Task.Run(() =>
-        {
-            if (previousMicroscopeLensInformation == microscopeLensInformation) return true;
-
-            var ret = calibrationMicroscopeService.SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation);
-            return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
-        });
-
-        var taskMicroscope2 = Task.Run(() =>
-        {
-            if (newMicroscopeFocusItemDto?.IsOk == true)
+            catch (Exception ex)
             {
-                SetVoltage(newMicroscopeFocusItemDto.MicroscopeVoltage);
+                logger.LogError(ex, "{diagnosticId}:Switch MicroscopeLens Error,times: {Elapsed}ms",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
+                throw;
             }
-
-            return true;
-        });
-
-        var taskMove = Task.Run(() =>
-        {
-            if (isMoveToMicroscopeCenter == false) return true;
-
-            stageViewModel.MoveRelativeStageXy((Point)GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, microscopeLensInformation));
-
-            return true;
-        });
-
-        var waitAll = Task.WaitAll([taskAf1, taskAf2, taskAf3, taskMicroscope1, taskMicroscope2, taskMove], TimeSpan.FromSeconds(10));
-        if (waitAll == false) throw new CugaException("Wait all task failed");
-
-        return taskAf1.Result && taskAf2.Result && taskAf3.Result && taskMicroscope1.Result && taskMicroscope2.Result && taskMove.Result;
+            finally
+            {
+                timeoutCts.Dispose();
+            }
+        }, token);
     }
 
     public void SetVoltage(double voltage)
@@ -174,6 +186,12 @@ public sealed class MicroscopeViewModel(
         var ret = calibrationMicroscopeService.GetVoltageRange();
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
         return ret.Anything;
+    }
+
+    public void SetAFParams(MicroscopeLensInformation microscopeLensInformation, double ecs, double voltage)
+    {
+        var ret = calibrationMicroscopeService.SetAFParams(microscopeLensInformation, ecs, voltage);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     /// <summary>

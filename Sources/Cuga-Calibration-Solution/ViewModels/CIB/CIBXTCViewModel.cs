@@ -24,7 +24,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -119,6 +119,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -127,8 +128,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -141,7 +140,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
@@ -157,8 +156,6 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -167,7 +164,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.Item.HazeFindBFMachinePosition != Point.Origin
@@ -325,7 +322,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
                     CalibratingItem.IsReverse,
-                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts())
+                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReversePlotDataSource.GetAllHtmlPlot2DLinesCharts())
                 }), HtmlLogUniqueId.LoggingHtml());
 
                 return true;
@@ -367,7 +364,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReverseScatterPlotControl.GetAllHtmlPlot2DLinesCharts()),
+                    Plot = new HtmlContainer(CalibratingItem.ForwardAndReversePlotDataSource.GetAllHtmlPlot2DLinesCharts()),
                     Exception = ex
                 }), HtmlLogUniqueId.LoggingHtml());
 
@@ -552,7 +549,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                                 t.Items[^1].Error
                             })
                         ])),
-                        Plot = new HtmlContainer([.. CalibratingItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                        Plot = new HtmlContainer([.. CalibratingItem.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                     });
 
                     CalibratingItem.IsCalibrated = resultList.All(t => t);
@@ -656,7 +653,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                             Error = t.Items.Count > 0 ? t.Items[^1].Error.ToString("0.###") : "Not Cache"
                         })
                     ])),
-                    Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                    Plot = new HtmlContainer([.. selectedReviewItem.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
                 if (selectedReviewItem.IsVerified)
@@ -709,7 +706,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

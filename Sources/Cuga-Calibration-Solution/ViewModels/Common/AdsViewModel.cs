@@ -62,36 +62,36 @@ public sealed class AdsViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double PressureValue1, double PressureValue2, double PressureValue3)> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
-        var ret = calibrationAdsService.GetSensorAllPressureTraceBufferList(timeSpan);
+        var ret = await calibrationAdsService.GetSensorAllPressureTraceBufferListAsync(cancellationToken);
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
-        var ret = calibrationAdsService.GetSensorHeightRollPitchTraceBufferList(timeSpan);
+        var ret = await calibrationAdsService.GetSensorHeightRollPitchTraceBufferListAsync(cancellationToken);
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<List<double>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
+    public async Task<(List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed)> GetSensorSpeedZ1Z2Z3TraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
-        var ret = calibrationAdsService.GetSensorSpeedZ1Z2Z3TraceBufferList(timeSpan);
+        var ret = await calibrationAdsService.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationToken);
         logger.LogInformation("End TraceBuffer");
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<List<double>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
+    public async Task<(List<double> X0, List<double> X1, List<double> Y0, List<double> Y1, List<double> Speed)> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
-        var ret = calibrationAdsService.GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(isAxisX, timeSpan);
+        var ret = await calibrationAdsService.GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(isAxisX, cancellationToken);
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

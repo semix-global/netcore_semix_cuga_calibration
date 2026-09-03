@@ -5,7 +5,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:lineCentricity="clr-namespace:Core.Models.Models.CIB.LineCentricity;assembly=Core.Models"
              xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"

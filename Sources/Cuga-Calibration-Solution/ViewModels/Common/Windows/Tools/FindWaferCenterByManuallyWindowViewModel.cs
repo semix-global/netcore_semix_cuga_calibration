@@ -1,23 +1,39 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Models.Common.Alignment;
+using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.IOC.Providers;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.Helper;
+using Net.Utilities.WPF.Helpers;
+using Net.Utilities.WPF.MVVM.Providers;
+using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 
 [IOCAppService(ServiceType = typeof(FindWaferCenterByManuallyWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FindWaferCenterByManuallyWindowViewModel(
     ILogger<FindWaferCenterByManuallyWindowViewModel> logger,
-    ISynchronizationContextProvider contextProvider) : CalibrationViewModelBase
+    ISynchronizationContextProvider contextProvider,
+    IApplicationCookieService applicationCookieService,
+    StageViewModel stageViewModel,
+    IDialogWindowProvider dialogWindowProvider,
+    IOptions<ApplicationSetting> applicationSetting
+) : ViewModelBase
 {
+    public Guid HtmlLogUniqueId { get; set; }
+
+    public string ImageFileDirectory => Path.Combine(applicationSetting.Value.AppHomeDirectory, "Images", nameof(FindWaferCenterByManuallyWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+
     [ObservableProperty]
     public partial AlignmentFindCenterCache Cache { get; set; } = new();
 
@@ -34,12 +50,12 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         {
             try
             {
-                if (AlignmentFindCenterCache is null) Cache = ApplicationCookieService.GetOrDefault<AlignmentFindCenterCache>(true, CancellationToken.None);
+                if (AlignmentFindCenterCache is null) Cache = applicationCookieService.GetOrDefault<AlignmentFindCenterCache>(true, CancellationToken.None);
                 else Cache = AlignmentFindCenterCache;
             }
             catch (Exception ex)
             {
-                DialogWindowProvider.ShowDialog("Find wafer center load failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Find wafer center load failed!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 logger.LogError(ex, "{@Name}: Loaded Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
             }
         });
@@ -51,7 +67,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         var result = true;
         await InvokeAsync(() =>
         {
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
             List<Point> waferEdgeOffsets =
             [
@@ -65,7 +81,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
                 Cache.FindWaferCenterOffset8
             ];
 
-            var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin, waferEdgeOffsets);
+            var (offsetPosition, bitmapMemoryBytes) = stageViewModel.FindWaferCenterByManually(Point.Origin, waferEdgeOffsets);
             Cache.OffsetPosition = offsetPosition;
             if (bitmapMemoryBytes.Count > 0)
             {
@@ -89,7 +105,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
                     OffsetY = Cache.OffsetPosition.Y
                 }), HtmlLogUniqueId.LoggingHtml());
 
-                DialogWindowProvider.ShowDialog("Find wafer center offset exceeds, please manually adjust EFEM.", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                dialogWindowProvider.ShowDialog("Find wafer center offset exceeds, please manually adjust EFEM.", DialogButtonsEnum.OK, DialogIconEnum.Error);
                 result = false;
                 return;
             }
@@ -153,13 +169,13 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         try
         {
             Cache.IsOk = true;
-            ApplicationCookieService.Set(Cache, true, CancellationToken.None);
+            applicationCookieService.Set(Cache, true, CancellationToken.None);
         }
         catch (Exception ex)
         {
             Cache.IsOk = false;
-            Logger.LogError(ex, "{@Name}: Save Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
-            DialogWindowProvider.ShowDialog("Failed to save cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            logger.LogError(ex, "{@Name}: Save Failed", nameof(FindWaferCenterByManuallyWindowViewModel));
+            dialogWindowProvider.ShowDialog("Failed to save cache!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
     }
 }

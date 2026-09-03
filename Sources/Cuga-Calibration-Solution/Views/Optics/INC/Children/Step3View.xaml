@@ -7,8 +7,9 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
              xmlns:relay="clr-namespace:Core.Models.Models.Optics.INC;assembly=Core.Models"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:OpticsINCViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -150,7 +151,7 @@
                     <TabControl>
                         <TabItem Header="Plots">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                                <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
                             </Border>
                         </TabItem>
                         <TabItem Header="Images">

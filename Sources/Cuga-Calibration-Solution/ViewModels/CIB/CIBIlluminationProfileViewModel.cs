@@ -20,7 +20,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -118,6 +118,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.OpticsApodizationModeEnum)
                 .ThenBy(t => t.OpticsPolarizationModeEnum)
@@ -129,8 +130,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -143,7 +142,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -156,8 +155,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -166,7 +163,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -401,7 +398,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     item.OpticsApodizationModeEnum,
                                     item.OpticsPolarizationModeEnum,
                                     item.OpticsCollectorPolarizationModeEnum,
-                                    Plot = new HtmlContainer([.. item.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                                    Plot = new HtmlContainer([.. item.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                                 });
 
                                 item.IsCalibrated = resultList.All(t => t);
@@ -511,7 +508,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                     selectedReviewItem.OpticsApodizationModeEnum,
                     selectedReviewItem.OpticsPolarizationModeEnum,
                     selectedReviewItem.OpticsCollectorPolarizationModeEnum,
-                    Plot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControls.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
+                    Plot = new HtmlContainer([.. selectedReviewItem.PlotDataSources.Select(t => new HtmlExpand(t.Key.ToString(), new HtmlContainer(t.Value.GetAllHtmlPlot2DLinesCharts())))])
                 });
 
                 if (selectedReviewItem.IsVerified)
@@ -547,7 +544,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => (t.ProductivityInformation == dto.ProductivityInformation
                                             && t.OpticsApodizationModeEnum == dto.OpticsApodizationModeEnum
                                             && t.OpticsPolarizationModeEnum == dto.OpticsPolarizationModeEnum

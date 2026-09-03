@@ -1,6 +1,7 @@
 using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
 
@@ -71,33 +72,38 @@ public sealed class CalibrationAdsServiceMockImpl : ICalibrationAdsService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 5000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
-    public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>>> GetSensorHeightRollPitchTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<(List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed)>> GetSensorSpeedZ1Z2Z3TraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
+        var lists = Enumerable.Range(1, 3).Select(_ => Enumerable.Range(1, 5000).Select(_ => (double)Random.Shared.Next(2400, 2500)).ToList()).ToList();
+        var listHrp = Enumerable.Range(1, 3).Select(_ => Enumerable.Range(1, 5000).Select(_ => (double)Random.Shared.Next(50, 60)).ToList()).ToList();
+        var listsV = Enumerable.Range(1, 2).Select(_ => Enumerable.Range(1, 5000).Select(_ => (double)Random.Shared.Next(45, 55)).ToList()).ToList();
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 8).Select(_ => Enumerable.Range(1, 5000).Select(_ => Random.Shared.NextDouble()).ToList()).ToList());
+        return SxExecuteRetHelper.CreateSuccess(
+            (lists[0], lists[1], lists[2], listHrp[0], listHrp[1], listHrp[2], listsV[0], listsV[1]));
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
+    public async Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double> Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
-        var result = Enumerable.Range(1, 5).Select(_ => Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList()).ToList();
-        result[4] = [.. result[4].Select((t, i) => i < 10 ? 0 : t)];
-        return SxExecuteRetHelper.CreateSuccess(result);
+        await cancellationToken.WaitUntilCanceledAsync();
+        var lists = Enumerable.Range(1, 5).Select(_ => Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList()).ToList();
+        lists[4] = [.. lists[4].Select((t, i) => i < 10 ? 0 : t)];
+
+        return SxExecuteRetHelper.CreateSuccess((lists[0], lists[1], lists[2], lists[3], lists[4]));
     }
 
     public SxExecuteRet<bool> SetAdsXyEnabled(bool isEnabled)

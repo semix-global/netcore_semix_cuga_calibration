@@ -1,6 +1,6 @@
 # 校准方案
 
-本目录用于存放已经审核通过的校准方案。
+本目录用于存放已经审核通过的校准方案及对应验收文档。
 
 ## 分类规则
 
@@ -10,6 +10,9 @@
 
 ## 方案索引
 
-| 分类 | 校准项目 | 方案 |
-|---|---|---|
-| Microscope | Microscope-Focus | [Microscope Focus 校准方案](Microscope/Microscope-Focus/校准方案.md) |
+| 分类 | 校准项目 | 方案 | 验收 |
+|---|---|---|---|
+| Microscope | Microscope-Focus | [Microscope Focus 校准方案](Microscope/Microscope-Focus/校准方案.md) | [Microscope Focus 验收](Microscope/Microscope-Focus/验收.md) |
+| Microscope | Microscope-CalChip | [Microscope CalChip 校准方案](Microscope/Microscope-CalChip/校准方案.md) | [Microscope CalChip 验收](Microscope/Microscope-CalChip/验收.md) |
+| Microscope | Microscope-PixelSize | [Microscope PixelSize 校准方案](Microscope/Microscope-PixelSize/校准方案.md) | [Microscope PixelSize 验收](Microscope/Microscope-PixelSize/验收.md) |
+| Microscope | Microscope-Centricity | [Microscope Centricity 校准方案](Microscope/Microscope-Centricity/校准方案.md) | [Microscope Centricity 验收](Microscope/Microscope-Centricity/验收.md) |

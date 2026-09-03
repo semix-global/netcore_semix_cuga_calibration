@@ -1,9 +1,15 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Cookies;
 using Core.Recipe.Services;
 using Core.Services;
+using Core.Utilities.WPF.Tray.Model;
+using Core.Utilities.WPF.Tray.Service.Implements;
+using Core.Utilities.WPF.Tray.Service.Interfaces;
+using Core.Utilities.WPF.Tray.UI;
 using CugaCalibration.Core;
+using CugaCalibration.ViewModels;
 using CugaCalibration.Views;
 using Local.SQL.Cache.Providers;
 using Local.SQL.DB.Providers;
@@ -11,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
-using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
 using NLog;
@@ -19,10 +24,10 @@ using NLog.Extensions.Hosting;
 using NLog.Extensions.Logging;
 using Python.Runtime;
 using SourceGenerator.AssemblyMetadata;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace CugaCalibration;
@@ -30,6 +35,7 @@ namespace CugaCalibration;
 public sealed partial class App
 {
     private static readonly Logger Logger = LogManager.Setup().GetCurrentClassLogger();
+    private static readonly ITrayService TrayService = new TrayService();
 
     [STAThread]
     private static void Main(string[] args)
@@ -43,7 +49,7 @@ public sealed partial class App
 
         try
         {
-            var pythonDllFilePath = GetPythonDllFilePath();
+            var pythonDllFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
             var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
             Guard.IsTrue(File.Exists(pythonDllFilePath));
             Guard.IsTrue(Directory.Exists(pythonHome));
@@ -69,7 +75,6 @@ public sealed partial class App
                         .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                        .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)
                         .AddApplication(context.HostingEnvironment);
                 })
@@ -89,6 +94,23 @@ public sealed partial class App
             app.InitializeComponent();
             app.MainWindow = HostApplication.GetRequiredService<MainWindow>();
             app.MainWindow.Visibility = Visibility.Visible;
+
+            // 创建托盘图标实例并持有引用，避免被 GC 回收
+            var trayViewModel = HostApplication.GetRequiredService<TrayViewModel>();
+            var applicationCookies = HostApplication.GetRequiredService<ApplicationCookie>();
+            var icon = (BitmapImage)app.FindResource("AppIcon");
+
+            TrayService.Initialize(
+                new TrayOptions
+                {
+                    ToolTip = $"{applicationCookies.ApplicationName}",
+                    Icon = icon,
+                    DataContext = trayViewModel,
+                    ContextMenu = new TrayMenu
+                    {
+                        DataContext = trayViewModel
+                    }
+                });
 
             // todo: 等后续ScottPlot改造好移动到static中
             CugaCalibrationSolutionCalibrationViewModelEntriesCollector.Init();
@@ -111,6 +133,8 @@ public sealed partial class App
                 app.DispatcherUnhandledException -= AppOnDispatcherUnhandledException; // UI线程未捕获异常处理事件
                 TaskScheduler.UnobservedTaskException -= TaskSchedulerOmUnobservedTaskException; // Task线程内未捕获异常处理事件
                 AppDomain.CurrentDomain.UnhandledException -= CurrentDomainOnUnhandledException; // 非UI线程未捕获异常处理事件
+
+                TrayService.Dispose();
 
                 await host.StopAsync().ConfigureAwait(false);
             };
@@ -181,34 +205,4 @@ public sealed partial class App
     }
 
     #endregion 全局异常捕获
-
-    private static string GetPythonDllFilePath()
-    {
-        using var process = new Process();
-        process.StartInfo = new ProcessStartInfo
-        {
-            FileName = "python",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        process.StartInfo.ArgumentList.Add("-c");
-        process.StartInfo.ArgumentList.Add("""
-                                           import sys, pathlib
-                                           print(pathlib.Path(sys.base_prefix) / ('python%d%d.dll' % sys.version_info[:2]))
-                                           """);
-
-        Guard.IsTrue(process.Start());
-
-        var output = process.StandardOutput.ReadToEnd().Trim();
-        var error = process.StandardError.ReadToEnd().Trim();
-
-        Guard.IsTrue(process.WaitForExit(5000));
-
-        if (process.ExitCode != 0 || string.IsNullOrWhiteSpace(output)) ThrowHelper.ThrowNotSupportedException(error);
-
-        return output;
-    }
 }

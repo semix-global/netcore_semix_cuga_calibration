@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
@@ -26,7 +27,7 @@ using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 using Net.Utilities.WPF.Enums;
@@ -100,6 +101,9 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
     [ObservableProperty]
     public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
+    [ObservableProperty]
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
+
     [DefaultCache]
     [ObservableProperty]
     public partial CIBXPixelSizeDTO[] Calibrations { get; set; } = [];
@@ -117,6 +121,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBXPixelSizeCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
@@ -149,6 +154,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -157,8 +163,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -174,7 +178,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
@@ -186,8 +190,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -199,13 +201,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch
                     {
-                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition,
-                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition == Point.Origin ? ChuckCenter.NewBFCenterStagePosition : Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
                         _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
                     }), Cache.CalChipSiteModelEnum);
 
@@ -385,7 +387,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 Cache.Item.TemplateFilePath,
                 TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 Cache.Item.WaferRadius,
-                Cache.Item.DiePitchWith,
+                Cache.Item.DiePitchWidth,
                 Cache.Item.ReticleDieCountX,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -410,7 +412,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
-                DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
+                DiePitchSize = new Size(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX),
                 OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
             };
 
@@ -422,8 +424,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             var imageCount = currentRowDies.Length;
             Guard.IsGreaterThan(imageCount, 2);
 
-            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
-            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
+            var startPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
+            var endPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
 
             var darkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -608,7 +610,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 return false;
             }
 
-            CalibratingItem.XPixelSize = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
+            CalibratingItem.XPixelSize = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
             CalibratingItem.XPixelSizeDelta = CalibratingItem.SlideSplitDifferences.Max() - CalibratingItem.SlideSplitDifferences.Min();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -680,7 +682,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     Cache.Item.TemplateFilePath,
                     TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                     Cache.Item.WaferRadius,
-                    Cache.Item.DiePitchWith,
+                    Cache.Item.DiePitchWidth,
                     Cache.Item.ReticleDieCountX,
                     detectImageDirectory,
                     Cache.Threshold
@@ -694,7 +696,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
-                    DiePitchSize = new Size(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX),
+                    DiePitchSize = new Size(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX, Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX),
                     OriginalDiePoint = StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition)
                 };
 
@@ -707,7 +709,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 Guard.IsGreaterThan(imageCount, 2);
 
                 var verifyStartPosition = currentRowDies[0].Rect.Point - new Vector(Cache.Item.ImageWidth * selectedReviewItem.XPixelSize / 2d, 0);
-                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / 2d, 0);
+                var verifyEndPosition = currentRowDies[^1].Rect.Point + new Vector(Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / 2d, 0);
 
                 var verifyDarkFieldRawScanImage = await CIBViewModel.GetPMTImageAsync(
                     Cache.ProductivityInformation,
@@ -745,7 +747,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 using var semaphore = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
                 var imageAllPixelByteLength = Cache.Item.ImageWidth * heightPixelByteLength;
-                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
+                var verifyStepAllPixelByteLength = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / selectedReviewItem.XPixelSize * heightPixelByteLength;
 
                 var slideCount = Math.SlideCountFull(imageAllPixelByteLength, verifyStepAllPixelByteLength, bodyBytesLength);
                 Guard.IsLessThanOrEqualTo(slideCount, imageCount);
@@ -790,7 +792,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     .Zip(selectedReviewItem.VerifyItems.Skip(1), (prev, next) => next.MatchPoint.X - prev.MatchPoint.X)
                     .ToArray();
 
-                var verifyRealUmPerPixel = Cache.Item.DiePitchWith * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
+                var verifyRealUmPerPixel = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / selectedReviewItem.VerifySplitDifferences.Average();
 
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
                 var distancePixel = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min());
@@ -890,7 +892,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             using var resultImage = RAWImageFactory.CreateImage(buffer, sizeI, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
             using var bitmapImage = resultImage.ToBitmapImage();
-            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, bitmapImage, templateId, out var matchPoint, out _, out var score, out _);
+            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.AlgorithmTemplateTypeEnum, bitmapImage, templateId, HtmlLogUniqueId, out var matchPoint, out _, out var score, out _);
 
             itemItem.IsMatchOk = isMathOk;
             itemItem.MatchPoint = new Point(itemItem.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
@@ -943,7 +945,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

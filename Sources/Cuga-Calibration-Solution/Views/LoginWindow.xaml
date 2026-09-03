@@ -5,13 +5,11 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:passwordBoxBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.PasswordBoxBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            Title="{Binding Title, Mode=OneWay}"
            Width="500" Height="400"
            d:DataContext="{d:DesignInstance Type=viewModels:LoginWindowViewModel}"
-           attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            Topmost="True"
            WindowStyle="None"
            ResizeMode="NoResize"
@@ -104,7 +102,7 @@
                              hc:InfoElement.Placeholder="Password"
                              Style="{StaticResource PasswordBoxExtend}">
                     <i:Interaction.Behaviors>
-                        <behaviors:PasswordBoxBindingSupportBehavior Password="{Binding SysUserDTO.Password}" />
+                        <passwordBoxBehaviors:PasswordBoxBindingSupportBehavior Password="{Binding SysUserDTO.Password}" />
                     </i:Interaction.Behaviors>
                 </PasswordBox>
                 <Button Grid.Row="6"

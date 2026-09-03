@@ -104,4 +104,13 @@ public sealed class CalibrationMicroscopeServiceImpl : BaseService<ICgCalibratio
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, default((double min, double max)))
             : SxExecuteRetHelper.CreateSuccess((Convert.ToDouble(sxExecuteRet.Anything.lower), Convert.ToDouble(sxExecuteRet.Anything.upper)));
     }
+
+    public SxExecuteRet<bool> SetAFParams(MicroscopeLensInformation microscopeLensInformation, double ecs, double voltage)
+    {
+        var sxExecuteRet = Invoke(() => Service!.UpdateFocus(microscopeLensInformation.AdaptTo().LensCode, ecs, voltage));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
 }

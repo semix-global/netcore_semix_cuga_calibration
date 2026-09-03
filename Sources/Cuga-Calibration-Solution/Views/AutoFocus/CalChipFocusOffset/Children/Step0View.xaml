@@ -1,14 +1,11 @@
-﻿<UserControl x:Class="CugaCalibration.Views.AutoFocus.CalChipFocusOffset.Children.Step0View"
+<UserControl x:Class="CugaCalibration.Views.AutoFocus.CalChipFocusOffset.Children.Step0View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
-             xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:autoFocus="clr-namespace:CugaCalibration.ViewModels.AutoFocus"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+             xmlns:stepCommon="clr-namespace:CugaCalibration.Views.AutoFocus.CalChipFocusOffset.Children.StepCommon"
              d:DataContext="{d:DesignInstance Type=autoFocus:AutoFocusCalChipFocusOffsetViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -42,60 +39,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.Style>
-                                <Style TargetType="hc:UniformSpacingPanel">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.DswModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.HazeModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ShinyWaferModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.UndefinedModel}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding Cache.CalChipSiteModelEnum}" Value="{x:Static stage:CalChipSiteModelEnum.ChuckModel}">
-                                            <Setter Property="Visibility" Value="Visible" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </hc:UniformSpacingPanel.Style>
-                            <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                                <b:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                                </b:Interaction.Behaviors>
-                            </ComboBox>
-                            <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
-                                <b:Interaction.Behaviors>
-                                    <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                </b:Interaction.Behaviors>
-                            </ComboBox>
-                        </hc:UniformSpacingPanel>
-                        <TextBox Text="{Binding Cache.Item.FindBrightMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="BF Machine Position(um): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
+                        <stepCommon:Step0CommonView />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

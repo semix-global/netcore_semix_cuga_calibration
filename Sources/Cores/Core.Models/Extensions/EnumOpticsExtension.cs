@@ -121,6 +121,9 @@ public static class EnumOpticsExtension
             CgNDFTypeEnum.N => OpticsCollectorPolarizationModeEnum.N,
             CgNDFTypeEnum.P => OpticsCollectorPolarizationModeEnum.P,
             CgNDFTypeEnum.S => OpticsCollectorPolarizationModeEnum.S,
+#if NET48
+            CgNDFTypeEnum.None => OpticsCollectorPolarizationModeEnum.N,
+#endif
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsCollectorPolarizationModeEnum>(nameof(@this))
         };
     }
@@ -132,6 +135,9 @@ public static class EnumOpticsExtension
             OpticsCollectorPolarizationModeEnum.N => CgNDFTypeEnum.N,
             OpticsCollectorPolarizationModeEnum.P => CgNDFTypeEnum.P,
             OpticsCollectorPolarizationModeEnum.S => CgNDFTypeEnum.S,
+#if NET48
+            OpticsCollectorPolarizationModeEnum.None => CgNDFTypeEnum.N,
+#endif
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFTypeEnum>(nameof(@this))
         };
     }

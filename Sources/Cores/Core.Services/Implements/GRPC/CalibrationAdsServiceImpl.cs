@@ -85,36 +85,22 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibAdsService>,
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>> GetSensorAllPressureTraceBufferList(TimeSpan timeSpan)
-    {
-        var sxExecuteRet = Invoke(() => Service?.GetADSTraceBuff(new SxParamObj<int>((Convert.ToInt32(timeSpan.TotalMilliseconds)))));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Pressure1.Count == 0
-            || sxExecuteRet.Anything.Pressure2.Count == 0
-            || sxExecuteRet.Anything.Pressure3.Count == 0
-            || sxExecuteRet.Anything.Pressure1.Count != sxExecuteRet.Anything.Pressure2.Count
-            || sxExecuteRet.Anything.Pressure2.Count != sxExecuteRet.Anything.Pressure3.Count) return SxExecuteRetHelper.CreateError<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>("Ads error trans buffer is empty", []);
-
-        // 将三个压力值的数据合并成一个列表
-        var pressureList = sxExecuteRet.Anything.Pressure1
-            .Select((t, i) => (PressureValue1: Convert.ToDouble(t), PressureValue2: Convert.ToDouble(sxExecuteRet.Anything.Pressure2[i]), PressureValue3: Convert.ToDouble(sxExecuteRet.Anything.Pressure3[i])))
-            .ToList();
-
-        return SxExecuteRetHelper.CreateSuccess(pressureList);
-    }
-
-    public SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>> GetSensorHeightRollPitchTraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<(double PressureValue1, double PressureValue2, double PressureValue3)>>> GetSensorAllPressureTraceBufferListAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedZ1Z2Z3TraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<(double Height, double Roll, double Pitch, double xSpeed, double ySpeed)>>> GetSensorHeightRollPitchTraceBufferListAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<List<double>>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferList(bool isAxisX, TimeSpan timeSpan)
+    public Task<SxExecuteRet<(List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed)>> GetSensorSpeedZ1Z2Z3TraceBufferListAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<SxExecuteRet<(List<double> X0, List<double> X1, List<double> Y0, List<double> Y1, List<double> Speed)>> GetSensorSpeedX0X1Y0Y1WithSpeedTraceBufferListAsync(bool isAxisX, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

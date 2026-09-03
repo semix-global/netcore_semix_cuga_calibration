@@ -9,8 +9,9 @@
              xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -190,7 +191,7 @@
                     <TabControl>
                         <TabItem Header="Plots">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                <ContentControl Content="{Binding CalibratingItem.ScatterPlotControl, Mode=OneWay}" />
+                                <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
                             </Border>
                         </TabItem>
                         <TabItem Header="Images">

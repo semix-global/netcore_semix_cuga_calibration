@@ -188,16 +188,22 @@ public sealed partial class AODUniformityDTO : CalibrationDTOBase<AODUniformityD
                 .ToArray();
         }
 
-        public WindowItem Clone() => new()
+        protected virtual WindowItem CreateInstance() => new();
+
+        public WindowItem Clone()
         {
-            Window = [.. Window],
-            ImageHorizontalProjects = [.. ImageHorizontalProjects],
-            SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects],
-            HorizontalProjectMinPixel = HorizontalProjectMinPixel,
-            HorizontalProjectMinPixels = [.. HorizontalProjectMinPixels],
-            RawImageFilePath = RawImageFilePath,
-            ImageFilePath = ImageFilePath
-        };
+            var instance = CreateInstance();
+
+            instance.Window = [.. Window];
+            instance.ImageHorizontalProjects = [.. ImageHorizontalProjects];
+            instance.SmoothImageHorizontalProjects = [.. SmoothImageHorizontalProjects];
+            instance.HorizontalProjectMinPixel = HorizontalProjectMinPixel;
+            instance.HorizontalProjectMinPixels = [.. HorizontalProjectMinPixels];
+            instance.RawImageFilePath = RawImageFilePath;
+            instance.ImageFilePath = ImageFilePath;
+
+            return instance;
+        }
     }
 
     public sealed partial class Mapping : ObservableObject, ICloneable<Mapping>
@@ -310,6 +316,8 @@ public sealed partial class AODUniformityDTOItem : ObservableObject, ICloneable<
 
         [ObservableProperty]
         public partial bool IsOk { get; set; }
+
+        protected override AODUniformityDTO.WindowItem CreateInstance() => new Item();
 
         public new Item Clone()
         {

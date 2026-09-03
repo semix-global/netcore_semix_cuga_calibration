@@ -6,9 +6,10 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
@@ -74,7 +75,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -131,7 +132,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
     public CIBMMDDTO()
     {
         var customGrid = new CustomGrid();
-        ScatterPlotControl.Configure(customGrid, 6,
+        PlotDataSource.Configure(customGrid, 6,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 3, 2));
@@ -142,19 +143,19 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
                 customGrid.Set(plots[5], new GridCell(2, 1, 3, 2));
             });
 
-        ScatterPlotControl.SetTitle(0, "Origin(Y: mW - X: Coefficient)");
-        ScatterPlotControl.SetTitle(1, "Origin(Y: PMT Value(DC) - X: V)");
-        ScatterPlotControl.SetTitle(2, "Gain(Y: Gain - X: V)");
-        ScatterPlotControl.SetTitle(3, "LogGain(Y: LogGain - X: V)");
-        ScatterPlotControl.SetTitle(4, "LogGain * 128 U12Bit(Y: LogGain * 128 U12Bit - X: Sense U14Bit)");
-        ScatterPlotControl.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
+        PlotDataSource.SetTitle(0, "Origin(Y: mW - X: Coefficient)");
+        PlotDataSource.SetTitle(1, "Origin(Y: PMT Value(DC) - X: V)");
+        PlotDataSource.SetTitle(2, "Gain(Y: Gain - X: V)");
+        PlotDataSource.SetTitle(3, "LogGain(Y: LogGain - X: V)");
+        PlotDataSource.SetTitle(4, "LogGain * 128 U12Bit(Y: LogGain * 128 U12Bit - X: Sense U14Bit)");
+        PlotDataSource.SetTitle(5, "Gain S16Bit(Y: Gain S16Bit - X: LogGain * 128 U12Bit )");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var scatterMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count > 0 ? 1 : 0);
+            var scatterMarkerses = PlotDataSource.GetOrAddScatterMarkerses(0, Items.Count > 0 ? 1 : 0);
             scatterMarkerses.ElementAtOrDefault(0)?.Update(
                 string.Empty,
                 [.. Items.Select(t => new Point(t.Coefficient, t.MeasurePower))],
@@ -170,20 +171,20 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
                          }
                 ).ToArray();
 
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1, temps.Length);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(1, temps.Length);
 
             foreach (var (index, temp) in temps.Index())
             {
                 scatterLines[index].Update(temp.LegendText, temp.Points, Constants.Category10.GetColor(index));
             }
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(2, GainPoints.Count > 0 ? 1 : 0);
+            scatterLines = PlotDataSource.GetOrAddScatterLines(2, GainPoints.Count > 0 ? 1 : 0);
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainPoints,
                 Constants.Category10.GetColor(0));
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(3, (OriginLogGainPoints.Count > 0 ? 1 : 0) + (FitLogGainPoints.Count > 0 ? 1 : 0));
+            scatterLines = PlotDataSource.GetOrAddScatterLines(3, (OriginLogGainPoints.Count > 0 ? 1 : 0) + (FitLogGainPoints.Count > 0 ? 1 : 0));
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Origin Curve Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 OriginLogGainPoints,
@@ -193,7 +194,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
                 FitLogGainPoints,
                 Constants.Category10.GetColor(1));
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(4, (LogGainMul128U12BitPoints.Count > 0 ? 1 : 0) + (SmoothLogGainMul128U12BitPoints.Count > 0 ? 1 : 0));
+            scatterLines = PlotDataSource.GetOrAddScatterLines(4, (LogGainMul128U12BitPoints.Count > 0 ? 1 : 0) + (SmoothLogGainMul128U12BitPoints.Count > 0 ? 1 : 0));
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 LogGainMul128U12BitPoints,
@@ -203,7 +204,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
                 SmoothLogGainMul128U12BitPoints,
                 Constants.Category10.GetColor(1));
 
-            scatterLines = ScatterPlotControl.GetOrAddScatterLines(5, (GainS16BitPoints.Count > 0 ? 1 : 0) + (SmoothGainS16BitPoints.Count > 0 ? 1 : 0));
+            scatterLines = PlotDataSource.GetOrAddScatterLines(5, (GainS16BitPoints.Count > 0 ? 1 : 0) + (SmoothGainS16BitPoints.Count > 0 ? 1 : 0));
             scatterLines.ElementAtOrDefault(0)?.Update(
                 $"Gain r^2: {GainRSquared:0.000#} Gain Residual: {GainResidual:0.###}",
                 GainS16BitPoints,
@@ -215,7 +216,7 @@ public sealed partial class CIBMMDDTO : CalibrationDTOBase<CIBMMDDTO>, IAdaptTo<
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 

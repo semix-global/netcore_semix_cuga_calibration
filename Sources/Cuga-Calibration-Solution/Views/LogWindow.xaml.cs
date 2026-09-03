@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.WPF.Helper;
+using Net.Utilities.WPF.Helpers;
 using Net.Utilities.WPF.MVVM.Events;
 using System.Windows.Interop;
 

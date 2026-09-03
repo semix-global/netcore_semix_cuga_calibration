@@ -117,4 +117,11 @@ public sealed class CalibrationMicroscopeServiceMockImpl : ICalibrationMicroscop
     {
         return SxExecuteRetHelper.CreateSuccess((0d, 1640d));
     }
+
+    public SxExecuteRet<bool> SetAFParams(MicroscopeLensInformation microscopeLensInformation, double ecs, double voltage)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 }

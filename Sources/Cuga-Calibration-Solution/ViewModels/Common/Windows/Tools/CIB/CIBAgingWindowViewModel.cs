@@ -22,7 +22,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -135,7 +135,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 Cache.SelectedAgings
             }), htmlLogUniqueId.LoggingHtml());
 
-            microscopeViewModel.SwitchMicroscopeLensInformation(Cache.CIBMMDCache.MicroscopeLensInformation);
+            await microscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.CIBMMDCache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             var hazeBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.CIBMMDCache.HazeFindBFMachinePosition);
             stageViewModel.SetAbsoluteStageTheta(0d);
@@ -325,7 +325,7 @@ public sealed partial class CIBAgingWindowViewModel(
                     }
                     finally
                     {
-                        var htmlContainer = new HtmlContainer([.. Cache.CoefficientFindItems[coefficientIndex].ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]);
+                        var htmlContainer = new HtmlContainer([.. Cache.CoefficientFindItems[coefficientIndex].PlotDataSource.GetAllHtmlPlot2DLinesCharts()]);
                         if (isSuccess)
                             logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                         else
@@ -432,7 +432,7 @@ public sealed partial class CIBAgingWindowViewModel(
                     {
                         laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
 
-                        var htmlContainer = new HtmlContainer([.. Result.Items.Select(t => new HtmlExpand(t.CIBInformation.ToString(), new HtmlContainer([.. t.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])))]);
+                        var htmlContainer = new HtmlContainer([.. Result.Items.Select(t => new HtmlExpand(t.CIBInformation.ToString(), new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))]);
                         if (isSuccess)
                             logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlContainer, htmlLogUniqueId.LoggingHtml());
                         else
@@ -588,7 +588,7 @@ public sealed partial class CIBAgingWindowViewModel(
             {
                 item.IsOk,
                 SampleItems = new HtmlTable([.. item.SampleItems.Select(t => t.ToHtmlAnonymous())]),
-                Plot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                Plot = new HtmlContainer([.. item.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             if (item.IsOk)

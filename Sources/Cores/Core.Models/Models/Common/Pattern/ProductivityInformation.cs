@@ -227,16 +227,16 @@ public sealed partial class ProductivityInformation :
 
         OriginYPixels = Convert.ToInt32(yPixel);
 
-        Guard.IsGreaterThanOrEqualTo(pxStartPoint, 0);
-        Guard.IsGreaterThan(pxEndPoint, pxStartPoint);
-        Guard.IsGreaterThanOrEqualTo(OriginYPixels, pxEndPoint);
+        Guard.IsGreaterThanOrEqualTo(pxStartPoint, 0, $"{OpticsIlluminationModeEnum}, {Name}");
+        Guard.IsGreaterThan(pxEndPoint, pxStartPoint, $"{OpticsIlluminationModeEnum}, {Name}");
+        Guard.IsGreaterThanOrEqualTo(OriginYPixels, pxEndPoint, $"{OpticsIlluminationModeEnum}, {Name}");
 
         OriginYPixelsStartIndex = pxStartPoint;
         OriginYPixelsEndIndex = OriginYPixels - 1 - (OriginYPixels - pxEndPoint);
         YPixels = pxEndPoint - pxStartPoint;
 
-        Guard.IsEqualTo(OriginYPixelsEndIndex - OriginYPixelsStartIndex + 1, YPixels);
-        Guard.IsGreaterThanOrEqualTo(OriginYPixels, YPixels);
+        Guard.IsEqualTo(OriginYPixelsEndIndex - OriginYPixelsStartIndex + 1, YPixels, $"{OpticsIlluminationModeEnum}, {Name}");
+        Guard.IsGreaterThanOrEqualTo(OriginYPixels, YPixels, $"{OpticsIlluminationModeEnum}, {Name}");
 
         SampleRate = hz;
         XSpeedValue = xSpeedValue;

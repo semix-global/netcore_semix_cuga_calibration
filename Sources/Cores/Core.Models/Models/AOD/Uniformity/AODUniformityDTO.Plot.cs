@@ -1,13 +1,13 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -19,75 +19,75 @@ public partial class AODUniformityDTO
 {
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl IsReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource IsReversePlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl MappingScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource MappingPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl InitializeWindowScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource InitializeWindowPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial ConcurrentDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<int, IPlotDataSource> PlotDataSources { get; set; } = [];
 
     public AODUniformityDTO()
     {
-        var customGridIsReverseScatterPlotControl = new CustomGrid();
-        IsReverseScatterPlotControl.Configure(customGridIsReverseScatterPlotControl, 4,
+        var customGridIsReversePlotDataSource = new CustomGrid();
+        IsReversePlotDataSource.Configure(customGridIsReversePlotDataSource, 4,
             plots =>
             {
-                customGridIsReverseScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customGridIsReverseScatterPlotControl.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customGridIsReverseScatterPlotControl.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customGridIsReverseScatterPlotControl.Set(plots[3], new GridCell(1, 1, 2, 2));
+                customGridIsReversePlotDataSource.Set(plots[0], new GridCell(0, 0, 2, 2));
+                customGridIsReversePlotDataSource.Set(plots[1], new GridCell(0, 1, 2, 2));
+                customGridIsReversePlotDataSource.Set(plots[2], new GridCell(1, 0, 2, 2));
+                customGridIsReversePlotDataSource.Set(plots[3], new GridCell(1, 1, 2, 2));
             });
 
-        IsReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
-        IsReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        IsReverseScatterPlotControl.SetTitle(2, "Mapping Window(Y: Coefficient - X: sa)");
-        IsReverseScatterPlotControl.SetTitle(3, "Mapping Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        IsReversePlotDataSource.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        IsReversePlotDataSource.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        IsReversePlotDataSource.SetTitle(2, "Mapping Window(Y: Coefficient - X: sa)");
+        IsReversePlotDataSource.SetTitle(3, "Mapping Horizontal Projects(Y: PMT Value(Log) - X: px)");
 
-        MappingScatterPlotControl.SetTitle("Mapping (Y: Prescan Index - X: Prescan Index)");
+        MappingPlotDataSource.SetTitle("Mapping (Y: Prescan Index - X: Prescan Index)");
 
-        InitializeWindowScatterPlotControl.Configure(new Columns(), 2);
-        InitializeWindowScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        InitializeWindowScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: sa)");
+        InitializeWindowPlotDataSource.Configure(new Columns(), 2);
+        InitializeWindowPlotDataSource.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        InitializeWindowPlotDataSource.SetTitle(1, "Window(Y: Coefficient - X: sa)");
 
-        var customGridScatterPlotControl = new CustomGrid();
-        ScatterPlotControl.Configure(customGridScatterPlotControl, 3,
+        var customGridPlotDataSource = new CustomGrid();
+        PlotDataSource.Configure(customGridPlotDataSource, 3,
             plots =>
             {
-                customGridScatterPlotControl.Set(plots[0], new GridCell(0, 0, 2, 3, colSpan: 2));
-                customGridScatterPlotControl.Set(plots[1], new GridCell(1, 0, 2, 3, colSpan: 2));
-                customGridScatterPlotControl.Set(plots[2], new GridCell(0, 2, 2, 3, rowSpan: 2));
+                customGridPlotDataSource.Set(plots[0], new GridCell(0, 0, 2, 3, colSpan: 2));
+                customGridPlotDataSource.Set(plots[1], new GridCell(1, 0, 2, 3, colSpan: 2));
+                customGridPlotDataSource.Set(plots[2], new GridCell(0, 2, 2, 3, rowSpan: 2));
             });
 
-        ScatterPlotControl.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        ScatterPlotControl.SetTitle(1, "Window(Y: Coefficient - X: px)");
-        ScatterPlotControl.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
-        ScatterPlotControl.ToggleLegend(1, false);
+        PlotDataSource.SetTitle(0, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        PlotDataSource.SetTitle(1, "Window(Y: Coefficient - X: px)");
+        PlotDataSource.SetTitle(2, "Result Window(Y: Coefficient - X: sa)");
+        PlotDataSource.ToggleLegend(1, false);
     }
 
     public AODUniformityDTO(IReadOnlyList<int> cibInformationChannelIds) : this()
     {
-        ScatterPlotControls = new ConcurrentDictionary<int, IScatterPlotControl>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IScatterPlotControl>(t, GetScatterPlotControl())));
+        PlotDataSources = new ConcurrentDictionary<int, IPlotDataSource>(cibInformationChannelIds.Select(t => new KeyValuePair<int, IPlotDataSource>(t, GetScatterPlotControl())));
     }
 
     private void RefreshIsReversePlot()
     {
         try
         {
-            IsReverseScatterPlotControl.Clear(0);
-            IsReverseScatterPlotControl.Clear(1);
-            IsReverseScatterPlotControl.Clear(2);
-            IsReverseScatterPlotControl.Clear(3);
+            IsReversePlotDataSource.Clear(0);
+            IsReversePlotDataSource.Clear(1);
+            IsReversePlotDataSource.Clear(2);
+            IsReversePlotDataSource.Clear(3);
 
             Refresh(StartWindowItem, 0, 1, "Start", Colors.Blue, Colors.DarkBlue);
             Refresh(StopWindowItem, 0, 1, "Stop", Colors.Red, Colors.DarkRed);
@@ -95,7 +95,7 @@ public partial class AODUniformityDTO
         }
         finally
         {
-            IsReverseScatterPlotControl.AutoScaleRefresh();
+            IsReversePlotDataSource.AutoScaleRefresh();
         }
 
         return;
@@ -103,21 +103,21 @@ public partial class AODUniformityDTO
         void Refresh(WindowItem windowItem, int windowIndex, int imageIndex, string title, Color primaryColor, Color secondaryColor)
         {
             if (windowItem.Window.Count > 0)
-                IsReverseScatterPlotControl.GetOrAddScatterLine(
+                IsReversePlotDataSource.GetOrAddScatterLine(
                     windowIndex,
                     title,
                     windowItem.Window.ToPoints(),
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
-                IsReverseScatterPlotControl.GetOrAddScatterLine(
+                IsReversePlotDataSource.GetOrAddScatterLine(
                     imageIndex,
                     title,
                     windowItem.ImageHorizontalProjects.ToPoints(),
                     primaryColor);
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
-                IsReverseScatterPlotControl.GetOrAddScatterLine(
+                IsReversePlotDataSource.GetOrAddScatterLine(
                     imageIndex,
                     $"{title} Smooth",
                     windowItem.SmoothImageHorizontalProjects.ToPoints(),
@@ -127,7 +127,7 @@ public partial class AODUniformityDTO
             {
                 foreach (var (index, horizontalProjectMinPixel) in windowItem.HorizontalProjectMinPixels.Index())
                 {
-                    IsReverseScatterPlotControl.GetOrAddXLine(
+                    IsReversePlotDataSource.GetOrAddXLine(
                         imageIndex,
                         $"{title} Smooth Min Pixel: {index + 1}",
                         horizontalProjectMinPixel,
@@ -137,7 +137,7 @@ public partial class AODUniformityDTO
             else
             {
                 if (windowItem.SmoothImageHorizontalProjects.Count > 0)
-                    IsReverseScatterPlotControl.GetOrAddXLine(
+                    IsReversePlotDataSource.GetOrAddXLine(
                         imageIndex,
                         $"{title} Smooth Min Pixel",
                         windowItem.HorizontalProjectMinPixel,
@@ -150,7 +150,7 @@ public partial class AODUniformityDTO
     {
         try
         {
-            MappingScatterPlotControl.Clear();
+            MappingPlotDataSource.Clear();
 
             if (Mappings.Count <= 0) return;
 
@@ -160,10 +160,10 @@ public partial class AODUniformityDTO
                 Vector<double>.Build.Dense([.. isNotLinearSplineImageHorizontalProjectIndexes]),
                 Vector<double>.Build.Dense([.. isNotLinearSplineMappingIndexes]));
 
-            var scatterLine = MappingScatterPlotControl.GetOrAddScatterLine("Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
+            var scatterLine = MappingPlotDataSource.GetOrAddScatterLine("Origin", [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isNotLinearSplineMappingIndexes[t.Index]))]);
             scatterLine.MarkerSize = 10;
 
-            scatterLine = MappingScatterPlotControl.GetOrAddScatterLine($"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
+            scatterLine = MappingPlotDataSource.GetOrAddScatterLine($"Fit Curve: y = {slope:0.######}x + {intercept:0.######} r^2 = {rSquared:0.######}",
                 [.. isNotLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, yPredicted[t.Index]))]);
             scatterLine.MarkerSize = 10;
 
@@ -171,16 +171,16 @@ public partial class AODUniformityDTO
             var isLinearSplineLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline == false).Select(t => t.LinearSplineMappingIndex).ToArray();
             var isLinearSplineMappingIndexes = Mappings.Where(t => t.IsNotLinearSpline == false).Select(t => t.MappingIndex).ToArray();
 
-            var scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
+            var scatterMarkers = MappingPlotDataSource.GetOrAddScatterMarkers("Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineLinearSplineMappingIndexes[t.Index]))], Colors.DarkRed,
                 MarkerShape.FilledSquare);
             scatterMarkers.MarkerSize = 5;
-            scatterMarkers = MappingScatterPlotControl.GetOrAddScatterMarkers("Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
+            scatterMarkers = MappingPlotDataSource.GetOrAddScatterMarkers("Round Linear Spline", [.. isLinearSplineImageHorizontalProjectIndexes.Index().Select(t => new Point(t.Item, isLinearSplineMappingIndexes[t.Index]))], Colors.Red,
                 MarkerShape.FilledDiamond);
             scatterMarkers.MarkerSize = 5;
         }
         finally
         {
-            MappingScatterPlotControl.AutoScaleRefresh();
+            MappingPlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -188,12 +188,12 @@ public partial class AODUniformityDTO
     {
         try
         {
-            InitializeWindowScatterPlotControl.Clear(0);
-            InitializeWindowScatterPlotControl.Clear(1);
+            InitializeWindowPlotDataSource.Clear(0);
+            InitializeWindowPlotDataSource.Clear(1);
 
             foreach (var (index, itemItemData) in InitializeWindowItem.Items.Index())
             {
-                InitializeWindowScatterPlotControl.GetOrAddScatterLine(
+                InitializeWindowPlotDataSource.GetOrAddScatterLine(
                     0,
                     $"{itemItemData.Window[0]:0.###}",
                     itemItemData.ImageHorizontalProjects.ToPoints(),
@@ -202,7 +202,7 @@ public partial class AODUniformityDTO
             }
 
             if (InitializeWindowItem.Window.Count > 0)
-                InitializeWindowScatterPlotControl.GetOrAddScatterLine(
+                InitializeWindowPlotDataSource.GetOrAddScatterLine(
                     1,
                     "Window",
                     InitializeWindowItem.Window.ToPoints(),
@@ -210,7 +210,7 @@ public partial class AODUniformityDTO
         }
         finally
         {
-            InitializeWindowScatterPlotControl.AutoScaleRefresh();
+            InitializeWindowPlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -218,9 +218,9 @@ public partial class AODUniformityDTO
     {
         try
         {
-            var scatterLines0 = ScatterPlotControl.GetOrAddScatterLines(0, Item.Items.Count);
-            var scatterLines1 = ScatterPlotControl.GetOrAddScatterLines(1, Item.Items.Count);
-            var yLines = ScatterPlotControl.GetOrAddYLines(1, 2);
+            var scatterLines0 = PlotDataSource.GetOrAddScatterLines(0, Item.Items.Count);
+            var scatterLines1 = PlotDataSource.GetOrAddScatterLines(1, Item.Items.Count);
+            var yLines = PlotDataSource.GetOrAddYLines(1, 2);
 
             foreach (var (i, itemItemData) in Item.Items.Index())
             {
@@ -247,14 +247,14 @@ public partial class AODUniformityDTO
             yLines[1].LineWidth = 5;
             yLines[1].LinePattern = LinePattern.Solid;
 
-            ScatterPlotControl.GetOrAddYLines(0, 1)[0].Update(
+            PlotDataSource.GetOrAddYLines(0, 1)[0].Update(
                 TargetPMTValues.TryGetSingle(t => t.Key == Item.CIBInformation, out var targetPMTValueKvp)
                     ? "Target"
                     : string.Empty,
                 targetPMTValueKvp.Value,
                 Colors.Red);
 
-            var scatterLine = ScatterPlotControl.GetOrAddScatterLines(2, 1)[0];
+            var scatterLine = PlotDataSource.GetOrAddScatterLines(2, 1)[0];
             scatterLine.Update(
                 Item.Window.Count > 0
                     ? "Target"
@@ -266,7 +266,7 @@ public partial class AODUniformityDTO
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -284,13 +284,13 @@ public partial class AODUniformityDTO
 
         foreach (var (channelId, itemItems) in results)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(channelId, _ => GetScatterPlotControl());
+            var plotDataSource = PlotDataSources.GetOrAdd(channelId, _ => GetScatterPlotControl());
 
             try
             {
                 if (itemItems.Any(t => t.Items.Count <= 0))
                 {
-                    scatterPlotControl.Clear();
+                    plotDataSource.Clear();
 
                     continue;
                 }
@@ -301,10 +301,10 @@ public partial class AODUniformityDTO
                 var minPMTId = itemItemsData.Min(t => t.PMTId);
                 var maxPMTId = itemItemsData.Max(t => t.PMTId);
 
-                scatterPlotControl.Clear();
+                plotDataSource.Clear();
                 foreach (var (pmtId, itemItemData) in itemItemsData)
                 {
-                    scatterPlotControl.GetOrAddScatterLine(
+                    plotDataSource.GetOrAddScatterLine(
                         $"{pmtId} Error: [{itemItemData.MinRate:0.###}, {itemItemData.MaxRate:0.###}]",
                         itemItemData.ImageHorizontalProjects.ToPoints(),
                         pmtId,
@@ -313,18 +313,18 @@ public partial class AODUniformityDTO
             }
             finally
             {
-                scatterPlotControl.AutoScaleRefresh();
+                plotDataSource.AutoScaleRefresh();
             }
         }
     }
 
-    private static IScatterPlotControl GetScatterPlotControl()
+    private static IPlotDataSource GetScatterPlotControl()
     {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        var plotDataSource = new PlotDataSource();
 
-        scatterPlotControl.SetTitle("Horizontal Projects(Y: PMT Value(Log) - X: px)");
-        scatterPlotControl.ToggleInvisibleLegendItem(false);
+        plotDataSource.SetTitle("Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        plotDataSource.ToggleInvisibleLegendItem(false);
 
-        return scatterPlotControl;
+        return plotDataSource;
     }
 }

@@ -96,7 +96,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial CIBXPixelSizeDTO[] CIBXPixelSizes { get; set; } = [];
@@ -122,14 +122,14 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         CIBXPixelSizes = ApplicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
         ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBLineCentricityCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBLineCentricityDTO>(cancellationToken);
 
         UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
+        Cache.PmtInterval = ApplicationCookie.PMTInterval;
 
         return true;
     }
@@ -150,6 +150,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
@@ -159,8 +160,6 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -176,7 +175,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
@@ -188,19 +187,17 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 1:
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch
                     {
-                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition == Point.Origin ? ChuckCenter.NewBFCenterStagePosition : Cache.Item.FindBFMachinePosition,
                         CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
                         _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
                     }), Cache.CalChipSiteModelEnum);
@@ -311,7 +308,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             Cache.Item.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Cache.Item.BrightTemplateFilePath = Path.Combine(TemplateFileDirectory, Cache.Item.MicroscopeLensInformation.LensName, Guid.NewGuid().ToString());
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false)
             {
                 DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -553,7 +550,12 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
                 verifyItem.FindDFMachinePosition = ideaDFMachinePosition;
 
-                await GetLineCentricityAsync(verifyItem, cancellationToken);
+                if (await GetLineCentricityAsync(verifyItem, cancellationToken) == false)
+                {
+                    selectedReviewItem.IsVerified = false;
+                    continue;
+                }
+
                 selectedReviewItem.FilePath = verifyItem.FilePath;
                 selectedReviewItem.DFMatchPositionOffset = verifyItem.DFMatchPositionOffset;
 
@@ -597,6 +599,13 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                                              """,
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            var verifyItems = Calibrations.Where(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).ToList();
+            if (verifyItems.Count > 3)
+            {
+                var verifyOffsets = applicationCookieService.GetLineCentricityMachineOffsetList([.. verifyItems], Cache.ProductivityInformation);
+                LineCentricityOffsetsFit(verifyOffsets);
+            }
 
             return result;
         }).ConfigureAwait(false);
@@ -666,7 +675,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations
                     .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
             ];
@@ -717,7 +726,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     private void LineCentricityOffsetsFit(IReadOnlyCollection<(int Pmt, Point offsets)> results)
     {
         var pmtXErrorCoordinates = results.OrderBy(t => t.Pmt)
-            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.X)).ToArray();
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * ApplicationCookie.PMTInterval, t.offsets.X)).ToArray();
 
         var (slopeXError, interceptXError, rSquaredXError, _) = PolynomialCurve.Fit1(
             Vector<double>.Build.DenseOfEnumerable(pmtXErrorCoordinates.Select(t => t.X)),
@@ -726,7 +735,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
         var pmtXErrorTitle = $"y ={slopeXError:0.######}x + {interceptXError:0.######} r^2 = {rSquaredXError:0.######} angle = {Math.RadianAngleToDegreeAngle(Math.Atan(slopeXError))}";
 
         var pmtYErrorCoordinates = results.OrderBy(t => t.Pmt)
-            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * CalibrationSetting.SettingCommonParam.PMTInterval, t.offsets.Y)).ToArray();
+            .Select(t => new Point((t.Pmt - CalibrationConstantsHelper.MainPmtId) * ApplicationCookie.PMTInterval, t.offsets.Y)).ToArray();
 
         var (slopeYError, interceptYError, rSquaredYError, _) = PolynomialCurve.Fit1(
             Vector<double>.Build.DenseOfEnumerable(pmtYErrorCoordinates.Select(t => t.X)),
@@ -734,7 +743,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
         var pmtYErrorTitle = $"y ={slopeYError:0.######}x + {interceptYError:0.######} r^2 = {rSquaredYError:0.######} angle = {Math.RadianAngleToDegreeAngle(Math.Atan(slopeYError))}";
 
-        Logger.LogHtmlInformation("Calibration OK", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
             PmtXErrors = new HtmlPlot2DLinesChart(
                 [

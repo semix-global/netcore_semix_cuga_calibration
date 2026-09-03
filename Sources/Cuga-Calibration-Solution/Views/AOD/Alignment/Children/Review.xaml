@@ -4,12 +4,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:aodAlignment="clr-namespace:Core.Models.Models.AOD.Alignment;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -78,7 +78,7 @@
                           ScrollViewer.HorizontalScrollBarVisibility="Auto">
                     <i:Interaction.Behaviors>
                         <behaviors:ListBoxScrollToCurrentBehavior />
-                        <wpf:ListBoxSelectedItemsBehavior Type="{x:Type aodAlignment:AODAlignmentDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
+                        <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type aodAlignment:AODAlignmentDTO}" BindableSelectedItems="{Binding SelectedReviewItems}" />
                     </i:Interaction.Behaviors>
                     <ListView.ItemContainerStyle>
                         <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
@@ -120,7 +120,7 @@
                 <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                     <TabControl ItemsSource="{Binding SelectedReviewItems}" SelectedIndex="0">
                         <i:Interaction.Behaviors>
-                            <wpf:SelectorAutoSelectFirstBehavior />
+                            <behaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabControl.ItemTemplate>
                             <DataTemplate>
@@ -132,7 +132,7 @@
                                 <TabControl Margin="5">
                                     <TabItem Header="Plots">
                                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                            <ContentControl Content="{Binding ScatterPlotControl, Mode=OneWay}" />
+                                            <v2:PlotControl DataSource="{Binding PlotDataSource}" />
                                         </Border>
                                     </TabItem>
                                     <TabItem Header="Images">

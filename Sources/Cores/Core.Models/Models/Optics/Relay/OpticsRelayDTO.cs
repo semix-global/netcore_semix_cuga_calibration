@@ -9,13 +9,13 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.ComponentModel;
-using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.Optics.Relay;
@@ -70,11 +70,11 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl XZScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource XZPlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -141,20 +141,20 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
 
     public OpticsRelayDTO()
     {
-        ScatterPlotControl.Configure(new Columns(), 2);
+        PlotDataSource.Configure(new Columns(), 2);
 
-        ScatterPlotControl.SetTitle(0, "Z Sync Quality(Y: Quality - X: ECS)");
-        ScatterPlotControl.SetTitle(1, "Z Sync Relay(Y: ECS - X: mm)");
+        PlotDataSource.SetTitle(0, "Z Sync Quality(Y: Quality - X: ECS)");
+        PlotDataSource.SetTitle(1, "Z Sync Relay(Y: ECS - X: mm)");
 
-        XZScatterPlotControl.SetTitle("X/Z Sync Relay(Y: ECS - X: mm)");
+        XZPlotDataSource.SetTitle("X/Z Sync Relay(Y: ECS - X: mm)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var qualityScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, Items.Count);
-            var relayScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, 2);
+            var qualityScatterLines = PlotDataSource.GetOrAddScatterLines(0, Items.Count);
+            var relayScatterLines = PlotDataSource.GetOrAddScatterLines(1, 2);
 
             var isNeedRefreshes = new bool[Items.Count];
 
@@ -187,7 +187,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -195,7 +195,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
     {
         try
         {
-            var relayScatterLines = XZScatterPlotControl.GetOrAddScatterLines(3);
+            var relayScatterLines = XZPlotDataSource.GetOrAddScatterLines(3);
 
             relayScatterLines[0].Update(
                 XZItems.Count > 0 ? "X Strehl Ratio" : string.Empty,
@@ -213,7 +213,7 @@ public sealed partial class OpticsRelayDTO : CalibrationDTOBase<OpticsRelayDTO>,
         }
         finally
         {
-            XZScatterPlotControl.AutoScaleRefresh();
+            XZPlotDataSource.AutoScaleRefresh();
         }
     }
 

@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="Core.Models.Models.Common.DarkField.BestFocusUserControl"
+<UserControl x:Class="Core.Models.Models.Common.DarkField.BestFocusUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField"
-             xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             xmlns:wpf="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
              d:DataContext="{d:DesignInstance Type=darkField:BestFocus}"
              d:DesignHeight="300"
              d:DesignWidth="300"
@@ -27,12 +28,12 @@
         <TabControl Grid.Row="1">
             <TabItem Header="Y Strehl Ratio">
                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                    <ContentControl Content="{Binding YStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                    <v2:PlotControl DataSource="{Binding YStrehlRatioPlotDataSource}" />
                 </Border>
             </TabItem>
             <TabItem Header="X Strehl Ratio">
                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                    <ContentControl Content="{Binding XStrehlRatioScatterPlotControl, Mode=OneWay}" />
+                    <v2:PlotControl DataSource="{Binding XStrehlRatioPlotDataSource}" />
                 </Border>
             </TabItem>
         </TabControl>

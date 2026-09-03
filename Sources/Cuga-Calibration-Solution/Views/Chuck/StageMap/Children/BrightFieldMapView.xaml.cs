@@ -1,7 +1,6 @@
 using Core.Models.Models.Common.StageMap;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.WPF.Extensions;
 using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.Colormaps;
@@ -180,7 +179,7 @@ public sealed partial class BrightFieldMapView
     {
         _logger ??= HostApplication.GetRequiredService<ILogger<BrightFieldMapView>>();
 
-        wpfPlot.ConfigureWpfPlotCommon();
+        // wpfPlot.ConfigureWpfPlotCommon();
 
         wpfPlot.Plot.Title("Map");
         wpfPlot.Plot.HideAxesAndGrid();

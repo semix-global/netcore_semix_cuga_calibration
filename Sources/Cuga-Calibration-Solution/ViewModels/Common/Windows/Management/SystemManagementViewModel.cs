@@ -8,7 +8,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Reflection;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Management;
 
@@ -29,42 +28,6 @@ public sealed partial class SystemManagementViewModel(
 
     [ObservableProperty]
     private ManagementViewModelBase? _activeItem;
-
-    [RelayCommand]
-    private void Loaded()
-    {
-        var allManageList = new List<SystemManageMenu>();
-        var rootNameSpace = typeof(SystemManagementViewModel).Namespace;
-        var assembly = Assembly.GetExecutingAssembly();
-        foreach (var (type, _) in from type in assembly.GetTypes().Where(t => t.FullName.StartsWith(rootNameSpace) && !t.FullName.Contains('+'))
-                                  let namespaceStr = type.FullName
-                                  select (type, namespaceStr))
-        {
-            if (!type.IsSubclassOf(typeof(ManagementViewModelBase)))
-                continue;
-            var viewmodel = (ManagementViewModelBase)HostApplication.GetRequiredService(type);
-            var menuItem = new SystemManageMenu
-            {
-                DisplayName = viewmodel.DisplayName,
-                OrderNum = viewmodel.DisplayOrderNum,
-                Component = type.FullName
-            };
-            if (!allManageList.Contains(menuItem))
-                allManageList.Add(menuItem);
-        }
-
-        var managementMenuList = allManageList.Select(t => t.Component[0..t.Component.LastIndexOf('.')]).Distinct()
-            .Select((t, i) => new SystemManageMenu { OrderNum = i, DisplayName = t.Split('.').Last(), Component = t }).OrderBy(t => t.OrderNum).ToList();
-        if (managementMenuList is null) return;
-        foreach (var item in managementMenuList)
-        {
-            var groupChildrenList = allManageList.Where(t => t.Component.StartsWith(item.Component)).OrderBy(t => t.OrderNum).ToList();
-            item.ChildList = groupChildrenList;
-        }
-
-        ApplicationCookie.SystemManageMenuList = managementMenuList;
-        return;
-    }
 
     [RelayCommand]
     private void OpenManagementMenu(string viewModel)

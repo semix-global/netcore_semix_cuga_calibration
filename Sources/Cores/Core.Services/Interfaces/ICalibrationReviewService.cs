@@ -29,4 +29,10 @@ public interface ICalibrationReviewService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<Size> GetBrightFieldImagePixelSize();
+
+    /// <summary>
+    /// 读取当前review相机配置的像元像素尺寸
+    /// </summary>
+    /// <returns>PixelSize</returns>
+    SxExecuteRet<Size> GetDefaultPixelSize();
 }

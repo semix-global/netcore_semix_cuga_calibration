@@ -6,7 +6,6 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.GlobalScaleError;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
@@ -78,7 +77,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
     public partial ChuckGlobalScaleErrorDto Calibration { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizeItems { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizeItems { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -95,14 +94,10 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<ChuckGlobalScaleErrorCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckGlobalScaleErrorDto>(cancellationToken);
-
-        if (Cache.LowMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.LowMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.LowMicroscopeLensInformation.Clone();
-        if (Cache.HighMicroscopeLensInformation == MicroscopeLensInformation.Default) Cache.HighMicroscopeLensInformation = CalibrationSetting.SettingCommonParam.HighMicroscopeLensInformation.Clone();
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -135,41 +130,39 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
                 break;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighSiteFindPosition);
                 break;
 
             case 4:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition);
                 break;
 
             case 5:
                 Cache.SiteDirection = StageDirectionTypeEnum.Down;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition);
                 break;
 
             case 6:
                 Cache.SiteDirection = StageDirectionTypeEnum.Left;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition);
                 break;
 
             case 7:
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition);
                 break;
         }
@@ -179,63 +172,43 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowBaseTemplateFilePath))
                        && File.Exists(Cache.LowBaseTemplateImageFilePath);
 
             case 2:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition);
                 return true;
 
             case 3:
                 Cache.SiteDirection = StageDirectionTypeEnum.Down;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition);
                 return true;
 
             case 4:
                 Cache.SiteDirection = StageDirectionTypeEnum.Left;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition);
                 return true;
 
             case 5:
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition);
                 return true;
 
             case 7:
-                if (ResultGlobalScaleErrorDto is null)
-                {
-                    DialogWindowProvider.TryShowDialog("Calibration result is Empty!", out var dialogButtonsEnum, DialogButtonsEnum.RetryCancel, DialogIconEnum.Warning);
-                    if (dialogButtonsEnum == DialogResultEnum.Retry) return false;
-                }
-                else
-                {
-                    ResultGlobalScaleErrorDto.IsCalibrated = true;
-                    if (Save(ResultGlobalScaleErrorDto, cancellationToken) == false)
-                    {
-                        ResultGlobalScaleErrorDto.IsCalibrated = false;
-                        StageViewModel.ResetXYGlobalScale();
-                        Logger.LogError("{@Name} Error: Save Failed!", Name);
-                        return false;
-                    }
-                }
-
-                ClearCalibrationTemp();
                 return true;
 
             default:
@@ -345,7 +318,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.RightLowSitePosition = currentRowReticles[^1].Rect.Point;
 
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
@@ -378,7 +351,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.BaseHighSiteFindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum);
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
@@ -498,6 +471,10 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             }), HtmlLogUniqueId.LoggingHtml());
 
             result = calibrationResult;
+
+            ResultGlobalScaleErrorDto.IsCalibrated = result;
+            Guard.IsTrue(Save(ResultGlobalScaleErrorDto, cancellationToken));
+
             return calibrationResult;
         });
         return result;
@@ -560,12 +537,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 VerifyScaleXYUmErrorResult = SelectGlobalScaleErrorDto.ScaleErrorValue
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (Save(ReviewDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Save Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ReviewDto.IsVerified = false;
-                return false;
-            }
+            Guard.IsTrue(Save(ReviewDto, cancellationToken));
 
             result = ReviewDto.IsVerified;
 

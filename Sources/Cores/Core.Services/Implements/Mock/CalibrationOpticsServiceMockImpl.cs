@@ -11,7 +11,6 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -272,6 +271,13 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess((_currentSCL1MotorValue, _currentSCL3MotorValue));
+    }
+
+    public SxExecuteRet<double> GetPMTInterval()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(160d);
     }
 
     public SxExecuteRet<bool> SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)

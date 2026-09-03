@@ -1,6 +1,6 @@
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.ImageViewer.WPF.Drawables;
-using Net.Utilities.WPF.Converters;
+using Net.Utilities.WPF.Converters.SingleValue;
 using System.Globalization;
 using System.Windows;
 
@@ -18,6 +18,7 @@ public sealed class DarkFieldImageDTOToBitmapImageDrawableConverter : AbstractSi
         };
 
         var (min, max) = bitmapImageDrawable.BitmapImage.GetChannelRange();
+
         bitmapImageDrawable.ChannelMinValue = min;
         bitmapImageDrawable.ChannelMaxValue = max;
 

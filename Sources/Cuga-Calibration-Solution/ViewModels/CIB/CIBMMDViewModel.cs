@@ -34,7 +34,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -141,6 +141,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.CIBInformation)
         ];
 
@@ -149,8 +150,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -160,7 +159,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
 
@@ -173,14 +172,12 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
                 Calibratings = [];
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.HazeFindBFMachinePosition
@@ -562,7 +559,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             Logger.LogHtmlInformation("Measure Power", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                measurePowerPoints = Cache.ScatterPlotControl.GetHtmlPlot2DLinesChart()
+                measurePowerPoints = Cache.PlotDataSource.GetHtmlPlot2DLinesChart()
             }), HtmlLogUniqueId.LoggingHtml());
 
             #endregion
@@ -1017,7 +1014,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
                 var htmlBullet = new HtmlBullet(new
                 {
-                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    SuccessPlot = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsVerified)
@@ -1284,7 +1281,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         {
             htmlList.Add(new HtmlBullet(new
             {
-                Plot = new HtmlContainer([.. item.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                Plot = new HtmlContainer([.. item.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
             }));
 
             item.IsCalibrated = isSuccess;
@@ -1306,7 +1303,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.CIBInformation != dto.CIBInformation)
             ];
         }

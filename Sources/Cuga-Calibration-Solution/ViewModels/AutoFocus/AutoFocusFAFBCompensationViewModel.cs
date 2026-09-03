@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -105,8 +106,6 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -115,7 +114,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.Items.ElementAtOrDefault(0)?.FindBFMachinePosition ?? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
 
@@ -310,6 +309,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
         var htmlBullet = new HtmlBullet(new
         {
+            Review.NSCRelativeZeroValue,
             Review.KA,
             Review.OffsetA,
             Review.KB,
@@ -346,6 +346,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
     private async Task GetNSCCurvesAsync(bool isCalibrating, CancellationToken cancellationToken)
     {
         var item = isCalibrating ? CalibratingItem : Review;
+        item.NSCRelativeZeroValue = AfViewModel.GetSensorNscRelativeZero();
 
         var brightFieldPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Items[0].FindBFMachinePosition);
         try
@@ -362,7 +363,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                 StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
 
-                CIBViewModel.ToggleRTFCParam(ApplicationCookie.ProductivityInformations[0]);
+                CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.ProductivityInformations[0]);
                 await Task.Delay(100, cancellationToken);
 
                 var (ecsMin, ecsMax) = AfViewModel.GetEcsMoveRange();
@@ -433,6 +434,39 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
                     ThrowHelper.ThrowArgumentException("NSC zero point not found. Please check whether the AF motor, ECS, slope, and other related configurations are correctly set.");
                 }
+            }
+
+            (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
+            {
+                Guard.IsEqualTo(ecses.Count, nscs.Count);
+                Guard.IsGreaterThan(ecses.Count, 2);
+
+                var nscRelativeZero = item.NSCRelativeZeroValue;
+                var zeroPoints = new List<Point>();
+
+                for (var i = 0; i < ecses.Count - 1; i++)
+                {
+                    var ecsA = ecses[i];
+                    var ecsB = ecses[i + 1];
+                    var nscA = nscs[i];
+                    var nscB = nscs[i + 1];
+
+                    if (Math.Abs(nscA - nscRelativeZero) < Constants.Tolerance) zeroPoints.Add(new Point(ecsA, nscA));
+
+                    if ((nscA - nscRelativeZero) * (nscB - nscRelativeZero) < 0d)
+                    {
+                        var zeroEcs = ecsA - (nscA - nscRelativeZero) * (ecsB - ecsA) / (nscB - nscA);
+                        zeroPoints.Add(new Point(zeroEcs, nscRelativeZero));
+                    }
+                }
+
+                if (Math.Abs(nscs[^1] - nscRelativeZero) < Constants.Tolerance) zeroPoints.Add(new Point(ecses[^1], nscs[^1]));
+
+                if (zeroPoints.Count == 0) return (false, Point.Origin);
+
+                var closestZeroPoint = zeroPoints.MinBy(p => Math.Abs(p.X - averageEcs));
+
+                return (true, closestZeroPoint);
             }
         }
         finally
@@ -584,38 +618,6 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }), HtmlLogUniqueId.LoggingHtml());
 
         return Task.CompletedTask;
-    }
-
-    private (bool IsSuccess, Point ZeroPoint) GetNSCCurveZeroPoint(double averageEcs, IReadOnlyList<double> ecses, IReadOnlyList<double> nscs)
-    {
-        Guard.IsEqualTo(ecses.Count, nscs.Count);
-        Guard.IsGreaterThan(ecses.Count, 2);
-
-        var zeroPoints = new List<Point>();
-
-        for (var i = 0; i < ecses.Count - 1; i++)
-        {
-            var ecsA = ecses[i];
-            var ecsB = ecses[i + 1];
-            var nscA = nscs[i];
-            var nscB = nscs[i + 1];
-
-            if (nscA == 0d) zeroPoints.Add(new Point(ecsA, nscA));
-
-            if (nscA * nscB < 0d)
-            {
-                var zeroEcs = ecsA - nscA * (ecsB - ecsA) / (nscB - nscA);
-                zeroPoints.Add(new Point(zeroEcs, 0d));
-            }
-        }
-
-        if (nscs[^1] == 0d) zeroPoints.Add(new Point(ecses[^1], nscs[^1]));
-
-        if (zeroPoints.Count == 0) return (false, Point.Origin);
-
-        var closestZeroPoint = zeroPoints.MinBy(p => Math.Abs(p.X - averageEcs));
-
-        return (true, closestZeroPoint);
     }
 
     private bool Save(AutoFocusFAFBCompensationDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>

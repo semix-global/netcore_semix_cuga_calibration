@@ -72,7 +72,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             temp.IsKeepRawImageCIBProfileModeEnum = false;
             using var image = temp.GetImage();
 
-            item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS);
+            item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, HtmlLogUniqueId);
             item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
             Logger.LogHtmlInformation("Best Focus OK", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
@@ -161,7 +161,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         {
             Results = [];
 
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.MicroscopeLensInformation);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
             var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
             StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
 

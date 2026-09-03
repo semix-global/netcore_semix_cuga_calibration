@@ -5,8 +5,8 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Ads"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
-             xmlns:wpf="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              d:DataContext="{d:DesignInstance Type=viewModels:AdsYGainsCalibrationViewModel}"
              d:DesignHeight="800"
@@ -25,25 +25,13 @@
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
 
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Start Position: "
-                           Status="{Binding Cache.PositiveStartPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.StartPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
+                <hc:Shield DockPanel.Dock="Bottom"
                            Subject="End Position: "
-                           Status="{Binding Cache.PositiveEndPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="Start Position: "
-                           Status="{Binding Cache.NegativeStartPosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                           DockPanel.Dock="Bottom"
-                           Subject="End Position: "
-                           Status="{Binding Cache.NegativeEndPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.EndPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
 
@@ -57,19 +45,19 @@
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBox Text="{Binding Cache.SpeedYValueList, Converter={StaticResource ListToStringConverter}}"
+                        <TextBox Text="{Binding Cache.YSpeeds, Converter={StaticResource DoublesToStringConverter}}"
                                  Width="275"
                                  hc:TitleElement.TitleWidth="90"
-                                 hc:InfoElement.Title="Speed List: "
-                                 hc:InfoElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Speed List: "
+                                 hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:NumericUpDown x:Name="MaxValueNumeric1"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Max Y: "
+                                          hc:TitleElement.Title="Max Y: "
                                           hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input x value"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:InfoElement.Placeholder="Input y value"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="1"
                                           Maximum="300"
@@ -78,31 +66,22 @@
                         <hc:NumericUpDown x:Name="MinValueNumeric1"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Min Y: "
+                                          hc:TitleElement.Title="Min Y: "
                                           hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input x value"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:InfoElement.Placeholder="Input y value"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="0"
                                           Maximum="150"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.FindMinY}" />
-                        <hc:NumericUpDown x:Name="speedYvalue"
-                                          Width="275"
-                                          hc:TitleElement.TitleWidth="120"
-                                          hc:InfoElement.Title="Default Speed: "
-                                          hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
-                                          hc:InfoElement.Placeholder="Input DefaultSpeed"
-                                          hc:InfoElement.ShowClearButton="True"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.DefaultSpeedYValue}" />
+
                         <hc:NumericUpDown x:Name="ThresholdNumeric"
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
-                                          hc:InfoElement.Title="Threshold: "
+                                          hc:TitleElement.Title="Threshold: "
                                           hc:InfoElement.Necessary="True"
-                                          hc:InfoElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Threshold"
                                           hc:InfoElement.ShowClearButton="True"
                                           Minimum="0"
@@ -111,12 +90,12 @@
                                           Value="{Binding Cache.Threshold}" />
                         <hc:NumericUpDown x:Name="WaitTimeNumeric"
                                           Width="275"
-                                          hc:TitleElement.TitleWidth="110"
-                                          hc:InfoElement.Title="Wait Time(s): "
-                                          hc:InfoElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="90"
+                                          hc:TitleElement.Title="Wait Time(s): "
+                                          hc:TitleElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Wait Time"
                                           hc:InfoElement.ShowClearButton="True"
-                                          Minimum="1"
+                                          Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.WaitTime}" />
                     </hc:UniformSpacingPanel>
@@ -128,12 +107,12 @@
                                         Spacing="10">
                     <Button x:Name="ActionButton"
                             Content="Action"
-                            Command="{Binding Step1CalibrateActionCommand}"
+                            Command="{Binding Step1Command}"
                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                             Style="{StaticResource ButtonPrimary.Loading}" />
                     <Button x:Name="CancelButton"
                             Content="Cancel"
-                            Command="{Binding Step1CalibrateActionCancelCommand}"
+                            Command="{Binding Step1CancelCommand}"
                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                             Style="{StaticResource ButtonWarning}" />
                 </hc:UniformSpacingPanel>
@@ -147,193 +126,172 @@
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.5*" />
-                <RowDefinition Height="0.5*" />
                 <RowDefinition Height="10" />
                 <RowDefinition Height="0.5*" />
             </Grid.RowDefinitions>
             <GroupBox Grid.Row="0" Header="History">
                 <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsCacheItemList}"
-                              Style="{StaticResource ListView.Small}"
+                    <DataGrid x:Name="HistoryDataGrid"
+                              hc:DataGridAttach.ShowRowNumber="True"
+                              d:SelectedIndex="0"
+                              RowHeaderWidth="60"
+                              HeadersVisibility="All"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Style="{StaticResource DataGrid.Small}"
+                              ItemsSource="{Binding Calibrating.CalibrateItems}"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsYGainsCacheItem, Mode=TwoWay}">
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
                         <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
+                            <behaviors:DataGridScrollToCurrentBehavior />
                         </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                        <DataGrid.ColumnHeaderStyle>
+                            <Style BasedOn="{StaticResource DataGridColumnHeaderStyle.Small}" TargetType="DataGridColumnHeader">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </Style>
+                        </DataGrid.ColumnHeaderStyle>
+                        <DataGrid.CellStyle>
+                            <Style BasedOn="{StaticResource DataGridCellStyle.Small}" TargetType="DataGridCell">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.RowStyle>
+                            <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
                                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
                                 <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPositive}" Value="False">
+                                        <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+                                    </DataTrigger>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="80"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y1"
-                                                DisplayMemberBinding="{Binding PositiveY1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y2"
-                                                DisplayMemberBinding="{Binding PositiveY2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y3"
-                                                DisplayMemberBinding="{Binding PositiveY3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ1"
-                                                DisplayMemberBinding="{Binding PositiveMaxZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ1"
-                                                DisplayMemberBinding="{Binding PositiveMinZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z1"
-                                                DisplayMemberBinding="{Binding PositiveZ1, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ2"
-                                                DisplayMemberBinding="{Binding PositiveMaxZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ2"
-                                                DisplayMemberBinding="{Binding PositiveMinZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z2"
-                                                DisplayMemberBinding="{Binding PositiveZ2, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ3"
-                                                DisplayMemberBinding="{Binding PositiveMaxZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ3"
-                                                DisplayMemberBinding="{Binding PositiveMinZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z3"
-                                                DisplayMemberBinding="{Binding PositiveZ3, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
+                        </DataGrid.RowStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Width="120"
+                                                Header="SpeedYValue"
+                                                Binding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
+                            <DataGridTemplateColumn Width="100" Header="Y1/Y4">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y1OrY4}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ1OrZ4}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="100" Header="Y2/Y5">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y2OrY5}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ2OrZ5}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="100" Header="Y3/Y6">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Y3OrY6}" Width="30" />
+                                            <Path>
+                                                <Path.Style>
+                                                    <Style TargetType="Path">
+                                                        <Setter Property="Width" Value="15" />
+                                                        <Setter Property="Height" Value="15" />
+                                                        <Setter Property="Stretch" Value="Uniform" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="Fill" Value="{DynamicResource PrimaryBrush}" />
+                                                        <Setter Property="Data" Value="{StaticResource DownArrowGeometry}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsUpwardZ3OrZ6}" Value="True">
+                                                                <Setter Property="Data" Value="{StaticResource UpArrowGeometry}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                                <Setter Property="Fill" Value="{StaticResource DefaultBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Path.Style>
+                                            </Path>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Width="100"
                                                 Header="H"
-                                                DisplayMemberBinding="{Binding PositiveH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
+                                                Binding="{Binding H, StringFormat={}{0:f3}}" />
+                            <DataGridTextColumn Width="100"
                                                 Header="P"
-                                                DisplayMemberBinding="{Binding PositiveP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
+                                                Binding="{Binding P, StringFormat={}{0:f3}}" />
+                            <DataGridTextColumn Width="100"
                                                 Header="R"
-                                                DisplayMemberBinding="{Binding PositiveR, StringFormat={}{0:f3}}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                                                Binding="{Binding R, StringFormat={}{0:f3}}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Row="1" Header="History">
-                <Grid>
-                    <ListView d:SelectedIndex="0"
-                              Visibility="{Binding Cache.IsPositive, Converter={StaticResource BoolToVisibilityConverter}}"
-                              ItemsSource="{Binding AdsYGainsCacheConverseItemList}"
-                              Style="{StaticResource ListView.Small}"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                              SelectedItem="{Binding SelectAdsYGainsCacheConverseItem, Mode=TwoWay}">
-                        <i:Interaction.Behaviors>
-                            <behaviors:ListBoxScrollToCurrentBehavior />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <ListView.View>
-                            <GridView>
-                                <GridView.ColumnHeaderContainerStyle>
-                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    </Style>
-                                </GridView.ColumnHeaderContainerStyle>
-                                <GridViewColumn Width="80"
-                                                Header="Index"
-                                                DisplayMemberBinding="{Binding Index}" />
-                                <GridViewColumn Width="80"
-                                                Header="Speed"
-                                                DisplayMemberBinding="{Binding SpeedYValue, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y4"
-                                                DisplayMemberBinding="{Binding NegativeY4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y5"
-                                                DisplayMemberBinding="{Binding NegativeY5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Y6"
-                                                DisplayMemberBinding="{Binding NegativeY6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ4"
-                                                DisplayMemberBinding="{Binding NegativeMaxZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ4"
-                                                DisplayMemberBinding="{Binding NegativeMinZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z4"
-                                                DisplayMemberBinding="{Binding NegativeZ4, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ5"
-                                                DisplayMemberBinding="{Binding NegativeMaxZ5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ5"
-                                                DisplayMemberBinding="{Binding NegativeMinZ5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z5"
-                                                DisplayMemberBinding="{Binding NegativeZ5, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MaxZ6"
-                                                DisplayMemberBinding="{Binding NegativeMaxZ6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="MinZ6"
-                                                DisplayMemberBinding="{Binding NegativeMinZ6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="Z6"
-                                                DisplayMemberBinding="{Binding NegativeZ6, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="H"
-                                                DisplayMemberBinding="{Binding NegativeH, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="P"
-                                                DisplayMemberBinding="{Binding NegativeP, StringFormat={}{0:f3}}" />
-                                <GridViewColumn Width="80"
-                                                Header="R"
-                                                DisplayMemberBinding="{Binding NegativeR, StringFormat={}{0:f3}}" />
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                </Grid>
-            </GroupBox>
-            <GridSplitter Grid.Row="2" />
-            <GroupBox Grid.Row="3" Header="Plot">
-                <Grid>
-                    <wpf:WpfPlot Margin="5">
-                        <i:Interaction.Behaviors>
-                            <behaviors:WpfPlotListBehavior Title="Plot" PlotList="{Binding PlotList, Mode=TwoWay}" />
-                        </i:Interaction.Behaviors>
-                    </wpf:WpfPlot>
-                </Grid>
+            <GridSplitter Grid.Row="1" />
+            <GroupBox Grid.Row="2" Header="Plot">
+                <TabControl>
+                    <TabItem Header="Z Plot">
+                        <v2:PlotControl Margin="5" DataSource="{Binding SelectedItem.ZPlotDataSource, ElementName=HistoryDataGrid}" />
+                    </TabItem>
+                    <TabItem Header="HRP Plot">
+                        <v2:PlotControl Margin="5" DataSource="{Binding SelectedItem.HrpPlotDataSource, ElementName=HistoryDataGrid}" />
+                    </TabItem>
+                </TabControl>
             </GroupBox>
         </Grid>
         <!--#endregion-->

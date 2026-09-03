@@ -27,8 +27,8 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -296,7 +296,7 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
     public partial OpticsCollectorSlitCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    public partial IDictionary<int, IScatterPlotControl> ScatterPlotControls { get; set; } = ImmutableDictionary<int, IScatterPlotControl>.Empty;
+    public partial IDictionary<int, IPlotDataSource> PlotDataSources { get; set; } = ImmutableDictionary<int, IPlotDataSource>.Empty;
 
     [RelayCommand]
     private void Loaded()
@@ -305,9 +305,9 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
         {
             Cache = cacheProvider.GetOrDefault<OpticsCollectorSlitCache>();
 
-            if (ScatterPlotControls.Count > 0) return;
+            if (PlotDataSources.Count > 0) return;
 
-            ScatterPlotControls = ApplicationCookie.CIBInformationChannelIds.ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
+            PlotDataSources = ApplicationCookie.CIBInformationChannelIds.ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
         }
         finally
         {
@@ -374,9 +374,9 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
 
                 RefreshPlot();
 
-                foreach (var keyValuePair in ScatterPlotControls)
+                foreach (var keyValuePair in PlotDataSources)
                 {
-                    var scatterPlotControl = ScatterPlotControls[keyValuePair.Key];
+                    var scatterPlotControl = PlotDataSources[keyValuePair.Key];
 
                     logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
@@ -466,9 +466,9 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
 
                 RefreshPlot();
 
-                foreach (var keyValuePair in ScatterPlotControls)
+                foreach (var keyValuePair in PlotDataSources)
                 {
-                    var scatterPlotControl = ScatterPlotControls[keyValuePair.Key];
+                    var scatterPlotControl = PlotDataSources[keyValuePair.Key];
 
                     logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
                     logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
@@ -652,19 +652,19 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
         var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
         var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
 
-        if (hazeOriginDictionary.Count > 0) Guard.IsTrue(ScatterPlotControls.Keys.SequenceEqual(hazeOriginDictionary.Keys));
-        if (hazeNormalizationDictionary.Count > 0) Guard.IsTrue(ScatterPlotControls.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
-        if (dswOriginDictionary.Count > 0) Guard.IsTrue(ScatterPlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
-        if (dswOriginDictionary.Count > 0) Guard.IsTrue(ScatterPlotControls.Keys.SequenceEqual(dswOriginDictionary.Keys));
+        if (hazeOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(hazeOriginDictionary.Keys));
+        if (hazeNormalizationDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
+        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(dswOriginDictionary.Keys));
+        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(dswOriginDictionary.Keys));
 
-        foreach (var keyValuePair in ScatterPlotControls)
+        foreach (var keyValuePair in PlotDataSources)
         {
             var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
             var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
             var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
             var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
 
-            var scatterPlotControl = ScatterPlotControls[keyValuePair.Key];
+            var scatterPlotControl = PlotDataSources[keyValuePair.Key];
 
             try
             {
@@ -695,9 +695,9 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
         }
     }
 
-    private IScatterPlotControl GetScatterPlotControl()
+    private IPlotDataSource GetScatterPlotControl()
     {
-        var scatterPlotControl = serviceProvider.GetRequiredService<IScatterPlotControl>();
+        var scatterPlotControl = serviceProvider.GetRequiredService<IPlotDataSource>();
 
         var customGrid = new CustomGrid();
         scatterPlotControl.Configure(customGrid, 3,

@@ -7,11 +7,11 @@
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
            xmlns:hc="https://handyorg.github.io/handycontrol"
-           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
+           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
-           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+           xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
@@ -100,7 +100,7 @@
                                                   ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                         <ComboBox hc:TitleElement.Title="Laser Light Information: "
@@ -109,7 +109,7 @@
                                                   Style="{StaticResource ComboBoxExtend}"
                                                   ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                     </hc:UniformSpacingPanel>
@@ -154,7 +154,7 @@
                                               Style="{StaticResource ComboBoxExtend}"
                                               ItemsSource="{Binding ApplicationCookie.CIBInformations}">
                                         <i:Interaction.Behaviors>
-                                            <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
                                         </i:Interaction.Behaviors>
                                     </ComboBox>
                                     <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
@@ -189,7 +189,7 @@
                                                           ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
                                                           Style="{StaticResource ComboBoxExtend}">
                                                     <i:Interaction.Behaviors>
-                                                        <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                                        <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                                     </i:Interaction.Behaviors>
                                                 </ComboBox>
                                                 <TextBox Text="{Binding Cache.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -489,7 +489,7 @@
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate DataType="{x:Type viewModels:ChirpAODWaveformTrainingItem}">
                                                     <TextBlock TextWrapping="Wrap">
-                                                        <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
+                                                        <Hyperlink Command="{x:Static cmd:Commands.OpenFilePathCommand}" CommandParameter="{Binding BestFocus.RawImageFilePath}">
                                                             <Run Text="{Binding BestFocus.RawImageFilePath}" />
                                                         </Hyperlink>
                                                     </TextBlock>
@@ -518,7 +518,7 @@
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center" />
                                         <TextBlock TextWrapping="Wrap">
-                                            <Hyperlink Command="{x:Static wpf:Commands.OpenFilePathCommand}" CommandParameter="{Binding Cache.Item.BestFocus.RawImageFilePath}">
+                                            <Hyperlink Command="{x:Static cmd:Commands.OpenFilePathCommand}" CommandParameter="{Binding Cache.Item.BestFocus.RawImageFilePath}">
                                                 <Run Text="{Binding Cache.Item.BestFocus.RawImageFilePath}" />
                                             </Hyperlink>
                                         </TextBlock>

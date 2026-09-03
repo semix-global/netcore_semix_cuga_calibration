@@ -10,10 +10,10 @@ using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -38,7 +38,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
@@ -53,7 +53,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ForwardAndReverseScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource ForwardAndReverseScatterPlotDataSource { get; set; } = new PlotDataSource();
 
     [ObservableProperty]
     public partial IReadOnlyList<CIBAGCDelayDTOItem> Items { get; set; } = [];
@@ -64,7 +64,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial ConcurrentDictionary<CIBInformation, IScatterPlotControl> ScatterPlotControls { get; set; } = [];
+    public partial ConcurrentDictionary<CIBInformation, IPlotDataSource> PlotDataSources { get; set; } = [];
 
     #region Partial Method
 
@@ -135,24 +135,24 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     public CIBAGCDelayDTO()
     {
-        ScatterPlotControl.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
+        PlotDataSource.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
 
-        ForwardAndReverseScatterPlotControl.Configure(new Columns(), 2);
+        ForwardAndReverseScatterPlotDataSource.Configure(new Columns(), 2);
 
-        ForwardAndReverseScatterPlotControl.SetTitle(0, "Window(Y: Coefficient - X: sa)");
-        ForwardAndReverseScatterPlotControl.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
+        ForwardAndReverseScatterPlotDataSource.SetTitle(0, "Window(Y: Coefficient - X: sa)");
+        ForwardAndReverseScatterPlotDataSource.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
     }
 
     public CIBAGCDelayDTO(IReadOnlyList<CIBInformation> cibInformations) : this()
     {
-        ScatterPlotControls = new ConcurrentDictionary<CIBInformation, IScatterPlotControl>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IScatterPlotControl>(t, GetScatterPlotControl())));
+        PlotDataSources = new ConcurrentDictionary<CIBInformation, IPlotDataSource>(cibInformations.Select(t => new KeyValuePair<CIBInformation, IPlotDataSource>(t, GetPlotDataSource())));
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var scatterLines = ScatterPlotControl.GetOrAddScatterLines(1);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(1);
 
             scatterLines[0].Update(
                 string.Empty,
@@ -161,7 +161,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -174,7 +174,7 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
         }
         finally
         {
-            ForwardAndReverseScatterPlotControl.AutoScaleRefresh();
+            ForwardAndReverseScatterPlotDataSource.AutoScaleRefresh();
         }
 
         return;
@@ -182,14 +182,14 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
         void Refresh(AODUniformityDTO.WindowItem windowItem, string title, Color primaryColor, Color secondaryColor)
         {
             if (windowItem.Window.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReverseScatterPlotDataSource.GetOrAddScatterLine(
                     0,
                     title,
                     [.. windowItem.Window.ToPoints()],
                     primaryColor);
 
             if (windowItem.ImageHorizontalProjects.Count > 0)
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReverseScatterPlotDataSource.GetOrAddScatterLine(
                     1,
                     title,
                     [.. windowItem.ImageHorizontalProjects.ToPoints()],
@@ -197,13 +197,13 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
             if (windowItem.SmoothImageHorizontalProjects.Count > 0)
             {
-                ForwardAndReverseScatterPlotControl.GetOrAddScatterLine(
+                ForwardAndReverseScatterPlotDataSource.GetOrAddScatterLine(
                     1,
                     $"{title} Smooth",
                     [.. windowItem.SmoothImageHorizontalProjects.ToPoints()],
                     secondaryColor);
 
-                ForwardAndReverseScatterPlotControl.GetOrAddXLine(
+                ForwardAndReverseScatterPlotDataSource.GetOrAddXLine(
                     1,
                     $"{title} Smooth Min Pixel",
                     windowItem.HorizontalProjectMinPixel,
@@ -216,15 +216,15 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
     {
         foreach (var item in Items)
         {
-            var scatterPlotControl = ScatterPlotControls.GetOrAdd(item.CIBInformation, _ => GetScatterPlotControl());
+            var plotDataSource = PlotDataSources.GetOrAdd(item.CIBInformation, _ => GetPlotDataSource());
 
             try
             {
-                var information = scatterPlotControl.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
-                scatterPlotControl.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}, Delay(0) Error: {item.ZeroDelayError:0.###}");
+                var information = plotDataSource.GetTitle().Split(['=', '>'], StringSplitOptions.RemoveEmptyEntries);
+                plotDataSource.SetTitle($"{information[0].Trim()} => {nameof(item.Delay)}: {item.Delay:0.###}, Delay(0) Error: {item.ZeroDelayError:0.###}");
 
-                var scatterLines = scatterPlotControl.GetOrAddScatterLines(item.Items.Count);
-                var xLines = scatterPlotControl.GetOrAddXLines(item.Items.Count + 1);
+                var scatterLines = plotDataSource.GetOrAddScatterLines(item.Items.Count);
+                var xLines = plotDataSource.GetOrAddXLines(item.Items.Count + 1);
 
                 foreach (var (index, itemItemData) in item.Items.Index())
                 {
@@ -251,18 +251,18 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
             }
             finally
             {
-                scatterPlotControl.AutoScaleRefresh();
+                plotDataSource.AutoScaleRefresh();
             }
         }
     }
 
-    private static IScatterPlotControl GetScatterPlotControl()
+    private static IPlotDataSource GetPlotDataSource()
     {
-        var scatterPlotControl = HostApplication.GetRequiredService<IScatterPlotControl>();
+        var plotDataSource = new PlotDataSource();
 
-        scatterPlotControl.SetTitle("Horizontal Projects(Y: PMT Value(Voltage) - X: px)");
+        plotDataSource.SetTitle("Horizontal Projects(Y: PMT Value(Voltage) - X: px)");
 
-        return scatterPlotControl;
+        return plotDataSource;
     }
 
     #region Mapper

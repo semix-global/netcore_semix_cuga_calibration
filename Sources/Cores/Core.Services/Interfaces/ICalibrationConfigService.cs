@@ -41,6 +41,12 @@ public interface ICalibrationConfigService
     SxExecuteRet<string> GetCalibrationFilePath();
 
     /// <summary>
+    /// 获得cuga注册的用户信息
+    /// </summary>
+    /// <returns>result文件路径</returns>
+    SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation();
+
+    /// <summary>
     /// 获取prescan默认波形列表
     /// </summary>
     /// <param name="productivityInformation">产率</param>

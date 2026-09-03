@@ -5,7 +5,7 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels"
-           xmlns:nlog="clr-namespace:Net.Utilities.WPF.UI.Nlog;assembly=Net.Utilities.WPF"
+           xmlns:nlog="clr-namespace:Net.Utilities.WPF.NLogViewer.Controls;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            Width="1200"
            Height="800"

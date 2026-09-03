@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
+using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -18,6 +19,7 @@ using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -86,6 +88,9 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
     public partial MicroscopeCalChipCache MicroscopeCalChipCache { get; set; } = new();
 
     [ObservableProperty]
+    public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
+
+    [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
@@ -98,16 +103,16 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
+        ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBYPixelSizeCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken);
 
         UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
 
-        Cache.PmtInterval = CalibrationSetting.SettingCommonParam.PMTInterval;
+        Cache.PmtInterval = ApplicationCookie.PMTInterval;
 
         return true;
     }
@@ -128,6 +133,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
                 .ThenBy(t => t.PmtId)
         ];
@@ -137,8 +143,6 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -154,7 +158,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                 return true;
 
             case 4:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
@@ -166,20 +170,18 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 1:
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.CalChipSiteModelEnum switch
                     {
-                        CalChipSiteModelEnum.ChuckModel => StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindBFMachinePosition),
-                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
+                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition == Point.Origin ? ChuckCenter.NewBFCenterStagePosition : Cache.Item.FindBFMachinePosition,
+                        CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
                         _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
                     }), Cache.CalChipSiteModelEnum);
 
@@ -448,6 +450,18 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
+
+            var verifyItems = Calibrations.Where(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).ToList();
+            if (verifyItems.Count >= 3)
+                Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                {
+                    PmtYPixelSize = new HtmlPlot2DLinesChart(
+                        [
+                            ("PMT Y Pixel Size(Y:um,X:PMT ID)", [.. verifyItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
+                        ],
+                        "PMT Y Pixel Size")
+                }), HtmlLogUniqueId.LoggingHtml());
+
             return result;
         }).ConfigureAwait(false);
     }
@@ -467,8 +481,10 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             false,
             cancellationToken);
 
-        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, out var drawImageObj);
+        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, HtmlLogUniqueId, out var drawImageObj, out var yProjects, out var algoIndexes);
         cibYPixelSizeDTO.YPixelSize = yPixelSize;
+        cibYPixelSizeDTO.YProjects = yProjects;
+        cibYPixelSizeDTO.AlgorithmIndexes = algoIndexes;
 
         cibYPixelSizeDTO.FilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg");
         cibYPixelSizeDTO.DrawImageFilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_DrawImage_Guid({HtmlLogUniqueId}).jpg");
@@ -489,7 +505,8 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             {
                 DrawImage = new HtmlImage(cibYPixelSizeDTO.DrawImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)]),
                 Image = new HtmlImage(cibYPixelSizeDTO.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(false)])
-            })
+            }),
+            Plots = new HtmlContainer([.. cibYPixelSizeDTO.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
         }), HtmlLogUniqueId.LoggingHtml());
     }
 
@@ -502,7 +519,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations
                     .Where(t => (t.ProductivityInformation == dto.ProductivityInformation && t.PmtId == dto.PmtId) == false)
             ];

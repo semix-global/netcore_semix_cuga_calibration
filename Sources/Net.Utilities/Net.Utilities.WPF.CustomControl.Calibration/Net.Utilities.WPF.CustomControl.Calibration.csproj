@@ -6,23 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.OpticsFourierImageViewer.WPF" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.1-preview15.0-xuan" />
-
-        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.1-preview15.0-xuan" />
-        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.1-preview15.0-xuan" />
-
-        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.1-preview15.0-xuan" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\Net.Utilities.Calibration\Net.Utilities.Calibration.csproj" />
+        <ProjectReference Include="..\Net.Utilities.WPF.Behaviors.Calibration\Net.Utilities.WPF.Behaviors.Calibration.csproj" />
+        <ProjectReference Include="..\Net.Utilities.WPF.Commands.Calibration\Net.Utilities.WPF.Commands.Calibration.csproj" />
     </ItemGroup>
 
 </Project>

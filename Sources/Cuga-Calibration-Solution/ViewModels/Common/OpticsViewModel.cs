@@ -75,6 +75,13 @@ public sealed class OpticsViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
+    public double GetPMTInterval()
+    {
+        var ret = calibrationOpticsService.GetPMTInterval();
+
+        return ret.IsSuccess ? ret.Anything * 2 : throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetSCMotorAbsoluteValue(OpticsIlluminationModeEnum opticsIlluminationModeEnum, (double L1, double L3) value)
     {
         var ret = calibrationOpticsService.SetSCMotorAbsoluteValue(opticsIlluminationModeEnum, value);

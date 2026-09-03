@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Setting;
+using Core.Services.Interfaces;
 using Core.Utilities.WPF.Entities;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
@@ -41,6 +42,7 @@ public sealed partial class LoadingWindowViewModel(
     ILogger<LoadingWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     ISynchronizationContextProvider contextProvider,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
     CalibrationSetting calibrationSetting,
     ApplicationCookie applicationCookie,
     IOptions<ApplicationSetting> options,
@@ -97,6 +99,8 @@ public sealed partial class LoadingWindowViewModel(
                 Message = "Loading Calibration Cache...";
                 await LoadCalibrationCacheAsync();
                 Message = "Loading Calibration Cache OK!!!";
+
+                InitialEngines();
 
                 contextProvider.Send(() => CloseView(true));
 
@@ -165,6 +169,11 @@ public sealed partial class LoadingWindowViewModel(
 
             if (calibrationRelationService.RefreshRelationConfigCookies(out var message) == false)
                 dialogWindowProvider.ShowDialog($"Refresh Relation Config Cookies Failed: {message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+
+        void InitialEngines()
+        {
+            calibrationAlgorithmService.InitialAlgorithmEngine();
         }
     }
 

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CugaCalibration.Views.Microscope.Centricity.Children.Step1View"
+<UserControl x:Class="CugaCalibration.Views.Microscope.Centricity.Children.Step1View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -7,22 +7,27 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Microscope.Centricity;assembly=Core.Models"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
-             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors;assembly=Net.Utilities.WPF"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:wafer="clr-namespace:Core.Models.Enums.Recipe.Wafer;assembly=Core.Models"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityCalibrationViewModel}"
-             d:DesignHeight="800"
-             d:DesignWidth="800"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityViewModel}"
+             d:DesignHeight="1080"
+             d:DesignWidth="1920"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
@@ -32,166 +37,185 @@
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Microscope Magnification: "
-                           Status="{Binding Cache.MicroscopeLensInformation.LensName}"
+                           Status="{Binding Cache.MicroscopeLensInformation}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield DockPanel.Dock="Bottom"
                            Subject="Find Position: "
-                           Status="{Binding SelectMicroscopeCentricityCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Cache.Item.FindPosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="1. Find Position 、Template"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding SelectMicroscopeCentricityCacheItem.FindPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Position(um): "
-                             hc:InfoElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <view:CanvasView Width="100"
-                                     Height="100"
-                                     BackgroundColor="#0A0A0A"
-                                     AxisColor="Red"
-                                     Interactive="True"
-                                     ShowAxes="True"
-                                     ShowCursor="False"
-                                     ShowGrid="False"
-                                     BackgroundImage="{Binding SelectMicroscopeCentricityCacheItem.TemplateImageFilePath}" />
-                </hc:UniformSpacingPanel>
-            </Border>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="2. Find Offset"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:ComboBox Width="275"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="Wafer Mask Type: "
-                                 SelectedItem="{Binding SelectMicroscopeCentricityCacheItem.WaferMaskTypeEnum}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
-                        <hc:ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                            </DataTemplate>
-                        </hc:ComboBox.ItemTemplate>
-                    </hc:ComboBox>
-                    <TextBox Text="{Binding ResultMicroscopeCentricityItemDto.CentricityPosition, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Centricity: "
-                             hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding ResultMicroscopeCentricityItemDto.Offset, Converter={StaticResource PointToStringConverter}}"
-                             Width="275"
-                             hc:InfoElement.Title="Offset: "
-                             hc:TitleElement.TitleWidth="90"
-                             hc:InfoElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button x:Name="ActionButton"
-                                Content="Action"
-                                Command="{Binding Step1CalibrateActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button x:Name="CancelButton"
-                                Content="Cancel"
-                                Command="{Binding Step1CalibrateActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="1. Find Position、Template"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="160"
+                                     hc:TitleElement.Title="Wafer Mask Type: "
+                                     SelectedItem="{Binding Cache.Item.WaferMaskTypeEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type wafer:WaferMaskTypeEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <TextBox Text="{Binding Cache.Item.FindPosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Position(um): "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 IsReadOnly="True"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <view:CanvasView Width="100"
+                                         Height="100"
+                                         BackgroundColor="#0A0A0A"
+                                         AxisColor="Red"
+                                         Interactive="True"
+                                         ShowAxes="True"
+                                         ShowCursor="False"
+                                         ShowGrid="False"
+                                         BackgroundImage="{Binding Cache.Item.TemplateImageFilePath}" />
+                        <StackPanel>
+                            <TextBlock Text="2. Find Offset"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.Result.CentricityPosition, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Centricity: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Result.Offset, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Offset: "
+                                 hc:TitleElement.TitleWidth="160"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button x:Name="ActionButton"
+                                    Content="Action"
+                                    Command="{Binding Step1Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button x:Name="CancelButton"
+                                    Content="Cancel"
+                                    Command="{Binding Step1CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
-
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-
-        <!--#region Right-->
-        <GroupBox Grid.Column="2" Header="History">
-            <ListView d:SelectedIndex="0"
-                      ItemsSource="{Binding MicroscopeCentricityItemDtoList}"
-                      Style="{StaticResource ListView.Small}"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                      SelectedItem="{Binding SelectMicroscopeCentricityItemDto, Mode=OneWay}">
-                <i:Interaction.Behaviors>
-                    <behaviors:ListBoxScrollToCurrentBehavior />
-                </i:Interaction.Behaviors>
-                <ListView.ItemContainerStyle>
-                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                        <Style.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.View>
-                    <GridView>
-                        <GridView.ColumnHeaderContainerStyle>
-                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+        <GroupBox Grid.Column="2" Header="Calibration Data">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.5*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="5*" />
+                    </Grid.ColumnDefinitions>
+                    <ListView x:Name="HistoryListView"
+                              ItemsSource="{Binding CalibratingItem.Items}"
+                              SelectedItem="{Binding SelectedItem, Mode=OneWay}"
+                              Style="{StaticResource ListView.Small}"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                        <i:Interaction.Behaviors>
+                            <behaviors:ListBoxScrollToCurrentBehavior />
+                        </i:Interaction.Behaviors>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Center" />
                                 <Setter Property="VerticalContentAlignment" Value="Center" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
-                        </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Width="120"
-                                        Header="Magnification"
-                                        DisplayMemberBinding="{Binding LensInformation.LensName, Converter={StaticResource EnumDescriptionConverter}}" />
-                        <GridViewColumn Width="200"
-                                        Header="Centricity"
-                                        DisplayMemberBinding="{Binding CentricityPosition, Converter={StaticResource PointToStringConverter}}" />
-                        <GridViewColumn Width="100"
-                                        Header="Offset"
-                                        DisplayMemberBinding="{Binding Offset, Converter={StaticResource PointToStringConverter}}" />
-                        <GridViewColumn Width="100"
-                                        Header="Score"
-                                        DisplayMemberBinding="{Binding TemplateScore, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="100"
-                                        Header="Angle"
-                                        DisplayMemberBinding="{Binding TemplateAngle, StringFormat={}{0:f3}}" />
-                        <GridViewColumn Width="200" Header="Action Review">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Button Content="Image"
-                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding FilePath}"
-                                                HorizontalAlignment="Center"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}" />
-                                        <Button Grid.Column="1"
-                                                Content="Template"
-                                                Command="{Binding Path=DataContext.ReviewViewModel.ReviewCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"
-                                                CommandParameter="{Binding TemplateImageFilePath}"
-                                                HorizontalAlignment="Center"
-                                                d:DataContext="{d:DesignInstance Type=coreModels:MicroscopeCentricityItemDto}" />
-                                    </Grid>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Magnification" DisplayMemberBinding="{Binding DataContext.CalibratingItem.MicroscopeLensInformation, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                <GridViewColumn Header="Index" DisplayMemberBinding="{Binding Index}" />
+                                <GridViewColumn Header="Centricity" DisplayMemberBinding="{Binding CentricityPosition, Converter={StaticResource PointToStringConverter}}" />
+                                <GridViewColumn Header="Offset" DisplayMemberBinding="{Binding Offset, Converter={StaticResource PointToStringConverter}}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <GridSplitter Grid.Column="1" Width="5" />
+                    <Border Grid.Column="2" Style="{StaticResource BorderRegion}">
+                        <TabControl>
+                            <TabItem Header="Plots">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                    </Border>
+                </Grid>
+                <GridSplitter Grid.Row="1" Height="5" />
+                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                    <TabControl>
+                        <TabItem Header="Images">
+                            <ListBox ItemsSource="{Binding SelectedItems, ElementName=HistoryListView}">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type coreModels:MicroscopeCentricityDTOItem}">
+                                        <Border Width="300"
+                                                Height="300"
+                                                Style="{StaticResource BorderRegion}">
+                                            <Grid>
+                                                <view:CanvasView AxisColor="Red"
+                                                                 BackgroundColor="#0A0A0A"
+                                                                 BackgroundImage="{Binding FilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                 Interactive="True"
+                                                                 ShowAxes="False"
+                                                                 ShowCursor="False"
+                                                                 ShowGrid="False" />
+                                                <TextBlock Text="{Binding CentricityPosition, StringFormat={}Centricity: {0}}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Top"
+                                                           Foreground="Yellow" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </TabItem>
+                    </TabControl>
+                </Border>
+            </Grid>
         </GroupBox>
-        <!--#endregion-->
     </Grid>
 </UserControl>

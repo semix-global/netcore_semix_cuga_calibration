@@ -113,8 +113,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -123,7 +121,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 return true;
             case 1:
                 Cache.Item.RTFCBrightFieldMachinePosition = MicroscopeCalChip.DSWBrightFieldMachineAffinePosition;
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                 StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition));
 
@@ -311,7 +309,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                         CalibrationRTFCResult = new HtmlQuote(selectedReviewItem.RuntimeAfCalibrationResultDTO.ToHtmlAnonymous())
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                     //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
                     StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition));
 
@@ -341,7 +339,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                     var darkFieldFilePath = $"{ImageFileDirectory}\\Verify_({globalFocusOffsetDTO.ProductivityInformation})_Guid({HtmlLogUniqueId}).jpg";
                     darkFieldImageDto.Image.SaveImage(darkFieldFilePath);
 
-                    var verifyQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image);
+                    var verifyQuality = CalibrationAlgorithmService.GetDarkFieldQuality(darkFieldImageDto.Image, HtmlLogUniqueId);
                     selectedReviewItem.RuntimeAfCalibrationResultDTO.DarkFieldFilePath = darkFieldFilePath;
 
                     if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = Math.Abs(verifyQuality - selectedReviewItem.RuntimeAfCalibrationResultDTO.DarkFieldQuality) < Cache.QualityThreshold;
@@ -395,7 +393,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

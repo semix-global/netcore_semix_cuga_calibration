@@ -9,10 +9,10 @@ using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Helper;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.ObjectModel;
@@ -55,7 +55,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -63,7 +63,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
     public AODBestFocusAndAstigmatismDTO()
     {
         var customGrid = new CustomGrid();
-        ScatterPlotControl.Configure(customGrid, 3,
+        PlotDataSource.Configure(customGrid, 3,
             plots =>
             {
                 customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
@@ -71,9 +71,9 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
                 customGrid.Set(plots[2], new GridCell(1, 0, 2, 2, colSpan: 2));
             });
 
-        ScatterPlotControl.SetTitle(0, "(Y Focus)(Y: mm/MHz - X: Y Focus(ecs))");
-        ScatterPlotControl.SetTitle(1, "(X Focus)(Y: mm/MHz - X: X Focus(ecs))");
-        ScatterPlotControl.SetTitle(2, "(XY Focus Offset)(Y: mm/MHz - X: XY Focus Offset(ecs))");
+        PlotDataSource.SetTitle(0, "(Y Focus)(Y: mm/MHz - X: Y Focus(ecs))");
+        PlotDataSource.SetTitle(1, "(X Focus)(Y: mm/MHz - X: X Focus(ecs))");
+        PlotDataSource.SetTitle(2, "(XY Focus Offset)(Y: mm/MHz - X: XY Focus Offset(ecs))");
     }
 
     partial void OnItemsChanged(ObservableCollection<AODBestFocusAndAstigmatismDTOItem> oldValue, ObservableCollection<AODBestFocusAndAstigmatismDTOItem> newValue)
@@ -98,13 +98,13 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
     {
         try
         {
-            ScatterPlotControl.Clear(0);
-            ScatterPlotControl.Clear(1);
-            ScatterPlotControl.Clear(2);
+            PlotDataSource.Clear(0);
+            PlotDataSource.Clear(1);
+            PlotDataSource.Clear(2);
 
             if (Items.Count == 0) return;
 
-            var yScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, 2);
+            var yScatterLines = PlotDataSource.GetOrAddScatterLines(0, 2);
             yScatterLines[0].Update(
                 "OriginPoints",
                 [
@@ -126,7 +126,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
                     Constants.Turbo.GetColor(1));
             }
 
-            ScatterPlotControl.GetOrAddScatterLine(
+            PlotDataSource.GetOrAddScatterLine(
                 1,
                 "OriginPoints",
                 [
@@ -141,7 +141,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
                 1,
                 new Range(0, Items.Count - 1));
 
-            ScatterPlotControl.GetOrAddScatterLine(
+            PlotDataSource.GetOrAddScatterLine(
                 2,
                 "OriginPoints",
                 [
@@ -158,7 +158,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -168,7 +168,7 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
         ApodizationModeEnum,
         AstigmatismBestSpectralDensity = ResultDTO.SpectralDensity,
         AstigmatismBestChirpAODWaveformParam = new HtmlQuote(ResultDTO.GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        Plot = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+        Plot = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
     };
 
     public override AODBestFocusAndAstigmatismDTO Clone() => new()
@@ -217,9 +217,9 @@ public partial class AODBestFocusAndAstigmatismDTOItem : ObservableObject, IClon
         XYBestFocusOffsetEcs,
         BestFocus.RawImageFilePath,
         XStrehlRatioScatterPlotControl =
-            new HtmlContainer([.. BestFocus.XStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()]),
+            new HtmlContainer([.. BestFocus.XStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
         YStrehlRatioScatterPlotControl =
-            new HtmlContainer([.. BestFocus.YStrehlRatioScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+            new HtmlContainer([.. BestFocus.YStrehlRatioPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
     };
 
     public AODBestFocusAndAstigmatismDTOItem Clone() => new()

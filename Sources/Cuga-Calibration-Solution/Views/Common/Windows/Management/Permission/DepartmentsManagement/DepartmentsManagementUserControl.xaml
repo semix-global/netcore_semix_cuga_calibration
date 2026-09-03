@@ -1,21 +1,20 @@
 ﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.Management.Permission.DepartmentsManagement.DepartmentsManagementUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Permission"
              xmlns:childrenView="clr-namespace:CugaCalibration.Views.Common.Windows.Management.Permission.DepartmentsManagement.Children"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
-             xmlns:converters="clr-namespace:Net.Utilities.WPF.Converters;assembly=Net.Utilities.WPF"
              xmlns:controls="clr-namespace:WPF.CustomControl.UI.DepartmentTreeView;assembly=WPF.CustomControl"
-             xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
-             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:dbEnum="clr-namespace:Local.SQL.DB.Providers.Models.Enums;assembly=Local.SQL.DB.Providers"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Management.Permission"
+             xmlns:wpfMvvmAttachedHelper="clr-namespace:Net.Utilities.WPF.MVVM.AttachedHelper;assembly=Net.Utilities.WPF.MVVM"
              d:DataContext="{d:DesignInstance Type=viewModels:DepartmentsManagementViewModel}"
-             wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              d:DesignHeight="700"
              d:DesignWidth="900"
+             wpfMvvmAttachedHelper:AutoWireViewModelHelper.IsAutoWireViewModel="True"
              BorderBrush="{StaticResource PrimaryBrush}"
              BorderThickness="2"
              mc:Ignorable="d">
@@ -35,29 +34,29 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Border Grid.ColumnSpan="2"
-                    BorderThickness="0,0,0,1"
-                    BorderBrush="LightGray">
+                    BorderBrush="LightGray"
+                    BorderThickness="0,0,0,1">
                 <hc:UniformSpacingPanel Margin="10,10,10,10"
                                         VerticalAlignment="Top"
+                                        IsEnabled="{Binding IsEnableWindow}"
                                         Orientation="Horizontal"
-                                        Spacing="5"
-                                        IsEnabled="{Binding IsEnableWindow}">
+                                        Spacing="5">
                     <TextBox Text="{Binding OperateSysDeptDto.Name}"
                              Width="auto"
                              MinWidth="200"
                              Margin="0,0,5,0"
-                             hc:InfoElement.Title="DepartmentName: "
-                             hc:InfoElement.TitlePlacement="Left"
+                             hc:TitleElement.Title="DepartmentName: "
+                             hc:TitleElement.TitlePlacement="Left"
                              Style="{StaticResource TextBoxExtend}" />
                     <hc:ComboBox x:Name="LeaderName"
                                  Width="auto"
                                  MinWidth="200"
                                  Margin="0,0,5,0"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="LeaderName: "
-                                 SelectedItem="{Binding SelectSysUserDto, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding UserList}">
+                                 hc:TitleElement.Title="LeaderName: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 ItemsSource="{Binding UserList}"
+                                 SelectedItem="{Binding SelectSysUserDto, UpdateSourceTrigger=PropertyChanged}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding UserName}" />
@@ -69,13 +68,13 @@
                                  MinWidth="180"
                                  Margin="0,0,5,0"
                                  HorizontalAlignment="Left"
-                                 hc:InfoElement.TitlePlacement="Left"
-                                 hc:InfoElement.Title="EnableStatus: "
-                                 SelectedItem="{Binding OperateSysDeptDto.IsEnabled, Converter={StaticResource EnumDescriptionToEnableConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dbEnum:EnableStatusEnum}}}">
+                                 hc:TitleElement.Title="EnableStatus: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type dbEnum:EnableStatusEnum}}}"
+                                 SelectedItem="{Binding OperateSysDeptDto.IsEnabled, Converter={StaticResource EnumDescriptionToEnableConverter}, UpdateSourceTrigger=PropertyChanged}">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Converter={x:Static converters:EnumDescriptionConverter.Instance}}" />
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
@@ -88,8 +87,8 @@
                                              HorizontalAlignment="Left"
                                              VerticalAlignment="Top"
                                              IsCheckBoxEnabled="0"
-                                             ItemsSource="{Binding DeptTreeList}"
-                                             IsEnabled="{Binding IsTreeViewEnabled}" />
+                                             IsEnabled="{Binding IsTreeViewEnabled}"
+                                             ItemsSource="{Binding DeptTreeList}" />
             </Grid>
             <Grid Grid.Row="1" Grid.Column="1">
                 <childrenView:EditView Visibility="{Binding OperateCommandIndex, Converter={StaticResource IntIs1ToVisibilityConverter}}" />

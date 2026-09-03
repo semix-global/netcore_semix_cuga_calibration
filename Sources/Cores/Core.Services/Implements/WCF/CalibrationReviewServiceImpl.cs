@@ -74,6 +74,15 @@ public sealed class CalibrationReviewServiceImpl : BaseService<ICgCalibrationSer
         return SxExecuteRetHelper.CreateSuccess(_pixel.Value);
     }
 
+    public SxExecuteRet<Size> GetDefaultPixelSize()
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetDefaultPixelSize());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new Size(0d, 0d))
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.ToSize());
+    }
+
     #region 私有
 
     /// <summary>

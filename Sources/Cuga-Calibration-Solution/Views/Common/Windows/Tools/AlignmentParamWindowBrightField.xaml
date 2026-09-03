@@ -7,7 +7,7 @@
            xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
            xmlns:enumStage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Alignment"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            d:DataContext="{d:DesignInstance Type=viewModels:AlignmentParamWindowBrightFieldViewModel}"
            SizeToContent="WidthAndHeight"
@@ -118,19 +118,6 @@
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             Orientation="Vertical"
                                             Spacing="5">
-                        <hc:ComboBox Width="300"
-                                     HorizontalAlignment="Left"
-                                     hc:TitleElement.TitleWidth="130"
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.Title="Wafer Type: "
-                                     SelectedItem="{Binding Cache.AlgorithmWaferTypeEnum}"
-                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmWaferTypeEnum}}}">
-                            <hc:ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTemplate>
-                            </hc:ComboBox.ItemTemplate>
-                        </hc:ComboBox>
                         <hc:ComboBox Width="300"
                                      HorizontalAlignment="Left"
                                      hc:TitleElement.TitleWidth="130"

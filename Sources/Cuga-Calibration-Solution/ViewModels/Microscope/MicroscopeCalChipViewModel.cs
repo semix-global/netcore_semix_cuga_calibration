@@ -30,9 +30,9 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 {
     #region 属性
 
-    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
+    public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.LowMicroscopeLensInformation.LensName);
 
-    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
+    public override string CalibrateFileName => EnumHelper.ToDescriptionString(Cache.LowMicroscopeLensInformation.LensName);
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
     [
@@ -83,7 +83,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     public partial MicroscopeCalChipDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
-    public partial MicroscopePixelSizeItemDto[] MicroscopePixelSizes { get; set; } = [];
+    public partial MicroscopePixelSizeDTO[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -102,7 +102,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeItemDto>(cancellationToken);
+        MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
@@ -131,20 +131,14 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         Review = Calibration.Clone();
-        SelectReviewItem = null;
+
+        SelectReviewItem = Review.Clone();
 
         if (Review.IsCalibrated == false) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
-        if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation) == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Switch Magnification Failed!"), HtmlLogUniqueId.LoggingHtml());
-            return false;
-        }
-
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Review.DswItem.BrightFieldMachinePosition, CalChipSiteModelEnum.DswModel);
 
         return true;
@@ -154,7 +148,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.LowMicroscopeLensInformation);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.LowMicroscopeLensInformation).ConfigureAwait(false);
 
         StageViewModel.SetAbsoluteStageTheta(0d);
 
@@ -163,8 +157,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 1:
@@ -176,14 +168,14 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 4:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
 
@@ -200,7 +192,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             case 7:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
@@ -215,7 +207,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             case 10:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
@@ -234,8 +226,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -251,14 +241,14 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return true;
 
             case 2:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 3:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
@@ -274,7 +264,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             case 6:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
@@ -289,7 +279,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             case 9:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
 
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
@@ -333,35 +323,160 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         }
     }
 
+    #region Common
+
+    private void Step0Common(StageDirectionTypeEnum name)
+    {
+        var resultMachine = StageViewModel.GetMachineStagePosition();
+        switch (name)
+        {
+            case StageDirectionTypeEnum.UpLeft:
+                Cache.Item.LeftTopMachinePosition = resultMachine;
+                break;
+
+            case StageDirectionTypeEnum.DownRight:
+                Cache.Item.RightBottomMachinePosition = resultMachine;
+                break;
+
+            default:
+                throw new NotSupportedException(nameof(name));
+        }
+
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        {
+            Direction = name,
+            Cache.CalChipSiteModelEnum,
+            MachinePosition = resultMachine
+        }), HtmlLogUniqueId.LoggingHtml());
+    }
+
+    private async Task Step1CommonAsync(CancellationToken cancellationToken)
+    {
+        var detectImageDirectory = ImageFileDirectory;
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        {
+            Cache.CalChipSiteModelEnum,
+            Cache.LowMicroscopeLensInformation,
+            Cache.HighMicroscopeLensInformation,
+            FindPosition = StageViewModel.GetMachineStagePosition(),
+            Cache.SpeedEcsPerSecond,
+            Cache.HalfEcsLength,
+            ImageFileDirectory = detectImageDirectory
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        StageViewModel.SetAbsoluteStageTheta(0d);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        var averageEcs = HostEnvironment.IsDevelopment() == false
+            ? AfViewModel.GetSensorAverageEcsValue()
+            : 5600;
+
+        #region S曲线
+
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(
+            Cache.Item.CenterMachinePosition,
+            Cache.CalChipSiteModelEnum);
+
+        var startEcs = averageEcs - Cache.HalfEcsLength;
+        var endEcs = averageEcs + Cache.HalfEcsLength;
+
+        AfViewModel.SetSensorEcsValue(startEcs);
+        await Task.Delay(100, cancellationToken);
+
+        var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs,
+            Cache.SpeedEcsPerSecond,
+            TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+        var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
+        var afError = traceBufferList.Select(t => t.AFError).ToArray();
+
+        CalibratingItem.CurrentItem.Ecs = ecs;
+        CalibratingItem.CurrentItem.AFError = afError;
+
+        #endregion
+
+        #region 找零点区间
+
+        var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
+        var afErrorVector = Vector<double>.Build.DenseOfEnumerable(afError);
+
+        var afErrorMinIndex = afErrorVector.MinimumIndex();
+        var afErrorMaxIndex = afErrorVector.MaximumIndex();
+
+        var leftEndPointIndex = afErrorMinIndex < afErrorMaxIndex ? afErrorMinIndex : afErrorMaxIndex;
+        var rightEndPointIndex = afErrorMinIndex < afErrorMaxIndex ? afErrorMaxIndex : afErrorMinIndex;
+        var afErrorIntervalVector = afErrorVector.SubVectorRange(leftEndPointIndex, rightEndPointIndex);
+        var ecsIntervalVector = ecsVector.SubVectorRange(leftEndPointIndex, rightEndPointIndex);
+
+        #endregion
+
+        #region 找AF焦点
+
+        CalibratingItem.CurrentItem.EcsAFErrorPoints =
+            [.. CalibratingItem.CurrentItem.Ecs.Select((t, i) => new Point(t, CalibratingItem.CurrentItem.AFError[i]))];
+
+        CalibratingItem.CurrentItem.EcsAFErrorMaxMins =
+        [
+            new Point(ecsIntervalVector[0], afErrorIntervalVector[0]),
+            new Point(ecsIntervalVector[^1], afErrorIntervalVector[^1])
+        ];
+
+        var originEndPointIndex1 = ecsIntervalVector[afErrorIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index];
+        var originEndPointIndex2 = ecsIntervalVector[afErrorIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index];
+        var ecsValue = (originEndPointIndex1 + originEndPointIndex2) / 2;
+        CalibratingItem.CurrentItem.FilePath = detectImageDirectory;
+
+        #endregion
+
+        CalibratingItem.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterMachinePosition;
+
+        AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, ecsValue);
+        AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, CalibratingItem.CurrentItem.BrightFieldMachinePosition);
+
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+        CalibratingItem.CurrentItem.EcsValue = AfViewModel.GetSensorAverageEcsValue();
+
+        GetQuality(CalibratingItem.CurrentItem);
+
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        {
+            averageEcs,
+            startEcs,
+            endEcs,
+            Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        CalibratingItem.IsCalibrated = Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ShinyWaferModel;
+
+        if (CalibratingItem.IsCalibrated)
+            Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+    }
+
+    #endregion
+
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0Async(StageDirectionTypeEnum name, CancellationToken cancellationToken)
+    private Task Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
-            var resultMachine = StageViewModel.GetMachineStagePosition();
-            switch (name)
-            {
-                case StageDirectionTypeEnum.UpLeft:
-                    Cache.Item.LeftTopMachinePosition = resultMachine;
-                    break;
-
-                case StageDirectionTypeEnum.DownRight:
-                    Cache.Item.RightBottomMachinePosition = resultMachine;
-                    break;
-            }
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Direction = name,
-                Cache.CalChipSiteModelEnum,
-                MachinePosition = resultMachine
-            }), HtmlLogUniqueId.LoggingHtml());
+            Step0Common(StageDirectionTypeEnum.UpLeft);
             return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.DownRight);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () =>
         {
@@ -372,109 +487,14 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 return false;
             }
 
-            var detectImageDirectory = ImageFileDirectory;
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.CalChipSiteModelEnum,
-                Cache.LowMicroscopeLensInformation,
-                Cache.HighMicroscopeLensInformation,
-                FindPosition = StageViewModel.GetMachineStagePosition(),
-                Cache.SpeedEcsPerSecond,
-                Cache.HalfEcsLength,
-                ImageFileDirectory = detectImageDirectory
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.LowMicroscopeLensInformation);
-
-            var averageEcs = HostEnvironment.IsDevelopment() == false
-                ? AfViewModel.GetSensorAverageEcsValue()
-                : 5600;
-
-            #region S曲线
-
-            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(
-                Cache.Item.CenterMachinePosition,
-                Cache.CalChipSiteModelEnum);
-
-            var startEcs = averageEcs - Cache.HalfEcsLength;
-            var endEcs = averageEcs + Cache.HalfEcsLength;
-
-            AfViewModel.SetSensorEcsValue(startEcs);
-            await Task.Delay(100, cancellationToken);
-
-            var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs,
-                Cache.SpeedEcsPerSecond,
-                TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
-            var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
-            var afError = traceBufferList.Select(t => t.AFError).ToArray();
-
-            CalibratingItem.CurrentItem.Ecs = ecs;
-            CalibratingItem.CurrentItem.AFError = afError;
-
-            #endregion
-
-            #region 找零点区间
-
-            var ecsVector = Vector<double>.Build.DenseOfEnumerable(ecs);
-            var afErrorVector = Vector<double>.Build.DenseOfEnumerable(afError);
-
-            var afErrorMinIndex = afErrorVector.MinimumIndex();
-            var afErrorMaxIndex = afErrorVector.MaximumIndex();
-
-            var leftEndPointIndex = afErrorMinIndex < afErrorMaxIndex ? afErrorMinIndex : afErrorMaxIndex;
-            var rightEndPointIndex = afErrorMinIndex < afErrorMaxIndex ? afErrorMaxIndex : afErrorMinIndex;
-            var afErrorIntervalVector = afErrorVector.SubVectorRange(leftEndPointIndex, rightEndPointIndex);
-            var ecsIntervalVector = ecsVector.SubVectorRange(leftEndPointIndex, rightEndPointIndex);
-
-            #endregion
-
-            #region 找AF焦点
-
-            CalibratingItem.CurrentItem.EcsAFErrorPoints =
-                [.. CalibratingItem.CurrentItem.Ecs.Select((t, i) => new Point(t, CalibratingItem.CurrentItem.AFError[i]))];
-
-            CalibratingItem.CurrentItem.EcsAFErrorMaxMins =
-            [
-                new Point(ecsIntervalVector[0], afErrorIntervalVector[0]),
-                new Point(ecsIntervalVector[^1], afErrorIntervalVector[^1])
-            ];
-
-            var originEndPointIndex1 = ecsIntervalVector[afErrorIntervalVector.Index().Where(t => t.Item >= 0).Minima(t => t.Item).First().Index];
-            var originEndPointIndex2 = ecsIntervalVector[afErrorIntervalVector.Index().Where(t => t.Item < 0).Maxima(t => t.Item).First().Index];
-            CalibratingItem.CurrentItem.EcsValue = (originEndPointIndex1 + originEndPointIndex2) / 2;
-            CalibratingItem.CurrentItem.FilePath = detectImageDirectory;
-
-            #endregion
-
-            CalibratingItem.CurrentItem.BrightFieldMachinePosition = Cache.Item.CenterMachinePosition;
-
-            AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, CalibratingItem.CurrentItem.EcsValue);
-            AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, CalibratingItem.CurrentItem.BrightFieldMachinePosition);
-
-            MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.HighMicroscopeLensInformation);
-            GetQuality(CalibratingItem.CurrentItem);
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                averageEcs,
-                startEcs,
-                endEcs,
-                Result = new HtmlQuote(CalibratingItem.CurrentItem.ToFlatnessHtmlAnonymous())
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            CalibratingItem.IsCalibrated = Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ShinyWaferModel;
-
-            if (CalibratingItem.IsCalibrated)
-                Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+            await Step1CommonAsync(cancellationToken).ConfigureAwait(false);
 
             return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step2Async(CancellationToken cancellationToken)
+    private async Task<bool> Step3Async(CancellationToken cancellationToken)
     {
         return await InvokeCalibrateAsync(async () =>
         {
@@ -502,12 +522,126 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step4Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.UpLeft);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step5Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.DownRight);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step6Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var (isSuccess, errorMessage) = Cache.Verify();
+            if (isSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+            await Step1CommonAsync(cancellationToken).ConfigureAwait(false);
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step7Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.UpLeft);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step8Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.DownRight);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step9Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var (isSuccess, errorMessage) = Cache.Verify();
+            if (isSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+            await Step1CommonAsync(cancellationToken).ConfigureAwait(false);
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step10Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.UpLeft);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step11Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Step0Common(StageDirectionTypeEnum.DownRight);
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step12Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () =>
+        {
+            var (isSuccess, errorMessage) = Cache.Verify();
+            if (isSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+            await Step1CommonAsync(cancellationToken).ConfigureAwait(false);
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
     {
         SynchronizationContextProvider.Send(() => { IsWindowEnable = false; });
         try
         {
-            await InvokeVerifyAsync(() =>
+            await InvokeVerifyAsync(async () =>
             {
                 var detectImageDirectory = ImageFileDirectory;
                 SelectReviewItem = Review.Clone();
@@ -520,6 +654,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 var alignmentCache = ApplicationCookieService
                     .GetArrayOrDefault<AlignmentCacheBrightField>(false, cancellationToken)
                     .Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.DswModel);
+
                 var alignmentResultDto = StageViewModel.AlignmentVerify(
                     alignmentCache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),
                     alignmentCache.LowSite2.DegreeAngleByXy(dswAlignmentDegree),
@@ -527,7 +662,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                     alignmentCache.HighSite2.DegreeAngleByXy(dswAlignmentDegree),
                     alignmentCache.LowMag,
                     alignmentCache.HighMag,
-                    alignmentCache.AlgorithmWaferTypeEnum,
                     CalChipSiteModelEnum.DswModel);
 
                 SelectReviewItem.DSWAlignmentDegree = alignmentResultDto.Degrees;
@@ -535,6 +669,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     SelectReviewItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
                     SelectReviewItem.CurrentItem.FilePath = detectImageDirectory;
 
@@ -548,11 +684,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
-                    if (MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocus(Cache.HighMicroscopeLensInformation) == false)
-                    {
-                        Logger.LogHtmlError("Switch Magnification Failed!", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                        return false;
-                    }
+                    await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, SelectReviewItem.CurrentItem.EcsValue);
                     AfViewModel.ToggleBrightFieldEnable(true);
@@ -618,7 +750,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         using var image = ReviewViewModel.GetBrightFieldImage();
 
-        var quality = ReviewViewModel.GetQuality(image);
+        var quality = ReviewViewModel.GetQuality(image, HtmlLogUniqueId);
         microscopeCalChipDTOItem.Quality = quality;
         var filePath = $"{microscopeCalChipDTOItem.FilePath}\\Ecs({microscopeCalChipDTOItem.EcsValue:F3})_Quality({microscopeCalChipDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 

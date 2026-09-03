@@ -7,7 +7,7 @@
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:calChip="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Recipe.CalChip"
            xmlns:calChipViews="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.CalChip"
-           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:waferMap="clr-namespace:CugaCalibration.Views.Common.Windows.Recipe.Edit.WaferMap"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            Title="CalChip Recipe Setting"

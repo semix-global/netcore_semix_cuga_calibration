@@ -6,22 +6,31 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Services.Interfaces;
+using Core.Models.Models.Setting;
 using CugaCalibration.Core.Services.Interfaces;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -56,22 +65,33 @@ public sealed partial class CollectionYGhostCache : ObservableCacheBase
     public partial LaserLightInformation LaserLightInformation { get; set; } = null!;
 
     [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
+
+    [ObservableProperty]
     public partial int PMTId { get; set; } = 8;
 
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(YStep))]
     public partial Point StartPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial double YRange { get; set; }
+    [NotifyPropertyChangedFor(nameof(YStep))]
+    public partial Point StopPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial double YStep { get; set; } = 23;
+    [NotifyPropertyChangedFor(nameof(YStep))]
+    public partial int GrabCount { get; set; } = 8;
+
+    public double YStep => (StopPosition.Y - StartPosition.Y) / GrabCount;
 
     [ObservableProperty]
     public partial double AligndBValue { get; set; } = -1;
+
+    [ObservableProperty]
+    public partial double YUmStandard { get; set; } = 23;
 
     [ObservableProperty]
     public partial double Threshold { get; set; } = 5e-4;
@@ -90,7 +110,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -114,20 +134,20 @@ public sealed partial class CollectionYGhostResult : ObservableObject
 
     public CollectionYGhostResult()
     {
-        ScatterPlotControl.Configure(new Rows(), 2);
-        ScatterPlotControl.SetTitle(0, "Y Ghost(Y: dB - X: um)");
-        ScatterPlotControl.SetTitle(1, "Align Y Ghost(Y: dB - X: um)");
+        PlotDataSource.Configure(new Rows(), 2);
+        PlotDataSource.SetTitle(0, "Y Ghost(Y: dB - X: pix)");
+        PlotDataSource.SetTitle(1, "Align Y Ghost(Y: dB - X: um)");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            var yGhostScatterLines = ScatterPlotControl.GetOrAddScatterLines(0, Items.Count);
-            var alignMarkerses = ScatterPlotControl.GetOrAddScatterMarkerses(0, Items.Count);
+            var yGhostScatterLines = PlotDataSource.GetOrAddScatterLines(0, Items.Count);
+            var alignMarkerses = PlotDataSource.GetOrAddScatterMarkerses(0, Items.Count);
 
-            var yGhostAlignScatterLines = ScatterPlotControl.GetOrAddScatterLines(1, Items.Count);
-            var markerses = ScatterPlotControl.GetOrAddScatterMarkerses(1, Items.Count);
+            var yGhostAlignScatterLines = PlotDataSource.GetOrAddScatterLines(1, Items.Count);
+            var markerses = PlotDataSource.GetOrAddScatterMarkerses(1, Items.Count);
 
             foreach (var (index, item) in Items.Index())
             {
@@ -136,14 +156,14 @@ public sealed partial class CollectionYGhostResult : ObservableObject
                 yGhostScatterLines[index].Update(
                     $"No.{index}:{item.FindPosition:0.###}(um)",
                     item.YGhostPoints,
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
 
                 if (item.AlignPoint != Point.Origin)
                 {
                     alignMarkerses[index].Update(
                         $"No.{index} Align Point",
                         [item.AlignPoint],
-                        Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                        Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
                         MarkerShape.OpenCircle);
                     alignMarkerses[index].MarkerSize = 20;
                 }
@@ -153,19 +173,19 @@ public sealed partial class CollectionYGhostResult : ObservableObject
                 yGhostAlignScatterLines[index].Update(
                     $"No.{index}:{item.FindPosition:0.###}(um)",
                     item.YGhostAlignPoints,
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)));
 
                 markerses[index].Update(
                     $"No.{index} minimum(db),Result {(item.IsOk ? "OK" : "Failed")}:{item.YGhostResultValue:0.######}",
                     [item.YGhostMinimumPoint],
-                    Net.Utilities.ScottPlot.WPF.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
+                    Net.Utilities.ScottPlot.Helper.Constants.Turbo.GetColor(index, new Range(0, Items.Count - 1)),
                     MarkerShape.OpenCircle);
                 markerses[index].MarkerSize = 20;
             }
         }
         finally
         {
-            ScatterPlotControl.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
     }
 
@@ -173,7 +193,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
     {
         CIBInformation,
         Details = new HtmlTable([.. Items.Select(t => t.ToHtmlAnonymous())]),
-        ScatterPlotControl = new HtmlContainer([.. ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+        ScatterPlotControl = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
     };
 }
 
@@ -189,6 +209,9 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
+    public partial string RawImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
     public partial Point AlignPoint { get; set; } = Point.Origin;
 
     [ObservableProperty]
@@ -201,20 +224,15 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
     [NotifyPropertyChangedFor(nameof(YGhostResultValue))]
     public partial Point YGhostMinimumPoint { get; set; } = Point.Origin;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(YGhostResultValue))]
-    public partial Point YGhostMaximumPoint { get; set; } = Point.Origin;
-
-    public double YGhostResultValue => YGhostMinimumPoint.Y / YGhostMaximumPoint.Y;
+    public double YGhostResultValue => YGhostMinimumPoint.Y;
 
     public object ToHtmlAnonymous() => new
     {
         FindPosition,
         IsOk,
-        MinimumdBValue = YGhostMinimumPoint.Y,
-        MaximumdBValue = YGhostMaximumPoint.Y,
         YGhostResultValue,
-        ResultImageh = new HtmlImage(ImageFilePath)
+        ResultImageh = new HtmlImage(ImageFilePath),
+        RawImageFilePath
     };
 }
 
@@ -224,14 +242,21 @@ public sealed partial class CollectionYGhostWindowViewModel(
     OpticsViewModel opticsViewModel,
     CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
     ApplicationCookie applicationCookie,
     ICacheProvider cacheProvider,
+    IHostEnvironment hostEnvironment,
     IDialogWindowProvider dialogWindowProvider,
     ILogger<CollectionYGhostWindowViewModel> logger,
-    IApplicationCookieService applicationCookieService) : ViewModelBase
+    IApplicationCookieService applicationCookieService,
+    CalibrationSetting calibrationSetting) : ViewModelBase
 {
     public string Name => "Collection Y Ghost";
+
+    public IReadOnlyList<string> Steps { get; } =
+    [
+        "Step 1 Alignment",
+        "Step 2 Y Ghost"
+    ];
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionYGhostWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -243,20 +268,64 @@ public sealed partial class CollectionYGhostWindowViewModel(
     [ObservableProperty]
     public partial CollectionYGhostCache Cache { get; set; } = new();
 
+    [DefaultCache]
+    [ObservableProperty]
+    public partial CIBYPixelSizeDTO YPixelSize { get; set; }
+
     [ObservableProperty]
     public partial IReadOnlyList<CollectionYGhostResult> YGhostResults { get; set; } = [];
+
+    [ObservableProperty]
+    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     [RelayCommand]
     private void Loaded()
     {
-        Cache = cacheProvider.GetOrDefault<CollectionYGhostCache>();
+        Cache = applicationCookieService.GetOrDefault<CollectionYGhostCache>(false, CancellationToken.None);
+        Cache.PMTId = calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task ActionAsync(CancellationToken cancellationToken)
+    private async Task Step0Async(CancellationToken cancellationToken)
     {
-        try
+        await InvokeAsync(0, async () =>
         {
+            AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
+
+            dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment ?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question);
+
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = dialogResult == DialogResultEnum.Yes;
+
+            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
+
+            var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Cache.CalChipSiteModelEnum,
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
+                AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
+
+            Cache.AlignmentResult = alignmentResult;
+
+            return true;
+        }).ConfigureAwait(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task Step1Async(CancellationToken cancellationToken)
+    {
+        await InvokeAsync(1, async () =>
+        {
+            YPixelSize = GuardExtensions.IsNotNullAndReturn(applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>()
+                .SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.PMTId && t.IsOk), "Please calibrate CIB Y pixel size first!");
             YGhostResults = [];
 
             CIBConfiguration cibConfiguration = new()
@@ -265,8 +334,6 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 IsL0K = false,
                 CIBProfileMode = CIBProfileModeEnum.PMTLog
             };
-            var yPixelSize = GuardExtensions.IsNotNullAndReturn(applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken)
-                .SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.PMTId && t.IsOk), "Please calibrate CIB Y pixel size first!");
 
             logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -276,146 +343,132 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 Cache.PMTId,
                 Cache.ImageWidth,
                 Cache.LaserLightInformation,
+                YPixelSize,
                 Cache.Threshold,
+                Cache.YUmStandard,
                 Cache.StartPosition,
-                YStop = Cache.YRange,
+                Cache.StopPosition,
                 Cache.YStep,
                 MaximumdBValue = Cache.AligndBValue,
-                yPixelSize,
                 CibConfiguration = new HtmlQuote(cibConfiguration.ToHtmlAnonymous()),
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-            await InvokeAsync(async () =>
+            try
             {
-                try
-                {
-                    opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, true);
+                opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, true);
 
-                    var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId).ToArray();
-                    YGhostResults =
+                var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId).ToArray();
+                YGhostResults =
+                [
+                    .. cibInformations.Select(t => new CollectionYGhostResult
+                    {
+                        CIBInformation = t
+                    })
+                ];
+
+                var positionIndex = 0;
+                foreach (var yPosition in Generate.LinearRange(Cache.StartPosition.Y, Cache.YStep, Cache.StopPosition.Y))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var findPosition = new Point(Cache.StartPosition.X, yPosition);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(findPosition);
+
+                    var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        findPosition,
+                        Cache.ImageWidth,
+                        cibInformations,
+                        (false, Cache.CalChipSiteModelEnum),
+                        (false, Cache.OpticsConfiguration),
+                        (false, cibConfiguration),
+                        (false, Cache.LaserLightInformation),
+                        false,
+                        cancellationToken,
+                        isKeepRawImageCIBProfileModeEnum: true);
+
+                    var bitmapImages = darkFieldImages.Select(t => t.Image).ToList();
+                    if (hostEnvironment.IsDevelopment()) bitmapImages = [.. GetMockImages(cibInformations, positionIndex)];
+
+                    foreach (var (index, bitmapImage) in bitmapImages.Select((t, i) => (i, t)))
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var resultItem = GetResultItem(bitmapImage);
+                        resultItem.FindPosition = findPosition;
+                        if (hostEnvironment.IsDevelopment() == false)
+                            resultItem.RawImageFilePath = darkFieldImages[index].RawImageFilePath;
+                        YGhostResults[index].Items = [.. YGhostResults[index].Items, resultItem];
+                    }
+
+                    positionIndex++;
+                }
+
+                foreach (var yGhostResult in YGhostResults)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    yGhostResult.Items =
                     [
-                        .. cibInformations.Select(t => new CollectionYGhostResult
+                        .. yGhostResult.Items.Select(t =>
                         {
-                            CIBInformation = t
+                            var yGhostAlignPoints = t.YGhostPoints.Select(tt => new Point((tt.X - t.AlignPoint.X) * YPixelSize.YPixelSize, tt.Y)).ToArray();
+                            var yGhostMinimumPoint = yGhostAlignPoints.Last(o => o.X < Cache.YUmStandard);
+
+                            var resultItem = new CollectionYGhostResultItem
+                            {
+                                FindPosition = t.FindPosition,
+                                ImageFilePath = t.ImageFilePath,
+                                AlignPoint = t.AlignPoint,
+                                YGhostPoints = [.. t.YGhostPoints],
+                                YGhostAlignPoints = [.. yGhostAlignPoints],
+                                YGhostMinimumPoint = yGhostMinimumPoint,
+                            };
+                            resultItem.IsOk = resultItem.YGhostResultValue <= Cache.Threshold;
+                            return resultItem;
                         })
                     ];
 
-                    var positionIndex = 0;
-                    foreach (var yPosition in Generate.LinearRange(Cache.StartPosition.Y, Cache.YStep, Cache.StartPosition.Y + Cache.YRange))
+                    logger.LogHtmlInformation($"{yGhostResult.CIBInformation} Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        var findPosition = new Point(Cache.StartPosition.X, yPosition);
-                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(findPosition);
-
-                        var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
-                            Cache.ProductivityInformation,
-                            StageCoordinateSystemEnum.Dark,
-                            findPosition,
-                            Cache.ImageWidth,
-                            cibInformations,
-                            (false, Cache.CalChipSiteModelEnum),
-                            (false, Cache.OpticsConfiguration),
-                            (false, cibConfiguration),
-                            (false, Cache.LaserLightInformation),
-                            false,
-                            cancellationToken);
-
-                        foreach (var (index, darkFieldImageDTO) in darkFieldImages.Select((t, i) => (i, t)))
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // //mock
-                            // var mockImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Assets\Data\YGhost\{positionIndex}.raw");
-                            // var bytes = System.IO.File.ReadAllBytes(mockImagePath);
-                            // var (size, _, _) = RAWImageFactory.GetSize(bytes);
-                            // var darkFieldImageDTO = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO
-                            // {
-                            //     CIBInformation = dto.CIBInformation,
-                            //     Size = size,
-                            //     IsForward = dto.IsForward,
-                            //     RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
-                            //     RawImageFilePath = mockImagePath,
-                            //     IsKeepRawImageCIBProfileModeEnum = true
-                            // });
-
-                            var resultItem = GetResultItem(darkFieldImageDTO);
-                            resultItem.FindPosition = findPosition;
-                            YGhostResults[index].Items = [.. YGhostResults[index].Items, resultItem];
-                        }
-
-                        positionIndex++;
-                    }
-
-                    foreach (var yGhostResult in YGhostResults)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        // 对齐
-                        var alignResultItem = yGhostResult.Items.OrderByDescending(t => t.AlignPoint.X).First();
-
-                        yGhostResult.Items =
-                        [
-                            .. yGhostResult.Items.Select(t =>
-                            {
-                                var alignOffsetX = alignResultItem.AlignPoint.X - t.AlignPoint.X;
-                                var yGhostAlignPoints = t.YGhostPoints.Select(tt => new Point(tt.X + alignOffsetX, tt.Y)).ToArray();
-                                var yGhostMinimumPoint = yGhostAlignPoints.OrderBy(tt => tt.Y).First();
-                                var yGhostMaximumPoint = yGhostAlignPoints.OrderByDescending(tt => tt.Y).First();
-                                var yGhostResultValue = yGhostMinimumPoint.Y / Cache.AligndBValue;
-
-                                return new CollectionYGhostResultItem
-                                {
-                                    FindPosition = t.FindPosition,
-                                    ImageFilePath = t.ImageFilePath,
-                                    AlignPoint = t.AlignPoint,
-                                    YGhostPoints = [.. t.YGhostPoints],
-                                    YGhostAlignPoints = [.. yGhostAlignPoints],
-                                    YGhostMinimumPoint = yGhostMinimumPoint,
-                                    YGhostMaximumPoint = yGhostMaximumPoint,
-                                    IsOk = yGhostResultValue <= Cache.Threshold
-                                };
-                            })
-                        ];
-
-                        logger.LogHtmlInformation($"{yGhostResult.CIBInformation} Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                        {
-                            Result = new HtmlQuote(yGhostResult.ToHtmlAnonymous())
-                        }), HtmlLogUniqueId.LoggingHtml());
-                    }
-
-                    return YGhostResults.SelectMany(t => t.Items).All(t => t.IsOk);
+                        Result = new HtmlQuote(yGhostResult.ToHtmlAnonymous())
+                    }), HtmlLogUniqueId.LoggingHtml());
                 }
-                finally
+
+                return YGhostResults.SelectMany(t => t.Items).All(t => t.IsOk);
+            }
+            finally
+            {
+                opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
+            }
+
+            CollectionYGhostResultItem GetResultItem(BitmapImage bitmapImage)
+            {
+                var filePath = Path.Combine(ImageDirectory, $"GUID{Guid.NewGuid()}.png");
+
+                bitmapImage.SaveImage(filePath);
+
+                var yProjects = bitmapImage.GetHorizontalProjects();
+                var (maxGrayValue, _, _, _) = bitmapImage.GetMaxMinGrayValue(new Rect(0, 0, bitmapImage.Size.Width, bitmapImage.Size.Height));
+                var yGhostValues = yProjects.Select(t => 10 * Math.Log10(t / maxGrayValue)).ToArray();
+
+                var yGhostPoints = yGhostValues.Select((t, i) => new Point(i, t)).ToArray();
+
+                var maxPoints = Extremumor.FindMaxima(yGhostPoints);
+                var alignPoint = maxPoints.Results.LastOrDefault(t => t.Y > Cache.AligndBValue);
+                if (alignPoint == Point.Origin)
+                    ThrowHelper.ThrowArgumentException("Can't find the falling edge in the image. " +
+                                                       "Please set proper start and end coordinates so the image always includes the falling edge.");
+
+                return new CollectionYGhostResultItem
                 {
-                    opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
-                }
-
-                CollectionYGhostResultItem GetResultItem(DarkFieldImageDTO darkFieldImageDTO)
-                {
-                    var filePath = Path.Combine(ImageDirectory, $"{darkFieldImageDTO.CIBInformation}_GUID{Guid.NewGuid()}.png");
-                    using var rotateImage = darkFieldImageDTO.Image.RotateCounterClockwise90Degree();
-                    using var mirrorImage = darkFieldImageDTO.Image.VerticalFlip();
-                    darkFieldImageDTO.Image.SaveImage(filePath);
-
-                    var yGhostValues = calibrationAlgorithmService.GetImageGrayYProjectionsPixels(darkFieldImageDTO.Image);
-                    var yGhostPoints = yGhostValues.Select((t, i) => new Point(i, t)).ToArray();
-                    var alignPoint = yGhostPoints.Select(t => t).OrderBy(t => Math.Abs(t.Y - Cache.AligndBValue)).First();
-
-                    return new CollectionYGhostResultItem
-                    {
-                        ImageFilePath = filePath,
-                        AlignPoint = alignPoint,
-                        YGhostPoints = [.. yGhostPoints]
-                    };
-                }
-            });
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "{@Name}: Failed to action", Name);
-            dialogWindowProvider.ShowDialog($"{Name} action error:{ex}", DialogButtonsEnum.OK, DialogIconEnum.Error);
-        }
+                    ImageFilePath = filePath,
+                    AlignPoint = alignPoint,
+                    YGhostPoints = [.. yGhostPoints]
+                };
+            }
+        });
     }
 
     [RelayCommand]
@@ -435,13 +488,40 @@ public sealed partial class CollectionYGhostWindowViewModel(
         CloseView(true);
     }
 
-    private async Task InvokeAsync(Func<Task<bool>> func)
+    private static IReadOnlyList<BitmapImage> GetMockImages(CIBInformation[] cibInformations, int positionIndex)
+    {
+        var bitmapImages = new List<BitmapImage>();
+        foreach (var _ in cibInformations)
+        {
+            //mock
+            var mockImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Assets\Data\YGhost\{positionIndex}.raw");
+            var bytes = System.IO.File.ReadAllBytes(mockImagePath);
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+
+            using var hImage = RAWImageFactory.CreateImage(mockImagePath, false);
+            using var reduceImage = hImage.ToRoi(new Rect(0, 4, size.Width, size.Height - 8));
+
+            using var mirrorImage = reduceImage.VerticalFlip();
+
+            var bitmapImage = reduceImage.ToBitmapImage(12);
+            bitmapImage.SaveImage(@$"G:\{cibInformations}_{positionIndex}.jpg");
+            bitmapImages = [.. bitmapImages, bitmapImage];
+        }
+
+        return bitmapImages;
+    }
+
+    private async Task InvokeAsync(int stepIndex, Func<Task<bool>> func)
     {
         await Task.Run(async () =>
         {
-            HtmlLogUniqueId = Guid.NewGuid();
+            var isEndHtml = stepIndex == Steps.Count - 1;
+            var isInitHtmlLog = stepIndex == 0 || isEndHtml;
 
-            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
+
+            if (isInitHtmlLog) logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
@@ -450,6 +530,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
             }
             catch (Exception ex)
             {
+                isEndHtml = true;
+
                 if (ex is OperationCanceledException)
                 {
                     dialogWindowProvider.ShowDialog($"{Name}: Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -466,15 +548,16 @@ public sealed partial class CollectionYGhostWindowViewModel(
             }
             finally
             {
-                logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSuccess ? "OK" : "Failed")}"));
+                if (isEndHtml)
+                    logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{(isSuccess ? "OK" : "Failed")}"));
             }
 
             if (isSuccess)
             {
-                dialogWindowProvider.ShowDialog($"{Name}: Success");
+                if (isEndHtml) dialogWindowProvider.ShowDialog($"{Name}:{Steps[stepIndex]} Success");
             }
             else
-                dialogWindowProvider.ShowDialog($"{Name}: Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
             return isSuccess;
         }).ConfigureAwait(false);

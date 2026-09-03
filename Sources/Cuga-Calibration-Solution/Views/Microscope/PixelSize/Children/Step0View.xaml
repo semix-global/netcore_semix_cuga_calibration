@@ -6,14 +6,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:behaviors="clr-namespace:Core.Models.Models.Common.Status.Behaviors;assembly=Core.Models"
              xmlns:status="clr-namespace:Core.Models.Models.Common.Status;assembly=Core.Models"
              xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopePixelSizeCalibrationViewModel}"
-             d:DesignHeight="500"
-             d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance Type=viewModels:MicroscopePixelSizeViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -55,11 +55,11 @@
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
-                                    Command="{Binding Step0CalibrateActionCommand}"
+                                    Command="{Binding Step0Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding Step0CalibrateActionCancelCommand}"
+                                    Command="{Binding Step0CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                         </hc:UniformSpacingPanel>

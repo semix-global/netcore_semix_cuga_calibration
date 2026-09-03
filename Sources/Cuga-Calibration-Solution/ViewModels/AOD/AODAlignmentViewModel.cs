@@ -23,7 +23,7 @@ using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.IO;
@@ -118,6 +118,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
         Reviews =
         [
             .. Calibrations
+                .Select(t => t.Clone())
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
@@ -126,8 +127,6 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
 
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -140,7 +139,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
                 return true;
 
             case 3:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
 
@@ -153,8 +152,6 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask.ConfigureAwait(false);
-
         switch (CalibrationStepIndex)
         {
             case 0:
@@ -163,7 +160,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
                 return true;
 
             case 1:
-                MicroscopeViewModel.SwitchMicroscopeLensInformation(Cache.Item.MicroscopeLensInformation);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
                     ? Cache.Item.HazeFindBFMachinePosition
@@ -384,7 +381,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
                     CalibratingItem.Slope,
                     CalibratingItem.Intercept,
                     CalibratingItem.RSquared,
-                    ScatterPlotControl = new HtmlContainer([.. CalibratingItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. CalibratingItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (CalibratingItem.IsCalibrated)
@@ -446,7 +443,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
                     selectedReviewItem.Slope,
                     selectedReviewItem.Intercept,
                     selectedReviewItem.RSquared,
-                    ScatterPlotControl = new HtmlContainer([.. selectedReviewItem.ScatterPlotControl.GetAllHtmlPlot2DLinesCharts()])
+                    PlotDataSource = new HtmlContainer([.. selectedReviewItem.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (selectedReviewItem.IsOk)
@@ -482,7 +479,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
             update(dto);
             Calibrations =
             [
-                dto,
+                dto.Clone(),
                 .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
             ];
         }

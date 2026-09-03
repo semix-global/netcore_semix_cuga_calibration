@@ -191,7 +191,7 @@ public sealed partial class RecipeReticleMaskViewModel(
     }
 
     [RelayCommand]
-    private void GotoMaskReticlePosition()
+    private async Task GotoMaskReticlePositionAsync()
     {
         try
         {
@@ -200,7 +200,7 @@ public sealed partial class RecipeReticleMaskViewModel(
             Guard.IsNotNull(EditingDTO);
 
             var maskDto = GetSelectReticleMaskItem();
-            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation);
+            await microscopeViewModel.SwitchMicroscopeLensInformationAsync(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation, cancellationToken: CancellationToken.None).ConfigureAwait(false);
 
             // todo：reticle
             var machinePosition = stageViewModel.GetMachineStagePosition();
@@ -275,10 +275,10 @@ public sealed partial class RecipeReticleMaskViewModel(
                 $@"{TemplateFileDirectory}\{EditRecipeTypeName}\BrightField\Ncc\{maskDto.Remark}_{maskDto.ReticleMaskTypeEnum}_{maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
 
             var templateFilePath = maskDto.RecipeBrightFieldTemplateDTO.TemplateFilePath;
-            microscopeViewModel.SwitchMicroscopeLensInformation(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation);
+            await microscopeViewModel.SwitchMicroscopeLensInformationAsync(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation, cancellationToken: CancellationToken.None).ConfigureAwait(false);
             await Task.Delay(3000);
 
-            if (!reviewViewModel.TryGenerateTemplate(AlgorithmTemplateTypeEnum.Ncc, templateFilePath, AlgorithmTemplateSizeEnum.Size256))
+            if (!reviewViewModel.TryGenerateTemplate(AlgorithmTemplateTypeEnum.Ncc, templateFilePath, AlgorithmTemplateSizeEnum.Size256, Guid.NewGuid()))
             {
                 dialogWindowProvider.ShowDialog("Generate Template Failed",
                     DialogButtonsEnum.OK, DialogIconEnum.Warning);
