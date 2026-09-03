@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              xmlns:stepCommon="clr-namespace:CugaCalibration.Views.Microscope.CalChip.Children.StepCommon"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCalChipViewModel}"
              d:DesignWidth="1920"
