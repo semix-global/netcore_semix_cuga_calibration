@@ -94,9 +94,6 @@
         <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
             <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\*\*.LoadDepends.cs">
-            <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.LoadDepends', '.cs'))</DependentUpon>
-        </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\CIB\CIBAging*.cs">
             <DependentUpon>CIBAgingWindowViewModel.cs</DependentUpon>
         </Compile>
