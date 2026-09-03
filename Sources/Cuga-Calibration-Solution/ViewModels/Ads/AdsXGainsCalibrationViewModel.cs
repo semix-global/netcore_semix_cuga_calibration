@@ -270,7 +270,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
                     ReviewDTO.VerifyItems =
                     [
-                        ..ReviewDTO.VerifyItems,
+                        .. ReviewDTO.VerifyItems,
                         forwardItem,
                         reverseItem
                     ];

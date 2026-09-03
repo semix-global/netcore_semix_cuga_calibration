@@ -17,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Models;
-using Net.Utilities.ScottPlot.WPF;
 using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
 using NLog;

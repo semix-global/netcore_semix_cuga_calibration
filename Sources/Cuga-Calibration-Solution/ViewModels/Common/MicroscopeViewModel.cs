@@ -113,60 +113,59 @@ public sealed class MicroscopeViewModel(
         var token = timeoutCts.Token;
 
         await Task.Run(() =>
-       {
-           try
-           {
-               token.ThrowIfCancellationRequested();
+        {
+            try
+            {
+                token.ThrowIfCancellationRequested();
 
-               var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
-               if (previousMicroscopeLensInformation == microscopeLensInformation) return;
+                var previousMicroscopeLensInformation = GetCurrentMicroscopeLensInformation();
+                if (previousMicroscopeLensInformation == microscopeLensInformation) return;
 
-               var resultFocusList = applicationCookieCacheProvider.GetCalibrations<MicroscopeFocusDTO>();
-               var newMicroscopeFocusDTO = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
+                var resultFocusList = applicationCookieCacheProvider.GetCalibrations<MicroscopeFocusDTO>();
+                var newMicroscopeFocusDTO = resultFocusList.SingleOrDefault(t => t.LensInformation == microscopeLensInformation);
 
-               logger.LogTrace("{DiagnosticId} Start Switch MicroscopeLens", diagnosticId);
+                logger.LogTrace("{DiagnosticId} Start Switch MicroscopeLens", diagnosticId);
 
-               afViewModel.ToggleBrightFieldEnable(false);
+                afViewModel.ToggleBrightFieldEnable(false);
 
-               if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorEcsValue(newMicroscopeFocusDTO.Result.EcsValue);
+                if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorEcsValue(newMicroscopeFocusDTO.Result.EcsValue);
 
-               if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, newMicroscopeFocusDTO.Result.EcsValue);
+                if (newMicroscopeFocusDTO?.IsOk == true) afViewModel.SetSensorBrightFieldChuckStandardEcsValue(microscopeLensInformation, newMicroscopeFocusDTO.Result.EcsValue);
 
-               afViewModel.SetSensorMicroscopeObjValue(microscopeLensInformation);
+                afViewModel.SetSensorMicroscopeObjValue(microscopeLensInformation);
 
-               var ret = calibrationMicroscopeService.SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation);
-               if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+                var ret = calibrationMicroscopeService.SwitchMicroscopeLensInformationNotAutoFocus(microscopeLensInformation);
+                if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-               if (newMicroscopeFocusDTO?.IsOk == true) SetVoltage(newMicroscopeFocusDTO.Result.MicroscopeVoltage);
+                if (newMicroscopeFocusDTO?.IsOk == true) SetVoltage(newMicroscopeFocusDTO.Result.MicroscopeVoltage);
 
-               if (isMoveToMicroscopeCenter)
-               {
-                   var offset = GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, microscopeLensInformation);
-                   stageViewModel.MoveRelativeStageXy((Point)offset);
-               }
+                if (isMoveToMicroscopeCenter)
+                {
+                    var offset = GetMicroscopeLensInformationOffset(previousMicroscopeLensInformation, microscopeLensInformation);
+                    stageViewModel.MoveRelativeStageXy((Point)offset);
+                }
 
-               logger.LogTrace("{DiagnosticId} Switch MicroscopeLens Success:times {TotalElapsed}ms",
-                   diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
+                logger.LogTrace("{DiagnosticId} Switch MicroscopeLens Success:times {TotalElapsed}ms",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
+            }
+            catch (OperationCanceledException)
+            {
+                logger.LogError("{DiagnosticId} Switch MicroscopeLens Failed:times {elapsedTime}ms, timeout: {Timeout}s",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds, actualTimeout.TotalSeconds);
 
-           }
-           catch (OperationCanceledException)
-           {
-               logger.LogError("{DiagnosticId} Switch MicroscopeLens Failed:times {elapsedTime}ms, timeout: {Timeout}s",
-                   diagnosticId, (DateTime.Now - startTime).TotalMilliseconds, actualTimeout.TotalSeconds);
-
-               throw;
-           }
-           catch (Exception ex)
-           {
-               logger.LogError(ex, "{diagnosticId}:Switch MicroscopeLens Error,times: {Elapsed}ms",
-                   diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
-               throw;
-           }
-           finally
-           {
-               timeoutCts.Dispose();
-           }
-       }, token);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "{diagnosticId}:Switch MicroscopeLens Error,times: {Elapsed}ms",
+                    diagnosticId, (DateTime.Now - startTime).TotalMilliseconds);
+                throw;
+            }
+            finally
+            {
+                timeoutCts.Dispose();
+            }
+        }, token);
     }
 
     public void SetVoltage(double voltage)

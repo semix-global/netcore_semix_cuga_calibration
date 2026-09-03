@@ -70,5 +70,6 @@ public sealed class EFEMViewModel(ICalibrationEFEMService calibrationEfemService
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
+
     # endregion 服务
 }

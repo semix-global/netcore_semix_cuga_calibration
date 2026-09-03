@@ -27,7 +27,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
-    
+
     [ObservableProperty]
     public partial bool IsROIMatchEnabled { get; set; }
 

@@ -313,10 +313,10 @@ public sealed class CalibrationAlgorithmServiceImpl(
             using var drawHImage = hImage.DrawLines(
                 [
                     .. indexes
-                    .SelectMany(t => (int[])[t, t + 1])
-                    .Distinct()
-                    .OrderBy(t => t)
-                    .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
+                        .SelectMany(t => (int[])[t, t + 1])
+                        .Distinct()
+                        .OrderBy(t => t)
+                        .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
                 ],
                 5);
             drawingImage = drawHImage.ToBitmapImage();
@@ -594,19 +594,25 @@ public sealed class CalibrationAlgorithmServiceImpl(
         IReadOnlyList<IReadOnlyList<Point>> GetStrehlRatioColumnPoints(StrehlRatioArrayInfo info, bool isX)
         {
             var cols = isX ? xStrehlCols : yStrehlCols;
-            return [.. cols.Select<int, IReadOnlyList<Point>>(t =>
+            return
+            [
+                .. cols.Select<int, IReadOnlyList<Point>>(t =>
                 [
                     new Point(info.pixel_pos_per_col[t], info.min_strehl_per_col[t]),
                     new Point(info.pixel_pos_per_col[t], info.max_strehl_per_col[t])
-                ])];
+                ])
+            ];
         }
 
         IReadOnlyList<IReadOnlyList<Point>> GetIntraRibbonFieldsPoints(StrehlRatioArrayInfo info, bool isX)
         {
             var rows = isX ? xStrehlRows : yStrehlRows;
-            return [.. rows
-                .Select(rowIndex => info.strehl_array_filtered.GetRow<float>(rowIndex).ToArray())
-                .Select<float[], IReadOnlyList<Point>>(cols => [.. cols.Zip(info.pixel_pos_per_col, (col, px) => new Point(px, col))])];
+            return
+            [
+                .. rows
+                    .Select(rowIndex => info.strehl_array_filtered.GetRow<float>(rowIndex).ToArray())
+                    .Select<float[], IReadOnlyList<Point>>(cols => [.. cols.Zip(info.pixel_pos_per_col, (col, px) => new Point(px, col))])
+            ];
         }
 
         void BuildDirectionData(StrehlRatioArrayInfo info, bool isX)

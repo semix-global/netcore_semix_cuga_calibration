@@ -7,9 +7,8 @@ using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 
 namespace Core.Models.Models.CIB.MMD;

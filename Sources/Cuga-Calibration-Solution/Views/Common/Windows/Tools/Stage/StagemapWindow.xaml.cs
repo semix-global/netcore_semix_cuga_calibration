@@ -1,9 +1,9 @@
+using CommunityToolkit.Diagnostics;
+using CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
-using CommunityToolkit.Diagnostics;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.Views.Common.Windows.Tools.Stage;

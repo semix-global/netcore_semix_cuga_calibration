@@ -15,7 +15,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using System.Collections.Concurrent;
@@ -210,6 +209,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     CalibratingItem.LowCoefficient = Cache.LowCoefficient;
                     CalibratingItem.HighCoefficient = Cache.HighCoefficient;
                 }
+
                 OnPropertyChanged(nameof(CalibratingItem));
 
                 Logger.LogHtmlInformation("A Brightness", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());

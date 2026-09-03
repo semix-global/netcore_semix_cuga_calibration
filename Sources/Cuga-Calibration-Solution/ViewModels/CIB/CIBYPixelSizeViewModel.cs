@@ -20,7 +20,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
@@ -458,7 +457,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                 {
                     PmtYPixelSize = new HtmlPlot2DLinesChart(
                         [
-                            ("PMT Y Pixel Size(Y:um,X:PMT ID)", [..verifyItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
+                            ("PMT Y Pixel Size(Y:um,X:PMT ID)", [.. verifyItems.OrderBy(t => t.PmtId).Select(t => new Point(t.PmtId, t.YPixelSize))])
                         ],
                         "PMT Y Pixel Size")
                 }), HtmlLogUniqueId.LoggingHtml());

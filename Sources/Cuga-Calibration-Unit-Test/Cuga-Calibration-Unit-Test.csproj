@@ -12,9 +12,9 @@
 
     <Import Project="$(BuildToolsDirectory)\XUnit.Build.props" />
 
-	<ItemGroup>
+    <ItemGroup>
         <PackageReference Include="halconxl" />
-	</ItemGroup>
+    </ItemGroup>
 
     <ItemGroup>
         <Reference Include="HAlgorithm">

@@ -222,7 +222,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
-
     )
     {
         _curPosition = new Point(Random.Shared.Next(1, 100), Random.Shared.Next(1, 100));

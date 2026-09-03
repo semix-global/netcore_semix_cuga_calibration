@@ -374,7 +374,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             CalibratingItem.CurrentItem.EcsNscMaxMins =
             [
                 new Point(ecsIntervalVector[0], nscIntervalVector[0]),
-                    new Point(ecsIntervalVector[^1], nscIntervalVector[^1])
+                new Point(ecsIntervalVector[^1], nscIntervalVector[^1])
             ];
 
             var nscRelativeZero = AfViewModel.GetSensorNscRelativeZero();
@@ -401,7 +401,7 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             CalibratingItem.CurrentItem.ECSValue = (ecsAboveZero + ecsBelowZero) / 2;
 
-        #endregion
+            #endregion
 
 
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new

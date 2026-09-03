@@ -27,9 +27,9 @@ public sealed class StageMapDieSelectionGetter(
 
         var selectionWindowExtents = SelectionWindow.GetExtents();
         var visibleItems = (from item in stageMapDocument.DieModel
-                where item.IsVisible
-                let extents = item.GetExtents()
-                select (extents, item))
+                            where item.IsVisible
+                            let extents = item.GetExtents()
+                            select (extents, item))
             .ToArray();
 
         var selectedRows = visibleItems

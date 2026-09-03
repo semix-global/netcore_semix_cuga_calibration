@@ -1,5 +1,3 @@
-﻿using System.IO;
-using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.StageMap;
@@ -12,6 +10,8 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
 using Newtonsoft.Json;
 using Python.Runtime;
+using System.IO;
+using System.Reflection;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 

@@ -12,9 +12,8 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
+using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -136,7 +135,6 @@ public sealed partial class CIBAGCDelayDTO : CalibrationDTOBase<CIBAGCDelayDTO>,
 
     public CIBAGCDelayDTO()
     {
-
         PlotDataSource.SetTitle("Laser Light Information(Y: PMT Value(Voltage) - X: Coefficient)");
 
         ForwardAndReverseScatterPlotDataSource.Configure(new Columns(), 2);

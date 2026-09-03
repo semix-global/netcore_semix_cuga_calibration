@@ -6,11 +6,10 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.Extensions;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
-using Net.Utilities.ScottPlot.Helper;
 using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AutoFocus.DarkAutoFocus;
