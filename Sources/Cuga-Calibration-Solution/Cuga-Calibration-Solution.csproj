@@ -69,11 +69,11 @@
         <Compile Update="ViewModels\MainWindowViewModel.*.cs">
             <DependentUpon>MainWindowViewModel.cs</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs">
-            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', 'Abstract$1WindowViewModel.cs'))</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_AODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(V0_)?(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', '$1Abstract$2WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
-            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1WindowViewModel.cs'))</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_PrescanAODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(V0_)?((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1$2WindowViewModel.cs'))</DependentUpon>
         </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\CIB\CIBAging*.cs">
             <DependentUpon>CIBAgingWindowViewModel.cs</DependentUpon>
