@@ -8,15 +8,15 @@
            xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
            xmlns:profileUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.Extensions;assembly=Net.Utilities.WPF"
            xmlns:system="clr-namespace:System;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
-           xmlns:aodWaveform="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.AODWaveform"
-           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
-           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.AttachedHelper;assembly=Net.Utilities.WPF"
-           xmlns:wpf="clr-namespace:Core.Utilities.WPF;assembly=Core.Utilities.WPF"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
+           xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+           xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.V2.Controls;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:V0PrescanAODWaveformElectrodeOffsetWindowViewModel}"
@@ -34,97 +34,6 @@
             <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Prescan AOD Waveform</system:String>
             <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Chirp AOD Waveform</system:String>
             <system:String x:Key="ResultParamTitleString">Flatness Result Prescan AOD Waveform</system:String>
-            <Style x:Key="FrequencyItemsListViewStyle"
-                   x:Shared="False"
-                   TargetType="ListView"
-                   BasedOn="{StaticResource ListView.Small}">
-                <Setter Property="Margin" Value="5" />
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
-                <Setter Property="ItemContainerStyle">
-                    <Setter.Value>
-                        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemBaseStyle.Small}">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="View">
-                    <Setter.Value>
-                        <GridView>
-                            <GridView.ColumnHeaderContainerStyle>
-                                <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource {x:Type GridViewColumnHeader}}">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                </Style>
-                            </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Frequency(MHz)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding Frequency, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Amplitude(AMP)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding Amplitude, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Period(2pi)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="Measure Power(mW)">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
-                                        <TextBlock Text="{Binding MeasurePower, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Header="AOD Waveform Profiles">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
-                                        <Grid>
-                                            <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
-                                                          Content="Profiles"
-                                                          Margin="0,2"
-                                                          HorizontalAlignment="Left"
-                                                          hc:IconElement.Geometry="{StaticResource AllGeometry}" />
-                                            <Popup Width="800"
-                                                   Height="800"
-                                                   StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=ToggleButtonAODWaveformProfiles}"
-                                                   Placement="Right"
-                                                   AllowsTransparency="True"
-                                                   PopupAnimation="Slide"
-                                                   IsOpen="{Binding IsChecked, ElementName=ToggleButtonAODWaveformProfiles, Mode=TwoWay}">
-                                                <TabControl>
-                                                    <TabItem Header="Prescan AOD Waveform">
-                                                        <profileUI:PrescanAODWaveformProfilesUserControl Margin="5" DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                    </TabItem>
-                                                    <TabItem Header="Chirp AOD Waveform">
-                                                        <profileUI:ChirpAODWaveformProfilesUserControl Margin="5" DataContext="{Binding ChirpAODWaveformProfiles}" />
-                                                    </TabItem>
-                                                </TabControl>
-                                            </Popup>
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </Setter.Value>
-                </Setter>
-            </Style>
         </ResourceDictionary>
     </hc:Window.Resources>
     <i:Interaction.Triggers>
@@ -200,7 +109,7 @@
                                                   ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
                                                   Style="{StaticResource ComboBoxExtend}">
                                             <i:Interaction.Behaviors>
-                                                <wpf:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
                                             </i:Interaction.Behaviors>
                                         </ComboBox>
                                         <hc:NumericUpDown hc:TitleElement.Title="Default Amplitude(AMP): "
@@ -872,48 +781,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding ScatterPlotControl, Mode=OneWay}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </TabItem>
-                    <TabItem Header="Step 1 Details">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step0Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
-                                                    <TabControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:V0PrescanAODWaveformElectrodeOffsetConvert}}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ItemTemplate>
-                                                    <TabControl.ContentTemplate>
-                                                        <DataTemplate>
-                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ContentTemplate>
-                                                </TabControl>
+                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding ScatterPlotControl}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -943,48 +811,7 @@
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />
-                                                <ContentControl Grid.Row="1" Content="{Binding ScatterPlotControl, Mode=OneWay}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </TabItem>
-                    <TabItem Header="Step 2 Details">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Step1Items}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="400" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Title}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
-                                                    <TabControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:V0PrescanAODWaveformElectrodeOffsetConvert}}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ItemTemplate>
-                                                    <TabControl.ContentTemplate>
-                                                        <DataTemplate>
-                                                            <ListView ItemsSource="{Binding FrequencyItems}" Style="{StaticResource FrequencyItemsListViewStyle}" />
-                                                        </DataTemplate>
-                                                    </TabControl.ContentTemplate>
-                                                </TabControl>
+                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding ScatterPlotControl}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

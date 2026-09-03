@@ -48,9 +48,9 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                PrescanAODWaveformResultFilePath = prescanAODWaveformResultFilePath,
+                prescanAODWaveformResultFilePath,
                 FlatnessGenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                ChirpAODWaveformResultFilePath = chirpAODWaveformResultFilePath
+                chirpAODWaveformResultFilePath
             }), htmlLogUniqueId.LoggingHtml());
         }
 
@@ -76,7 +76,8 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         Logger.LogHtmlInformation(result.GenerateChirpAODWaveformParam.ProductivityInformation.ToString(), HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
         {
             GenerateChirpAODWaveformParam = new HtmlQuote(result.GenerateChirpAODWaveformParam.ToHtmlAnonymous()),
-            result.ChirpAODWaveformResultFilePath
+            result.ChirpAODWaveformResultFilePath,
+            ChirpAODWaveformProfiles = new HtmlTable([.. result.ChirpAODWaveformProfiles.Select(t => t.ToHtmlAnonymous())])
         }), htmlLogUniqueId.LoggingHtml());
     }
 

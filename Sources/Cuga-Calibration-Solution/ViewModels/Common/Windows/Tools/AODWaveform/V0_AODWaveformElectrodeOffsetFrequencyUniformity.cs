@@ -4,11 +4,11 @@ using Core.Models.Enums.Optics;
 using Humanizer;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.ScottPlot.WPF.Extensions;
-using Net.Utilities.ScottPlot.WPF.Interfaces;
-using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using System.ComponentModel;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -30,7 +30,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TIte
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IScatterPlotControl ScatterPlotControl { get; set; } = HostApplication.GetRequiredService<IScatterPlotControl>();
+    public partial IPlotDataSource ScatterPlotControl { get; set; } = new PlotDataSource();
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
