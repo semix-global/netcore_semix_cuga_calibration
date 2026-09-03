@@ -13,8 +13,8 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : ObservableObject
-    where TItem : AODWaveformElectrodeOffsetItem, new()
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : ObservableObject
+    where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
@@ -23,7 +23,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> Items { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> Items { get; set; } = [];
 
     [ObservableProperty]
     public partial IReadOnlyList<Point> ClosestMaximaPoints { get; set; } = [];
@@ -41,7 +41,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> newValue)
+    partial void OnItemsChanged(IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>>? oldValue, IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -66,7 +66,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
 
     // ReSharper restore UnusedParameterInPartialMethod
 
-    public AODWaveformElectrodeOffsetFrequencyPeriod()
+    public V0AODWaveformElectrodeOffsetFrequencyPeriod()
     {
         ScatterPlotControl.ToggleLegend(false);
     }

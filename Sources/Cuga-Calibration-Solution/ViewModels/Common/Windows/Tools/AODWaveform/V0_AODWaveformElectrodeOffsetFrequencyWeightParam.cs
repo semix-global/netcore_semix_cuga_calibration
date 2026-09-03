@@ -3,7 +3,7 @@ using Core.Models.Enums.Optics;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyWeightParam : ObservableObject
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyWeightParam : ObservableObject
 {
     [ObservableProperty]
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }

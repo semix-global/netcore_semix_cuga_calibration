@@ -8,9 +8,9 @@ using System.Collections;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWaveformCommonCache<TResult>
-    where TItem : AODWaveformElectrodeOffsetItem, new()
-    where TResult : AODWaveformElectrodeOffsetResult, new()
+public partial class V0AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWaveformCommonCache<TResult>
+    where TItem : V0AODWaveformElectrodeOffsetItem, new()
+    where TResult : V0AODWaveformElectrodeOffsetResult, new()
 {
     #region Param
 
@@ -32,23 +32,23 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #region 方式一逐步遍历
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodParam> ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyWeightParam> ElectrodeOffsetFrequencyWeightParams { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyWeightParam> ElectrodeOffsetFrequencyWeightParams { get; set; } = [];
 
     #endregion
 
     #region 方式二两两之间遍历
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode2OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2 };
+    public partial V0AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode2OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode2 };
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode3OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
+    public partial V0AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode3OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode3 };
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode4OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
+    public partial V0AODWaveformElectrodeOffsetFrequencyPeriodParam Electrode4OffsetFrequencyPeriodParam { get; set; } = new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode4 };
 
     [ObservableProperty]
     public partial IReadOnlyList<double> Electrode2Weights { get; set; } = [];
@@ -65,7 +65,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial bool IsConfirmAODWaveformElectrodeOffsetResult { get; set; } = true;
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityParam> ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformityParam> ElectrodeOffsetFrequencyUniformityParams { get; set; } = [];
 
     [ObservableProperty]
     public partial int ElectrodeOffsetFrequencyUniformityParamChunkSize { get; set; }
@@ -76,11 +76,11 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> Step0Items { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> Step0Items { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> Step1Items { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> Step1Items { get; set; } = [];
 
     #endregion Items
 
@@ -91,7 +91,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
     #endregion Result
 
-    partial void OnElectrodeOffsetFrequencyPeriodParamsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> value) => UpdateElectrodeOffsetFrequencyWeightParams(value, Frequencies);
+    partial void OnElectrodeOffsetFrequencyPeriodParamsChanged(IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodParam> value) => UpdateElectrodeOffsetFrequencyWeightParams(value, Frequencies);
 
     partial void OnFrequenciesChanged(IReadOnlyList<double> value)
     {
@@ -109,7 +109,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         if (ElectrodeOffsetFrequencyPeriodParams.Count > electrodeEnums.Length) return;
 
         var electrodeOffsetParamList = ElectrodeOffsetFrequencyPeriodParams.ToList();
-        electrodeOffsetParamList.Add(new AODWaveformElectrodeOffsetFrequencyPeriodParam());
+        electrodeOffsetParamList.Add(new V0AODWaveformElectrodeOffsetFrequencyPeriodParam());
 
         foreach (var (index, item) in electrodeOffsetParamList
                      .Select((item, index) => (index, t: item)))
@@ -128,7 +128,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
         var electrodeOffsetParamList = ElectrodeOffsetFrequencyPeriodParams.ToList();
-        foreach (AODWaveformElectrodeOffsetFrequencyPeriodParam selectItem in selectItems)
+        foreach (V0AODWaveformElectrodeOffsetFrequencyPeriodParam selectItem in selectItems)
         {
             if (selectItem.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode1) continue;
 
@@ -145,7 +145,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     }
 
     [RelayCommand]
-    private void AddElectrodeOffsetFrequencyUniformityParam() => ElectrodeOffsetFrequencyUniformityParams = [.. ElectrodeOffsetFrequencyUniformityParams, new AODWaveformElectrodeOffsetFrequencyUniformityParam()];
+    private void AddElectrodeOffsetFrequencyUniformityParam() => ElectrodeOffsetFrequencyUniformityParams = [.. ElectrodeOffsetFrequencyUniformityParams, new V0AODWaveformElectrodeOffsetFrequencyUniformityParam()];
 
     [RelayCommand]
     private void RemoveElectrodeOffsetFrequencyUniformityParams(IEnumerable? selectItems)
@@ -153,7 +153,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         if (selectItems is null) return;
 
         var electrodeFrequencyUniformityParamList = ElectrodeOffsetFrequencyUniformityParams.ToList();
-        foreach (AODWaveformElectrodeOffsetFrequencyUniformityParam selectItem in selectItems)
+        foreach (V0AODWaveformElectrodeOffsetFrequencyUniformityParam selectItem in selectItems)
         {
             electrodeFrequencyUniformityParamList.Remove(selectItem);
         }
@@ -161,7 +161,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         ElectrodeOffsetFrequencyUniformityParams = electrodeFrequencyUniformityParamList;
     }
 
-    private void UpdateElectrodeOffsetFrequencyWeightParams(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyPeriodParam> electrodeOffsetParams, IReadOnlyList<double> frequencies)
+    private void UpdateElectrodeOffsetFrequencyWeightParams(IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodParam> electrodeOffsetParams, IReadOnlyList<double> frequencies)
     {
         var oldElectrodeOffsetFrequencyWeightParams = ElectrodeOffsetFrequencyWeightParams;
 
@@ -169,7 +169,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         [
             .. electrodeOffsetParams
                 .Where(t => t.OpticsAODElectrodeEnum != OpticsAODElectrodeEnum.Electrode1)
-                .SelectMany(t => frequencies.Select(tt => new AODWaveformElectrodeOffsetFrequencyWeightParam
+                .SelectMany(t => frequencies.Select(tt => new V0AODWaveformElectrodeOffsetFrequencyWeightParam
                 {
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
                     Frequency = tt,

@@ -1,4 +1,4 @@
-<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.PrescanAODWaveformElectrodeOffsetWindow"
+<hc:Window x:Class="CugaCalibration.Views.Common.Windows.Tools.AODWaveform.V0PrescanAODWaveformElectrodeOffsetWindow"
            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,7 +19,7 @@
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            Width="1500"
            Height="1000"
-           d:DataContext="{d:DesignInstance Type=viewModels:PrescanAODWaveformElectrodeOffsetWindowViewModel}"
+           d:DataContext="{d:DesignInstance Type=viewModels:V0PrescanAODWaveformElectrodeOffsetWindowViewModel}"
            attachedHelper:LoadingHelper.IsShow="{Binding LoadedCommand.IsRunning}"
            BorderBrush="{StaticResource PrimaryBrush}"
            BorderThickness="2"
@@ -65,35 +65,35 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Frequency(MHz)">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
+                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding Frequency, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Header="Amplitude(AMP)">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
+                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding Amplitude, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Header="Period(2pi)">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
+                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding OffsetFrequencyPeriodCoefficient, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Header="Measure Power(mW)">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
+                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
                                         <TextBlock Text="{Binding MeasurePower, StringFormat={}{0:0.###}}" HorizontalAlignment="Center" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Header="AOD Waveform Profiles">
                                 <GridViewColumn.CellTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetItem}">
+                                    <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetItem}">
                                         <Grid>
                                             <ToggleButton x:Name="ToggleButtonAODWaveformProfiles"
                                                           Content="Profiles"
@@ -624,7 +624,7 @@
                                                          SelectionMode="Extended"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
-                                                        <DataTemplate DataType="{x:Type viewModels:PrescanAODWaveformElectrodeOffsetResult}">
+                                                        <DataTemplate DataType="{x:Type viewModels:V0PrescanAODWaveformElectrodeOffsetResult}">
                                                             <Border Height="360"
                                                                     Margin="0,2"
                                                                     Style="{StaticResource BorderRegion}">
@@ -905,7 +905,7 @@
                                                 <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:PrescanAODWaveformElectrodeOffsetConvert}}" />
+                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:V0PrescanAODWaveformElectrodeOffsetConvert}}" />
                                                         </DataTemplate>
                                                     </TabControl.ItemTemplate>
                                                     <TabControl.ContentTemplate>
@@ -976,7 +976,7 @@
                                                 <TabControl Grid.Row="1" ItemsSource="{Binding Items}">
                                                     <TabControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:PrescanAODWaveformElectrodeOffsetConvert}}" />
+                                                            <TextBlock Text="{Binding FrequencyItems, Converter={aodWaveform:V0PrescanAODWaveformElectrodeOffsetConvert}}" />
                                                         </DataTemplate>
                                                     </TabControl.ItemTemplate>
                                                     <TabControl.ContentTemplate>

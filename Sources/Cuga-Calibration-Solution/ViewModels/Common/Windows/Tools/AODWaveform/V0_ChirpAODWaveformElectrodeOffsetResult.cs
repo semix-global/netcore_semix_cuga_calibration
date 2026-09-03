@@ -4,7 +4,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformElectrodeOffsetResult : AODWaveformElectrodeOffsetResult
+public sealed partial class V0ChirpAODWaveformElectrodeOffsetResult : V0AODWaveformElectrodeOffsetResult
 {
     [ObservableProperty]
     public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();

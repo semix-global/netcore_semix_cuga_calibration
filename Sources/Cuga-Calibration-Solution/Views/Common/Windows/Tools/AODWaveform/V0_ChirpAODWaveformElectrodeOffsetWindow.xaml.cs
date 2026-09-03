@@ -7,19 +7,19 @@ using System.Windows.Markup;
 
 namespace CugaCalibration.Views.Common.Windows.Tools.AODWaveform;
 
-public partial class ChirpAODWaveformElectrodeOffsetWindow
+public partial class V0ChirpAODWaveformElectrodeOffsetWindow
 {
-    public ChirpAODWaveformElectrodeOffsetWindow()
+    public V0ChirpAODWaveformElectrodeOffsetWindow()
     {
         InitializeComponent();
     }
 }
 
-public sealed class ChirpAODWaveformElectrodeOffsetConvert : MarkupExtension, IValueConverter
+public sealed class V0ChirpAODWaveformElectrodeOffsetConvert : MarkupExtension, IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not IEnumerable<ChirpAODWaveformElectrodeOffsetItem> items) return ThrowHelper.ThrowNotSupportedException<object>();
+        if (value is not IEnumerable<V0ChirpAODWaveformElectrodeOffsetItem> items) return ThrowHelper.ThrowNotSupportedException<object>();
 
         var item = items.FirstOrDefault();
 

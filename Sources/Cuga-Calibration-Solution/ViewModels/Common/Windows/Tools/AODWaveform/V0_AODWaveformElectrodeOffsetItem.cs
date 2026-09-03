@@ -4,7 +4,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public partial class AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
+public partial class V0AODWaveformElectrodeOffsetItem : AODWaveformCommonItem
 {
     [ObservableProperty]
     public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];

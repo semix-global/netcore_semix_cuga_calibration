@@ -2,8 +2,8 @@
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem> : ObservableObject
-    where TItem : AODWaveformElectrodeOffsetItem, new()
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem> : ObservableObject
+    where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
     public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];

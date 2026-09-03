@@ -13,8 +13,8 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem> : ObservableObject
-    where TItem : AODWaveformElectrodeOffsetItem, new()
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyUniformity<TItem> : ObservableObject
+    where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]
@@ -23,7 +23,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> Items { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> Items { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -35,7 +35,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    partial void OnItemsChanged(IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>>? oldValue, IReadOnlyList<AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> newValue)
+    partial void OnItemsChanged(IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>>? oldValue, IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformityItem<TItem>> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -52,7 +52,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyUniformity<TItem>
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    public AODWaveformElectrodeOffsetFrequencyUniformity()
+    public V0AODWaveformElectrodeOffsetFrequencyUniformity()
     {
         ScatterPlotControl.Configure(totalPlotCount: 3);
         ScatterPlotControl.SetTitle(0, "Uniformity Items(Y: mW - X: AMP)");

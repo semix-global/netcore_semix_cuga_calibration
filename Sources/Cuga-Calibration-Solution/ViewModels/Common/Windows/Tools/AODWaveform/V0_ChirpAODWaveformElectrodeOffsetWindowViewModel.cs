@@ -9,20 +9,20 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-[IOCAppService(ServiceType = typeof(ChirpAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
-    AbstractAODWaveformElectrodeOffsetWindowViewModel<ChirpAODWaveformElectrodeOffsetCache, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
+[IOCAppService(ServiceType = typeof(V0ChirpAODWaveformElectrodeOffsetWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed class V0ChirpAODWaveformElectrodeOffsetWindowViewModel :
+    V0AbstractAODWaveformElectrodeOffsetWindowViewModel<V0ChirpAODWaveformElectrodeOffsetCache, V0ChirpAODWaveformElectrodeOffsetItem, V0ChirpAODWaveformElectrodeOffsetResult>
 {
     public override string Name => "Chirp AOD Waveform Electrode Offset";
 
     [DefaultCache]
-    public override ChirpAODWaveformElectrodeOffsetCache Cache
+    public override V0ChirpAODWaveformElectrodeOffsetCache Cache
     {
         get;
         set => SetProperty(ref field, value);
     } = new();
 
-    protected override void GenerateFlatnessAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected override void GenerateFlatnessAODWaveform(V0ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         item.PrescanAODWaveformProfiles = [];
         item.PrescanAODWaveformResultFilePath = string.Empty;
@@ -63,15 +63,15 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void GenerateScanAODWaveform(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken) => ThrowHelper.ThrowNotSupportedException();
+    protected override void GenerateScanAODWaveform(V0ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId, CancellationToken cancellationToken) => ThrowHelper.ThrowNotSupportedException();
 
-    protected override void SetAODWaveformProfiles(ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId)
+    protected override void SetAODWaveformProfiles(V0ChirpAODWaveformElectrodeOffsetItem item, Guid htmlLogUniqueId)
     {
         LaserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, item.PrescanAODWaveformProfiles);
         LaserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, item.ChirpAODWaveformProfiles);
     }
 
-    protected override void GenerateResultAODWaveform(ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected override void GenerateResultAODWaveform(V0ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         result.ChirpAODWaveformProfiles = [];
         result.ChirpAODWaveformResultFilePath = string.Empty;
@@ -94,7 +94,7 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
         }), htmlLogUniqueId.LoggingHtml());
     }
 
-    protected override void SetResultAODWaveformConfiguration(ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    protected override void SetResultAODWaveformConfiguration(V0ChirpAODWaveformElectrodeOffsetResult result, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         ConfigViewModel.SetChirpAODWaveformConfiguration(result.GenerateChirpAODWaveformParam.ProductivityInformation, result.ChirpAODWaveformResultFilePath);
 

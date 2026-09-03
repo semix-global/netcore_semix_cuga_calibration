@@ -6,8 +6,8 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-[IOCAppService(ServiceType = typeof(AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel : ViewModelBase
+[IOCAppService(ServiceType = typeof(V0AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Transient)]
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriodConfirmResultWindowViewModel : ViewModelBase
 {
     [ObservableProperty]
     public partial double OffsetFrequencyPeriodCoefficient { get; set; }

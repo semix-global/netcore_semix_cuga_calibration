@@ -4,7 +4,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class PrescanAODWaveformElectrodeOffsetResult : AODWaveformElectrodeOffsetResult
+public sealed partial class V0PrescanAODWaveformElectrodeOffsetResult : V0AODWaveformElectrodeOffsetResult
 {
     [ObservableProperty]
     public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();

@@ -3,8 +3,8 @@ using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> : ObservableObject
-    where TItem : AODWaveformElectrodeOffsetItem, new()
+public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> : ObservableObject
+    where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
     public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];

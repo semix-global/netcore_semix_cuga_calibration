@@ -3,7 +3,7 @@ using Core.Models.Models.Common.AODWaveform;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class ChirpAODWaveformElectrodeOffsetItem : AODWaveformElectrodeOffsetItem
+public sealed partial class V0ChirpAODWaveformElectrodeOffsetItem : V0AODWaveformElectrodeOffsetItem
 {
     [ObservableProperty]
     public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
