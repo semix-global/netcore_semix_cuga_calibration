@@ -15,7 +15,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Helper;
+using Net.Utilities.ScottPlot.Helper;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;

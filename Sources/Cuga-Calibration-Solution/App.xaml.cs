@@ -76,7 +76,6 @@ public sealed partial class App
                         .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                        .AddScottPlotServices()
                         .AddCoreService(context.HostingEnvironment)
                         .AddApplication(context.HostingEnvironment);
                 })

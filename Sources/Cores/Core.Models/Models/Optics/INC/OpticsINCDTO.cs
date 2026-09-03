@@ -11,10 +11,10 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 using ScottPlot;
 using System.ComponentModel;
-using Constants = Net.Utilities.ScottPlot.WPF.Helper.Constants;
+using Net.Utilities.ScottPlot.Helper;
 
 namespace Core.Models.Models.Optics.INC;
 

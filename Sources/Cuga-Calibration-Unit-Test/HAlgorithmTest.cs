@@ -1,4 +1,4 @@
-// #define YPixelSizeTest
+#define HAlgorithmTest
 
 using AwesomeAssertions;
 using HalconDotNet;
@@ -10,7 +10,7 @@ using System.IO;
 using System.Text;
 using Point = Net.Utilities.Models.Geometries.Point;
 
-#if YPixelSizeTest
+#if HAlgorithmTest
 using System.Diagnostics;
 using Net.Utilities.Helpers.Helpers.Files;
 #endif
@@ -20,6 +20,7 @@ namespace CugaCalibrationUnitTest;
 public sealed class HAlgorithmTest
 {
     private static readonly Algorithm Algorithm = new();
+    private static readonly string[] First = ["Point.X"];
 
     [Fact]
     public void Test()
@@ -38,8 +39,8 @@ public sealed class HAlgorithmTest
 
         meanTuple.D.Should().Be(expectedMeanTuple.D);
 
-#if YPixelSizeTest
-        var imageFullPath = Path.GetFullPath($"{nameof(YPixelSizeTest)}.jpg");
+#if HAlgorithmTest
+        var imageFullPath = Path.GetFullPath($"{nameof(HAlgorithmTest)}.jpg");
         FileHelper.DeleteFileIfExists(imageFullPath);
         using var drawImage = new HImage(drawImageHObject);
         drawImage.Save(imageFullPath);
@@ -92,10 +93,11 @@ public sealed class HAlgorithmTest
         // 生成 CSV: 横坐标=图像名称(CH), 纵坐标=Point.X, cell=Point.Y
         var maxCount = projections.Count == 0 ? 0 : projections.Max(t => t.Points.Length);
         var sb = new StringBuilder();
-        sb.AppendLine(string.Join(",", new[] { "Point.X" }.Concat(projections.Select(t => t.Header))));
+        sb.AppendLine(string.Join(",", First.Concat(projections.Select(t => t.Header))));
         for (var i = 0; i < maxCount; i++)
         {
-            var cells = new[] { i.ToString() }.Concat(projections.Select(t => i < t.Points.Length ? t.Points[i].Y.ToString(CultureInfo.InvariantCulture) : string.Empty));
+            var temp = i;
+            var cells = new[] { i.ToString() }.Concat(projections.Select(t => temp < t.Points.Length ? t.Points[temp].Y.ToString(CultureInfo.InvariantCulture) : string.Empty));
             sb.AppendLine(string.Join(",", cells));
         }
 

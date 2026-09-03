@@ -2,7 +2,7 @@
 using Core.Models.Models.Common.DarkField;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.WPF.Extensions;
+using Net.Utilities.ScottPlot.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 

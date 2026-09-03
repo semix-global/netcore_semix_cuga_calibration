@@ -5,9 +5,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:aodWaveform="clr-namespace:Core.Models.Models.Common.AODWaveform"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.WPF.Controls;assembly=Net.Utilities.ScottPlot.WPF"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:controls="clr-namespace:Net.Utilities.ScottPlot.WPF.V2.Controls;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=aodWaveform:AbstractAODWaveformProfile,
                                               CreateList=True}"
              d:DesignHeight="450"
