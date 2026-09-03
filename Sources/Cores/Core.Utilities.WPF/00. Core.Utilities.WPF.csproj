@@ -13,7 +13,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.WPF.CustomControl.Calibration\Net.Utilities.WPF.CustomControl.Calibration.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.WPF.CustomControl.Calibration\04. Net.Utilities.WPF.CustomControl.Calibration.csproj" />
     </ItemGroup>
 
     <ItemGroup>

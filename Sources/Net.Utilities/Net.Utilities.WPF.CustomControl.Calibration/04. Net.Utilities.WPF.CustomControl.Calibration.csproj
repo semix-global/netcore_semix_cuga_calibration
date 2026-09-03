@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Net.Utilities.WPF.CustomControl.Calibration</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities.WPF.Commands.Calibration\02. Net.Utilities.WPF.Commands.Calibration.csproj" />
+        <ProjectReference Include="..\Net.Utilities.WPF.Behaviors.Calibration\03. Net.Utilities.WPF.Behaviors.Calibration.csproj" />
+    </ItemGroup>
+
+</Project>
