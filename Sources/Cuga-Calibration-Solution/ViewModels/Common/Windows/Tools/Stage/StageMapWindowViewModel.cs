@@ -61,7 +61,7 @@ public sealed partial class StageMapWindowViewModel(
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
 {
     private const int StageMapMinimumRetryCount = 5;
-    private const double StageMapResidualAlpha = 0.3d;
+    private const double StageMapResidualAlpha = 0.4d;
     private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
 
     public string Name { get; } = "StageMap";
@@ -859,7 +859,8 @@ public sealed partial class StageMapWindowViewModel(
         using var pyResidualTable = residualStageMap.ToPythonErrorMatrix();
         using var pyStage1Mask = Cache.StageMap.ToPythonIsMatchMatrix();
         using var pyStage2ValidMask = residualStageMap.ToPythonIsMatchMatrix();
-        using var result = combine.Invoke(pyInitialCorrection, pyResidualTable, pyStage1Mask, pyStage2ValidMask);
+        using var pyXGroupSize = Cache.StageMapTemplates.Length.ToPython();
+        using var result = combine.Invoke(pyInitialCorrection, pyResidualTable, pyStage1Mask, pyStage2ValidMask, pyXGroupSize);
 
         using var pyFinalCorrection = Guard.IsNotNullAndReturn(result[0]);
         using var pyInterpolationMask = Guard.IsNotNullAndReturn(result[1]);
