@@ -29,6 +29,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Net.Utilities.Calibration;
 
 namespace CugaCalibration;
 
@@ -73,6 +74,7 @@ public sealed partial class App
                         .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationSolutionAssemblyMetadata.Version, app, context.HostingEnvironment)
                         .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                         .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                        .AddNetUtilitiesCalibrationService(context.HostingEnvironment)
                         .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddCoreService(context.HostingEnvironment)
