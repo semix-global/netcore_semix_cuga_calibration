@@ -332,7 +332,8 @@ public sealed partial class CollectionYGhostWindowViewModel(
             {
                 IsAutoGainControl = true,
                 IsL0K = false,
-                CIBProfileMode = CIBProfileModeEnum.PMTLog
+                CIBProfileMode = CIBProfileModeEnum.PMTLog,
+                IsKeepRawImageCIBProfileModeEnum = true
             };
 
             logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -385,8 +386,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                         (false, cibConfiguration),
                         (false, Cache.LaserLightInformation),
                         false,
-                        cancellationToken,
-                        isKeepRawImageCIBProfileModeEnum: true);
+                        cancellationToken);
 
                     var bitmapImages = darkFieldImages.Select(t => t.Image).ToList();
                     if (hostEnvironment.IsDevelopment()) bitmapImages = [.. GetMockImages(cibInformations, positionIndex)];

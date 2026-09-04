@@ -290,8 +290,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             (false, Cache.CIBConfiguration),
             (false, Cache.LaserLightInformation),
             false,
-            cancellationToken,
-            isKeepRawImageCIBProfileModeEnum: true);
+            cancellationToken);
 
         if (hostEnvironment.IsDevelopment())
             darkFieldImageDto = GetMockImages([calibrationSetting.SettingCommonParam.MainCIBInformation])[0];
@@ -360,8 +359,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 (false, Cache.CIBConfiguration),
                 (true, null),
                 false,
-                cancellationToken,
-                isKeepRawImageCIBProfileModeEnum: true);
+                cancellationToken);
             var backgroundGrays = darkFieldImages.Select(t => (t.CIBInformation, t.Image.GetIntensity().Average)).ToArray();
 
             Results = [];
@@ -464,8 +462,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 (false, Cache.CIBConfiguration),
                 (false, Cache.LaserLightInformation),
                 false,
-                cancellationToken,
-                isKeepRawImageCIBProfileModeEnum: true);
+                cancellationToken);
 
             if (hostEnvironment.IsDevelopment()) darkFieldImages = GetMockImages([.. cibInformations], isScribe); // mock
 

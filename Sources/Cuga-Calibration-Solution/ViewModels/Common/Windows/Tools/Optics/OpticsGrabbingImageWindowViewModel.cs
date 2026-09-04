@@ -287,8 +287,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 true,
                 cancellationToken,
                 isForward: Cache.IsForward,
-                isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
+                isAutoFocus: Cache.IsAutoFocus).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {
@@ -342,8 +341,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 true,
                 cancellationToken,
                 isForward: Cache.IsForward,
-                isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
+                isAutoFocus: Cache.IsAutoFocus).ConfigureAwait(false);
 
             var darkFieldImages = darkFieldRawScanImages.Select(t => new DarkFieldImageDTO().AdaptIn(t)).ToList();
             foreach (var darkFieldImage in darkFieldImages)
@@ -401,8 +399,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 (true, null),
                 true,
                 cancellationToken,
-                isAutoFocus: Cache.IsAutoFocus,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
+                isAutoFocus: Cache.IsAutoFocus).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {
@@ -453,8 +450,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 (true, null),
                 true,
                 cancellationToken,
-                isForward: Cache.IsForward,
-                isKeepRawImageCIBProfileModeEnum: Cache.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
+                isForward: Cache.IsForward).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {

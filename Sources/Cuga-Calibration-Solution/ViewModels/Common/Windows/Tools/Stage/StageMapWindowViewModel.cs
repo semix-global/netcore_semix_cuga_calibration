@@ -140,8 +140,7 @@ public sealed partial class StageMapWindowViewModel(
                         (false, Cache.CIBConfiguration),
                         (false, Cache.LaserLightInformation),
                         false,
-                        cancellationToken,
-                        isKeepRawImageCIBProfileModeEnum: true);
+                        cancellationToken);
 
                     using var _ = darkFieldImageDto;
 
@@ -695,8 +694,7 @@ public sealed partial class StageMapWindowViewModel(
                             (false, Cache.CIBConfiguration),
                             (false, Cache.LaserLightInformation),
                             false,
-                            cancellationToken,
-                            isKeepRawImageCIBProfileModeEnum: true)
+                            cancellationToken)
                     ];
 
                     Guard.IsEqualTo(points.Length, darkFieldImages.Length);

@@ -13,7 +13,7 @@ public static class TwoDimensionalJaggedArrayExtensions
         public (int YLength, int XLength) GetYXLength()
         {
             var yLength = @this.Length;
-            var xLength = @this[0].Length;
+            var xLength = yLength == 0 ? 0 : @this[0].Length;
 
             return (yLength, xLength);
         }
