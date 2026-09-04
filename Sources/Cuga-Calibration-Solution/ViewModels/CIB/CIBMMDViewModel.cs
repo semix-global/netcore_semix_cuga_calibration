@@ -650,7 +650,8 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                                 (true, null),
                                 (true, null),
                                 true,
-                                cancellationToken);
+                                cancellationToken,
+                                isKeepRawImageCIBProfileModeEnum: false);
 
                             await Task.WhenAll(cibPMTImages.Index().Select(t => Task.Run(() =>
                             {

@@ -149,17 +149,6 @@
                                                           Background="{StaticResource DangerBrush}"
                                                           Style="{StaticResource ToggleButtonSwitch}" />
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Keep Raw Image CIB Profile Mode: "
-                                                       Width="160"
-                                                       HorizontalAlignment="Left"
-                                                       VerticalAlignment="Center" />
-                                            <ToggleButton IsChecked="{Binding Cache.IsKeepRawImageCIBProfileModeEnum}"
-                                                          HorizontalAlignment="Center"
-                                                          VerticalAlignment="Center"
-                                                          Background="{StaticResource DangerBrush}"
-                                                          Style="{StaticResource ToggleButtonSwitch}" />
-                                        </StackPanel>
                                         <Expander Header="AOD Waveform Profiles"
                                                   IsExpanded="False"
                                                   ExpandDirection="Down">

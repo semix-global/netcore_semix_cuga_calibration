@@ -18,12 +18,21 @@ public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBC
     [ObservableProperty]
     public partial CIBProfileModeEnum CIBProfileMode { get; set; } = CIBProfileModeEnum.PMTLog;
 
+    [ObservableProperty]
+    public partial bool IsKeepRawImageCIBProfileModeEnum { get; set; } = false;
+
+    partial void OnCIBProfileModeChanged(CIBProfileModeEnum value)
+    {
+        if (value != CIBProfileModeEnum.PMTLog) IsKeepRawImageCIBProfileModeEnum = false;
+    }
+
     public CIBConfiguration AdaptIn(CIBConfiguration obj)
     {
         Gain = obj.Gain;
         IsAutoGainControl = obj.IsAutoGainControl;
         IsL0K = obj.IsL0K;
         CIBProfileMode = obj.CIBProfileMode;
+        IsKeepRawImageCIBProfileModeEnum = obj.IsKeepRawImageCIBProfileModeEnum;
 
         return this;
     }
@@ -33,7 +42,8 @@ public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBC
         Gain = Gain,
         IsAutoGainControl = IsAutoGainControl,
         IsL0K = IsL0K,
-        CIBProfileMode = CIBProfileMode
+        CIBProfileMode = CIBProfileMode,
+        IsKeepRawImageCIBProfileModeEnum = IsKeepRawImageCIBProfileModeEnum
     };
 
     public object ToHtmlAnonymous() => new
@@ -41,6 +51,7 @@ public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBC
         Gain,
         IsAutoGainControl,
         IsL0K,
-        CIBProfileMode
+        CIBProfileMode,
+        IsKeepRawImageCIBProfileModeEnum
     };
 }

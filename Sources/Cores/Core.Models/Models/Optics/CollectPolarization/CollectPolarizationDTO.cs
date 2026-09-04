@@ -57,6 +57,8 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
     partial void OnItemsChanged(IReadOnlyList<CollectPolarizationDTOItem>? oldValue,
         IReadOnlyList<CollectPolarizationDTOItem> newValue)
     {
@@ -75,24 +77,24 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnFitPointsChanged(Point[] oldValue, Point[] newValue) => RefreshPlot();
+    partial void OnFitPointsChanged(Point[] value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 
     public CollectPolarizationDTO()
     {
-        PlotDataSource.Configure();
-
-        PlotDataSource.SetTitle(0, "Relation (Y: Gray Value - X: NDF Rotary Pos(°))");
+        PlotDataSource.SetTitle("Relation (Y: Gray Value - X: NDF Rotary Pos(°))");
     }
 
     private void RefreshPlot()
     {
         try
         {
-            PlotDataSource.Clear(0);
+            PlotDataSource.Clear();
 
             if (Items.Count == 0) return;
 
-            var scatterLines = PlotDataSource.GetOrAddScatterLines(0, 2);
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(2);
 
             Point[] points = [.. Items.Select(t => new Point(t.NDFRotaryMotorPosition, t.GrayValue)).OrderBy(t => t.X)];
             scatterLines[0].Update(
@@ -102,7 +104,6 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
 
             if (NDFRotaryMotorPosition == 0 || GrayValue == 0) return;
             var scatterMarkers = PlotDataSource.GetOrAddScatterMarkers(
-                0,
                 "Result Point",
                 [new Point(NDFRotaryMotorPosition, GrayValue)],
                 color: Colors.Red,
