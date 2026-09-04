@@ -55,7 +55,7 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.WaferRadius}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Die Pitch With(um): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="160"
                                           Minimum="1"

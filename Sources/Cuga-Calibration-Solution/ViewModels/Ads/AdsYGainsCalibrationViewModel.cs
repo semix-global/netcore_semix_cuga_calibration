@@ -279,8 +279,8 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                     }
                 }
 
-                LogYTable($"Y1Y2Y3ValueTable", HtmlHeaderLevelEnum.Header3, ReviewDTO.VerifyItems.Where(t => t.IsPositive).ToArray());
-                LogYTable($"Y4Y5Y6ValueTable", HtmlHeaderLevelEnum.Header3, ReviewDTO.VerifyItems.Where(t => t.IsPositive == false).ToArray());
+                LogYTable("Y1Y2Y3ValueTable", HtmlHeaderLevelEnum.Header3, ReviewDTO.VerifyItems.Where(t => t.IsPositive).ToArray());
+                LogYTable("Y4Y5Y6ValueTable", HtmlHeaderLevelEnum.Header3, ReviewDTO.VerifyItems.Where(t => t.IsPositive == false).ToArray());
             }
             catch (Exception ex)
             {

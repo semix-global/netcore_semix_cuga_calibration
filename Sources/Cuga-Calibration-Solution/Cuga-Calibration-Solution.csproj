@@ -51,25 +51,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="..\..\Dependencies\Semix.Cuga.Runtime2.0\libalgocv.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Visible>false</Visible>
-        </Content>
-        <Content Include="..\..\Dependencies\Semix.Cuga.Runtime2.0\libstdc++-6.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Visible>false</Visible>
-        </Content>
-        <Content Include="..\..\Dependencies\Semix.Cuga.Runtime2.0\libwinpthread-1.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Visible>false</Visible>
-        </Content>
-        <Content Include="..\..\Dependencies\Semix.Cuga.Runtime2.0\libgcc_s_seh-1.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Visible>false</Visible>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Net.Utilities\Net.Utilities.SourceGenerators.Calibration\Net.Utilities.SourceGenerators.Calibration.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\Cores\Core.Services\03. Core.Services.csproj" />
         <ProjectReference Include="..\Cores\Core.Recipe\04. Core.Recipe.csproj" />
@@ -88,14 +69,11 @@
         <Compile Update="ViewModels\MainWindowViewModel.*.cs">
             <DependentUpon>MainWindowViewModel.cs</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs">
-            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', 'Abstract$1WindowViewModel.cs'))</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\AODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_AODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(V0_)?(AODWaveform(?:Common|ElectrodeOffset|ElectrodeInitialize)).*', '$1Abstract$2WindowViewModel.cs'))</DependentUpon>
         </Compile>
-        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs">
-            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1WindowViewModel.cs'))</DependentUpon>
-        </Compile>
-        <Compile Update="ViewModels\*\*.LoadDepends.cs">
-            <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.LoadDepends', '.cs'))</DependentUpon>
+        <Compile Update="ViewModels\Common\Windows\Tools\AODWaveform\ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\PrescanAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_ChirpAODWaveform*.cs;ViewModels\Common\Windows\Tools\AODWaveform\V0_PrescanAODWaveform*.cs">
+            <DependentUpon>$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)', '^(V0_)?((?:Chirp|Prescan)AODWaveform(?:ElectrodeOffset|ElectrodeInitialize|Training)).*', '$1$2WindowViewModel.cs'))</DependentUpon>
         </Compile>
         <Compile Update="ViewModels\Common\Windows\Tools\CIB\CIBAging*.cs">
             <DependentUpon>CIBAgingWindowViewModel.cs</DependentUpon>

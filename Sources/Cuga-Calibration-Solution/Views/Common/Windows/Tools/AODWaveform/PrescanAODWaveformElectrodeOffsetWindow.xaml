@@ -200,14 +200,42 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.OffsetFrequency}" />
-                                    <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
-                                             Height="40"
-                                             TextWrapping="Wrap"
-                                             hc:TitleElement.Title="Frequencies(MHz): "
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                             Style="{StaticResource TextBoxExtend}" />
+                                    <StackPanel>
+                                        <TextBlock Text="Frequencies"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                    </StackPanel>
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                        <Button Content="Add"
+                                                Command="{Binding Cache.AddAODWaveformElectrodeOffsetFrequencyCommand}"
+                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                Style="{StaticResource ButtonInfo}" />
+                                        <Button Content="Delete"
+                                                Command="{Binding Cache.RemoveAODWaveformElectrodeOffsetFrequenciesCommand}"
+                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridFrequencies}"
+                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                Style="{StaticResource ButtonDanger}" />
+                                    </hc:UniformSpacingPanel>
+                                    <DataGrid x:Name="DataGridFrequencies"
+                                              MaxHeight="500"
+                                              hc:DataGridAttach.ShowRowNumber="False"
+                                              CanUserSortColumns="False"
+                                              Style="{StaticResource DataGrid.Small}"
+                                              HeadersVisibility="Column"
+                                              RowHeaderWidth="60"
+                                              AutoGenerateColumns="False"
+                                              ItemsSource="{Binding Cache.AODWaveformElectrodeOffsetFrequencies}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                            <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.DetailLogInterval}" />
                                     <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
@@ -253,10 +281,10 @@
                                                 <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
                                                           MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
-                                                          CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
                                                     <DataGrid.Columns>
@@ -309,12 +337,6 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.DetailLogInterval}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -384,8 +406,6 @@
                                                          hc:TitleElement.Title="Noise: "
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          hc:TitleElement.TitleWidth="200"
-                                                         IsReadOnly="True"
-                                                         Background="{StaticResource SecondaryRegionBrush}"
                                                          Style="{StaticResource TextBoxExtend}" />
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Offset"
@@ -394,6 +414,7 @@
                                                 </StackPanel>
                                                 <DataGrid MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
@@ -433,6 +454,7 @@
                                                                                     </Grid.ColumnDefinitions>
                                                                                     <DataGrid x:Name="DataGridUniformityConfigurations"
                                                                                               hc:DataGridAttach.ShowRowNumber="True"
+                                                                                              CanUserSortColumns="False"
                                                                                               Style="{StaticResource DataGrid.Small}"
                                                                                               HeadersVisibility="All"
                                                                                               RowHeaderWidth="60"
@@ -594,6 +616,7 @@
                                 </Grid.RowDefinitions>
                                 <DataGrid x:Name="DataGridStep0Details" Grid.Row="0"
                                           hc:DataGridAttach.ShowRowNumber="True"
+                                          CanUserSortColumns="False"
                                           Style="{StaticResource DataGrid.Small}"
                                           HeadersVisibility="All"
                                           RowHeaderWidth="60"
@@ -656,6 +679,7 @@
                                 </Grid.RowDefinitions>
                                 <DataGrid x:Name="DataGridStep1Details" Grid.Row="0"
                                           hc:DataGridAttach.ShowRowNumber="True"
+                                          CanUserSortColumns="False"
                                           Style="{StaticResource DataGrid.Small}"
                                           HeadersVisibility="All"
                                           RowHeaderWidth="60"
@@ -713,52 +737,49 @@
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} Plots">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Results}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="800" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding GeneratePrescanAODWaveformParam.ProductivityInformation}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <UniformGrid Grid.Row="1"
-                                                             Margin="0,2"
-                                                             HorizontalAlignment="Center"
-                                                             Rows="1"
-                                                             Columns="2">
-                                                    <Button Content="Test Set Config"
-                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonInfo.Loading}" />
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </UniformGrid>
-                                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                                                    <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                        <ListBox Margin="5"
+                                 HorizontalContentAlignment="Stretch"
+                                 VirtualizingPanel.ScrollUnit="Pixel"
+                                 ItemsSource="{Binding Cache.Results}"
+                                 AlternationCount="1000">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height="800"
+                                            Margin="-5,5"
+                                            Style="{StaticResource BorderRegion}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding GeneratePrescanAODWaveformParam.ProductivityInformation}"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockSubTitleBold}"
+                                                       Foreground="{StaticResource SuccessBrush}" />
+                                            <UniformGrid Grid.Row="1"
+                                                         Margin="0,2"
+                                                         HorizontalAlignment="Center"
+                                                         Rows="1"
+                                                         Columns="2">
+                                                <Button Content="Test Set Config"
+                                                        Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Margin="2"
+                                                        Style="{StaticResource ButtonInfo.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        Margin="2"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </UniformGrid>
+                                            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                                <profileUI:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </TabItem>
                 </TabControl>
             </GroupBox>
