@@ -219,10 +219,10 @@
                                     <DataGrid x:Name="DataGridFrequencies"
                                               MaxHeight="500"
                                               hc:DataGridAttach.ShowRowNumber="False"
+                                              CanUserSortColumns="False"
                                               Style="{StaticResource DataGrid.Small}"
                                               HeadersVisibility="Column"
                                               RowHeaderWidth="60"
-                                              CanUserSortColumns="False"
                                               AutoGenerateColumns="False"
                                               ItemsSource="{Binding Cache.AODWaveformElectrodeOffsetFrequencies}">
                                         <DataGrid.Columns>
@@ -281,10 +281,10 @@
                                                 <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
                                                           MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
-                                                          CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
                                                     <DataGrid.Columns>
@@ -414,6 +414,7 @@
                                                 </StackPanel>
                                                 <DataGrid MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
@@ -453,6 +454,7 @@
                                                                                     </Grid.ColumnDefinitions>
                                                                                     <DataGrid x:Name="DataGridUniformityConfigurations"
                                                                                               hc:DataGridAttach.ShowRowNumber="True"
+                                                                                              CanUserSortColumns="False"
                                                                                               Style="{StaticResource DataGrid.Small}"
                                                                                               HeadersVisibility="All"
                                                                                               RowHeaderWidth="60"
@@ -614,6 +616,7 @@
                                 </Grid.RowDefinitions>
                                 <DataGrid x:Name="DataGridStep0Details" Grid.Row="0"
                                           hc:DataGridAttach.ShowRowNumber="True"
+                                          CanUserSortColumns="False"
                                           Style="{StaticResource DataGrid.Small}"
                                           HeadersVisibility="All"
                                           RowHeaderWidth="60"
@@ -676,6 +679,7 @@
                                 </Grid.RowDefinitions>
                                 <DataGrid x:Name="DataGridStep1Details" Grid.Row="0"
                                           hc:DataGridAttach.ShowRowNumber="True"
+                                          CanUserSortColumns="False"
                                           Style="{StaticResource DataGrid.Small}"
                                           HeadersVisibility="All"
                                           RowHeaderWidth="60"

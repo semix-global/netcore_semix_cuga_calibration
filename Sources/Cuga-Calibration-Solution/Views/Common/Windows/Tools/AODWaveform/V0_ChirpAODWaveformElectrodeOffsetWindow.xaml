@@ -183,12 +183,18 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.WaitTime}" />
-                                    <StackPanel>
-                                        <TextBlock Text="{StaticResource PrimaryFlatnessParamTitleString}"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Separator />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Total Measure Power(mW): "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.TotalMeasurePower}" />
+                                    <hc:NumericUpDown hc:TitleElement.Title="Measure Power Retry Times: "
+                                                      hc:TitleElement.TitlePlacement="Left"
+                                                      hc:TitleElement.TitleWidth="200"
+                                                      Minimum="0"
+                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                      Value="{Binding Cache.MeasurePowerTimes}" />
                                     <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
@@ -264,6 +270,7 @@
                                                     <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
                                                               MaxHeight="500"
                                                               hc:DataGridAttach.ShowRowNumber="False"
+                                                              CanUserSortColumns="False"
                                                               Style="{StaticResource DataGrid.Small}"
                                                               HeadersVisibility="Column"
                                                               RowHeaderWidth="60"
@@ -377,6 +384,7 @@
                                                                         Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
                                                     <DataGrid MaxHeight="500"
                                                               hc:DataGridAttach.ShowRowNumber="False"
+                                                              CanUserSortColumns="False"
                                                               Style="{StaticResource DataGrid.Small}"
                                                               HeadersVisibility="Column"
                                                               RowHeaderWidth="60"
@@ -437,6 +445,7 @@
                                                 <DataGrid x:Name="DataGridElectrodeOffsetFrequencyUniformityParams"
                                                           MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
                                                           Style="{StaticResource DataGrid.Small}"
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
@@ -575,6 +584,7 @@
                                         <Border Style="{StaticResource BorderRegion}">
                                             <DataGrid MaxHeight="500"
                                                       hc:DataGridAttach.ShowRowNumber="False"
+                                                      CanUserSortColumns="False"
                                                       Style="{StaticResource DataGrid.Small}"
                                                       HeadersVisibility="Column"
                                                       RowHeaderWidth="60"
@@ -614,6 +624,7 @@
                                                                                 </Grid.ColumnDefinitions>
                                                                                 <DataGrid x:Name="DataGridUniformityConfigurations"
                                                                                           hc:DataGridAttach.ShowRowNumber="True"
+                                                                                          CanUserSortColumns="False"
                                                                                           Style="{StaticResource DataGrid.Small}"
                                                                                           HeadersVisibility="All"
                                                                                           RowHeaderWidth="60"

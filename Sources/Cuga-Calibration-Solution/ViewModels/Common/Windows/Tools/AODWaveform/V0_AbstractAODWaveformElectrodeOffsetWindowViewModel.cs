@@ -107,12 +107,13 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                     var offsetFrequencyPeriodCoefficients = Generate.LinearRangeContainsEdge(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
                     Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
-                    var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
-
+                    var currentDetailLogUniqueId = Guid.NewGuid();
                     var fileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
-                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"),
-                        HtmlLogUniqueId.LoggingHtml());
-                    Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                    Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentDetailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{currentDetailLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentDetailLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}", HtmlHeaderLevelEnum.Header3, currentDetailLogUniqueId.LoggingHtml());
+
                     try
                     {
                         foreach (var frequency in Cache.Frequencies)
@@ -122,7 +123,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                             var aodWaveformElectrodeOffsetFrequencyPeriodItem = new V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
                             aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
-                            Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                            Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, currentDetailLogUniqueId.LoggingHtml());
 
                             foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                             {
@@ -184,9 +185,9 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                                     };
                                 }
 
-                                Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, currentDetailLogUniqueId.LoggingHtml());
 
-                                await UpdateMeasurePowerAsync(item, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                await UpdateMeasurePowerAsync(item, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                                 aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                             }
@@ -194,7 +195,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                     }
                     finally
                     {
-                        Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggedEndHtml(fileName));
+                        Logger.LogHtmlInformation(currentDetailLogUniqueId.LoggedEndHtml(fileName));
                     }
 
                     aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
@@ -267,12 +268,13 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                         var offsetFrequencyPeriodCoefficients = Generate.LinearRangeContainsEdge(param.StartOffsetFrequencyPeriodCoefficient, param.StepOffsetFrequencyPeriodCoefficient, param.StopOffsetFrequencyPeriodCoefficient);
                         Guard.IsNotEmpty(offsetFrequencyPeriodCoefficients);
 
-                        var aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId = Guid.NewGuid();
-
+                        var currentDetailLogUniqueId = Guid.NewGuid();
                         var fileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}";
-                        Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N})"),
-                            HtmlLogUniqueId.LoggingHtml());
-                        Logger.LogHtmlInformation($"{aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+
+                        Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriod.Title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentDetailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation($"{currentDetailLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentDetailLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation($"{string.Join("_", aodWaveformElectrodeOffsetFrequencyPeriod.Electrodes)}", HtmlHeaderLevelEnum.Header3, currentDetailLogUniqueId.LoggingHtml());
+
                         try
                         {
                             foreach (var frequency in Cache.Frequencies)
@@ -282,7 +284,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                                 var aodWaveformElectrodeOffsetFrequencyPeriodItem = new V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>();
                                 aodWaveformElectrodeOffsetFrequencyPeriod.Items = [.. aodWaveformElectrodeOffsetFrequencyPeriod.Items, aodWaveformElectrodeOffsetFrequencyPeriodItem];
 
-                                Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                                Logger.LogHtmlInformation($"{frequency}(MHz)", HtmlHeaderLevelEnum.Header4, currentDetailLogUniqueId.LoggingHtml());
 
                                 foreach (var currentOffsetFrequencyPeriodCoefficient in offsetFrequencyPeriodCoefficients)
                                 {
@@ -311,9 +313,9 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                                         OffsetFrequencyPeriodCoefficient = currentOffsetFrequencyPeriodCoefficient
                                     };
 
-                                    Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggingHtml());
+                                    Logger.LogHtmlInformation($"{item.OffsetFrequencyPeriodCoefficient}(2pi)", HtmlHeaderLevelEnum.Header5, currentDetailLogUniqueId.LoggingHtml());
 
-                                    await UpdateMeasurePowerAsync(item, aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+                                    await UpdateMeasurePowerAsync(item, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                                     aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems = [.. aodWaveformElectrodeOffsetFrequencyPeriodItem.FrequencyItems, item];
                                 }
@@ -321,7 +323,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                         }
                         finally
                         {
-                            Logger.LogHtmlInformation(aodWaveformElectrodeOffsetFrequencyPeriodHmlLogUniqueId.LoggedEndHtml(fileName));
+                            Logger.LogHtmlInformation(currentDetailLogUniqueId.LoggedEndHtml(fileName));
                         }
 
                         aodWaveformElectrodeOffsetFrequencyPeriod.InterpolationMaxima(Cache.InterpolationCount);
