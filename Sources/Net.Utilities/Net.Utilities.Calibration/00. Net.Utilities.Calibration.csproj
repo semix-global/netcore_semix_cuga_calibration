@@ -16,20 +16,20 @@
     <ItemGroup>
         <PackageReference Include="algocv_sharp" VersionOverride="1.0.11" />
 
-        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.9.5-preview7-xuan" />
+        <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.Helpers" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.Algorithms" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.Algorithms.Halcon" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.IOC" VersionOverride="2.9.5-preview8-yan" />
 
-        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.9.5-preview7-xuan" />
+        <PackageReference Include="Net.Utilities.Nlog" VersionOverride="2.9.5-preview8-yan" />
 
-        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.9.5-preview7-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Net.Utilities.Graphics.Algorithms.Halcon" VersionOverride="2.9.5-preview8-yan" />
 
-        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.5-preview7-xuan" />
-        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.5-preview7-xuan" />
+        <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.5-preview8-yan" />
+        <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.5-preview8-yan" />
     </ItemGroup>
 </Project>

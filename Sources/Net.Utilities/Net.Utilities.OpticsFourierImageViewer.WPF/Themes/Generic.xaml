@@ -7,7 +7,7 @@
                     xmlns:converts="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF.Converts"
                     mc:Ignorable="d">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl;component/Themes/ToolBarStyles.xaml" />
+        <ResourceDictionary Source="/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
     </ResourceDictionary.MergedDictionaries>
     <converts:MultiBitmapImageDrawableToStringConverter x:Key="MultiBitmapImageDrawableToStringConverter" />
     <Style TargetType="{x:Type local:OpticsFourierImageCanvasControl}">
