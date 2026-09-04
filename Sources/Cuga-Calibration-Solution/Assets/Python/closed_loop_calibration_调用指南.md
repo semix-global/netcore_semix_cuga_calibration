@@ -50,7 +50,7 @@ from closed_loop_calibration import (
 )
 ```
 
-如果调用程序位于其他目录，需要把 `算法测试` 目录加入 Python 的模块搜索路径，或按外部程序自己的工程方式配置模块路径。
+如果调用程序位于其他目录，需要把本项目根目录加入 Python 的模块搜索路径，或按外部程序自己的工程方式配置模块路径。
 
 下面第 3～7 节中的 Python 代码，表示“Python 适配层”的实现示例，不要求实际控制设备的外部程序也使用 Python。
 
@@ -70,37 +70,49 @@ Python 适配层
 
 适配层至少需要提供以下四类操作；具体名称和通信方式由外部程序决定：
 
-| 操作 | 输入 | 输出 |
-| --- | --- | --- |
-| 阶段 1 处理 | `residual`、`positions`、`stage1_mask`、`fill_value` | 完整有限的源网格测量误差 `C0` |
-| 初始插值 | `C0`、源网格坐标、下发网格坐标 | 实际下发的 `C0_download` |
-| 阶段 2 处理 | 累计 `residuals`、必传 `masks`、阶段 2 坐标及参数 | `need_more`、`deltaC`、`stage2_valid_mask` |
-| 合并和最终插值 | 初始表、`deltaC`、`stage1_mask`、`stage2_valid_mask`、目标坐标及目标插值 mask | `final_download_table`、`interpolation_mask` |
+| 操作      | 输入                                                                                 | 输出                                          |
+| ------- | ---------------------------------------------------------------------------------- | ------------------------------------------- |
+| 阶段 1 处理 | `residual`、`positions`、`stage1_mask`、`fill_value`                                  | 完整有限的源网格测量误差 `C0`                           |
+| 初始插值    | `C0`、源网格坐标、下发网格坐标                                                                  | 实际下发的 `C0_download`                         |
+| 阶段 2 处理 | 累计 `residuals`、必传 `masks`、阶段 2 坐标及参数                                               | `need_more`、`deltaC`、`stage2_valid_mask`    |
+| 合并和最终插值 | 初始表、`deltaC`、`stage1_mask`、`stage2_valid_mask`、X 分组数 `x_group_size`、目标坐标及目标插值 mask | `final_download_table`、`interpolation_mask` |
 
 适配层按固定位置传参，参数顺序为：
 
 ```text
 process_stage2_residuals(residuals, positions, alpha, m_min, m_max, masks)
-combine_correction_tables(initial_correction, deltaC, stage1_mask, stage2_valid_mask)
+combine_correction_tables(initial_correction, deltaC, stage1_mask, stage2_valid_mask, x_group_size)
 interpolate_residual_table(residual_table, positions, target_positions, source_mask, target_mask)
 ```
 
 建议适配层统一使用以下数据约定：
 
 - 数值数组使用双精度浮点；
+
 - mask 在适配层中转换为布尔数组，`True` 表示可用；
+
 - 坐标和残差的最后一维长度为 2，依次为 X、Y；
+
 - 阶段 2 的 `masks` 必须传入；`mask=False` 的残差可以传 `0`、`NaN` 或其他非有限值，`mask=True` 的残差必须是有限值；
-- 阶段 2 返回的 `stage2_valid_mask` 是点级结果可用性 mask，不能通过 `deltaC` 是否为 0 或是否为有限数值推断；`point_precision_reached` 是更严格的精度判定，专门用于决定是否继续扫描；
+
+- 阶段 2 返回的 `stage2_valid_mask` 是点级结果可用性 mask，不能通过 `deltaC` 是否为 0 或是否为有限数值推断；`need_more` 由有效点集（`stage2_valid_mask=True` 的点）是否全部达到精度要求决定，始终无效的点不阻塞收敛；
+
 - 最终插值的目标 mask 中，`True` 表示需要插值，`False` 表示不需要插值；目标 mask 为 `False` 的输出 X/Y 分量固定为 `0.0`；
+
 - 最终插值的源坐标必须构成轴对齐的规则矩形网格，X 沿列方向变化、Y 沿行方向变化；允许 X/Y 方向使用非均匀间距；
+
+- 合并时的 X 分组修正（`x_group_size = N > 1`）按列序号 mod N 分组，调用方需要保证列序号与数据的 X 分组相位一致（见 5.1 节）；
+
 - 外部程序可以使用 JSON、二进制、共享内存或其他方式传输，但必须保留数组形状、数据类型、最后一维分量顺序和各个 mask；不需要依赖 NaN 表示有效性。
 
 返回状态建议按以下方式处理：
 
 - 正常返回：使用返回的数组；
+
 - `need_more=True`：继续采集阶段 2，不生成最终下发表；
+
 - `RuntimeWarning`：记录警告并按策略继续，例如目标点超出源网格范围、双线性角点无效或达到 `m_max`；
+
 - `ValueError`、`TypeError` 等错误：停止本次校准，不下发错误结果。
 
 ## 2. 数组形状约定
@@ -114,7 +126,9 @@ calibration_positions.shape == (Ny, Nx, 2)
 调用时要区分三个坐标网格：
 
 - `calibration_positions`：阶段 1 实际测量的源网格；
+
 - `stage2_positions`：阶段 2 残差实际对应的网格；
+
 - `download_positions` / `final_download_positions`：设备实际接收表的目标网格。
 
 阶段 2 的残差、`deltaC`、`stage2_valid_mask`、合并时的初始表和阶段 1 质量 mask 必须属于同一个 `stage2_positions` 网格。最简单的情况是阶段 2 就在初始下发网格上扫描，此时 `stage2_positions = download_positions`。
@@ -135,15 +149,15 @@ False = 该点本次测量不可用
 
 阶段 1 和阶段 2 的 mask 形状不同：
 
-| 数据 | 形状 | 含义 |
-| --- | --- | --- |
-| 阶段 1 残差 | `(Ny, Nx, 2)` | 单次扫描的 X/Y 残差 |
-| 阶段 1 mask | `(Ny, Nx)` | 阶段 1 单次扫描的有效点 |
-| 阶段 2 残差历史 | `(M, *stage2_grid_shape, 2)` | 已累计的 M 次扫描 |
-| 阶段 2 masks 历史 | `(M, *stage2_grid_shape)` | 每次扫描各自的有效点 |
-| 阶段 2 结果有效 mask | `stage2_grid_shape` | `stage2_valid_mask`，表示对应 `deltaC` 是否至少有一个可用的 X/Y 结果 |
-| 阶段 1 对应阶段 2 的质量 mask | `stage2_grid_shape` | `stage1_mask_on_stage2_grid`，用于最终插值 |
-| 最终目标插值 mask | `final_download_positions.shape[:-1]` | `True` 需要插值；`False` 不插值且输出设为 0 |
+| 数据                   | 形状                                    | 含义                                                  |
+| -------------------- | ------------------------------------- | --------------------------------------------------- |
+| 阶段 1 残差              | `(Ny, Nx, 2)`                         | 单次扫描的 X/Y 残差                                        |
+| 阶段 1 mask            | `(Ny, Nx)`                            | 阶段 1 单次扫描的有效点                                       |
+| 阶段 2 残差历史            | `(M, *stage2_grid_shape, 2)`          | 已累计的 M 次扫描                                          |
+| 阶段 2 masks 历史        | `(M, *stage2_grid_shape)`             | 每次扫描各自的有效点                                          |
+| 阶段 2 结果有效 mask       | `stage2_grid_shape`                   | `stage2_valid_mask`，表示对应 `deltaC` 是否至少有一个可用的 X/Y 结果 |
+| 阶段 1 对应阶段 2 的质量 mask | `stage2_grid_shape`                   | `stage1_mask_on_stage2_grid`，用于最终插值                 |
+| 最终目标插值 mask          | `final_download_positions.shape[:-1]` | `True` 需要插值；`False` 不插值且输出设为 0                      |
 
 阶段 2 的 `masks[i]` 必须和 `residuals[i]` 对应，不能只传最新一次扫描的 mask。
 
@@ -204,7 +218,8 @@ C0_on_calibration_grid = process_first_measurement(
 2. 本次有效点 mask `mask_i`。
 
 `mask_i` 不是本模块计算出来的，而是外部测量程序根据本次扫描的设备状态、
-采集状态或质量判定产生的结果。例如，缺测、超时、饱和、拟合失败或人工屏蔽
+采集状态或质量判定产生的结果。例如，缺测、超时、饱和、拟合失败、匹配质量
+分数低于阈值（例如 Match Score < 0.7）或人工屏蔽
 的点应设为 `False`。调用指南中的 `your_measure_stage2_mask_api()` 只是占位
 名称，实际名称和实现由外部程序决定。
 
@@ -233,7 +248,7 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         residuals,
         stage2_positions,
-        0.3,
+        0.4,
         5,
         20,
         masks,
@@ -246,32 +261,43 @@ while True:
 ### 阶段 2 mask 的行为
 
 - 某点只在本次扫描无效：只排除本次观测，其他扫描仍可使用；
+
 - 每次扫描的 mask 可以不同；
-- 仿射拟合、MAD、平均值和有效样本计数都只使用对应 mask 为 True 的观测；
-- `stage2_valid_mask` 不是 `masks` 的简单交集或并集，而是根据 mask 过滤后、再经过 MAD 剔除的有效次数计算；`point_precision_reached` 则是独立的精度停止条件：
+
+- 仿射拟合、平均值和有效样本计数都只使用对应 mask 为 True 的观测；
+  不执行任何基于数值分布的时间维异常值剔除，异常观测的识别完全由
+  调用方的 mask 负责；
+
+- `stage2_valid_mask` 不是 `masks` 的简单交集或并集，而是根据 mask 过滤
+  后的有效观测数计算；`point_precision_reached` 则是独立的精度停止条件：
 
   ```text
   minimum_point_count = max(m_min, ceil(1 / alpha²))
-  stage2_valid_mask = (good_count_X > 0) 且 (good_count_Y > 0)
-  point_precision_reached =
-      (good_count_X >= minimum_point_count) 且
-      (good_count_Y >= minimum_point_count)
+  有效观测数 N(x) = masks 中该点为 True 的扫描数
+  stage2_valid_mask = (N(x) > 0)
+  point_precision_reached = (N(x) >= minimum_point_count)
+  整体收敛 = stage2_valid_mask=True 的点全部满足 point_precision_reached
   ```
 
 - 二维非共线网格中，某次扫描如果 mask 过滤后不足 3 个不共线点，会直接报错；
+
 - 某点达到 `m_max` 但没有达到精度要求时，只要仍有至少一个可用的 X/Y 结果，
   就保留当前 `deltaC` 并在 `stage2_valid_mask` 中标记为 `True`；只有始终没有
   有效结果的点才返回 `0.0` 并标记为 `False`，同时告警；
+
 - `need_more=True` 时，`stage2_valid_mask` 可能已经有部分 `True`，这只表示
   这些点当前有可用结果，不表示整张表可以提前合并；必须等到 `need_more=False`。
+
 - 扫描次数少于 `m_min` 时，仍返回形状为 `(..., 2)` 的逐点去漂移简单平均表，
-  但该表未做 MAD 异常值剔除，仅用于日志记录；此时 `stage2_valid_mask` 全为
-  `False`；
+  但该表仅用于日志记录；已有至少一次有效观测的点在
+  `stage2_valid_mask` 中为 `True`，只有始终没有有效结果的点为 `False`；
+
 - `need_more=True` 时不要生成最终修正表；应继续扫描。
 
 如果 `residuals` 的扫描次数还没有达到 `m_min`，返回的 `deltaC` 只是日志用的
-未做 MAD 的临时表；无有效统计值的点填为 `0.0`，此时 `stage2_valid_mask` 全为
-`False`。由于 `need_more=True`，不能拿它进入合并和最终下发流程。
+临时表；无有效观测值的点填为 `0.0`，只有始终没有有效结果的点在
+`stage2_valid_mask` 中为 `False`。由于 `need_more=True`，不能拿它进入合并和最终
+下发流程。
 
 ## 5. 合并阶段 1 和阶段 2
 
@@ -280,11 +306,14 @@ while True:
 ```python
 # initial_correction 和 deltaC 必须在同一个坐标网格上。
 # 下面以阶段2就在实际下发网格上扫描为例。
+# x_group_size 为沿 X 方向的分组数 N：数据存在按 N 点周期出现的组间系统偏差时
+# 传入 N（如 B3 9.1 数据为 3、9.2 数据为 2），否则保持默认 1。
 C_final, interpolation_mask = combine_correction_tables(
     C0_download,
     deltaC,
     stage1_mask_on_stage2_grid,
     stage2_valid_mask,
+    x_group_size,
 )
 ```
 
@@ -320,6 +349,22 @@ stage1_mask_on_stage2_grid == False 且 stage2_valid_mask == False
 
 的点在 `C_final` 中为 `0.0`，没有可靠校准依据，不得作为后续插值源点。
 
+### 5.1 X 方向分组系统偏差修正
+
+当 `x_group_size = N > 1` 时，合并完成后对 `C_final` 追加一步组间偏差修正：
+
+1. 把网格的最后一个网格维视为 X 列方向，列序号 mod N 相同的点为一组，共 N 组；
+2. 对 X/Y 两个分量分别计算各组有效点（`interpolation_mask = True`）的平均值；
+3. 以 N 个组平均值的等权平均值为目标，把每组有效点整体平移，使各组平均值都等于该目标值。
+
+该修正用于扣除测量数据中沿 X 方向按 N 点周期出现的系统性组间偏差；无效点保持
+`0.0`，不参与统计也不被平移。修正只改变各组之间的相对平移，不改变 `interpolation_mask`。
+
+适配层需要保证列序号与数据的 X 分组相位一致。对 B3 这类每行按 X 排序、行首相位
+对齐的数据，把每行排序后的点依次放入列 `0, 1, 2, ...` 即可；行尾不存在的点用
+`mask=False` 补齐。若某行中途缺测导致后续点相位错位，外部程序需要自行调整列号，
+保证同组数据位于相同 `列序号 mod N` 的列上。
+
 ## 6. 将最终表插值到最终下发坐标
 
 ```python
@@ -349,10 +394,15 @@ your_download_or_apply_correction_api(final_download_table)
 插值时：
 
 - `target_mask=False` 的目标点不执行插值，输出的 X/Y 两个分量都为 `0.0`；
+
 - `target_mask=True` 的目标点先定位到源网格单元，使用该单元的 4 个角点做双线性插值；
+
 - 如果角点无效，则用距离该角点最近且尚未使用的有效源点替代该角点的值，再保留原角点的双线性权重，并发出 `RuntimeWarning`；
+
 - 目标点超出源网格范围时，使用最靠近的边界单元继续计算，允许双线性坐标超出 `[0, 1]`，从而沿边界局部趋势外插，并发出 `RuntimeWarning`；
+
 - 只要存在一个 `target_mask=True` 的点，源表中有效源点总数少于 4 个就抛出 `ValueError`；如果所有目标点都是 `False`，不执行这个检查；
+
 - `source_mask` 在最终插值时应传入 `interpolation_mask`；只有初始阶段 `C0` 的
   `fill_value` 是有意参与初始插值的有限值。
 
@@ -416,7 +466,7 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         np.stack(residual_history, axis=0),
         stage2_positions,
-        0.3,
+        0.4,
         5,
         20,
         np.stack(mask_history, axis=0),
@@ -427,11 +477,15 @@ while True:
 
 
 # ---------- 合并 ----------
+# 假设本批数据的 X 方向存在按 N 点周期出现的组间系统偏差（如 B3 9.1 为 3、
+# 9.2 为 2）；没有该问题时传 1 或使用默认值。
+N = 3
 C_final, interpolation_mask = combine_correction_tables(
     C0_download,
     deltaC,
     stage1_mask_on_stage2_grid,
     stage2_valid_mask,
+    N,
 )
 
 
@@ -457,3 +511,5 @@ your_download_or_apply_correction_api(final_download_table)
 5. 合并时 `initial_correction`、`deltaC`、`stage1_mask_on_stage2_grid` 和 `stage2_valid_mask` 必须属于同一个网格。
 6. `C_final` 是合并后的源表；设备最终收到的是对 `C_final` 再插值后的 `final_download_table`。
 7. 阶段 1、阶段 2 都失效的点在最终源表中为 `0.0`，但由 `interpolation_mask=False` 标记，不能参与后续插值；最终设备表由其他有效源点插值得到。
+8. 数据存在沿 X 方向按 N 点周期出现的组间系统偏差时，合并需要传 `x_group_size = N`（B3 9.1 数据为 3、9.2 数据为 2），并保证列序号与数据的分组相位一致；该修正只平移有效点，不改变 mask。
+
