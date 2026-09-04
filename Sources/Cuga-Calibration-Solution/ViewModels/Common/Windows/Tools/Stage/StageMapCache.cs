@@ -68,7 +68,13 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     #region Step3
 
     [ObservableProperty]
-    public partial int StageMapRepeatTimes { get; set; } = 20;
+    public partial int StageMapRepeatTimes { get; set; } = 10;
+
+    [ObservableProperty]
+    public partial double AlgorithmStageMapResidualAlpha { get; set; } = 0.4d;
+
+    [ObservableProperty]
+    public partial int AlgorithmStageMapMinimumRetryCount { get; set; } = 5;
 
     #endregion
 
@@ -110,6 +116,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         WaferRadius,
         DiePitchWidth,
         DiePitchHeight,
-        StageMapRepeatTimes
+        StageMapRepeatTimes,
+        AlgorithmStageMapResidualAlpha,
+        AlgorithmStageMapMinimumRetryCount
     };
 }

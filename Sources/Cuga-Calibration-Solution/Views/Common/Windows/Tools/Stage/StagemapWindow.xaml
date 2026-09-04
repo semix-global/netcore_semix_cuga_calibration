@@ -294,6 +294,25 @@
                                                                   Minimum="5"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.StageMapRepeatTimes}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="Algorithm Parm"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Minimum Retry Count: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="2"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmStageMapMinimumRetryCount}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Residual Alpha: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0.01"
+                                                                  Maximum="1"
+                                                                  Increment="0.01"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmStageMapResidualAlpha}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
