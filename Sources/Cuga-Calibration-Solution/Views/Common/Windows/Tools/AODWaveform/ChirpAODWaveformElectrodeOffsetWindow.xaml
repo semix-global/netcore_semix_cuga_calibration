@@ -737,52 +737,49 @@
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} Plots">
-                        <ScrollViewer Margin="5"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
-                            <ItemsControl ItemsSource="{Binding Cache.Results}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <hc:UniformSpacingPanel Spacing="5" Orientation="Vertical" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Height="800" Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <UniformGrid Grid.Row="1"
-                                                             Margin="0,2"
-                                                             HorizontalAlignment="Center"
-                                                             Rows="1"
-                                                             Columns="2">
-                                                    <Button Content="Test Set Config"
-                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            CommandParameter="{Binding}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonInfo.Loading}" />
-                                                    <Button Content="Cancel"
-                                                            Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                            Margin="2"
-                                                            Style="{StaticResource ButtonWarning}" />
-                                                </UniformGrid>
-                                                <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
-                                                    <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
+                        <ListBox Margin="5"
+                                 HorizontalContentAlignment="Stretch"
+                                 VirtualizingPanel.ScrollUnit="Pixel"
+                                 ItemsSource="{Binding Cache.Results}"
+                                 AlternationCount="1000">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height="800"
+                                            Margin="-5,5"
+                                            Style="{StaticResource BorderRegion}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding GenerateChirpAODWaveformParam.ProductivityInformation}"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockSubTitleBold}"
+                                                       Foreground="{StaticResource SuccessBrush}" />
+                                            <UniformGrid Grid.Row="1"
+                                                         Margin="0,2"
+                                                         HorizontalAlignment="Center"
+                                                         Rows="1"
+                                                         Columns="2">
+                                                <Button Content="Test Set Config"
+                                                        Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Margin="2"
+                                                        Style="{StaticResource ButtonInfo.Loading}" />
+                                                <Button Content="Cancel"
+                                                        Command="{Binding DataContext.TestSetResultAODWaveformConfigurationCancelCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        Margin="2"
+                                                        Style="{StaticResource ButtonWarning}" />
+                                            </UniformGrid>
+                                            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                                <profileUI:ChirpAODWaveformProfilesUserControl DataContext="{Binding ChirpAODWaveformProfiles}" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </TabItem>
                 </TabControl>
             </GroupBox>
