@@ -40,7 +40,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step0Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 0;
 
@@ -225,7 +225,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                             .OffsetFrequencyPeriodCoefficient += aodWaveformElectrodeOffsetFrequencyPeriod.OffsetFrequencyPeriodCoefficient.Value;
                     }
                 }
-            }, isNotSilent).ConfigureAwait(false)
+            }, isSilent).ConfigureAwait(false)
             : await InvokeAsync(stepIndex, async () =>
             {
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
@@ -378,11 +378,11 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                 }
 
                 return isSuccess;
-            }, isNotSilent).ConfigureAwait(false);
+            }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step1Async(bool isNotSilent, CancellationToken cancellationToken)
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken)
     {
         const int stepIndex = 1;
 
@@ -515,7 +515,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
             }
 
             return isSuccess;
-        }, isNotSilent).ConfigureAwait(false);
+        }, isSilent).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -532,15 +532,15 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
             if (StepFirstLastCommand.CanBeCanceled) StepFirstLastCommand.Cancel();
         });
 
-        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isNotSilent */ false));
+        var step0Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step0Command.ExecuteAsync( /* isSilent */ true));
         if (await step0Task == false) return;
 
-        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isNotSilent */ false));
+        var step1Task = Guard.IsAssignableToTypeAndReturn<Task<bool>>(Step1Command.ExecuteAsync( /* isSilent */ true));
         if (await step1Task == false) return;
 
-        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isNotSilent */ false));
+        var stepSecondLastTask = Guard.IsAssignableToTypeAndReturn<Task<bool>>(StepSecondLastCommand.ExecuteAsync( /* isSilent */ true));
         if (await stepSecondLastTask == false) return;
 
-        await StepFirstLastCommand.ExecuteAsync( /* isNotSilent */ false);
+        await StepFirstLastCommand.ExecuteAsync( /* isSilent */ true);
     }
 }
