@@ -182,7 +182,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool? isKeepRawImageCIBProfileModeEnum = null,
         bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
@@ -194,7 +194,8 @@ public sealed class CIBViewModel(
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            async () =>
+            isKeepRawImageCIBProfileModeEnum,
+            async (isKeepRawImageResult) =>
             {
                 if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
 
@@ -206,7 +207,7 @@ public sealed class CIBViewModel(
                     cibInformations,
                     isForward,
                     isAutoFocus,
-                    isKeepRawImageCIBProfileModeEnum,
+                    isKeepRawImageResult,
                     isCustomAFParam,
                     cancellationToken);
 
@@ -228,7 +229,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool? isKeepRawImageCIBProfileModeEnum = null,
         bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
@@ -268,7 +269,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool? isKeepRawImageCIBProfileModeEnum = null,
         bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
@@ -280,7 +281,8 @@ public sealed class CIBViewModel(
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            async () =>
+            isKeepRawImageCIBProfileModeEnum,
+            async (isKeepRawImageResult) =>
             {
                 if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
 
@@ -291,7 +293,7 @@ public sealed class CIBViewModel(
                     imageWidth,
                     cibInformation,
                     isAutoFocus,
-                    isKeepRawImageCIBProfileModeEnum,
+                    isKeepRawImageResult,
                     isCustomAFParam,
                     cancellationToken);
 
@@ -317,7 +319,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool? isKeepRawImageCIBProfileModeEnum = null,
         bool isCustomAFParam = false)
         => await GetPMTImagesAsync(
             productivityInformation,
@@ -329,7 +331,8 @@ public sealed class CIBViewModel(
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            async () =>
+            isKeepRawImageCIBProfileModeEnum,
+            async (isKeepRawImageResult) =>
             {
                 if (isCustomAFParam) Guard.IsTrue(isAutoFocus);
 
@@ -341,7 +344,7 @@ public sealed class CIBViewModel(
                     cibInformations,
                     isForward,
                     isAutoFocus,
-                    isKeepRawImageCIBProfileModeEnum,
+                    isKeepRawImageResult,
                     isCustomAFParam,
                     cancellationToken);
 
@@ -363,7 +366,7 @@ public sealed class CIBViewModel(
         CancellationToken cancellationToken,
         bool isForward = true,
         bool isAutoFocus = true,
-        bool isKeepRawImageCIBProfileModeEnum = false,
+        bool? isKeepRawImageCIBProfileModeEnum = null,
         bool isCustomAFParam = false)
     {
         var darkFieldImages = await GetPMTImagesAsync(
@@ -405,7 +408,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool? isKeepRawImageCIBProfileModeEnum = null)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -416,7 +419,8 @@ public sealed class CIBViewModel(
             customCIBConfiguration,
             customPrescanAODWaveform,
             isCustomChirpAODWaveform,
-            async () =>
+            isKeepRawImageCIBProfileModeEnum,
+            async (isKeepRawImageResult) =>
             {
                 var ret = await calibrationCIBService.GetPMTImagesAsync(
                     productivityInformation,
@@ -427,7 +431,7 @@ public sealed class CIBViewModel(
                     stopECS,
                     cibInformations,
                     isForward,
-                    isKeepRawImageCIBProfileModeEnum,
+                    isKeepRawImageResult,
                     cancellationToken);
 
                 return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
@@ -449,7 +453,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool? isKeepRawImageCIBProfileModeEnum = null)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -486,7 +490,7 @@ public sealed class CIBViewModel(
         bool isCustomChirpAODWaveform,
         CancellationToken cancellationToken,
         bool isForward = true,
-        bool isKeepRawImageCIBProfileModeEnum = false)
+        bool? isKeepRawImageCIBProfileModeEnum = null)
     {
         var resulList = new List<DarkFieldImageDTO>();
 
@@ -539,7 +543,8 @@ public sealed class CIBViewModel(
         (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
         (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
         bool isCustomChirpAODWaveform,
-        Func<Task<T>> func)
+        bool? isKeepRawImageCIBProfileModeEnum,
+        Func<bool, Task<T>> func)
     {
         try
         {
@@ -570,8 +575,7 @@ public sealed class CIBViewModel(
                         break;
                 }
             }
-            else
-                Guard.IsNull(customCalChip.CalChipSiteModelEnum);
+            else Guard.IsNull(customCalChip.CalChipSiteModelEnum);
 
             if (customOpticsConfiguration.IsCustom == false)
             {
@@ -579,17 +583,16 @@ public sealed class CIBViewModel(
 
                 opticsViewModel.SetOpticsConfiguration(customOpticsConfiguration.OpticsConfiguration);
             }
-            else
-                Guard.IsNull(customOpticsConfiguration.OpticsConfiguration);
+            else Guard.IsNull(customOpticsConfiguration.OpticsConfiguration);
 
             if (customCIBConfiguration.IsCustom == false)
             {
                 Guard.IsNotNull(customCIBConfiguration.CIBConfiguration);
+                Guard.IsNull(isKeepRawImageCIBProfileModeEnum);
 
                 SetCIBConfiguration(cibInformations, customCIBConfiguration.CIBConfiguration);
             }
-            else
-                Guard.IsNull(customCIBConfiguration.CIBConfiguration);
+            else Guard.IsNull(customCIBConfiguration.CIBConfiguration);
 
             if (customPrescanAODWaveform.IsCustom == false)
             {
@@ -597,15 +600,14 @@ public sealed class CIBViewModel(
 
                 laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, customPrescanAODWaveform.LaserLightInformation.Coefficient);
             }
-            else
-                Guard.IsNull(customPrescanAODWaveform.LaserLightInformation);
+            else Guard.IsNull(customPrescanAODWaveform.LaserLightInformation);
 
             if (isCustomChirpAODWaveform == false)
             {
                 laserViewModel.SetChirpAODWaveProfile(productivityInformation);
             }
 
-            return await func();
+            return await func(customCIBConfiguration.CIBConfiguration?.IsKeepRawImageCIBProfileModeEnum ?? isKeepRawImageCIBProfileModeEnum ?? false);
         }
         finally
         {

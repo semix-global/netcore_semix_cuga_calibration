@@ -341,7 +341,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                         (true, null),
                         (true, null),
                         false,
-                        cancellationToken);
+                        cancellationToken,
+                        isKeepRawImageCIBProfileModeEnum: false);
 
                     Logger.LogHtmlInformation($"{coefficient:0.###}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
@@ -838,7 +839,8 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
             (true, null),
             (true, null),
             false,
-            cancellationToken);
+            cancellationToken,
+            isKeepRawImageCIBProfileModeEnum: false);
 
         Logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header5, HtmlLogUniqueId.LoggingHtml());
 

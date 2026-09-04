@@ -60,9 +60,6 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
     public partial double ECS { get; set; } = 6000;
 
     [ObservableProperty]
-    public partial bool IsKeepRawImageCIBProfileModeEnum { get; set; }
-
-    [ObservableProperty]
     public partial bool IsGenerateAODWaveform { get; set; }
 
     [ObservableProperty]
@@ -99,7 +96,6 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 IsForward,
                 IsAutoFocus,
                 ECS,
-                IsKeepRawImageCIBProfileModeEnum
             },
             OpticsGrabbingImageTypeEnum.PTP => new
             {
@@ -114,7 +110,6 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 IsForward,
                 IsAutoFocus,
                 ECS,
-                IsKeepRawImageCIBProfileModeEnum
             },
             OpticsGrabbingImageTypeEnum.PEG => new
             {
@@ -131,7 +126,6 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 IsForward,
                 IsAutoFocus,
                 ECS,
-                IsKeepRawImageCIBProfileModeEnum
             },
             OpticsGrabbingImageTypeEnum.XZSync => new
             {
@@ -146,7 +140,6 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
                 IsForward,
-                IsKeepRawImageCIBProfileModeEnum
             },
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(opticsGrabbingImageTypeEnum))
         };

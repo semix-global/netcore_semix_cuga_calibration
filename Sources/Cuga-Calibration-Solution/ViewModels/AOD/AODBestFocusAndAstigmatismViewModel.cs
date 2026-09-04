@@ -769,9 +769,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 (false, Cache.Item.CIBConfiguration),
                 (false, Cache.Item.LaserLightInformation),
                 true,
-                cancellationToken,
-                isKeepRawImageCIBProfileModeEnum: Cache.Item.CIBConfiguration.CIBProfileMode ==
-                                                  CIBProfileModeEnum.PMTVoltage).ConfigureAwait(false);
+                cancellationToken).ConfigureAwait(false);
 
             foreach (var darkFieldImage in darkFieldImages)
             {

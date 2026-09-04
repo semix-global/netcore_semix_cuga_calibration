@@ -543,8 +543,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                         (false, Cache.CIBConfiguration),
                         (false, Cache.LaserLightInformation),
                         false,
-                        cancellationToken,
-                        isKeepRawImageCIBProfileModeEnum: false);
+                        cancellationToken);
 
                     foreach (var darkFieldImageDTO in darkFieldImages.Where(t => allChannelCurrentPoses.Select(tt => tt.channelID).Contains(t.CIBInformation.ChannelId)))
                     {
