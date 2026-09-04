@@ -5,10 +5,12 @@ using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Exceptions;
+using Local.SQL.DB.Providers.Repositories.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -20,7 +22,7 @@ namespace CugaCalibration.ViewModels;
 public partial class LoginWindowViewModel(
     ISysUserService sysUserService,
     ISysRoleService sysRoleService,
-    ISysMenuService sysMenuService,
+    ISysUserRoleService sysUserRoleService,
     ILogger<LoginWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
     IHostEnvironment hostEnvironment,
@@ -50,33 +52,28 @@ public partial class LoginWindowViewModel(
             }
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(150000));
-            sysUserService.EnableCascadeSave(true);
 
             var cugaRegisterUsers = configViewModel.GetRegisteredUsersInformation();
 
             var allUsers = await sysUserService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-            var adminUser = allUsers.First(t => t.IsAdmin);
+
+            var allRoles = await sysRoleService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+            var userRole = allRoles.Single(t => t.Id == 3);
 
             foreach (var registerUser in cugaRegisterUsers)
             {
-                SysUserDTO userDTO;
                 var user = allUsers.SingleOrDefault(t => t.UserName == registerUser.UserName);
-
-                if (user != null)
-                {
-                    // 已存在用户: 仅同步基本信息
-                    user.Password = registerUser.Password;
-                    userDTO = user;
-                }
-                else
+                if (user == null)
                 {
                     // 首次加入的用户: 分配 admin 角色
-                    registerUser.SysRoleList = [adminUser.SysRoleList.Single(t => t.IsAdmin)];
-                    userDTO = registerUser;
-                }
+                    registerUser.SysRoleList = [userRole];
 
-                if (await sysUserService.InsertAsync(userDTO, cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                    ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
+                    if (await sysUserService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
+
+                    if (await sysUserRoleService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user Roles failed!");
+                }
             }
 
             var users = await sysUserService.GetAllAsync(CancellationToken.None).ConfigureAwait(false);
