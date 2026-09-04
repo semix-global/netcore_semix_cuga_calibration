@@ -12,7 +12,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
     AbstractAODWaveformElectrodeOffsetWindowViewModel<ChirpAODWaveformElectrodeOffsetCache, ChirpAODWaveformElectrodeOffsetItem, ChirpAODWaveformElectrodeOffsetResult>
 {
-    public override string Name => "Chirp AOD Waveform Electrode Offset";
+    public override string Name => "Chirp AOD Waveform Electrode Offset V2";
 
     [DefaultCache]
     public override ChirpAODWaveformElectrodeOffsetCache Cache
@@ -48,11 +48,9 @@ public sealed class ChirpAODWaveformElectrodeOffsetWindowViewModel :
             Logger.LogHtmlInformation("AOD Waveform", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
                 FlatnessGeneratePrescanAODWaveformParam = new HtmlQuote(Cache.FlatnessGeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                PrescanAODWaveformResultFilePath = prescanAODWaveformResultFilePath,
-                PrescanAODWaveformProfiles = new HtmlTable([.. prescanAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
+                prescanAODWaveformResultFilePath,
                 FlatnessGenerateChirpAODWaveformParam = new HtmlQuote(Cache.FlatnessGenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-                ChirpAODWaveformResultFilePath = chirpAODWaveformResultFilePath,
-                ChirpAODWaveformProfiles = new HtmlTable([.. chirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())])
+                chirpAODWaveformResultFilePath
             }), htmlLogUniqueId.LoggingHtml());
         }
 

@@ -68,7 +68,7 @@ public sealed partial class MicroscopeFocusDTO : CalibrationDTOBase<MicroscopeFo
 
             PlotDataSource.GetOrAddScatterLine(
                 0,
-                $"Focus",
+                "Focus",
                 [.. Items.Select(t => new Point(t.EcsValue, t.Quality))],
                 Constants.Category10.GetColor(0));
 

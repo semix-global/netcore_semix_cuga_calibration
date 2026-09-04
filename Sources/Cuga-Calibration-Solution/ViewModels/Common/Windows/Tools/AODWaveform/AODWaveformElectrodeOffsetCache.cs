@@ -18,16 +18,19 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double OffsetFrequency { get; set; }
 
     [ObservableProperty]
-    public partial double[] Frequencies { get; set; } = [];
+    public partial AODWaveformElectrodeOffsetFrequency[] AODWaveformElectrodeOffsetFrequencies { get; set; } = [];
+
+    [ObservableProperty]
+    public partial int DetailLogInterval { get; set; } = 5;
 
     [ObservableProperty]
     public partial int NoiseMeasureTimes { get; set; } = 20;
 
     [ObservableProperty]
-    public partial double ScoreLambda { get; set; } = 1d;
+    public partial double ScoreLambda { get; set; } = 0d;
 
     [ObservableProperty]
-    public partial double ScoreGamma { get; set; } = 0.5;
+    public partial double ScoreGamma { get; set; } = 0d;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
@@ -51,9 +54,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
 
-    [ObservableProperty]
-    public partial int DetailLogInterval { get; set; } = 20;
-
     #endregion Step1 Param
 
     #region Items
@@ -75,6 +75,21 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial GenerateAODWaveformElectrodeConfiguration[] ElectrodeConfigurationResults { get; set; } = [];
 
     #endregion Result
+
+    [RelayCommand]
+    private void AddAODWaveformElectrodeOffsetFrequency() => AODWaveformElectrodeOffsetFrequencies = [.. AODWaveformElectrodeOffsetFrequencies, new AODWaveformElectrodeOffsetFrequency()];
+
+    [RelayCommand]
+    private void RemoveAODWaveformElectrodeOffsetFrequencies(IEnumerable? selectItems)
+    {
+        if (selectItems is null) return;
+
+        var frequencyList = AODWaveformElectrodeOffsetFrequencies.ToList();
+
+        foreach (AODWaveformElectrodeOffsetFrequency selectItem in selectItems) frequencyList.Remove(selectItem);
+
+        AODWaveformElectrodeOffsetFrequencies = [.. frequencyList];
+    }
 
     [RelayCommand]
     private void AddElectrodeOffsetFrequencyPeriodParam()
@@ -114,7 +129,8 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public override object ToHtmlAnonymous() => new
     {
         OffsetFrequency,
-        Frequencies,
+        AODWaveformElectrodeOffsetFrequencies = new HtmlTable([.. AODWaveformElectrodeOffsetFrequencies.Select(t => t.ToHtmlAnonymous())]),
+        DetailLogInterval,
         NoiseMeasureTimes,
         ScoreLambda,
         ScoreGamma,
@@ -124,7 +140,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
         AlgorithmAcquisitionFunctionEnum,
         AlgorithmUniformityAnchorCount,
         AlgorithmRetryTimes,
-        DetailLogInterval,
         Noise,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };

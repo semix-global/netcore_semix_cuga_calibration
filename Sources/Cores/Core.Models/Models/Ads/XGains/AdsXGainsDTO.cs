@@ -75,19 +75,21 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource X3X4PlotDataSource { get; set; } = new PlotDataSource();
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
     partial void OnBestX1X2ItemsChanged(AdsXGainsDTOItem[] value) => RefreshX1X2Plot();
 
     partial void OnBestX3X4ItemsChanged(AdsXGainsDTOItem[] value) => RefreshX3X4Plot();
 
+    // ReSharper restore UnusedParameterInPartialMethod
+
     public AdsXGainsDTO()
     {
-        X1X2PlotDataSource.Configure();
-        X1X2PlotDataSource.SetTitle(0, "X1X2Plot(Y: X1/X2 Value - X: Speed(mm/s))");
-        X1X2PlotDataSource.ToggleLegend(0, true);
+        X1X2PlotDataSource.SetTitle("X1X2Plot(Y: X1/X2 Value - X: Speed(mm/s))");
+        X1X2PlotDataSource.ToggleLegend(true);
 
-        X3X4PlotDataSource.Configure();
-        X3X4PlotDataSource.SetTitle(0, "X3X4Plot(Y: X3/X4 Value - X: Speed(mm/s))");
-        X3X4PlotDataSource.ToggleLegend(0, true);
+        X3X4PlotDataSource.SetTitle("X3X4Plot(Y: X3/X4 Value - X: Speed(mm/s))");
+        X3X4PlotDataSource.ToggleLegend(true);
     }
 
     private void RefreshX1X2Plot()
@@ -106,10 +108,10 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var plot = new[] { y1, y2 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            X1X2PlotDataSource.GetOrAddScatterLine(0, $"X1", plot[0]);
-            X1X2PlotDataSource.GetOrAddScatterLine(0, $"X2", plot[1]);
-            X1X2PlotDataSource.GetOrAddScatterLine(0, $"SmoothX1: " + PolynomialCurve.ToString2(X1P0, X1P1, X1P2, rSquared1, "0.########"), smooth[0]);
-            X1X2PlotDataSource.GetOrAddScatterLine(0, $"SmoothX2: " + PolynomialCurve.ToString2(X2P0, X2P1, X2P2, rSquared2, "0.########"), smooth[1]);
+            X1X2PlotDataSource.GetOrAddScatterLine("X1", plot[0]);
+            X1X2PlotDataSource.GetOrAddScatterLine("X2", plot[1]);
+            X1X2PlotDataSource.GetOrAddScatterLine("SmoothX1: " + PolynomialCurve.ToString2(X1P0, X1P1, X1P2, rSquared1, "0.########"), smooth[0]);
+            X1X2PlotDataSource.GetOrAddScatterLine("SmoothX2: " + PolynomialCurve.ToString2(X2P0, X2P1, X2P2, rSquared2, "0.########"), smooth[1]);
         }
         finally
         {
@@ -133,10 +135,10 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var plot = new[] { y1, y2 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            X3X4PlotDataSource.GetOrAddScatterLine(0, $"X3", plot[0]);
-            X3X4PlotDataSource.GetOrAddScatterLine(0, $"X4", plot[1]);
-            X3X4PlotDataSource.GetOrAddScatterLine(0, $"SmoothX3: " + PolynomialCurve.ToString2(X3P0, X3P1, X3P2, rSquared1, "0.########"), smooth[0]);
-            X3X4PlotDataSource.GetOrAddScatterLine(0, $"SmoothX4: " + PolynomialCurve.ToString2(X4P0, X4P1, X4P2, rSquared2, "0.########"), smooth[1]);
+            X3X4PlotDataSource.GetOrAddScatterLine("X3", plot[0]);
+            X3X4PlotDataSource.GetOrAddScatterLine("X4", plot[1]);
+            X3X4PlotDataSource.GetOrAddScatterLine("SmoothX3: " + PolynomialCurve.ToString2(X3P0, X3P1, X3P2, rSquared1, "0.########"), smooth[0]);
+            X3X4PlotDataSource.GetOrAddScatterLine("SmoothX4: " + PolynomialCurve.ToString2(X4P0, X4P1, X4P2, rSquared2, "0.########"), smooth[1]);
         }
         finally
         {
@@ -245,6 +247,7 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
         [ObservableProperty]
         public partial IPlotDataSource HrpPlotDataSource { get; set; } = new PlotDataSource();
 
+        // ReSharper disable UnusedParameterInPartialMethod
         partial void OnPlotZ1OrZ3Changed(Point[] value) => RefreshPlot();
 
         partial void OnPlotZ2OrZ4Changed(Point[] value) => RefreshPlot();
@@ -257,15 +260,15 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
 
         partial void OnPlotPChanged(Point[] value) => RefreshHrpPlot();
 
+        // ReSharper restore UnusedParameterInPartialMethod
+
         public AdsXGainsDTOItem()
         {
-            ZPlotDataSource.Configure();
-            ZPlotDataSource.SetTitle(0, "PlotZ(Y: Z1/Z2(um) Speed(mm/s) - X: Time(ms))");
-            ZPlotDataSource.ToggleLegend(0, true);
+            ZPlotDataSource.SetTitle("PlotZ(Y: Z1/Z2(um) Speed(mm/s) - X: Time(ms))");
+            ZPlotDataSource.ToggleLegend(true);
 
-            HrpPlotDataSource.Configure();
-            HrpPlotDataSource.SetTitle(0, "PlotHRP(Y: Height Roll Pitch Value(um) - X: Time(ms))");
-            HrpPlotDataSource.ToggleLegend(0, true);
+            HrpPlotDataSource.SetTitle("PlotHRP(Y: Height Roll Pitch Value(um) - X: Time(ms))");
+            HrpPlotDataSource.ToggleLegend(true);
         }
 
         private void RefreshPlot()
@@ -273,13 +276,13 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var (index1, index2) = IsPositive ? ("1", "2") : ("3", "4");
             try
             {
-                ZPlotDataSource.GetOrAddScatterLine(0, $"Z{index1}", PlotZ1OrZ3);
-                ZPlotDataSource.GetOrAddScatterLine(0, $"Z{index2}", PlotZ2OrZ4);
+                ZPlotDataSource.GetOrAddScatterLine($"Z{index1}", PlotZ1OrZ3);
+                ZPlotDataSource.GetOrAddScatterLine($"Z{index2}", PlotZ2OrZ4);
 
-                ZPlotDataSource.GetOrAddScatterLine(0, $"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ3], 501));
-                ZPlotDataSource.GetOrAddScatterLine(0, $"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ4], 501));
+                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ3], 501));
+                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ4], 501));
 
-                ZPlotDataSource.GetOrAddScatterLine(0, $"Speed", Speeds);
+                ZPlotDataSource.GetOrAddScatterLine("Speed", Speeds);
             }
             finally
             {
@@ -291,9 +294,9 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
         {
             try
             {
-                HrpPlotDataSource.GetOrAddScatterLine(0, $"H", PlotH);
-                HrpPlotDataSource.GetOrAddScatterLine(0, $"R", PlotR);
-                HrpPlotDataSource.GetOrAddScatterLine(0, $"P", PlotP);
+                HrpPlotDataSource.GetOrAddScatterLine("Height", PlotH);
+                HrpPlotDataSource.GetOrAddScatterLine("Roll", PlotR);
+                HrpPlotDataSource.GetOrAddScatterLine("Pitch", PlotP);
             }
             finally
             {
