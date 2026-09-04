@@ -12,7 +12,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 public sealed class V0PrescanAODWaveformElectrodeOffsetWindowViewModel :
     V0AbstractAODWaveformElectrodeOffsetWindowViewModel<V0PrescanAODWaveformElectrodeOffsetCache, V0PrescanAODWaveformElectrodeOffsetItem, V0PrescanAODWaveformElectrodeOffsetResult>
 {
-    public override string Name => "Prescan AOD Waveform Electrode Offset";
+    public override string Name => "Prescan AOD Waveform Electrode Offset V1";
 
     [DefaultCache]
     public override V0PrescanAODWaveformElectrodeOffsetCache Cache
