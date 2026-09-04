@@ -64,7 +64,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
-            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(false));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
             Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeOffsetFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
@@ -214,7 +214,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
-            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(true));
+            Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(false));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
             Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeOffsetFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);

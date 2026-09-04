@@ -17,7 +17,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
     where TItem : V0AODWaveformElectrodeOffsetItem, new()
     where TResult : V0AODWaveformElectrodeOffsetResult, new()
 {
-    public readonly IReadOnlyList<OpticsAODElectrodeEnum> OpticsAODElectrodeEnums = [OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4];
+    private readonly IReadOnlyList<OpticsAODElectrodeEnum> _opticsAODElectrodeEnums = [OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4];
 
     public override string[] Steps { get; } =
     [
@@ -57,7 +57,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                 Cache.Step0Items = [];
                 Cache.ElectrodeConfigurationResults =
                 [
-                    .. OpticsAODElectrodeEnums.Select(t => new GenerateAODWaveformElectrodeConfiguration
+                    .. _opticsAODElectrodeEnums.Select(t => new GenerateAODWaveformElectrodeConfiguration
                     {
                         OpticsAODElectrodeEnum = t,
                         OffsetFrequency = Cache.OffsetFrequency,
@@ -81,7 +81,7 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
                     await InvokeElectrodeMaxMeasurePowerAsync([OpticsAODElectrodeEnum.Electrode1, OpticsAODElectrodeEnum.Electrode2, OpticsAODElectrodeEnum.Electrode3, OpticsAODElectrodeEnum.Electrode4], Cache.Electrode3OffsetFrequencyPeriodParam,
                         Cache.Electrode3Weights).ConfigureAwait(false);
 
-                    isSuccess = Cache.ElectrodeConfigurationResults.Count == OpticsAODElectrodeEnums.Count;
+                    isSuccess = Cache.ElectrodeConfigurationResults.Count == _opticsAODElectrodeEnums.Count;
                 }
                 finally
                 {
@@ -394,7 +394,9 @@ public abstract partial class V0AbstractAODWaveformElectrodeOffsetWindowViewMode
 
             Guard.IsEqualTo(Cache.ElectrodeConfigurationResults.Count, Cache.IsOnlyElectrode4 ? 4 : Cache.ElectrodeOffsetFrequencyPeriodParams.Count);
             Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyUniformityParams);
-            Guard.IsTrue(Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
+            Guard.IsTrue(Cache.IsOnlyElectrode4
+                ? Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => _opticsAODElectrodeEnums.Any(tt => t.OpticsAODElectrodeEnum == tt))
+                : Cache.ElectrodeOffsetFrequencyUniformityParams.All(t => Cache.ElectrodeOffsetFrequencyPeriodParams.Any(tt => t.OpticsAODElectrodeEnum == tt.OpticsAODElectrodeEnum)));
             Guard.IsGreaterThanOrEqualTo(Cache.ElectrodeOffsetFrequencyUniformityParams.Count, Cache.ElectrodeOffsetFrequencyUniformityParamChunkSize);
             Guard.IsGreaterThanOrEqualTo(Cache.Frequencies.Count, 2);
             Guard.IsTrue(Cache.Frequencies.IsIncreasing(true));

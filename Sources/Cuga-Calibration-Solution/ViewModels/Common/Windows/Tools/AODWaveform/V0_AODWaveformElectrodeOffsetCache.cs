@@ -75,11 +75,9 @@ public partial class V0AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWave
     #region Items
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem>> Step0Items { get; set; } = [];
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
     public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyUniformity<TItem>> Step1Items { get; set; } = [];
 
     #endregion Items
