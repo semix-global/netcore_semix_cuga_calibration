@@ -74,12 +74,7 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Channel 1 Image">
-            <Border Margin="5"
-                    Padding="1"
-                    BorderBrush="{StaticResource PrimaryBrush}"
-                    BorderThickness="2"
-                    CornerRadius="3"
-                    Style="{StaticResource BorderRegion}">
+            <Border Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel1Item.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>

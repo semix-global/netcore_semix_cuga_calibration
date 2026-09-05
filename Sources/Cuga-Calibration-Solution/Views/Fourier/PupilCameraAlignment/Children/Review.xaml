@@ -26,18 +26,6 @@
                 <hc:Shield Subject="Review: "
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Productivity: "
-                           Status="{Binding Cache.ProductivityInformation}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Microscope: "
-                           Status="{Binding Cache.MicroscopeLensInformation}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Laser Light: "
-                           Status="{Binding Cache.LaserLightInformation}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Haze BF Machine Position(um): "
-                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -47,30 +35,33 @@
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
                         <TextBox Text="{Binding Review.Channel1Item.ImageROI, Mode=OneWay}"
                                  hc:TitleElement.Title="Channel 1 ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding Review.Channel2Item.ImageROI, Mode=OneWay}"
                                  hc:TitleElement.Title="Channel 2 ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding Review.Channel3Item.ImageROI, Mode=OneWay}"
                                  hc:TitleElement.Title="Channel 3 ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Verify"
+                            <Button Content="Action"
                                     Command="{Binding VerifyCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
@@ -84,35 +75,20 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="Images">
-            <TabControl Margin="5">
+        <GroupBox Grid.Column="2" Header="History">
+            <TabControl>
                 <TabItem Header="Channel 1">
-                    <Border Margin="5"
-                            Padding="1"
-                            BorderBrush="{StaticResource PrimaryBrush}"
-                            BorderThickness="2"
-                            CornerRadius="3"
-                            Style="{StaticResource BorderRegion}">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Channel 2">
-                    <Border Margin="5"
-                            Padding="1"
-                            BorderBrush="{StaticResource PrimaryBrush}"
-                            BorderThickness="2"
-                            CornerRadius="3"
-                            Style="{StaticResource BorderRegion}">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Channel 3">
-                    <Border Margin="5"
-                            Padding="1"
-                            BorderBrush="{StaticResource PrimaryBrush}"
-                            BorderThickness="2"
-                            CornerRadius="3"
-                            Style="{StaticResource BorderRegion}">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel3Item.Document, Mode=OneWay}" />
                     </Border>
                 </TabItem>

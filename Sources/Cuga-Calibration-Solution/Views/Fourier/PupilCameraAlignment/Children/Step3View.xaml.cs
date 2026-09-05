@@ -1,8 +1,8 @@
 namespace CugaCalibration.Views.Fourier.PupilCameraAlignment.Children;
 
-public partial class Step4View
+public partial class Step3View
 {
-    public Step4View()
+    public Step3View()
     {
         InitializeComponent();
     }
