@@ -41,9 +41,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         base.Init(args);
 
-        ClearSelection();
-        ImmutableInterlocked.Update(ref _originals, _ => []);
-        ResetInteractionState();
+        Reset();
 
         if (Options.BitmapImageDrawable.BitmapImage?.IsEmpty != false)
         {
@@ -61,6 +59,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable)))
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
+            bitmapImageROIDrawable.IsModified = false;
             ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsModified)));
         }
 
@@ -121,6 +120,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             else
             {
                 _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
+
                 foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>())
                 {
                     ImmutableInterlocked.Update(ref _edits, t => t.Add((rectROIDrawable, rectROIDrawable.Rect)));
@@ -188,7 +188,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorUpInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        if (_selectionWindow is not null) CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
+        if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Released) == false) return;
+
+        if (_selectionWindow is not null)
+        {
+            _selectionWindow.EndPoint = eventInputArgs.Event.Point.ImageCoordinateRound();
+            CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
+        }
 
         Edit.Document.View.CanvasControl?.CursorTypeEnum = _lastCursorTypeEnum;
 
@@ -242,8 +248,14 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             }
         }
 
+        Reset();
+    }
+
+    private void Reset()
+    {
         ClearSelection();
         ImmutableInterlocked.Update(ref _originals, _ => []);
+
         ResetInteractionState();
     }
 
@@ -297,6 +309,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         BitmapImageROIDrawable[] selectedItems =
         [
             .. opticsFourierImageDocument.ROIModel
+                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable))
                 .Where(t => selectionWindow.GetExtents().IntersectsWith(t.GetExtents()))
         ];
 

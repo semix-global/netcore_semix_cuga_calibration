@@ -31,13 +31,13 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 
     [ObservableProperty]
-    public partial FillStyle FillStyle { get; set; } = new(SKColors.Transparent);
+    public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(128));
 
     [ObservableProperty]
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
-    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 128d);
+    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 256d);
 
     [ObservableProperty]
     public partial FillStyle TextForeground { get; set; } = new(SKColors.Red);
@@ -55,7 +55,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
     [ObservableProperty]
-    public partial bool IsModified { get; set; }
+    public partial bool IsModified { get; internal set; }
 
     // ReSharper disable UnusedParameterInPartialMethod
 

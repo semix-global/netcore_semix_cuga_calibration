@@ -80,8 +80,7 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         _bitmapImageDrawable = new BitmapImageDrawable();
         _bitmapImageROIDrawable = new BitmapImageROIDrawable(_bitmapImageDrawable)
         {
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All,
-            FillStyle = new FillStyle(SKColors.Red.WithAlpha(128))
+            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All
         };
 
         Document = new OpticsFourierImageDocument();
