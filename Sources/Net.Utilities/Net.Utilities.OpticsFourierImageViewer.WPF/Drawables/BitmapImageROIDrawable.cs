@@ -31,7 +31,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 
     [ObservableProperty]
-    public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(128));
+    public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(200));
 
     [ObservableProperty]
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);

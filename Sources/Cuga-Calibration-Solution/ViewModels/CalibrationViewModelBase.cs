@@ -29,11 +29,16 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     #region 公开
 
+    private bool _isLoaded;
+
     [RelayCommand]
     public async Task LoadedAsync()
     {
         try
         {
+            if (_isLoaded) return;
+            _isLoaded = true;
+
             Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingClearHtml());
 
             UpdateLoadingStatus();
@@ -167,6 +172,10 @@ public partial class CalibrationViewModelBase : ViewModelBase
         {
             Logger.LogCritical(ex, "{@Name}: Cancel Exception", Name);
             UpdateFailedStatus();
+        }
+        finally
+        {
+            _isLoaded = false;
         }
     }
 

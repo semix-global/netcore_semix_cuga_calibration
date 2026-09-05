@@ -463,12 +463,14 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 (false, Cache.LaserLightInformation),
                 false,
                 cancellationToken);
-            
-            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header1, new HtmlTable([..darkFieldImages.Select(t=>new
-            {
-                t.RawImageFilePath,
-                t.CIBInformation
-            })]), HtmlLogUniqueId.LoggingHtml());
+
+            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header1, new HtmlTable([
+                .. darkFieldImages.Select(t => new
+                {
+                    t.RawImageFilePath,
+                    t.CIBInformation
+                })
+            ]), HtmlLogUniqueId.LoggingHtml());
 
             if (hostEnvironment.IsDevelopment()) darkFieldImages = GetMockImages([.. cibInformations], isScribe); // mock
 
@@ -481,9 +483,9 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 var subFilePath = Path.Combine(ImageDirectory, "SubImages", imageFileName);
 
                 using var signalDrawImage = dto.Image.ToROI(Cache.SignalROI);
-               // using var quietDrawImage = signalDrawImage.ToROI(Cache.QuietROI);
-                using var quietDrawImage =  dto.Image.ToROI(Cache.QuietROI);
-               // quietDrawImage.Save(filePath);
+                // using var quietDrawImage = signalDrawImage.ToROI(Cache.QuietROI);
+                using var quietDrawImage = dto.Image.ToROI(Cache.QuietROI);
+                // quietDrawImage.Save(filePath);
 
                 var (signalRoi, quietRoi) = Cache.SignalROI.Intersection(Cache.QuietROI);
 
