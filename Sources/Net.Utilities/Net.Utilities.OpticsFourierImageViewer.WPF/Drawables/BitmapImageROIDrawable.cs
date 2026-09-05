@@ -13,6 +13,7 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
+    private static readonly FillStyle FixedBackgroundFillStyle = new(SKColors.Gray.WithAlpha(128));
     private static readonly FillStyle TextBackground = new(SKColors.Transparent);
     private static readonly LineStyle TextBorder = new(SKColors.Transparent);
 
@@ -49,6 +50,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial bool IsShowCrossLine { get; set; }
 
     [ObservableProperty]
+    public partial bool IsFixed { get; set; }
+
+    [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
 
     [ObservableProperty]
@@ -60,6 +64,8 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public override void Draw(Renderer renderer)
     {
         if (Rect.IsEmpty) return;
+
+        if (IsFixed) renderer.FillRectangle(FixedBackgroundFillStyle, Rect);
 
         renderer.FillRectangle(FillStyle, Rect);
         renderer.DrawRectangle(LineStyle, Rect);

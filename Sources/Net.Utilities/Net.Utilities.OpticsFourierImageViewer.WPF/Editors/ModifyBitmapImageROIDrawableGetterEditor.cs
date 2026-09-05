@@ -24,6 +24,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 {
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _originals = [];
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _edits = [];
+    private readonly Stack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)>> _undoStack = [];
+    private readonly Stack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)>> _redoStack = [];
 
     private CursorTypeEnum? _lastCursorTypeEnum;
     private Point _lastMousePoint;
@@ -58,7 +60,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
-                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible))
+                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible && t.IsFixed == false))
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
             bitmapImageROIDrawable.IsEditorModified = false;
@@ -123,7 +125,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             {
                 _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
 
-                foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>())
+                foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Where(t => t.IsFixed == false))
                 {
                     ImmutableInterlocked.Update(ref _edits, t => t.Add((rectROIDrawable, rectROIDrawable.Rect)));
                 }
@@ -158,7 +160,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             selectedBitmapImageROIDrawable = null;
             selectedControlPoint = null;
 
-            var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().ToArray();
+            var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Where(t => t.IsFixed == false).ToArray();
             if (selectedRectROIDrawables.Length == 0) return false;
 
             var controlPointPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.ControlPointPickDistance);
@@ -198,6 +200,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
         }
 
+        CommitCurrentEdit();
         ResetInteractionState();
 
         eventInputArgs.IsInputValid = true;
@@ -206,6 +209,21 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
+        {
+            var hasCurrentEdit = _edits.IsEmpty == false;
+            CommitCurrentEdit();
+            if (hasCurrentEdit) ResetInteractionState();
+
+            if (eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Shift)) Redo();
+            else Undo();
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Enter)
         {
             _isAccepted = true;
@@ -222,6 +240,19 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         eventInputArgs.IsInputCompleted = false;
     }
 
+    protected override void KeyUpInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
+    {
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
+        {
+            eventInputArgs.IsInputValid = false;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
+        base.KeyUpInput(eventInputArgs);
+    }
+
     protected override void CancelInput()
     {
         if (_isAccepted == false)
@@ -236,10 +267,65 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         Reset();
     }
 
+    private void CommitCurrentEdit()
+    {
+        if (_edits.IsEmpty) return;
+
+        var edit = _edits
+            .Where(t => t.OriginalRect != t.BitmapImageROIDrawable.Rect)
+            .Select(t => (
+                BitmapImageROIDrawable: t.BitmapImageROIDrawable,
+                OriginalRect: t.OriginalRect,
+                ModifiedRect: t.BitmapImageROIDrawable.Rect))
+            .ToImmutableArray();
+
+        if (edit.IsEmpty) return;
+
+        _undoStack.Push(edit);
+        _redoStack.Clear();
+    }
+
+    private void Undo()
+    {
+        if (_undoStack.Count == 0) return;
+
+        var edit = _undoStack.Pop();
+        ApplyHistory(edit, isRedo: false);
+        _redoStack.Push(edit);
+    }
+
+    private void Redo()
+    {
+        if (_redoStack.Count == 0) return;
+
+        var edit = _redoStack.Pop();
+        ApplyHistory(edit, isRedo: true);
+        _undoStack.Push(edit);
+    }
+
+    private void ApplyHistory(ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)> edit, bool isRedo)
+    {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
+        foreach (var item in edit)
+        {
+            item.BitmapImageROIDrawable.Rect = isRedo ? item.ModifiedRect : item.OriginalRect;
+            UpdateEditorModified(item.BitmapImageROIDrawable);
+        }
+    }
+
+    private void UpdateEditorModified(BitmapImageROIDrawable bitmapImageROIDrawable)
+    {
+        bitmapImageROIDrawable.IsEditorModified = _originals.Any(t =>
+            ReferenceEquals(t.BitmapImageROIDrawable, bitmapImageROIDrawable) && t.OriginalRect != bitmapImageROIDrawable.Rect);
+    }
+
     private void Reset()
     {
         ClearSelection();
         ImmutableInterlocked.Update(ref _originals, _ => []);
+        _undoStack.Clear();
+        _redoStack.Clear();
 
         ResetInteractionState();
     }
@@ -296,7 +382,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         BitmapImageROIDrawable[] selectedItems =
         [
             .. opticsFourierImageDocument.ROIModel
-                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible)
+                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible && t.IsFixed == false)
                 .Where(t => selectionWindow.GetExtents().IntersectsWith(t.GetExtents()))
         ];
 
@@ -313,6 +399,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
+        if (bitmapImageROIDrawable.IsFixed) return;
+
         if (Edit.SelectedItems.Contains(bitmapImageROIDrawable))
         {
             bitmapImageROIDrawable.IsSelected = false;
@@ -325,6 +413,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void Select(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
+
+        if (bitmapImageROIDrawable.IsFixed) return;
 
         if (Edit.SelectedItems.Contains(bitmapImageROIDrawable)) return;
 
@@ -402,10 +492,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         foreach (var (bitmapImageROIDrawable, originalRect) in _edits)
         {
-            var oldRect = bitmapImageROIDrawable.Rect;
             bitmapImageROIDrawable.Rect = (originalRect + constrainedDelta).ClampToBounds(imageRect);
-
-            if (bitmapImageROIDrawable.IsEditorModified == false) bitmapImageROIDrawable.IsEditorModified = oldRect != bitmapImageROIDrawable.Rect;
+            UpdateEditorModified(bitmapImageROIDrawable);
         }
     }
 
@@ -446,10 +534,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            var oldRect = bitmapImageROIDrawable.Rect;
             bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
-
-            if (bitmapImageROIDrawable.IsEditorModified == false) bitmapImageROIDrawable.IsEditorModified = oldRect != bitmapImageROIDrawable.Rect;
+            UpdateEditorModified(bitmapImageROIDrawable);
         }
     }
 
