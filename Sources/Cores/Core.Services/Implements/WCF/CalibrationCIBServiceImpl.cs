@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
@@ -17,13 +18,15 @@ using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationCIBServiceImpl(
-    ICalibrationStageService calibrationStageService) : BaseService<ICgCalibrationService>, ICalibrationCIBService
+    ICalibrationStageService calibrationStageService,
+    ILogger<CalibrationCIBServiceImpl> logger) : BaseService<ICgCalibrationService>, ICalibrationCIBService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -146,42 +149,53 @@ public sealed class CalibrationCIBServiceImpl(
 
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
     {
-        var sxExecuteRet = Invoke(() => Service?.GetDcSenseRelationalTables([.. cibInformations.Select(t => (stopGain, startGain, stepGain, t.PMTId, t.ChannelId))]));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(sxExecuteRet.ErrorMsg, []);
+        var timestamp = Stopwatch.GetTimestamp();
 
-        var gains = Generate.LinearRange(startGain, stepGain, stopGain);
-
-        var results = new CIBMMDGainRelationshipDTO[cibInformations.Count][];
-        foreach (var (cibInformationIndex, cibInformation) in cibInformations.Index())
+        try
         {
-            var cgDcSenseRelationalModel = sxExecuteRet.Anything.SingleOrDefault(t => t.PmtId == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
-            if (cgDcSenseRelationalModel is null) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", []);
-            if (cgDcSenseRelationalModel.AvgSense.Count != gains.Length) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to gains length not match for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}, Gain Count {gains.Length} [{string.Join(",", gains)}]", []);
+            logger.LogTrace("Get Optical Measure Power Starting...");
 
-            var cibmmdGains = new CIBMMDGainRelationshipDTO[gains.Length];
+            var sxExecuteRet = Invoke(() => Service?.GetDcSenseRelationalTables([.. cibInformations.Select(t => (stopGain, startGain, stepGain, t.PMTId, t.ChannelId))]));
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(sxExecuteRet.ErrorMsg, []);
 
-            foreach (var (gainIndex, gain) in gains.Index())
+            var gains = Generate.LinearRange(startGain, stepGain, stopGain);
+
+            var results = new CIBMMDGainRelationshipDTO[cibInformations.Count][];
+            foreach (var (cibInformationIndex, cibInformation) in cibInformations.Index())
             {
-                /*
-                 * 范围[-14, 14]归一化数据需要转换为16-bit整数格式进行传输[DSP、FPGA、DAC数字信号转换为模拟信号] // todo: 建议写到cuga里面 [-14, 14] 这个太魔法值了
-                 * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
-                 *
-                 * 归一化映射:
-                 *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) - 1
-                 *    0.0 → 0      (0x0000)
-                 *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
-                 */
-                cibmmdGains[gainIndex] = new CIBMMDGainRelationshipDTO()
-                    .WithCIBInformation(cibInformation)
-                    .WithGain(gain)
-                    .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex].sense))
-                    .WithGainS16Bit((short)Math.Clamp(Math.Round(gain / 14d * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue));
+                var cgDcSenseRelationalModel = sxExecuteRet.Anything.SingleOrDefault(t => t.PmtId == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+                if (cgDcSenseRelationalModel is null) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}", []);
+                if (cgDcSenseRelationalModel.AvgSense.Count != gains.Length) return SxExecuteRetHelper.CreateError<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>($"{nameof(GetCIBMMDGains)} Failed to gains length not match for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId}, Gain Count {gains.Length} [{string.Join(",", gains)}]", []);
+
+                var cibmmdGains = new CIBMMDGainRelationshipDTO[gains.Length];
+
+                foreach (var (gainIndex, gain) in gains.Index())
+                {
+                    /*
+                     * 范围[-14, 14]归一化数据需要转换为16-bit整数格式进行传输[DSP、FPGA、DAC数字信号转换为模拟信号] // todo: 建议写到cuga里面 [-14, 14] 这个太魔法值了
+                     * 16-bit PCM(脉冲编码调制)格式: Int16 范围 [-32768, 32767]
+                     *
+                     * 归一化映射:
+                     *   -1.0 → -32768 (0x8000) Math.Pow(2d, 15d) - 1
+                     *    0.0 → 0      (0x0000)
+                     *   +1.0 → +32767 (0x7FFF) -Math.Pow(2d, 15d)
+                     */
+                    cibmmdGains[gainIndex] = new CIBMMDGainRelationshipDTO()
+                        .WithCIBInformation(cibInformation)
+                        .WithGain(gain)
+                        .WithSenseU14Bit(Convert.ToInt32(cgDcSenseRelationalModel.AvgSense[gainIndex].sense))
+                        .WithGainS16Bit((short)Math.Clamp(Math.Round(gain / 14d * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue));
+                }
+
+                results[cibInformationIndex] = cibmmdGains;
             }
 
-            results[cibInformationIndex] = cibmmdGains;
+            return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
         }
-
-        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>>(results);
+        finally
+        {
+            logger.LogTrace("Get Optical Measure Power Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
     }
 
     public SxExecuteRet<bool> SetGlobalRTFCParams(ProductivityInformation productivityInformation)

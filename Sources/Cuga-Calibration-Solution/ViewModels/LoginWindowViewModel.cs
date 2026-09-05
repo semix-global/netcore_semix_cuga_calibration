@@ -81,7 +81,7 @@ public partial class LoginWindowViewModel(
 
             Guard.IsNotEmpty(users, "The user list is empty, please register a user first!");
 
-            SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = "Admin", Password = "FxEiw4b0" } : new SysUserDTO { UserName = "Admin", Password = "666666" };
+            SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = "Admin", Password = "U7AhAo3e" } : new SysUserDTO { UserName = "Admin", Password = "666666" };
         }
         catch (Exception ex)
         {

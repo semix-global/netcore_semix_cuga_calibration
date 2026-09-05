@@ -298,10 +298,11 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.ScanLength);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{dtoItem.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             bitmapImage.SaveImage(imageFilePath);
+            dtoItem.ChannelImageFilePath = imageFilePath;
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await dtoItem.CalibratingAsync(imageFilePath, cancellationToken);
+            await dtoItem.CalibratingAsync(cancellationToken);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 

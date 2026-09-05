@@ -104,11 +104,12 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         });
     }
 
-    public async Task CalibratingAsync(string channelImageFilePath, CancellationToken cancellationToken)
+    public async Task CalibratingAsync(CancellationToken cancellationToken)
     {
         try
         {
-            ChannelImageFilePath = channelImageFilePath;
+            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
             _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
@@ -126,9 +127,9 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
 
             ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
 
-            ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(channelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(channelImageFilePath)}");
+            ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(ChannelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(ChannelImageFilePath)}");
 
-            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + ImageROI.Width / 4d, 0d);
+            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
             _roiBitmapImageDrawable.BitmapImage = _bitmapImageDrawable.BitmapImage.ToROI(ImageROI);
             _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIChannelImageFilePath);
         }
@@ -147,7 +148,7 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI).ClampToBounds(new Rect(_bitmapImageDrawable.Point, _bitmapImageDrawable.BitmapImage.Size));
 
-            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + ImageROI.Width / 4d, 0d);
+            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
             _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
         }
         finally

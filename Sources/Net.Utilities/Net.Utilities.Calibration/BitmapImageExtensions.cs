@@ -89,13 +89,6 @@ public static class BitmapImageExtensions
             return resultImage.ToBitmapImage();
         }
 
-        public BitmapImage ToRoi(Rect rect)
-        {
-            using var hImage = @this.ToHImage();
-
-            return hImage.CropPart((HTuple)rect.Y, (HTuple)rect.X, (HTuple)rect.Width, (HTuple)rect.Height).ToBitmapImage();
-        }
-
         public double[] GetHorizontalProjects()
         {
             using var hImage = @this.ToHImage();
@@ -110,7 +103,7 @@ public static class BitmapImageExtensions
             return hImage.GetMaxMinGrayValue(rect);
         }
 
-        public algocv_sharp.Image ToAlgoCVImage()
+        public Image ToAlgoCVImage()
         {
             if (@this.IsDisposed)
             {
@@ -134,7 +127,7 @@ public static class BitmapImageExtensions
 
             var width = @this.Width;
             var height = @this.Height;
-            var image = new algocv_sharp.Image(width, height, channels, dataType);
+            var image = new Image(width, height, channels, dataType);
 
             var destImageInfo = ImageInfoFactory.Create(width, height, channels, bitsPerPixel);
             if (!@this.ReadPixels(destImageInfo, image.DataPtr, image.Stride))
