@@ -6,7 +6,7 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
 [CacheVersion("2.0.0")]
-public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase<PupilCameraAlignmentCache>
+public sealed partial class FourierPupilCameraAlignmentCache : CalibrationCacheBase<FourierPupilCameraAlignmentCache>
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -26,7 +26,7 @@ public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase<Pup
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
 
-    public override PupilCameraAlignmentCache Clone() => new()
+    public override FourierPupilCameraAlignmentCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),

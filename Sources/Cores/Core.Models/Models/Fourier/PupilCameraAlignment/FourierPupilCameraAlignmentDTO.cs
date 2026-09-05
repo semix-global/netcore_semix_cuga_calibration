@@ -20,20 +20,20 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
 [CacheVersion("2.0.0")]
-public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
+public sealed partial class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
+    public partial FourierPupilCameraAlignmentDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
+    public partial FourierPupilCameraAlignmentDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTOItem Channel3Item { get; set; } = new() { ChannelId = 3 };
+    public partial FourierPupilCameraAlignmentDTOItem Channel3Item { get; set; } = new() { ChannelId = 3 };
 
     #region Mapper
 
-    public override PupilCameraAlignmentDTO Clone() => new()
+    public override FourierPupilCameraAlignmentDTO Clone() => new()
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),
@@ -65,7 +65,7 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCa
     }
 }
 
-public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, ICloneable<PupilCameraAlignmentDTOItem>, IDisposable
+public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObject, ICloneable<FourierPupilCameraAlignmentDTOItem>, IDisposable
 {
     private readonly BitmapImageDrawable _bitmapImageDrawable;
     private readonly BitmapImageDrawable _roiBitmapImageDrawable;
@@ -87,7 +87,7 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
     [Newtonsoft.Json.JsonIgnore]
     public partial OpticsFourierImageDocument Document { get; set; }
 
-    public PupilCameraAlignmentDTOItem()
+    public FourierPupilCameraAlignmentDTOItem()
     {
         _bitmapImageDrawable = new BitmapImageDrawable();
         _roiBitmapImageDrawable = new BitmapImageDrawable();
@@ -157,7 +157,7 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         }
     }
 
-    public PupilCameraAlignmentDTOItem Clone() => new()
+    public FourierPupilCameraAlignmentDTOItem Clone() => new()
     {
         ChannelId = ChannelId,
         ChannelImageFilePath = ChannelImageFilePath,

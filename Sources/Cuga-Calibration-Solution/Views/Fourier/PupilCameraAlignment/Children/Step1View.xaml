@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Flourier"
-             d:DataContext="{d:DesignInstance Type=viewModels:PupilCameraAlignmentViewModel}"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Fourier"
+             d:DataContext="{d:DesignInstance Type=viewModels:FourierPupilCameraAlignmentViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">

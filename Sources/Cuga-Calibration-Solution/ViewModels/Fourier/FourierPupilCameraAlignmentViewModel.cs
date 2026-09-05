@@ -17,10 +17,10 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Constants = Net.Utilities.Models.Constants;
 
-namespace CugaCalibration.ViewModels.Flourier;
+namespace CugaCalibration.ViewModels.Fourier;
 
-[IOCAppService(ServiceType = typeof(PupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModelBase<PupilCameraAlignmentCache>
+[IOCAppService(ServiceType = typeof(FourierPupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationViewModelBase<FourierPupilCameraAlignmentCache>
 {
     #region 属性
 
@@ -38,12 +38,12 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     #region Calibrate
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTO CalibratingItem { get; set; } = new();
+    public partial FourierPupilCameraAlignmentDTO CalibratingItem { get; set; } = new();
 
     #endregion Calibrate
 
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTO Review { get; set; } = new();
+    public partial FourierPupilCameraAlignmentDTO Review { get; set; } = new();
 
     #endregion 界面相关
 
@@ -51,11 +51,11 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
     [RecipeCache]
     [ObservableProperty]
-    public override partial PupilCameraAlignmentCache Cache { get; set; } = new();
+    public override partial FourierPupilCameraAlignmentCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    public partial PupilCameraAlignmentDTO Calibration { get; set; } = new();
+    public partial FourierPupilCameraAlignmentDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
@@ -72,8 +72,8 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
-        Cache = ApplicationCookieService.GetCache<PupilCameraAlignmentCache>(cancellationToken);
-        Calibration = ApplicationCookieService.GetCalibration<PupilCameraAlignmentDTO>(cancellationToken);
+        Cache = ApplicationCookieService.GetCache<FourierPupilCameraAlignmentCache>(cancellationToken);
+        Calibration = ApplicationCookieService.GetCalibration<FourierPupilCameraAlignmentDTO>(cancellationToken);
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -130,7 +130,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         {
             case 0:
                 CalibratingItem.Dispose();
-                CalibratingItem = new PupilCameraAlignmentDTO();
+                CalibratingItem = new FourierPupilCameraAlignmentDTO();
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
@@ -244,7 +244,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel3Item, cancellationToken));
     }
 
-    private async Task<bool> InvokeAsync(PupilCameraAlignmentDTOItem dtoItem, CancellationToken cancellationToken)
+    private async Task<bool> InvokeAsync(FourierPupilCameraAlignmentDTOItem dtoItem, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
 
@@ -353,7 +353,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         }).ConfigureAwait(false);
     }
 
-    private bool Save(PupilCameraAlignmentDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
+    private bool Save(FourierPupilCameraAlignmentDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
         update(dto);
         update(Cache);
@@ -366,7 +366,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
 
     public override void UpdateEntryStatus(CalibrationDTOBase calibration, CancellationToken cancellationToken)
     {
-        var temp = Guard.IsAssignableToTypeAndReturn<PupilCameraAlignmentDTO>(calibration);
+        var temp = Guard.IsAssignableToTypeAndReturn<FourierPupilCameraAlignmentDTO>(calibration);
         var status = Entry.Status;
 
         Calibration = temp;

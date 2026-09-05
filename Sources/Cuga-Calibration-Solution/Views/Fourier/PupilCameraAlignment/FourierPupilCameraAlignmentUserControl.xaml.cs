@@ -5,10 +5,10 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 namespace CugaCalibration.Views.Fourier.PupilCameraAlignment;
 
 [Permission]
-[IOCAppService(ServiceType = typeof(PupilCameraAlignmentUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class PupilCameraAlignmentUserControl
+[IOCAppService(ServiceType = typeof(FourierPupilCameraAlignmentUserControl), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class FourierPupilCameraAlignmentUserControl
 {
-    public PupilCameraAlignmentUserControl()
+    public FourierPupilCameraAlignmentUserControl()
     {
         InitializeComponent();
         InitializePermissionControl();
