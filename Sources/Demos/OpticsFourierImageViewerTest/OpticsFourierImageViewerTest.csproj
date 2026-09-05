@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.OpticsFourierImageViewer.WPF\Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.OpticsFourierImageViewer.WPF\05. Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
     </ItemGroup>
 
 </Project>

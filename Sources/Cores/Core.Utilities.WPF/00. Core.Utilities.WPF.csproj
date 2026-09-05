@@ -11,9 +11,9 @@
         <PackageReference Include="Markdig" />
         <PackageReference Include="Microsoft.Web.WebView2" />
     </ItemGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.WPF.CustomControl.Calibration\04. Net.Utilities.WPF.CustomControl.Calibration.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.OpticsFourierImageViewer.WPF\05. Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
     </ItemGroup>
 
     <ItemGroup>

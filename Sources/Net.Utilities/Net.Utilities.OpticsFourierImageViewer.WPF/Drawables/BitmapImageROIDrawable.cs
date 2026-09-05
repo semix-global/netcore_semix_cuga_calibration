@@ -37,7 +37,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
-    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 16d);
+    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 128d);
 
     [ObservableProperty]
     public partial FillStyle TextForeground { get; set; } = new(SKColors.Red);
