@@ -9,7 +9,7 @@ using SkiaSharp;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
-public sealed partial class BitmapImageDrawable : AbstractDrawable
+public sealed partial class BitmapImageDrawable : AbstractDrawable, IDisposable
 {
     private const double ScreenCursorPointRectLength = 9d;
     private const double ScreenRingGap = ScreenCursorPointRectLength / 6d;
@@ -89,5 +89,11 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable
         extents2D.Add(new Rect(Point, new Size(BitmapImage.Width, BitmapImage.Height)));
 
         return extents2D;
+    }
+
+    public void Dispose()
+    {
+        BitmapImage?.Dispose();
+        BitmapImage = null;
     }
 }

@@ -67,12 +67,12 @@
                             </i:Interaction.Behaviors>
                         </ComboBox>
                         <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Scan Image Width(px): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ScanImageWidth}" />
+                                          Value="{Binding Cache.ScanLength}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

@@ -1,11 +1,13 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
-using Net.Utilities.Graphics.Primitives.Medias.Styles;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -14,12 +16,11 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
-using SkiaSharp;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
 [CacheVersion("2.0.0")]
-public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>
+public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
     [ObservableProperty]
     public partial PupilCameraAlignmentDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
@@ -55,11 +56,19 @@ public sealed partial class PupilCameraAlignmentDTO : CalibrationDTOBase<PupilCa
     };
 
     #endregion Mapper
+
+    public void Dispose()
+    {
+        Channel1Item.Dispose();
+        Channel2Item.Dispose();
+        Channel3Item.Dispose();
+    }
 }
 
-public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, ICloneable<PupilCameraAlignmentDTOItem>
+public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, ICloneable<PupilCameraAlignmentDTOItem>, IDisposable
 {
     private readonly BitmapImageDrawable _bitmapImageDrawable;
+    private readonly BitmapImageDrawable _roiBitmapImageDrawable;
     private readonly BitmapImageROIDrawable _bitmapImageROIDrawable;
 
     [ObservableProperty]
@@ -67,6 +76,9 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
 
     [ObservableProperty]
     public partial string ChannelImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string ROIChannelImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial Rect ImageROI { get; set; }
@@ -78,48 +90,70 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
     public PupilCameraAlignmentDTOItem()
     {
         _bitmapImageDrawable = new BitmapImageDrawable();
+        _roiBitmapImageDrawable = new BitmapImageDrawable();
         _bitmapImageROIDrawable = new BitmapImageROIDrawable(_bitmapImageDrawable)
         {
             ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All
         };
 
         Document = new OpticsFourierImageDocument();
-        using var scope = Document.View.Sync.EnterScope();
-
-        Document.ImageModel.Add(_bitmapImageDrawable);
-        Document.ROIModel.Add(_bitmapImageROIDrawable);
+        Document.RunDesign(() =>
+        {
+            Document.ImageModel.AddRange([_bitmapImageDrawable, _roiBitmapImageDrawable]);
+            Document.ROIModel.Add(_bitmapImageROIDrawable);
+        });
     }
 
     public async Task CalibratingAsync(string channelImageFilePath, CancellationToken cancellationToken)
     {
-        ChannelImageFilePath = channelImageFilePath;
-        _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
-        var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
-        _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(
-            new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
-        Document.View.ZoomToFit();
-
-        var options = new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
+        try
         {
-            BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
-            CancellationToken = cancellationToken
-        };
+            ChannelImageFilePath = channelImageFilePath;
+            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
+            _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
+            Document.View.ZoomToFit();
 
-        var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
-        Guard.IsTrue(outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok, outputResult.ErrorMessage);
-        Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+            var options = new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
+            {
+                BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
+                CancellationToken = cancellationToken
+            };
 
-        ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
+            var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
+            Guard.IsTrue(outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok, outputResult.ErrorMessage);
+            Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+
+            ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
+
+            ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(channelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(channelImageFilePath)}");
+
+            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + ImageROI.Width / 4d, 0d);
+            _roiBitmapImageDrawable.BitmapImage = _bitmapImageDrawable.BitmapImage.ToROI(ImageROI);
+            _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIChannelImageFilePath);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
     }
 
     public void Review()
     {
-        if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
 
-        _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
-        _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI).ClampToBounds(new Rect(_bitmapImageDrawable.Point, _bitmapImageDrawable.BitmapImage.Size));
+            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI).ClampToBounds(new Rect(_bitmapImageDrawable.Point, _bitmapImageDrawable.BitmapImage.Size));
 
-        Document.View.ZoomToFit();
+            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + ImageROI.Width / 4d, 0d);
+            _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
     }
 
     public PupilCameraAlignmentDTOItem Clone() => new()
@@ -129,13 +163,30 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
         ImageROI = ImageROI
     };
 
-    public object ToHtmlAnonymous() => new
+    public object ToImageHtmlAnonymous() => new
     {
         ChannelImageFilePath,
-        ImageROI,
         Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(ImageROI)
         ])
     };
+
+    public object ToHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        ROIChannelImageFilePath,
+        ImageROI,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ]),
+        ROIImage = new HtmlImage(ROIChannelImageFilePath)
+    };
+
+    public void Dispose()
+    {
+        _bitmapImageDrawable.Dispose();
+        _roiBitmapImageDrawable.Dispose();
+    }
 }

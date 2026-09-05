@@ -129,6 +129,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         switch (CalibrationStepIndex)
         {
             case 0:
+                CalibratingItem.Dispose();
                 CalibratingItem = new PupilCameraAlignmentDTO();
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
@@ -161,6 +162,17 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
         }
     }
 
+    protected override async Task<bool> CancelingAsync()
+    {
+        await base.CancelingAsync().ConfigureAwait(false);
+
+        CalibratingItem.Dispose();
+        Review.Dispose();
+        Calibration.Dispose();
+
+        return true;
+    }
+
     #endregion 控制校准业务
 
     #region 校准
@@ -176,7 +188,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.ScanImageWidth
+                Cache.ScanLength
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
@@ -206,6 +218,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.ScanLength,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -216,162 +229,96 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () =>
-        {
-            var detectImageDirectory = ImageFileDirectory;
-
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
-                Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.HazeFindBFMachinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-
-            try
-            {
-                FourierViewModel.SetFFHome(FFCH.Ch1);
-
-                using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    0,
-                    Cache.ProductivityInformation,
-                    Cache.LaserLightInformation.Level,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-                    Cache.ScanImageWidth);
-                var imageFilePath = Path.Combine(detectImageDirectory, "Channel1", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                bitmapImage.SaveImage(imageFilePath);
-
-                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-
-                await CalibratingItem.Channel1Item.CalibratingAsync(imageFilePath, cancellationToken);
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
-            }
-            finally
-            {
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-            }
-        });
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () =>
-        {
-            var detectImageDirectory = ImageFileDirectory;
-
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
-                Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.HazeFindBFMachinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-
-            try
-            {
-                FourierViewModel.SetFFHome(FFCH.Ch2);
-
-                using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    1,
-                    Cache.ProductivityInformation,
-                    Cache.LaserLightInformation.Level,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-                    Cache.ScanImageWidth);
-                var imageFilePath = Path.Combine(detectImageDirectory, "Channel2", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                bitmapImage.SaveImage(imageFilePath);
-
-                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-
-                await CalibratingItem.Channel2Item.CalibratingAsync(imageFilePath, cancellationToken);
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
-            }
-            finally
-            {
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-            }
-        });
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step4Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () =>
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel3Item, cancellationToken));
+    }
+
+    private async Task<bool> InvokeAsync(PupilCameraAlignmentDTOItem dtoItem, CancellationToken cancellationToken)
+    {
+        var detectImageDirectory = ImageFileDirectory;
+
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
-            var detectImageDirectory = ImageFileDirectory;
+            Cache.ProductivityInformation,
+            Cache.MicroscopeLensInformation,
+            Cache.LaserLightInformation,
+            OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+            Cache.ScanLength,
+            Cache.HazeFindBFMachinePosition
+        }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
+        var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
+            StageCoordinateSystemEnum.Dark,
+            Cache.ProductivityInformation,
+            CalibrationSetting.SettingCommonParam.MainCIBInformation,
+            hazeBFPosition,
+            Cache.MicroscopeLensInformation);
+
+        StageViewModel.SetAbsoluteStageTheta(0d);
+        StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+
+        try
+        {
+            switch (dtoItem.ChannelId)
             {
+                case 1:
+                    FourierViewModel.SetFFHome(FFCH.Ch1);
+
+                    break;
+
+                case 2:
+                    FourierViewModel.SetFFHome(FFCH.Ch2);
+
+                    break;
+
+                case 3:
+                    FourierViewModel.SetFFHome(FFCH.Ch3_X);
+                    FourierViewModel.SetFFHome(FFCH.Ch3_Y);
+
+                    break;
+            }
+
+            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
+                dtoItem.ChannelId - 1,
                 Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
-                Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.HazeFindBFMachinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
+                Cache.LaserLightInformation.Level,
+                StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
+                Cache.ScanLength);
+            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{dtoItem.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            bitmapImage.SaveImage(imageFilePath);
 
-            var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
-            StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
+            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            try
+            await dtoItem.CalibratingAsync(imageFilePath, cancellationToken);
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+            if (dtoItem.ChannelId == 3)
             {
-                FourierViewModel.SetFFHome(FFCH.Ch3_X);
-                FourierViewModel.SetFFHome(FFCH.Ch3_Y);
-
-                using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                    2,
-                    Cache.ProductivityInformation,
-                    Cache.LaserLightInformation.Level,
-                    StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-                    Cache.ScanImageWidth);
-                var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                bitmapImage.SaveImage(imageFilePath);
-
-                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-
-                await CalibratingItem.Channel3Item.CalibratingAsync(imageFilePath, cancellationToken);
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
                 CalibratingItem.IsCalibrated = true;
 
                 Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+            }
 
-                return true;
-            }
-            finally
-            {
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(hazeBFPosition);
-            }
-        });
+            return true;
+        }
+        finally
+        {
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -385,6 +332,7 @@ public sealed partial class PupilCameraAlignmentViewModel : CalibrationViewModel
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.ScanLength,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 

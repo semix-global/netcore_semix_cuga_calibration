@@ -21,7 +21,7 @@ public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase<Pup
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial int ScanImageWidth { get; set; } = 1000;
+    public partial int ScanLength { get; set; } = 1000;
 
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
@@ -32,7 +32,7 @@ public sealed partial class PupilCameraAlignmentCache : CalibrationCacheBase<Pup
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
         OpticsConfiguration = OpticsConfiguration.Clone(),
-        ScanImageWidth = ScanImageWidth,
+        ScanLength = ScanLength,
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

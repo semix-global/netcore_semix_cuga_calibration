@@ -19,5 +19,8 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
     {
         ROIModel = ModelStorages.GetOrAddLayer<BitmapImageROIDrawable>(ROILayer);
         ImageModel = ModelStorages.GetOrAddLayer<BitmapImageDrawable>(ImageLayer);
+
+        Settings.SelectionHighlightOverrideFillStyle = null;
+        Settings.SelectionHighlightOverrideLineStyle = null;
     }
 }
