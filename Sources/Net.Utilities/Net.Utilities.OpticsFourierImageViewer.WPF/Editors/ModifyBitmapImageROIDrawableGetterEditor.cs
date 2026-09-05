@@ -22,7 +22,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     ModifyBitmapImageROIDrawableInputOptions options,
     TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
-    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, bool OriginalIsModified)> _originals = [];
+    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _originals = [];
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _edits = [];
 
     private CursorTypeEnum _lastCursorTypeEnum;
@@ -59,8 +59,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable)))
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
-            bitmapImageROIDrawable.IsModified = false;
-            ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsModified)));
+            bitmapImageROIDrawable.IsEditorModified = false;
+            ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect)));
         }
 
         args.IsInputValid = true;
@@ -241,10 +241,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         if (_isAccepted == false)
         {
-            foreach (var (rectROIDrawable, originalRect, originalIsModified) in _originals)
+            foreach (var (rectROIDrawable, originalRect) in _originals)
             {
                 rectROIDrawable.Rect = originalRect;
-                rectROIDrawable.IsModified = originalIsModified;
+                rectROIDrawable.IsEditorModified = false;
             }
         }
 
@@ -415,7 +415,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         foreach (var (bitmapImageROIDrawable, originalRect) in _edits)
         {
+            var oldRect = bitmapImageROIDrawable.Rect;
             bitmapImageROIDrawable.Rect = (originalRect + constrainedDelta).ClampToBounds(imageRect);
+
+            if (bitmapImageROIDrawable.IsEditorModified == false) bitmapImageROIDrawable.IsEditorModified = oldRect != bitmapImageROIDrawable.Rect;
         }
     }
 
@@ -456,7 +459,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
+            var oldRect = bitmapImageROIDrawable.Rect;
             bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
+
+            if (bitmapImageROIDrawable.IsEditorModified == false) bitmapImageROIDrawable.IsEditorModified = oldRect != bitmapImageROIDrawable.Rect;
         }
     }
 

@@ -85,6 +85,9 @@
                                             Header="Text"
                                             Binding="{Binding Text}" />
                         <DataGridTextColumn Width="2*"
+                                            Header="Is Modified"
+                                            Binding="{Binding IsEditorModified}" />
+                        <DataGridTextColumn Width="2*"
                                             Header="Rect"
                                             Binding="{Binding Rect}" />
                         <DataGridTemplateColumn Width="2*" Header="ImageRect">

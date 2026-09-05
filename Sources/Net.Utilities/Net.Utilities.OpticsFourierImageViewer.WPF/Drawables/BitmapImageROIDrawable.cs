@@ -37,7 +37,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
-    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 256d);
+    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 64d);
 
     [ObservableProperty]
     public partial FillStyle TextForeground { get; set; } = new(SKColors.Red);
@@ -55,13 +55,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
     [ObservableProperty]
-    public partial bool IsModified { get; internal set; }
-
-    // ReSharper disable UnusedParameterInPartialMethod
-
-    partial void OnRectChanged(Rect value) => IsModified = true;
-
-    // ReSharper restore UnusedParameterInPartialMethod
+    public partial bool IsEditorModified { get; internal set; } = false;
 
     public override void Draw(Renderer renderer)
     {

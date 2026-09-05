@@ -119,8 +119,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
                         ResizeJoystickStateEnum = resizeJoystickStateEnum,
-                        Text = $"{i + 1}",
-                        IsModified = false
+                        Text = $"{i + 1}"
                     });
                 }
             });
