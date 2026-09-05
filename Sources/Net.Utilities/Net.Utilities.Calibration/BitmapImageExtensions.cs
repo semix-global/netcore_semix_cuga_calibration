@@ -115,7 +115,7 @@ public static class BitmapImageExtensions
                 PixelFormatEnum.Gray12 or PixelFormatEnum.Gray16 => ImageDataType.UInt16,
                 PixelFormatEnum.Bgr8888 => ImageDataType.UInt8,
                 PixelFormatEnum.Bgra8888 => ImageDataType.UInt8,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<ImageDataType>(Constants.ImageFileExtensionsFilter)
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<ImageDataType>(nameof(@this.PixelFormatEnum), Constants.ImageFileExtensionsFilter)
             };
 
             var image = new Image(@this.Width, @this.Height, @this.ImageInfo.Channels, dataType);

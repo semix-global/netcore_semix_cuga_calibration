@@ -122,7 +122,12 @@ public sealed partial class PupilCameraAlignmentDTOItem : ObservableObject, IClo
             };
 
             var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
-            Guard.IsTrue(outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok, outputResult.ErrorMessage);
+            Guard.IsTrue(outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok, outputResult.OutputResultModeEnum switch
+            {
+                OutputResultModeEnum.Error => outputResult.ErrorMessage,
+                OutputResultModeEnum.Cancel => outputResult.CancelReason.ToString(),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(outputResult.OutputResultModeEnum))
+            });
             Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
 
             ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);

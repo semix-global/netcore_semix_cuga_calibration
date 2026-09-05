@@ -25,7 +25,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _originals = [];
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _edits = [];
 
-    private CursorTypeEnum _lastCursorTypeEnum;
+    private CursorTypeEnum? _lastCursorTypeEnum;
     private Point _lastMousePoint;
     private bool _isCursorDown;
 
@@ -40,6 +40,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     protected override void Init(InitArgs<Unit> args)
     {
         base.Init(args);
+
+        _lastCursorTypeEnum = null;
 
         Reset();
 
@@ -89,7 +91,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum ?? _lastCursorTypeEnum;
+        _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
 
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
 
@@ -196,8 +198,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
         }
 
-        Edit.Document.View.CanvasControl?.CursorTypeEnum = _lastCursorTypeEnum;
-
         ResetInteractionState();
 
         eventInputArgs.IsInputValid = true;
@@ -206,35 +206,20 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
-        switch (eventInputArgs.Event.KeyEnum)
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Enter)
         {
-            case KeyEnum.Enter:
-                _isAccepted = true;
+            _isAccepted = true;
 
-                eventInputArgs.Output = Unit.Default;
+            eventInputArgs.Output = Unit.Default;
 
-                eventInputArgs.IsInputValid = true;
-                eventInputArgs.IsInputCompleted = true;
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = true;
 
-                return;
-
-            case KeyEnum.Escape:
-                _isAccepted = false;
-
-                eventInputArgs.ErrorInputMessage = "Escape";
-                eventInputArgs.Output = Unit.Default;
-
-                eventInputArgs.IsInputValid = false;
-                eventInputArgs.IsInputCompleted = true;
-
-                return;
-
-            default:
-                eventInputArgs.IsInputValid = true;
-                eventInputArgs.IsInputCompleted = false;
-
-                break;
+            return;
         }
+
+        eventInputArgs.IsInputValid = true;
+        eventInputArgs.IsInputCompleted = false;
     }
 
     protected override void CancelInput()
@@ -261,11 +246,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ResetInteractionState()
     {
+        if (_lastCursorTypeEnum is not null) Edit.Document.View.CanvasControl?.CursorTypeEnum = _lastCursorTypeEnum.Value;
+
         RemoveSelectionWindow();
 
         ImmutableInterlocked.Update(ref _edits, _ => []);
 
-        _lastCursorTypeEnum = CursorTypeEnum.Arrow;
+        _lastCursorTypeEnum = null;
         _lastMousePoint = Point.Origin;
         _isCursorDown = false;
 
