@@ -121,11 +121,40 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
                 CancellationToken = cancellationToken
             };
 
-            var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
-            Guard.IsTrue(outputResult.OutputResultModeEnum == OutputResultModeEnum.Ok, $"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
-            Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, options);
+
+
+                switch (outputResult)
+                {
+                    case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                        Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+
+                        goto OuterLoop;
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                        continue;
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                        ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                        break;
+
+                    default:
+                        ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                        break;
+                }
+            }
+
+            OuterLoop:
 
             ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
+            Guard.IsEqualTo(_bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI), _bitmapImageROIDrawable.Rect);
 
             ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(ChannelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(ChannelImageFilePath)}");
 
