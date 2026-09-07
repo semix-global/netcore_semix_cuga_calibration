@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
@@ -15,7 +14,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(StageViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class StageViewModel(
+public sealed class StageViewModel(
     ICalibrationStageService calibrationStageService,
     AfViewModel afViewModel,
     CalibrationSetting calibrationSetting) : ViewModelBase
@@ -95,9 +94,6 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetBrightFieldAbsoluteStageXy(Point point)
-        => SetCalChipBrightFieldAbsoluteStageXy(point, CalChipSiteModelEnum.ChuckModel);
-
     public void SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point point)
     {
         var result = BrightFieldToMachinePosition(point);
@@ -112,9 +108,6 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetDarkFieldAbsoluteStageXyByNotAutoFocus(Point point)
-        => SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.ChuckModel);
-
     public Point GetMachineStagePosition()
     {
         var ret = calibrationStageService.GetMachineStagePosition();
@@ -128,8 +121,6 @@ public sealed partial class StageViewModel(
 
         SetBrightFieldAbsoluteStageXy(result);
     }
-
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point) => SetMachineAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.ChuckModel);
 
     public void SetMachineAbsoluteStageXyByFixedSpeed(Point point)
     {
@@ -183,7 +174,7 @@ public sealed partial class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetCalChipBrightFieldAbsoluteStageXy(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
+    public void SetBrightFieldAbsoluteStageXy(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         var (isReview, _) = afViewModel.GetBrightFieldStatus();
         if (isReview == false)
@@ -199,7 +190,7 @@ public sealed partial class StageViewModel(
         afViewModel.ToggleBrightFieldEnable(true);
     }
 
-    public void SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
+    public void SetDarkFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
@@ -209,7 +200,7 @@ public sealed partial class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
+    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
@@ -219,21 +210,6 @@ public sealed partial class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
-    public void SetCalChipDswBrightFieldAbsoluteStageXy(Point point) => SetCalChipBrightFieldAbsoluteStageXy(point, CalChipSiteModelEnum.DswModel);
-
-    public void SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocus(Point point) => SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.DswModel);
-
-    public void SetCalChipUndefinedBrightFieldAbsoluteStageXy(Point point) => SetCalChipBrightFieldAbsoluteStageXy(point, CalChipSiteModelEnum.UndefinedModel);
-
-    public void SetCalChipUndefinedDarkFieldAbsoluteStageXyByNotAutoFocus(Point point) => SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.UndefinedModel);
-
-    public void SetCalChipHazeBrightFieldAbsoluteStageXy(Point point) => SetCalChipBrightFieldAbsoluteStageXy(point, CalChipSiteModelEnum.HazeModel);
-
-    public void SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(Point point) => SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.HazeModel);
-
-    public void SetCalChipShinyWaferBrightFieldAbsoluteStageXy(Point point) => SetCalChipBrightFieldAbsoluteStageXy(point, CalChipSiteModelEnum.ShinyWaferModel);
-
-    public void SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(Point point) => SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(point, CalChipSiteModelEnum.ShinyWaferModel);
 
     public Point FindWaferCenterByAutomatic(int offsetThreshold = 100)
     {
@@ -466,51 +442,4 @@ public sealed partial class StageViewModel(
     }
 
     #endregion 服务
-
-    #region Command
-
-    [RelayCommand]
-    private async Task SetBrightFieldAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetBrightFieldAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetMachineAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetMachineAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetMachineAbsoluteStageXyByNotAutoFocusAsync(Point? point) => await InvokeAsync(point, p => SetMachineAbsoluteStageXyByNotAutoFocus(p)).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipDswBrightFieldAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetCalChipDswBrightFieldAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocusAsync(Point? point) => await InvokeAsync(point, SetCalChipDswDarkFieldAbsoluteStageXyByNotAutoFocus).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipUndefinedBrightFieldAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetCalChipUndefinedBrightFieldAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipUndefinedDarkFieldAbsoluteStageXyByNotAutoFocusAsync(Point? point) => await InvokeAsync(point, SetCalChipUndefinedDarkFieldAbsoluteStageXyByNotAutoFocus).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipHazeBrightFieldAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetCalChipHazeBrightFieldAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocusAsync(Point? point) => await InvokeAsync(point, SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipShinyWaferBrightFieldAbsoluteStageXyAsync(Point? point) => await InvokeAsync(point, SetCalChipShinyWaferBrightFieldAbsoluteStageXy).ConfigureAwait(false);
-
-    [RelayCommand]
-    private async Task SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocusAsync(Point? point) => await InvokeAsync(point, SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus).ConfigureAwait(false);
-
-    private static Task InvokeAsync(Point? point, Action<Point> action)
-    {
-        return Task.Run(() =>
-        {
-            if (point is null) return;
-
-            action(point.Value);
-        });
-    }
-
-    #endregion Command
 }

@@ -4,7 +4,6 @@ using Core.Models.Helper;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
@@ -27,8 +26,7 @@ public sealed partial class ApplicationCookieServiceImpl(
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
     ApplicationCookie applicationCookie,
-    IOptions<ApplicationSetting> options,
-    CalibrationSetting calibrationSetting) : IApplicationCookieService
+    IOptions<ApplicationSetting> options) : IApplicationCookieService
 {
     public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
     {
@@ -48,6 +46,8 @@ public sealed partial class ApplicationCookieServiceImpl(
 
         CalibrationMenu BuildCalibrationMenuTree()
         {
+            if (applicationCookie.CurrentRoleSysMenus.Count == 0) return new CalibrationMenu();
+
             var calibrationMenus = applicationCookie.CurrentRoleSysMenus.Select(t => new CalibrationMenu { SysMenu = t }).ToArray();
             var baseCalibrationMenu = calibrationMenus.Single(t => t.SysMenu.Name == options.Value.CalibrationMenuName && t.SysMenu.MenuTypeEnum == MenuTypeEnum.Catalog);
 
@@ -75,6 +75,8 @@ public sealed partial class ApplicationCookieServiceImpl(
 
         SysMenuDTO BuildTitleMenuTree()
         {
+            if (applicationCookie.CurrentRoleSysMenus.Count == 0) return new SysMenuDTO();
+
             var baseSysMenu = applicationCookie.CurrentRoleSysMenus.Single(t => t.Name == options.Value.TitleMenuName && t.MenuTypeEnum == MenuTypeEnum.Catalog);
             RecursionFn(baseSysMenu);
 

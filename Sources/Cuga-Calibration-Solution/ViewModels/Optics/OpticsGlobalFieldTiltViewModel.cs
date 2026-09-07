@@ -162,13 +162,11 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             case 0:
                 return true;
             case 1 or 2:
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
-                    Cache.CalChipSiteModelEnum switch
-                    {
-                        CalChipSiteModelEnum.ChuckModel => StageViewModel.BrightFieldToMachinePosition(Cache.Item.FindPosition),
-                        CalChipSiteModelEnum.DswModel => MicroscopeCalChip.DSWBrightFieldMachineAffinePosition,
-                        _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
-                    }), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindPosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 3:
@@ -303,7 +301,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     OpticsIlluminationModeEnum = Cache.OpticsIlluminationModeEnum
                 };
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
                 var result = false;
                 var retryCount = Cache.Item.ProductivityInformation.OpticsIlluminationModeEnum is OpticsIlluminationModeEnum.NI ? 1 : Cache.Item.RetryCount;
@@ -401,7 +399,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     continue;
                 }
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 

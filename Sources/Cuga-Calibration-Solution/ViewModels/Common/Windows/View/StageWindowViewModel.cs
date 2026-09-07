@@ -108,11 +108,11 @@ public sealed partial class StageWindowViewModel(
                 switch (StageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(GotoPosition, calChipSiteModelEnum.Value);
+                        stageViewModel.SetBrightFieldAbsoluteStageXy(GotoPosition, calChipSiteModelEnum.Value);
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(GotoPosition, calChipSiteModelEnum.Value);
+                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(GotoPosition, calChipSiteModelEnum.Value);
                         break;
 
                     case StageCoordinateSystemEnum.Machine:

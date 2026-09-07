@@ -136,6 +136,8 @@ public sealed partial class StatusViewModel(
             applicationCookie.DeviceCode = deviceCode;
             applicationCookie.DeviceCUGAVersion = deviceCUGAVersion;
             applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
+            applicationCookie.BFCenterMachinePosition = stageViewModel.MachineToBrightFieldPosition(Point.Origin);
+            applicationCookie.DFCenterMachinePosition = stageViewModel.MachineToDarkFieldPosition(Point.Origin);
             applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
             applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];

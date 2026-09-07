@@ -132,13 +132,10 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
                 if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel) StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
 
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(
-                    Cache.CalChipSiteModelEnum switch
-                    {
-                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindPosition,
-                        CalChipSiteModelEnum.DswModel => Cache.Item.FindPosition == Point.Origin ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition) : Cache.Item.FindPosition,
-                        _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
-                    }, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindPosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -312,7 +309,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
         var detectImageDirectory = ImageFileDirectory;
 
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
         foreach (var times in Enumerable.Range(1, repeatCount))
         {

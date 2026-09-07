@@ -567,12 +567,12 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     switch (Cache.StageCoordinateSystemEnum)
                     {
                         case StageCoordinateSystemEnum.Bright:
-                            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startPosition, Cache.CalChipSiteModelEnum);
+                            StageViewModel.SetBrightFieldAbsoluteStageXy(startPosition, Cache.CalChipSiteModelEnum);
 
                             break;
 
                         case StageCoordinateSystemEnum.Dark:
-                            StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, Cache.CalChipSiteModelEnum);
+                            StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, Cache.CalChipSiteModelEnum);
 
                             break;
 
