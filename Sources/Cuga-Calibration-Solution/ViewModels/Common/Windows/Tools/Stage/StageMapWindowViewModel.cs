@@ -513,7 +513,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                     .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
                 ]), currentHtmlLogUniqueId.LoggingHtml());
 
                 if (isSuccess)
@@ -524,7 +524,7 @@ public sealed partial class StageMapWindowViewModel(
 
                     logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
                         .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                        .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                        .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
                     ]), HtmlLogUniqueId.LoggingHtml());
 
                     break;

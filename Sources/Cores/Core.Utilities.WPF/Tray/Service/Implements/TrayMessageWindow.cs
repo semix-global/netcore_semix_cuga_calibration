@@ -22,7 +22,7 @@ internal sealed class TrayMessageWindow : IDisposable
         {
             ParentWindow = User32.HwndMessage,
             WindowStyle = 0,
-            ExtendedWindowStyle = 0,
+            ExtendedWindowStyle = 0
         };
 
         _hwndSource = new HwndSource(parameters);

@@ -145,7 +145,7 @@ public sealed partial class MicroscopeFocusDTOItem : ObservableValidator, IClone
         Quality = Quality,
         TransBufferAfErrorValue = TransBufferAfErrorValue,
         MicroscopeVoltage = MicroscopeVoltage,
-        FilePath = FilePath,
+        FilePath = FilePath
     };
 
     #endregion Mapper

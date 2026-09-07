@@ -423,7 +423,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                                 AlignPoint = t.AlignPoint,
                                 YGhostPoints = [.. t.YGhostPoints],
                                 YGhostAlignPoints = [.. yGhostAlignPoints],
-                                YGhostMinimumPoint = yGhostMinimumPoint,
+                                YGhostMinimumPoint = yGhostMinimumPoint
                             };
                             resultItem.IsOk = resultItem.YGhostResultValue <= Cache.Threshold;
                             return resultItem;

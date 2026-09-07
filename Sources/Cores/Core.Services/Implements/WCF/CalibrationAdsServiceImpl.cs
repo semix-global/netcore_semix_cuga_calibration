@@ -94,7 +94,7 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         {
             AdsTracebufferRegEnum.PropOutput0.ToCgADSTraceBufferRegEnum(),
             AdsTracebufferRegEnum.PropOutput1.ToCgADSTraceBufferRegEnum(),
-            AdsTracebufferRegEnum.PropOutput2.ToCgADSTraceBufferRegEnum(),
+            AdsTracebufferRegEnum.PropOutput2.ToCgADSTraceBufferRegEnum()
         };
         var sxExecuteRetStartADSTraceBuffExec = Invoke(() => Service!.StartADSTraceBuff(calibrationRegList));
 

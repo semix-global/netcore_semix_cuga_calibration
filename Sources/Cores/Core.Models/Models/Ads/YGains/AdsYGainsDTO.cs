@@ -372,7 +372,7 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
             IsUpwardZ3OrZ6 = IsUpwardZ3OrZ6,
             PlotH = [.. PlotH],
             PlotR = [.. PlotR],
-            PlotP = [.. PlotP],
+            PlotP = [.. PlotP]
         };
     }
 }

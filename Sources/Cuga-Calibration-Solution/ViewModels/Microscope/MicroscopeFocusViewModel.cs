@@ -368,7 +368,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 CalibrationVoltage = SelectedReviewItem.Result.MicroscopeVoltage,
                 VerifyECS = verifyItem.EcsValue,
                 VerifyQuality = verifyItem.Quality,
-                Cache.Threshold,
+                Cache.Threshold
             }), HtmlLogUniqueId.LoggingHtml());
 
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, " +

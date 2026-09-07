@@ -95,7 +95,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 LaserLightInformation,
                 IsForward,
                 IsAutoFocus,
-                ECS,
+                ECS
             },
             OpticsGrabbingImageTypeEnum.PTP => new
             {
@@ -109,7 +109,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 LaserLightInformation,
                 IsForward,
                 IsAutoFocus,
-                ECS,
+                ECS
             },
             OpticsGrabbingImageTypeEnum.PEG => new
             {
@@ -125,7 +125,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 LaserLightInformation,
                 IsForward,
                 IsAutoFocus,
-                ECS,
+                ECS
             },
             OpticsGrabbingImageTypeEnum.XZSync => new
             {
@@ -139,7 +139,7 @@ public partial class OpticsGrabbingImageCache : ObservableCacheBase
                 OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
                 LaserLightInformation,
-                IsForward,
+                IsForward
             },
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<object>(nameof(opticsGrabbingImageTypeEnum))
         };
