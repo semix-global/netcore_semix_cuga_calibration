@@ -241,7 +241,7 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// 硬件状态配置
     /// </summary>
     [ObservableProperty]
-    public partial HardwareStateConfig? HardwareStateConfig { get; set; }
+    public partial HardwareStateConfig HardwareStateConfig { get; set; }
 
     /// <summary>
     /// PMT间隔

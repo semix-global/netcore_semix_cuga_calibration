@@ -150,4 +150,9 @@ public sealed class CalibrationConfigServiceMockImpl(
 
         return SxExecuteRetHelper.CreateSuccess(new HardwareStateConfig(motorDict, fourierDict, clinderDict));
     }
+
+    public SxExecuteRet<(double originalHeight, double StartYPixel, double EndYPixel)> GetDefaultImageYPixelHeight(ProductivityInformation productivityInformation)
+    {
+        return SxExecuteRetHelper.CreateSuccess((1080d, 0d, 1079d));
+    }
 }
