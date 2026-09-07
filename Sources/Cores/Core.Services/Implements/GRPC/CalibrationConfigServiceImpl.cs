@@ -76,4 +76,9 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
     {
         throw new NotImplementedException();
     }
+
+    public SxExecuteRet<(double originalHeight, double StartYPixel, double EndYPixel)> GetDefaultImageYPixelHeight(ProductivityInformation productivityInformation)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -458,6 +458,22 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
+    public (double StartImageYPixel, double EndImageYPixel) GetOpticsROOSResult(BitmapImage image, out HImage drawImage)
+    {
+        using var hImage = image.ToHImage();
+        _algorithm.FindLineYPosition(hImage, 1, out var resultTuple, out var drawImageObj);
+
+        drawImage = new HImage(drawImageObj);
+        var size = hImage.GetSize();
+
+        return resultTuple.Length switch
+        {
+            0 => (0, size.Height),
+            1 => resultTuple[0].D <= size.Height / 2d ? (resultTuple[0].D, size.Height) : (0, resultTuple[0].D),
+            _ => (resultTuple[0].D, resultTuple[1].D)
+        };
+    }
+
     public Point GetChuckCenter(
         Point firstTopLeftPosition,
         Point secondTopLeftPosition,

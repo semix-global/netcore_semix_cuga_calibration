@@ -207,7 +207,19 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return _calibrationAlgorithmServiceImpl.GetOpticsObjectiveYAngleResult(hazeImageTemp, shinyWaferImage, rotateAngle, guid);
     }
 
-    public Point GetChuckCenter(Point firstTopLeftPosition,
+    public (double StartImageYPixel, double EndImageYPixel) GetOpticsROOSResult(BitmapImage image, out HImage drawImage)
+    {
+        var result = _calibrationAlgorithmServiceImpl.GetOpticsROOSResult(image, out var hImage);
+        using var _ = hImage;
+        drawImage = new HImage(hImage);
+        return (result.StartImageYPixel, result.EndImageYPixel);
+        // drawImage = image.ToHImage().CopyImage();
+        //
+        // return (Random.Shared.Next(0, 500), Random.Shared.Next(500, 1000));
+    }
+
+    public Point GetChuckCenter(
+        Point firstTopLeftPosition,
         Point secondTopLeftPosition,
         Point secondTopRightPosition,
         Point firstTopRightPosition,

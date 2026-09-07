@@ -112,6 +112,12 @@ public sealed class CalibrationLaserObj
     /// Collection Polarization 校准对象列表 
     /// </summary>
     public CalibrationCollectionPolarizationItem[] CalibrationCollectionPolarizations { get; set; } = [];
+
+
+    /// <summary>
+    /// Optics ROOS 校准对象列表
+    /// </summary>
+    public CalibrationOpticsROOS[] CalibrationOpticsROOSItems { get; set; } = Array.Empty<CalibrationOpticsROOS>();
 }
 
 /// <summary>
@@ -1008,4 +1014,36 @@ public sealed class CalibrationCollectionPolarizationItem : CalibrationBase
     /// NDF电机位置, **需要记录**
     /// </summary> 
     public double NDFMotorPosition { get; set; }
+}
+
+/// <summary>
+/// Optics ROOS 校准
+/// </summary>
+[Serializable]
+public sealed class CalibrationOpticsROOS : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum OpticsMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// ROOS电机位置(mm), **Cuga内部使用**
+    /// </summary>
+    public double ROOSPos { get; set; }
+
+    /// <summary>
+    ///  图像分割起始Y像素位置, **Cuga内部使用**
+    /// </summary>
+    public double StartImageYPixel { get; set; }
+
+    /// <summary>
+    ///  图像分割起始Y像素位置, **Cuga内部使用**
+    /// </summary>
+    public double EndImageYPixel { get; set; }
 }

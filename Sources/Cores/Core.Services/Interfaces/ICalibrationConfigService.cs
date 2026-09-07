@@ -81,4 +81,12 @@ public interface ICalibrationConfigService
     /// </summary>
     /// <returns>是否成功</returns>
     SxExecuteRet<HardwareStateConfig> LoadHardwareConfigs();
+
+    /// <summary>
+    /// 获取算法配置的原始图像高度
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>图像像素高度</returns>
+    SxExecuteRet<(double originalHeight, double StartYPixel, double EndYPixel)> GetDefaultImageYPixelHeight(ProductivityInformation productivityInformation);
 }

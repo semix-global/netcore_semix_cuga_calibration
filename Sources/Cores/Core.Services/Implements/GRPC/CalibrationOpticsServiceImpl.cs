@@ -142,4 +142,19 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgDiagIlluminati
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetROOSMotorRouteRange()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<double> GetROOSMotorAbsoluteValue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SxExecuteRet<bool> SetROOSMotorAbsoluteValue(double value)
+    {
+        throw new NotImplementedException();
+    }
 }

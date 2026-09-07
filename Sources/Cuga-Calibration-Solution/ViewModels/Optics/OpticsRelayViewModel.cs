@@ -102,9 +102,6 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
-
         if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.OI) &&
             ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OIRelay].Enabled == false)
         {

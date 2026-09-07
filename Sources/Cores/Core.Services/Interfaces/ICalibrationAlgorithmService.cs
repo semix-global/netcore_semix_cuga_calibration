@@ -145,6 +145,14 @@ public interface ICalibrationAlgorithmService
     (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage,
         double rotateAngle, Guid guid);
 
+    /// <summary>
+    /// 获得图像两端ROOS遮挡后的明暗分界线中心Y像素坐标
+    /// </summary>
+    /// <param name="image"></param>
+    /// <param name="drawImage"></param>
+    /// <returns>(起点pix，终点pix)</returns>
+    (double StartImageYPixel, double EndImageYPixel) GetOpticsROOSResult(BitmapImage image, out HImage drawImage);
+
     #endregion 暗场
 
     #region Chuck
