@@ -160,6 +160,7 @@ public interface ICalibrationCIBService
     /// <param name="stageCoordinateSystemEnum">位置坐标系</param>
     /// <param name="centerPosition">中心位置</param>
     /// <param name="imageWidth">图片宽度</param>
+    /// <param name="customImageHeight"></param>
     /// <param name="cibInformations">CIB列表</param>
     /// <param name="isForward">是否是正向扫图还是反向扫图</param>
     /// <param name="isAutoFocus">是否自动聚焦</param>
@@ -172,6 +173,7 @@ public interface ICalibrationCIBService
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
         int imageWidth,
+        (double startYPixel, double endYPixel)? customImageHeight,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,

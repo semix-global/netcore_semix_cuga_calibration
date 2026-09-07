@@ -1,0 +1,280 @@
+﻿<UserControl x:Class="CugaCalibration.Views.Optics.ROOS.Children.Step3View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Optics"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
+             xmlns:roos="clr-namespace:Core.Models.Models.Optics.ROOS;assembly=Core.Models"
+             xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             d:DataContext="{d:DesignInstance Type=viewModels:OpticsROOSViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Productivity Information: "
+                           Status="{Binding Cache.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="Laser Light Information: "
+                           Status="{Binding Cache.Item.LaserLightInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="CIB Information: "
+                           Status="{Binding Cache.Item.CIBInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield DockPanel.Dock="Bottom"
+                           Subject="BF Machine Position(um): "
+                           Status="{Binding Cache.Item.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Image Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ImageWidth}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Ideal Image Y Um Height(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Minimum="0"
+                                          Maximum="500"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.IdealImageYUmHeight}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Ideal Image Y Pixel Height(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.IdealImageYPixelHeight, Mode=OneWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Start Crop Image Y Pixel(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Minimum="0"
+                                          Maximum="3000"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ConfigCropImageStartYPixel}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="End Crop Image Y Pixel(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Minimum="0"
+                                          Maximum="3000"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ConfigCropImageEndYPixel}" />
+                        <StackPanel>
+                            <TextBlock Text="ROOS Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Config ROOS Pos(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.CurrentConfigROOSPos, Mode=OneWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Start ROOS(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StartROOSPos}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Stop ROOS(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StopROOSPos}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step ROOS(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.StepROOSPos}" />
+                        <StackPanel>
+                            <TextBlock Text="Common Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="ROOS Align Offset Threshold(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          Minimum="0"
+                                          Maximum="500"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Item.ROOSAlignOffsetThreshold}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="ROOS Pos(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.ResultDTOItem.ROOSPos, Mode=OneWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Crop Image Y Pixel Height(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.ResultDTOItem.CropImageYPixelHeight, Mode=OneWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Start Image Y Pixel(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.ResultDTOItem.StartImageYPixel, Mode=OneWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="End Image Y Pixel(pix): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="250"
+                                          IsReadOnly="True"
+                                          Background="{StaticResource SecondaryRegionBrush}"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.ResultDTOItem.EndImageYPixel, Mode=OneWay}" />
+
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step3Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step3CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="6*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="430" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ListView x:Name="ListView"
+                      ItemsSource="{Binding CalibratingItem.Items}"
+                      Style="{StaticResource ListView.Small}"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                <i:Interaction.Behaviors>
+                    <behaviors:ListBoxScrollToCurrentBehavior />
+                </i:Interaction.Behaviors>
+                <ListView.ItemContainerStyle>
+                    <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
+                        <GridViewColumn Header="ROOS(mm)" DisplayMemberBinding="{Binding ROOSPos, StringFormat='0.###'}" />
+                        <GridViewColumn Header="Image Y Pixel Height" DisplayMemberBinding="{Binding CropImageYPixelHeight, StringFormat='0.###'}" />
+                        <GridViewColumn Header="Start Y Pixel" DisplayMemberBinding="{Binding StartImageYPixel, StringFormat='0.###'}" />
+                        <GridViewColumn Header="End Y Pixel" DisplayMemberBinding="{Binding EndImageYPixel, StringFormat='0.###'}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <GridSplitter Grid.Row="0" Grid.Column="1"
+                          Width="5" />
+            <TabControl Grid.Row="0" Grid.Column="2">
+                <TabItem Header="Plots">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+            </TabControl>
+            <GridSplitter Grid.Row="1" Grid.Column="0"
+                          Grid.ColumnSpan="3"
+                          Height="5" />
+
+            <Border Grid.Row="2" Grid.Column="0"
+                    Grid.ColumnSpan="3"
+                    Style="{StaticResource BorderRegion}">
+                <TabControl>
+                    <TabItem Header="Images">
+                        <ListBox ItemsSource="{Binding SelectedItems, ElementName=ListView}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type roos:OpticsROOSDTOItem}">
+                                    <Border Width="300"
+                                            Height="300"
+                                            Style="{StaticResource BorderRegion}">
+                                        <view:CanvasView AxisColor="Red"
+                                                         BackgroundColor="#0A0A0A"
+                                                         BackgroundImage="{Binding DrawFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                         Interactive="True"
+                                                         ShowAxes="True"
+                                                         ShowCursor="False"
+                                                         ShowGrid="False" />
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </TabItem>
+                </TabControl>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

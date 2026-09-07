@@ -92,9 +92,6 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
-
         if (ApplicationCookie.OpticsIlluminationModeEnums.Contains(OpticsIlluminationModeEnum.OI) &&
             ApplicationCookie.HardwareStateConfig.MotorHardwares[HardwareMotorTypeEnum.OIINC].Enabled == false)
         {

@@ -118,7 +118,7 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, bool isCustomAFParam, CancellationToken cancellationToken)
+    public Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(ProductivityInformation productivityInformation, StageCoordinateSystemEnum stageCoordinateSystemEnum, Point centerPosition, int imageWidth, (double startYPixel, double endYPixel)? customImageHeight, IReadOnlyList<CIBInformation> cibInformations, bool isForward, bool isAutoFocus, bool isKeepRawImageCIBProfileModeEnum, bool isCustomAFParam, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

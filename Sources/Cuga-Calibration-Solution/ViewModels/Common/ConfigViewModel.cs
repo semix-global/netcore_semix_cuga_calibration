@@ -91,4 +91,17 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
 
         return ret.Anything;
     }
+
+    /// <summary>
+    /// 获取算法配置的原始图像高度、起始Y像素、结束Y像素（B2配置的原始图像可能是裁过的）
+    /// </summary>
+    /// <param name="opticsIlluminationModeEnum">照明光入射方式</param>
+    /// <param name="productivityInformation">产率</param>
+    /// <returns>原始图像高度、起始Y像素、结束Y像素</returns>
+    public (double OriginalHeight, double StartYPixel, double EndYPixel) GetDefaultImageYPixelHeight(ProductivityInformation productivityInformation)
+    {
+        var ret = calibrationConfigService.GetDefaultImageYPixelHeight(productivityInformation);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
 }

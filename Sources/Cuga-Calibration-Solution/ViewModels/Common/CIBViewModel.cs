@@ -183,7 +183,8 @@ public sealed class CIBViewModel(
         bool isForward = true,
         bool isAutoFocus = true,
         bool? isKeepRawImageCIBProfileModeEnum = null,
-        bool isCustomAFParam = false)
+        bool isCustomAFParam = false,
+        (double startYPixel, double endYPixel)? customImageHeight = null)
         => await GetPMTImagesAsync(
             productivityInformation,
             stageCoordinateSystemEnum,
@@ -204,6 +205,7 @@ public sealed class CIBViewModel(
                     stageCoordinateSystemEnum,
                     centerPosition,
                     imageWidth,
+                    customImageHeight,
                     cibInformations,
                     isForward,
                     isAutoFocus,
@@ -230,7 +232,8 @@ public sealed class CIBViewModel(
         bool isForward = true,
         bool isAutoFocus = true,
         bool? isKeepRawImageCIBProfileModeEnum = null,
-        bool isCustomAFParam = false)
+        bool isCustomAFParam = false,
+        (double startYPixel, double endYPixel)? customImageHeight = null)
     {
         var darkFieldImages = await GetPMTImagesAsync(
             productivityInformation,
@@ -247,7 +250,8 @@ public sealed class CIBViewModel(
             isForward: isForward,
             isAutoFocus: isAutoFocus,
             isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum,
-            isCustomAFParam: isCustomAFParam);
+            isCustomAFParam: isCustomAFParam,
+            customImageHeight: customImageHeight);
 
         return darkFieldImages.Single();
     }

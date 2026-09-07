@@ -113,9 +113,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
-        Guard.IsNotNull(ApplicationCookie.HardwareStateConfig);
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 

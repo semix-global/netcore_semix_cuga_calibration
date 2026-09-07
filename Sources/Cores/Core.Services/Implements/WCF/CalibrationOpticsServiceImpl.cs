@@ -291,4 +291,28 @@ public sealed class CalibrationOpticsServiceImpl : BaseService<ICgCalibrationSer
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetROOSMotorRouteRange()
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetOpticRange(CgCommonType.Roos));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, (0d, 0d, 0d));
+
+        return SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.min, sxExecuteRet.Anything.max, 0.1));
+    }
+
+    public SxExecuteRet<double> GetROOSMotorAbsoluteValue()
+    {
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonReadPos(CgCommonType.Roos));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    public SxExecuteRet<bool> SetROOSMotorAbsoluteValue(double value)
+    {
+        var sxExecuteRet = Invoke(() => Service?.OpticCommonMove(CgCommonType.Roos, value));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
 }

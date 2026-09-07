@@ -20,6 +20,8 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationOpticsService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
+    private static readonly Random Random = new();
+
     private double _currentDOEMotorValue;
     private double _currentRelayMotorValue;
     private double _currentINCMotorValue;
@@ -381,6 +383,22 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
     {
         Thread.Sleep(100);
 
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetROOSMotorRouteRange()
+    {
+        return SxExecuteRetHelper.CreateSuccess((0d, 20d, 4d));
+
+    }
+
+    public SxExecuteRet<double> GetROOSMotorAbsoluteValue()
+    {
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(0, 20)));
+    }
+
+    public SxExecuteRet<bool> SetROOSMotorAbsoluteValue(double value)
+    {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 }

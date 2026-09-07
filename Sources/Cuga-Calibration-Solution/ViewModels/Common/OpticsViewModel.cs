@@ -179,4 +179,38 @@ public sealed class OpticsViewModel(
         SetPolarizationMode(opticsConfiguration.OpticsPolarizationModeEnum);
         SetCollectorPolarizationMode(opticsConfiguration.OpticsCollectorPolarizationModeEnum);
     }
+
+    /// <summary>
+    /// 获取ROOS电机行程范围
+    /// </summary>
+    /// <returns>(ROOS起点位置mm，ROOS终点位置mm，ROOS控制精度mm）</returns>
+    public (double StartPos, double EndPos, double Accuracy) GetROOSMotorRouteRange()
+    {
+        var ret = calibrationOpticsService.GetROOSMotorRouteRange();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    /// <summary>
+    /// 获取ROOS电机位置
+    /// </summary>
+    /// <returns>ROOS电机位置mm</returns>
+    public double GetROOSMotorAbsoluteValue()
+    {
+        var ret = calibrationOpticsService.GetROOSMotorAbsoluteValue();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
+    /// <summary>
+    /// 设置ROOS电机位置
+    /// </summary>
+    /// <param name="value">ROOS电机位置mm</param>
+    /// <returns>是否成功</returns>
+    public void SetROOSMotorAbsoluteValue(double value)
+    {
+        var ret = calibrationOpticsService.SetROOSMotorAbsoluteValue(value);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
 }

@@ -19,7 +19,7 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
-    private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test.raw");
+    private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_raw.raw");
     private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_xz_log.raw");
     private readonly string _cibMMDGainDTOFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Assets\Data\MMDTemplate\CIBMMDManualCustomData\{nameof(CIBMMDGainRelationshipDTO)}.xlsx");
 
@@ -199,6 +199,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
         int imageWidth,
+        (double startYPixel, double endYPixel)? customImageHeight,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,

@@ -183,8 +183,15 @@ public sealed class CalibrationConfigServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    private SxExecuteRet<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
-        OpticsIlluminationModeEnum, int OpticsMagType)>> GetPrescanChirpAODWaveConfigs()
+    public SxExecuteRet<(double originalHeight, double StartYPixel, double EndYPixel)> GetDefaultImageYPixelHeight(ProductivityInformation productivityInformation)
+    {
+        var sxExecuteRet = Invoke(() => Service?.GetInfoByProductivity(productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), productivityInformation.AdaptTo().Mag));
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, (0d, 0d, 0d));
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
+    private SxExecuteRet<IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum OpticsIlluminationModeEnum, int OpticsMagType)>> GetPrescanChirpAODWaveConfigs()
     {
         if (_prescanChirpAODWaveConfigs is not null)
             return SxExecuteRetHelper.CreateSuccess(_prescanChirpAODWaveConfigs);

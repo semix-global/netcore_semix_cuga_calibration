@@ -167,4 +167,23 @@ public interface ICalibrationOpticsService
     /// <param name="enable">True为ZOOS遮挡，单光斑采图，否则为所有光斑采图</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> ToggleZoosClinder(OpticsIlluminationModeEnum opticsIlluminationModeEnum, bool enable);
+
+    /// <summary>
+    /// 获取ROOS电机行程范围
+    /// </summary>
+    /// <returns>(ROOS起点位置mm，ROOS终点位置mm，ROOS控制精度mm）</returns>
+    SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetROOSMotorRouteRange();
+
+    /// <summary>
+    /// 获取ROOS电机位置
+    /// </summary>
+    /// <returns>ROOS电机位置mm</returns>
+    SxExecuteRet<double> GetROOSMotorAbsoluteValue();
+
+    /// <summary>
+    /// 设置ROOS电机位置
+    /// </summary>
+    /// <param name="value">ROOS电机位置mm</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetROOSMotorAbsoluteValue(double value);
 }

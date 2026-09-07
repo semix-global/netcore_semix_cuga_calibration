@@ -198,6 +198,7 @@ public sealed class CalibrationCIBServiceImpl(
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point centerPosition,
         int imageWidth,
+        (double startYPixel, double endYPixel)? customImageHeight,
         IReadOnlyList<CIBInformation> cibInformations,
         bool isForward,
         bool isAutoFocus,
@@ -229,7 +230,12 @@ public sealed class CalibrationCIBServiceImpl(
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
                 ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
-                FocusParamNoUsed = isCustomAFParam
+                FocusParamNoUsed = isCustomAFParam,
+                PxRange = new SxPxRange
+                {
+                    StartPoint = Convert.ToInt32(customImageHeight?.startYPixel),
+                    EndPoint = Convert.ToInt32(customImageHeight?.endYPixel)
+                }
             },
             stageCoordinateSystemEnum switch
             {
