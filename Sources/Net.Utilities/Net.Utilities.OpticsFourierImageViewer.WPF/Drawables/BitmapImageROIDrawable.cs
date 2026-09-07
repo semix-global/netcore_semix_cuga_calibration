@@ -34,22 +34,13 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial FillStyle FixedFillStyle { get; set; } = new(SKColors.Green.WithAlpha(64));
 
     [ObservableProperty]
-    public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
-
-    [ObservableProperty]
     public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 64d);
-
-    [ObservableProperty]
-    public partial FillStyle TextForeground { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
     public partial Rect Rect { get; set; }
 
     [ObservableProperty]
     public partial bool IsFixed { get; set; } = false;
-
-    [ObservableProperty]
-    public partial bool IsShowCrossLine { get; set; } = false;
 
     [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
@@ -65,19 +56,14 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         if (BitmapImageDrawable.BitmapImage is null || Rect.IsEmpty) return;
 
         renderer.FillRectangle(IsFixed ? FixedFillStyle : FillStyle, Rect);
-        renderer.DrawRectangle(LineStyle, Rect);
-
-        if (IsShowCrossLine)
-        {
-            renderer.DrawLine(LineStyle, new Point(Rect.Center.X, Rect.YMin), new Point(Rect.Center.X, Rect.YMax));
-            renderer.DrawLine(LineStyle, new Point(Rect.XMin, Rect.Center.Y), new Point(Rect.XMax, Rect.Center.Y));
-        }
+        var lineStyle = new LineStyle(IsFixed ? FixedFillStyle.BackgroundColor.WithAlpha(255) : FillStyle.BackgroundColor.WithAlpha(255));
+        renderer.DrawRectangle(lineStyle, Rect);
 
         if (string.IsNullOrEmpty(Text) == false)
         {
             renderer.DrawString(
                 TextStyle,
-                TextForeground,
+                IsFixed ? FixedFillStyle : FillStyle,
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,
