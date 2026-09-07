@@ -26,7 +26,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     public partial BitmapImageROIDrawable[] BitmapImageROIDrawables { get; set; } = [];
 
     [ObservableProperty]
-    public partial int ROICount { get; set; } = 4;
+    public partial int ROICount { get; set; } = 8;
 
     public MainWindowViewModel()
     {

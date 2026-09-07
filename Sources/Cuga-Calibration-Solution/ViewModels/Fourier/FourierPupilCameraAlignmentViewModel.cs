@@ -258,6 +258,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             Cache.HazeFindBFMachinePosition
         }), HtmlLogUniqueId.LoggingHtml());
 
+        dtoItem.Reset();
+
         var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
         var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
             StageCoordinateSystemEnum.Dark,
