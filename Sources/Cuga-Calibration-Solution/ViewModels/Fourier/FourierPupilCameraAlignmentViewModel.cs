@@ -107,7 +107,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -133,7 +133,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 CalibratingItem = new FourierPupilCameraAlignmentDTO();
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.HazeFindBFMachinePosition != Point.Origin
                         ? Cache.HazeFindBFMachinePosition
                         : MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)), CalChipSiteModelEnum.HazeModel);
@@ -267,7 +267,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             Cache.MicroscopeLensInformation);
 
         StageViewModel.SetAbsoluteStageTheta(0d);
-        StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+        StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
         try
         {
@@ -318,7 +318,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         finally
         {
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
         }
     }
 

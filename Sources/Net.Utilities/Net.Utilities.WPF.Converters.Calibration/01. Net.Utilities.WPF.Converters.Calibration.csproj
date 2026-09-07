@@ -8,26 +8,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Net.Utilities.WPF.CustomControl.Themes" VersionOverride="2.9.5-preview9-xuan"/>
+        <PackageReference Include="Net.Utilities.WPF.CustomControl.Themes" VersionOverride="2.9.6-preview3-xuan" />
 
-        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.5-preview9-xuan" />
+        <PackageReference Include="Net.Utilities.ImageViewer.WPF" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WaferMap.WPF" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.ScottPlot.WPF.V2" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics.WPF" VersionOverride="2.9.6-preview3-xuan" />
 
-        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.Helpers" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.AttachedProperties" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.Behaviors" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.Converters" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.Triggers" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.HandyControl" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.NLogViewer" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.5-preview9-xuan" />
-        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.5-preview9-xuan" />
+        <PackageReference Include="Net.Utilities.WPF" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.Helpers" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.AttachedProperties" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.Behaviors" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.Converters" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.Triggers" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.HandyControl" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.NLogViewer" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="Net.Utilities.WPF.MVVM" VersionOverride="2.9.6-preview3-xuan" />
+        <PackageReference Include="WPF.CanvasViewer" VersionOverride="2.9.6-preview3-xuan" />
 
-        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.5-preview9-xuan" />
+        <PackageReference Include="WPF.CustomControl" VersionOverride="2.9.6-preview3-xuan" />
     </ItemGroup>
 
     <ItemGroup>

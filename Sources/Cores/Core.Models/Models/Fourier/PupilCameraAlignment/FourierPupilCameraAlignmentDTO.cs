@@ -110,6 +110,8 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         {
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
+            _roiBitmapImageDrawable.BitmapImage = null;
+            
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
             _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
@@ -158,7 +160,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
             ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(ChannelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(ChannelImageFilePath)}");
 
-            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
+            _roiBitmapImageDrawable.Point = _bitmapImageDrawable.Point + new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
             _roiBitmapImageDrawable.BitmapImage = _bitmapImageDrawable.BitmapImage.ToROI(ImageROI);
             _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIChannelImageFilePath);
         }
@@ -177,7 +179,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI).ClampToBounds(new Rect(_bitmapImageDrawable.Point, _bitmapImageDrawable.BitmapImage.Size));
 
-            _roiBitmapImageDrawable.Point += new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
+            _roiBitmapImageDrawable.Point = _bitmapImageDrawable.Point + new Vector(_bitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
             _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
         }
         finally

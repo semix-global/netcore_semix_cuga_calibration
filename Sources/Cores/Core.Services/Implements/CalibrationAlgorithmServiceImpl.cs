@@ -114,7 +114,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         try
         {
             using var hImage = image.ToHImage();
-            using var roiImage = hImage.ToRoi(roiRect);
+            using var roiImage = hImage.ToROI(roiRect);
 
             _algorithm.WuMTF(roiImage, out var mtfX, out var mtfY);
 

@@ -69,6 +69,7 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
     public Point GetBFMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum)
     {
         var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+
         return calChipSiteModelEnum switch
         {
             CalChipSiteModelEnum.ChuckModel => applicationCookie.BFCenterMachinePosition,

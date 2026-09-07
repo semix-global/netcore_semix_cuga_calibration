@@ -499,7 +499,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
 
             using var hImage = RAWImageFactory.CreateImage(mockImagePath, false);
-            using var reduceImage = hImage.ToRoi(new Rect(0, 4, size.Width, size.Height - 8));
+            using var reduceImage = hImage.ToROI(new Rect(0, 4, size.Width, size.Height - 8));
 
             using var mirrorImage = reduceImage.VerticalFlip();
 
