@@ -465,7 +465,7 @@
                                 <graphicsWPF:WPFCanvasControl.Resources>
                                     <ResourceDictionary>
                                         <ResourceDictionary.MergedDictionaries>
-                                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl;component/Themes/ToolBarStyles.xaml" />
+                                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
                                         </ResourceDictionary.MergedDictionaries>
                                     </ResourceDictionary>
                                 </graphicsWPF:WPFCanvasControl.Resources>
