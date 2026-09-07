@@ -159,7 +159,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -177,18 +177,15 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
-                    Cache.CalChipSiteModelEnum switch
-                    {
-                        CalChipSiteModelEnum.ChuckModel => Cache.Item.FindBFMachinePosition == Point.Origin ? ChuckCenter.NewBFCenterStagePosition : Cache.Item.FindBFMachinePosition,
-                        CalChipSiteModelEnum.DswModel => Cache.Item.FindBFMachinePosition == Point.Origin ? MicroscopeCalChip.DSWBrightFieldMachineAffinePosition : Cache.Item.FindBFMachinePosition,
-                        _ => ThrowHelper.ThrowNotSupportedException<Point>("Current CalChip Mode Is Not Supported!")
-                    }), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
             case 3:
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 

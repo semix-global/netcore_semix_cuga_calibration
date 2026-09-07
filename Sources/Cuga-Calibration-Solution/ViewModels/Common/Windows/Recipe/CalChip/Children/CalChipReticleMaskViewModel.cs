@@ -159,7 +159,7 @@ public sealed partial class CalChipReticleMaskViewModel(
                 false,
                 out var maskMachinePosition);
 
-            stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(maskMachinePosition), CurrentCalChipSiteModelEnum);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(maskMachinePosition), CurrentCalChipSiteModelEnum);
         }
         catch (Exception ex)
         {

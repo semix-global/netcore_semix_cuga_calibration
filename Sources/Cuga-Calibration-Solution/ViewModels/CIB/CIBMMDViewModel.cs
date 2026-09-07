@@ -161,7 +161,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -179,9 +179,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition != Point.Origin
-                    ? Cache.HazeFindBFMachinePosition
-                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.HazeFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -602,7 +603,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+            StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
             try
             {

@@ -150,7 +150,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
         };
 
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
         return true;
     }
 
@@ -238,7 +238,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             var averageX = CalibratingItem.Items.Average(t => t.CentricityPosition.X);
             var averageY = CalibratingItem.Items.Average(t => t.CentricityPosition.Y);
             var averageCentricityPosition = new Point(averageX, averageY);
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(averageCentricityPosition, Cache.CalChipSiteModelEnum);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(averageCentricityPosition, Cache.CalChipSiteModelEnum);
 
             SelectedItem = CalibratingItem.Items.OrderBy(t => (t.CentricityPosition - (Vector)averageCentricityPosition).ToOriginLength).First();
             CalibratingItem.Result = SelectedItem.Clone();
@@ -296,7 +296,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 return false;
             }
 
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centricityItemMaxDto.Result.CentricityPosition, Cache.CalChipSiteModelEnum);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(centricityItemMaxDto.Result.CentricityPosition, Cache.CalChipSiteModelEnum);
 
             await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
             StageViewModel.MoveRelativeStageXy(SelectedReviewItem.Result.Offset);
@@ -411,7 +411,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 microscopeCentricityItem.Offset
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(originalPosition, Cache.CalChipSiteModelEnum);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(originalPosition, Cache.CalChipSiteModelEnum);
 
             CalibratingItem.Items = [.. CalibratingItem.Items, microscopeCentricityItem];
         }

@@ -242,7 +242,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
                 return true;
 
             case 3:

@@ -180,7 +180,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d));
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d), CalChipSiteModelEnum.DswModel);
 
             Cache.AlignmentResult = alignmentResult;
 
@@ -234,7 +234,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             await microscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
             var dswBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
-            stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(dswBFPosition, CalChipSiteModelEnum.DswModel);
 
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -258,7 +258,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
             }
             finally
             {
-                stageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+                stageViewModel.SetBrightFieldAbsoluteStageXy(dswBFPosition, CalChipSiteModelEnum.DswModel);
             }
 
             return true;

@@ -356,7 +356,7 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
 
                 _calibrationRecipeService.GetWaferMapDieMachinePosition(WaferDTO, waferMapDie, out var machinePosition);
 
-                _stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(_stageViewModel.MachineToBrightFieldPosition(machinePosition), CalChipSiteModelEnum);
+                _stageViewModel.SetBrightFieldAbsoluteStageXy(_stageViewModel.MachineToBrightFieldPosition(machinePosition), CalChipSiteModelEnum);
             }
             catch (Exception ex)
             {

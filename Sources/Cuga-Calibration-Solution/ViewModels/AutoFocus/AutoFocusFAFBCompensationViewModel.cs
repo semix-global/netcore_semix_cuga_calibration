@@ -115,7 +115,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
 
             case 1:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
                     Cache.Items.ElementAtOrDefault(0)?.FindBFMachinePosition ?? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
 
                 return true;
@@ -358,10 +358,10 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 Logger.LogHtmlInformation($"{cacheItem.FindBFMachinePosition}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
                 var tempBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(cacheItem.FindBFMachinePosition);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
                 await Task.Delay(1000, cancellationToken);
 
-                StageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(tempBrightFieldPosition, Cache.CalChipSiteModelEnum);
 
                 CIBViewModel.SetGlobalRTFCParams(ApplicationCookie.ProductivityInformations[0]);
                 await Task.Delay(100, cancellationToken);
@@ -471,7 +471,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
         }
         finally
         {
-            StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(brightFieldPosition, Cache.CalChipSiteModelEnum);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(brightFieldPosition, Cache.CalChipSiteModelEnum);
         }
     }
 

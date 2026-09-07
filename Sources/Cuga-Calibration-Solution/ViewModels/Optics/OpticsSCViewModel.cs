@@ -139,7 +139,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 
@@ -162,9 +162,10 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.DSWFindBFMachinePosition
-                    : MicroscopeCalChip.DswItem.BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.DSWFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.DswModel)
+                        : Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 
@@ -316,7 +317,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
             CalibratingItem.IsCalibrated = false;
 
             var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition);
-            StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(dswBFPosition, CalChipSiteModelEnum.DswModel);
 
             var startCurrentDSWBFPosition = CIBViewModel.GetCIBInformationPosition(
                 StageCoordinateSystemEnum.Dark,
@@ -428,7 +429,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
             finally
             {
                 OpticsViewModel.SetSCMotorAbsoluteValue(Cache.OpticsIlluminationModeEnum, (currentMotorAbsoluteValueL1, currentMotorAbsoluteValueL3));
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(dswBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(dswBFPosition, CalChipSiteModelEnum.DswModel);
             }
         });
     }

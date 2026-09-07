@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Stage;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Cookies;
 
@@ -82,6 +83,18 @@ public sealed partial class ApplicationCookie : ObservableObject
     /// </summary>
     [ObservableProperty]
     public partial IReadOnlyList<MicroscopeLensInformation> MicroscopeLensInformations { get; set; } = [];
+
+    /// <summary>
+    /// 明场中心的机械坐标
+    /// </summary>
+    [ObservableProperty]
+    public partial Point BFCenterMachinePosition { get; set; } = new();
+
+    /// <summary>
+    /// 暗场中心的机械坐标
+    /// </summary>
+    [ObservableProperty]
+    public partial Point DFCenterMachinePosition { get; set; } = new();
 
     /// <summary>
     /// 激光光强信息列表

@@ -245,7 +245,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
                     {
                         MicroscopeCalChip.CalChipSiteModelEnum = CurrentCalChipSiteModelEnum;
                         _stageViewModel.SetAbsoluteStageTheta(EditDTO.CurrentItem.AlignmentAbsoluteAngle!.Value);
-                        _stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(
+                        _stageViewModel.SetBrightFieldAbsoluteStageXy(
                             EditDTO.CurrentItem.CalChipMapDTO.WaferMapDataDTO.WaferCircleCenter,
                             CurrentCalChipSiteModelEnum);
                         CalChipWaferMapViewModel.NotifyAll();

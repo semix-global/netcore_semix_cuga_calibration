@@ -137,11 +137,6 @@
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <hc:ButtonGroup>
-                                <Button x:Name="P1GotoButton"
-                                        Content="Goto"
-                                        Command="{Binding StageViewModel.SetBrightFieldAbsoluteStageXyCommand}"
-                                        CommandParameter="{Binding ReviewDto.Position1}"
-                                        Width="120" />
                                 <Button x:Name="P1ReviewTemplateButton"
                                         Content="Review Template"
                                         Command="{Binding ReviewViewModel.ReviewCommand}"
@@ -181,11 +176,6 @@
                                      IsReadOnly="True"
                                      Style="{StaticResource TextBoxExtend}" />
                             <hc:ButtonGroup>
-                                <Button x:Name="P2GotoButton"
-                                        Content="Goto"
-                                        Command="{Binding StageViewModel.SetBrightFieldAbsoluteStageXyCommand}"
-                                        CommandParameter="{Binding ReviewDto.Position2}"
-                                        Width="120" />
                                 <Button x:Name="P2ReviewTemplateButton"
                                         Content="Review Template"
                                         Command="{Binding ReviewViewModel.ReviewCommand}"

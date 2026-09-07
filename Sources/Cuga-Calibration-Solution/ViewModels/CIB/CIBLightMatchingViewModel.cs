@@ -146,14 +146,14 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 
@@ -174,18 +174,20 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
             case 1:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.HazeFindBFMachinePosition
-                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.HazeFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.Item.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition != Point.Origin
-                    ? Cache.Item.SilicaSphereFindBFMachinePosition
-                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.SilicaSphereFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.Item.SilicaSphereFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -335,7 +337,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 {
                     var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
                     StageViewModel.SetAbsoluteStageTheta(0d);
-                    StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                    StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
                     Logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -518,7 +520,7 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
                 {
                     var silicaSphereBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.SilicaSphereFindBFMachinePosition);
                     StageViewModel.SetAbsoluteStageTheta(0d);
-                    StageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition);
+                    StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(silicaSphereBFPosition, CalChipSiteModelEnum.HazeModel);
 
                     Logger.LogHtmlInformation("Silica Sphere", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 

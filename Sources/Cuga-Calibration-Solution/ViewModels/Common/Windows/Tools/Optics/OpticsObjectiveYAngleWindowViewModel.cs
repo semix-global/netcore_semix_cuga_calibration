@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
 using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -271,7 +272,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition));
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition), CalChipSiteModelEnum.HazeModel);
                     afViewModel.ToggleDarkFieldEnable(true);
                     laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
                     laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
@@ -296,7 +297,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetCalChipShinyWaferDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition));
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition), CalChipSiteModelEnum.ShinyWaferModel);
                     afViewModel.ToggleDarkFieldEnable(true);
 
                     Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;

@@ -191,10 +191,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
 
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(
-                    Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.ChuckModel
-                        ? new Point(0, 0)
-                        : StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.CurrentItem.BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum), Cache.CalChipSiteModelEnum);
             }
             catch (Exception ex)
             {
@@ -272,7 +269,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     }
 
                     var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(resultLowSite2.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.LowSite2 = resultLowSite2;
                     Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -321,7 +318,7 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     }
 
                     var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1);
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(resultHighSite2.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.HighSite2 = resultHighSite2;
                     Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -429,22 +426,22 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
             switch (StepIndex)
             {
                 case 0:
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 1:
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 2:
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 3:
-                    StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
             }

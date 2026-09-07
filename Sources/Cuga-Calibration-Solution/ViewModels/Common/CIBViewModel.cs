@@ -555,12 +555,12 @@ public sealed class CIBViewModel(
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
+                        stageViewModel.SetBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
+                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
@@ -618,12 +618,12 @@ public sealed class CIBViewModel(
                 switch (stageCoordinateSystemEnum)
                 {
                     case StageCoordinateSystemEnum.Bright:
-                        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
+                        stageViewModel.SetBrightFieldAbsoluteStageXy(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
                     case StageCoordinateSystemEnum.Dark:
-                        stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
+                        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 
