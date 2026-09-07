@@ -118,8 +118,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     Document.ROIModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
-                        ResizeJoystickStateEnum = resizeJoystickStateEnum,
-                        Text = $"{i + 1}"
+                        IsFixed = Random.Shared.NextDouble() > 0.5,
+                        Text = $"{i + 1}",
+                        ResizeJoystickStateEnum = resizeJoystickStateEnum
                     });
                 }
             });

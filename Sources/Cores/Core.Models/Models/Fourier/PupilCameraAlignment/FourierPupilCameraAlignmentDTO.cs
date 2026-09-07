@@ -111,7 +111,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
             _roiBitmapImageDrawable.BitmapImage = null;
-            
+
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             var roiSize = (Size)_bitmapImageDrawable.BitmapImage.Size / 2d;
             _bitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));

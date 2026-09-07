@@ -13,10 +13,6 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
-    private static readonly FillStyle FixedBackgroundFillStyle = new(SKColors.Gray.WithAlpha(128));
-    private static readonly FillStyle TextBackground = new(SKColors.Transparent);
-    private static readonly LineStyle TextBorder = new(SKColors.Transparent);
-
     private static readonly (BitmapImageROIResizeJoystickStateEnum Type, string Name, Func<Rect, Point> GetPoint)[] ControlPointDefinitions =
     [
         (BitmapImageROIResizeJoystickStateEnum.XMaxYMax, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYMax), rect => rect.XMaxYMax),
@@ -35,6 +31,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(64));
 
     [ObservableProperty]
+    public partial FillStyle FixedFillStyle { get; set; } = new(SKColors.Green.WithAlpha(64));
+
+    [ObservableProperty]
     public partial LineStyle LineStyle { get; set; } = new(SKColors.Red);
 
     [ObservableProperty]
@@ -47,10 +46,10 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial Rect Rect { get; set; }
 
     [ObservableProperty]
-    public partial bool IsShowCrossLine { get; set; }
+    public partial bool IsFixed { get; set; } = false;
 
     [ObservableProperty]
-    public partial bool IsFixed { get; set; }
+    public partial bool IsShowCrossLine { get; set; } = false;
 
     [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
@@ -63,11 +62,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
 
     public override void Draw(Renderer renderer)
     {
-        if (Rect.IsEmpty) return;
+        if (BitmapImageDrawable.BitmapImage is null || Rect.IsEmpty) return;
 
-        if (IsFixed) renderer.FillRectangle(FixedBackgroundFillStyle, Rect);
-
-        renderer.FillRectangle(FillStyle, Rect);
+        renderer.FillRectangle(IsFixed ? FixedFillStyle : FillStyle, Rect);
         renderer.DrawRectangle(LineStyle, Rect);
 
         if (IsShowCrossLine)
@@ -84,8 +81,8 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,
-                TextBackground,
-                TextBorder,
+                new FillStyle(SKColors.Transparent),
+                new LineStyle(SKColors.Transparent),
                 new Vector(0d, 0d),
                 new Padding(0d));
         }
