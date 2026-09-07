@@ -110,6 +110,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         {
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
+            _bitmapImageROIDrawable.IsFixed = false;
             _roiBitmapImageDrawable.BitmapImage = null;
 
             _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
@@ -155,6 +156,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
             OuterLoop:
 
+            _bitmapImageROIDrawable.IsFixed = true;
             ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
             Guard.IsEqualTo(_bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI), _bitmapImageROIDrawable.Rect);
 

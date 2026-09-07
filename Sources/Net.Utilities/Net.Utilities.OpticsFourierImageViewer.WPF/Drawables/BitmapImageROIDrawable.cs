@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Drawables;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Editors;
 using Net.Utilities.Graphics.Primitives.Enums.Medias;
 using Net.Utilities.Graphics.Primitives.Medias;
@@ -34,9 +35,6 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial FillStyle FixedFillStyle { get; set; } = new(SKColors.Green.WithAlpha(64));
 
     [ObservableProperty]
-    public partial TextStyle TextStyle { get; set; } = new(Fonts.Monospace, 64d);
-
-    [ObservableProperty]
     public partial Rect Rect { get; set; }
 
     [ObservableProperty]
@@ -56,14 +54,18 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         if (BitmapImageDrawable.BitmapImage is null || Rect.IsEmpty) return;
 
         renderer.FillRectangle(IsFixed ? FixedFillStyle : FillStyle, Rect);
-        var lineStyle = new LineStyle(IsFixed ? FixedFillStyle.BackgroundColor.WithAlpha(255) : FillStyle.BackgroundColor.WithAlpha(255));
+        var lineStyle = new LineStyle(IsFixed
+            ? FixedFillStyle.BackgroundColor.WithAlpha(255)
+            : FillStyle.BackgroundColor.WithAlpha(255));
         renderer.DrawRectangle(lineStyle, Rect);
 
         if (string.IsNullOrEmpty(Text) == false)
         {
             renderer.DrawString(
-                TextStyle,
-                IsFixed ? FixedFillStyle : FillStyle,
+                new TextStyle(Fonts.Monospace, Math.Min(Rect.Width, Rect.Height) / 2d, isUnitPx: false),
+                new FillStyle(IsFixed
+                    ? FixedFillStyle.BackgroundColor.ToReadableForegroundColor().WithAlpha(FixedFillStyle.BackgroundColor.Alpha)
+                    : FillStyle.BackgroundColor.ToReadableForegroundColor().WithAlpha(FillStyle.BackgroundColor.Alpha)),
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,
