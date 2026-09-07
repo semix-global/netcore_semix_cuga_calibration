@@ -22,7 +22,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     ModifyBitmapImageROIDrawableInputOptions options,
     TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
-    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _originals = [];
+    private ImmutableDictionary<BitmapImageROIDrawable, Rect> _originalRects = [];
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect)> _edits = [];
     private readonly Stack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)>> _undoStack = [];
     private readonly Stack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)>> _redoStack = [];
@@ -64,7 +64,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
             bitmapImageROIDrawable.IsEditorModified = false;
-            ImmutableInterlocked.Update(ref _originals, t => t.Add((bitmapImageROIDrawable, bitmapImageROIDrawable.Rect)));
+            ImmutableInterlocked.Update(ref _originalRects, t => t.Add(bitmapImageROIDrawable, bitmapImageROIDrawable.Rect));
         }
 
         args.IsInputValid = true;
@@ -246,7 +246,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         if (_isAccepted == false)
         {
-            foreach (var (rectROIDrawable, originalRect) in _originals)
+            foreach (var (rectROIDrawable, originalRect) in _originalRects)
             {
                 rectROIDrawable.Rect = originalRect;
                 rectROIDrawable.IsEditorModified = false;
@@ -259,7 +259,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void Reset()
     {
         ClearSelection();
-        ImmutableInterlocked.Update(ref _originals, _ => []);
+        ImmutableInterlocked.Update(ref _originalRects, _ => []);
         _undoStack.Clear();
         _redoStack.Clear();
 
@@ -331,15 +331,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ApplyHistory(ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, Rect OriginalRect, Rect ModifiedRect)> edit, bool isUndo)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         foreach (var item in edit)
         {
             item.BitmapImageROIDrawable.Rect = isUndo
                 ? item.OriginalRect
                 : item.ModifiedRect;
 
-            UpdateIsEditorModified(item.BitmapImageROIDrawable);
+            item.BitmapImageROIDrawable.IsEditorModified = _originalRects[item.BitmapImageROIDrawable] != item.BitmapImageROIDrawable.Rect;
         }
     }
 
@@ -487,7 +485,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         foreach (var (bitmapImageROIDrawable, originalRect) in _edits)
         {
             bitmapImageROIDrawable.Rect = (originalRect + constrainedDelta).ClampToBounds(imageRect);
-            UpdateIsEditorModified(bitmapImageROIDrawable);
+            bitmapImageROIDrawable.IsEditorModified = _originalRects[bitmapImageROIDrawable] != bitmapImageROIDrawable.Rect;
         }
     }
 
@@ -529,15 +527,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             };
 
             bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
-            UpdateIsEditorModified(bitmapImageROIDrawable);
+            bitmapImageROIDrawable.IsEditorModified = _originalRects[bitmapImageROIDrawable] != bitmapImageROIDrawable.Rect;
         }
-    }
-
-    private void UpdateIsEditorModified(BitmapImageROIDrawable bitmapImageROIDrawable)
-    {
-        var (_, originalRect) = _originals.Single(t => ReferenceEquals(t.BitmapImageROIDrawable, bitmapImageROIDrawable));
-
-        bitmapImageROIDrawable.IsEditorModified = originalRect != bitmapImageROIDrawable.Rect;
     }
 
     #endregion
