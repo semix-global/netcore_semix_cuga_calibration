@@ -16,6 +16,7 @@ using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Net.Utilities.Calibration;
 using Net.Utilities.Models;
 using Net.Utilities.SourceGenerators.Calibration;
 using Net.Utilities.WPF.MVVM;
@@ -29,7 +30,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using Net.Utilities.Calibration;
 
 namespace CugaCalibration;
 

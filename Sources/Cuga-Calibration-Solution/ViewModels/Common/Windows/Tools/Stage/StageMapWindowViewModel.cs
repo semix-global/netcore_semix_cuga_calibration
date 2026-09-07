@@ -123,7 +123,7 @@ public sealed partial class StageMapWindowViewModel(
                     bfPosition,
                     Cache.MicroscopeLensInformation);
 
-                stageViewModel.SetCalChipDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition, CalChipSiteModelEnum.ChuckModel);
+                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition);
 
                 try
                 {
@@ -160,7 +160,7 @@ public sealed partial class StageMapWindowViewModel(
                 }
                 finally
                 {
-                    stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(bfPosition, CalChipSiteModelEnum.ChuckModel);
+                    stageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition);
                 }
             }
             catch (Exception ex)
@@ -272,7 +272,7 @@ public sealed partial class StageMapWindowViewModel(
 
         Cache.AlignmentResult = newAlignmentResult;
 
-        stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+        stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
@@ -790,7 +790,7 @@ public sealed partial class StageMapWindowViewModel(
         finally
         {
             foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId);
-            stageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
         }
     }
 

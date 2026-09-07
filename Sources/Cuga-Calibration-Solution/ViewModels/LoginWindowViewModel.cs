@@ -5,7 +5,6 @@ using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Exceptions;
-using Local.SQL.DB.Providers.Repositories.Interfaces;
 using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

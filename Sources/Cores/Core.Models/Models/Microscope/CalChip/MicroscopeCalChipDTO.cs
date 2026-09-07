@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Wcf.Models.Microscope;
 using Cuga.Data.DataStruct.Microscope.Enums;
@@ -16,6 +17,7 @@ using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
+using Net.Utilities.WPF.MVVM;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 using System.Collections.Concurrent;
@@ -64,15 +66,19 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
         }
     }
 
-    public Point GetBFMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum) => calChipSiteModelEnum switch
+    public Point GetBFMachinePosition(CalChipSiteModelEnum calChipSiteModelEnum)
     {
-        CalChipSiteModelEnum.ChuckModel => Point.Origin,
-        CalChipSiteModelEnum.DswModel => DswItem.BrightFieldMachinePosition,
-        CalChipSiteModelEnum.UndefinedModel => UndefineWaferItem.BrightFieldMachinePosition,
-        CalChipSiteModelEnum.HazeModel => HazeItem.BrightFieldMachinePosition,
-        CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferItem.BrightFieldMachinePosition,
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
-    };
+        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
+        return calChipSiteModelEnum switch
+        {
+            CalChipSiteModelEnum.ChuckModel => applicationCookie.BFCenterMachinePosition,
+            CalChipSiteModelEnum.DswModel => DswItem.BrightFieldMachinePosition,
+            CalChipSiteModelEnum.UndefinedModel => UndefineWaferItem.BrightFieldMachinePosition,
+            CalChipSiteModelEnum.HazeModel => HazeItem.BrightFieldMachinePosition,
+            CalChipSiteModelEnum.ShinyWaferModel => ShinyWaferItem.BrightFieldMachinePosition,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(calChipSiteModelEnum))
+        };
+    }
 
     #region Mapper
 
@@ -148,6 +154,8 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
     [ObservableProperty]
     public partial Point[] EcsAFErrorMaxMins { get; set; } = [];
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
     partial void OnEcsValueChanged(double value) => RefreshPlot();
 
     partial void OnAFErrorChanged(IReadOnlyList<double> value) => RefreshPlot();
@@ -155,6 +163,8 @@ public sealed partial class MicroscopeCalChipDTOItem : ObservableObject, IClonea
     partial void OnEcsAFErrorPointsChanged(Point[] value) => RefreshPlot();
 
     partial void OnEcsAFErrorMaxMinsChanged(Point[] value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657

@@ -4,11 +4,11 @@ using Core.Models.Enums.Optics;
 using Humanizer;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Models.Geometries;
-using ScottPlot;
-using System.ComponentModel;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
+using ScottPlot;
+using System.ComponentModel;
 using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;

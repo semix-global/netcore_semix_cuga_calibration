@@ -176,8 +176,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 return true;
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetCalChipBrightFieldAbsoluteStageXy(Cache.Item.StartPosition,
-                    Cache.Item.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.StartPosition, Cache.Item.CalChipSiteModelEnum);
                 return true;
 
             case 5:

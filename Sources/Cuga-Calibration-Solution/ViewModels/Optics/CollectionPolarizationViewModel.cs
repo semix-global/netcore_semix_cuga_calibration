@@ -138,9 +138,11 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
             case 2:
 
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
-                    ? Cache.FindBFMachinePosition
-                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.FindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
+
                 return true;
 
             case 3:
@@ -162,9 +164,10 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         {
             case 0:
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetCalChipHazeBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition != Point.Origin
-                    ? Cache.FindBFMachinePosition
-                    : Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.FindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 

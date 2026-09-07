@@ -139,7 +139,7 @@ public sealed partial class CIBAgingWindowViewModel(
 
             var hazeBFPosition = stageViewModel.MachineToBrightFieldPosition(Cache.CIBMMDCache.HazeFindBFMachinePosition);
             stageViewModel.SetAbsoluteStageTheta(0d);
-            stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+            stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
             Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.CIBMMDCache.ProductivityInformation;
             Cache.CIBMMDCache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
@@ -346,7 +346,7 @@ public sealed partial class CIBAgingWindowViewModel(
                     }
 
                     stageViewModel.SetAbsoluteStageTheta(0d);
-                    stageViewModel.SetCalChipHazeDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
                     isSuccess = false;
                     try

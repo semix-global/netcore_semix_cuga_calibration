@@ -9,7 +9,7 @@ namespace Net.Utilities.Calibration;
 [IOCAppService(ServiceType = typeof(ISysUserRoleService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public class SysUserRoleServiceImpl(
     ISysUserRepository sysUserRepository,
-    ISysUserRoleRepository sysUserRoleRepository):ISysUserRoleService
+    ISysUserRoleRepository sysUserRoleRepository) : ISysUserRoleService
 {
     public async Task<bool> InsertAsync(SysUserDTO sysUserDTO, CancellationToken cancellationToken = default)
     {

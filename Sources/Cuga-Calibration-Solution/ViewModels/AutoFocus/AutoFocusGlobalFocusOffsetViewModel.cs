@@ -123,11 +123,11 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 Cache.Item.RTFCBrightFieldMachinePosition = MicroscopeCalChip.DSWBrightFieldMachineAffinePosition;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.DSWBrightFieldMachineAffinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
             case 2:
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -157,7 +157,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
                 return true;
 
             case 3:
-                StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -311,7 +311,7 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
 
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                     //StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
-                    StageViewModel.SetCalChipDswBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition));
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.RTFCBrightFieldMachinePosition), Cache.CalChipSiteModelEnum);
 
                     selectedReviewItem.IsVerified = false;
                     var globalFocusOffsetDTO = selectedReviewItem.Clone();
