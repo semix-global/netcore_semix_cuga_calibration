@@ -60,7 +60,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
-                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible && t.IsFixed == false))
+                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
             bitmapImageROIDrawable.IsEditorModified = false;
@@ -125,7 +125,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             {
                 _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
 
-                foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Where(t => t.IsFixed == false))
+                foreach (var rectROIDrawable in Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
+                             .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
                 {
                     ImmutableInterlocked.Update(ref _edits, t => t.Add((rectROIDrawable, rectROIDrawable.Rect)));
                 }
@@ -160,7 +161,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             selectedBitmapImageROIDrawable = null;
             selectedControlPoint = null;
 
-            var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>().Where(t => t.IsFixed == false).ToArray();
+            var selectedRectROIDrawables = Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
+                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
+                .ToArray();
             if (selectedRectROIDrawables.Length == 0) return false;
 
             var controlPointPickDistance = Edit.Document.View.ScreenToWorldDistance(Edit.Document.Settings.ControlPointPickDistance);
@@ -382,7 +385,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         BitmapImageROIDrawable[] selectedItems =
         [
             .. opticsFourierImageDocument.ROIModel
-                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t.IsVisible && t.IsFixed == false)
+                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
                 .Where(t => selectionWindow.GetExtents().IntersectsWith(t.GetExtents()))
         ];
 
