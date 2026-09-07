@@ -297,7 +297,7 @@ public sealed class MicroscopeViewModel(
             else
                 logger.LogError("{@Name} Set voltage to af error zero failed!", nameof(MicroscopeViewModel));
 
-            return (false, midVoltage, buffersAverageList.Select(t => Math.Abs(t)).Min());
+            return (false, midVoltage, buffersAverageList.Select(Math.Abs).Min());
         }
         catch (Exception ex)
         {
