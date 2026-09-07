@@ -475,7 +475,7 @@
                                              Background="Transparent"
                                              Band="0"
                                              BandIndex="2">
-                                        <ItemsControl ItemsSource="{Binding Cache.StageMapTemplates}" AlternationCount="1000">
+                                        <ItemsControl ItemsSource="{Binding Cache.StageMapTemplates}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <StackPanel Orientation="Horizontal" />
@@ -483,9 +483,10 @@
                                             </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Button Content="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType=ContentPresenter}, Converter={StaticResource OrdinalIndexConverter}}"
+                                                    <Button Content="{Binding DisplayIndex}"
                                                             Command="{Binding DataContext.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
                                                             CommandParameter="{Binding}"
+                                                            Height="24"
                                                             Margin="3,0"
                                                             Padding="5,3"
                                                             ContentStringFormat="Goto {0}" />
@@ -522,8 +523,7 @@
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
                             <ListBox HorizontalContentAlignment="Stretch"
                                      VirtualizingPanel.ScrollUnit="Pixel"
-                                     ItemsSource="{Binding Cache.RepeatStageMaps}"
-                                     AlternationCount="1000">
+                                     ItemsSource="{Binding Cache.RepeatStageMaps}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="{x:Type viewModels:StageMap}">
                                         <Border Height="500"
@@ -535,7 +535,7 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="*" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource FindAncestor, AncestorType=ListBoxItem}, Converter={StaticResource OrdinalIndexConverter}, StringFormat='Repeat {0}'}"
+                                                <TextBlock Text="{Binding DisplayIndex, StringFormat='Repeat {0}'}"
                                                            HorizontalAlignment="Center"
                                                            Style="{StaticResource TextBlockSubTitleBold}"
                                                            Foreground="{StaticResource SuccessBrush}" />

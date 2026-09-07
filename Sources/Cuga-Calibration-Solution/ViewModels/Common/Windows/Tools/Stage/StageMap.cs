@@ -29,6 +29,10 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 
     [JsonIgnore]
     [ObservableProperty]
+    public partial int DisplayIndex { get; set; }
+
+    [JsonIgnore]
+    [ObservableProperty]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     public void Refresh()

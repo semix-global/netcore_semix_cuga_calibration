@@ -98,6 +98,16 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     #endregion
 
+    partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
+    {
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+    }
+
+    partial void OnRepeatStageMapsChanged(StageMap[] value)
+    {
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+    }
+
     public object ToHtmlAnonymous() => new
     {
         ProductivityInformation,
