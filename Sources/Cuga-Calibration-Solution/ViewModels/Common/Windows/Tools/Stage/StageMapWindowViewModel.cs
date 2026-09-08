@@ -123,7 +123,7 @@ public sealed partial class StageMapWindowViewModel(
                     bfPosition,
                     Cache.MicroscopeLensInformation);
 
-                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition);
+                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition, CalChipSiteModelEnum.ChuckModel);
 
                 try
                 {
@@ -160,7 +160,7 @@ public sealed partial class StageMapWindowViewModel(
                 }
                 finally
                 {
-                    stageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition);
+                    stageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition, CalChipSiteModelEnum.ChuckModel);
                 }
             }
             catch (Exception ex)
@@ -216,7 +216,7 @@ public sealed partial class StageMapWindowViewModel(
                 stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
                     currentCIBLineCentricity.MicroscopeLensInformation,
                     microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition));
+                    darkFieldPosition), CalChipSiteModelEnum.ChuckModel);
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -272,7 +272,7 @@ public sealed partial class StageMapWindowViewModel(
 
         Cache.AlignmentResult = newAlignmentResult;
 
-        stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
@@ -678,7 +678,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], CalChipSiteModelEnum.ChuckModel);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0]);
                     darkFieldImages =
                     [
                         .. await cibViewModel.GetPMTImagesAsync(
@@ -790,7 +790,7 @@ public sealed partial class StageMapWindowViewModel(
         finally
         {
             foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId);
-            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }
     }
 

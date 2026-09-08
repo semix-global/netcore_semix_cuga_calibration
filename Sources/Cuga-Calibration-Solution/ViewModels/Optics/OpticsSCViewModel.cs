@@ -139,7 +139,10 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.DSWFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.DswModel)
+                        : Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 

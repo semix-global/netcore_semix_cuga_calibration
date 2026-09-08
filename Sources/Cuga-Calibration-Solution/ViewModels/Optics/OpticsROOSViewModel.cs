@@ -143,7 +143,10 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                 return true;
 
             case 3:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition));
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -356,9 +359,12 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
 
-                Point[] fitPoints = [..CalibratingItem.Items
-                    .Where(t => t.StartImageYPixel > 0 && t.EndImageYPixel < Cache.Item.ConfigImageYPixelHeight)
-                    .Select(tt => new Point(tt.ROOSPos, tt.CropImageYPixelHeight))];
+                Point[] fitPoints =
+                [
+                    ..CalibratingItem.Items
+                        .Where(t => t.StartImageYPixel > 0 && t.EndImageYPixel < Cache.Item.ConfigImageYPixelHeight)
+                        .Select(tt => new Point(tt.ROOSPos, tt.CropImageYPixelHeight))
+                ];
 
                 var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(
                     Vector<double>.Build.DenseOfEnumerable(fitPoints.Select(t => t.X)),

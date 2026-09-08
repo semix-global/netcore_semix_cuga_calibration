@@ -144,7 +144,10 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.HazeFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.Item.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -279,7 +282,7 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
 
             var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.HazeFindBFMachinePosition);
             StageViewModel.SetAbsoluteStageTheta(0d);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
+            StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
 
             try
             {

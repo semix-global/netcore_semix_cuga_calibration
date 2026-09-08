@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.Base.Interface;
 using Microsoft.Extensions.Logging;
@@ -313,7 +314,7 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     protected virtual Task<bool> CancelingAsync() => Task.Run(() =>
     {
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     });

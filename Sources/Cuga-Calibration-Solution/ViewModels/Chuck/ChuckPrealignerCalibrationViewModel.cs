@@ -130,7 +130,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
         ReviewDto = Calibration.Clone();
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -142,23 +142,23 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             case 0:
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 1:
                 Cache.LowSite2.Location = Cache.LowSite1.Location + (Vector)new Point(Cache.DiePitchWidth * Cache.ReticleDieCountX, 0);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 Cache.HighSite1.Location = Cache.LowSite1.Location;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 3:
                 Cache.HighSite2.Location = Cache.LowSite2.Location;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 6:
@@ -176,22 +176,22 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         switch (CalibrationStepIndex)
         {
             case 2:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 4:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 5:
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             default:
@@ -210,7 +210,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { Cache.TeachingPositionThreshold }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
             var (offsetPosition, bitmapMemoryBytes) = StageViewModel.FindWaferCenterByManually(Point.Origin, [
                 Cache.FindWaferCenterOffset1,
@@ -561,7 +561,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             if (await ReloadWaferVerifyActionAsync(reviewDto.ResultItemDto, cancellationToken).ConfigureAwait(false) == false) return false;
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
             var result = Math.Abs(reviewDto.ResultItemDto.OffsetPosition.X) < Cache.VerifyPositionThreshold
                          && Math.Abs(reviewDto.ResultItemDto.OffsetPosition.Y) < Cache.VerifyPositionThreshold

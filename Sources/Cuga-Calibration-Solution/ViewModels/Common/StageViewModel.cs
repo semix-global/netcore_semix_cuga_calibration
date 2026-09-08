@@ -94,13 +94,6 @@ public sealed class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point point)
-    {
-        var result = BrightFieldToMachinePosition(point);
-
-        SetMachineAbsoluteStageXyByNotAutoFocus(result);
-    }
-
     public Point GetDarkFieldStagePosition()
     {
         var ret = calibrationStageService.GetDarkFieldStagePosition();
@@ -113,23 +106,6 @@ public sealed class StageViewModel(
         var ret = calibrationStageService.GetMachineStagePosition();
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetMachineAbsoluteStageXy(Point point)
-    {
-        var result = MachineToBrightFieldPosition(point);
-
-        SetBrightFieldAbsoluteStageXy(result);
-    }
-
-    public void SetMachineAbsoluteStageXyByFixedSpeed(Point point)
-    {
-        afViewModel.ToggleBrightFieldEnable(false);
-
-        var ret = calibrationStageService.SetMachineAbsoluteStageXyByFixedSpeed(point);
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-
-        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
     }
 
     public (double XDirection, double YDirection) GetMachineDirection()
@@ -174,7 +150,7 @@ public sealed class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetBrightFieldAbsoluteStageXy(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public void SetBrightFieldAbsoluteStageXy(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
     {
         var (isReview, _) = afViewModel.GetBrightFieldStatus();
         if (isReview == false)
@@ -190,7 +166,17 @@ public sealed class StageViewModel(
         afViewModel.ToggleBrightFieldEnable(true);
     }
 
-    public void SetDarkFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public void SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
+    {
+        afViewModel.ToggleBrightFieldEnable(false);
+
+        var ret = calibrationStageService.SetBrightFieldAbsoluteStageXy(point);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+    }
+
+    public void SetDarkFieldAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
@@ -200,16 +186,25 @@ public sealed class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
     }
 
+    public void SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(Point point)
+    {
+        afViewModel.ToggleBrightFieldEnable(false);
+
+        var ret = calibrationStageService.SetMachineAbsoluteStageXyByFixedSpeed(point);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
+    }
 
     public Point FindWaferCenterByAutomatic(int offsetThreshold = 100)
     {
@@ -294,7 +289,7 @@ public sealed class StageViewModel(
         var ret = calibrationStageService.MarkAlignSite1DarkField(productivityInformation, algorithmTemplateSizeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
 
         return ret.Anything;
     }
@@ -306,7 +301,7 @@ public sealed class StageViewModel(
         var ret = calibrationStageService.MarkAlignSite2DarkField(productivityInformation, site);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
 
         return ret.Anything;
     }
@@ -333,7 +328,7 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
-        SetBrightFieldAbsoluteStageXy(result.MarkPoint2);
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2, CalChipSiteModelEnum.ChuckModel);
 
         result.MarkPoint1 = DarkFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = DarkFieldToMachinePosition(result.MarkPoint2);

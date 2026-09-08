@@ -166,7 +166,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.DSWFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.DswModel)
+                        : Cache.Item.DSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 
@@ -175,7 +178,10 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
 
             case 6:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.XZDSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.XZDSWFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.DswModel)
+                        : Cache.Item.XZDSWFindBFMachinePosition), CalChipSiteModelEnum.DswModel);
 
                 return true;
 

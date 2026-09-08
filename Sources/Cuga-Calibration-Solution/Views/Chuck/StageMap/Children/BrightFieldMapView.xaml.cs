@@ -1,3 +1,4 @@
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.StageMap;
 using CugaCalibration.ViewModels.Chuck;
 using Microsoft.Extensions.Logging;
@@ -194,7 +195,8 @@ public sealed partial class BrightFieldMapView
                 {
                     if (_lastText is null) return;
 
-                    viewModel.StageViewModel.SetMachineAbsoluteStageXy(new Point(_lastText.Location.X, _lastText.Location.Y));
+                    viewModel.StageViewModel.SetBrightFieldAbsoluteStageXy(viewModel.StageViewModel.MachineToBrightFieldPosition(
+                        new Point(_lastText.Location.X, _lastText.Location.Y)), CalChipSiteModelEnum.ChuckModel);
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)

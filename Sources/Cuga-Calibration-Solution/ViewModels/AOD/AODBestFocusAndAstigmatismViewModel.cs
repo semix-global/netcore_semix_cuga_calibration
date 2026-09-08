@@ -324,7 +324,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
                 LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
 
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.StartPosition);
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.StartPosition, CalChipSiteModelEnum.ChuckModel);
 
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {

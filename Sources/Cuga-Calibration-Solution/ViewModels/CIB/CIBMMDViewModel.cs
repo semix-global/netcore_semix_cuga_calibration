@@ -158,7 +158,10 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.HazeFindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.HazeModel)
+                        : Cache.HazeFindBFMachinePosition), CalChipSiteModelEnum.HazeModel);
 
                 return true;
 
@@ -707,7 +710,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                 CIBViewModel.SetCIBProfileModeEnum(Cache.CIBInformations, CIBProfileModeEnum.PMTLog);
                 OpticsViewModel.ToggleODFilter(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition, CalChipSiteModelEnum.HazeModel);
             }
 
             Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());

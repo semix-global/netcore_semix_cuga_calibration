@@ -138,7 +138,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -176,7 +176,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -202,7 +205,10 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 return true;
 
             case 3:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
