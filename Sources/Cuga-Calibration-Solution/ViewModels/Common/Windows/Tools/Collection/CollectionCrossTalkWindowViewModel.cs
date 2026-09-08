@@ -303,7 +303,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
         if (windowManagerService.ShowDialog(createRoiWindowViewModel) == false) ThrowHelper.ThrowOperationCanceledException<bool>("Generate ROI");
 
-        using var drawImage = darkFieldImageDto.Image.ToRoi(createRoiWindowViewModel.Rect);
+        using var drawImage = darkFieldImageDto.Image.ToROI(createRoiWindowViewModel.Rect);
         var drawFilePath = Path.Combine(directory, $"Draw_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         drawImage.SaveImage(drawFilePath);
 
@@ -464,6 +464,14 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 false,
                 cancellationToken);
 
+            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header1, new HtmlTable([
+                .. darkFieldImages.Select(t => new
+                {
+                    t.RawImageFilePath,
+                    t.CIBInformation
+                })
+            ]), HtmlLogUniqueId.LoggingHtml());
+
             if (hostEnvironment.IsDevelopment()) darkFieldImages = GetMockImages([.. cibInformations], isScribe); // mock
 
             foreach (var dto in darkFieldImages)
@@ -474,14 +482,15 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 var filePath = Path.Combine(ImageDirectory, imageFileName);
                 var subFilePath = Path.Combine(ImageDirectory, "SubImages", imageFileName);
 
-                using var signalDrawImage = dto.Image.ToRoi(Cache.SignalROI);
-                using var quietDrawImage = signalDrawImage.ToRoi(Cache.QuietROI);
-                quietDrawImage.Save(filePath);
+                using var signalDrawImage = dto.Image.ToROI(Cache.SignalROI);
+                // using var quietDrawImage = signalDrawImage.ToROI(Cache.QuietROI);
+                using var quietDrawImage = dto.Image.ToROI(Cache.QuietROI);
+                // quietDrawImage.Save(filePath);
 
                 var (signalRoi, quietRoi) = Cache.SignalROI.Intersection(Cache.QuietROI);
 
-                using var signalImage = dto.Image.ToRoi(signalRoi);
-                using var quietImage = dto.Image.ToRoi(quietRoi);
+                using var signalImage = dto.Image.ToROI(signalRoi);
+                using var quietImage = dto.Image.ToROI(quietRoi);
 
                 using var subImage = signalImage.SubImage(quietImage);
                 subImage.SaveImage(subFilePath);

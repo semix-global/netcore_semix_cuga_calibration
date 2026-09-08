@@ -6,12 +6,10 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Enums.Medias.Imaging;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Models.Enums.Files;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using System.IO;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
 namespace Core.Services.Implements.GRPC;
@@ -19,9 +17,6 @@ namespace Core.Services.Implements.GRPC;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOpticsService>, ICalibrationFourierService
 {
-    private const int Width = 2448;
-    private const int Height = 2048;
-
     public SxExecuteRet<bool> Connect()
     {
         if (IsConnected) return SxExecuteRetHelper.CreateSuccess(true);
@@ -40,22 +35,16 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
-        var imageInfo = new ImageInfo(
-            width,
-            width,
-            PixelFormatEnum.Gray8,
-            AlphaFormatEnum.Opaque
-        );
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
 
-        byte[] randomPixels = new byte[imageInfo.BytesSize];
-        Random.Shared.NextBytes(randomPixels);
-        using var bitmapImage = new BitmapImage(randomPixels, isCopy: true);
-        using var memoryStream = new MemoryStream();
-        bitmapImage.Save(memoryStream, ImageTypeEnum.Bmp);
+        var bitmapImage = BitmapImage.Random(width, width, 10);
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
-        return SxExecuteRetHelper.CreateSuccess(memoryStream.ToArray());
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()

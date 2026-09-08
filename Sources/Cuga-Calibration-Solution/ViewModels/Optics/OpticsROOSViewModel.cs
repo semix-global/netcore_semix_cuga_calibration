@@ -361,7 +361,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
 
                 Point[] fitPoints =
                 [
-                    ..CalibratingItem.Items
+                    .. CalibratingItem.Items
                         .Where(t => t.StartImageYPixel > 0 && t.EndImageYPixel < Cache.Item.ConfigImageYPixelHeight)
                         .Select(tt => new Point(tt.ROOSPos, tt.CropImageYPixelHeight))
                 ];

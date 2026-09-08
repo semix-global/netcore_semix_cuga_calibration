@@ -453,7 +453,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 #if NET
             await
 #endif
-                using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
+            using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
@@ -737,7 +737,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 #if NET
                 await
 #endif
-                    using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
+                using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);

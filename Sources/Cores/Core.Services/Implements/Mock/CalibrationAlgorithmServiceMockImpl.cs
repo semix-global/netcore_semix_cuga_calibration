@@ -138,7 +138,9 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     {
         if (IsUseMock)
         {
-            using var mockTemplateImage = image.ToHImage().ToRoi(rect);
+            using var hImage = image.ToHImage();
+            using var mockTemplateImage = hImage.ToROI(rect);
+
             templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
 
             switch (algorithmTemplateTypeEnum)

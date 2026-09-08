@@ -202,7 +202,7 @@ public sealed partial class ReviewViewModel(
         {
             var currentMag = microscopeViewModel.GetCurrentMicroscopeLensInformation();
             if (microscopeLensInformation != currentMag)
-                microscopeViewModel.SwitchMicroscopeLensInformationAsync(microscopeLensInformation).GetAwaiter().GetResult();
+                microscopeViewModel.SwitchMicroscopeLensInformationAsync(microscopeLensInformation, isMoveToMicroscopeCenter: false).GetAwaiter().GetResult();
             stageViewModel.SetBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
             Thread.Sleep(500);
 

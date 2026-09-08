@@ -390,7 +390,7 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                 IdealF = currentDTO.ResultDTO.F,
                 IdealN = currentDTO.ResultDTO.N,
                 RealF = verifyF,
-                RealN = verifyN,
+                RealN = verifyN
             });
             if (isA)
                 lightAHtmlContainer.Add(("Result", HtmlHeaderLevelEnum.Header4, new HtmlContainer([resultHtmlBullet]), verifyResult));

@@ -6,10 +6,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
-using Net.Utilities.Models.Enums.Files;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using System.IO;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
@@ -18,9 +16,6 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
-    private const int Width = 2448;
-    private const int Height = 2048;
-
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
@@ -39,15 +34,16 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 #pragma warning restore IDE0079
     }
 
-    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
-        Random Random = new();
-        using var bitmapImage = BitmapImage.Random(Width, Height, 10);
-        using var memorySteam = new MemoryStream();
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
 
-        bitmapImage.Save(memorySteam, ImageTypeEnum.Bmp);
+        var bitmapImage = BitmapImage.Random(width, width, 10);
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
-        return SxExecuteRetHelper.CreateSuccess(memorySteam.ToArray());
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()

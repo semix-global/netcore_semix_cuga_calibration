@@ -70,12 +70,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     [ObservableProperty]
     public partial int StageMapRepeatTimes { get; set; } = 10;
 
-    [ObservableProperty]
-    public partial double AlgorithmStageMapResidualAlpha { get; set; } = 0.4d;
-
-    [ObservableProperty]
-    public partial int AlgorithmStageMapMinimumRetryCount { get; set; } = 5;
-
     #endregion
 
     #region Result
@@ -98,6 +92,16 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     #endregion
 
+    partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
+    {
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+    }
+
+    partial void OnRepeatStageMapsChanged(StageMap[] value)
+    {
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+    }
+
     public object ToHtmlAnonymous() => new
     {
         ProductivityInformation,
@@ -116,8 +120,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         WaferRadius,
         DiePitchWidth,
         DiePitchHeight,
-        StageMapRepeatTimes,
-        AlgorithmStageMapResidualAlpha,
-        AlgorithmStageMapMinimumRetryCount
+        StageMapRepeatTimes
     };
 }

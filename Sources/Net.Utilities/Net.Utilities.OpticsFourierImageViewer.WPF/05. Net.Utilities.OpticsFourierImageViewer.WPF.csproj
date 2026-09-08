@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <UseWPF>true</UseWPF>
+        <AssemblyName>Net.Utilities.OpticsFourierImageViewer.WPF</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Net.Utilities.WPF.CustomControl.Calibration\04. Net.Utilities.WPF.CustomControl.Calibration.csproj" />
+    </ItemGroup>
+
+</Project>

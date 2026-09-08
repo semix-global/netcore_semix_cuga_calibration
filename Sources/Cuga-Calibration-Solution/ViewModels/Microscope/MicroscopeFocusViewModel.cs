@@ -135,7 +135,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 {
                     LensInformation = Cache.MicroscopeLensInformation
                 };
-                await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
                 return true;
 
             case 1:
@@ -156,7 +156,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
     {
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
 
-        await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation).ConfigureAwait(false);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false).ConfigureAwait(false);
 
         StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         return true;
@@ -217,7 +217,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             }
 
             AfViewModel.ToggleBrightFieldEnable(false);
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
 
@@ -334,7 +334,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
 
             AfViewModel.ToggleBrightFieldEnable(false);
 
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
             MicroscopeViewModel.SetAFParams(SelectedReviewItem.LensInformation, SelectedReviewItem.Result.EcsValue, SelectedReviewItem.Result.MicroscopeVoltage);
@@ -368,7 +368,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 CalibrationVoltage = SelectedReviewItem.Result.MicroscopeVoltage,
                 VerifyECS = verifyItem.EcsValue,
                 VerifyQuality = verifyItem.Quality,
-                Cache.Threshold,
+                Cache.Threshold
             }), HtmlLogUniqueId.LoggingHtml());
 
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, " +

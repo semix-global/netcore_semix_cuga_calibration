@@ -114,7 +114,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
 
     protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
     {
-        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         CalibratingItem = new();
 
@@ -150,7 +150,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
         return true;
     }
@@ -165,7 +165,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex);
 
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
@@ -299,7 +299,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(centricityItemMaxDto.Result.CentricityPosition, Cache.CalChipSiteModelEnum);
 
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
             StageViewModel.MoveRelativeStageXy(SelectedReviewItem.Result.Offset);
 
             var originalPosition = StageViewModel.GetBrightFieldStagePosition();
