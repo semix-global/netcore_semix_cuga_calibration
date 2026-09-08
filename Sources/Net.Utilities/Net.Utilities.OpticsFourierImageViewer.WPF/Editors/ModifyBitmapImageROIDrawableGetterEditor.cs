@@ -98,9 +98,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
-
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
+
+        _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
 
         var point = eventInputArgs.Event.Point.ImageCoordinateRound();
 
