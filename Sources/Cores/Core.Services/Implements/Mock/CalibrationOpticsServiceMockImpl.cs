@@ -11,6 +11,7 @@ using Semix.CoreLib;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -389,7 +390,6 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
     public SxExecuteRet<(double StartPos, double EndPos, double Accuracy)> GetROOSMotorRouteRange()
     {
         return SxExecuteRetHelper.CreateSuccess((0d, 20d, 4d));
-
     }
 
     public SxExecuteRet<double> GetROOSMotorAbsoluteValue()

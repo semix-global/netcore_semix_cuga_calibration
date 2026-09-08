@@ -49,6 +49,7 @@ public sealed partial class OpticsROOSCacheItem : CalibrationCacheBase<OpticsROO
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
+
     [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 

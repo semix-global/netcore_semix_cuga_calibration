@@ -456,11 +456,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            Logger.LogInformation("Start Get Optical Measure Power");
-
                             var opticalMeasurePower = LaserViewModel.GetOpticalMeasurePower();
-
-                            Logger.LogInformation("Stop Get Optical Measure Power: {OpticalMeasurePower}", opticalMeasurePower);
 
                             return opticalMeasurePower;
                         })

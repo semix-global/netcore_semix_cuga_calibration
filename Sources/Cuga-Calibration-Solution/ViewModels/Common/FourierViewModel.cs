@@ -29,7 +29,7 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public byte[] GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public BitmapImage GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
         var ret = calibrationFourierService.GetFFReviewImgForTrigger(id, productivityInformation, level, pos, width);
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);

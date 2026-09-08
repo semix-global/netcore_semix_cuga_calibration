@@ -1,0 +1,112 @@
+<Window x:Class="OpticsFourierImageViewerTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+        xmlns:converters="clr-namespace:OpticsFourierImageViewerTest.Converters"
+        xmlns:opticsFourierImageViewerTest="clr-namespace:OpticsFourierImageViewerTest"
+        Width="1920"
+        Height="900"
+        d:DataContext="{d:DesignInstance Type=opticsFourierImageViewerTest:MainWindowViewModel,
+                                         IsDesignTimeCreatable=True}"
+        mc:Ignorable="d">
+    <Window.Resources>
+        <converters:CartesianCoordinateToImageRectConverter x:Key="CartesianCoordinateToImageRectConverter" />
+    </Window.Resources>
+    <Window.Title>
+        <MultiBinding StringFormat="{}Image Viewer: {0} {1}" FallbackValue="Image Viewer">
+            <Binding Path="ImageFilePath" />
+            <Binding Path="BitmapImageDrawable.BitmapImage.ImageInfo" />
+        </MultiBinding>
+    </Window.Title>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Border Padding="3"
+                CornerRadius="3"
+                BorderBrush="{StaticResource PrimaryBrush}"
+                BorderThickness="2"
+                Style="{StaticResource BorderRegion}">
+            <hc:SimplePanel>
+                <hc:UniformSpacingPanel Spacing="5" Orientation="Horizontal">
+                    <Button Content="Open Image File" Command="{Binding OpenImageFileCommand}" />
+                    <hc:NumericUpDown Width="200"
+                                      hc:TitleElement.Title="ROI Count: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      Minimum="0"
+                                      Style="{StaticResource NumericUpDownExtend}"
+                                      Value="{Binding ROICount}" />
+                    <Button Content="All Anchors + Move" Command="{Binding EditAllAnchorROICommand}" />
+                    <Button Content="Three Bottom Anchors + Move" Command="{Binding EditThreeBottomAnchorROICommand}" />
+                    <Button Content="Bottom Anchor Only + No Move" Command="{Binding EditBottomAnchorROICommand}" />
+                    <Button Content="Cancel"
+                            Command="{Binding CancelEditROICommand}"
+                            Style="{StaticResource ButtonWarning}" />
+                </hc:UniformSpacingPanel>
+            </hc:SimplePanel>
+        </Border>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Padding="1"
+                    CornerRadius="3"
+                    BorderBrush="{StaticResource PrimaryBrush}"
+                    BorderThickness="2"
+                    Style="{StaticResource BorderRegion}">
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document}" />
+            </Border>
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Stretch" />
+            <Border Grid.Column="2"
+                    Padding="3"
+                    CornerRadius="3"
+                    BorderBrush="{StaticResource PrimaryBrush}"
+                    BorderThickness="2"
+                    Style="{StaticResource BorderRegion}">
+                <DataGrid hc:DataGridAttach.ShowRowNumber="True"
+                          Style="{StaticResource DataGrid.Small}"
+                          HeadersVisibility="All"
+                          IsReadOnly="True"
+                          RowHeaderWidth="60"
+                          CanUserSortColumns="False"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding BitmapImageROIDrawables}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Width="*"
+                                            Header="Text"
+                                            Binding="{Binding Text}" />
+                        <DataGridTextColumn Width="2*"
+                                            Header="Is Modified"
+                                            Binding="{Binding IsEditorModified}" />
+                        <DataGridTextColumn Width="2*"
+                                            Header="Rect"
+                                            Binding="{Binding Rect}" />
+                        <DataGridTemplateColumn Width="2*" Header="ImageRect">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <TextBlock.Text>
+                                            <MultiBinding Converter="{StaticResource CartesianCoordinateToImageRectConverter}">
+                                                <Binding Path="Rect" />
+                                                <Binding />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

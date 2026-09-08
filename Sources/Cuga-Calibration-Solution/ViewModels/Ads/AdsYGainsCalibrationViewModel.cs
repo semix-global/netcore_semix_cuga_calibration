@@ -107,7 +107,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.StartPosition,
-                Cache.EndPosition,
+                Cache.EndPosition
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
         });
@@ -253,13 +253,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                         SpeedYValue = speedValueItem,
                         Y1OrY4 = (int)GetYValue(ReviewDTO.Y4P0, ReviewDTO.Y4P1, ReviewDTO.Y4P2, speedValueItem),
                         Y2OrY5 = (int)GetYValue(ReviewDTO.Y5P0, ReviewDTO.Y5P1, ReviewDTO.Y5P2, speedValueItem),
-                        Y3OrY6 = (int)GetYValue(ReviewDTO.Y6P0, ReviewDTO.Y6P1, ReviewDTO.Y6P2, speedValueItem),
+                        Y3OrY6 = (int)GetYValue(ReviewDTO.Y6P0, ReviewDTO.Y6P1, ReviewDTO.Y6P2, speedValueItem)
                     };
 
                     Logger.LogHtmlInformation($"Speed{speedValueItem}mm/s", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         SpeedYValue = speedValueItem,
-                        Cache.VerifyThreshold,
+                        Cache.VerifyThreshold
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     var result1 = await GetHrpAsync(forwardItem, cancellationToken).ConfigureAwait(false);
@@ -405,7 +405,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 SpeedYValue = forwardOriginItem.SpeedYValue,
                 Y1OrY4 = (minY1 + maxY1) / 2,
                 Y2OrY5 = (minY2 + maxY2) / 2,
-                Y3OrY6 = (minY3 + maxY3) / 2,
+                Y3OrY6 = (minY3 + maxY3) / 2
             };
             var reverseItem = new AdsYGainsDTOItem
             {
@@ -413,7 +413,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 SpeedYValue = reverseOriginItem.SpeedYValue,
                 Y1OrY4 = (minY4 + maxY4) / 2,
                 Y2OrY5 = (minY5 + maxY5) / 2,
-                Y3OrY6 = (minY6 + maxY6) / 2,
+                Y3OrY6 = (minY6 + maxY6) / 2
             };
 
             await GetAndSetDataAsync(forwardItem, cancellationToken);
@@ -539,7 +539,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             RollMax = item.R,
             PitchMax = item.P,
             PlotZ = item.ZPlotDataSource.GetHtmlPlot2DLinesChart(0),
-            PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0),
+            PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0)
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

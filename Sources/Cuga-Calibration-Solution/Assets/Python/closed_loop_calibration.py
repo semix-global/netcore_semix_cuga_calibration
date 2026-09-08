@@ -4,6 +4,11 @@
 ``C0``；调用方按设备约定处理并下发 ``C0`` 后，在每次阶段2扫描后把截至当前
 累计的二维残差和对应的期望位置以及逐扫描有效 mask 传给
 :func:`process_stage2_residuals`。阶段2的 mask 必须由调用方显式提供。
+阶段2的总扫描次数和外部停止上限也由调用方控制；本模块只按目标有效观测次数
+判断是否还需要继续测量。
+
+本模块内部的所有 map 都保持 Python 侧的测量误差/合并符号，不做整体取负；
+设备下发所需的符号转换由调用方在下发边界处理。
 
 数组最后一维统一使用 ``[..., 0] = X``、``[..., 1] = Y``。函数本身不保存
 历史状态，因此调用方需要保留每次扫描结果，并在下一次调用时传入完整历史。
@@ -447,9 +452,7 @@ def interpolate_residual_table(
 def process_stage2_residuals(
     residuals: np.ndarray,
     desired_positions: np.ndarray,
-    alpha: float = 0.4,
-    m_min: int = 5,
-    m_max: int = 20,
+    target_valid_count: int = 7,
     masks: np.ndarray | None = None,
 ) -> tuple[bool, np.ndarray, np.ndarray]:
     """判断阶段2是否需要再次测量，并计算残余重复信号表。
@@ -463,11 +466,8 @@ def process_stage2_residuals(
             与单次残差的形状完全相同。最后一维的 ``[..., 0]``、``[..., 1]``
             依次为 X、Y 坐标。二维非共线网格执行完整仿射拟合；单行等共线
             点集只扣除 X、Y 分量均值。
-        alpha: 停止比例。每个有效网格点保留的有效测量数须达到
-            ``ceil(1 / alpha**2)``。
-        m_min: 生成正式残差表前所需的最少扫描次数。扫描次数少于该值时
-            返回的残差表仅用于日志记录。
-        m_max: 最大扫描次数。达到该次数后，即使未满足精度要求也停止。
+        target_valid_count: 每个有效网格点需要达到的最少有效观测次数，记为
+            ``N``。总扫描次数和是否在未达到 ``N`` 时强制停止由调用方控制。
         masks: 必须提供的逐扫描有效点掩码，形状必须为
             ``(M, ...)``，其中每个 ``masks[i]`` 与 ``residuals[i, ..., 0]``
             的网格形状相同。``masks[i, ...] == True`` 表示第 ``i`` 次扫描的
@@ -480,14 +480,13 @@ def process_stage2_residuals(
 
         - ``need_more_measurement`` 为 ``True`` 时，调用方应再次测量。
         - ``residual_table`` 始终是形状 ``(..., 2)`` 且有限的数组，取各点
-          mask 有效观测去漂移后的算术均值。扫描次数少于 ``m_min`` 时该数组
-          仅用于日志记录，不能作为最终的 ``delta C`` 使用；达到 ``m_min``
-          后才可作为正式的 ``delta C``。没有可用观测的点填为 ``0.0``；达到
-          ``m_max`` 仍未达到精度要求但有可用结果的点保留当前 ``delta C``。
+          mask 有效观测去漂移后的算术均值。没有可用观测的点填为 ``0.0``；
+          未达到 ``target_valid_count`` 的点也保留当前均值，是否接受该低
+          有效次数结果由调用方决定。
         - ``stage2_valid_mask`` 形状为 ``(...,)``，表示对应点截至当前累计扫描
           是否至少有一次有效观测，可以作为 ``delta C`` 的来源。始终没有有效
-          观测的点标记为 ``False``。达到 ``m_max`` 时，即使某点尚未达到
-          ``point_precision_reached``，只要仍有可用结果也保留并标记为 ``True``。
+           观测的点标记为 ``False``。未达到目标次数但已有可用结果的点仍标记
+           为 ``True``。
 
     说明:
         对二维非共线网格，每次扫描只用该次 mask 有效的点拟合并扣除完整二维
@@ -497,11 +496,10 @@ def process_stage2_residuals(
         有效观测去漂移后的算术均值，不执行任何基于数值分布的时间维异常值
         剔除：匹配读数近似按像素量化时，MAD 类判据会把相邻档位的正常读数
         误判为异常，异常观测的识别完全由调用方的逐扫描 mask 负责。每个点
-        的停止条件是其有效观测数达到 ``m_min`` 和 ``ceil(1 / alpha**2)`` 中
-        的较大者；整体收敛只对至少有一次有效观测的点判定，始终无效的点
-        （例如持续失配区）不阻塞收敛，其 ``delta C`` 为 ``0.0`` 并在
-        ``stage2_valid_mask`` 中标记为无效。达到 ``m_max`` 仍未满足时，
-        返回当前结果并发出 ``RuntimeWarning``。
+        的停止条件是其有效观测数达到 ``target_valid_count``；整体收敛只对
+        至少有一次有效观测的点判定，始终无效的点（例如持续失配区）不阻塞
+        收敛，其 ``delta C`` 为 ``0.0`` 并在 ``stage2_valid_mask`` 中标记为
+        无效。调用方可以在外部扫描上限到达时接受当前结果，也可以继续采集。
     """
     # 统一转换为浮点数组：既允许调用方传入 list，也避免整数输入在减去
     # 仿射拟合结果时发生截断。这里只创建数组视图或副本，不修改调用方数据。
@@ -522,20 +520,14 @@ def process_stage2_residuals(
         raise ValueError("desired_positions 的形状必须与单次残差的形状相同")
     if not np.all(np.isfinite(positions)):
         raise ValueError("desired_positions 只能包含有限数值")
-    if not np.isfinite(alpha) or not 0 < alpha <= 1:
-        raise ValueError("alpha 必须是 (0, 1] 范围内的有限数")
-    if isinstance(m_min, (bool, np.bool_)) or not isinstance(m_min, (int, np.integer)):
-        raise TypeError("m_min 必须是整数")
-    if isinstance(m_max, (bool, np.bool_)) or not isinstance(m_max, (int, np.integer)):
-        raise TypeError("m_max 必须是整数")
-    if m_min < 2:
-        raise ValueError("m_min 必须至少为 2")
-    if m_max < m_min:
-        raise ValueError("m_max 必须大于或等于 m_min")
+    if isinstance(target_valid_count, (bool, np.bool_)) or not isinstance(
+        target_valid_count, (int, np.integer)
+    ):
+        raise TypeError("target_valid_count 必须是整数")
+    if target_valid_count < 1:
+        raise ValueError("target_valid_count 必须是正整数")
 
     scan_count = values.shape[0]
-    if scan_count > m_max:
-        raise ValueError("residuals 的扫描次数不能超过 m_max")
 
     finite_values = np.all(np.isfinite(values), axis=-1)
     masks_shape = (scan_count,) + values.shape[1:-1]
@@ -627,21 +619,10 @@ def process_stage2_residuals(
     # 区）没有可用的 delta C，数值保持为 0 并标记为无效。
     stage2_valid_mask = observation_count > 0
 
-    # m_min 之前返回的表仅用于日志记录；need_more=True 时调用方不得把该
-    # 数组当作最终 delta C 使用。
-    if scan_count < m_min:
-        return True, residual_table, stage2_valid_mask
-
-    # 由 sigma_deltaC = sigma / sqrt(N) <= alpha * sigma，可得有效次数
-    # N >= 1 / alpha**2。向上取整保证实际有效次数不会低于理论要求；
-    # 同时要求达到 m_min 个有效观测。
-    required_count = int(np.ceil(1.0 / alpha**2))
-    minimum_point_count = max(m_min, required_count)
-    # point_precision_reached 是“是否达到统计精度”的严格判定，用于决定
-    # 是否还要继续扫描；stage2_valid_mask 是“是否存在可用于 delta C 的
-    # 结果”，二者在 m_max 时有意不同：低精度但有结果的点仍允许参与最终
-    # 合并。
-    point_precision_reached = observation_count >= minimum_point_count
+    # point_precision_reached 是“是否达到目标有效次数”的严格判定，用于决定
+    # 是否还要继续扫描；stage2_valid_mask 只表示“是否存在可用于 delta C 的
+    # 结果”。调用方负责累计扫描历史并在外部决定是否强制停止。
+    point_precision_reached = observation_count >= target_valid_count
     # 整体收敛只对有效点集判定：始终无效的点无法通过增加扫描获得观测，
     # 不能阻塞整体收敛。
     precision_reached = bool(
@@ -650,23 +631,8 @@ def process_stage2_residuals(
 
     if precision_reached:
         return False, residual_table, stage2_valid_mask
-    # 尚未达到精度且仍有扫描额度时，返回当前估计表供调用方观察，同时要求
-    # 继续采集。最终使用应以 need_more_measurement == False 为准。
-    if scan_count < m_max:
-        return True, residual_table, stage2_valid_mask
-
-    # m_max 是防止无限扫描的硬停止条件。未达到精度但有可用结果的点保留
-    # 当前 delta C，允许在最终合并中使用；始终没有有效观测的点为 0，
-    # 并由 stage2_valid_mask 标记为无效。
-    warnings.warn(
-        "阶段2已达到 m_max，但至少一个有效网格点的有效观测数仍未达到 "
-        "max(m_min, ceil(1/alpha**2))；有可用结果的未达标点仍保留并参与"
-        "合并，始终无有效观测的点返回 0，并在 stage2_valid_mask 中标记为"
-        "无效。",
-        RuntimeWarning,
-        stacklevel=2,
-    )
-    return False, residual_table, stage2_valid_mask
+    # 外部程序决定何时达到扫描上限；本函数只报告仍有点未达到目标有效次数。
+    return True, residual_table, stage2_valid_mask
 
 
 def _remove_x_group_bias(
@@ -735,23 +701,25 @@ def combine_correction_tables(
     """合并阶段1初始表和阶段2残差表，并生成插值有效 mask。
 
     参数:
-        initial_correction: 实际下发阶段2前的完整初始修正表 ``C0_used``，
-            形状为 ``(..., 2)``。它应当已经通过
+        initial_correction: Python 侧阶段2使用的完整初始 map ``C0``，形状为
+            ``(..., 2)``。它应当已经通过
             :func:`process_first_measurement` 的 ``fill_value`` 填补无效点，
-            因而所有分量都必须是有限数值。
+            因而所有分量都必须是有限数值。此处不要求、也不执行设备下发方向
+            的整体取负；调用方在真正下发时按设备约定转换。
         residual_table: 阶段2输出的 ``delta C``，形状必须与
-            ``initial_correction`` 相同。``process_stage2_residuals`` 在未达到
-            ``m_min`` 时也会返回数组，但该数组仅用于日志，调用方必须等到
-            ``need_more=False`` 后再传入此函数；显式传入 ``None`` 仍会报错。
-            无效点的数值通常为 ``0.0``，不能仅根据数值判断有效性。
+            ``initial_correction`` 相同。``process_stage2_residuals`` 即使某些
+            点未达到目标有效观测次数时也会返回当前均值；调用方必须自行决定
+            是否接受低于目标次数的结果。显式传入 ``None`` 仍会报错。无效点的
+            数值通常为 ``0.0``，不能仅根据数值判断有效性。
         stage1_mask: 阶段1原始有效点 mask，形状为
             ``initial_correction.shape[:-1]``。``True`` 表示该点的 ``C0``
             来自有效的阶段1测量；``False`` 表示 ``C0`` 是填充值。
         stage2_valid_mask: 必须提供的阶段2结果有效点 mask，形状为
             ``initial_correction.shape[:-1]``。``True`` 表示该点的 ``delta C``
             来自至少一次 mask 有效的观测，可以参与合并；
-            ``False`` 表示阶段2没有可用结果。达到 ``m_max`` 但精度未达标的
-            点仍可以为 ``True``；该 mask 是判断阶段2结果是否可合并的唯一依据。
+            ``False`` 表示阶段2没有可用结果。目标有效观测次数未达标但已有
+            结果的点仍可以为 ``True``；该 mask 是判断阶段2结果是否可合并的
+            唯一依据。
         x_group_size: 沿 X 方向的分组数 N，默认 1 表示不分组、不做修正。
             大于 1 时，在合并完成后把最终表的最后一个网格维视为 X 列方向，
             列序号 mod N 相同的点为一组（共 N 组）；对 X/Y 两个分量分别
@@ -766,11 +734,12 @@ def combine_correction_tables(
         ``(final_correction, interpolation_mask)``：
 
         - ``final_correction``：阶段2有效点使用
-          ``C_final = C0_used - delta C``；阶段2无效但阶段1有效的点保留
-          ``C0_used``。阶段1和阶段2都无效的点置为 ``0.0``，并由
+          ``C_final = C0 + delta C``；阶段2无效但阶段1有效的点保留
+          ``C0``。阶段1和阶段2都无效的点置为 ``0.0``，并由
           ``interpolation_mask`` 标记为不可用。``x_group_size > 1`` 时，
           有效点在此基础上按组平移，使各组平均值等于组平均值的等权平均值；
-          无效点仍为 ``0.0``。
+          无效点仍为 ``0.0``。该结果仍保持 Python 侧 map 符号，设备下发时
+          的符号转换由调用方处理。
         - ``interpolation_mask``：后续插值可使用的源点 mask，定义为
           ``stage1_mask | stage2_valid_mask``。阶段1和阶段2都无效的点在
           ``final_correction`` 中为 ``0.0``，不会参与后续插值。
@@ -784,7 +753,7 @@ def combine_correction_tables(
         raise ValueError("initial_correction 的网格维不能为空")
     if not np.all(np.isfinite(initial_values)):
         raise ValueError(
-            "initial_correction 必须是实际下发的完整有限修正表"
+            "initial_correction 必须是完整有限的 Python 侧 map"
         )
     if residual_table is None:
         raise ValueError("residual_table 不能为 None；阶段2尚未形成 delta C")
@@ -823,7 +792,7 @@ def combine_correction_tables(
 
     final_correction = initial_values.copy()
     final_correction[stage2_valid] = (
-        initial_values[stage2_valid] - delta_values[stage2_valid]
+        initial_values[stage2_valid] + delta_values[stage2_valid]
     )
     interpolation_mask = stage1_valid | stage2_valid
     final_correction[~interpolation_mask] = 0.0

@@ -26,11 +26,13 @@ public interface ICalibrationFourierService
     /// <summary>
     /// 获取傅里叶相机的图片
     /// </summary>
-    /// <param name="id">通道ID</param>
-    /// <param name="param">光强</param>
+    /// <param name="id">通道ID: 0-CH1, 1-CH2, 2-CH3</param>
+    /// <param name="productivityInformation">生产率信息</param>
+    /// <param name="level">光强</param>
     /// <param name="pos">晶圆位置</param>
+    /// <param name="width">图像宽度</param>
     /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800);
+    SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800);
 
     /// <summary>
     /// 获取傅里叶相机的配置
