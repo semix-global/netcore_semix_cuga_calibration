@@ -142,7 +142,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -179,7 +179,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -450,7 +453,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 #if NET
             await
 #endif
-            using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
+                using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
             var (size, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);
@@ -734,7 +737,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 #if NET
                 await
 #endif
-                using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
+                    using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
                 var (verifySize, bodyBytesStartIndex, bodyBytesLength) = RAWImageFactory.GetSize(binaryReader);

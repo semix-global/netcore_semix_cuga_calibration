@@ -13,6 +13,7 @@ using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
+using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
@@ -93,6 +94,9 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     public partial MicroscopePixelSizeDTO[] MicroscopePixelSizes { get; set; } = [];
 
     [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
+    [ObservableProperty]
     public partial ChuckCenterAndThetaItemDto ChuckCenter { get; set; } = new();
 
     [ObservableProperty]
@@ -121,6 +125,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         await Task.CompletedTask.ConfigureAwait(false);
 
         MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
+
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         ChuckCenter = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
@@ -168,7 +174,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             case 1:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 2 or 6:
@@ -183,7 +189,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             case 5:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXy(Cache.FirstStageMapPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.FirstStageMapPosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)
+                        : Cache.FirstStageMapPosition), CalChipSiteModelEnum.ChuckModel);
+
                 return true;
 
             case 8:
@@ -212,7 +222,11 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         {
             case 3 or 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.FirstStageMapPosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)
+                        : Cache.FirstStageMapPosition), CalChipSiteModelEnum.ChuckModel);
+
                 return true;
 
             case 5:
@@ -225,7 +239,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
             case 7 or 8:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(position, CalChipSiteModelEnum.ChuckModel);
+
                 return true;
 
             default:
@@ -428,7 +443,10 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
     private void BrightFieldStep2Action()
     {
-        StageViewModel.SetMachineAbsoluteStageXy(Cache.BrightFieldFirstStageMapPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+            Cache.BrightFieldFirstStageMapPosition == Point.Origin
+                ? MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)
+                : Cache.BrightFieldFirstStageMapPosition), CalChipSiteModelEnum.ChuckModel);
 
         ResultChuckStageMapDto.CalibrationBrightFieldStageMap = new StageMapDto(Cache.RowNumber, Cache.ColumnNumber, Cache.RowCellHeight, Cache.ColumnCellWidth);
         ResultChuckStageMapDto.CalibrationBrightFieldStageMap.GenerateByCenterPosition(
@@ -444,7 +462,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private void DarkFieldStep2Action()
     {
         var position = StageViewModel.MachineToDarkFieldPosition(Cache.DarkFieldFirstStageMapPosition);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(position);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(position, CalChipSiteModelEnum.ChuckModel);
 
         var laserLineCentricityItemDto = LaserLineCentricityItems.Single(t => t.PmtId == CalibrationConstantsHelper.MainPmtId
                                                                               && t.ProductivityInformation == Cache.ProductivityInformation);
@@ -939,7 +957,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 stageMapItem.TemplateFilePath = Cache.BrightFieldTemplateFilePath;
                 stageMapItem.TemplateImageFilePath = Cache.BrightFieldTemplateImageFilePath;
 
-                StageViewModel.SetMachineAbsoluteStageXy(stageMapItem.Point);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(stageMapItem.Point, CalChipSiteModelEnum.ChuckModel);
                 Thread.Sleep(500);
                 var tempPosition = StageViewModel.GetBrightFieldStagePosition();
                 if (ReviewViewModel.TryGetMatchPosition(

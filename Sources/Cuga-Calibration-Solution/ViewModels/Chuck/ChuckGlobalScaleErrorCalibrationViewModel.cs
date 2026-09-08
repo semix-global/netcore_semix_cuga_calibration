@@ -134,36 +134,36 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
         {
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition, CalChipSiteModelEnum.ChuckModel);
                 break;
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighSiteFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighSiteFindPosition, CalChipSiteModelEnum.ChuckModel);
                 break;
 
             case 4:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 break;
 
             case 5:
                 Cache.SiteDirection = StageDirectionTypeEnum.Down;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 break;
 
             case 6:
                 Cache.SiteDirection = StageDirectionTypeEnum.Left;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 break;
 
             case 7:
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 break;
         }
 
@@ -176,7 +176,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
         {
             case 0:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowSiteFindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 1:
@@ -187,25 +187,25 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             case 2:
                 Cache.SiteDirection = StageDirectionTypeEnum.Up;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.TopLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 3:
                 Cache.SiteDirection = StageDirectionTypeEnum.Down;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BottomLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 4:
                 Cache.SiteDirection = StageDirectionTypeEnum.Left;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LeftLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 5:
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 7:

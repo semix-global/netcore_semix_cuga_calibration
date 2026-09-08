@@ -23,7 +23,7 @@ public class AlgoCVSharpImageOperationTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (byte)((x + y) % 256), 0);
+                image.SetValue(x, y, (byte)((x + y) % 256));
             }
         }
 
@@ -39,8 +39,8 @@ public class AlgoCVSharpImageOperationTest
         {
             for (var x = 0; x < cropWidth; x++)
             {
-                var expected = image.GetValue<byte>(offsetX + x, offsetY + y, 0);
-                cropped.GetValue<byte>(x, y, 0).Should().Be(expected);
+                var expected = image.GetValue<byte>(offsetX + x, offsetY + y);
+                cropped.GetValue<byte>(x, y).Should().Be(expected);
             }
         }
     }
@@ -56,7 +56,7 @@ public class AlgoCVSharpImageOperationTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (byte)(x * y), 0);
+                image.SetValue(x, y, (byte)(x * y));
             }
         }
 
@@ -69,7 +69,7 @@ public class AlgoCVSharpImageOperationTest
         {
             for (var x = 0; x < width; x++)
             {
-                cropped.GetValue<byte>(x, y, 0).Should().Be(image.GetValue<byte>(x, y, 0));
+                cropped.GetValue<byte>(x, y).Should().Be(image.GetValue<byte>(x, y));
             }
         }
     }
@@ -99,13 +99,13 @@ public class AlgoCVSharpImageOperationTest
         const int domainWidth = 5;
         const int domainHeight = 3;
 
-        using var image = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt16);
+        using var image = new algocv_sharp.Image(width, height);
         ushort value = 0;
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, value, 0);
+                image.SetValue(x, y, value);
                 value++;
             }
         }
@@ -123,8 +123,8 @@ public class AlgoCVSharpImageOperationTest
         {
             for (var x = 0; x < domainWidth; x++)
             {
-                var expected = image.GetValue<ushort>(offsetX + x, offsetY + y, 0);
-                reduced.GetValue<ushort>(offsetX + x, offsetY + y, 0).Should().Be(expected);
+                var expected = image.GetValue<ushort>(offsetX + x, offsetY + y);
+                reduced.GetValue<ushort>(offsetX + x, offsetY + y).Should().Be(expected);
             }
         }
     }
@@ -181,7 +181,7 @@ public class AlgoCVSharpImageOperationTest
             {
                 for (var x = 0; x < cropWidth; x++)
                 {
-                    var expected = algoCropped.GetValue<byte>(x, y, 0);
+                    var expected = algoCropped.GetValue<byte>(x, y);
                     halconValues[y * cropWidth + x].Should().Be(expected);
                 }
             }
@@ -215,12 +215,12 @@ public class AlgoCVSharpImageOperationTest
         var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
         try
         {
-            using var algoImage = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt16);
+            using var algoImage = new algocv_sharp.Image(width, height);
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
                 {
-                    algoImage.SetValue(x, y, buffer[y * width + x], 0);
+                    algoImage.SetValue(x, y, buffer[y * width + x]);
                 }
             }
 
@@ -240,7 +240,7 @@ public class AlgoCVSharpImageOperationTest
             {
                 for (var x = offsetX; x < offsetX + domainWidth; x++)
                 {
-                    var expected = algoReduced.GetValue<ushort>(x, y, 0);
+                    var expected = algoReduced.GetValue<ushort>(x, y);
                     HOperatorSet.GetGrayval(halconReduced, y, x, out var halconValue);
                     using (halconValue)
                         halconValue.L.Should().Be(expected);

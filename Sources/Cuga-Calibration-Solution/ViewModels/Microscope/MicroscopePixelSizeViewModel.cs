@@ -156,7 +156,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }

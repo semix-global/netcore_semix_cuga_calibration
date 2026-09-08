@@ -15,6 +15,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.View;
 public sealed partial class StageWindowViewModel(
     StatusViewModel statusViewModel,
     StageViewModel stageViewModel,
+    AfViewModel afViewModel,
     IMessenger messenger,
     ILogger<StageWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
 {
@@ -117,6 +118,7 @@ public sealed partial class StageWindowViewModel(
 
                     case StageCoordinateSystemEnum.Machine:
                         stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(GotoPosition);
+                        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum.Value);
                         break;
 
                     default:

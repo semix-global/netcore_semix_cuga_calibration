@@ -212,7 +212,7 @@ public sealed partial class RecipeReticleMaskViewModel(
                 false,
                 out var maskMachinePosition);
 
-            stageViewModel.SetMachineAbsoluteStageXy(maskMachinePosition);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(maskMachinePosition), CalChipSiteModelEnum.ChuckModel);
         }
         catch (Exception ex)
         {

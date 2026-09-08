@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
+using Core.Models.Enums.Stage;
 using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
@@ -198,7 +199,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Advanced();
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
             }
@@ -282,7 +283,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     }
 
                     var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location, CalChipSiteModelEnum.ChuckModel);
 
                     Cache.LowSite2 = resultLowSite2;
                     Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -331,7 +332,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     }
 
                     var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1);
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location, CalChipSiteModelEnum.ChuckModel);
 
                     Cache.HighSite2 = resultHighSite2;
                     Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -437,22 +438,22 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             switch (StepIndex)
             {
                 case 0:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, CalChipSiteModelEnum.ChuckModel);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 1:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, CalChipSiteModelEnum.ChuckModel);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 2:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, CalChipSiteModelEnum.ChuckModel);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 3:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, CalChipSiteModelEnum.ChuckModel);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
             }

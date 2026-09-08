@@ -139,7 +139,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 return true;
 
             case 1:
-                StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 2:
@@ -158,7 +158,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
 
         await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation).ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         return true;
     }
 
@@ -219,7 +219,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             AfViewModel.ToggleBrightFieldEnable(false);
             await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -336,7 +336,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
 
             await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
             MicroscopeViewModel.SetAFParams(SelectedReviewItem.LensInformation, SelectedReviewItem.Result.EcsValue, SelectedReviewItem.Result.MicroscopeVoltage);
 
             AfViewModel.ToggleBrightFieldEnable(true);

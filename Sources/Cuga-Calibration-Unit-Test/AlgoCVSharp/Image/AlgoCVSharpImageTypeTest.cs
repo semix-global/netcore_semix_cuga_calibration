@@ -9,56 +9,56 @@ public class AlgoCVSharpImageTypeTest
     public void Int8Type_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.Int8);
-        image.SetValue(1, 1, (sbyte)-100, 0);
-        image.GetValue<sbyte>(1, 1, 0).Should().Be(-100);
+        image.SetValue(1, 1, (sbyte)-100);
+        image.GetValue<sbyte>(1, 1).Should().Be(-100);
     }
 
     [Fact]
     public void UInt8Type_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.UInt8);
-        image.SetValue(1, 1, (byte)200, 0);
-        image.GetValue<byte>(1, 1, 0).Should().Be(200);
+        image.SetValue(1, 1, (byte)200);
+        image.GetValue<byte>(1, 1).Should().Be(200);
     }
 
     [Fact]
     public void Int16Type_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.Int16);
-        image.SetValue(1, 1, (short)-1234, 0);
-        image.GetValue<short>(1, 1, 0).Should().Be(-1234);
+        image.SetValue(1, 1, (short)-1234);
+        image.GetValue<short>(1, 1).Should().Be(-1234);
     }
 
     [Fact]
     public void UInt16Type_ShouldSupportReadWrite()
     {
-        using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.UInt16);
-        image.SetValue(1, 1, (ushort)45678, 0);
-        image.GetValue<ushort>(1, 1, 0).Should().Be(45678);
+        using var image = new algocv_sharp.Image(3, 3);
+        image.SetValue(1, 1, (ushort)45678);
+        image.GetValue<ushort>(1, 1).Should().Be(45678);
     }
 
     [Fact]
     public void Int32Type_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.Int32);
-        image.SetValue(1, 1, -789012, 0);
-        image.GetValue<int>(1, 1, 0).Should().Be(-789012);
+        image.SetValue(1, 1, -789012);
+        image.GetValue<int>(1, 1).Should().Be(-789012);
     }
 
     [Fact]
     public void FloatType_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.Float);
-        image.SetValue(1, 1, 3.14f, 0);
-        image.GetValue<float>(1, 1, 0).Should().Be(3.14f);
+        image.SetValue(1, 1, 3.14f);
+        image.GetValue<float>(1, 1).Should().Be(3.14f);
     }
 
     [Fact]
     public void DoubleType_ShouldSupportReadWrite()
     {
         using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.Double);
-        image.SetValue(1, 1, 2.718281828, 0);
-        image.GetValue<double>(1, 1, 0).Should().Be(2.718281828);
+        image.SetValue(1, 1, 2.718281828);
+        image.GetValue<double>(1, 1).Should().Be(2.718281828);
     }
 
     // ImageDataType.Int16 and Int32 share the same underlying value in this version of algocv_sharp,

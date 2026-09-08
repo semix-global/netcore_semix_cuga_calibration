@@ -23,7 +23,7 @@ public class AlgoCVSharpImageIoTest
                 {
                     for (var x = 0; x < width; x++)
                     {
-                        original.SetValue(x, y, (byte)((x + y) % 256), 0);
+                        original.SetValue(x, y, (byte)((x + y) % 256));
                     }
                 }
 
@@ -70,7 +70,7 @@ public class AlgoCVSharpImageIoTest
                 {
                     for (var x = 0; x < width; x++)
                     {
-                        original.SetValue(x, y, (byte)(x + 1), 0);
+                        original.SetValue(x, y, (byte)(x + 1));
                         original.SetValue(x, y, (byte)(y + 1), 1);
                         original.SetValue(x, y, (byte)((x + y) % 256), 2);
                     }
@@ -87,7 +87,7 @@ public class AlgoCVSharpImageIoTest
             {
                 for (var x = 0; x < width; x++)
                 {
-                    loaded.GetValue<byte>(x, y, 0).Should().Be((byte)(x + 1));
+                    loaded.GetValue<byte>(x, y).Should().Be((byte)(x + 1));
                     loaded.GetValue<byte>(x, y, 1).Should().Be((byte)(y + 1));
                     loaded.GetValue<byte>(x, y, 2).Should().Be((byte)((x + y) % 256));
                 }

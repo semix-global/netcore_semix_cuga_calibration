@@ -121,7 +121,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -159,7 +159,10 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBFMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBFMachinePosition), Cache.CalChipSiteModelEnum);
 
                 return true;
 

@@ -1,3 +1,4 @@
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.StageMap;
 using CugaCalibration.ViewModels.Chuck;
@@ -300,7 +301,8 @@ public sealed partial class DarkFieldMapView
                 {
                     if (_lastText is null) return;
 
-                    viewModel.StageViewModel.SetMachineAbsoluteStageXy(new Point(_lastText.Location.X, _lastText.Location.Y));
+                    viewModel.StageViewModel.SetBrightFieldAbsoluteStageXy(viewModel.StageViewModel.MachineToBrightFieldPosition(
+                        new Point(_lastText.Location.X, _lastText.Location.Y)), CalChipSiteModelEnum.ChuckModel);
                 }).ConfigureAwait(false);
             }
             catch (Exception ex)

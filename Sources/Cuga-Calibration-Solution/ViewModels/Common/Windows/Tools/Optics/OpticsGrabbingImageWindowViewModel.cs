@@ -35,6 +35,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     protected readonly AfViewModel AFViewModel;
     protected readonly LaserViewModel LaserViewModel;
     protected readonly StageViewModel StageViewModel;
+    protected readonly AfViewModel AfViewModel;
     protected readonly CIBViewModel CIBViewModel;
     protected readonly ICacheProvider CacheProvider;
     protected readonly ApplicationSetting ApplicationSetting;
@@ -61,6 +62,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         AFViewModel = HostApplication.GetRequiredService<AfViewModel>();
         LaserViewModel = HostApplication.GetRequiredService<LaserViewModel>();
         StageViewModel = HostApplication.GetRequiredService<StageViewModel>();
+        AfViewModel = HostApplication.GetRequiredService<AfViewModel>();
         CIBViewModel = HostApplication.GetRequiredService<CIBViewModel>();
         CacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         ApplicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
@@ -577,7 +579,8 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                             break;
 
                         case StageCoordinateSystemEnum.Machine:
-                            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, Cache.CalChipSiteModelEnum);
+                            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
+                            AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
                             break;
 
