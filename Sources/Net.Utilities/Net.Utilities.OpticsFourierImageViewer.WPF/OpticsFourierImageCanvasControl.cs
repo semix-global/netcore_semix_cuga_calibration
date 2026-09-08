@@ -1,9 +1,9 @@
-﻿using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.WPF;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF;
 

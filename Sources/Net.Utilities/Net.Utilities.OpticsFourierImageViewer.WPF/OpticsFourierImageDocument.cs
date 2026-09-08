@@ -1,8 +1,8 @@
-﻿using Net.Utilities.Graphics;
-using Net.Utilities.Models.Geometries;
+using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF;

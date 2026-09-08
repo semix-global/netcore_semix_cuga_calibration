@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
@@ -16,6 +15,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using System.IO;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
@@ -159,7 +159,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
                 }
             }
 
-            OuterLoop:
+        OuterLoop:
 
             _bitmapImageROIDrawable.IsFixed = true;
             ImageROI = _originalBitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);

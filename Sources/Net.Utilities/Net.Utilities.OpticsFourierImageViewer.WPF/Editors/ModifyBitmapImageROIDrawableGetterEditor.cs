@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Drawables;
@@ -14,6 +12,8 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 

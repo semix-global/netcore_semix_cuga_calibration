@@ -1,9 +1,9 @@
-using System.Globalization;
-using System.Windows;
-using System.Windows.Data;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace OpticsFourierImageViewerTest.Converters;

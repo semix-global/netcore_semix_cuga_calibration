@@ -1,9 +1,9 @@
-using System.Globalization;
-using System.Windows.Data;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using SkiaSharp;
+using System.Globalization;
+using System.Windows.Data;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
