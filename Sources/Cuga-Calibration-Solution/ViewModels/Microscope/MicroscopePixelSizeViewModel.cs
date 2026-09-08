@@ -128,7 +128,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
         switch (CalibrationStepIndex)
         {
             case 0:
-                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel) StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
 
@@ -269,7 +269,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             SelectedReviewItem.IsVerified = false;
             Cache.MicroscopeLensInformation = SelectedReviewItem.MicroscopeLensInformation;
 
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
             Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
             {
@@ -308,7 +308,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
     {
         var detectImageDirectory = ImageFileDirectory;
 
-        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
         foreach (var times in Enumerable.Range(1, repeatCount))

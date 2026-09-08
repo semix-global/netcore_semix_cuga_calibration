@@ -5,6 +5,10 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public sealed partial class StageMapTemplate : ObservableObject
 {
+    [Newtonsoft.Json.JsonIgnore]
+    [ObservableProperty]
+    public partial int DisplayIndex { get; set; }
+
     [ObservableProperty]
     public partial Point FindBFMachinePosition { get; set; }
 

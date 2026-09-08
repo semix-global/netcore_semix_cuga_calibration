@@ -107,7 +107,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.StartPosition,
-                Cache.EndPosition,
+                Cache.EndPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -135,10 +135,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                         SpeedXValue = speedValue
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    var forwardOriginItem = new AdsXGainsDTOItem { IsPositive = true, SpeedXValue = speedValue, X1OrX3 = Cache.FindMinX, X2OrX4 = Cache.FindMinX, };
+                    var forwardOriginItem = new AdsXGainsDTOItem { IsPositive = true, SpeedXValue = speedValue, X1OrX3 = Cache.FindMinX, X2OrX4 = Cache.FindMinX };
                     await GetAndSetDataAsync(forwardOriginItem, cancellationToken);
                     LogDichotomy(forwardOriginItem);
-                    var reverseOriginItem = new AdsXGainsDTOItem { IsPositive = false, SpeedXValue = speedValue, X1OrX3 = Cache.FindMinX, X2OrX4 = Cache.FindMinX, };
+                    var reverseOriginItem = new AdsXGainsDTOItem { IsPositive = false, SpeedXValue = speedValue, X1OrX3 = Cache.FindMinX, X2OrX4 = Cache.FindMinX };
                     await GetAndSetDataAsync(reverseOriginItem, cancellationToken);
                     LogDichotomy(reverseOriginItem);
 
@@ -262,7 +262,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                     Logger.LogHtmlInformation($"Speed{speedValueItem}mm/s", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         SpeedXValue = speedValueItem,
-                        Cache.VerifyThreshold,
+                        Cache.VerifyThreshold
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     var result1 = await GetHrpAsync(forwardItem, cancellationToken).ConfigureAwait(false);
@@ -404,14 +404,14 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 IsPositive = true,
                 SpeedXValue = forwardOriginItem.SpeedXValue,
                 X1OrX3 = (minX1 + maxX1) / 2,
-                X2OrX4 = (minX2 + maxX2) / 2,
+                X2OrX4 = (minX2 + maxX2) / 2
             };
             var reverseItem = new AdsXGainsDTOItem
             {
                 IsPositive = false,
                 SpeedXValue = reverseOriginItem.SpeedXValue,
                 X1OrX3 = (minX3 + maxX3) / 2,
-                X2OrX4 = (minX4 + maxX4) / 2,
+                X2OrX4 = (minX4 + maxX4) / 2
             };
 
             await GetAndSetDataAsync(forwardItem, cancellationToken);
@@ -529,7 +529,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             RollMax = item.R,
             PitchMax = item.P,
             PlotZ = item.ZPlotDataSource.GetHtmlPlot2DLinesChart(0),
-            PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0),
+            PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0)
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

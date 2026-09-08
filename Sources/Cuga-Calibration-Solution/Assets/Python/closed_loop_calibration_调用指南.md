@@ -15,7 +15,7 @@
         ↓
 把 C0 插值到设备下发网格，得到 C0_download
         ↓
-下发 C0_download，开始阶段2扫描
+调用方按设备约定转换 C0_download 后下发，开始阶段2扫描
         ↓
 每次保存 residual_i + mask_i，并累计传入全部历史
         ↓
@@ -25,7 +25,7 @@
         ↓
 使用源点 interpolation_mask 和目标 final_target_mask 将 C_final 插值到最终下发网格
         ↓
-下发 final_download_table
+调用方对 final_download_table 按设备约定取负后下发
 ```
 
 其中有四个关键点：
@@ -73,14 +73,14 @@ Python 适配层
 | 操作      | 输入                                                                                 | 输出                                          |
 | ------- | ---------------------------------------------------------------------------------- | ------------------------------------------- |
 | 阶段 1 处理 | `residual`、`positions`、`stage1_mask`、`fill_value`                                  | 完整有限的源网格测量误差 `C0`                           |
-| 初始插值    | `C0`、源网格坐标、下发网格坐标                                                                  | 实际下发的 `C0_download`                         |
+| 初始插值    | `C0`、源网格坐标、下发网格坐标                                                                  | Python 侧完整 map `C0_download`（下发符号由调用方转换） |
 | 阶段 2 处理 | 累计 `residuals`、必传 `masks`、阶段 2 坐标及参数                                               | `need_more`、`deltaC`、`stage2_valid_mask`    |
 | 合并和最终插值 | 初始表、`deltaC`、`stage1_mask`、`stage2_valid_mask`、X 分组数 `x_group_size`、目标坐标及目标插值 mask | `final_download_table`、`interpolation_mask` |
 
 适配层按固定位置传参，参数顺序为：
 
 ```text
-process_stage2_residuals(residuals, positions, alpha, m_min, m_max, masks)
+process_stage2_residuals(residuals, positions, target_valid_count, masks)
 combine_correction_tables(initial_correction, deltaC, stage1_mask, stage2_valid_mask, x_group_size)
 interpolate_residual_table(residual_table, positions, target_positions, source_mask, target_mask)
 ```
@@ -95,7 +95,7 @@ interpolate_residual_table(residual_table, positions, target_positions, source_m
 
 - 阶段 2 的 `masks` 必须传入；`mask=False` 的残差可以传 `0`、`NaN` 或其他非有限值，`mask=True` 的残差必须是有限值；
 
-- 阶段 2 返回的 `stage2_valid_mask` 是点级结果可用性 mask，不能通过 `deltaC` 是否为 0 或是否为有限数值推断；`need_more` 由有效点集（`stage2_valid_mask=True` 的点）是否全部达到精度要求决定，始终无效的点不阻塞收敛；
+- 阶段 2 返回的 `stage2_valid_mask` 是点级结果可用性 mask，不能通过 `deltaC` 是否为 0 或是否为有限数值推断；`need_more` 由有效点集（`stage2_valid_mask=True` 的点）是否全部达到 `target_valid_count` 次有效观测决定，始终无效的点不阻塞收敛；
 
 - 最终插值的目标 mask 中，`True` 表示需要插值，`False` 表示不需要插值；目标 mask 为 `False` 的输出 X/Y 分量固定为 `0.0`；
 
@@ -111,7 +111,7 @@ interpolate_residual_table(residual_table, positions, target_positions, source_m
 
 - `need_more=True`：继续采集阶段 2，不生成最终下发表；
 
-- `RuntimeWarning`：记录警告并按策略继续，例如目标点超出源网格范围、双线性角点无效或达到 `m_max`；
+- `RuntimeWarning`：记录警告并按策略继续，例如目标点超出源网格范围或双线性角点无效；阶段 2 的总扫描次数和外部停止上限由调用方控制；
 
 - `ValueError`、`TypeError` 等错误：停止本次校准，不下发错误结果。
 
@@ -178,7 +178,7 @@ C0_on_calibration_grid = process_first_measurement(
     0.0,
 )
 
-# 实际下发的是插值后的表，不是校准源网格上的 C0。
+# 阶段 2 使用的是插值后的 Python 侧 map，不是校准源网格上的 C0。
 C0_download = interpolate_residual_table(
     C0_on_calibration_grid,
     calibration_positions,
@@ -188,11 +188,13 @@ C0_download = interpolate_residual_table(
 
 `process_first_measurement` 输出的是去仿射后的测量误差 `E - A0`，不取相反数，不转换为修正方向。`mask=False` 的点不参与阶段 1 仿射拟合，源网格上对应的 `C0_on_calibration_grid` 使用 `fill_value`，默认是 `0.0`。这些填充值是阶段 2 的初始估计，因此在这一次初始插值中应让它们参与计算；不要在这里传入 `source_mask=stage1_mask`。
 
-`C0_download` 是插值后的完整测量误差表。如果设备接口要求的是与测量误差相反方向的修正量，应由外部适配层在下发边界处按设备约定转换；本模块不在阶段 1 处理函数中隐式取反：
+`C0_download` 是插值后的完整 Python 侧测量误差 map。本模块及其中间结果都不做整体取负；
+如果设备接口要求相反方向的修正量，由外部适配层只在下发边界处按设备约定转换：
 
 ```python
-# 这里调用外部程序自己的设备下发接口；本模块不提供该函数。
-your_stage_download_api(C0_download)
+# 这里是调用方代码，不属于本模块；当前设备约定为下发相反方向。
+device_C0 = -C0_download
+your_stage_download_api(device_C0)
 ```
 
 阶段 2 的残差必须在 `C0_download` 已经生效后采集。后续传给阶段 2 的坐标，必须是残差实际对应的坐标网格；如果阶段 2 就是在下发网格上扫描，则使用 `download_positions`。
@@ -248,10 +250,8 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         residuals,
         stage2_positions,
-        0.4,
-        5,
-        20,
-        masks,
+        target_valid_count=7,
+        masks=masks,
     )
 
     if not need_more:
@@ -272,36 +272,36 @@ while True:
   后的有效观测数计算；`point_precision_reached` 则是独立的精度停止条件：
 
   ```text
-  minimum_point_count = max(m_min, ceil(1 / alpha²))
+  target_valid_count = N
   有效观测数 N(x) = masks 中该点为 True 的扫描数
   stage2_valid_mask = (N(x) > 0)
-  point_precision_reached = (N(x) >= minimum_point_count)
+  point_precision_reached = (N(x) >= target_valid_count)
   整体收敛 = stage2_valid_mask=True 的点全部满足 point_precision_reached
   ```
 
 - 二维非共线网格中，某次扫描如果 mask 过滤后不足 3 个不共线点，会直接报错；
 
-- 某点达到 `m_max` 但没有达到精度要求时，只要仍有至少一个可用的 X/Y 结果，
-  就保留当前 `deltaC` 并在 `stage2_valid_mask` 中标记为 `True`；只有始终没有
-  有效结果的点才返回 `0.0` 并标记为 `False`，同时告警；
+- 某点没有达到 `target_valid_count` 但仍有至少一个可用的 X/Y 结果时，保留当前
+  `deltaC` 并在 `stage2_valid_mask` 中标记为 `True`；只有始终没有有效结果的点
+  才返回 `0.0` 并标记为 `False`；
 
 - `need_more=True` 时，`stage2_valid_mask` 可能已经有部分 `True`，这只表示
   这些点当前有可用结果，不表示整张表可以提前合并；必须等到 `need_more=False`。
 
-- 扫描次数少于 `m_min` 时，仍返回形状为 `(..., 2)` 的逐点去漂移简单平均表，
-  但该表仅用于日志记录；已有至少一次有效观测的点在
-  `stage2_valid_mask` 中为 `True`，只有始终没有有效结果的点为 `False`；
+- 每次调用都返回形状为 `(..., 2)` 的逐点去漂移简单平均表；已有至少一次有效
+  观测的点在 `stage2_valid_mask` 中为 `True`，只有始终没有有效结果的点为
+  `False`；
 
 - `need_more=True` 时不要生成最终修正表；应继续扫描。
 
-如果 `residuals` 的扫描次数还没有达到 `m_min`，返回的 `deltaC` 只是日志用的
-临时表；无有效观测值的点填为 `0.0`，只有始终没有有效结果的点在
-`stage2_valid_mask` 中为 `False`。由于 `need_more=True`，不能拿它进入合并和最终
-下发流程。
+如果仍有有效点没有达到 `target_valid_count`，函数返回 `need_more=True`。外部
+程序可以继续采集，也可以依据自己的扫描上限、时间或资源策略停止；如果在
+`need_more=True` 时强制使用返回的 `deltaC`，必须把它视为低于目标有效次数的
+结果并由外部程序明确承担这一选择。
 
 ## 5. 合并阶段 1 和阶段 2
 
-阶段 2 完成或达到 `m_max` 后，调用：
+阶段 2 返回 `need_more=False`，或外部程序按自己的停止策略接受当前结果后，调用：
 
 ```python
 # initial_correction 和 deltaC 必须在同一个坐标网格上。
@@ -317,15 +317,22 @@ C_final, interpolation_mask = combine_correction_tables(
 )
 ```
 
+这里的 `C0_download`、`C_final` 都仍是 Python 侧 map；`combine_correction_tables`
+不会把它们转换成设备下发方向。设备下发前，调用方再对最终插值结果按设备约定处理。
+
 如果阶段 1 源网格和阶段 2/下发网格相同，`stage1_mask_on_stage2_grid` 就是原始的 `stage1_mask`。如果网格不同，外部程序必须根据自己的坐标对应关系生成同形状的 `stage1_mask_on_stage2_grid`；不能直接把源网格上的 `stage1_mask` 传进来。
 
 合并规则为：
 
 ```text
-阶段2有效点：C_final = C0_download - deltaC
+阶段2有效点：C_final = C0_download + deltaC
 阶段2无效点：C_final = C0_download
 阶段1、阶段2都无效：C_final = 0.0，interpolation_mask = False
 ```
+
+这里的 `C0_download`、`deltaC` 和 `C_final` 都保持 Python 侧测量误差符号，
+所以阶段 2 残差在 Python 内部是相加。设备下发时由调用方取负后，等价的设备侧
+更新才是 `(-C0_download) - deltaC`。
 
 因此阶段 1 无效、但阶段 2 后来有效的点也能被阶段 2 修正。
 
@@ -337,8 +344,9 @@ interpolation_mask = stage1_mask_on_stage2_grid OR stage2_valid_mask
 ```
 
 其中 `stage2_valid_mask` 由阶段 2 函数返回，表示该点的 `deltaC` 至少有一个
-可用的 X/Y 结果。它不等同于 `point_precision_reached`：达到 `m_max` 时，
-低精度但有结果的点仍可参与合并。不能通过 `deltaC == 0` 或是否为有限数值来
+可用的 X/Y 结果。它不等同于 `point_precision_reached`：即使未达到
+`target_valid_count`，低精度但有结果的点仍可在外部明确接受后参与合并。
+不能通过 `deltaC == 0` 或是否为有限数值来
 推断有效性。
 
 特别地：
@@ -386,10 +394,13 @@ final_download_table = interpolate_residual_table(
 最后调用外部程序的下发接口：
 
 ```python
-your_download_or_apply_correction_api(final_download_table)
+# 本模块输出仍保持 Python 侧符号；当前设备约定为下发相反方向。
+device_final_download_table = -final_download_table
+your_download_or_apply_correction_api(device_final_download_table)
 ```
 
-因此，设备最终收到的是 `final_download_table`，而不是未经插值的 `C_final`。
+因此，设备最终收到的是调用方转换后的 `device_final_download_table`，而不是未经
+插值的 `C_final`。
 
 插值时：
 
@@ -442,7 +453,9 @@ C0_download = interpolate_residual_table(
     calibration_positions,
     download_positions,
 )
-your_stage_download_api(C0_download)
+# Python 模块输出保持测量误差符号；设备下发边界再按设备约定取负。
+device_C0 = -C0_download
+your_stage_download_api(device_C0)
 
 # 阶段2和 C0_download 使用同一个网格的示例。
 stage2_positions = download_positions
@@ -466,10 +479,8 @@ while True:
     need_more, deltaC, stage2_valid_mask = process_stage2_residuals(
         np.stack(residual_history, axis=0),
         stage2_positions,
-        0.4,
-        5,
-        20,
-        np.stack(mask_history, axis=0),
+        target_valid_count=7,
+        masks=np.stack(mask_history, axis=0),
     )
 
     if not need_more:
@@ -499,17 +510,19 @@ final_download_table = interpolate_residual_table(
     interpolation_mask,
     final_target_mask,
 )
-your_download_or_apply_correction_api(final_download_table)
+device_final_download_table = -final_download_table
+your_download_or_apply_correction_api(device_final_download_table)
 ```
 
 ## 8. 最重要的调用原则
 
 1. 非 Python 外部程序通过适配层调用本模块；通信协议可以自定，但必须保留数组形状、mask 和数据类型，不依赖 NaN 表示有效性。
-2. 阶段 1 的无效点必须先填成有限值；`C0` 插值后得到的 `C0_download` 才是实际下发并用于阶段 2 的表。
+2. 阶段 1 的无效点必须先填成有限值；`C0` 插值后得到的 `C0_download` 是 Python
+   侧用于定义阶段 2 补偿态的完整 map，设备符号转换由调用方在下发边界完成。
 3. 阶段 2 的 `residuals` 和 `masks` 必须保留完整历史，并按扫描序号对齐。
-4. 阶段 2 的残差必须是在实际下发的 `C0_download` 下测得的，且传入的坐标必须与残差对应。
+4. 阶段 2 的残差必须是在调用方按设备约定转换并下发 `C0_download` 后测得的，且传入的坐标必须与残差对应。
 5. 合并时 `initial_correction`、`deltaC`、`stage1_mask_on_stage2_grid` 和 `stage2_valid_mask` 必须属于同一个网格。
-6. `C_final` 是合并后的源表；设备最终收到的是对 `C_final` 再插值后的 `final_download_table`。
+6. `C_final` 是 Python 侧合并源表；设备最终收到的是调用方对插值后的
+   `final_download_table` 做设备符号转换后的结果。
 7. 阶段 1、阶段 2 都失效的点在最终源表中为 `0.0`，但由 `interpolation_mask=False` 标记，不能参与后续插值；最终设备表由其他有效源点插值得到。
 8. 数据存在沿 X 方向按 N 点周期出现的组间系统偏差时，合并需要传 `x_group_size = N`（B3 9.1 数据为 3、9.2 数据为 2），并保证列序号与数据的分组相位一致；该修正只平移有效点，不改变 mask。
-

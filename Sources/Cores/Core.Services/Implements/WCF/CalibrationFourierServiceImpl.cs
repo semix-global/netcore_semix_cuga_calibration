@@ -55,7 +55,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
 #pragma warning restore IDE0079
     }
 
-    public SxExecuteRet<byte[]> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
         // 类型转换：Core.Models.Models.Common.SxNew.SxOpticsParam -> Semix.WcfTransfer.DTO.SxOpticsParam
         var wcfParam = new Semix.WcfTransfer.DTO.SxOpticsParam
@@ -67,9 +67,21 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         };
 
         var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(id, wcfParam, UtilitiesPointExtension.ToSxPointD(pos), width));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<byte[]>(sxExecuteRet.ErrorMsg, []);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+#pragma warning disable IDE0079
+#pragma warning disable IDISP001
+
+        if (sxExecuteRet.IsSuccess == false)
+        {
+            var defaultBitmapImage = BitmapImage.Random(width, width, 10);
+            return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, defaultBitmapImage);
+        }
+
+        var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
+        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
+
+#pragma warning restore IDISP001
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()

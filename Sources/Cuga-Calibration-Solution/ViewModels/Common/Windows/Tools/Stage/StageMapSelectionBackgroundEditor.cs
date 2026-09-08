@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Editors;
 using Net.Utilities.Graphics.Primitives.Enums.Inputs;
@@ -13,6 +13,8 @@ public sealed class StageMapSelectionBackgroundEditor(CanvasEdit edit) : Backgro
         var stageMapDocument = Guard.IsAssignableToTypeAndReturn<StageMapDocument>(Edit.Document);
 
         if (e is not { CursorButtonEnum: CursorButtonEnum.Left }) return;
+
+        using var scope = stageMapDocument.View.Sync.EnterScope();
 
         foreach (var stageMapDie in Edit.SelectedItems) stageMapDie.IsSelected = false;
         Edit.SelectedItems.Clear();

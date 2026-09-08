@@ -82,7 +82,7 @@ public sealed class MicroscopeViewModel(
     /// </summary>
     public async Task SwitchMicroscopeLensInformationAsync(
         MicroscopeLensInformation microscopeLensInformation,
-        bool isMoveToMicroscopeCenter = false,
+        bool isMoveToMicroscopeCenter = true,
         CancellationToken cancellationToken = default)
     {
         await SwitchMicroscopeLensInformationNotAutoFocusAsync(microscopeLensInformation, isMoveToMicroscopeCenter, cancellationToken);
@@ -101,7 +101,7 @@ public sealed class MicroscopeViewModel(
     /// <returns>是否成功</returns>
     public async Task SwitchMicroscopeLensInformationNotAutoFocusAsync(
         MicroscopeLensInformation microscopeLensInformation,
-        bool isMoveToMicroscopeCenter = false,
+        bool isMoveToMicroscopeCenter = true,
         CancellationToken cancellationToken = default)
     {
         var diagnosticId = Guid.NewGuid();
@@ -297,7 +297,7 @@ public sealed class MicroscopeViewModel(
             else
                 logger.LogError("{@Name} Set voltage to af error zero failed!", nameof(MicroscopeViewModel));
 
-            return (false, midVoltage, buffersAverageList.Select(t => Math.Abs(t)).Min());
+            return (false, midVoltage, buffersAverageList.Select(Math.Abs).Min());
         }
         catch (Exception ex)
         {

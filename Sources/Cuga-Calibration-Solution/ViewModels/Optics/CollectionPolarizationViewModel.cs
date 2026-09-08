@@ -271,7 +271,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                             t.NDFRotaryMotorPosition,
                             t.GrayValue
                         })
-                ]),
+                ])
             }), HtmlLogUniqueId.LoggingHtml());
             return result;
         });
@@ -313,7 +313,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                         Cache.FindBFMachinePosition,
                         Cache.ImageWidth,
                         Cache.Threshold,
-                        detectImageDirectory,
+                        detectImageDirectory
                     }), HtmlLogUniqueId.LoggingHtml());
 
                     SetOpticsConfig(Cache.OpticsPolarizationModeEnum, Cache.OpticsCollectorPolarizationMode);
@@ -504,7 +504,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                         t.NDFRotaryMotorPosition,
                         t.GrayValue
                     })
-                ]),
+                ])
             }), HtmlLogUniqueId.LoggingHtml());
 
             return true;
@@ -600,7 +600,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
                             t.NDFRotaryMotorPosition,
                             t.GrayValue
                         })
-                    ]),
+                    ])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
         }

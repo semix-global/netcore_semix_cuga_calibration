@@ -513,27 +513,26 @@ public sealed partial class StageMapWindowViewModel(
 
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                     .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
+                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
                 ]), currentHtmlLogUniqueId.LoggingHtml());
 
-                if (isSuccess)
+                if (isSuccess || ++times > Cache.StageMapRepeatTimes - 1)
                 {
                     CombineCorrectionTables(scanStageMap);
 
                     Cache.StageMap.Refresh();
 
-                    logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
-                        .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
-                        .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts(),
-                    ]), HtmlLogUniqueId.LoggingHtml());
-
-                    break;
-                }
-
-                if (++times > Cache.StageMapRepeatTimes - 1)
-                {
-                    isSuccess = false;
-                    logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("More than the number of times."), HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess)
+                        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                            .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                            .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                        ]), HtmlLogUniqueId.LoggingHtml());
+                    else
+                        logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                            new HtmlComment("More than the number of times."),
+                            .. Cache.StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                            .. Cache.StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                        ]), HtmlLogUniqueId.LoggingHtml());
 
                     break;
                 }
@@ -829,10 +828,8 @@ public sealed partial class StageMapWindowViewModel(
         }
 
         using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
-        using var pyAlpha = Cache.AlgorithmStageMapResidualAlpha.ToPython();
-        using var pyMinimumCount = Cache.AlgorithmStageMapMinimumRetryCount.ToPython();
-        using var pyMaximumCount = Cache.StageMapRepeatTimes.ToPython();
-        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyAlpha, pyMinimumCount, pyMaximumCount, pyMasks);
+        using var pyTargetValidCount = Cache.StageMapRepeatTimes.ToPython();
+        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyTargetValidCount, pyMasks);
 
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
         using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
@@ -891,7 +888,6 @@ public sealed partial class StageMapWindowViewModel(
         ]), htmlLogUniqueId.LoggingHtml());
 
         stageViewModel.SetStageMap(stageMapErrorDTO);
-
 
         stageViewModel.SetEnableStageMap(true);
     }

@@ -45,7 +45,7 @@ public sealed class TrayService : ITrayService, IDisposable
             uFlags = Shell32.NifMessage | Shell32.NifIcon | Shell32.NifTip,
             uCallbackMessage = Shell32.WmTrayCallbackMessage,
             hIcon = _icon?.Handle ?? IntPtr.Zero,
-            szTip = TruncateTip(options.ToolTip),
+            szTip = TruncateTip(options.ToolTip)
         };
 
         if (!Shell32.Shell_NotifyIcon(Shell32.NimAdd, ref _nid))
