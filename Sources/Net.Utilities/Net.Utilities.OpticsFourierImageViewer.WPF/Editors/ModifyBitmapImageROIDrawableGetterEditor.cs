@@ -270,6 +270,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _redoStack = [];
 
         ResetInteractionState();
+
+        _isAccepted = false;
     }
 
     private void ResetInteractionState()
@@ -289,8 +291,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
         _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
         _resizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None;
-
-        _isAccepted = false;
     }
 
     #region 历史记录
