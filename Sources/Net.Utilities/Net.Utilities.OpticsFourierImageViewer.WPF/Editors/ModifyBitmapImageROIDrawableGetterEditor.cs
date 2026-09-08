@@ -128,6 +128,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 [
                     .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
                         .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
+                        .Where(t => _originalDictionary.ContainsKey(t)) // 保证 _edits ⊆ _originalDictionary 的键, 防止 Init 后新增/状态变更的 ROI 在索引查找时抛 KeyNotFoundException
                         .Select(t => (t, t.Rect))
                 ];
 
