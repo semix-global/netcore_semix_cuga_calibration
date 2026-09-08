@@ -117,22 +117,22 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
         {
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseHighFindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 4:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 5:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             default:
@@ -147,7 +147,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             case 0:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetGantryOffset(0);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 1:
@@ -157,13 +157,13 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition, CalChipSiteModelEnum.ChuckModel);
                 return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.HighBaseTemplateFilePath))
                        && File.Exists(Cache.HighBaseTemplateImageFilePath);
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 5:
@@ -198,7 +198,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition, CalChipSiteModelEnum.ChuckModel);
 
             return true;
         });

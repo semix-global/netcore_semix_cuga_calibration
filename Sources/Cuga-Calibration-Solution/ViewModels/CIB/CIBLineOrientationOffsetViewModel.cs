@@ -120,7 +120,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             ? new Point(0, 0)
             : Cache.Item.FindPosition;
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, CalChipSiteModelEnum.ChuckModel);
         return true;
     }
 
@@ -138,7 +138,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             return false;
 
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -153,12 +153,12 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 return true;
 
             case 2:
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
             case 5:

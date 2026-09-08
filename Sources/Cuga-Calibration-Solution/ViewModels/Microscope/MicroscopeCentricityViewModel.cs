@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
@@ -180,7 +181,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
 
         SynchronizationContextProvider.Send(() => Guard.IsAssignableToTypeAndReturn<List<CalibrationItemStep>>(CalibrationSteps).Clear());
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -232,7 +233,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             CalibratingItem.Items = [];
             CalibratingItem.IsCalibrated = false;
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
             if (MatchTemplate(cancellationToken) == false) return false;
 
             var averageX = CalibratingItem.Items.Average(t => t.CentricityPosition.X);

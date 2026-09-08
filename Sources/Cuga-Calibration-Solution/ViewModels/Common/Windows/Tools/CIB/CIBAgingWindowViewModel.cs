@@ -446,7 +446,7 @@ public sealed partial class CIBAgingWindowViewModel(
                 cibViewModel.SetAGC(allCibInformations, true);
                 cibViewModel.SetCIBProfileModeEnum(allCibInformations, CIBProfileModeEnum.PMTLog);
                 stageViewModel.SetAbsoluteStageTheta(0d);
-                stageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition);
+                stageViewModel.SetBrightFieldAbsoluteStageXy(hazeBFPosition, CalChipSiteModelEnum.ChuckModel);
             }
 
             logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -67,7 +68,7 @@ public sealed partial class FindWaferCenterByManuallyWindowViewModel(
         var result = true;
         await InvokeAsync(() =>
         {
-            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
             List<Point> waferEdgeOffsets =
             [

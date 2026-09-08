@@ -264,7 +264,7 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
                     (Cache.Item.ImageCollectionConfiguration.StartPoint.X + Cache.Item.ImageCollectionConfiguration.EndPoint.X) / 2,
                     Cache.Item.ImageCollectionConfiguration.StartPoint.Y
                 );
-                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindPosition);
+                StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindPosition, CalChipSiteModelEnum.ChuckModel);
 
                 var zLimitMin = Cache.Item.CenterECS - Cache.Item.RangeECS;
                 var zLimitMax = Cache.Item.CenterECS + Cache.Item.RangeECS;

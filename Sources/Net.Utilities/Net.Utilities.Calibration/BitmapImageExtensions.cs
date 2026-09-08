@@ -137,7 +137,7 @@ public static class BitmapImageExtensions
             var image = new algocv_sharp.Image(width, height, channels, dataType);
 
             var destImageInfo = ImageInfoFactory.Create(width, height, channels, bitsPerPixel);
-            if (!@this.ReadPixels(destImageInfo, image.DataPtr, image.Stride, 0, 0))
+            if (!@this.ReadPixels(destImageInfo, image.DataPtr, image.Stride))
             {
                 image.Dispose();
                 throw new InvalidOperationException("Failed to read pixels from BitmapImage into algocv_sharp.Image.");

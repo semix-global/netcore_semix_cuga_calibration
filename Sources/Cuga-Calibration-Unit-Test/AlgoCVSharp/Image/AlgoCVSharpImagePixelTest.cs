@@ -17,7 +17,7 @@ public class AlgoCVSharpImagePixelTest
             for (var x = 0; x < width; x++)
             {
                 var value = (byte)((x + y) % 256);
-                image.SetValue(x, y, value, 0);
+                image.SetValue(x, y, value);
             }
         }
 
@@ -26,7 +26,7 @@ public class AlgoCVSharpImagePixelTest
             for (var x = 0; x < width; x++)
             {
                 var expected = (byte)((x + y) % 256);
-                image.GetValue<byte>(x, y, 0).Should().Be(expected);
+                image.GetValue<byte>(x, y).Should().Be(expected);
             }
         }
     }
@@ -36,14 +36,14 @@ public class AlgoCVSharpImagePixelTest
     {
         const int width = 10;
         const int height = 6;
-        using var image = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt16);
+        using var image = new algocv_sharp.Image(width, height);
 
         ushort value = 0;
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, value, 0);
+                image.SetValue(x, y, value);
                 value++;
             }
         }
@@ -53,7 +53,7 @@ public class AlgoCVSharpImagePixelTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.GetValue<ushort>(x, y, 0).Should().Be(value);
+                image.GetValue<ushort>(x, y).Should().Be(value);
                 value++;
             }
         }
@@ -71,7 +71,7 @@ public class AlgoCVSharpImagePixelTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (byte)(x + 1), 0);
+                image.SetValue(x, y, (byte)(x + 1));
                 image.SetValue(x, y, (byte)(y + 1), 1);
                 image.SetValue(x, y, (byte)((x + y) % 256), 2);
             }
@@ -81,7 +81,7 @@ public class AlgoCVSharpImagePixelTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.GetValue<byte>(x, y, 0).Should().Be((byte)(x + 1));
+                image.GetValue<byte>(x, y).Should().Be((byte)(x + 1));
                 image.GetValue<byte>(x, y, 1).Should().Be((byte)(y + 1));
                 image.GetValue<byte>(x, y, 2).Should().Be((byte)((x + y) % 256));
             }
@@ -99,7 +99,7 @@ public class AlgoCVSharpImagePixelTest
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (byte)(y * width + x), 0);
+                image.SetValue(x, y, (byte)(y * width + x));
             }
         }
 
@@ -110,7 +110,7 @@ public class AlgoCVSharpImagePixelTest
 
             for (var x = 0; x < width; x++)
             {
-                row[x].Should().Be(image.GetValue<byte>(x, y, 0));
+                row[x].Should().Be(image.GetValue<byte>(x, y));
             }
         }
     }
@@ -120,13 +120,13 @@ public class AlgoCVSharpImagePixelTest
     {
         const int width = 6;
         const int height = 4;
-        using var image = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt16);
+        using var image = new algocv_sharp.Image(width, height);
 
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (ushort)(y * width + x), 0);
+                image.SetValue(x, y, (ushort)(y * width + x));
             }
         }
 
@@ -137,7 +137,7 @@ public class AlgoCVSharpImagePixelTest
 
             for (var x = 0; x < width; x++)
             {
-                row[x].Should().Be(image.GetValue<ushort>(x, y, 0));
+                row[x].Should().Be(image.GetValue<ushort>(x, y));
             }
         }
     }
@@ -182,13 +182,13 @@ public class AlgoCVSharpImagePixelTest
     {
         const int width = 4;
         const int height = 3;
-        using var image = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt16);
+        using var image = new algocv_sharp.Image(width, height);
 
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                image.SetValue(x, y, (ushort)(y * width + x), 0);
+                image.SetValue(x, y, (ushort)(y * width + x));
             }
         }
 
@@ -249,10 +249,10 @@ public class AlgoCVSharpImagePixelTest
         const int height = 5;
         using var image = new algocv_sharp.Image(width, height, 1, ImageDataType.UInt8);
 
-        image.SetValue(0, 0, 11, 0);
-        image.SetValue(width - 1, height - 1, 22, 0);
+        image.SetValue(0, 0, 11);
+        image.SetValue(width - 1, height - 1, 22);
 
-        image.GetValue<byte>(0, 0, 0).Should().Be(11);
-        image.GetValue<byte>(width - 1, height - 1, 0).Should().Be(22);
+        image.GetValue<byte>(0, 0).Should().Be(11);
+        image.GetValue<byte>(width - 1, height - 1).Should().Be(22);
     }
 }

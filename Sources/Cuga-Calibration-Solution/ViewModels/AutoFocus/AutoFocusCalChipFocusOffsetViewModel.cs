@@ -110,7 +110,10 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
         Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
-        StageViewModel.SetMachineAbsoluteStageXy(Cache.Item.FindBrightMachinePosition);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+            Cache.Item.FindBrightMachinePosition == Point.Origin
+                ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
 
         return true;
     }
@@ -208,7 +211,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             case 2:
                 CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-                StageViewModel.SetMachineAbsoluteStageXy(Cache.Item.FindBrightMachinePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBrightMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 3:
@@ -216,7 +223,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             case 4:
                 CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBrightMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 5:
@@ -224,7 +235,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             case 6:
                 CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBrightMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 7:
@@ -232,7 +247,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
 
             case 8:
                 CalibratingItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.FindBrightMachinePosition == Point.Origin
+                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
+                        : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 9:

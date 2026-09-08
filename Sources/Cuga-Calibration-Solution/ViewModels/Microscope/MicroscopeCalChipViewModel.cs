@@ -123,7 +123,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
         StageViewModel.SetAbsoluteStageTheta(0d);
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+        AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
 
         return true;
@@ -139,7 +140,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         AfViewModel.ToggleBrightFieldEnable(false);
         await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Review.DswItem.BrightFieldMachinePosition, CalChipSiteModelEnum.DswModel);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Review.DswItem.BrightFieldMachinePosition);
+        AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.DswModel);
 
         return true;
     }
@@ -160,16 +162,22 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         switch (CalibrationStepIndex)
         {
             case 1:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 2:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 3:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 4:
@@ -177,46 +185,64 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
 
                 return true;
 
             case 5:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 6:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 7:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.UndefinedModel;
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 8:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 9:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 10:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 11:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 12:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             default:
@@ -233,11 +259,15 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 {
                     CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel
                 };
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 1:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 2:
@@ -250,45 +280,63 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetAbsoluteStageTheta(0d);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 4:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 5:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 6:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.HazeModel;
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 7:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 8:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 9:
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.ShinyWaferModel;
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 10:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.RightBottomMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 11:
-                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 12:
@@ -314,7 +362,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             await Task.Run(() =>
             {
                 Review.CalChipSiteModelEnum = calChipSiteModelEnum.Value;
-                StageViewModel.SetMachineAbsoluteStageXy(Review.CurrentItem.BrightFieldMachinePosition);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Review.CurrentItem.BrightFieldMachinePosition), calChipSiteModelEnum.Value);
             }).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -365,7 +413,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         }), HtmlLogUniqueId.LoggingHtml());
 
         StageViewModel.SetAbsoluteStageTheta(0d);
-        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, Cache.CalChipSiteModelEnum);
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         var averageEcs = HostEnvironment.IsDevelopment() == false
@@ -374,9 +422,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         #region S曲线
 
-        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(
-            Cache.Item.CenterMachinePosition,
-            Cache.CalChipSiteModelEnum);
+        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+        AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
         var startEcs = averageEcs - Cache.HalfEcsLength;
         var endEcs = averageEcs + Cache.HalfEcsLength;
@@ -683,7 +730,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                         ImageFileDirectory = detectImageDirectory
                     }), HtmlLogUniqueId.LoggingHtml());
 
-                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                     AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, SelectReviewItem.CurrentItem.EcsValue);

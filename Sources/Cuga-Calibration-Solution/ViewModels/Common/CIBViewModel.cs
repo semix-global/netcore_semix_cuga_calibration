@@ -569,8 +569,8 @@ public sealed class CIBViewModel(
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
-
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition);
+                        afViewModel.ToggleCalChipSiteModelEnum(customCalChip.CalChipSiteModelEnum.Value);
                         break;
 
                     default:
@@ -632,7 +632,8 @@ public sealed class CIBViewModel(
                         break;
 
                     case StageCoordinateSystemEnum.Machine:
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition, customCalChip.CalChipSiteModelEnum.Value);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(centerPosition);
+                        afViewModel.ToggleCalChipSiteModelEnum(customCalChip.CalChipSiteModelEnum.Value);
 
                         break;
 

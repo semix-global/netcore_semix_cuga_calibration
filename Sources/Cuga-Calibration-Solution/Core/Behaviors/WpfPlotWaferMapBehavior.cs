@@ -128,11 +128,11 @@ public sealed class WpfPlotWaferMapBehavior : Behavior<WpfPlot>
             switch (StageCoordinateSystemEnum)
             {
                 case StageCoordinateSystemEnum.Bright:
-                    _stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(new Point(point.Value.X, point.Value.Y));
+                    _stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(new Point(point.Value.X, point.Value.Y), CalChipSiteModelEnum.ChuckModel);
                     break;
 
                 case StageCoordinateSystemEnum.Dark:
-                    _stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(new Point(point.Value.X, point.Value.Y));
+                    _stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(new Point(point.Value.X, point.Value.Y), CalChipSiteModelEnum.ChuckModel);
                     break;
 
                 case StageCoordinateSystemEnum.Machine:

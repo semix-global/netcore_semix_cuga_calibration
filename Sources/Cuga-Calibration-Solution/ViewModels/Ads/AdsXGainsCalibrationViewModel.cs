@@ -314,7 +314,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         try
         {
             var (startPos, endPos) = item.IsPositive ? (Cache.StartPosition, Cache.EndPosition) : (Cache.EndPosition, Cache.StartPosition);
-            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(startPos);
+            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(startPos);
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(item.IsPositive, (item.X1OrX3, item.X2OrX4)), cancellationToken);
             StageViewModel.SetXSpeedValue(item.SpeedXValue);
 
@@ -322,7 +322,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationTokenSource.Token);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
-            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeed(endPos);
+            StageViewModel.SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(endPos);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Cache.WaitTime));
             transBuffer = await task.ConfigureAwait(false);
 

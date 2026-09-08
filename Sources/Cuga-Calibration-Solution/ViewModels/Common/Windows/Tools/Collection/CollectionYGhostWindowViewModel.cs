@@ -373,7 +373,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var findPosition = new Point(Cache.StartPosition.X, yPosition);
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(findPosition);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(findPosition, CalChipSiteModelEnum.ChuckModel);
 
                     var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
                         Cache.ProductivityInformation,

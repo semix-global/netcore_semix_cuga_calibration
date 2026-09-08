@@ -111,7 +111,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
 
         StageViewModel.SetAbsoluteStageTheta(0d);
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
         return true;
     }
@@ -120,7 +120,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin);
+        StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         StageViewModel.SetAbsoluteStageTheta(0d);
         return true;
     }
@@ -221,7 +221,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
         {
             return await InvokeCalibrateAsync(async () =>
             {
-                var result = false;
                 StageViewModel.SetAbsoluteStageTheta(0d);
 
                 AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
@@ -232,7 +231,7 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
                 var alignmentResult = AlignmentUserControlViewModel.AlignmentResult;
 
                 CalibratingItem.DarkFieldAlignmentDegree = StageViewModel.GetMachineStageTheta();
-                result = Math.Abs(CalibratingItem.DegreeOffset) < Cache.TeachingThreshold;
+                var result = Math.Abs(CalibratingItem.DegreeOffset) < Cache.TeachingThreshold;
 
                 Logger.LogHtmlInformation($"Calibration {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
