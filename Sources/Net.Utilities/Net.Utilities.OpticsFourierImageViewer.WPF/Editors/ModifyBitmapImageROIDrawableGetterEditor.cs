@@ -107,12 +107,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _lastMousePoint = point;
         _isCursorDown = true;
 
-        Guard.IsTrue(_edits.IsEmpty);
-
-        Guard.IsTrue(_editorStateEnum == BitmapImageROIDrawableEditorStateEnum.Select);
-        Guard.IsTrue(_roiOperationModeEnum == BitmapImageROIDrawableROIOperationModeEnum.None);
-        Guard.IsTrue(_resizeJoystickStateEnum == BitmapImageROIResizeJoystickStateEnum.None);
-
         var isControlPressed = eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control);
         if (TryGetModifyTarget(out var target, out var controlPoint))
         {
