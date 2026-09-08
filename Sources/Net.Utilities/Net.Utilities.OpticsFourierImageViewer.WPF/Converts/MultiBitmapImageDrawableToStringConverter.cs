@@ -22,16 +22,13 @@ internal sealed class MultiBitmapImageDrawableToStringConverter : IMultiValueCon
 
         using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
 
+        foreach (var temp in opticsFourierImageDocument.ImageModel) temp.CursorPoint = null;
+
         var selectionPickDistance = opticsFourierImageDocument.View.ScreenToWorldDistance(opticsFourierImageDocument.Settings.SelectionPickDistance);
         var bitmapImageDrawable = opticsFourierImageDocument.ImageModel
             .FirstOrDefault(d => d.Contains(point, selectionPickDistance));
 
-        if (bitmapImageDrawable?.BitmapImage is null)
-        {
-            foreach (var temp in opticsFourierImageDocument.ImageModel) temp.CursorPoint = null;
-
-            return DefaultString;
-        }
+        if (bitmapImageDrawable?.BitmapImage is null) return DefaultString;
 
         var cursorPosition = bitmapImageDrawable.CartesianCoordinateToImageCoordinate(point);
         uint? cursorPointColor;
