@@ -130,6 +130,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
             var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
+                IsDeleteEnabled = true,
                 CancellationToken = cancellationToken
             };
 
