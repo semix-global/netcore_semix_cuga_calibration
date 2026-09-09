@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using SourceGenerator.AssemblyMetadata;
 using System.Collections.Concurrent;
 using System.Windows;
+using Net.Utilities.Calibration;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationUnitTest;
@@ -52,6 +53,7 @@ public sealed class CacheSerializationTest : IDisposable
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationUnitTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
                     .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
                     .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddNetUtilitiesCalibrationService(context.HostingEnvironment)
                     .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddCoreService(context.HostingEnvironment)
