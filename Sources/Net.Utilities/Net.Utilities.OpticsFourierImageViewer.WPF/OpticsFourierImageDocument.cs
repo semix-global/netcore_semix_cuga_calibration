@@ -36,6 +36,7 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
         {
             bitmapImageROIDrawable.Rect = Rect.Empty;
             bitmapImageROIDrawable.IsFixed = false;
+            bitmapImageROIDrawable.Text = string.Empty;
         }
     }
 }
