@@ -1,0 +1,220 @@
+using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Extensions;
+using Core.Wcf.Models.Fourier;
+using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Calibration;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.OpticsFourierImageViewer.WPF;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using System.IO;
+
+namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
+
+[CacheVersion("2.0.0")]
+public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IDisposable
+{
+    [ObservableProperty]
+    public partial FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
+
+    [ObservableProperty]
+    public partial FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
+
+    #region Mapper
+
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new()
+    {
+        Channel1Item = Channel1Item.Clone(),
+        Channel2Item = Channel2Item.Clone(),
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredSelfCheck = IsRequiredSelfCheck,
+        Id = Id,
+        Expiration = Expiration
+    };
+
+    #endregion Mapper
+
+    public void Dispose()
+    {
+        Channel1Item.Dispose();
+        Channel2Item.Dispose();
+    }
+}
+
+public sealed partial class FourierSideChannelFlexibleApertureDTOItem : ObservableObject, ICloneable<FourierSideChannelFlexibleApertureDTOItem>, IDisposable
+{
+    private readonly BitmapImageDrawable _originalBitmapImageDrawable;
+    private readonly BitmapImageDrawable _roiBitmapImageDrawable;
+    private readonly BitmapImageROIDrawable _bitmapImageROIDrawable;
+
+    [ObservableProperty]
+    public partial int ChannelId { get; set; }
+
+    [ObservableProperty]
+    public partial string ChannelImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string ROIChannelImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial Rect ImageROI { get; set; }
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial OpticsFourierImageDocument Document { get; set; }
+
+    public FourierSideChannelFlexibleApertureDTOItem()
+    {
+        _originalBitmapImageDrawable = new BitmapImageDrawable();
+        _roiBitmapImageDrawable = new BitmapImageDrawable();
+        _bitmapImageROIDrawable = new BitmapImageROIDrawable(_originalBitmapImageDrawable)
+        {
+            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All
+        };
+
+        Document = new OpticsFourierImageDocument();
+        Document.RunDesign(() =>
+        {
+            Document.ImageModel.AddRange([_originalBitmapImageDrawable, _roiBitmapImageDrawable]);
+            Document.ROIModel.Add(_bitmapImageROIDrawable);
+        });
+    }
+
+    public void Reset()
+    {
+        ChannelImageFilePath = string.Empty;
+        ROIChannelImageFilePath = string.Empty;
+        ImageROI = Rect.Empty;
+
+        Document.Reset();
+    }
+
+    public async Task CalibratingAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            Document.Reset();
+
+            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+
+            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            var roiSize = (Size)_originalBitmapImageDrawable.BitmapImage.Size / 2d;
+            _bitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize)).ImageCoordinateRound();
+            Document.View.ZoomToFit();
+
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_originalBitmapImageDrawable)
+                {
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
+                    CancellationToken = cancellationToken
+                });
+
+                switch (outputResult)
+                {
+                    case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                        Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+
+                        goto OuterLoop;
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                        continue;
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                        ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                        break;
+
+                    default:
+                        ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                        break;
+                }
+            }
+
+            OuterLoop:
+
+            _bitmapImageROIDrawable.IsFixed = true;
+            ImageROI = _originalBitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
+            Guard.IsEqualTo(_originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI), _bitmapImageROIDrawable.Rect);
+
+            ROIChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(ChannelImageFilePath), $"ROI_{ImageROI}_{Path.GetFileName(ChannelImageFilePath)}");
+
+            _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
+            _roiBitmapImageDrawable.BitmapImage = _originalBitmapImageDrawable.BitmapImage.ToROI(ImageROI);
+            _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIChannelImageFilePath);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+    }
+
+    public void Review()
+    {
+        try
+        {
+            Document.Reset();
+
+            if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
+
+            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+
+            _bitmapImageROIDrawable.IsFixed = true;
+            _bitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ImageROI);
+
+            _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
+            _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+    }
+
+    public FourierSideChannelFlexibleApertureDTOItem Clone() => new()
+    {
+        ChannelId = ChannelId,
+        ChannelImageFilePath = ChannelImageFilePath,
+        ImageROI = ImageROI
+    };
+
+    public object ToImageHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ])
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        ROIChannelImageFilePath,
+        ImageROI,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ]),
+        ROIImage = new HtmlImage(ROIChannelImageFilePath)
+    };
+
+    public void Dispose()
+    {
+        _originalBitmapImageDrawable.Dispose();
+        _roiBitmapImageDrawable.Dispose();
+    }
+}
