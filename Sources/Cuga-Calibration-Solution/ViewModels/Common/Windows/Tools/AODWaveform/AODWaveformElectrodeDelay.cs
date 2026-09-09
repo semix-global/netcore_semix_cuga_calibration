@@ -10,17 +10,17 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : ObservableObject
+public sealed partial class AODWaveformElectrodeDelay<TItem> : ObservableObject
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] Items { get; set; } = [];
+    public partial AODWaveformElectrodeDelayItem<TItem>[] Items { get; set; } = [];
 
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
-    partial void OnItemsChanged(AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] oldValue, AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>[] newValue)
+    partial void OnItemsChanged(AODWaveformElectrodeDelayItem<TItem>[] oldValue, AODWaveformElectrodeDelayItem<TItem>[] newValue)
     {
         foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -37,7 +37,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : O
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    public AODWaveformElectrodeOffsetFrequencyPeriod()
+    public AODWaveformElectrodeDelay()
     {
         PlotDataSource.ToggleLegend(false);
         PlotDataSource.SetTitle("Result (Y: mW - X: MHz)");

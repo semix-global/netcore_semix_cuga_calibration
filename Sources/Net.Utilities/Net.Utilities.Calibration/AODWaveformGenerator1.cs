@@ -21,14 +21,13 @@ public static class AODWaveformGenerator1
     #region 参数
 
     /// <summary>
-    /// AOD波形的频率偏移配置
+    /// AOD波形的延时配置
     /// </summary>
     /// <param name="DirectoryName">文件夹名称</param>
-    /// <param name="OffsetFrequency">偏移频率(Mhz)</param>
-    /// <param name="OffsetFrequencyPeriodCoefficient">偏移频率的2π周期的系数</param>
+    /// <param name="Delay">延时(ns)</param>
     /// <param name="Amplitude">幅值</param>
     /// <param name="IsGenerateAODWaveformZero">生成的波形是否都为0</param>
-    public sealed record AODWaveformOffsetConfiguration(string DirectoryName, double OffsetFrequency, double OffsetFrequencyPeriodCoefficient, double Amplitude, bool IsGenerateAODWaveformZero = false)
+    public sealed record AODWaveformOffsetConfiguration(string DirectoryName, double Delay, double Amplitude, bool IsGenerateAODWaveformZero = false)
     {
         /// <summary>
         /// AOD波形频的率均匀性配置集合
@@ -38,7 +37,7 @@ public static class AODWaveformGenerator1
         public void Validate()
         {
             Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(AODWaveformOffsetConfiguration) + nameof(DirectoryName));
-            Guard.IsGreaterThanOrEqualTo(OffsetFrequency, 0d, nameof(AODWaveformOffsetConfiguration) + nameof(OffsetFrequency));
+            Guard.IsGreaterThanOrEqualTo(Delay, 0d, nameof(AODWaveformOffsetConfiguration) + nameof(Delay));
             Guard.IsBetweenOrEqualTo(Amplitude, 0d, 1d);
 
             foreach (var item in UniformityConfigurations) item.Validate();
@@ -247,7 +246,7 @@ public static class AODWaveformGenerator1
             {
                 fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
-                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
+                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.Delay:0.###}$.txt";
 
                 itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
@@ -286,7 +285,7 @@ public static class AODWaveformGenerator1
             {
                 fileName = chirp +
                            $"_{Param.FileNameSuffix}" +
-                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
+                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.Delay:0.###}$.txt";
 
                 itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
@@ -436,7 +435,7 @@ public static class AODWaveformGenerator1
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var (flatnessFrequencies, flatnessUniformities, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+            var (flatnessFrequencies, flatnessUniformities, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.Delay);
 
             var frequencyCoefficientList = new List<Point>();
 
@@ -528,7 +527,7 @@ public static class AODWaveformGenerator1
 
         return result;
 
-        (Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
+        (Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double delay)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -539,7 +538,7 @@ public static class AODWaveformGenerator1
             var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
 
             var flatnessPhases = (2d * Math.PI * dFlatnessFrequencies * dt).IntegrateCumulative();
-            if (offsetFrequency != 0d && offsetFrequencyPeriodCoefficient != 0d) flatnessPhases += 2d * Math.PI * dFlatnessFrequencies * offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
+            if (delay != 0d) flatnessPhases += 2d * Math.PI * dFlatnessFrequencies * delay / 1000d; // MHz * ns / 1000 -> MHz * us
 
             var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 

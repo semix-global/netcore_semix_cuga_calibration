@@ -28,10 +28,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    public partial double OffsetFrequency { get; set; }
-
-    [ObservableProperty]
-    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
+    public partial double Delay { get; set; }
 
     [ObservableProperty]
     public partial double Amplitude { get; set; } = 1d;
@@ -138,8 +135,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 #else
         OpticsAODElectrodeEnum.ToString(),
 #endif
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero)
     {
@@ -149,8 +145,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public GenerateAODWaveformElectrodeConfiguration Clone() => new()
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        OffsetFrequency = OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
+        Delay = Delay,
         Amplitude = Amplitude,
         IsGenerateAODWaveformZero = IsGenerateAODWaveformZero,
         UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.Clone())]
@@ -159,8 +154,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero,
         UniformityConfigurations = new HtmlPlot2DLinesChart([(string.Empty, [.. UniformityConfigurations.Select(t => new Point(t.Frequency, t.Coefficient))])], string.Empty)
@@ -169,8 +163,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero
     };

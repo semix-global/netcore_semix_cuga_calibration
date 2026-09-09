@@ -40,13 +40,7 @@ public abstract class AbstractAODWaveformProfile :
         }
     }
 
-    public double OffsetFrequency
-    {
-        get;
-        internal set => SetProperty(ref field, value);
-    }
-
-    public double OffsetFrequencyPeriodCoefficient
+    public double Delay
     {
         get;
         internal set => SetProperty(ref field, value);
@@ -102,13 +96,20 @@ public abstract class AbstractAODWaveformProfile :
     {
         if (File.Exists(value) == false) return;
 
-        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
+        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$延时(ns)$
         var strings = value.Split('$');
         Guard.IsTrue(strings.Length >= 7, "filePath name error.");
 
         ZeroSampleCount = int.Parse(strings[2]);
-        OffsetFrequency = double.Parse(strings[5]);
-        OffsetFrequencyPeriodCoefficient = double.Parse(strings[6]);
+        if (strings.Length >= 8)
+        {
+            var offsetFrequency = double.Parse(strings[5]);
+            var offsetFrequencyPeriodCoefficient = double.Parse(strings[6]);
+            Delay = offsetFrequency != 0d && offsetFrequencyPeriodCoefficient != 0d
+                ? offsetFrequencyPeriodCoefficient / offsetFrequency * 1000d // 1 / MHz * 1000 = ns
+                : 0d;
+        }
+        else Delay = double.Parse(strings[5]);
 
         var resultString = File.ReadAllLines(value)
             .Select(t => t.Trim())
@@ -181,12 +182,12 @@ public abstract class AbstractAODWaveformProfile :
 
     protected string Save(string directoryPath)
     {
-        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$偏移的频率$偏移的频率的2π周期的倍率$
+        // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$延时(ns)$
         var strings = FilePath.Split('$');
         Guard.IsTrue(strings.Length >= 7, "filePath name error.");
 
         var registerId = strings[4];
-        var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${OffsetFrequency:0.###}${OffsetFrequencyPeriodCoefficient:0.###}$.txt");
+        var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${Delay:0.###}$.txt");
         FileHelper.DeleteFileIfExists(filePath);
         DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
 
@@ -209,8 +210,7 @@ public abstract class AbstractAODWaveformProfile :
         OpticsAODElectrodeEnum = obj.OpticsAODElectrodeEnum;
         FilePath = obj.FilePath;
         ZeroSampleCount = obj.ZeroSampleCount;
-        OffsetFrequency = obj.OffsetFrequency;
-        OffsetFrequencyPeriodCoefficient = obj.OffsetFrequencyPeriodCoefficient;
+        Delay = obj.Delay;
         Shorts = [.. obj.Shorts];
         Bytes = [.. obj.Bytes];
 
@@ -228,8 +228,7 @@ public abstract class AbstractAODWaveformProfile :
         OpticsAODElectrodeEnum,
         FilePath,
         ZeroSampleCount,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Plot = new HtmlTab(new
         {
             TimeDomainSignal = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),
@@ -242,8 +241,7 @@ public abstract class AbstractAODWaveformProfile :
         OpticsAODElectrodeEnum,
         FilePath,
         ZeroSampleCount,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Plot = new HtmlTab(new
         {
             TimeDomainSignal = new HtmlPlot2DLinesChart([(string.Empty, [.. Signals])], string.Empty),

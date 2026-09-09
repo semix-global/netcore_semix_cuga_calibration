@@ -62,7 +62,6 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
-            Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(false));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
@@ -70,7 +69,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+            Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
@@ -82,7 +81,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     DialogButtonsEnum.YesNo,
                     DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
             {
-                Cache.Step0 = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem>();
+                Cache.Step0 = new AODWaveformElectrodeDelay<TItem>();
             }
 
             Cache.Noise = 0d;
@@ -103,9 +102,9 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     try
                     {
-                        var item = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
+                        var item = new AODWaveformElectrodeDelayItem<TItem>
                         {
-                            OffsetFrequencyPeriodCoefficients = Generate.Repeat(Cache.ElectrodeOffsetFrequencyPeriodParams.Length, 0d)
+                            Delays = Generate.Repeat(Cache.ElectrodeDelayParams.Length, 0d)
                         };
 
                         Cache.Step0.Items = [.. Cache.Step0.Items, item];
@@ -113,7 +112,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         var isCurrentFrequenciesOk = false;
                         try
                         {
-                            await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, null, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                            await UpdateElectrodeDelayItemAsync(item, null, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                             isCurrentFrequenciesOk = true;
                         }
@@ -212,14 +211,13 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             Guard.IsGreaterThan(Cache.TotalMeasurePower, 0);
             Guard.IsGreaterThan(Cache.MeasurePowerTimes, 0);
 
-            Guard.IsGreaterThan(Cache.OffsetFrequency, 0);
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Frequency).IsIncreasing(true));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).IsIncreasing(false));
             Guard.IsTrue(Cache.AODWaveformElectrodeOffsetFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
             Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeOffsetFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
-            Guard.IsNotEmpty(Cache.ElectrodeOffsetFrequencyPeriodParams);
+            Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
 
             Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
@@ -245,22 +243,21 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                     System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
                 }
 
-                Cache.Step1 = new AODWaveformElectrodeOffsetFrequencyPeriod<TItem>();
+                Cache.Step1 = new AODWaveformElectrodeDelay<TItem>();
             }
 
             Cache.ElectrodeConfigurationResults =
             [
-                .. Cache.ElectrodeOffsetFrequencyPeriodParams.Select(t => new GenerateAODWaveformElectrodeConfiguration
+                .. Cache.ElectrodeDelayParams.Select(t => new GenerateAODWaveformElectrodeConfiguration
                 {
                     OpticsAODElectrodeEnum = t.OpticsAODElectrodeEnum,
-                    OffsetFrequency = Cache.OffsetFrequency,
-                    OffsetFrequencyPeriodCoefficient = 0d,
+                    Delay = 0d,
                     Amplitude = 1d, // 生成result默认幅值都是1
                     IsGenerateAODWaveformZero = false
                 })
             ];
 
-            if (Cache.ElectrodeOffsetFrequencyPeriodParams.Length == 1) return true;
+            if (Cache.ElectrodeDelayParams.Length == 1) return true;
 
             var isSuccess = false;
             Guid? detailLogUniqueId = null;
@@ -279,21 +276,21 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                     try
                     {
-                        (isSuccess, var phases, var uniformities) = AlgorithmSuggest(_lastCost, Cache.ElectrodeOffsetFrequencyPeriodParams.Length - 1);
+                        (isSuccess, var delays, var uniformities) = AlgorithmSuggest(_lastCost, Cache.ElectrodeDelayParams.Length - 1);
                         if (isSuccess) break;
 
                         var linearSpaced = Generate.LinearSpaced(uniformities.Length, Cache.AODWaveformElectrodeOffsetFrequencies.Min(t => t.Frequency), Cache.AODWaveformElectrodeOffsetFrequencies.Max(t => t.Frequency));
                         var linearSpline = LinearSpline.InterpolateSorted(linearSpaced, uniformities);
 
-                        var item = new AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
+                        var item = new AODWaveformElectrodeDelayItem<TItem>
                         {
-                            OffsetFrequencyPeriodCoefficients =
+                            Delays =
                             [
-                                .. Cache.ElectrodeOffsetFrequencyPeriodParams
+                                .. Cache.ElectrodeDelayParams
                                     .Index()
                                     .Select(t => t.Index == 0
                                         ? 0d
-                                        : Generate.LinearRangeInt32(0, t.Index - 1).Sum(tt => phases[tt]) + t.Item.BoardCardOffsetFrequencyPeriodCoefficient)
+                                        : Generate.LinearRangeInt32(0, t.Index - 1).Sum(tt => delays[tt]) + t.Item.BoardCardDelay)
                             ]
                         };
 
@@ -302,7 +299,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
                         var isCurrentFrequenciesOk = false;
                         try
                         {
-                            await UpdateElectrodeOffsetFrequencyPeriodItemAsync(item, linearSpline, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                            await UpdateElectrodeDelayItemAsync(item, linearSpline, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                             isCurrentFrequenciesOk = true;
                         }
@@ -319,7 +316,7 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
                                 foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
                                 {
-                                    result.OffsetFrequencyPeriodCoefficient = bestScoreItem.OffsetFrequencyPeriodCoefficients[index];
+                                    result.Delay = bestScoreItem.Delays[index];
                                     result.UniformityConfigurations =
                                     [
                                         .. bestScoreItem.FrequencyItems.Select(t => new GenerateAODWaveformUniformityConfiguration
@@ -439,8 +436,8 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
         await StepFirstLastCommand.ExecuteAsync( /* isSilent */ true);
     }
 
-    private async Task UpdateElectrodeOffsetFrequencyPeriodItemAsync(
-        AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> frequencyPeriodItem,
+    private async Task UpdateElectrodeDelayItemAsync(
+        AODWaveformElectrodeDelayItem<TItem> delayItem,
         LinearSpline? linearSpline,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
@@ -457,13 +454,12 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             {
                 ElectrodeConfigurations =
                 [
-                    .. Cache.ElectrodeOffsetFrequencyPeriodParams
+                    .. Cache.ElectrodeDelayParams
                         .Index()
                         .Select(t => new GenerateAODWaveformElectrodeConfiguration
                         {
                             OpticsAODElectrodeEnum = t.Item.OpticsAODElectrodeEnum,
-                            OffsetFrequency = Cache.OffsetFrequency,
-                            OffsetFrequencyPeriodCoefficient = frequencyPeriodItem.OffsetFrequencyPeriodCoefficients[t.Index],
+                            Delay = delayItem.Delays[t.Index],
                             Amplitude = amplitude,
                             IsGenerateAODWaveformZero = false,
                             UniformityConfigurations = []
@@ -475,14 +471,14 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
 
             await UpdateMeasurePowerAsync(item, htmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
-            frequencyPeriodItem.FrequencyItems = [.. frequencyPeriodItem.FrequencyItems, item];
+            delayItem.FrequencyItems = [.. delayItem.FrequencyItems, item];
         }
 
-        var vector = Vector<double>.Build.Dense([.. frequencyPeriodItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower;
-        frequencyPeriodItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
+        var vector = Vector<double>.Build.Dense([.. delayItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower;
+        delayItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
-    private (bool IsSuccess, double[] Phases, double[] Uniformities) AlgorithmSuggest(double? previousCost, int phaseCount)
+    private (bool IsSuccess, double[] Delays, double[] Uniformities) AlgorithmSuggest(double? previousCost, int delayCount)
     {
         var timestamp = Stopwatch.GetTimestamp();
 
@@ -501,24 +497,24 @@ public abstract partial class AbstractAODWaveformElectrodeOffsetWindowViewModel<
             using var suggest = module.GetAttr("suggest");
 
             using var pyCost = previousCost.ToPython();
-            using var pyPhaseCount = phaseCount.ToPython();
+            using var pyDelayCount = delayCount.ToPython();
             using var pyUniformityAnchorCount = Cache.AlgorithmUniformityAnchorCount.ToPython();
             using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
             using var pyNoise = Cache.Noise.ToPython();
             using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
             using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
-            using var result = suggest.Invoke(pyCost, pyPhaseCount, pyUniformityAnchorCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
+            using var result = suggest.Invoke(pyCost, pyDelayCount, pyUniformityAnchorCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
-            using var pyPhases = Guard.IsNotNullAndReturn(result["x_phase"]);
+            using var pyDelays = Guard.IsNotNullAndReturn(result["x_phase"]);
             using var pyUniformities = Guard.IsNotNullAndReturn(result["x_normal"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
-            var phases = ToDoubles(pyPhases);
+            var delays = ToDoubles(pyDelays);
             var uniformities = ToDoubles(pyUniformities);
-            Guard.IsEqualTo(phases.Length, phaseCount);
+            Guard.IsEqualTo(delays.Length, delayCount);
             Guard.IsEqualTo(uniformities.Length, Cache.AlgorithmUniformityAnchorCount);
 
-            return (pyDone.As<bool>(), phases, uniformities);
+            return (pyDone.As<bool>(), delays, uniformities);
         }
         finally
         {

@@ -194,12 +194,6 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.OffsetFrequency}" />
                                     <StackPanel>
                                         <TextBlock Text="Frequencies"
                                                    HorizontalAlignment="Center"
@@ -263,22 +257,22 @@
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.ScoreGamma}" />
                                                 <StackPanel>
-                                                    <TextBlock Text="Electrode Offset Frequency Period Params"
+                                                    <TextBlock Text="Electrode Delay Params"
                                                                HorizontalAlignment="Center"
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
-                                                            Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            Command="{Binding DataContext.Cache.AddElectrodeDelayParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                             hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                             Style="{StaticResource ButtonInfo}" />
                                                     <Button Content="Delete"
-                                                            Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
+                                                            Command="{Binding DataContext.Cache.RemoveElectrodeDelayParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeDelayParams}"
                                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
-                                                <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
+                                                <DataGrid x:Name="DataGridElectrodeDelayParams"
                                                           MaxHeight="500"
                                                           hc:DataGridAttach.ShowRowNumber="False"
                                                           CanUserSortColumns="False"
@@ -286,12 +280,12 @@
                                                           HeadersVisibility="Column"
                                                           RowHeaderWidth="60"
                                                           AutoGenerateColumns="False"
-                                                          ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
+                                                          ItemsSource="{Binding Cache.ElectrodeDelayParams}">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn IsReadOnly="True"
                                                                             Header="AOD Electrode"
                                                                             Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        <DataGridTextColumn Header="Board Offset Period(2pi)" Binding="{Binding BoardCardOffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Board Delay(ns)" Binding="{Binding BoardCardDelay, StringFormat='0.###'}" />
                                                     </DataGrid.Columns>
                                                 </DataGrid>
                                             </hc:UniformSpacingPanel>
@@ -424,8 +418,7 @@
                                                         <DataGridTextColumn IsReadOnly="True"
                                                                             Header="AOD Electrode"
                                                                             Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                        <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
-                                                        <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Delay(ns)" Binding="{Binding Delay, StringFormat='0.###'}" />
                                                         <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
                                                         <DataGridTemplateColumn Header="Uniformity">
                                                             <DataGridTemplateColumn.CellTemplate>
@@ -631,8 +624,8 @@
                                                             Header="Score"
                                                             Binding="{Binding Score, StringFormat='0.###'}" />
                                         <DataGridTextColumn Width="350"
-                                                            Header="Period(2pi)"
-                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                                            Header="Delay(ns)"
+                                                            Binding="{Binding Delays, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
                                         <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -647,9 +640,9 @@
                                                    Style="{StaticResource TextBlockSubTitleBold}"
                                                    Foreground="{StaticResource SuccessBrush}">
                                             <TextBlock.Text>
-                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                <MultiBinding StringFormat="Score: {0:0.###} Delay(ns): {1}">
                                                     <Binding Path="SelectedItem.Score" ElementName="DataGridStep0Details" />
-                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                    <Binding Path="SelectedItem.Delays"
                                                              ElementName="DataGridStep0Details"
                                                              Converter="{StaticResource ListToStringFormatConverter}"
                                                              ConverterParameter="f6" />
@@ -703,8 +696,8 @@
                                                             Header="Score"
                                                             Binding="{Binding Score, StringFormat='0.###'}" />
                                         <DataGridTextColumn Width="350"
-                                                            Header="Period(2pi)"
-                                                            Binding="{Binding OffsetFrequencyPeriodCoefficients, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
+                                                            Header="Delay(ns)"
+                                                            Binding="{Binding Delays, Converter={StaticResource ListToStringFormatConverter}, ConverterParameter='f6'}" />
                                         <DataGridTextColumn Header="Amplitude(MHz: Amp)" Binding="{Binding FrequencyItems, Converter={aodWaveform:ChirpAODWaveformElectrodeOffsetConvert}, ConverterParameter='0.###'}" />
                                     </DataGrid.Columns>
                                 </DataGrid>
@@ -719,9 +712,9 @@
                                                    Style="{StaticResource TextBlockSubTitleBold}"
                                                    Foreground="{StaticResource SuccessBrush}">
                                             <TextBlock.Text>
-                                                <MultiBinding StringFormat="Score: {0:0.###} Period(2pi): {1}">
+                                                <MultiBinding StringFormat="Score: {0:0.###} Delay(ns): {1}">
                                                     <Binding Path="SelectedItem.Score" ElementName="DataGridStep1Details" />
-                                                    <Binding Path="SelectedItem.OffsetFrequencyPeriodCoefficients"
+                                                    <Binding Path="SelectedItem.Delays"
                                                              ElementName="DataGridStep1Details"
                                                              Converter="{StaticResource ListToStringFormatConverter}"
                                                              ConverterParameter="f6" />

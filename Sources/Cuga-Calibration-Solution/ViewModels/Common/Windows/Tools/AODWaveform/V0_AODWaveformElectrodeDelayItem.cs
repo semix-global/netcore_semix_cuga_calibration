@@ -3,7 +3,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> : ObservableObject
+public sealed partial class V0AODWaveformElectrodeDelayItem<TItem> : ObservableObject
     where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]

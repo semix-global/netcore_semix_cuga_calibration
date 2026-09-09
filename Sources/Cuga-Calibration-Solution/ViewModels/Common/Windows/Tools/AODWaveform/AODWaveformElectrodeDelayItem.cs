@@ -2,11 +2,11 @@
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem> : ObservableObject
+public sealed partial class AODWaveformElectrodeDelayItem<TItem> : ObservableObject
     where TItem : AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
-    public partial double[] OffsetFrequencyPeriodCoefficients { get; set; } = [];
+    public partial double[] Delays { get; set; } = [];
 
     [ObservableProperty]
     public partial TItem[] FrequencyItems { get; set; } = [];
@@ -19,7 +19,7 @@ public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>
 
     public object ToHtmlAnonymous() => new
     {
-        OffsetFrequencyPeriodCoefficients,
+        Delays,
         Score,
         IsSelected
     };

@@ -3,17 +3,17 @@ using Core.Models.Enums.Optics;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class AODWaveformElectrodeOffsetFrequencyPeriodParam : ObservableObject
+public sealed partial class AODWaveformElectrodeDelayParam : ObservableObject
 {
     [ObservableProperty]
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    public partial double BoardCardOffsetFrequencyPeriodCoefficient { get; set; }
+    public partial double BoardCardDelay { get; set; }
 
     public object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        BoardCardOffsetFrequencyPeriodCoefficient
+        BoardCardDelay
     };
 }

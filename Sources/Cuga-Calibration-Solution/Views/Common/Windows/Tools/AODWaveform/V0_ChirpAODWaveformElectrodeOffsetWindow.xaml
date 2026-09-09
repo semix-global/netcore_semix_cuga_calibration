@@ -195,12 +195,6 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Offset Frequency(MHz): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.OffsetFrequency}" />
                                     <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"
                                              Height="40"
                                              TextWrapping="Wrap"
@@ -220,7 +214,7 @@
                                                    HorizontalAlignment="Center"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <Expander Header="Electrode Offset Frequency Period Params"
+                                    <Expander Header="Electrode Delay Params"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
@@ -258,16 +252,16 @@
                                                                         Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
                                                     <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                         <Button Content="Add"
-                                                                Command="{Binding DataContext.Cache.AddElectrodeOffsetFrequencyPeriodParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                Command="{Binding DataContext.Cache.AddElectrodeDelayParamCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
                                                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"
                                                                 Style="{StaticResource ButtonInfo}" />
                                                         <Button Content="Delete"
-                                                                Command="{Binding DataContext.Cache.RemoveElectrodeOffsetFrequencyPeriodParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
-                                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeOffsetFrequencyPeriodParams}"
+                                                                Command="{Binding DataContext.Cache.RemoveElectrodeDelayParamsCommand, RelativeSource={RelativeSource AncestorType=hc:Window}}"
+                                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridElectrodeDelayParams}"
                                                                 hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                                 Style="{StaticResource ButtonDanger}" />
                                                     </hc:UniformSpacingPanel>
-                                                    <DataGrid x:Name="DataGridElectrodeOffsetFrequencyPeriodParams"
+                                                    <DataGrid x:Name="DataGridElectrodeDelayParams"
                                                               MaxHeight="500"
                                                               hc:DataGridAttach.ShowRowNumber="False"
                                                               CanUserSortColumns="False"
@@ -275,14 +269,14 @@
                                                               HeadersVisibility="Column"
                                                               RowHeaderWidth="60"
                                                               AutoGenerateColumns="False"
-                                                              ItemsSource="{Binding Cache.ElectrodeOffsetFrequencyPeriodParams}">
+                                                              ItemsSource="{Binding Cache.ElectrodeDelayParams}">
                                                         <DataGrid.Columns>
                                                             <DataGridTextColumn IsReadOnly="True"
                                                                                 Header="AOD Electrode"
                                                                                 Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                            <DataGridTextColumn Header="Start(2pi)" Binding="{Binding StartOffsetFrequencyPeriodCoefficient}" />
-                                                            <DataGridTextColumn Header="Step Period(2pi)" Binding="{Binding StepOffsetFrequencyPeriodCoefficient}" />
-                                                            <DataGridTextColumn Header="Stop Period(2pi)" Binding="{Binding StopOffsetFrequencyPeriodCoefficient}" />
+                                                            <DataGridTextColumn Header="Start Delay(ns)" Binding="{Binding StartDelay}" />
+                                                            <DataGridTextColumn Header="Step Delay(ns)" Binding="{Binding StepDelay}" />
+                                                            <DataGridTextColumn Header="Stop Delay(ns)" Binding="{Binding StopDelay}" />
                                                         </DataGrid.Columns>
                                                     </DataGrid>
                                                 </hc:UniformSpacingPanel>
@@ -294,21 +288,21 @@
                                                                    HorizontalAlignment="Center"
                                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                                     </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode2DelayParam.StartDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode2DelayParam.StepDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode2OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                                      Value="{Binding Cache.Electrode2DelayParam.StopDelay}" />
                                                     <TextBox Text="{Binding Cache.Electrode2Weights, Converter={StaticResource DoublesToStringConverter}}"
                                                              Height="50"
                                                              TextWrapping="Wrap"
@@ -322,21 +316,21 @@
                                                                    HorizontalAlignment="Center"
                                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                                     </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode3DelayParam.StartDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode3DelayParam.StepDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode3OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                                      Value="{Binding Cache.Electrode3DelayParam.StopDelay}" />
                                                     <TextBox Text="{Binding Cache.Electrode3Weights, Converter={StaticResource DoublesToStringConverter}}"
                                                              Height="50"
                                                              TextWrapping="Wrap"
@@ -350,21 +344,21 @@
                                                                    HorizontalAlignment="Center"
                                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                                     </StackPanel>
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Period(2pi): "
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Start Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StartOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode4DelayParam.StartDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StepOffsetFrequencyPeriodCoefficient}" />
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Period(2pi): "
+                                                                      Value="{Binding Cache.Electrode4DelayParam.StepDelay}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Stop Delay(ns): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="200"
                                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.Electrode4OffsetFrequencyPeriodParam.StopOffsetFrequencyPeriodCoefficient}" />
+                                                                      Value="{Binding Cache.Electrode4DelayParam.StopDelay}" />
                                                     <TextBox Text="{Binding Cache.Electrode4Weights, Converter={StaticResource DoublesToStringConverter}}"
                                                              Height="50"
                                                              TextWrapping="Wrap"
@@ -594,8 +588,7 @@
                                                     <DataGridTextColumn IsReadOnly="True"
                                                                         Header="AOD Electrode"
                                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
-                                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                                    <DataGridTextColumn Header="Delay(ns)" Binding="{Binding Delay, StringFormat='0.###'}" />
                                                     <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
                                                     <DataGridTemplateColumn Header="Uniformity">
                                                         <DataGridTemplateColumn.CellTemplate>

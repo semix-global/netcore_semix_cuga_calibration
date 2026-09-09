@@ -222,8 +222,7 @@
                                     <DataGridTextColumn IsReadOnly="True"
                                                         Header="AOD Electrode"
                                                         Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
-                                    <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding OffsetFrequency, StringFormat='0.###'}" />
-                                    <DataGridTextColumn Header="Period(2pi)" Binding="{Binding OffsetFrequencyPeriodCoefficient, StringFormat='0.###'}" />
+                                    <DataGridTextColumn Header="Delay(ns)" Binding="{Binding Delay, StringFormat='0.###'}" />
                                     <!--  ReSharper disable once Xaml.BindingWithContextNotResolved  -->
                                     <DataGridTextColumn Header="Amplitude"
                                                         Binding="{Binding Amplitude, StringFormat='0.###'}"

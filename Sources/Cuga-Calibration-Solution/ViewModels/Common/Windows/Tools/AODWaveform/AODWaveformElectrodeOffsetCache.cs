@@ -15,9 +15,6 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #region Step0 Param
 
     [ObservableProperty]
-    public partial double OffsetFrequency { get; set; }
-
-    [ObservableProperty]
     public partial AODWaveformElectrodeOffsetFrequency[] AODWaveformElectrodeOffsetFrequencies { get; set; } = [];
 
     [ObservableProperty]
@@ -33,7 +30,7 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     public partial double ScoreGamma { get; set; } = 0d;
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriodParam[] ElectrodeOffsetFrequencyPeriodParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
+    public partial AODWaveformElectrodeDelayParam[] ElectrodeDelayParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     #endregion Step0 Param
 
@@ -59,10 +56,10 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     #region Items
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriod<TItem> Step0 { get; set; } = new();
+    public partial AODWaveformElectrodeDelay<TItem> Step0 { get; set; } = new();
 
     [ObservableProperty]
-    public partial AODWaveformElectrodeOffsetFrequencyPeriod<TItem> Step1 { get; set; } = new();
+    public partial AODWaveformElectrodeDelay<TItem> Step1 { get; set; } = new();
 
     #endregion Items
 
@@ -92,29 +89,29 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
     }
 
     [RelayCommand]
-    private void AddElectrodeOffsetFrequencyPeriodParam()
+    private void AddElectrodeDelayParam()
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        if (ElectrodeOffsetFrequencyPeriodParams.Length > electrodeEnums.Length) return;
+        if (ElectrodeDelayParams.Length > electrodeEnums.Length) return;
 
-        AODWaveformElectrodeOffsetFrequencyPeriodParam[] electrodeOffsetFrequencyPeriodParams = [.. ElectrodeOffsetFrequencyPeriodParams, new()];
+        AODWaveformElectrodeDelayParam[] electrodeDelayParams = [.. ElectrodeDelayParams, new()];
 
-        foreach (var (index, item) in electrodeOffsetFrequencyPeriodParams.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
+        foreach (var (index, item) in electrodeDelayParams.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
 
-        ElectrodeOffsetFrequencyPeriodParams = electrodeOffsetFrequencyPeriodParams;
+        ElectrodeDelayParams = electrodeDelayParams;
     }
 
     [RelayCommand]
-    private void RemoveElectrodeOffsetFrequencyPeriodParams(IEnumerable? selectItems)
+    private void RemoveElectrodeDelayParams(IEnumerable? selectItems)
     {
         if (selectItems is null) return;
 
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        var electrodeOffsetParamList = ElectrodeOffsetFrequencyPeriodParams.ToList();
+        var electrodeOffsetParamList = ElectrodeDelayParams.ToList();
 
-        foreach (AODWaveformElectrodeOffsetFrequencyPeriodParam selectItem in selectItems)
+        foreach (AODWaveformElectrodeDelayParam selectItem in selectItems)
         {
             if (selectItem.OpticsAODElectrodeEnum == OpticsAODElectrodeEnum.Electrode1) continue;
 
@@ -123,18 +120,17 @@ public partial class AODWaveformElectrodeOffsetCache<TItem, TResult> : AODWavefo
 
         foreach (var (index, item) in electrodeOffsetParamList.Index()) item.OpticsAODElectrodeEnum = electrodeEnums[index];
 
-        ElectrodeOffsetFrequencyPeriodParams = [.. electrodeOffsetParamList];
+        ElectrodeDelayParams = [.. electrodeOffsetParamList];
     }
 
     public override object ToHtmlAnonymous() => new
     {
-        OffsetFrequency,
         AODWaveformElectrodeOffsetFrequencies = new HtmlTable([.. AODWaveformElectrodeOffsetFrequencies.Select(t => t.ToHtmlAnonymous())]),
         DetailLogInterval,
         NoiseMeasureTimes,
         ScoreLambda,
         ScoreGamma,
-        ElectrodeOffsetFrequencyPeriodParams = new HtmlTable([.. ElectrodeOffsetFrequencyPeriodParams.Select(t => t.ToHtmlAnonymous())]),
+        ElectrodeDelayParams = new HtmlTable([.. ElectrodeDelayParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
         AlgorithmAcquisitionFunctionEnum,

@@ -13,7 +13,7 @@ using Range = ScottPlot.Range;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> : ObservableObject
+public sealed partial class V0AODWaveformElectrodeDelay<TItem> : ObservableObject
     where TItem : V0AODWaveformElectrodeOffsetItem, new()
 {
     [ObservableProperty]
@@ -23,13 +23,13 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
     public string Title => string.Join(", ", Electrodes.Select(t => t.Humanize()));
 
     [ObservableProperty]
-    public partial IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> Items { get; set; } = [];
+    public partial IReadOnlyList<V0AODWaveformElectrodeDelayItem<TItem>> Items { get; set; } = [];
 
     [ObservableProperty]
     public partial IReadOnlyList<Point> ClosestMaximaPoints { get; set; } = [];
 
     [ObservableProperty]
-    public partial double? OffsetFrequencyPeriodCoefficient { get; set; }
+    public partial double? Delay { get; set; }
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -41,7 +41,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    partial void OnItemsChanged(IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>>? oldValue, IReadOnlyList<V0AODWaveformElectrodeOffsetFrequencyPeriodItem<TItem>> newValue)
+    partial void OnItemsChanged(IReadOnlyList<V0AODWaveformElectrodeDelayItem<TItem>>? oldValue, IReadOnlyList<V0AODWaveformElectrodeDelayItem<TItem>> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -62,11 +62,11 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
     partial void OnClosestMaximaPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
-    partial void OnOffsetFrequencyPeriodCoefficientChanged(double? value) => RefreshPlot();
+    partial void OnDelayChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
-    public V0AODWaveformElectrodeOffsetFrequencyPeriod()
+    public V0AODWaveformElectrodeDelay()
     {
         PlotDataSource.ToggleLegend(false);
     }
@@ -75,7 +75,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
     {
         try
         {
-            PlotDataSource.SetTitle($"Result: {(OffsetFrequencyPeriodCoefficient is null ? "-" : $"{OffsetFrequencyPeriodCoefficient:0.###}(2pi)")} (Y: mW - X: 2pi)");
+            PlotDataSource.SetTitle($"Result: {(Delay is null ? "-" : $"{Delay:0.###}(ns)")} (Y: mW - X: ns)");
 
             foreach (var (index, item) in Items.Index())
             {
@@ -83,7 +83,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
 
                 var scatterMarkersOrigin = PlotDataSource.GetOrAddScatterMarkers(
                     $"Origin {item.FrequencyItems[0].Frequency:0.###}(MHz)",
-                    [.. item.FrequencyItems.Select(t => new Point(t.OffsetFrequencyPeriodCoefficient, t.MeasurePower))],
+                    [.. item.FrequencyItems.Select(t => new Point(t.Delay, t.MeasurePower))],
                     index,
                     new Range(0, Items.Count - 1),
                     MarkerShape.OpenCircle);
@@ -114,9 +114,9 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
                 scatterMarkersClosestMaxima.MarkerSize = 20;
             }
 
-            if (OffsetFrequencyPeriodCoefficient is not null)
+            if (Delay is not null)
             {
-                PlotDataSource.GetOrAddXLine("Result", OffsetFrequencyPeriodCoefficient.Value, Colors.DarkRed);
+                PlotDataSource.GetOrAddXLine("Result", Delay.Value, Colors.DarkRed);
             }
         }
         finally
@@ -135,7 +135,7 @@ public sealed partial class V0AODWaveformElectrodeOffsetFrequencyPeriod<TItem> :
             item.FrequencyMaximaPoints = [];
 
             var (frequencyInterpolationX, frequencyInterpolationY) = Interpolator.SplineInterpolation(
-                Vector<double>.Build.Dense([.. item.FrequencyItems.Select(t => t.OffsetFrequencyPeriodCoefficient)]),
+                Vector<double>.Build.Dense([.. item.FrequencyItems.Select(t => t.Delay)]),
                 Vector<double>.Build.Dense([.. item.FrequencyItems.Select(t => t.MeasurePower)]),
                 densityFactor);
             item.FrequencyInterpolationPoints = [.. frequencyInterpolationX.Index().Select(t => new Point(t.Item, frequencyInterpolationY[t.Index]))];
