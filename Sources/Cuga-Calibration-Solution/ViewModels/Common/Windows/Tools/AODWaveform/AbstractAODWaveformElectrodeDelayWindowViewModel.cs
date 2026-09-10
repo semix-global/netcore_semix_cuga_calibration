@@ -164,7 +164,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                     .ToArray(),
                                 t.Item.Score,
                                 t.Item.IsSelected,
-                                FrequencyItems = t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude)).ToArray()
+                                FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
                     Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
@@ -413,7 +413,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                     .ToArray(),
                                 t.Item.Score,
                                 t.Item.IsSelected,
-                                FrequencyItems = t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude)).ToArray()
+                                FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
                     Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
