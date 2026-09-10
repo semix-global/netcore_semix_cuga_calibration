@@ -301,6 +301,12 @@
                                                                HorizontalAlignment="Center"
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Max Delay(ns): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.AlgorithmMaxDelay}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

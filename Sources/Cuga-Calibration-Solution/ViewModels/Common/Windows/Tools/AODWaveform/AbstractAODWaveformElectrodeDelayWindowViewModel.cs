@@ -509,7 +509,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             using var pyUniformities = Guard.IsNotNullAndReturn(result["x_normal"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
 
-            var delays = ToDoubles(pyDelays);
+            double[] delays = [.. ToDoubles(pyDelays).Select(t => t * Cache.AlgorithmMaxDelay)];
             var uniformities = ToDoubles(pyUniformities);
             Guard.IsEqualTo(delays.Length, delayCount);
             Guard.IsEqualTo(uniformities.Length, Cache.AlgorithmUniformityAnchorCount);
