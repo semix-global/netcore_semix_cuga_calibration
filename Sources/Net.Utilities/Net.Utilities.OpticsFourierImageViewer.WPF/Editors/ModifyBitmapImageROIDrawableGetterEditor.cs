@@ -239,7 +239,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        if (eventInputArgs.Event.KeyEnum == KeyEnum.Enter)
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Enter
+            || (eventInputArgs.Event.KeyEnum == KeyEnum.S && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control)))
         {
             _isAccepted = true;
 

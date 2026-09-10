@@ -64,6 +64,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private Task EditAllAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum.All,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
+        true,
         cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -72,12 +73,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
         BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
         BitmapImageROIResizeJoystickStateEnum.XMaxYMin,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.X,
+        false,
         cancellationToken: cancellationToken);
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task EditBottomAnchorROIAsync(CancellationToken cancellationToken) => EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
         dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.None,
+        false,
         cancellationToken: cancellationToken);
 
     [RelayCommand]
@@ -91,6 +94,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private async Task EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum resizeJoystickStateEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
+        bool isDeleteEnabled,
         CancellationToken cancellationToken)
     {
         if (ROICount <= 0) return;
@@ -130,7 +134,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
             var options = new ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable)
             {
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
-                IsDeleteEnabled = true,
+                IsDeleteEnabled = isDeleteEnabled,
                 CancellationToken = cancellationToken
             };
 
