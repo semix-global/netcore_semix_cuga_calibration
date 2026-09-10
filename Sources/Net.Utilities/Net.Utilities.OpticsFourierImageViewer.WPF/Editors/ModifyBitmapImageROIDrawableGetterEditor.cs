@@ -39,6 +39,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private bool _isAccepted;
 
+    #region 事件重载
+
     protected override void Init(InitArgs<Unit> args)
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
@@ -265,6 +267,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         Reset();
     }
 
+    #endregion
+
+    #region 重置
+
     private void Reset()
     {
         ClearSelection();
@@ -295,6 +301,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.None;
         _resizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None;
     }
+
+    #endregion
 
     #region 历史记录
 
@@ -423,6 +431,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ClearSelection()
     {
+        var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+        foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel) bitmapImageROIDrawable.IsSelected = false;
+
         foreach (var item in Edit.SelectedItems) item.IsSelected = false;
 
         Edit.SelectedItems.Clear();
@@ -432,16 +443,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     #region 修改
 
-    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> GetEdits()
-    {
-        return
-        [
-            .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
-                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
-                .Where(t => _originalDictionary.ContainsKey(t)) // 保证 _edits ⊆ _originalDictionary 的键, 防止 Init 后新增/状态变更的 ROI 在索引查找时抛 KeyNotFoundException
-                .Select(t => (t, ROIState.From(t)))
-        ];
-    }
+    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> GetEdits() =>
+    [
+        .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
+            .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
+            .Where(t => _originalDictionary.ContainsKey(t)) // 保证 _edits ⊆ _originalDictionary 的键, 防止 Init 后新增/状态变更的 ROI 在索引查找时抛 KeyNotFoundException
+            .Select(t => (t, ROIState.From(t)))
+    ];
 
     private void ApplyROIState(BitmapImageROIDrawable bitmapImageROIDrawable, ROIState state)
     {
