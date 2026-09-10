@@ -256,8 +256,15 @@
                                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                                     <Button Content="Import"
                                                                             Command="{Binding ImportUniformityConfigurationCommand}"
-                                                                            hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                                            hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
                                                                             Style="{StaticResource ButtonInfo}" />
+                                                                    <Button Content="Cancel"
+                                                                            Command="{Binding ImportUniformityConfigurationCancelCommand}"
+                                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                                            Style="{StaticResource ButtonWarning}" />
+                                                                    <Button Content="Template"
+                                                                            Command="{Binding ExportUniformityConfigurationCommand}"
+                                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
                                                                     <Button Content="Add"
                                                                             Command="{Binding AddUniformityConfigurationCommand}"
                                                                             hc:IconElement.Geometry="{StaticResource AddGeometry}"

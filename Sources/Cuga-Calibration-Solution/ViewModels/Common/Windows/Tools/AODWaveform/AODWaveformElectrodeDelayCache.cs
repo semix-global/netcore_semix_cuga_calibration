@@ -2,8 +2,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.AODWaveform.Generates;
+using MiniExcelLibs;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -89,6 +93,60 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         foreach (AODWaveformElectrodeDelayFrequency selectItem in selectItems) frequencyList.Remove(selectItem);
 
         AODWaveformElectrodeDelayFrequencies = [.. frequencyList];
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ImportAODWaveformElectrodeDelayFrequenciesAsync(CancellationToken cancellationToken)
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            if (dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath) != true) return;
+
+            AODWaveformElectrodeDelayFrequencies = [];
+
+            var values = (await MiniExcel.QueryAsync<AODWaveformElectrodeDelayFrequency>(filePath, cancellationToken: cancellationToken))
+                .Where(t => t.Frequency > 0 && t.Amplitude > 0)
+                .ToArray();
+
+            AODWaveformElectrodeDelayFrequencies = values;
+
+            dialogWindowProvider.ShowDialog("Import AOD Waveform Electrode Delay Frequencies OK!");
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Import AOD Waveform Electrode Delay Frequencies Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportAODWaveformElectrodeDelayFrequenciesTemplateAsync()
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            if (dialogWindowProvider.TryShowSaveFilePathDialog(".xlsx", out var filePath) != true) return;
+
+            await MiniExcel.SaveAsAsync(filePath, new[]
+            {
+                new AODWaveformElectrodeDelayFrequency { Frequency = 100d, Amplitude = 0.5 },
+                new AODWaveformElectrodeDelayFrequency { Frequency = 150d, Amplitude = 1d }
+            }, overwriteFile: true);
+
+            dialogWindowProvider.ShowDialog("Export AOD Waveform Electrode Delay Frequencies Template OK!");
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Export AOD Waveform Electrode Delay Frequencies Template Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
     }
 
     [RelayCommand]

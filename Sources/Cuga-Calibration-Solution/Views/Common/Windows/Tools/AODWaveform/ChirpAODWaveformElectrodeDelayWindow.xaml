@@ -200,6 +200,17 @@
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
                                     <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                        <Button Content="Import"
+                                                Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
+                                                Style="{StaticResource ButtonInfo}" />
+                                        <Button Content="Cancel"
+                                                Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                        <Button Content="Template"
+                                                Command="{Binding Cache.ExportAODWaveformElectrodeDelayFrequenciesTemplateCommand}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
                                         <Button Content="Add"
                                                 Command="{Binding Cache.AddAODWaveformElectrodeDelayFrequencyCommand}"
                                                 hc:IconElement.Geometry="{StaticResource AddGeometry}"

@@ -57,8 +57,8 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     }
 
 
-    [RelayCommand]
-    private void ImportUniformityConfiguration()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ImportUniformityConfigurationAsync(CancellationToken cancellationToken)
     {
         var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
 
@@ -69,17 +69,17 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 
             UniformityConfigurations = [];
 
-            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+            var values = (await MiniExcel.QueryAsync<GenerateAODWaveformUniformityConfiguration>(filePath, cancellationToken: cancellationToken))
                 .Where(t => t.Frequency > 0)
                 .ToArray();
             if (values.Length <= 0)
             {
                 values =
                 [
-                    .. MiniExcel.Query(filePath, useHeaderRow: true)
-                        .Cast<IDictionary<string, object>>()
-                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
-                        .Where(t => t.Frequency > 0)
+                    .. (await MiniExcel.QueryAsync(filePath, useHeaderRow: true, cancellationToken: cancellationToken))
+                    .Cast<IDictionary<string, object>>()
+                    .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                    .Where(t => t.Frequency > 0)
                 ];
             }
 
@@ -94,6 +94,32 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         {
             dialogWindowProvider.ShowDialog($"""
                                              Import Uniformity Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportUniformityConfigurationAsync()
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            if (dialogWindowProvider.TryShowSaveFilePathDialog(".xlsx", out var filePath) != true) return;
+
+            await MiniExcel.SaveAsAsync(filePath, new[]
+            {
+                new GenerateAODWaveformUniformityConfiguration { Frequency = 100d, Coefficient = 0.5 },
+                new GenerateAODWaveformUniformityConfiguration { Frequency = 150d, Coefficient = 1d }
+            }, overwriteFile: true);
+
+            dialogWindowProvider.ShowDialog("Export Uniformity Configuration Template OK!");
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Export Uniformity Configuration Template Failed!
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
