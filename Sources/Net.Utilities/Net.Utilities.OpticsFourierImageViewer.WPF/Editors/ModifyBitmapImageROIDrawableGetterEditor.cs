@@ -41,6 +41,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void Init(InitArgs<Unit> args)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         base.Init(args);
 
         _lastCursorTypeEnum = null;
@@ -57,8 +59,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
 
         var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
-
-        using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
 
         var builder = ImmutableDictionary.CreateBuilder<BitmapImageROIDrawable, ROIState>();
 
@@ -78,6 +78,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorChanged(Point point)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         DoPrompt(point.ToString(Edit.Document.Settings.NumberFormat));
 
         if (_isCursorDown == false) return;
@@ -98,6 +100,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
 
         _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
@@ -151,8 +155,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         bool TryGetModifyTarget([NotNullWhen(true)] out BitmapImageROIDrawable? selectedBitmapImageROIDrawable, out ControlPoint? selectedControlPoint)
         {
-            using var scope = Edit.Document.View.Sync.EnterScope();
-
             selectedBitmapImageROIDrawable = null;
             selectedControlPoint = null;
 
@@ -190,6 +192,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorUpInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Released) == false) return;
 
         if (_selectionWindow is not null)
@@ -207,6 +211,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
             CommitToHistory();
@@ -334,8 +340,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ApplyHistory(ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)> edit, bool isUndo)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         foreach (var item in edit)
         {
             ApplyROIState(item.BitmapImageROIDrawable, isUndo
@@ -350,8 +354,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void BeginSelection(Point point, bool isControlPressed)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Select;
 
         if (isControlPressed == false) ClearSelection();
@@ -366,8 +368,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void CompleteSelection(bool isControlPressed)
     {
         var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
-
-        using var scope = opticsFourierImageDocument.View.Sync.EnterScope();
 
         Guard.IsNotNull(_selectionWindow);
 
@@ -392,8 +392,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ToggleSelection(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (bitmapImageROIDrawable.IsFixed) return;
 
         if (Edit.SelectedItems.Contains(bitmapImageROIDrawable))
@@ -407,8 +405,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void Select(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (bitmapImageROIDrawable.IsFixed) return;
 
         if (Edit.SelectedItems.Contains(bitmapImageROIDrawable)) return;
@@ -419,8 +415,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void RemoveSelectionWindow()
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (_selectionWindow is null) return;
 
         Edit.Document.Transients.Remove(_selectionWindow);
@@ -429,8 +423,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ClearSelection()
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         foreach (var item in Edit.SelectedItems) item.IsSelected = false;
 
         Edit.SelectedItems.Clear();
@@ -442,8 +434,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> GetEdits()
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         return
         [
             .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
@@ -455,8 +445,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ApplyROIState(BitmapImageROIDrawable bitmapImageROIDrawable, ROIState state)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         bitmapImageROIDrawable.Rect = state.Rect;
         bitmapImageROIDrawable.IsVisible = state.IsVisible;
 
@@ -471,8 +459,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void DeleteSelectedROIs()
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         // 先提交当前拖拽, 使位置修改和批量隐藏分别作为一次历史操作.
         CommitToHistory();
         ResetInteractionState();
