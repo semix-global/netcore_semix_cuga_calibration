@@ -14,7 +14,7 @@ using Range = ScottPlot.Range;
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
 public sealed partial class V0AODWaveformElectrodeDelay<TItem> : ObservableObject
-    where TItem : V0AODWaveformElectrodeOffsetItem, new()
+    where TItem : V0AODWaveformElectrodeDelayItem, new()
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title))]

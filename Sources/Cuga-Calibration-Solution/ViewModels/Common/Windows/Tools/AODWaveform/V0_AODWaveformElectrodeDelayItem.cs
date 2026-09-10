@@ -1,17 +1,28 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Net.Utilities.Models.Geometries;
+using Core.Models.Models.Common.AODWaveform.Generates;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
-public sealed partial class V0AODWaveformElectrodeDelayItem<TItem> : ObservableObject
-    where TItem : V0AODWaveformElectrodeOffsetItem, new()
+public partial class V0AODWaveformElectrodeDelayItem : AODWaveformCommonItem
 {
     [ObservableProperty]
-    public partial IReadOnlyList<TItem> FrequencyItems { get; set; } = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<Point> FrequencyInterpolationPoints { get; set; } = [];
+    public partial double Frequency { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<Point> FrequencyMaximaPoints { get; set; } = [];
+    public partial double Amplitude { get; set; }
+
+    [ObservableProperty]
+    public partial double Delay { get; set; }
+
+    public override object ToHtmlAnonymous() => new
+    {
+        Frequency,
+        Amplitude,
+        Delay,
+        Base = new HtmlQuote(base.ToHtmlAnonymous())
+    };
 }

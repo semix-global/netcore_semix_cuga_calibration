@@ -192,7 +192,7 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </Expander>
-                <Expander Header="Electrode Offset Configurations"
+                <Expander Header="Electrode Delay Configurations"
                           IsExpanded="False"
                           ExpandDirection="Down"
                           Visibility="{Binding IsVisibleElectrodeConfiguration, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
