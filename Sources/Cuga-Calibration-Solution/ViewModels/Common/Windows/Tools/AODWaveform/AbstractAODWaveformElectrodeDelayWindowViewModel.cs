@@ -11,6 +11,7 @@ using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
@@ -162,7 +163,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                         : tt.Item.BoardCardDelay))
                                     .ToArray(),
                                 t.Item.Score,
-                                t.Item.IsSelected
+                                t.Item.IsSelected,
+                                FrequencyItems = t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude)).ToArray()
                             })
                     ]),
                     Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
@@ -410,7 +412,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                         : tt.Item.BoardCardDelay))
                                     .ToArray(),
                                 t.Item.Score,
-                                t.Item.IsSelected
+                                t.Item.IsSelected,
+                                FrequencyItems = t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude)).ToArray()
                             })
                     ]),
                     Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
