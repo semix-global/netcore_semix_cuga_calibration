@@ -30,7 +30,7 @@
                         <i:CallMethodAction TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" MethodName="DragMove" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="Electrode Offset Confirm Result"
+                <TextBlock Text="FA/FB Compensation Confirm ECS Range"
                            HorizontalAlignment="Center"
                            FontSize="13"
                            FontWeight="Bold"
