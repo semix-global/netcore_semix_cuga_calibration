@@ -15,44 +15,133 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
-    public sealed partial class FirstStep : ObservableObject, ICloneable<FirstStep>
+    public sealed partial class Item : ObservableObject, ICloneable<Item>
     {
-        private readonly BitmapImageDrawable _originalBitmapImageDrawable = new();
-        private readonly BitmapImageDrawable _roiBitmapImageDrawable = new();
-
-        public Rod RodLeft { get; private init; }
-
-        public Rod RodRight { get; private init; }
-
-        [ObservableProperty]
-        public partial string ChannelImageFilePath { get; set; } = string.Empty;
+        private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
+        private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();
+        private readonly BitmapImageDrawable _step2BitmapImageDrawable = new();
+        private readonly int _rodTotalCount;
+        private readonly bool _isOdd;
 
         [ObservableProperty]
-        public partial string ROIChannelImageFilePath { get; set; } = string.Empty;
+        public partial double Step0AndStep1MotorAbsoluteValue { get; set; }
+
+        [ObservableProperty]
+        public partial double Step2MotorAbsoluteValue { get; set; }
+
+        [ObservableProperty]
+        public partial string Step0ChannelImageFilePath { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        public partial string Step1ChannelImageFilePath { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        public partial string Step2ChannelImageFilePath { get; set; } = string.Empty;
+
+        public Rod Step0LeftRod { get; private init; }
+
+        public Rod Step0RightRod { get; private init; }
+
+        public Rod[] Step1Rods { get; private init; }
+
+        public Rod[] Step2Rods { get; private init; }
 
         [Newtonsoft.Json.JsonIgnore]
         public OpticsFourierImageDocument Document { get; } = new();
 
-        public FirstStep()
+        public Item(int rodTotalCount, bool isOdd)
         {
-            RodLeft = new Rod(_roiBitmapImageDrawable);
-            RodRight = new Rod(_roiBitmapImageDrawable);
+            _rodTotalCount = rodTotalCount;
+            _isOdd = isOdd;
+
+            var rodIndexes = Generate.LinearRangeInt32(0, rodTotalCount - 1);
+            var oddRodIndexes = rodIndexes.Where(t => ((t + 1) & 1) == 1).ToArray();
+            var evenRodIndexes = rodIndexes.Where(t => ((t + 1) & 1) == 0).ToArray();
+            Guard.IsGreaterThan(oddRodIndexes.Length, 2);
+            Guard.IsGreaterThan(evenRodIndexes.Length, 2);
+            int[] oddCenterRodIndexes =
+            [
+                oddRodIndexes[oddRodIndexes.Length / 2 - 1],
+                oddRodIndexes[oddRodIndexes.Length / 2]
+            ];
+            int[] evenCenterRodIndexes =
+            [
+                evenRodIndexes[evenRodIndexes.Length / 2 - 1],
+                evenRodIndexes[evenRodIndexes.Length / 2]
+            ];
+
+            Step0LeftRod = new Rod(_step0BitmapImageDrawable)
+            {
+                Index = isOdd ? oddCenterRodIndexes[0] : evenCenterRodIndexes[0],
+                BitmapImageROIDrawable = { IsVisible = true, IsFixed = false }
+            };
+            Step0LeftRod.BitmapImageROIDrawable.Text = $"{Step0LeftRod.Index + 1}";
+            Step0LeftRod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+                                                                          BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+                                                                          BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+
+            Step0RightRod = new Rod(_step0BitmapImageDrawable)
+            {
+                Index = isOdd ? oddCenterRodIndexes[1] : evenCenterRodIndexes[1],
+                BitmapImageROIDrawable = { IsVisible = true, IsFixed = false }
+            };
+            Step0RightRod.BitmapImageROIDrawable.Text = $"{Step0RightRod.Index + 1}";
+            Step0RightRod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+                                                                           BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+                                                                           BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+
+            Step1Rods = isOdd
+                ? [.. oddRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })]
+                : [.. evenRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })];
+            foreach (var step1Rod in Step1Rods)
+            {
+                step1Rod.BitmapImageROIDrawable.Text = $"{step1Rod.Index + 1}";
+                step1Rod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+                                                                          BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+                                                                          BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+            }
+
+            Step2Rods = isOdd
+                ? [.. oddRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })]
+                : [.. evenRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })];
+            foreach (var step2Rod in Step2Rods)
+            {
+                step2Rod.BitmapImageROIDrawable.Text = $"{step2Rod.Index + 1}";
+                step2Rod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin;
+            }
+
             Document.RunDesign(() =>
             {
-                Document.ImageModel.AddRange([_originalBitmapImageDrawable, _roiBitmapImageDrawable]);
-                Document.ROIModel.AddRange([RodLeft.BitmapImageROIDrawable, RodRight.BitmapImageROIDrawable]);
+                Document.ImageModel.AddRange([_step0BitmapImageDrawable, _step1BitmapImageDrawable, _step2BitmapImageDrawable]);
+                Document.ROIModel.AddRange([
+                    Step0LeftRod.BitmapImageROIDrawable,
+                    Step0RightRod.BitmapImageROIDrawable,
+                    .. Step1Rods.Select(t => t.BitmapImageROIDrawable),
+                    .. Step2Rods.Select(t => t.BitmapImageROIDrawable)
+                ]);
             });
         }
 
         #region Mapper
 
-        public FirstStep Clone() => new()
+        public Item Clone()
         {
-            RodLeft = RodLeft.AdaptIn(RodLeft),
-            RodRight = RodRight.AdaptIn(RodRight),
-            ChannelImageFilePath = ChannelImageFilePath,
-            ROIChannelImageFilePath = ROIChannelImageFilePath
-        };
+            var item = new Item(_rodTotalCount, _isOdd)
+            {
+                Step0AndStep1MotorAbsoluteValue = Step0AndStep1MotorAbsoluteValue,
+                Step2MotorAbsoluteValue = Step2MotorAbsoluteValue,
+                Step0ChannelImageFilePath = Step0ChannelImageFilePath,
+                Step1ChannelImageFilePath = Step1ChannelImageFilePath,
+                Step2ChannelImageFilePath = Step2ChannelImageFilePath
+            };
+
+            item.Step0LeftRod.AdaptIn(Step0LeftRod);
+            item.Step0RightRod.AdaptIn(Step0RightRod);
+            foreach (var (target, source) in item.Step1Rods.Zip(Step1Rods)) target.AdaptIn(source);
+            foreach (var (target, source) in item.Step2Rods.Zip(Step2Rods)) target.AdaptIn(source);
+
+            return item;
+        }
 
         #endregion
 
@@ -60,82 +149,89 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public void Reset()
         {
-            RodLeft.Reset();
-            RodRight.Reset();
+            Step0AndStep1MotorAbsoluteValue = 0d;
+            Step2MotorAbsoluteValue = 0d;
+            Step0ChannelImageFilePath = string.Empty;
+            Step1ChannelImageFilePath = string.Empty;
+            Step2ChannelImageFilePath = string.Empty;
 
-            ChannelImageFilePath = string.Empty;
-            ROIChannelImageFilePath = string.Empty;
+            Step0LeftRod.Reset();
+            Step0RightRod.Reset();
+            foreach (var step1Rod in Step1Rods) step1Rod.Reset();
+            foreach (var step2Rod in Step2Rods) step2Rod.Reset();
 
-            Document.Reset();
+            Document.ResetEditROI();
         }
 
-        public async Task CalibratingAsync(int rodTotalCount, bool isOdd, double motorAbsoluteValue, CancellationToken cancellationToken)
+        public async Task CalibratingAsync(double step0AndStep1MotorAbsoluteValue, double step2MotorAbsoluteValue, CancellationToken cancellationToken)
         {
             try
             {
-                Document.Reset();
+                Step0AndStep1MotorAbsoluteValue = step0AndStep1MotorAbsoluteValue;
+                Step2MotorAbsoluteValue = step2MotorAbsoluteValue;
 
-                Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
-                Guard.IsNotNullOrWhiteSpace(ROIChannelImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step0ChannelImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step1ChannelImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step2ChannelImageFilePath);
 
-                _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
-                _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
-                _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
+                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
 
-                var rodIndexes = Generate.LinearRangeInt32(0, rodTotalCount - 1);
-                var oddRodIndexes = rodIndexes.Where(t => ((t + 1) & 1) == 1).ToArray();
-                var evenRodIndexes = rodIndexes.Where(t => ((t + 1) & 1) == 0).ToArray();
-                Guard.IsGreaterThan(oddRodIndexes.Length, 2);
-                Guard.IsGreaterThan(evenRodIndexes.Length, 2);
+                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+                _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point + new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
-                int[] oddCenterRodIndexes =
-                [
-                    oddRodIndexes[oddRodIndexes.Length / 2 - 1],
-                    oddRodIndexes[oddRodIndexes.Length / 2]
-                ];
-                int[] evenCenterRodIndexes =
-                [
-                    evenRodIndexes[evenRodIndexes.Length / 2 - 1],
-                    evenRodIndexes[evenRodIndexes.Length / 2]
-                ];
-                Rect[] rodROIs =
-                [
-                    .. rodIndexes
-                        .Select(i =>
-                        {
-                            var width = _roiBitmapImageDrawable.BitmapImage.Width / rodTotalCount;
+                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2ChannelImageFilePath);
+                _step2BitmapImageDrawable.Point = _step1BitmapImageDrawable.Point + new Vector(_step1BitmapImageDrawable.BitmapImage.Width + 10d, 0d);
 
-                            return _roiBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * i, 0d, width, _roiBitmapImageDrawable.BitmapImage.Height));
-                        })
-                ];
+                Document.View.ZoomToFit();
 
-                RodLeft.Index = isOdd ? oddCenterRodIndexes[0] : evenCenterRodIndexes[0];
-                RodRight.Index = isOdd ? oddCenterRodIndexes[1] : evenCenterRodIndexes[1];
-                RodLeft.MotorAbsoluteValue = motorAbsoluteValue;
-                RodRight.MotorAbsoluteValue = motorAbsoluteValue;
-                RodLeft.BitmapImageROIDrawable.Rect = rodROIs[RodLeft.Index];
-                RodRight.BitmapImageROIDrawable.Rect = rodROIs[RodRight.Index];
-                RodLeft.BitmapImageROIDrawable.Text = $"{RodLeft.Index + 1}";
-                RodRight.BitmapImageROIDrawable.Text = $"{RodRight.Index + 1}";
-                Document.View.SetViewBounds(_roiBitmapImageDrawable.GetExtents());
+                await Task.Delay(1000, cancellationToken);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                await Step0Async();
+
+                cancellationToken.ThrowIfCancellationRequested();
+                await Step1Async();
+
+                cancellationToken.ThrowIfCancellationRequested();
+                await Step2Async();
+            }
+            finally
+            {
+                Document.View.ZoomToFit();
+            }
+
+            return;
+
+            async Task Step0Async()
+            {
+                var width = _step0BitmapImageDrawable.BitmapImage.Width / (Step1Rods.Length * 2d);
+
+                Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
+                Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
+
+                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
 
                 while (true)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_roiBitmapImageDrawable)
+                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0BitmapImageDrawable)
                     {
                         BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
+                        IsDeleteEnabled = false,
                         CancellationToken = cancellationToken
                     });
 
                     switch (outputResult)
                     {
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                            Guard.IsTrue(RodLeft.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
-                            Guard.IsTrue(RodRight.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.IsVisible);
+                            Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.IsVisible);
 
-                            Guard.IsTrue(RodLeft.BitmapImageROIDrawable.Rect.XMax <= RodRight.BitmapImageROIDrawable.Rect.XMin);
+                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                            Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+
+                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect.XMax < Step0RightRod.BitmapImageROIDrawable.Rect.XMin);
 
                             goto OuterLoop;
 
@@ -157,17 +253,229 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 OuterLoop:
 
-                RodLeft.BitmapImageROIDrawable.IsFixed = true;
-                RodLeft.ImageROI = _roiBitmapImageDrawable.CartesianCoordinateToImageCoordinate(RodLeft.BitmapImageROIDrawable.Rect);
-                Guard.IsEqualTo(_roiBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(RodLeft.ImageROI), RodLeft.BitmapImageROIDrawable.Rect);
+                Step0LeftRod.IsDeleted = false;
+                Step0LeftRod.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0LeftRod.BitmapImageROIDrawable.Rect);
+                Step0LeftRod.BitmapImageROIDrawable.IsFixed = true;
 
-                RodRight.BitmapImageROIDrawable.IsFixed = true;
-                RodRight.ImageROI = _roiBitmapImageDrawable.CartesianCoordinateToImageCoordinate(RodRight.BitmapImageROIDrawable.Rect);
-                Guard.IsEqualTo(_roiBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(RodRight.ImageROI), RodRight.BitmapImageROIDrawable.Rect);
+                Step0RightRod.IsDeleted = false;
+                Step0RightRod.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0RightRod.BitmapImageROIDrawable.Rect);
+                Step0RightRod.BitmapImageROIDrawable.IsFixed = true;
             }
-            finally
+
+            async Task Step1Async()
             {
-                Document.View.ZoomToFit();
+                var step0LeftRod = Step1Rods.Single(t => t.Index == Step0LeftRod.Index);
+                var step0RightRod = Step1Rods.Single(t => t.Index == Step0RightRod.Index);
+
+                step0LeftRod.IsDeleted = false;
+                step0LeftRod.ImageROI = Step0LeftRod.ImageROI;
+                step0LeftRod.BitmapImageROIDrawable.IsFixed = true;
+                step0LeftRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step0LeftRod.ImageROI);
+
+                step0RightRod.IsDeleted = false;
+                step0RightRod.ImageROI = Step0RightRod.ImageROI;
+                step0RightRod.BitmapImageROIDrawable.IsFixed = true;
+                step0RightRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step0RightRod.ImageROI);
+
+                CalculateInvisibleRodPositions(
+                    [step0LeftRod, step0RightRod],
+                    [.. Step1Rods.Except([step0LeftRod, step0RightRod])],
+                    false);
+
+                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents());
+
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step1BitmapImageDrawable)
+                    {
+                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
+                        IsDeleteEnabled = true,
+                        CancellationToken = cancellationToken
+                    });
+
+                    switch (outputResult)
+                    {
+                        case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                            Rod[] temps = [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                            Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
+
+                            foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
+                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect.XMax < nextRod.BitmapImageROIDrawable.Rect.XMin);
+                            }
+
+                            goto OuterLoop;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                            continue;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                            ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                            break;
+
+                        default:
+                            ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                            break;
+                    }
+                }
+
+                OuterLoop:
+
+                foreach (var step1Rod in Step1Rods)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    step1Rod.IsDeleted = step1Rod.BitmapImageROIDrawable.IsVisible == false;
+                    step1Rod.BitmapImageROIDrawable.Text = step1Rod.IsDeleted ? $"X: {step1Rod.Index + 1}" : $"{step1Rod.Index + 1}";
+                    if (step1Rod.IsDeleted) continue;
+
+                    step1Rod.BitmapImageROIDrawable.IsFixed = true;
+                    step1Rod.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(step1Rod.BitmapImageROIDrawable.Rect);
+                }
+
+                CalculateInvisibleRodPositions(
+                    [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)],
+                    [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible == false)],
+                    true);
+
+                return;
+
+                void CalculateInvisibleRodPositions(Rod[] visibleRods, Rod[] invisibleRods, bool isFixed)
+                {
+                    if (invisibleRods.Length == 0) return;
+
+                    Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
+
+                    var averageWidth = visibleRods.Average(t => t.ImageROI.Width);
+                    var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
+                    var averageY = visibleRods.Average(t => t.ImageROI.Y);
+                    var averageCenterXOffsetPerRod = visibleRods.Zip(visibleRods.Skip(1))
+                        .Average(pair => (pair.Second.ImageROI.Center.X - pair.First.ImageROI.Center.X) / ((pair.Second.Index - pair.First.Index) / 2d));
+
+                    Guard.IsEqualTo(averageY, 0d);
+
+                    foreach (var invisibleRod in invisibleRods)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var nearestVisibleRod = visibleRods.OrderBy(t => Math.Abs(t.Index - invisibleRod.Index)).First();
+                        var centerX = nearestVisibleRod.ImageROI.Center.X + averageCenterXOffsetPerRod * ((invisibleRod.Index - nearestVisibleRod.Index) / 2d);
+
+                        invisibleRod.ImageROI = new Rect(centerX - averageWidth / 2d, 0d, averageWidth, averageHeight).ImageCoordinateRound();
+
+                        invisibleRod.BitmapImageROIDrawable.IsFixed = isFixed;
+                        invisibleRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
+                        invisibleRod.BitmapImageROIDrawable.IsVisible = true;
+                    }
+                }
+            }
+
+            async Task Step2Async()
+            {
+                foreach (var step1Rod in Step1Rods)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var step2Rod = Step2Rods.Single(t => t.Index == step1Rod.Index);
+
+                    step2Rod.IsDeleted = step1Rod.IsDeleted;
+                    step2Rod.ImageROI = step1Rod.ImageROI;
+                    step2Rod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step2Rod.ImageROI);
+                    step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod.IsDeleted == false;
+                }
+
+                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
+
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step2BitmapImageDrawable)
+                    {
+                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
+                        IsDeleteEnabled = true,
+                        CancellationToken = cancellationToken
+                    });
+
+                    switch (outputResult)
+                    {
+                        case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                            Rod[] temps = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                            Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
+
+                            foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                                Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                                Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
+                            }
+
+                            goto OuterLoop;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                            continue;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                            ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                            break;
+
+                        default:
+                            ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                            break;
+                    }
+                }
+
+                OuterLoop:
+
+                foreach (var step2Rod in Step2Rods)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    step2Rod.IsDeleted = step2Rod.BitmapImageROIDrawable.IsVisible == false;
+                    step2Rod.BitmapImageROIDrawable.Text = step2Rod.IsDeleted ? $"X: {step2Rod.Index + 1}" : $"{step2Rod.Index + 1}";
+                    if (step2Rod.IsDeleted) continue;
+
+                    step2Rod.BitmapImageROIDrawable.IsFixed = true;
+                    step2Rod.ImageROI = _step2BitmapImageDrawable.CartesianCoordinateToImageCoordinate(step2Rod.BitmapImageROIDrawable.Rect);
+                }
+
+                Rod[] visibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                Rod[] invisibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible == false)];
+
+                if (invisibleRods.Length == 0) return;
+
+                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 1);
+
+                var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
+                var averageY = visibleRods.Average(t => t.ImageROI.Y);
+
+                Guard.IsEqualTo(averageY, 0d);
+
+                foreach (var invisibleRod in invisibleRods)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, averageHeight));
+
+                    invisibleRod.BitmapImageROIDrawable.IsFixed = true;
+                    invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
+                    invisibleRod.BitmapImageROIDrawable.IsVisible = true;
+                }
             }
         }
 
@@ -175,24 +483,37 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         {
             try
             {
-                Document.Reset();
+                Document.ResetEditROI();
 
-                if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
+                if (string.IsNullOrWhiteSpace(Step0ChannelImageFilePath)
+                    || string.IsNullOrWhiteSpace(Step1ChannelImageFilePath)
+                    || string.IsNullOrWhiteSpace(Step2ChannelImageFilePath)) return;
 
-                _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
 
-                _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
-                _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
+                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+                _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point + new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
-                RodLeft.BitmapImageROIDrawable.IsFixed = true;
-                RodLeft.BitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(RodLeft.ImageROI);
+                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2ChannelImageFilePath);
+                _step2BitmapImageDrawable.Point = _step1BitmapImageDrawable.Point + new Vector(_step1BitmapImageDrawable.BitmapImage.Width + 10d, 0d);
 
-                RodRight.BitmapImageROIDrawable.IsFixed = true;
-                RodRight.BitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(RodRight.ImageROI);
+                RestoreRod(Step0LeftRod, _step0BitmapImageDrawable);
+                RestoreRod(Step0RightRod, _step0BitmapImageDrawable);
+                foreach (var step1Rod in Step1Rods) RestoreRod(step1Rod, _step1BitmapImageDrawable);
+                foreach (var step2Rod in Step2Rods) RestoreRod(step2Rod, _step2BitmapImageDrawable);
             }
             finally
             {
                 Document.View.ZoomToFit();
+            }
+
+            return;
+
+            static void RestoreRod(Rod rod, BitmapImageDrawable bitmapImageDrawable)
+            {
+                rod.BitmapImageROIDrawable.Text = rod.IsDeleted ? $"X: {rod.Index + 1}" : $"{rod.Index + 1}";
+                rod.BitmapImageROIDrawable.IsFixed = true;
+                rod.BitmapImageROIDrawable.Rect = bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
             }
         }
 

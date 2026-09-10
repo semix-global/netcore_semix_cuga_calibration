@@ -15,6 +15,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using System.IO;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
@@ -122,15 +123,13 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         ROIChannelImageFilePath = string.Empty;
         ImageROI = Rect.Empty;
 
-        Document.Reset();
+        Document.ResetEditROI();
     }
 
     public async Task CalibratingAsync(CancellationToken cancellationToken)
     {
         try
         {
-            Document.Reset();
-
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
             _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
@@ -142,7 +141,12 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_originalBitmapImageDrawable) { CancellationToken = cancellationToken });
+                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_originalBitmapImageDrawable)
+                {
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
+                    IsDeleteEnabled = false,
+                    CancellationToken = cancellationToken
+                });
                 switch (outputResult)
                 {
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
@@ -188,7 +192,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     {
         try
         {
-            Document.Reset();
+            Document.ResetEditROI();
 
             if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
 

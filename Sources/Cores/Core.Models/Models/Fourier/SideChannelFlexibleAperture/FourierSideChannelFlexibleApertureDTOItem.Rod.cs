@@ -10,36 +10,28 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 {
     public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<Rod, Rod>
     {
-        [ObservableProperty]
-        public partial int Index { get; set; }
+        public int Index { get; init; }
 
         [ObservableProperty]
-        public partial double MotorAbsoluteValue { get; set; }
+        public partial bool IsDeleted { get; set; } = true;
 
         [ObservableProperty]
         public partial Rect ImageROI { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
-        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable)
-        {
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
-                                      BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
-                                      BitmapImageROIResizeJoystickStateEnum.XMaxYMin
-        };
+        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
 
         public Rod AdaptIn(Rod obj)
         {
-            Index = obj.Index;
-            MotorAbsoluteValue = obj.MotorAbsoluteValue;
+            IsDeleted = obj.IsDeleted;
             ImageROI = obj.ImageROI;
 
-            return obj;
+            return this;
         }
 
         public void Reset()
         {
-            Index = 0;
-            MotorAbsoluteValue = 0d;
+            IsDeleted = true;
             ImageROI = Rect.Empty;
         }
     }

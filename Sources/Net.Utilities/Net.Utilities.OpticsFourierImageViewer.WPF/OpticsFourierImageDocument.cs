@@ -25,15 +25,15 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
         Settings.SelectionHighlightOverrideLineStyle = null;
     }
 
-    public void Reset()
+    public void ResetEditROI()
     {
         foreach (var bitmapImageDrawable in ImageModel) bitmapImageDrawable.BitmapImage = null;
 
         foreach (var bitmapImageROIDrawable in ROIModel)
         {
+            bitmapImageROIDrawable.IsVisible = true;
             bitmapImageROIDrawable.Rect = Rect.Empty;
             bitmapImageROIDrawable.IsFixed = false;
-            bitmapImageROIDrawable.Text = string.Empty;
         }
     }
 }

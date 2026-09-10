@@ -15,6 +15,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         [ObservableProperty]
         public partial double PixelSize { get; set; }
+        
+        [ObservableProperty]
+        public partial bool IsDeleted { get; set; } = true;
 
         [ObservableProperty]
         public partial Rect MinImageROI { get; set; }
