@@ -37,7 +37,6 @@ public static class AODWaveformGenerator1
         public void Validate()
         {
             Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(AODWaveformOffsetConfiguration) + nameof(DirectoryName));
-            Guard.IsGreaterThanOrEqualTo(Delay, 0d, nameof(AODWaveformOffsetConfiguration) + nameof(Delay));
             Guard.IsBetweenOrEqualTo(Amplitude, 0d, 1d);
 
             foreach (var item in UniformityConfigurations) item.Validate();
