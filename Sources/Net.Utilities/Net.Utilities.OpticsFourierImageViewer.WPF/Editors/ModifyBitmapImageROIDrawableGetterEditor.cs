@@ -38,7 +38,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private BitmapImageROIResizeJoystickStateEnum _resizeJoystickStateEnum;
 
     private bool _isAccepted;
-    private bool _isUndoRedoKeyDown;
 
     protected override void Init(InitArgs<Unit> args)
     {
@@ -68,7 +67,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         {
             bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
             bitmapImageROIDrawable.IsEditorModified = false;
-            builder.Add(bitmapImageROIDrawable, GetROIState(bitmapImageROIDrawable));
+            builder.Add(bitmapImageROIDrawable, ROIState.From(bitmapImageROIDrawable));
         }
 
         _originalDictionary = builder.ToImmutable();
@@ -125,13 +124,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             {
                 _editorStateEnum = BitmapImageROIDrawableEditorStateEnum.Modify;
 
-                _edits =
-                [
-                    .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
-                        .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
-                        .Where(t => _originalDictionary.ContainsKey(t)) // 保证 _edits ⊆ _originalDictionary 的键, 防止 Init 后新增/状态变更的 ROI 在索引查找时抛 KeyNotFoundException
-                        .Select(t => (t, GetROIState(t)))
-                ];
+                _edits = GetEdits(); // Delete 中的赋值只在Delete执行, 而且结束后, ResetInteractionState() 会清空 _edits.
 
                 if (controlPoint is not null)
                 {
@@ -216,8 +209,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
-            _isUndoRedoKeyDown = true;
-
             CommitToHistory();
             ResetInteractionState();
 
@@ -256,34 +247,11 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         eventInputArgs.IsInputCompleted = false;
     }
 
-    protected override void KeyUpInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
-    {
-        if (eventInputArgs.Event.KeyEnum == KeyEnum.Z &&
-            (_isUndoRedoKeyDown || eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control)))
-        {
-            _isUndoRedoKeyDown = false;
-
-            // 阻止基类将快捷键转换为输入字符, 包括先松开 Ctrl 再松开 Z 的情况.
-            eventInputArgs.ErrorInputMessage = string.Empty;
-            eventInputArgs.IsInputValid = false;
-            eventInputArgs.IsInputCompleted = false;
-
-            return;
-        }
-
-        base.KeyUpInput(eventInputArgs);
-    }
-
     protected override void CancelInput()
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (_isAccepted == false)
         {
-            foreach (var (rectROIDrawable, originalState) in _originalDictionary)
-            {
-                ApplyState(rectROIDrawable, originalState);
-            }
+            foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
         }
 
         Reset();
@@ -299,7 +267,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         ResetInteractionState();
 
         _isAccepted = false;
-        _isUndoRedoKeyDown = false;
     }
 
     private void ResetInteractionState()
@@ -328,11 +295,11 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         if (_edits.IsEmpty) return;
 
         var edit = _edits
-            .Where(t => t.OriginalState != GetROIState(t.BitmapImageROIDrawable))
+            .Where(t => t.OriginalState != ROIState.From(t.BitmapImageROIDrawable))
             .Select(t => (
                 t.BitmapImageROIDrawable,
                 t.OriginalState,
-                ModifiedState: GetROIState(t.BitmapImageROIDrawable)))
+                ModifiedState: ROIState.From(t.BitmapImageROIDrawable)))
             .ToImmutableArray();
 
         if (edit.IsEmpty) return;
@@ -365,32 +332,13 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ApplyHistory(ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)> edit, bool isUndo)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         foreach (var item in edit)
         {
-            ApplyState(item.BitmapImageROIDrawable, isUndo ? item.OriginalState : item.ModifiedState);
+            ApplyROIState(item.BitmapImageROIDrawable, isUndo
+                ? item.OriginalState
+                : item.ModifiedState);
         }
     }
-
-    private static ROIState GetROIState(BitmapImageROIDrawable bitmapImageROIDrawable) => new(bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsVisible);
-
-    private void ApplyState(BitmapImageROIDrawable bitmapImageROIDrawable, ROIState state)
-    {
-        bitmapImageROIDrawable.Rect = state.Rect;
-        bitmapImageROIDrawable.IsVisible = state.IsVisible;
-
-        if (state.IsVisible == false)
-        {
-            bitmapImageROIDrawable.IsSelected = false;
-            Edit.SelectedItems.Remove(bitmapImageROIDrawable);
-        }
-
-        UpdateIsEditorModified(bitmapImageROIDrawable);
-    }
-
-    private void UpdateIsEditorModified(BitmapImageROIDrawable bitmapImageROIDrawable) =>
-        bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != GetROIState(bitmapImageROIDrawable);
 
     #endregion
 
@@ -488,29 +436,52 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     #region 修改
 
-    private void DeleteSelectedROIs()
+    private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> GetEdits()
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
+        return
+        [
+            .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
+                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
+                .Where(t => _originalDictionary.ContainsKey(t)) // 保证 _edits ⊆ _originalDictionary 的键, 防止 Init 后新增/状态变更的 ROI 在索引查找时抛 KeyNotFoundException
+                .Select(t => (t, ROIState.From(t)))
+        ];
+    }
+
+    private void ApplyROIState(BitmapImageROIDrawable bitmapImageROIDrawable, ROIState state)
+    {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
+        bitmapImageROIDrawable.Rect = state.Rect;
+        bitmapImageROIDrawable.IsVisible = state.IsVisible;
+
+        if (state.IsVisible == false)
+        {
+            bitmapImageROIDrawable.IsSelected = false;
+            Edit.SelectedItems.Remove(bitmapImageROIDrawable);
+        }
+
+        bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
+    }
+
+    private void DeleteSelectedROIs()
+    {
         // 先提交当前拖拽, 使位置修改和批量隐藏分别作为一次历史操作.
         CommitToHistory();
         ResetInteractionState();
 
-        _edits =
-        [
-            .. Edit.SelectedItems.OfType<BitmapImageROIDrawable>()
-                .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false })
-                .Where(t => _originalDictionary.ContainsKey(t))
-                .Select(t => (t, GetROIState(t)))
-        ];
-
-        foreach (var (bitmapImageROIDrawable, originalState) in _edits)
+        try
         {
-            ApplyState(bitmapImageROIDrawable, originalState with { IsVisible = false });
-        }
+            _edits = GetEdits(); // CursorDownInput 中的赋值只在开始拖拽或缩放时执行, 而且鼠标松开后, ResetInteractionState() 会清空 _edits.
 
-        CommitToHistory();
-        ResetInteractionState();
+            foreach (var (bitmapImageROIDrawable, originalState) in _edits) ApplyROIState(bitmapImageROIDrawable, originalState with { IsVisible = false });
+        }
+        finally
+        {
+            CommitToHistory();
+            ResetInteractionState();
+        }
     }
 
     private void ApplyModification(Vector delta)
@@ -561,7 +532,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
             bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta).ClampToBounds(imageRect);
-            UpdateIsEditorModified(bitmapImageROIDrawable);
+            bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
 
@@ -604,11 +575,14 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             };
 
             bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
-            UpdateIsEditorModified(bitmapImageROIDrawable);
+            bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
 
     #endregion
 
-    private readonly record struct ROIState(Rect Rect, bool IsVisible);
+    private readonly record struct ROIState(Rect Rect, bool IsVisible)
+    {
+        public static ROIState From(BitmapImageROIDrawable bitmapImageROIDrawable) => new(bitmapImageROIDrawable.Rect, bitmapImageROIDrawable.IsVisible);
+    }
 }

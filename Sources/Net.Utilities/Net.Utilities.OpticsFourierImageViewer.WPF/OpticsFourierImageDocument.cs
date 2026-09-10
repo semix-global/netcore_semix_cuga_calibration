@@ -27,10 +27,7 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
     public void Reset()
     {
-        foreach (var bitmapImageDrawable in ImageModel)
-        {
-            bitmapImageDrawable.BitmapImage = null;
-        }
+        foreach (var bitmapImageDrawable in ImageModel) bitmapImageDrawable.BitmapImage = null;
 
         foreach (var bitmapImageROIDrawable in ROIModel)
         {
