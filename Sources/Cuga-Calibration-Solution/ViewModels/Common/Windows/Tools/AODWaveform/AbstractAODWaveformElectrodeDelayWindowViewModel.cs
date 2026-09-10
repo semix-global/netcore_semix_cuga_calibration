@@ -147,7 +147,24 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 var htmlBullet = new HtmlBullet(new
                 {
                     Cache.Noise,
-                    Step1Items = new HtmlTable([.. Cache.Step0.Items.Select(t => t.ToHtmlAnonymous())]),
+                    Step1Items = new HtmlTable(
+                    [
+                        .. Cache.Step0.Items
+                            .Index()
+                            .Select(t => new
+                            {
+                                Index = t.Index + 1,
+                                t.Item.Delays,
+                                SubtractBoardCardDelays = Cache.ElectrodeDelayParams
+                                    .Index()
+                                    .Select(tt => t.Item.Delays[t.Index] - (tt.Index == 0
+                                        ? 0d
+                                        : tt.Item.BoardCardDelay))
+                                    .ToArray(),
+                                t.Item.Score,
+                                t.Item.IsSelected
+                            })
+                    ]),
                     Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -358,8 +375,43 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 var htmlBullet = new HtmlBullet(new
                 {
                     Cache.Noise,
-                    Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
-                    Step2Items = new HtmlTable([.. Cache.Step1.Items.Select(t => t.ToHtmlAnonymous())]),
+                    ElectrodeConfigurationResults = new HtmlTable(
+                    [
+                        .. Cache.ElectrodeConfigurationResults.Index().Select(t =>
+                        {
+                            var boardCardDelay = Cache.ElectrodeDelayParams[t.Index].BoardCardDelay;
+
+                            return new
+                            {
+                                t.Item.OpticsAODElectrodeEnum,
+                                boardCardDelay,
+                                t.Item.Delay,
+                                SubtractBoardCardDelay = t.Item.Delay - (t.Index == 0
+                                    ? 0d
+                                    : boardCardDelay),
+                                t.Item.Amplitude,
+                                t.Item.IsGenerateAODWaveformZero
+                            };
+                        })
+                    ]),
+                    Step2Items = new HtmlTable(
+                    [
+                        .. Cache.Step1.Items
+                            .Index()
+                            .Select(t => new
+                            {
+                                Index = t.Index + 1,
+                                t.Item.Delays,
+                                SubtractBoardCardDelays = Cache.ElectrodeDelayParams
+                                    .Index()
+                                    .Select(tt => t.Item.Delays[t.Index] - (tt.Index == 0
+                                        ? 0d
+                                        : tt.Item.BoardCardDelay))
+                                    .ToArray(),
+                                t.Item.Score,
+                                t.Item.IsSelected
+                            })
+                    ]),
                     Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
@@ -470,6 +522,29 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             };
 
             await UpdateMeasurePowerAsync(item, htmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+
+            Logger.LogHtmlInformation("Electrode Configurations", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            {
+                ElectrodeConfigurations = new HtmlTable(
+                [
+                    .. item.ElectrodeConfigurations.Index().Select(t =>
+                    {
+                        var boardCardDelay = Cache.ElectrodeDelayParams[t.Index].BoardCardDelay;
+
+                        return new
+                        {
+                            t.Item.OpticsAODElectrodeEnum,
+                            boardCardDelay,
+                            t.Item.Delay,
+                            SubtractBoardCardDelay = t.Item.Delay - (t.Index == 0
+                                ? 0d
+                                : boardCardDelay),
+                            t.Item.Amplitude,
+                            t.Item.IsGenerateAODWaveformZero
+                        };
+                    })
+                ])
+            }), htmlLogUniqueId.LoggingHtml());
 
             delayItem.FrequencyItems = [.. delayItem.FrequencyItems, item];
         }

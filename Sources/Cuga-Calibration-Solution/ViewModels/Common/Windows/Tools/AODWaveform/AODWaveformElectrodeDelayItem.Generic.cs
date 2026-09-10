@@ -16,11 +16,4 @@ public sealed partial class AODWaveformElectrodeDelayItem<TItem> : ObservableObj
 
     [ObservableProperty]
     public partial bool IsSelected { get; set; }
-
-    public object ToHtmlAnonymous() => new
-    {
-        Delays,
-        Score,
-        IsSelected
-    };
 }
