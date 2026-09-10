@@ -15,8 +15,15 @@ namespace Net.Utilities.Algorithms.Modules;
 
 public static class AODWaveformGenerator1
 {
-    public const string ChirpAODWaveformFileExtension = ".caw";
-    public const string PrescanAODWaveformFileExtension = ".paw";
+    /// <summary>
+    /// Chirp AOD波形结果文件扩展名(V2电极延时配置)
+    /// </summary>
+    public const string ChirpAODWaveformFileExtension = ".caw2";
+
+    /// <summary>
+    /// Prescan AOD波形结果文件扩展名(V2电极延时配置)
+    /// </summary>
+    public const string PrescanAODWaveformFileExtension = ".paw2";
 
     #region 参数
 
