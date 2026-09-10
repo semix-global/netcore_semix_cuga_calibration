@@ -11,6 +11,7 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
+using CommunityToolkit.Diagnostics;
 
 
 #if NETFRAMEWORK
@@ -67,8 +68,6 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
             var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            UniformityConfigurations = [];
-
             var values = (await MiniExcel.QueryAsync<GenerateAODWaveformUniformityConfiguration>(filePath, cancellationToken: cancellationToken))
                 .Where(t => t.Frequency > 0)
                 .ToArray();
@@ -83,12 +82,10 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
                 ];
             }
 
-            if (values.Length > 0)
-            {
-                UniformityConfigurations = values;
-                dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
-            }
-            else dialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Guard.IsNotEmpty(values, "Import Uniformity Configuration must not be empty.");
+
+            UniformityConfigurations = values;
+            dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
         }
         catch (Exception ex)
         {

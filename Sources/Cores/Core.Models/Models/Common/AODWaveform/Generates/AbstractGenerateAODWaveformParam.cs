@@ -174,7 +174,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        if (ElectrodeConfigurations.Count > electrodeEnums.Length) return;
+        if (ElectrodeConfigurations.Count >= electrodeEnums.Length) return;
 
         GenerateAODWaveformElectrodeConfiguration[] electrodeConfigurations = [.. ElectrodeConfigurations, new()];
 

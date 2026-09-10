@@ -101,7 +101,7 @@ public partial class V0AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavef
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        if (ElectrodeDelayParams.Count > electrodeEnums.Length) return;
+        if (ElectrodeDelayParams.Count >= electrodeEnums.Length) return;
 
         var electrodeDelayParamList = ElectrodeDelayParams.ToList();
         electrodeDelayParamList.Add(new V0AODWaveformElectrodeDelayParam());

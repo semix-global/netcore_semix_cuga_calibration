@@ -238,6 +238,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
+            Guard.IsGreaterThan(Cache.AlgorithmMaxDelay, 0d);
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);

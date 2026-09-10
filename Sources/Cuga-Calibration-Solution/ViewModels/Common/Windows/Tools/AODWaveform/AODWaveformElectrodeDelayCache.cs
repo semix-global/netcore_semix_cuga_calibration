@@ -9,6 +9,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
+using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 
@@ -41,7 +42,7 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     #region Step1 Param
 
     [ObservableProperty]
-    public partial double AlgorithmMaxDelay { get; set; }
+    public partial double AlgorithmMaxDelay { get; set; } = 10d;
 
     [ObservableProperty]
     public partial int AlgorithmInitialPoints { get; set; } = 10;
@@ -104,11 +105,11 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         {
             if (dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath) != true) return;
 
-            AODWaveformElectrodeDelayFrequencies = [];
-
             var values = (await MiniExcel.QueryAsync<AODWaveformElectrodeDelayFrequency>(filePath, cancellationToken: cancellationToken))
                 .Where(t => t.Frequency > 0 && t.Amplitude > 0)
                 .ToArray();
+
+            Guard.IsNotEmpty(values, "Imported AOD Waveform Electrode Delay Frequencies must not be empty.");
 
             AODWaveformElectrodeDelayFrequencies = values;
 
@@ -154,7 +155,7 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     {
         var electrodeEnums = EnumHelper.Enums<OpticsAODElectrodeEnum>();
 
-        if (ElectrodeDelayParams.Length > electrodeEnums.Length) return;
+        if (ElectrodeDelayParams.Length >= electrodeEnums.Length) return;
 
         AODWaveformElectrodeDelayParam[] electrodeDelayParams = [.. ElectrodeDelayParams, new()];
 
