@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
@@ -13,9 +16,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.WPF.Enums;
 using Python.Runtime;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -157,7 +157,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 t.Item.Delays,
                                 SubtractBoardCardDelays = Cache.ElectrodeDelayParams
                                     .Index()
-                                    .Select(tt => t.Item.Delays[t.Index] - (tt.Index == 0
+                                    .Select(tt => t.Item.Delays[tt.Index] - (tt.Index == 0
                                         ? 0d
                                         : tt.Item.BoardCardDelay))
                                     .ToArray(),
@@ -404,7 +404,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 t.Item.Delays,
                                 SubtractBoardCardDelays = Cache.ElectrodeDelayParams
                                     .Index()
-                                    .Select(tt => t.Item.Delays[t.Index] - (tt.Index == 0
+                                    .Select(tt => t.Item.Delays[tt.Index] - (tt.Index == 0
                                         ? 0d
                                         : tt.Item.BoardCardDelay))
                                     .ToArray(),
