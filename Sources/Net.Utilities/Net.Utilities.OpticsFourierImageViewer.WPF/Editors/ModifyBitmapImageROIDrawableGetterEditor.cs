@@ -249,6 +249,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CancelInput()
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         if (_isAccepted == false)
         {
             foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
@@ -332,6 +334,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void ApplyHistory(ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)> edit, bool isUndo)
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         foreach (var item in edit)
         {
             ApplyROIState(item.BitmapImageROIDrawable, isUndo
@@ -467,6 +471,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void DeleteSelectedROIs()
     {
+        using var scope = Edit.Document.View.Sync.EnterScope();
+
         // 先提交当前拖拽, 使位置修改和批量隐藏分别作为一次历史操作.
         CommitToHistory();
         ResetInteractionState();
