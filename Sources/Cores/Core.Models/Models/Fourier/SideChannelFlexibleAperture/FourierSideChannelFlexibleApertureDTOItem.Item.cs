@@ -18,13 +18,17 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
-    public sealed partial class Item : ObservableObject, ICloneable<Item>
+    public sealed partial class Item : ObservableObject, ICloneable<Item>, IDisposable
     {
         private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
         private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();
         private readonly BitmapImageDrawable _step2BitmapImageDrawable = new();
+
+        [Newtonsoft.Json.JsonProperty]
         private readonly int _rodTotalCount;
-        private readonly bool _isOdd;
+
+        [Newtonsoft.Json.JsonProperty]
+        private readonly bool _isEven;
 
         [ObservableProperty]
         public partial double Step0AndStep1MotorAbsoluteValue { get; set; }
@@ -52,10 +56,10 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         [Newtonsoft.Json.JsonIgnore]
         public OpticsFourierImageDocument Document { get; } = new();
 
-        public Item(int rodTotalCount, bool isOdd)
+        public Item(int rodTotalCount, bool isEven)
         {
             _rodTotalCount = rodTotalCount;
-            _isOdd = isOdd;
+            _isEven = isEven;
 
             var rodIndexes = Generate.LinearRangeInt32(0, rodTotalCount - 1);
             var oddRodIndexes = rodIndexes.Where(t => ((t + 1) & 1) == 1).ToArray();
@@ -73,45 +77,24 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 evenRodIndexes[evenRodIndexes.Length / 2]
             ];
 
-            Step0LeftRod = new Rod(_step0BitmapImageDrawable)
-            {
-                Index = isOdd ? oddCenterRodIndexes[0] : evenCenterRodIndexes[0],
-                BitmapImageROIDrawable = { IsVisible = true, IsFixed = false }
-            };
+            var joystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+                                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+                                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+            Step0LeftRod = new Rod(_step0BitmapImageDrawable) { Index = _isEven ? evenCenterRodIndexes[0] : oddCenterRodIndexes[0], BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = joystickStateEnum } };
             Step0LeftRod.BitmapImageROIDrawable.Text = $"{Step0LeftRod.Index + 1}";
-            Step0LeftRod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
-                                                                          BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
-                                                                          BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
 
-            Step0RightRod = new Rod(_step0BitmapImageDrawable)
-            {
-                Index = isOdd ? oddCenterRodIndexes[1] : evenCenterRodIndexes[1],
-                BitmapImageROIDrawable = { IsVisible = true, IsFixed = false }
-            };
+            Step0RightRod = new Rod(_step0BitmapImageDrawable) { Index = _isEven ? evenCenterRodIndexes[1] : oddCenterRodIndexes[1], BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = joystickStateEnum } };
             Step0RightRod.BitmapImageROIDrawable.Text = $"{Step0RightRod.Index + 1}";
-            Step0RightRod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
-                                                                           BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
-                                                                           BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
 
-            Step1Rods = isOdd
-                ? [.. oddRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })]
-                : [.. evenRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })];
-            foreach (var step1Rod in Step1Rods)
-            {
-                step1Rod.BitmapImageROIDrawable.Text = $"{step1Rod.Index + 1}";
-                step1Rod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
-                                                                          BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
-                                                                          BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
-            }
+            Step1Rods = _isEven
+                ? [.. evenRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = joystickStateEnum } })]
+                : [.. oddRodIndexes.Select(i => new Rod(_step1BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = joystickStateEnum } })];
+            foreach (var step1Rod in Step1Rods) step1Rod.BitmapImageROIDrawable.Text = $"{step1Rod.Index + 1}";
 
-            Step2Rods = isOdd
-                ? [.. oddRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })]
-                : [.. evenRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false } })];
-            foreach (var step2Rod in Step2Rods)
-            {
-                step2Rod.BitmapImageROIDrawable.Text = $"{step2Rod.Index + 1}";
-                step2Rod.BitmapImageROIDrawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin;
-            }
+            Step2Rods = _isEven
+                ? [.. evenRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin } })]
+                : [.. oddRodIndexes.Select(i => new Rod(_step2BitmapImageDrawable) { Index = i, BitmapImageROIDrawable = { IsVisible = true, IsFixed = false, ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin } })];
+            foreach (var step2Rod in Step2Rods) step2Rod.BitmapImageROIDrawable.Text = $"{step2Rod.Index + 1}";
 
             Document.RunDesign(() =>
             {
@@ -129,7 +112,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public Item Clone()
         {
-            var item = new Item(_rodTotalCount, _isOdd)
+            var item = new Item(_rodTotalCount, _isEven)
             {
                 Step0AndStep1MotorAbsoluteValue = Step0AndStep1MotorAbsoluteValue,
                 Step2MotorAbsoluteValue = Step2MotorAbsoluteValue,
@@ -192,8 +175,12 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 cancellationToken.ThrowIfCancellationRequested();
                 await Step0Async();
 
+                await Task.Delay(1000, cancellationToken);
+
                 cancellationToken.ThrowIfCancellationRequested();
                 await Step1Async();
+
+                await Task.Delay(1000, cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 await Step2Async();
@@ -561,5 +548,12 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _step0BitmapImageDrawable.Dispose();
+            _step1BitmapImageDrawable.Dispose();
+            _step2BitmapImageDrawable.Dispose();
+        }
     }
 }

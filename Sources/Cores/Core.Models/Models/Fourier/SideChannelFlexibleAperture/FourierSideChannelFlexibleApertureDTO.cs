@@ -6,15 +6,32 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 [CacheVersion("2.0.0")]
 public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IDisposable
 {
-    [ObservableProperty]
-    public partial FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
+    [Newtonsoft.Json.JsonProperty]
+    private readonly int _rodTotalCount;
 
     [ObservableProperty]
-    public partial FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
+    public partial FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; set; }
+
+    [ObservableProperty]
+    public partial FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; set; }
+
+    public FourierSideChannelFlexibleApertureDTO()
+    {
+    }
+
+    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount)
+    {
+        _rodTotalCount = rodTotalCount;
+
+        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount) { ChannelId = 1 };
+        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount) { ChannelId = 2 };
+    }
 
     #region Mapper
 
-    public override FourierSideChannelFlexibleApertureDTO Clone() => new()
+#pragma warning disable IDISP003
+
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount)
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),
@@ -24,6 +41,8 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
         Id = Id,
         Expiration = Expiration
     };
+
+#pragma warning restore IDISP003
 
     #endregion Mapper
 

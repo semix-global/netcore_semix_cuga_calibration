@@ -110,12 +110,6 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         ImageROI = ImageROI
     };
 
-    public void Dispose()
-    {
-        _originalBitmapImageDrawable.Dispose();
-        _roiBitmapImageDrawable.Dispose();
-    }
-
     #endregion
 
     #region 校准
@@ -258,4 +252,10 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     };
 
     #endregion
+
+    public void Dispose()
+    {
+        _originalBitmapImageDrawable.Dispose();
+        _roiBitmapImageDrawable.Dispose();
+    }
 }

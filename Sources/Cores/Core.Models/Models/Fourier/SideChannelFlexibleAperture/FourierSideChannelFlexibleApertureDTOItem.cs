@@ -6,25 +6,41 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public sealed partial class FourierSideChannelFlexibleApertureDTOItem : ObservableObject, ICloneable<FourierSideChannelFlexibleApertureDTOItem>, IDisposable
 {
+    [Newtonsoft.Json.JsonProperty]
+    private readonly int _rodTotalCount;
+
     [ObservableProperty]
     public partial int ChannelId { get; set; }
 
     [ObservableProperty]
-    [Newtonsoft.Json.JsonIgnore]
-    public partial OpticsFourierImageDocument Document { get; set; }
+    public partial Item EvenItem { get; set; }
 
-    public FourierSideChannelFlexibleApertureDTOItem()
+    [ObservableProperty]
+    public partial Item OddItem { get; set; }
+
+    public FourierSideChannelFlexibleApertureDTOItem(int rodTotalCount)
     {
-        Document = new OpticsFourierImageDocument();
+        _rodTotalCount = rodTotalCount;
+
+        EvenItem = new Item(rodTotalCount, true);
+        OddItem = new Item(rodTotalCount, false);
     }
 
+#pragma warning disable IDISP003
 
-    public FourierSideChannelFlexibleApertureDTOItem Clone() => new()
+    public FourierSideChannelFlexibleApertureDTOItem Clone() => new(_rodTotalCount)
     {
-        ChannelId = ChannelId
+        ChannelId = ChannelId,
+        EvenItem = EvenItem.Clone(),
+        OddItem = OddItem.Clone()
     };
+
+#pragma warning restore IDISP003
+
 
     public void Dispose()
     {
+        EvenItem.Dispose();
+        OddItem.Dispose();
     }
 }
