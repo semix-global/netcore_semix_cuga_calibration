@@ -110,6 +110,27 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         ImageROI = ImageROI
     };
 
+    public object ToImageHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ])
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        ChannelImageFilePath,
+        ROIChannelImageFilePath,
+        ImageROI,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(ImageROI)
+        ]),
+        ROIImage = new HtmlImage(ROIChannelImageFilePath)
+    };
+
     #endregion
 
     #region 校准
@@ -229,27 +250,6 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
             Document.View.ZoomToFit();
         }
     }
-
-    public object ToImageHtmlAnonymous() => new
-    {
-        ChannelImageFilePath,
-        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
-        [
-            new HtmlImageRectangleOverlay(ImageROI)
-        ])
-    };
-
-    public object ToHtmlAnonymous() => new
-    {
-        ChannelImageFilePath,
-        ROIChannelImageFilePath,
-        ImageROI,
-        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
-        [
-            new HtmlImageRectangleOverlay(ImageROI)
-        ]),
-        ROIImage = new HtmlImage(ROIChannelImageFilePath)
-    };
 
     #endregion
 

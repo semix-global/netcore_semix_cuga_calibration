@@ -26,6 +26,12 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
 
+    [ObservableProperty]
+    public partial double Step0AndStep1MotorAbsoluteValue { get; set; }
+
+    [ObservableProperty]
+    public partial double Step2MotorAbsoluteValue { get; set; }
+
     public override FourierSideChannelFlexibleApertureCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
@@ -34,6 +40,8 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
+        Step0AndStep1MotorAbsoluteValue = Step0AndStep1MotorAbsoluteValue,
+        Step2MotorAbsoluteValue = Step2MotorAbsoluteValue,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

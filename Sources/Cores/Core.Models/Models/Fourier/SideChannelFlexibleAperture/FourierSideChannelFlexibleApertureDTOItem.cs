@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.OpticsFourierImageViewer.WPF;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
@@ -38,9 +37,16 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 #pragma warning restore IDISP003
 
 
+    public object ToHtmlAnonymous() => new
+    {
+        ChannelId,
+        EvenItem = EvenItem.ToHtmlAnonymous(),
+        OddItem = OddItem.ToHtmlAnonymous()
+    };
+
     public void Dispose()
     {
-        EvenItem.Dispose();
-        OddItem.Dispose();
+        EvenItem?.Dispose();
+        OddItem?.Dispose();
     }
 }

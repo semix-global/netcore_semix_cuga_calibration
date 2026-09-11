@@ -10,6 +10,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -128,6 +129,40 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             return item;
         }
+
+        public object ToImageHtmlAnonymous() => new
+        {
+            Step0ChannelImageFilePath,
+            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+            [
+                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
+                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI)
+            ]),
+            Step1ChannelImageFilePath,
+            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays: [.. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))]),
+            Step2ChannelImageFilePath,
+            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays: [.. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))])
+        };
+
+        public object ToHtmlAnonymous() => new
+        {
+            Step0AndStep1MotorAbsoluteValue,
+            Step2MotorAbsoluteValue,
+            Step0ChannelImageFilePath,
+            Step1ChannelImageFilePath,
+            Step2ChannelImageFilePath,
+            Step0LeftRod = new { Step0LeftRod.Index, Step0LeftRod.IsDeleted, Step0LeftRod.ImageROI },
+            Step0RightRod = new { Step0RightRod.Index, Step0RightRod.IsDeleted, Step0RightRod.ImageROI },
+            Step1Rods = Step1Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI }),
+            Step2Rods = Step2Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI }),
+            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+            [
+                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
+                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI)
+            ]),
+            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays: [.. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))]),
+            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays: [.. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))])
+        };
 
         #endregion
 
