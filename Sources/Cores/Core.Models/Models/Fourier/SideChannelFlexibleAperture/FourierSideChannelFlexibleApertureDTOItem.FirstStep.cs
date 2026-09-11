@@ -10,6 +10,9 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
@@ -225,15 +228,24 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     switch (outputResult)
                     {
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.IsVisible);
-                            Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.IsVisible);
+                            try
+                            {
+                                Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.IsVisible);
+                                Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.IsVisible);
 
-                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
-                            Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                Guard.IsTrue(Step0RightRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
 
-                            Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect.XMax < Step0RightRod.BitmapImageROIDrawable.Rect.XMin);
+                                Guard.IsTrue(Step0LeftRod.BitmapImageROIDrawable.Rect.XMax < Step0RightRod.BitmapImageROIDrawable.Rect.XMin);
 
-                            goto OuterLoop;
+                                goto OuterLoop;
+                            }
+                            catch (Exception ex) when (ex is not OperationCanceledException)
+                            {
+                                if (ShouldContinue(ex)) continue;
+
+                                throw;
+                            }
 
                         case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -298,20 +310,29 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     switch (outputResult)
                     {
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                            Rod[] temps = [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
-                            Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
-
-                            foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                            try
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
+                                Rod[] temps = [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                                Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
 
-                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
-                                Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
-                                Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
-                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect.XMax < nextRod.BitmapImageROIDrawable.Rect.XMin);
+                                foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                    Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                                    Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
+                                    Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect.XMax < nextRod.BitmapImageROIDrawable.Rect.XMin);
+                                }
+
+                                goto OuterLoop;
                             }
+                            catch (Exception ex) when (ex is not OperationCanceledException)
+                            {
+                                if (ShouldContinue(ex)) continue;
 
-                            goto OuterLoop;
+                                throw;
+                            }
 
                         case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -410,19 +431,28 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     switch (outputResult)
                     {
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                            Rod[] temps = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
-                            Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
-
-                            foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                            try
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
+                                Rod[] temps = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                                Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
 
-                                Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
-                                Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
-                                Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
+                                foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
+                                {
+                                    cancellationToken.ThrowIfCancellationRequested();
+
+                                    Guard.IsTrue(previousRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                                    Guard.IsTrue(nextRod.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                                    Guard.IsTrue(nextRod.Index == previousRod.Index + 2);
+                                }
+
+                                goto OuterLoop;
                             }
+                            catch (Exception ex) when (ex is not OperationCanceledException)
+                            {
+                                if (ShouldContinue(ex)) continue;
 
-                            goto OuterLoop;
+                                throw;
+                            }
 
                         case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -476,6 +506,19 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = true;
                 }
+            }
+
+            static bool ShouldContinue(Exception ex)
+            {
+                var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+                return dialogWindowProvider.TryShowDialog($"""
+                                                           Error: {ex.Message}
+
+                                                           Yes: continue to modify ROI.
+                                                           No: abort calibration.
+                                                           """, out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Warning) == true
+                       && dialogResult == DialogResultEnum.Yes;
             }
         }
 

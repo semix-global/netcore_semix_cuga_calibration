@@ -16,6 +16,9 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using System.IO;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
@@ -150,9 +153,18 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
                 switch (outputResult)
                 {
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                        Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                        try
+                        {
+                            Guard.IsTrue(_bitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
 
-                        goto OuterLoop;
+                            goto OuterLoop;
+                        }
+                        catch (Exception ex) when (ex is not OperationCanceledException)
+                        {
+                            if (ShouldContinue(ex)) continue;
+
+                            throw;
+                        }
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -185,6 +197,20 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         finally
         {
             Document.View.ZoomToFit();
+        }
+
+        return;
+
+        static bool ShouldContinue(Exception ex)
+        {
+            var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+            return dialogWindowProvider.TryShowDialog($"""
+                                                       Error: {ex.Message}
+
+                                                       Yes: continue to modify ROI.
+                                                       No: abort calibration.
+                                                       """, out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Warning) == true
+                   && dialogResult == DialogResultEnum.Yes;
         }
     }
 
