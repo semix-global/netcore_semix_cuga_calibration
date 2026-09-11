@@ -5,7 +5,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
-using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
@@ -296,11 +295,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
                     try
                     {
-                        (isSuccess, var delays, var uniformities) = AlgorithmSuggest(_lastCost, Cache.ElectrodeDelayParams.Length - 1);
+                        (isSuccess, var delays, var amplitudes) = AlgorithmSuggest(_lastCost, Cache.ElectrodeDelayParams.Length - 1);
                         if (isSuccess) break;
-
-                        var linearSpaced = Generate.LinearSpaced(uniformities.Length, Cache.AODWaveformElectrodeDelayFrequencies.Min(t => t.Frequency), Cache.AODWaveformElectrodeDelayFrequencies.Max(t => t.Frequency));
-                        var linearSpline = LinearSpline.InterpolateSorted(linearSpaced, uniformities);
 
                         var item = new AODWaveformElectrodeDelayItem<TItem>
                         {
@@ -319,7 +315,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                         var isCurrentFrequenciesOk = false;
                         try
                         {
-                            await UpdateElectrodeDelayItemAsync(item, linearSpline, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+                            await UpdateElectrodeDelayItemAsync(item, amplitudes, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
 
                             isCurrentFrequenciesOk = true;
                         }
@@ -494,15 +490,17 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
     private async Task UpdateElectrodeDelayItemAsync(
         AODWaveformElectrodeDelayItem<TItem> delayItem,
-        LinearSpline? linearSpline,
+        double[]? amplitudes,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken)
     {
-        foreach (var aodWaveformElectrodeDelayFrequency in Cache.AODWaveformElectrodeDelayFrequencies)
+        if (amplitudes is not null) Guard.IsEqualTo(amplitudes.Length, Cache.AODWaveformElectrodeDelayFrequencies.Length);
+
+        foreach (var (frequencyIndex, aodWaveformElectrodeDelayFrequency) in Cache.AODWaveformElectrodeDelayFrequencies.Index())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var amplitude = linearSpline?.Interpolate(aodWaveformElectrodeDelayFrequency.Frequency) * aodWaveformElectrodeDelayFrequency.Amplitude ?? aodWaveformElectrodeDelayFrequency.Amplitude;
+            var amplitude = amplitudes?[frequencyIndex] * aodWaveformElectrodeDelayFrequency.Amplitude ?? aodWaveformElectrodeDelayFrequency.Amplitude;
 
             Logger.LogHtmlInformation($"{aodWaveformElectrodeDelayFrequency.Frequency}(MHz)-[{amplitude}]", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
@@ -557,7 +555,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
         delayItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
     }
 
-    private (bool IsSuccess, double[] Delays, double[] Uniformities) AlgorithmSuggest(double? previousCost, int delayCount)
+    private (bool IsSuccess, double[] Delays, double[] Amplitudes) AlgorithmSuggest(double? previousCost, int delayCount)
     {
         var timestamp = Stopwatch.GetTimestamp();
 
@@ -577,23 +575,35 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             using var pyCost = previousCost.ToPython();
             using var pyDelayCount = delayCount.ToPython();
-            using var pyUniformityAnchorCount = Cache.AlgorithmUniformityAnchorCount.ToPython();
+            using var pyNormalCount = 4.ToPython();
             using var pyInitialPoints = Cache.AlgorithmInitialPoints.ToPython();
             using var pyNoise = Cache.Noise.ToPython();
             using var pyEarlyStop = Cache.AlgorithmEarlyStop.ToPython();
             using var pyAcquisitionFunction = Cache.AlgorithmAcquisitionFunctionEnum.ToString().ToPython();
-            using var result = suggest.Invoke(pyCost, pyDelayCount, pyUniformityAnchorCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
+            using var result = suggest.Invoke(pyCost, pyDelayCount, pyNormalCount, pyInitialPoints, pyNoise, pyEarlyStop, pyAcquisitionFunction);
 
-            using var pyDelays = Guard.IsNotNullAndReturn(result["x_phase"]);
-            using var pyUniformities = Guard.IsNotNullAndReturn(result["x_normal"]);
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
+            using var pyDelays = Guard.IsNotNullAndReturn(result["x_phase"]);
+            using var pyNormalParameters = Guard.IsNotNullAndReturn(result["x_normal"]);
+            Guard.IsEqualTo(ToDoubles(pyNormalParameters).Length, 4);
+
+            using var pyFrequencies = new PyList();
+            foreach (var frequency in Cache.AODWaveformElectrodeDelayFrequencies)
+            {
+                using var pyFrequency = frequency.Frequency.ToPython();
+                pyFrequencies.Append(pyFrequency);
+            }
+
+            using var amplitudeCurve = module.GetAttr("single_sigmoid_amplitude_curve");
+            using var pyAmplitudeArray = amplitudeCurve.Invoke(pyNormalParameters, pyFrequencies);
+            using var pyAmplitudes = pyAmplitudeArray.InvokeMethod("tolist");
 
             double[] delays = [.. ToDoubles(pyDelays).Select(t => t * Cache.AlgorithmMaxDelay)];
-            var uniformities = ToDoubles(pyUniformities);
+            var amplitudes = ToDoubles(pyAmplitudes);
             Guard.IsEqualTo(delays.Length, delayCount);
-            Guard.IsEqualTo(uniformities.Length, Cache.AlgorithmUniformityAnchorCount);
+            Guard.IsEqualTo(amplitudes.Length, Cache.AODWaveformElectrodeDelayFrequencies.Length);
 
-            return (pyDone.As<bool>(), delays, uniformities);
+            return (pyDone.As<bool>(), delays, amplitudes);
         }
         finally
         {
