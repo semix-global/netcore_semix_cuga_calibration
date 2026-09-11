@@ -23,16 +23,13 @@ using Net.Utilities.WPF.MVVM.Providers;
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
 [CacheVersion("2.0.0")]
-public sealed partial class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
+public sealed class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
-    [ObservableProperty]
-    public partial FourierPupilCameraAlignmentDTOItem Channel1Item { get; set; } = new() { ChannelId = 1 };
+    public FourierPupilCameraAlignmentDTOItem Channel1Item { get; private init; } = new(1);
 
-    [ObservableProperty]
-    public partial FourierPupilCameraAlignmentDTOItem Channel2Item { get; set; } = new() { ChannelId = 2 };
+    public FourierPupilCameraAlignmentDTOItem Channel2Item { get; private init; } = new(2);
 
-    [ObservableProperty]
-    public partial FourierPupilCameraAlignmentDTOItem Channel3Item { get; set; } = new() { ChannelId = 3 };
+    public FourierPupilCameraAlignmentDTOItem Channel3Item { get; private init; } = new(3);
 
     #region Mapper
 
@@ -74,8 +71,8 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     private readonly BitmapImageDrawable _roiBitmapImageDrawable = new();
     private readonly BitmapImageROIDrawable _bitmapImageROIDrawable;
 
-    [ObservableProperty]
-    public partial int ChannelId { get; set; }
+    [Newtonsoft.Json.JsonProperty]
+    public int ChannelId { get; }
 
     [ObservableProperty]
     public partial string ChannelImageFilePath { get; set; } = string.Empty;
@@ -89,9 +86,14 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
-    public FourierPupilCameraAlignmentDTOItem()
+    public FourierPupilCameraAlignmentDTOItem(int channelId)
     {
-        _bitmapImageROIDrawable = new BitmapImageROIDrawable(_originalBitmapImageDrawable);
+        ChannelId = channelId;
+
+        _bitmapImageROIDrawable = new BitmapImageROIDrawable(_originalBitmapImageDrawable)
+        {
+            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All
+        };
 
         Document.RunDesign(() =>
         {
@@ -102,9 +104,8 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
     #region Mapper
 
-    public FourierPupilCameraAlignmentDTOItem Clone() => new()
+    public FourierPupilCameraAlignmentDTOItem Clone() => new(ChannelId)
     {
-        ChannelId = ChannelId,
         ChannelImageFilePath = ChannelImageFilePath,
         ROIChannelImageFilePath = ROIChannelImageFilePath,
         ImageROI = ImageROI
@@ -120,13 +121,15 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         ROIChannelImageFilePath = string.Empty;
         ImageROI = Rect.Empty;
 
-        Document.ResetEditROI();
+        Document.Reset();
     }
 
     public async Task CalibratingAsync(CancellationToken cancellationToken)
     {
         try
         {
+            Document.Reset();
+
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
             _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
@@ -212,7 +215,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     {
         try
         {
-            Document.ResetEditROI();
+            Document.Reset();
 
             if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
 

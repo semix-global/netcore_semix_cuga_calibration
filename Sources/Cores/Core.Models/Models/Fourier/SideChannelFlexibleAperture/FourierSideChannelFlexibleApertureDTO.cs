@@ -1,8 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Fourier;
-using Cuga.Data.DataStruct.DTO.Recipe;
-using Cuga.Data.DataStruct.Stage;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -10,36 +7,26 @@ using Net.Utilities.Models.Geometries;
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("2.0.0")]
-public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
+public sealed class FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath) : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
 {
-    public const int DefaultRodTotalCount = 46;
+    private const int DefaultRodTotalCount = 46;
 
     [Newtonsoft.Json.JsonProperty]
-    private readonly int _rodTotalCount;
+    private readonly int _rodTotalCount = rodTotalCount;
 
-    [ObservableProperty]
-    public partial FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; set; }
+    public FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; private init; } = new(rodTotalCount, 1, channel1ImageFilePath);
 
-    [ObservableProperty]
-    public partial FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; set; }
+    public FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; private init; } = new(rodTotalCount, 2, channel2ImageFilePath);
 
-    public FourierSideChannelFlexibleApertureDTO() : this(DefaultRodTotalCount)
+    public FourierSideChannelFlexibleApertureDTO() : this(DefaultRodTotalCount, string.Empty, string.Empty)
     {
-    }
-
-    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount)
-    {
-        _rodTotalCount = rodTotalCount;
-
-        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount) { ChannelId = 1 };
-        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount) { ChannelId = 2 };
     }
 
     #region Mapper
 
 #pragma warning disable IDISP003
 
-    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount)
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, channel1ImageFilePath, channel2ImageFilePath)
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),
@@ -54,31 +41,33 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
     public CalibrationPupilSideChannelFlexibleAperture AdaptTo()
     {
-        var channel1 = AdaptChannel(Channel1Item);
-        var channel2 = AdaptChannel(Channel2Item);
+        var channel1FirstRod = Channel1Item.RodResults.First(t => t.IsDeleted == false);
+        var channel1LastRod = Channel1Item.RodResults.Last(t => t.IsDeleted == false);
+        var channel2FirstRod = Channel2Item.RodResults.First(t => t.IsDeleted == false);
+        var channel2LastRod = Channel2Item.RodResults.Last(t => t.IsDeleted == false);
 
         return new CalibrationPupilSideChannelFlexibleAperture
         {
-            CgFFBoxBeginPositionCh1 = channel1.BeginPosition,
-            CgFFBoxBeginPositionCh2 = channel2.BeginPosition,
-            CgFFBoxEndPositionCh1 = channel1.EndPosition,
-            CgFFBoxEndPositionCh2 = channel2.EndPosition,
-            CgFFBoxBeginNumber1Ch1 = channel1.BeginOddNumber,
-            CgFFBoxBeginNumber2Ch1 = channel1.BeginEvenNumber,
-            CgFFBoxBeginNumber1Ch2 = channel2.BeginOddNumber,
-            CgFFBoxBeginNumber2Ch2 = channel2.BeginEvenNumber,
-            CgFFBoxEndNumber1Ch1 = channel1.EndOddNumber,
-            CgFFBoxEndNumber2Ch1 = channel1.EndEvenNumber,
-            CgFFBoxEndNumber1Ch2 = channel2.EndOddNumber,
-            CgFFBoxEndNumber2Ch2 = channel2.EndEvenNumber,
-            CgFFBoxRodWidthListCh1 = channel1.RodWidths,
-            CgFFBoxRodWidthListCh2 = channel2.RodWidths,
-            CgFFBoxHeightRelationPercentListCh1 = channel1.HeightRelationPercents,
-            CgFFBoxHeightRelationPercentListCh2 = channel2.HeightRelationPercents,
-            CurrentImageRectListFirstCh1 = channel1.RodRects,
-            CurrentImageRectListFirstCh2 = channel2.RodRects,
-            CgFFBoxAllRodsBeginPercentCh1 = channel1.AllRodsBeginPercent,
-            CgFFBoxAllRodsBeginPercentCh2 = channel2.AllRodsBeginPercent,
+            CgFFBoxBeginPositionCh1 = channel1FirstRod.MinImageROI.Point.ToCgPoint(),
+            CgFFBoxBeginPositionCh2 = channel2FirstRod.MinImageROI.Point.ToCgPoint(),
+            CgFFBoxEndPositionCh1 = channel1LastRod.MinImageROI.Point.ToCgPoint(),
+            CgFFBoxEndPositionCh2 = channel2LastRod.MinImageROI.Point.ToCgPoint(),
+            CgFFBoxBeginNumber1Ch1 = channel1FirstRod.Index,
+            CgFFBoxBeginNumber2Ch1 = channel1FirstRod.Index,
+            CgFFBoxBeginNumber1Ch2 = channel2FirstRod.Index,
+            CgFFBoxBeginNumber2Ch2 = channel2FirstRod.Index,
+            CgFFBoxEndNumber1Ch1 = channel1LastRod.Index,
+            CgFFBoxEndNumber2Ch1 = channel1LastRod.Index,
+            CgFFBoxEndNumber1Ch2 = channel2LastRod.Index,
+            CgFFBoxEndNumber2Ch2 = channel2LastRod.Index,
+            CgFFBoxRodWidthListCh1 = [.. Channel1Item.RodResults.Select(t => ((RectI)t.MinImageROI).Width)],
+            CgFFBoxRodWidthListCh2 = [.. Channel2Item.RodResults.Select(t => ((RectI)t.MinImageROI).Width)],
+            CgFFBoxHeightRelationPercentListCh1 = [.. Channel1Item.RodResults.Select(t => t.PixelSize)],
+            CgFFBoxHeightRelationPercentListCh2 = [.. Channel2Item.RodResults.Select(t => t.PixelSize)],
+            CurrentImageRectListFirstCh1 = [.. Channel1Item.RodResults.Select(t => t.MinImageROI.ToRectD())],
+            CurrentImageRectListFirstCh2 = [.. Channel2Item.RodResults.Select(t => t.MinImageROI.ToRectD())],
+            CgFFBoxAllRodsBeginPercentCh1 = Channel1Item.MinMotorAbsoluteValue,
+            CgFFBoxAllRodsBeginPercentCh2 = Channel2Item.MinMotorAbsoluteValue,
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredCalibrate = IsRequiredSelfCheck
@@ -87,53 +76,9 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
     #endregion Mapper
 
-    public object ToHtmlAnonymous() => new
-    {
-        Channel1Item = Channel1Item.ToHtmlAnonymous(),
-        Channel2Item = Channel2Item.ToHtmlAnonymous()
-    };
-
     public void Dispose()
     {
         Channel1Item.Dispose();
         Channel2Item.Dispose();
     }
-
-    private static ChannelAdaptResult AdaptChannel(FourierSideChannelFlexibleApertureDTOItem channel)
-    {
-        FourierSideChannelFlexibleApertureDTOItem.Rod[] rods =
-        [
-            .. channel.OddItem.Step2Rods.Concat(channel.EvenItem.Step2Rods).OrderBy(t => t.Index)
-        ];
-        FourierSideChannelFlexibleApertureDTOItem.Rod[] visibleOddRods = [.. channel.OddItem.Step2Rods.Where(t => t.IsDeleted == false).OrderBy(t => t.Index)];
-        FourierSideChannelFlexibleApertureDTOItem.Rod[] visibleEvenRods = [.. channel.EvenItem.Step2Rods.Where(t => t.IsDeleted == false).OrderBy(t => t.Index)];
-        FourierSideChannelFlexibleApertureDTOItem.Rod[] visibleRods = [.. rods.Where(t => t.IsDeleted == false)];
-
-        var beginRod = visibleRods.FirstOrDefault();
-        var endRod = visibleRods.LastOrDefault();
-
-        return new ChannelAdaptResult(
-            beginRod is null ? Point.Origin.ToCgPoint() : new Point(beginRod.ImageROI.X, beginRod.ImageROI.Y).ToCgPoint(),
-            endRod is null ? Point.Origin.ToCgPoint() : new Point(endRod.ImageROI.XMax, endRod.ImageROI.YMax).ToCgPoint(),
-            visibleOddRods.Length == 0 ? 0 : visibleOddRods[0].Index + 1,
-            visibleEvenRods.Length == 0 ? 0 : visibleEvenRods[0].Index + 1,
-            visibleOddRods.Length == 0 ? 0 : visibleOddRods[^1].Index + 1,
-            visibleEvenRods.Length == 0 ? 0 : visibleEvenRods[^1].Index + 1,
-            [.. rods.Select(t => (int)Math.Round(t.ImageROI.Width))],
-            [.. rods.Select(t => t.ImageROI.Height / 100d)],
-            [.. rods.Select(t => t.ImageROI.ToRectD())],
-            0d);
-    }
-
-    private readonly record struct ChannelAdaptResult(
-        CgPoint BeginPosition,
-        CgPoint EndPosition,
-        int BeginOddNumber,
-        int BeginEvenNumber,
-        int EndOddNumber,
-        int EndEvenNumber,
-        List<int> RodWidths,
-        List<double> HeightRelationPercents,
-        List<RectD> RodRects,
-        double AllRodsBeginPercent);
 }

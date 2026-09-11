@@ -2,7 +2,6 @@
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
@@ -13,7 +12,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         public int Index { get; init; }
 
         [ObservableProperty]
-        public partial bool IsDeleted { get; set; } = true;
+        public partial bool IsDeleted { get; set; } = false;
 
         [ObservableProperty]
         public partial Rect ImageROI { get; set; }
@@ -31,7 +30,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public void Reset()
         {
-            IsDeleted = true;
+            IsDeleted = false;
             ImageROI = Rect.Empty;
         }
     }

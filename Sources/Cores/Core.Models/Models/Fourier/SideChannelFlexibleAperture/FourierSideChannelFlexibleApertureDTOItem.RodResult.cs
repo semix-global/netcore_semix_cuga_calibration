@@ -2,7 +2,6 @@
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
@@ -10,14 +9,13 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 {
     public sealed partial class RodResult(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<RodResult, RodResult>
     {
+        public int Index { get; init; }
+
         [ObservableProperty]
-        public partial int Index { get; set; }
+        public partial bool IsDeleted { get; set; } = false;
 
         [ObservableProperty]
         public partial double PixelSize { get; set; }
-        
-        [ObservableProperty]
-        public partial bool IsDeleted { get; set; } = true;
 
         [ObservableProperty]
         public partial Rect MinImageROI { get; set; }
@@ -26,14 +24,11 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         public partial Rect MaxImageROI { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
-        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable)
-        {
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin
-        };
+        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
 
         public RodResult AdaptIn(RodResult obj)
         {
-            Index = obj.Index;
+            IsDeleted = obj.IsDeleted;
             PixelSize = obj.PixelSize;
             MinImageROI = obj.MinImageROI;
             MaxImageROI = obj.MaxImageROI;
@@ -43,7 +38,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public void Reset()
         {
-            Index = 0;
+            IsDeleted = false;
             PixelSize = 0d;
             MinImageROI = Rect.Empty;
             MaxImageROI = Rect.Empty;

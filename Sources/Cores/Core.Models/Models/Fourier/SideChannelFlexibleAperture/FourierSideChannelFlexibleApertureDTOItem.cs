@@ -1,52 +1,205 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.OpticsFourierImageViewer.WPF;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public sealed partial class FourierSideChannelFlexibleApertureDTOItem : ObservableObject, ICloneable<FourierSideChannelFlexibleApertureDTOItem>, IDisposable
 {
+    private readonly BitmapImageDrawable _resultBitmapImageDrawable = new();
+
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount;
 
-    [ObservableProperty]
-    public partial int ChannelId { get; set; }
+    [Newtonsoft.Json.JsonProperty]
+    public int ChannelId { get; }
+
+    [Newtonsoft.Json.JsonProperty]
+    public string ChannelImageFilePath { get; }
+
+    public Item EvenItem { get; private init; }
+
+    public Item OddItem { get; private init; }
 
     [ObservableProperty]
-    public partial Item EvenItem { get; set; }
+    public partial double MinMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial Item OddItem { get; set; }
+    public partial double MaxMotorAbsoluteValue { get; set; }
 
-    public FourierSideChannelFlexibleApertureDTOItem(int rodTotalCount)
+    [Newtonsoft.Json.JsonProperty]
+    public RodResult[] RodResults { get; }
+
+    [Newtonsoft.Json.JsonIgnore]
+    public OpticsFourierImageDocument Document { get; } = new();
+
+    public FourierSideChannelFlexibleApertureDTOItem(int rodTotalCount, int channelId, string channelImageFilePath)
     {
         _rodTotalCount = rodTotalCount;
 
+        ChannelId = channelId;
+        ChannelImageFilePath = channelImageFilePath;
         EvenItem = new Item(rodTotalCount, true);
         OddItem = new Item(rodTotalCount, false);
+
+        RodResults =
+        [
+            .. EvenItem.Step2Rods
+                .Select(t => t.Index)
+                .Union(OddItem.Step2Rods.Select(t => t.Index))
+                .Select(t => new RodResult(_resultBitmapImageDrawable) { Index = t })
+        ];
+
+        ResetDocument();
     }
+
+    private void ResetDocument()
+    {
+        Document.Reset();
+
+        foreach (var step1Rod in RodResults) step1Rod.BitmapImageROIDrawable.Text = $"{step1Rod.Index + 1}";
+    }
+
+    #region Mapper
 
 #pragma warning disable IDISP003
 
-    public FourierSideChannelFlexibleApertureDTOItem Clone() => new(_rodTotalCount)
+    public FourierSideChannelFlexibleApertureDTOItem Clone()
     {
-        ChannelId = ChannelId,
-        EvenItem = EvenItem.Clone(),
-        OddItem = OddItem.Clone()
-    };
+        var item = new FourierSideChannelFlexibleApertureDTOItem(_rodTotalCount, ChannelId, ChannelImageFilePath)
+        {
+            EvenItem = EvenItem.Clone(),
+            OddItem = OddItem.Clone(),
+            MinMotorAbsoluteValue = MinMotorAbsoluteValue,
+            MaxMotorAbsoluteValue = MaxMotorAbsoluteValue
+        };
+
+        foreach (var (target, source) in item.RodResults.Zip(RodResults)) target.AdaptIn(source);
+
+        return item;
+    }
 
 #pragma warning restore IDISP003
 
+    #endregion
+
+
+    #region 校准
+
+    public void Reset()
+    {
+        foreach (var rodResult in RodResults) rodResult.Reset();
+
+        ResetDocument();
+    }
+
+    public void Calibrating(double minMotorAbsoluteValue, double maxMotorAbsoluteValue, CancellationToken cancellationToken)
+    {
+        try
+        {
+            ResetDocument();
+
+            MinMotorAbsoluteValue = minMotorAbsoluteValue;
+            MaxMotorAbsoluteValue = maxMotorAbsoluteValue;
+
+            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+
+            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            Document.View.ZoomToFit();
+
+            CalculateRodResults(EvenItem);
+            CalculateRodResults(OddItem);
+
+            foreach (var rodResult in RodResults)
+            {
+                if (rodResult.IsDeleted) rodResult.BitmapImageROIDrawable.Text = $"X {rodResult.BitmapImageROIDrawable.Text}";
+                rodResult.BitmapImageROIDrawable.IsFixed = true;
+                rodResult.BitmapImageROIDrawable.Rect = _resultBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rodResult.MinImageROI);
+            }
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+
+        return;
+
+        void CalculateRodResults(Item item)
+        {
+            foreach (var step2Rod in item.Step2Rods)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var step1Rod = item.Step1Rods.Single(t => t.Index == step2Rod.Index);
+                var rodResult = RodResults.Single(t => t.Index == step2Rod.Index);
+
+                rodResult.IsDeleted = step2Rod.IsDeleted;
+                rodResult.PixelSize = (item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue) / (step2Rod.ImageROI.Height - step1Rod.ImageROI.Height);
+                Guard.IsGreaterThan(rodResult.PixelSize, 0);
+
+                rodResult.MinImageROI = new Rect(
+                    step2Rod.ImageROI.Point,
+                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize));
+
+                rodResult.MaxImageROI = new Rect(
+                    step2Rod.ImageROI.Point,
+                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize));
+            }
+        }
+    }
+
+    public void Review()
+    {
+        try
+        {
+            ResetDocument();
+
+            if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+
+            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+
+            foreach (var rodResult in RodResults)
+            {
+                if (rodResult.IsDeleted) rodResult.BitmapImageROIDrawable.Text = $"X {rodResult.BitmapImageROIDrawable.Text}";
+                rodResult.BitmapImageROIDrawable.IsFixed = true;
+                rodResult.BitmapImageROIDrawable.Rect = _resultBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rodResult.MinImageROI);
+            }
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+    }
+
+    #endregion
 
     public object ToHtmlAnonymous() => new
     {
         ChannelId,
-        EvenItem = EvenItem.ToHtmlAnonymous(),
-        OddItem = OddItem.ToHtmlAnonymous()
+        MinMotorAbsoluteValue,
+        MinResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MinImageROI)),
+            .. RodResults.Select(t => new HtmlImageTextOverlay(t.MaxImageROI.Center, t.BitmapImageROIDrawable.Text))
+        ]),
+        MaxMotorAbsoluteValue,
+        MaxResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MaxImageROI)),
+            .. RodResults.Select(t => new HtmlImageTextOverlay(t.MaxImageROI.Center, t.BitmapImageROIDrawable.Text))
+        ])
     };
 
     public void Dispose()
     {
         EvenItem.Dispose();
         OddItem.Dispose();
+        _resultBitmapImageDrawable.Dispose();
     }
 }
