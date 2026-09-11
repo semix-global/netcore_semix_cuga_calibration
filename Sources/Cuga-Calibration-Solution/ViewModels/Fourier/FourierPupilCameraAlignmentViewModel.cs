@@ -131,6 +131,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             case 0:
                 CalibratingItem.Dispose();
                 CalibratingItem = new FourierPupilCameraAlignmentDTO();
+                
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(

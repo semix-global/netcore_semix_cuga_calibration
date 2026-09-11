@@ -130,40 +130,6 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             return item;
         }
 
-        public object ToImageHtmlAnonymous() => new
-        {
-            Step0ChannelImageFilePath,
-            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
-            [
-                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
-                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI)
-            ]),
-            Step1ChannelImageFilePath,
-            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays: [.. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))]),
-            Step2ChannelImageFilePath,
-            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays: [.. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))])
-        };
-
-        public object ToHtmlAnonymous() => new
-        {
-            Step0AndStep1MotorAbsoluteValue,
-            Step2MotorAbsoluteValue,
-            Step0ChannelImageFilePath,
-            Step1ChannelImageFilePath,
-            Step2ChannelImageFilePath,
-            Step0LeftRod = new { Step0LeftRod.Index, Step0LeftRod.IsDeleted, Step0LeftRod.ImageROI },
-            Step0RightRod = new { Step0RightRod.Index, Step0RightRod.IsDeleted, Step0RightRod.ImageROI },
-            Step1Rods = Step1Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI }),
-            Step2Rods = Step2Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI }),
-            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
-            [
-                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
-                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI)
-            ]),
-            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays: [.. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))]),
-            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays: [.. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI))])
-        };
-
         #endregion
 
         #region 校准
@@ -583,6 +549,60 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         }
 
         #endregion
+
+        public object ToImageHtmlAnonymous() => new
+        {
+            Step0ChannelImageFilePath,
+            Step1ChannelImageFilePath,
+            Step2ChannelImageFilePath,
+            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+            [
+                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
+                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI),
+                new HtmlImageTextOverlay(Step0LeftRod.ImageROI.Center, Step0LeftRod.BitmapImageROIDrawable.Text),
+                new HtmlImageTextOverlay(Step0RightRod.ImageROI.Center, Step0RightRod.BitmapImageROIDrawable.Text),
+            ]),
+            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
+            [
+                .. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+                .. Step1Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
+            ]),
+            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays:
+            [
+                .. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+                .. Step2Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
+            ])
+        };
+
+        public object ToHtmlAnonymous() => new
+        {
+            Step0AndStep1MotorAbsoluteValue,
+            Step2MotorAbsoluteValue,
+            Step0ChannelImageFilePath,
+            Step1ChannelImageFilePath,
+            Step2ChannelImageFilePath,
+            Step0LeftRod = new HtmlQuote(new { Step0LeftRod.Index, Step0LeftRod.IsDeleted, Step0LeftRod.ImageROI }),
+            Step0RightRod = new HtmlQuote(new { Step0RightRod.Index, Step0RightRod.IsDeleted, Step0RightRod.ImageROI }),
+            Step1Rods = new HtmlTable([.. Step1Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI })]),
+            Step2Rods = new HtmlTable([.. Step2Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI })]),
+            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+            [
+                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
+                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI),
+                new HtmlImageTextOverlay(Step0LeftRod.ImageROI.Center, Step0LeftRod.BitmapImageROIDrawable.Text),
+                new HtmlImageTextOverlay(Step0RightRod.ImageROI.Center, Step0RightRod.BitmapImageROIDrawable.Text),
+            ]),
+            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
+            [
+                .. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+                .. Step1Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
+            ]),
+            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays:
+            [
+                .. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+                .. Step2Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
+            ])
+        };
 
         public void Dispose()
         {

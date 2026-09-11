@@ -46,7 +46,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     public void Dispose()
     {
-        EvenItem?.Dispose();
-        OddItem?.Dispose();
+        EvenItem.Dispose();
+        OddItem.Dispose();
     }
 }
