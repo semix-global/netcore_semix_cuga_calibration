@@ -242,6 +242,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Guard.IsBetweenOrEqualTo(Cache.Step0AndStep1MotorAbsoluteValue, Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue);
             Guard.IsBetweenOrEqualTo(Cache.Step2MotorAbsoluteValue, Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue);
+            Guard.IsLessThan(Cache.Step2MotorAbsoluteValue, Cache.Step0AndStep1MotorAbsoluteValue);
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation)
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
@@ -375,7 +376,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             if (isEven == false)
             {
-                item.Calibrating(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
+                item.Calibrating(Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue, cancellationToken);
 
                 Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
@@ -423,8 +424,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
                 Cache.ScanLength);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(imageFilePath), $"ROI_{fourierPupilCameraAlignmentItem.ImageROI}_{Path.GetFileName(imageFilePath)}");
+            var roiChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(imageFilePath), $"_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
@@ -432,15 +434,15 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             switch (stepIndex)
             {
                 case 0:
-                    itemData.Step0ChannelImageFilePath = imageFilePath;
+                    itemData.Step0ChannelImageFilePath = roiChannelImageFilePath;
                     break;
 
                 case 1:
-                    itemData.Step1ChannelImageFilePath = imageFilePath;
+                    itemData.Step1ChannelImageFilePath = roiChannelImageFilePath;
                     break;
 
                 case 2:
-                    itemData.Step2ChannelImageFilePath = imageFilePath;
+                    itemData.Step2ChannelImageFilePath = roiChannelImageFilePath;
                     break;
 
                 default:
@@ -472,10 +474,10 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Channel1Item = new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()),
+                Channel1Item = new HtmlQuote(Review.Channel1Item.ToHtmlAnonymous()),
                 Channel1EvenItem = new HtmlQuote(Review.Channel1Item.EvenItem.ToHtmlAnonymous()),
                 Channel1OddItem = new HtmlQuote(Review.Channel1Item.OddItem.ToHtmlAnonymous()),
-                Channel2Item = new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()),
+                Channel2Item = new HtmlQuote(Review.Channel2Item.ToHtmlAnonymous()),
                 Channel2EvenItem = new HtmlQuote(Review.Channel2Item.EvenItem.ToHtmlAnonymous()),
                 Channel2OddItem = new HtmlQuote(Review.Channel2Item.OddItem.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
@@ -505,13 +507,12 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         var temp = Guard.IsAssignableToTypeAndReturn<FourierSideChannelFlexibleApertureDTO>(calibration);
         var status = Entry.Status;
 
-        var config = FourierViewModel.GetFourierConfig();
-
         Calibration = temp;
 
-        status.TotalCalibrationCount = config.RodNum * 2;
-        status.CalibratedCount = Calibration.Channel1Item.RodResults.Length + Calibration.Channel2Item.RodResults.Length;
-        status.VerifiedCount = Calibration.Channel1Item.RodResults.Length + Calibration.Channel2Item.RodResults.Length;
+        var total = Calibration.Channel1Item.RodResults.Length + Calibration.Channel2Item.RodResults.Length;
+        status.TotalCalibrationCount = total;
+        status.CalibratedCount = Calibration.IsCalibrated ? total : 0;
+        status.VerifiedCount = Calibration.IsVerified ? total : 0;
         status.Details = [];
     }
 

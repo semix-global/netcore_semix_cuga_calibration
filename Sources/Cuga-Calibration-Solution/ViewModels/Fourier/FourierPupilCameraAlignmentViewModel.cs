@@ -15,6 +15,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using System.IO;
+using Net.Utilities.Helpers.Helpers.Files;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Fourier;
@@ -305,6 +306,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
                 Cache.ScanLength);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{dtoItem.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
             dtoItem.ChannelImageFilePath = imageFilePath;
 
@@ -347,9 +349,9 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Channel1Item = new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()),
-                Channel2Item = new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()),
-                Channel3Item = new HtmlQuote(CalibratingItem.Channel3Item.ToHtmlAnonymous())
+                Channel1Item = new HtmlQuote(Review.Channel1Item.ToHtmlAnonymous()),
+                Channel2Item = new HtmlQuote(Review.Channel2Item.ToHtmlAnonymous()),
+                Channel3Item = new HtmlQuote(Review.Channel3Item.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = true;
