@@ -63,15 +63,15 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.Channel2Item.HomePMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
-                                 hc:TitleElement.Title="Home PMT Average: "
+                        <TextBox Text="{Binding CalibratingItem.Channel2Item.Step0PMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="Step0 PMT Average: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Channel2Item.BlockedPMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
-                                 hc:TitleElement.Title="Blocked PMT Average: "
+                        <TextBox Text="{Binding CalibratingItem.Channel2Item.Step1PMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
+                                 hc:TitleElement.Title="Step1 PMT Average: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"

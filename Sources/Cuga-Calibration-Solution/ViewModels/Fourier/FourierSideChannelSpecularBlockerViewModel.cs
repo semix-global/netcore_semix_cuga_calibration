@@ -374,13 +374,13 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             await GrabAsync(0);
 
-            Logger.LogHtmlInformation("Home Fourier Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
 
             FourierViewModel.FF_Move_CH12(channelId, [.. item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
             await GrabAsync(1);
-            item.ExtinctionRatio = item.BlockedPMTImageAverageValue / item.HomePMTImageAverageValue;
+            item.ExtinctionRatio = item.Step1PMTImageAverageValue / item.Step0PMTImageAverageValue;
 
             item.Review();
 
@@ -436,16 +436,18 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             switch (stepIndex)
             {
                 case 0:
-                    item.HomeFourierImageFilePath = roiChannelImageFilePath;
-                    item.HomePMTImageFilePath = pmtImageFilePath;
-                    item.HomePMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                    item.Step0FourierImageFilePath = roiChannelImageFilePath;
+                    item.RawStep0PMTImageFilePath = darkFieldImage.RawImageFilePath;
+                    item.Step0PMTImageFilePath = pmtImageFilePath;
+                    item.Step0PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
                     break;
 
                 case 1:
-                    item.BlockedFourierImageFilePath = roiChannelImageFilePath;
-                    item.BlockedPMTImageFilePath = pmtImageFilePath;
-                    item.BlockedPMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                    item.Step1FourierImageFilePath = roiChannelImageFilePath;
+                    item.RawStep1PMTImageFilePath = darkFieldImage.RawImageFilePath;
+                    item.Step1PMTImageFilePath = pmtImageFilePath;
+                    item.Step1PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
                     break;
 

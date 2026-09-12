@@ -87,12 +87,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
 
         foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item })
         {
-            channel.HomeFourierImageFilePath = RandomPath(random, "HomeFourier");
-            channel.BlockedFourierImageFilePath = RandomPath(random, "BlockedFourier");
-            channel.HomePMTImageFilePath = RandomPath(random, "HomePMT");
-            channel.BlockedPMTImageFilePath = RandomPath(random, "BlockedPMT");
-            channel.HomePMTImageAverageValue = NextCoordinate(random);
-            channel.BlockedPMTImageAverageValue = NextCoordinate(random);
+            channel.Step0FourierImageFilePath = RandomPath(random, "Step0Fourier");
+            channel.Step1FourierImageFilePath = RandomPath(random, "Step1Fourier");
+            channel.Step0PMTImageFilePath = RandomPath(random, "Step0PMT");
+            channel.Step1PMTImageFilePath = RandomPath(random, "Step1PMT");
+            channel.Step0PMTImageAverageValue = NextCoordinate(random);
+            channel.Step1PMTImageAverageValue = NextCoordinate(random);
             channel.ExtinctionRatio = NextCoordinate(random);
             foreach (var rod in channel.Rods)
             {
@@ -125,12 +125,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         using var scope = new AssertionScope(expected.Path);
         AssertPrivateFieldEqualsJson(expected, actual, "_rodTotalCount");
         actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
-        actual.HomeFourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.HomeFourierImageFilePath)));
-        actual.BlockedFourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.BlockedFourierImageFilePath)));
-        actual.HomePMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.HomePMTImageFilePath)));
-        actual.BlockedPMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.BlockedPMTImageFilePath)));
-        actual.HomePMTImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.HomePMTImageAverageValue)));
-        actual.BlockedPMTImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.BlockedPMTImageAverageValue)));
+        actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+        actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+        actual.Step0PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0PMTImageFilePath)));
+        actual.Step1PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1PMTImageFilePath)));
+        actual.Step0PMTImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.Step0PMTImageAverageValue)));
+        actual.Step1PMTImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.Step1PMTImageAverageValue)));
         actual.ExtinctionRatio.Should().Be(expected.Value<double>(nameof(actual.ExtinctionRatio)));
         AssertRodsMatchJson(RequiredJson<JArray>(expected[nameof(actual.Rods)]), actual.Rods);
     }
@@ -187,12 +187,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
     {
         GetPrivateField(actual, "_rodTotalCount").Should().Be(GetPrivateField(expected, "_rodTotalCount"));
         actual.ChannelId.Should().Be(expected.ChannelId);
-        actual.HomeFourierImageFilePath.Should().Be(expected.HomeFourierImageFilePath);
-        actual.BlockedFourierImageFilePath.Should().Be(expected.BlockedFourierImageFilePath);
-        actual.HomePMTImageFilePath.Should().Be(expected.HomePMTImageFilePath);
-        actual.BlockedPMTImageFilePath.Should().Be(expected.BlockedPMTImageFilePath);
-        actual.HomePMTImageAverageValue.Should().Be(expected.HomePMTImageAverageValue);
-        actual.BlockedPMTImageAverageValue.Should().Be(expected.BlockedPMTImageAverageValue);
+        actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+        actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+        actual.Step0PMTImageFilePath.Should().Be(expected.Step0PMTImageFilePath);
+        actual.Step1PMTImageFilePath.Should().Be(expected.Step1PMTImageFilePath);
+        actual.Step0PMTImageAverageValue.Should().Be(expected.Step0PMTImageAverageValue);
+        actual.Step1PMTImageAverageValue.Should().Be(expected.Step1PMTImageAverageValue);
         actual.ExtinctionRatio.Should().Be(expected.ExtinctionRatio);
         actual.Rods.Select(t => t.Index).Should().Equal(expected.Rods.Select(t => t.Index));
         foreach (var source in expected.Rods)
@@ -280,10 +280,10 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
     {
         channel.Document.ImageModel.Should().HaveCount(4);
         channel.Document.ROIModel.Should().Equal(channel.Rods.Select(t => t.BitmapImageROIDrawable));
-        var homeFourier = channel.Document.ImageModel.First();
+        var step0Fourier = channel.Document.ImageModel.First();
         foreach (var rod in channel.Rods)
         {
-            rod.BitmapImageROIDrawable.BitmapImageDrawable.Should().BeSameAs(homeFourier);
+            rod.BitmapImageROIDrawable.BitmapImageDrawable.Should().BeSameAs(step0Fourier);
             rod.BitmapImageROIDrawable.BitmapImageDrawable.BitmapImage.Should().BeNull();
             rod.BitmapImageROIDrawable.Text.Should().Be($"{rod.Index + 1}");
             rod.BitmapImageROIDrawable.ResizeJoystickStateEnum.Should().Be(BitmapImageROIResizeJoystickStateEnum.XCenterYMin);

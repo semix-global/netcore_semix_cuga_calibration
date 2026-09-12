@@ -19,13 +19,10 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
-    /// <summary>
-    /// Step0: 奇/偶 中间2个挡杆落下 Step0AndStep1MotorAbsoluteValue
-    /// Step1: 奇/偶 所有挡杆落下 Step0AndStep1MotorAbsoluteValue
-    /// Step2: 奇/偶 所有挡杆落下 Step2MotorAbsoluteValue
-    /// </summary>
     public sealed partial class Item : ObservableObject, ICloneable<Item>, IDisposable
     {
+        private const string StepsComment = "Step0: For even/odd rods, drop the center 2 rods to Step0AndStep1MotorAbsoluteValue; Step1: For even/odd rods, drop all rods to Step0AndStep1MotorAbsoluteValue; Step2: For even/odd rods, drop all rods to Step2MotorAbsoluteValue";
+
         private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
         private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();
         private readonly BitmapImageDrawable _step2BitmapImageDrawable = new();
@@ -603,6 +600,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public object ToImageHtmlAnonymous() => new
         {
+            Comment = new HtmlComment(StepsComment),
             Step0ChannelImageFilePath,
             Step1ChannelImageFilePath,
             Step2ChannelImageFilePath,
@@ -613,6 +611,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         public object ToHtmlAnonymous() => new
         {
+            Comment = new HtmlComment(StepsComment),
             Step0AndStep1MotorAbsoluteValue,
             Step2MotorAbsoluteValue,
             Step0ChannelImageFilePath,
