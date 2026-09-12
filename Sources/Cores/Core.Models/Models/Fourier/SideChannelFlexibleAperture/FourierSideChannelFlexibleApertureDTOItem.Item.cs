@@ -370,7 +370,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 }
 
                 CalculateInvisibleRodPositions(
-                    [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)],
+                    [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)],
                     [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible == false)],
                     true);
 

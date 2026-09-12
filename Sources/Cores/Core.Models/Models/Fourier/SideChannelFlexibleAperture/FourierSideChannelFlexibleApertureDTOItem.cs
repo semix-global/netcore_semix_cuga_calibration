@@ -152,18 +152,22 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
                 var heightDelta = step2Rod.ImageROI.Height - step1Rod.ImageROI.Height;
                 var motorDelta = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
-                Guard.IsGreaterThan(heightDelta, 0d);
+                Guard.IsNotEqualTo(heightDelta, 0d);
 
                 rodResult.PixelSize = motorDelta / heightDelta;
                 Guard.IsGreaterThan(rodResult.PixelSize, 0);
 
                 rodResult.MinImageROI = new Rect(
-                    step2Rod.ImageROI.Point,
-                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize)).ImageCoordinateRound();
+                        step2Rod.ImageROI.Point,
+                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize))
+                    .ImageCoordinateRound()
+                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
 
                 rodResult.MaxImageROI = new Rect(
-                    step2Rod.ImageROI.Point,
-                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize)).ImageCoordinateRound();
+                        step2Rod.ImageROI.Point,
+                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize))
+                    .ImageCoordinateRound()
+                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
             }
         }
     }
@@ -200,7 +204,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         MinResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MinImageROI)),
-            .. RodResults.Select(t => new HtmlImageTextOverlay(t.MaxImageROI.Center, t.BitmapImageROIDrawable.Text))
+            .. RodResults.Select(t => new HtmlImageTextOverlay(t.MinImageROI.Center, t.BitmapImageROIDrawable.Text))
         ]),
         MaxMotorAbsoluteValue,
         MaxResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:

@@ -340,6 +340,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             fourierPupilCameraAlignmentItem.ImageROI
         }), HtmlLogUniqueId.LoggingHtml());
 
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
+
         var itemData = isEven ? item.EvenItem : item.OddItem;
 
         item.Reset();
