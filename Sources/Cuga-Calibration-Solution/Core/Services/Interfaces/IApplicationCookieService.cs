@@ -15,6 +15,13 @@ public partial interface IApplicationCookieService
     Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken);
 
     /// <summary>
+    /// 初始化Engineer SkipDependencyCheck RoleMenu数据
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task LoadingRoleMenuDataAsync(CancellationToken cancellationToken);
+
+    /// <summary>
     /// 根据组件名称查找子菜单
     /// </summary>
     /// <returns>子菜单</returns>

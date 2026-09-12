@@ -47,7 +47,7 @@ public sealed class CalibrationConfigServiceImpl : BaseService<ICgCalibConfigSer
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    public Task<SxExecuteRet<IReadOnlyList<SysUserDTO>>> GetRegisteredUsersInformationAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

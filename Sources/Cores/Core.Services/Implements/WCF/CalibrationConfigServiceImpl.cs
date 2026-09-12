@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.HardwareType;
 using Core.Models.Enums.Optics;
+using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
@@ -27,8 +28,9 @@ namespace Core.Services.Implements.WCF;
 [IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton,
     IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationConfigServiceImpl(
+    ISysUserService sysUserService,
     ISysUserRepository sysUserRepository,
-    ISysUserService sysUserService) : BaseService<ICgCalibrationService>, ICalibrationConfigService
+    ISysRoleService sysRoleService) : BaseService<ICgCalibrationService>, ICalibrationConfigService
 {
     private IReadOnlyList<(AbstractAODWaveformProfile AODWaveformProfile, OpticsIlluminationModeEnum
         OpticsIlluminationModeEnum, int OpticsMagType)>? _prescanChirpAODWaveConfigs;
@@ -53,12 +55,16 @@ public sealed class CalibrationConfigServiceImpl(
         if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
             throw new LoginException("The account or password cannot be empty!");
 
-        var sxExecuteRet = Invoke(() => Service!.UserCheck(user.UserName, user.Password));
-        if (sxExecuteRet.IsSuccess == false) throw new LoginException(sxExecuteRet.Msg);
+        if (user.Id != 1 && user.IsAdmin == false && user.SysRoleList.Any(t => t.Id == 4) == false)
+        {
+            var sxExecuteRet = Invoke(() => Service!.UserCheck(user.UserName, user.Password));
+            if (sxExecuteRet.IsSuccess == false) throw new LoginException(sxExecuteRet.Msg);
+        }
 
         var sysUser = await sysUserRepository
                           .Select
-                          .Where(t => t.UserName == user.UserName)
+                          .WhereIf(user.IsAdmin, t => t.UserName == user.UserName && t.Password == user.Password)
+                          .WhereIf(user.IsAdmin == false, t => t.UserName == user.UserName)
                           .ToOneAsync(cancellationToken).ConfigureAwait(false) ??
                       throw new LoginException("The account or password is incorrect!");
         if (sysUser.IsDeleted || sysUser.IsEnabled == false)
@@ -98,15 +104,37 @@ public sealed class CalibrationConfigServiceImpl(
         return SxExecuteRetHelper.CreateSuccess($"{sxExecuteRet.Anything}.dat");
     }
 
-    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    public async Task<SxExecuteRet<IReadOnlyList<SysUserDTO>>> GetRegisteredUsersInformationAsync(CancellationToken cancellationToken)
     {
         var sxExecuteRet = Invoke(() => Service!.GetUserInfoData());
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<SysUserDTO>>(sxExecuteRet.Msg, []);
+        if (sxExecuteRet.IsSuccess == false) throw new CugaException(sxExecuteRet.Msg);
+
+        var allRoles = await sysRoleService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var engineerRole = allRoles.Single(t => t.Id == 2);
+        var userRole = allRoles.Single(t => t.Id == 3);
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([
-            .. sxExecuteRet.Anything.Select(t => new SysUserDTO
+            .. sxExecuteRet.Anything.Select(t =>
             {
-                Id = t.Id, UserName = t.UserName, Password = t.Password, NickName = t.UserName, Remark = t.UserName
+                var userDTO = new SysUserDTO
+                {
+                    UserName = t.UserName, Password = t.Password, NickName = t.UserName, Remark = t.UserName
+                };
+                switch (t.Permission)
+                {
+                    case PermissionLevel.Admin:
+                        userDTO.Id = 1;
+                        break;
+                    case PermissionLevel.Engineer:
+                        userDTO.SysRoleList = [engineerRole];
+                        break;
+                    case PermissionLevel.User:
+                    default:
+                        userDTO.SysRoleList = [userRole];
+                        break;
+                }
+
+                return userDTO;
             })
         ]);
     }

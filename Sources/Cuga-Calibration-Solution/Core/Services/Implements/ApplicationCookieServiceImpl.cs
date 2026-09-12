@@ -13,6 +13,7 @@ using Local.SQL.DB.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
@@ -22,6 +23,9 @@ namespace CugaCalibration.Core.Services.Implements;
 [IOCAppService(ServiceType = typeof(IApplicationCookieService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ApplicationCookieServiceImpl(
     ICalibrationStageService calibrationStageServiceImpl,
+    ISysRoleService sysRoleService,
+    ISysRoleMenuService sysRoleMenuService,
+    ISysMenuService sysMenuService,
     ICacheProvider cacheProvider,
     [FromKeyedServices(CalibrationConstantsHelper.RecipeDbKey)]
     ICacheProvider recipeCacheProvider,
@@ -139,6 +143,27 @@ public sealed partial class ApplicationCookieServiceImpl(
 
             foreach (var child in calibrationMenu.Children) UpdateCalibrationMenuEntry(child);
         }
+    }
+
+    public async Task LoadingRoleMenuDataAsync(CancellationToken cancellationToken)
+    {
+        var allMenus = await sysMenuService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var allRoles = await sysRoleService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+
+        var engineerRole = allRoles.Single(t => t.Id == 2);
+        var skipDependencyCheckRole = allRoles.Single(t => t.Id == 4);
+
+        // 首次初始化给engineer role分配菜单（除权限管理外的所有菜单）
+        SysMenuDTO[] engineerRoleMenus = [.. allMenus.Where(t => t.Name == options.Value.ManagementMenuName == false)];
+        if (engineerRole.SysMenuList.Count == 0) engineerRole.SysMenuList = [.. engineerRoleMenus];
+
+        if (await sysRoleMenuService.InsertAsync(engineerRole, cancellationToken).ConfigureAwait(false) == false)
+            ThrowHelper.ThrowArgumentException<SysRoleDTO>("Insert engineer role menus failed!");
+
+        // 首次初始化给SkipDependencyCheck role分配菜单（除权限管理外的所有菜单），首次复机做prealigner时SkipDependencyCheck user的权限
+        if (skipDependencyCheckRole.SysMenuList.Count == 0) skipDependencyCheckRole.SysMenuList = [.. engineerRoleMenus];
+        if (await sysRoleMenuService.InsertAsync(skipDependencyCheckRole, cancellationToken).ConfigureAwait(false) == false)
+            ThrowHelper.ThrowArgumentException<SysRoleDTO>("Insert skip dependency check role menus failed!");
     }
 
     public IReadOnlyList<SysMenuDTO> FindSysMenusByRecursionSysMenuComponent(string component)
