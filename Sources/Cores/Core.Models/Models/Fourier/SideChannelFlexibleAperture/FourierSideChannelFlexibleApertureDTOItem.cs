@@ -205,12 +205,14 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     {
         ChannelId,
         MinMotorAbsoluteValue,
+        MaxMotorAbsoluteValue,
+        MinRods = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MinImageROI })]),
+        MaxRods = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MaxImageROI })]),
         MinResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MinImageROI)),
             .. RodResults.Select(t => new HtmlImageTextOverlay(t.MinImageROI.Center, t.BitmapImageROIDrawable.Text))
         ]),
-        MaxMotorAbsoluteValue,
         MaxResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MaxImageROI)),
