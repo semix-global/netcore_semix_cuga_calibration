@@ -22,7 +22,7 @@ public sealed class CalibrationRelationServiceImpl(
 
     public bool DependenciesValidate(Type viewModelType)
     {
-        if (applicationCookie.SysUser.IsAdmin) return true;
+        if (applicationCookie.SysUser.IsAdmin || applicationCookie.SysUser.SysRoleList.Any(t => t.Id == 4)) return true;
 
         var entry = ApplicationCookie.CalibrationViewModelEntries[viewModelType];
 

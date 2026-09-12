@@ -20,7 +20,6 @@ namespace CugaCalibration.ViewModels;
 [IOCAppService(ServiceType = typeof(LoginWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public partial class LoginWindowViewModel(
     ISysUserService sysUserService,
-    ISysRoleService sysRoleService,
     ISysUserRoleService sysUserRoleService,
     ILogger<LoginWindowViewModel> logger,
     IDialogWindowProvider dialogWindowProvider,
@@ -33,10 +32,29 @@ public partial class LoginWindowViewModel(
     public partial string Title { get; set; } = applicationName;
 
     [ObservableProperty]
-    public partial IReadOnlyList<string> UserNames { get; set; } = [];
+    public partial IReadOnlyList<SysUserDTO> Users { get; set; } = [];
 
+    /// <summary>
+    /// 下拉框当前选中的用户 (Users 列表实例, 仅承载界面选中状态)
+    /// </summary>
+    [ObservableProperty]
+    public partial SysUserDTO? SelectedUser { get; set; }
+
+    /// <summary>
+    /// 登录输入载体: 用户名 (下拉选中或手动输入) + 密码 (手动输入), 不直接引用 Users 列表实例
+    /// </summary>
     [ObservableProperty]
     public partial SysUserDTO SysUserDTO { get; set; } = new();
+
+    /// <summary>
+    /// 选中用户变化时同步用户名到登录输入载体, 避免直接编辑列表实例造成引用污染
+    /// </summary>
+    partial void OnSelectedUserChanged(SysUserDTO? value)
+    {
+        if (value is null) return;
+
+        SysUserDTO.UserName = value.UserName;
+    }
 
     [RelayCommand]
     private async Task LoadedAsync()
@@ -52,36 +70,47 @@ public partial class LoginWindowViewModel(
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(150000));
 
-            var cugaRegisterUsers = configViewModel.GetRegisteredUsersInformation();
+            await applicationCookieService.LoadingRoleMenuDataAsync(cancellationTokenSource.Token);
+
+            var cugaRegisterUsers = await configViewModel.GetRegisteredUsersInformationAsync(cancellationTokenSource.Token).ConfigureAwait(false);
 
             var allUsers = await sysUserService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
 
-            var allRoles = await sysRoleService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-            var userRole = allRoles.Single(t => t.Id == 3);
-
-            foreach (var registerUser in cugaRegisterUsers)
+            foreach (var registerUser in cugaRegisterUsers.Where(t => t.IsAdmin == false))
             {
                 var user = allUsers.SingleOrDefault(t => t.UserName == registerUser.UserName);
                 if (user == null)
                 {
-                    // 首次加入的用户: 分配 admin 角色
-                    registerUser.SysRoleList = [userRole];
-
                     if (await sysUserService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
                         ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
 
                     if (await sysUserRoleService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
                         ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user Roles failed!");
                 }
+                else
+                {
+                    // 用户表已存在: 只更新密码
+                    user.Password = registerUser.Password;
+
+                    if (await sysUserService.UpdateAsync(user, cancellationTokenSource.Token).ConfigureAwait(false) == false)
+                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Update cuga register user failed!");
+                }
             }
 
             var users = await sysUserService.GetAllAsync(CancellationToken.None).ConfigureAwait(false);
 
-            UserNames = [.. users.OrderBy(t => t.Id).Select(t => t.UserName)];
-
             Guard.IsNotEmpty(users, "The user list is empty, please register a user first!");
 
-            SysUserDTO = hostEnvironment.IsProduction() ? new SysUserDTO { UserName = "Admin", Password = "U7AhAo3e" } : new SysUserDTO { UserName = "Admin", Password = "666666" };
+            Users = [.. users.OrderBy(t => t.Id)];
+
+            if (hostEnvironment.IsProduction())
+            {
+                SelectedUser = Users.FirstOrDefault(t => t.SysRoleList.Any(tt => tt.Id == 2));
+            }
+            else
+            {
+                SysUserDTO = new SysUserDTO { UserName = "SuperAdmin", Password = "666666", Id = 1 };
+            }
         }
         catch (Exception ex)
         {
@@ -97,7 +126,11 @@ public partial class LoginWindowViewModel(
         {
             await Task.Run(async () =>
             {
-                var tempSysUserDto = await configViewModel.LoginAsync(SysUserDTO, cancellationToken).ConfigureAwait(false);
+                // 登录用户对象: 按界面用户名从用户列表解析 (覆盖下拉选中与手动输入两种情形), 解析不到则仅携带输入内容; 密码均取界面输入
+                var loginSysUserDto = Users.FirstOrDefault(t => t.UserName == SysUserDTO.UserName)?.Clone() ?? new SysUserDTO { UserName = SysUserDTO.UserName };
+                loginSysUserDto.Password = SysUserDTO.Password;
+
+                var tempSysUserDto = await configViewModel.LoginAsync(loginSysUserDto, cancellationToken).ConfigureAwait(false);
 
                 await applicationCookieService.LoadingSystemMenuCookieAsync(tempSysUserDto, cancellationToken).ConfigureAwait(false);
 
