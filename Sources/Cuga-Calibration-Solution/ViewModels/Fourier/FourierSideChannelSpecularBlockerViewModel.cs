@@ -378,8 +378,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
 
-            Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
             FourierViewModel.FF_Move_CH12(channelId, [.. item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
             await GrabAsync(1);
             item.ExtinctionRatio = item.BlockedPMTImageAverageValue / item.HomePMTImageAverageValue;
@@ -427,9 +425,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 CalibrationSetting.SettingCommonParam.MainCIBInformation,
                 (false, CalChipSiteModelEnum.ShinyWaferModel),
                 (false, Cache.Item.OpticsConfiguration),
-                (true, Cache.Item.CIBConfiguration),
-                (true, Cache.Item.LaserLightInformation),
-                true,
+                (false, Cache.Item.CIBConfiguration),
+                (false, Cache.Item.LaserLightInformation),
+                false,
                 cancellationToken);
             var pmtImageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_PMT_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(pmtImageFilePath);

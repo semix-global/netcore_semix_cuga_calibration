@@ -155,7 +155,6 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
-                Guard.IsTrue(rodResult.MinImageROI is { Width: > 0d, Height: > 0d });
 
                 rod.IsDeleted = rodResult.IsDeleted;
                 rod.ImageROI = rodResult.MinImageROI
@@ -263,12 +262,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         ChannelId,
         HomeFourierImageFilePath,
         HomePMTImageFilePath,
-        BlockedFourierImageFilePath,
-        BlockedPMTImageFilePath,
         HomeFourierImage = new HtmlImage(HomeFourierImageFilePath),
-        HomePMTImage = new HtmlImage(HomePMTImageFilePath),
-        BlockedFourierImage = new HtmlImage(BlockedFourierImageFilePath),
-        BlockedPMTImage = new HtmlImage(BlockedPMTImageFilePath)
+        HomePMTImage = new HtmlImage(HomePMTImageFilePath)
     };
 
     public object ToHtmlAnonymous() => new
