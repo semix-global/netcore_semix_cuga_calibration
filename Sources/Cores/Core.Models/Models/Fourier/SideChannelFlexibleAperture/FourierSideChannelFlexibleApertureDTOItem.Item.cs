@@ -159,8 +159,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             item.Step0LeftRod.AdaptIn(Step0LeftRod);
             item.Step0RightRod.AdaptIn(Step0RightRod);
-            foreach (var (target, source) in item.Step1Rods.Zip(Step1Rods)) target.AdaptIn(source);
-            foreach (var (target, source) in item.Step2Rods.Zip(Step2Rods)) target.AdaptIn(source);
+            foreach (var target in item.Step1Rods) target.AdaptIn(Step1Rods.Single(t => t.Index == target.Index));
+            foreach (var target in item.Step2Rods) target.AdaptIn(Step2Rods.Single(t => t.Index == target.Index));
 
             return item;
         }

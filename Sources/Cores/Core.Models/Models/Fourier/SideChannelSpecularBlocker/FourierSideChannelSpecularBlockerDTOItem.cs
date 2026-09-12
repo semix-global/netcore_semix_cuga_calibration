@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using MathNet.Numerics;
-using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Mapper.Interfaces;
@@ -13,9 +12,6 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
-using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
-using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
@@ -44,11 +40,14 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     [ObservableProperty]
     public partial string BlockedPMTImageFilePath { get; set; } = string.Empty;
 
-    [Newtonsoft.Json.JsonProperty]
-    public FourierSideChannelFlexibleApertureDTOItem.Rod[] Rods { get; }
+    [ObservableProperty]
+    public partial double HomePMTImageAverageValue { get; set; }
+
+    [ObservableProperty]
+    public partial double BlockedPMTImageAverageValue { get; set; }
 
     [Newtonsoft.Json.JsonProperty]
-    public double[] MoveDownPercents { get; private set; }
+    public Rod[] Rods { get; }
 
     [ObservableProperty]
     public partial double ExtinctionRatio { get; set; }
@@ -60,11 +59,10 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     {
         _rodTotalCount = rodTotalCount;
         ChannelId = channelId;
-        MoveDownPercents = new double[rodTotalCount];
         Rods =
         [
             .. Generate.LinearRangeInt32(0, rodTotalCount - 1)
-                .Select(i => new FourierSideChannelFlexibleApertureDTOItem.Rod(_homeFourierBitmapImageDrawable)
+                .Select(i => new Rod(_homeFourierBitmapImageDrawable)
                 {
                     Index = i,
                     BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin }
@@ -86,7 +84,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         ResetDocument();
     }
 
-    public FourierSideChannelSpecularBlockerDTOItem() : this(FourierSideChannelSpecularBlockerDTO.DefaultRodTotalCount, 1)
+    public FourierSideChannelSpecularBlockerDTOItem() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount, 1)
     {
     }
 
@@ -109,11 +107,10 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
             BlockedFourierImageFilePath = BlockedFourierImageFilePath,
             HomePMTImageFilePath = HomePMTImageFilePath,
             BlockedPMTImageFilePath = BlockedPMTImageFilePath,
-            ExtinctionRatio = ExtinctionRatio,
-            MoveDownPercents = [.. MoveDownPercents]
+            ExtinctionRatio = ExtinctionRatio
         };
 
-        foreach (var (target, source) in item.Rods.Zip(Rods)) target.AdaptIn(source);
+        foreach (var target in item.Rods) target.AdaptIn(Rods.Single(t => t.Index == target.Index));
 
         return item;
     }
@@ -131,44 +128,39 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         HomePMTImageFilePath = string.Empty;
         BlockedPMTImageFilePath = string.Empty;
         ExtinctionRatio = 0d;
-        MoveDownPercents = new double[_rodTotalCount];
 
         foreach (var rod in Rods) rod.Reset();
 
         ResetDocument();
     }
 
-    public async Task CalibratingAsync(IReadOnlyList<FourierSideChannelFlexibleApertureDTOItem.RodResult> rodResults, CancellationToken cancellationToken)
+    public async Task CalibratingAsync(FourierSideChannelFlexibleApertureDTOItem fourierSideChannelFlexibleApertureItem, CancellationToken cancellationToken)
     {
         try
         {
             ResetDocument();
 
             Guard.IsNotNullOrWhiteSpace(HomeFourierImageFilePath);
-            Guard.IsEqualTo(rodResults.Count, _rodTotalCount);
+            Guard.IsEqualTo(fourierSideChannelFlexibleApertureItem.RodResults.Length, _rodTotalCount);
 
             _homeFourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(HomeFourierImageFilePath);
-            var homeFourierImage = Guard.IsNotNullAndReturn(_homeFourierBitmapImageDrawable.BitmapImage);
-            LoadOptionalImages();
             Document.View.ZoomToFit();
 
             foreach (var rod in Rods)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var rodResult = rodResults.Single(t => t.Index == rod.Index);
+                var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
                 Guard.IsTrue(rodResult.MinImageROI is { Width: > 0d, Height: > 0d });
 
-                rod.IsDeleted = false;
+                rod.IsDeleted = rodResult.IsDeleted;
                 rod.ImageROI = rodResult.MinImageROI
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, homeFourierImage.Size));
+                    .ClampToBounds(new Rect(Point.Origin, _homeFourierBitmapImageDrawable.BitmapImage.Size));
+                if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
                 rod.BitmapImageROIDrawable.IsFixed = false;
                 rod.BitmapImageROIDrawable.Rect = _homeFourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
                 rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0, Height: > 0 };
             }
-
-            Document.View.SetViewBounds(_homeFourierBitmapImageDrawable.GetExtents());
 
             while (true)
             {
@@ -177,33 +169,14 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_homeFourierBitmapImageDrawable)
                 {
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
-                    IsDeleteEnabled = true,
+                    IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
 
                 switch (outputResult)
                 {
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                        try
-                        {
-                            FourierSideChannelFlexibleApertureDTOItem.Rod[] temps = [.. Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)];
-                            Guard.IsGreaterThanOrEqualTo(temps.Length, 1);
-
-                            foreach (var rod in temps)
-                            {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                Guard.IsTrue(rod.BitmapImageROIDrawable.Rect is { Height: > 0d });
-                            }
-
-                            goto OuterLoop;
-                        }
-                        catch (Exception ex) when (ex is not OperationCanceledException)
-                        {
-                            if (ShouldContinue(ex)) continue;
-
-                            throw;
-                        }
+                        goto OuterLoop;
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -223,48 +196,23 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
             OuterLoop:
 
-            var moveDownPercents = new double[_rodTotalCount];
-
             foreach (var rod in Rods)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var rodResult = rodResults.Single(t => t.Index == rod.Index);
-
-                rod.IsDeleted = rod.BitmapImageROIDrawable.IsVisible == false;
-                if (rod.IsDeleted)
-                {
-                    rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
-                    moveDownPercents[rod.Index] = 0d;
-
-                    continue;
-                }
+                var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
 
                 rod.BitmapImageROIDrawable.IsFixed = true;
                 rod.ImageROI = _homeFourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(rod.BitmapImageROIDrawable.Rect);
-                moveDownPercents[rod.Index] = (rod.ImageROI.Height - rodResult.MinImageROI.Height) * rodResult.PixelSize;
+                rod.MotorAbsoluteValue = Math.Clamp(
+                    fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue + (rod.ImageROI.Height - rodResult.MinImageROI.Height) * rodResult.PixelSize,
+                    fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue,
+                    fourierSideChannelFlexibleApertureItem.MaxMotorAbsoluteValue);
             }
-
-            MoveDownPercents = moveDownPercents;
         }
         finally
         {
             Document.View.ZoomToFit();
-        }
-
-        return;
-
-        static bool ShouldContinue(Exception ex)
-        {
-            var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
-
-            return dialogWindowProvider.TryShowDialog($"""
-                                                       Error: {ex.Message}
-
-                                                       Yes: continue to modify ROI.
-                                                       No: abort calibration.
-                                                       """, out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Warning) == true
-                   && dialogResult == DialogResultEnum.Yes;
         }
     }
 
@@ -274,10 +222,21 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         {
             ResetDocument();
 
-            if (string.IsNullOrWhiteSpace(HomeFourierImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(HomeFourierImageFilePath)
+                || string.IsNullOrWhiteSpace(BlockedFourierImageFilePath)
+                || string.IsNullOrWhiteSpace(HomePMTImageFilePath)
+                || string.IsNullOrWhiteSpace(BlockedPMTImageFilePath)) return;
 
             _homeFourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(HomeFourierImageFilePath);
-            LoadOptionalImages();
+
+            _blockedFourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(BlockedFourierImageFilePath);
+            _blockedFourierBitmapImageDrawable.Point = _homeFourierBitmapImageDrawable.Point - new Vector(0d, _homeFourierBitmapImageDrawable.BitmapImage.Height + 10d);
+
+            _homePMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(HomePMTImageFilePath);
+            _homePMTBitmapImageDrawable.Point = _homeFourierBitmapImageDrawable.Point + new Vector(_homeFourierBitmapImageDrawable.BitmapImage.Width + 10d, 0d);
+
+            _blockedPMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(BlockedPMTImageFilePath);
+            _blockedPMTBitmapImageDrawable.Point = _homePMTBitmapImageDrawable.Point - new Vector(0d, _homePMTBitmapImageDrawable.BitmapImage.Height + 10d);
 
             foreach (var rod in Rods)
             {
@@ -293,39 +252,18 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         }
     }
 
-    public void RefreshExtinctionRatio()
-    {
-        Guard.IsNotNullOrWhiteSpace(HomePMTImageFilePath);
-        Guard.IsNotNullOrWhiteSpace(BlockedPMTImageFilePath);
-
-        using var homePMTImage = BitmapHelper.OpenImage(HomePMTImageFilePath);
-        using var blockedPMTImage = BitmapHelper.OpenImage(BlockedPMTImageFilePath);
-
-        var homeMean = homePMTImage.GetIntensity().Average;
-        Guard.IsNotEqualTo(homeMean, 0d);
-
-        ExtinctionRatio = blockedPMTImage.GetIntensity().Average / homeMean;
-    }
-
-    public List<(int rodnumber, double rodpos)> ToRodPositions(double minMotorAbsoluteValue, double maxMotorAbsoluteValue) =>
-    [
-        .. Rods.Select(t => (t.Index, Math.Clamp(
-            t.IsDeleted ? minMotorAbsoluteValue : minMotorAbsoluteValue + MoveDownPercents[t.Index],
-            minMotorAbsoluteValue,
-            maxMotorAbsoluteValue)))
-    ];
-
     #endregion
 
     public object ToImageHtmlAnonymous() => new
     {
+        ChannelId,
         HomeFourierImageFilePath,
-        BlockedFourierImageFilePath,
         HomePMTImageFilePath,
+        BlockedFourierImageFilePath,
         BlockedPMTImageFilePath,
         HomeFourierImage = new HtmlImage(HomeFourierImageFilePath),
-        BlockedFourierImage = new HtmlImage(BlockedFourierImageFilePath),
         HomePMTImage = new HtmlImage(HomePMTImageFilePath),
+        BlockedFourierImage = new HtmlImage(BlockedFourierImageFilePath),
         BlockedPMTImage = new HtmlImage(BlockedPMTImageFilePath)
     };
 
@@ -337,13 +275,17 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         BlockedFourierImageFilePath,
         HomePMTImageFilePath,
         BlockedPMTImageFilePath,
-        Rods = new HtmlTable([.. Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI, MoveDownPercent = MoveDownPercents.ElementAtOrDefault(t.Index) })]),
+        Rods = new HtmlTable([.. Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI, t.MotorAbsoluteValue })]),
         HomeFourierImage = new HtmlImage(HomeFourierImageFilePath, htmlImageOverlays:
         [
             .. Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
             .. Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
         ]),
-        BlockedFourierImage = new HtmlImage(BlockedFourierImageFilePath),
+        BlockedFourierImage = new HtmlImage(BlockedFourierImageFilePath, htmlImageOverlays:
+        [
+            .. Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+            .. Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
+        ]),
         HomePMTImage = new HtmlImage(HomePMTImageFilePath),
         BlockedPMTImage = new HtmlImage(BlockedPMTImageFilePath)
     };
@@ -354,33 +296,5 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         _blockedFourierBitmapImageDrawable.Dispose();
         _homePMTBitmapImageDrawable.Dispose();
         _blockedPMTBitmapImageDrawable.Dispose();
-    }
-
-    private void LoadOptionalImages()
-    {
-        var current = _homeFourierBitmapImageDrawable;
-        var currentImage = Guard.IsNotNullAndReturn(current.BitmapImage);
-
-        if (string.IsNullOrWhiteSpace(BlockedFourierImageFilePath) == false)
-        {
-            _blockedFourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(BlockedFourierImageFilePath);
-            _blockedFourierBitmapImageDrawable.Point = current.Point - new Vector(0d, currentImage.Height + 10d);
-            current = _blockedFourierBitmapImageDrawable;
-            currentImage = Guard.IsNotNullAndReturn(current.BitmapImage);
-        }
-
-        if (string.IsNullOrWhiteSpace(HomePMTImageFilePath) == false)
-        {
-            _homePMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(HomePMTImageFilePath);
-            _homePMTBitmapImageDrawable.Point = current.Point - new Vector(0d, currentImage.Height + 10d);
-            current = _homePMTBitmapImageDrawable;
-            currentImage = Guard.IsNotNullAndReturn(current.BitmapImage);
-        }
-
-        if (string.IsNullOrWhiteSpace(BlockedPMTImageFilePath) == false)
-        {
-            _blockedPMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(BlockedPMTImageFilePath);
-            _blockedPMTBitmapImageDrawable.Point = current.Point - new Vector(0d, currentImage.Height + 10d);
-        }
     }
 }

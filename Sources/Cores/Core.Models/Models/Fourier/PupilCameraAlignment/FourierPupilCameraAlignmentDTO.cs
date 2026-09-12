@@ -6,7 +6,6 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;

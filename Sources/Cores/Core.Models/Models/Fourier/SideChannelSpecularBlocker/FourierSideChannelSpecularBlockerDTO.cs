@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Extensions;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Wcf.Models.Fourier;
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
@@ -14,8 +15,6 @@ namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 [CacheVersion("1.0.0")]
 public sealed partial class FourierSideChannelSpecularBlockerDTO(int rodTotalCount) : CalibrationDTOBase<FourierSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>, IDisposable
 {
-    internal const int DefaultRodTotalCount = 46;
-
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount = rodTotalCount;
 
@@ -26,7 +25,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTO(int rodTotalCou
 
     public FourierSideChannelSpecularBlockerDTOItem Channel2Item { get; private init; } = new(rodTotalCount, 2);
 
-    public FourierSideChannelSpecularBlockerDTO() : this(DefaultRodTotalCount)
+    public FourierSideChannelSpecularBlockerDTO() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount)
     {
     }
 
@@ -52,9 +51,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTO(int rodTotalCou
     {
         if (IsCalibrated == false
             || Channel1Item.Rods.Length != _rodTotalCount
-            || Channel2Item.Rods.Length != _rodTotalCount
-            || Channel1Item.MoveDownPercents.Length != _rodTotalCount
-            || Channel2Item.MoveDownPercents.Length != _rodTotalCount)
+            || Channel2Item.Rods.Length != _rodTotalCount)
         {
             if (IsCalibrated)
             {
@@ -77,8 +74,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTO(int rodTotalCou
             CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
             CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
             Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-            CgFFBoxMoveDownPercentListCh1 = [.. Channel1Item.Rods.OrderBy(t => t.Index).Select(t => Channel1Item.MoveDownPercents[t.Index])],
-            CgFFBoxMoveDownPercentListCh2 = [.. Channel2Item.Rods.OrderBy(t => t.Index).Select(t => Channel2Item.MoveDownPercents[t.Index])],
+            CgFFBoxMoveDownPercentListCh1 = [.. Channel1Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)],
+            CgFFBoxMoveDownPercentListCh2 = [.. Channel2Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)],
             IsCalibrated = IsCalibrated,
             IsVerified = IsVerified,
             IsRequiredCalibrate = IsRequiredSelfCheck

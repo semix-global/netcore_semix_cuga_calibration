@@ -246,7 +246,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel3Item, cancellationToken));
     }
 
-    private async Task<bool> InvokeAsync(FourierPupilCameraAlignmentDTOItem dtoItem, CancellationToken cancellationToken)
+    private async Task<bool> InvokeAsync(FourierPupilCameraAlignmentDTOItem item, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
 
@@ -260,7 +260,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             Cache.HazeFindBFMachinePosition
         }), HtmlLogUniqueId.LoggingHtml());
 
-        dtoItem.Reset();
+        item.Reset();
 
         var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
         var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
@@ -276,7 +276,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
         try
         {
-            switch (dtoItem.ChannelId)
+            switch (item.ChannelId)
             {
                 case 1:
                     FourierViewModel.SetFFHome(FFCH.Ch1);
@@ -295,28 +295,28 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                     break;
 
                 default:
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(dtoItem.ChannelId));
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(item.ChannelId));
                     break;
             }
 
             using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                dtoItem.ChannelId - 1,
+                item.ChannelId - 1,
                 Cache.ProductivityInformation,
                 Cache.LaserLightInformation.Level,
                 StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
                 Cache.ScanLength);
-            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{dtoItem.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            dtoItem.ChannelImageFilePath = imageFilePath;
+            item.ChannelImageFilePath = imageFilePath;
 
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await dtoItem.CalibratingAsync(cancellationToken);
+            await item.CalibratingAsync(cancellationToken);
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            if (dtoItem.ChannelId == 3)
+            if (item.ChannelId == 3)
             {
                 CalibratingItem.IsCalibrated = true;
 

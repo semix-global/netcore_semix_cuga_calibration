@@ -47,7 +47,13 @@ public sealed partial class FourierSideChannelSpecularBlockerCacheItem : Calibra
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
+
+    [ObservableProperty]
     public partial int ScanLength { get; set; } = 500;
+
+    [ObservableProperty]
+    public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }
@@ -57,7 +63,9 @@ public sealed partial class FourierSideChannelSpecularBlockerCacheItem : Calibra
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
         OpticsConfiguration = OpticsConfiguration.Clone(),
+        CIBConfiguration = CIBConfiguration.Clone(),
         ScanLength = ScanLength,
+        ImageWidth = ImageWidth,
         ShinyWaferFindBFMachinePosition = ShinyWaferFindBFMachinePosition,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

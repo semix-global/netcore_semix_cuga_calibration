@@ -440,18 +440,22 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             {
                 case 0:
                     itemData.Step0ChannelImageFilePath = roiChannelImageFilePath;
+                  
                     break;
 
                 case 1:
                     itemData.Step1ChannelImageFilePath = roiChannelImageFilePath;
+                   
                     break;
 
                 case 2:
                     itemData.Step2ChannelImageFilePath = roiChannelImageFilePath;
+                    
                     break;
 
                 default:
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+                    
                     break;
             }
         }
