@@ -425,7 +425,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                         invisibleRod.BitmapImageROIDrawable.IsFixed = isFixed;
                         invisibleRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
-                        invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0, Height: > 0 };
+                        invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
                     }
                 }
             }
@@ -539,7 +539,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
-                    invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0, Height: > 0 };
+                    invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
                 }
             }
 
@@ -592,7 +592,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
                 rod.BitmapImageROIDrawable.IsFixed = true;
                 rod.BitmapImageROIDrawable.Rect = bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
-                rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0, Height: > 0 };
+                rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
         }
 
