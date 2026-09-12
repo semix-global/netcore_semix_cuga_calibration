@@ -90,7 +90,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                     DialogButtonsEnum.YesNo,
                     DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
             {
-                Cache.Step0 = new AODWaveformElectrodeDelay<TItem>();
+                Cache.Step0 = new AODWaveformElectrodeDelay<TItem> { StabilityStartIndex = 0 };
             }
 
             Cache.Noise = 0d;
@@ -175,7 +175,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
-                    Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+                    Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                    Step1StabilityPlot = new HtmlContainer([.. Cache.Step0.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (isSuccess)
@@ -261,6 +262,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);
 
+            Guard.IsGreaterThan(Cache.StabilityMeasureTimes, 0);
+
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
             OpticsViewModel.ToggleODFilter(false);
@@ -306,7 +309,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var currentDetailLogUniqueId = detailLogUniqueId ?? StartDetailLog(times);
+                    var currentDetailLogUniqueId = detailLogUniqueId ?? StartDetailLog(times, Cache.AlgorithmRetryTimes);
 
                     Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentDetailLogUniqueId.LoggingHtml());
 
@@ -383,6 +386,70 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                         }
                     }
                 }
+
+                if (isSuccess)
+                {
+                    EndDetailLog();
+
+                    double[] resultDelays = [.. Cache.ElectrodeConfigurationResults.Select(t => t.Delay)];
+                    double[] resultAmplitudes =
+                    [
+                        .. Cache.ElectrodeConfigurationResults[0].UniformityConfigurations.Index().Select(t =>
+                        {
+                            var frequencyAmplitude = Cache.AODWaveformElectrodeDelayFrequencies[t.Index].Amplitude;
+                            var amplitude = frequencyAmplitude == 0d
+                                ? 0d
+                                : t.Item.Coefficient / frequencyAmplitude;
+
+                            return Math.Clamp(amplitude, 0d, 1d);
+                        })
+                    ];
+
+                    Cache.Step1.StabilityStartIndex = Cache.Step1.Items.Length;
+
+                    Logger.LogHtmlInformation("Stability Measure", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                    for (var stabilityTimes = 0; stabilityTimes < Cache.StabilityMeasureTimes; stabilityTimes++)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        var currentDetailLogUniqueId = detailLogUniqueId ?? StartDetailLog(stabilityTimes, Cache.StabilityMeasureTimes, "Stability");
+
+                        Logger.LogHtmlInformation($"{stabilityTimes + 1}", HtmlHeaderLevelEnum.Header3, currentDetailLogUniqueId.LoggingHtml());
+
+                        try
+                        {
+                            var item = new AODWaveformElectrodeDelayItem<TItem>
+                            {
+                                Delays = resultDelays
+                            };
+
+                            Cache.Step1.Items = [.. Cache.Step1.Items, item];
+
+                            var isCurrentFrequenciesOk = false;
+                            try
+                            {
+                                await UpdateElectrodeDelayItemAsync(item, resultAmplitudes, currentDetailLogUniqueId, cancellationToken).ConfigureAwait(false);
+
+                                isCurrentFrequenciesOk = true;
+                            }
+                            finally
+                            {
+                                if (isCurrentFrequenciesOk == false) Cache.Step1.Items = [.. Cache.Step1.Items.AsSpan()[..^1]];
+                            }
+                        }
+                        finally
+                        {
+                            if ((stabilityTimes + 1) % Cache.DetailLogInterval == 0)
+                            {
+                                Guard.IsNotNull(detailLogUniqueId);
+                                Guard.IsNotNull(detailLogFileName);
+
+                                EndDetailLog();
+                            }
+                        }
+                    }
+                }
             }
             finally
             {
@@ -429,7 +496,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
-                    Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+                    Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                    Step2StabilityPlot = new HtmlContainer([.. Cache.Step1.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (isSuccess)
@@ -440,14 +508,14 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             return isSuccess;
 
-            Guid StartDetailLog(int times)
+            Guid StartDetailLog(int times, int detailLogMaxTimes, string additionalName = Constants.EmptyString)
             {
                 var startTimes = times + 1;
-                var stopTimes = Math.Min(times + Cache.DetailLogInterval, Cache.AlgorithmRetryTimes);
+                var stopTimes = Math.Min(times + Cache.DetailLogInterval, detailLogMaxTimes);
                 var currentDetailLogUniqueId = Guid.NewGuid();
 
                 detailLogUniqueId = currentDetailLogUniqueId;
-                detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}_{startTimes}-{stopTimes}";
+                detailLogFileName = $"Details_{Steps[stepIndex].Replace(" ", string.Empty)}{(string.IsNullOrEmpty(additionalName) ? string.Empty : $"_{additionalName}")}_{startTimes}-{stopTimes}";
 
                 var title = $"{startTimes}-{stopTimes}";
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {detailLogFileName}({currentDetailLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());

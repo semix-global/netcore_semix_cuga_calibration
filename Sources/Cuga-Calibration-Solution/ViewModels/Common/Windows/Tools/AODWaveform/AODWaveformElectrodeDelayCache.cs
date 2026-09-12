@@ -69,6 +69,9 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     [ObservableProperty]
     public partial int AlgorithmRetryTimes { get; set; } = 200;
 
+    [ObservableProperty]
+    public partial int StabilityMeasureTimes { get; set; } = 20;
+
     #endregion Step1 Param
 
     #region Items
@@ -212,6 +215,7 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         AlgorithmAcquisitionFunctionEnum,
         AlgorithmUniformityAnchorCount,
         AlgorithmRetryTimes,
+        StabilityMeasureTimes,
         Noise,
         Base = new HtmlQuote(base.ToHtmlAnonymous())
     };

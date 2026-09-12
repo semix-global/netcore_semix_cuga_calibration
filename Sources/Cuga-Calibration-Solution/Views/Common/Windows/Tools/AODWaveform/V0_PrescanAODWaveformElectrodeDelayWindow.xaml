@@ -209,16 +209,16 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.StepFrequency}" />
-                                    <StackPanel>
-                                        <TextBlock Text="Step 1 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="Electrode Delay Params"
+                                    <Expander Header="{Binding Steps[0]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Delay Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -409,16 +409,16 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <StackPanel>
-                                        <TextBlock Text="Step 2 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="Electrode Frequency Uniformity Params"
+                                    <Expander Header="{Binding Steps[1]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Frequency Uniformity Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Split Chunk Size: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -511,16 +511,16 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
-                                    <StackPanel>
-                                        <TextBlock Text="Step3 Params"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <Expander Header="{StaticResource ResultParamTitleString}"
+                                    <Expander Header="{Binding Steps[2]}"
                                               IsExpanded="False"
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <StackPanel>
+                                                    <TextBlock Text="{StaticResource ResultParamTitleString}"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding Cache.AddResultCommand}"
