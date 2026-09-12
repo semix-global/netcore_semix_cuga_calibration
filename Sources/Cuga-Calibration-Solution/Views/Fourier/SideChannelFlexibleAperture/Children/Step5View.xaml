@@ -76,9 +76,14 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Channel 2 Odd Image">
             <TabControl>
-                <TabItem Header="Odd">
+                <TabItem Header="Edit Odd">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.OddItem.Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Even">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.EvenItem.Document, Mode=OneWay}" />
                     </Border>
                 </TabItem>
                 <TabItem Header="Result">

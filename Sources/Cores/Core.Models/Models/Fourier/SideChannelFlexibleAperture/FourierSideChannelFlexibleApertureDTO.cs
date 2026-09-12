@@ -11,7 +11,7 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 [CacheVersion("2.0.0")]
 public sealed class FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath) : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
 {
-    private const int DefaultRodTotalCount = 46;
+    internal const int DefaultRodTotalCount = 46;
 
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount = rodTotalCount;

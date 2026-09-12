@@ -30,7 +30,7 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial int ScanLength { get; set; } = 1000;
+    public partial int ScanLength { get; set; } = 500;
 
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }

@@ -87,6 +87,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Cache.RodTotalCount = config.RodNum;
         Cache.MinMotorAbsoluteValue = config.CH12MinPOS;
         Cache.MaxMotorAbsoluteValue = config.CH12MaxPOS;
+        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = config.CH12MaxPOS * 0.9;
+        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = config.CH12MaxPOS * 0.5;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -429,7 +431,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(imageFilePath), $"_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);

@@ -66,6 +66,10 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         ResetDocument();
     }
 
+    public FourierSideChannelFlexibleApertureDTOItem() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount, 1, string.Empty)
+    {
+    }
+
     private void ResetDocument()
     {
         Document.Reset();

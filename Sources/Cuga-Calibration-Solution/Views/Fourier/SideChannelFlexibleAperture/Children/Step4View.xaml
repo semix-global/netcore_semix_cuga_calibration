@@ -76,7 +76,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Channel 2 Even Image">
             <TabControl>
-                <TabItem Header="Even">
+                <TabItem Header="Edit Even">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.EvenItem.Document, Mode=OneWay}" />
                     </Border>
