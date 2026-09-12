@@ -25,6 +25,15 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Rod Total Count: "
+                           Status="{Binding Cache.RodTotalCount}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Min Motor: "
+                           Status="{Binding Cache.MinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Max Motor: "
+                           Status="{Binding Cache.MaxMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
                            Color="{StaticResource SuccessBrush}" />

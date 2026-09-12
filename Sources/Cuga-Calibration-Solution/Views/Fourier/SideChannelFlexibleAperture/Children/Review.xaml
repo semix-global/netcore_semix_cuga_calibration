@@ -26,6 +26,15 @@
                 <hc:Shield Subject="Review: "
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Rod Total Count: "
+                           Status="{Binding Cache.RodTotalCount}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Min Motor: "
+                           Status="{Binding Cache.MinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Max Motor: "
+                           Status="{Binding Cache.MaxMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step0/Step1 Motor: "
                            Status="{Binding Cache.Step0AndStep1MotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
@@ -36,97 +45,6 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding Review.Channel1Item.MinMotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Min Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel1Item.MaxMotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Max Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.MinMotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Min Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.MaxMotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Max Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel1Item.EvenItem.Step0AndStep1MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Even Step0/1 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel1Item.EvenItem.Step2MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Even Step2 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel1Item.OddItem.Step0AndStep1MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Odd Step0/1 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel1Item.OddItem.Step2MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch1 Odd Step2 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.EvenItem.Step0AndStep1MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Even Step0/1 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.EvenItem.Step2MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Even Step2 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.OddItem.Step0AndStep1MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Odd Step0/1 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.Channel2Item.OddItem.Step2MotorAbsoluteValue, Mode=OneWay}"
-                                 hc:TitleElement.Title="Ch2 Odd Step2 Motor: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -146,35 +64,69 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <TabControl>
-                <TabItem Header="Channel 1 Result">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
-                    </Border>
+                <TabItem Header="Channel 1">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TabControl>
+                            <TabItem Header="Result">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                        <GridSplitter Grid.Row="1"
+                                      Height="5"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center" />
+                        <TabControl Grid.Row="2">
+                            <TabItem Header="Even">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.EvenItem.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="Odd">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.OddItem.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
                 </TabItem>
-                <TabItem Header="Channel 2 Result">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Channel 1 Even">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.EvenItem.Document, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Channel 1 Odd">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.OddItem.Document, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Channel 2 Even">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.EvenItem.Document, Mode=OneWay}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Channel 2 Odd">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.OddItem.Document, Mode=OneWay}" />
-                    </Border>
+                <TabItem Header="Channel 2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TabControl>
+                            <TabItem Header="Result">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                        <GridSplitter Grid.Row="1"
+                                      Height="5"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Center" />
+                        <TabControl Grid.Row="2">
+                            <TabItem Header="Even">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.EvenItem.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="Odd">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.OddItem.Document, Mode=OneWay}" />
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </GroupBox>

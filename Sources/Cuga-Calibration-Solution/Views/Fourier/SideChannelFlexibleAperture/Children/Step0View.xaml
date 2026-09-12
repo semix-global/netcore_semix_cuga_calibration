@@ -28,6 +28,15 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Rod Total Count: "
+                           Status="{Binding Cache.RodTotalCount}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Min Motor: "
+                           Status="{Binding Cache.MinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Max Motor: "
+                           Status="{Binding Cache.MaxMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
