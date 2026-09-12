@@ -17,6 +17,9 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
     [ObservableProperty]
     public partial double ExtinctionRatioThreshold { get; set; } = 0.2d;
 
+    [ObservableProperty]
+    public partial LaserLightInformation VerifyLaserLightInformation { get; set; } = LaserLightInformation.Default;
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
 
@@ -27,6 +30,7 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         ExtinctionRatioThreshold = ExtinctionRatioThreshold,
+        VerifyLaserLightInformation = VerifyLaserLightInformation.Clone(),
         Items = new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

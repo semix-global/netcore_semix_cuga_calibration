@@ -468,8 +468,11 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             return;
         }
 
-        await InvokeVerifyAsync(() =>
+        await InvokeVerifyAsync(async () =>
         {
+            Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
+
+            var detectImageDirectory = ImageFileDirectory;
             var errorMessageStringBuilder = new StringBuilder();
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -477,6 +480,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 Cache.ProductivityInformation,
                 Cache.Item.MicroscopeLensInformation,
                 Cache.Item.LaserLightInformation,
+                Cache.VerifyLaserLightInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.ScanLength,
@@ -495,7 +499,11 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
                 Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                if (selectedReviewItem.IsCalibrated) selectedReviewItem.IsVerified = true;
+                if (selectedReviewItem.IsCalibrated)
+                {
+                    await VerifySelectedItemAsync(selectedReviewItem, detectImageDirectory, cancellationToken);
+                    selectedReviewItem.IsVerified = true;
+                }
 
                 var htmlBullet = new HtmlBullet(new
                 {
@@ -525,6 +533,101 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             return result;
         }).ConfigureAwait(false);
+    }
+
+    private async Task VerifySelectedItemAsync(FourierSideChannelSpecularBlockerDTO dto, string detectImageDirectory, CancellationToken cancellationToken)
+    {
+        Guard.IsGreaterThan(Cache.Item.ImageWidth, 0);
+
+        LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+        LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.VerifyLaserLightInformation.Coefficient);
+        LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+        OpticsViewModel.SetOpticsConfiguration(Cache.Item.OpticsConfiguration);
+        CIBViewModel.SetCIBConfiguration([CalibrationSetting.SettingCommonParam.MainCIBInformation], Cache.Item.CIBConfiguration);
+
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
+
+        var shinyBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition);
+        var startCurrentShinyBFPosition = CIBViewModel.GetCIBInformationPosition(
+            StageCoordinateSystemEnum.Dark,
+            Cache.ProductivityInformation,
+            CalibrationSetting.SettingCommonParam.MainCIBInformation,
+            shinyBFPosition,
+            Cache.Item.MicroscopeLensInformation);
+
+        StageViewModel.SetAbsoluteStageTheta(0d);
+        StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentShinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+        AfViewModel.ToggleDarkFieldEnable(true);
+
+        try
+        {
+            foreach (var item in new[] { dto.Channel1Item, dto.Channel2Item })
+            {
+                var channelId = item.ChannelId switch
+                {
+                    1 => FFCH.Ch1,
+                    2 => FFCH.Ch2,
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(item.ChannelId))
+                };
+
+                FourierViewModel.SetFFHome(channelId);
+                await GrabAsync(0);
+
+                FourierViewModel.FF_Move_CH12(channelId, [.. item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
+                await GrabAsync(1);
+
+                item.ExtinctionRatio = item.Step1PMTImageAverageValue / item.Step0PMTImageAverageValue;
+                item.Review();
+
+                continue;
+
+                async Task GrabAsync(int stepIndex)
+                {
+                    using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                        Cache.ProductivityInformation,
+                        StageCoordinateSystemEnum.Dark,
+                        shinyBFPosition,
+                        Cache.Item.ImageWidth,
+                        CalibrationSetting.SettingCommonParam.MainCIBInformation,
+                        (false, CalChipSiteModelEnum.ShinyWaferModel),
+                        (false, Cache.Item.OpticsConfiguration),
+                        (false, Cache.Item.CIBConfiguration),
+                        (false, Cache.VerifyLaserLightInformation),
+                        false,
+                        cancellationToken);
+                    var pmtImageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Verify_Step{stepIndex}_PMT_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    DirectoryHelper.CreateFileDirectoryIfNotExists(pmtImageFilePath);
+                    darkFieldImage.Image.SaveImage(pmtImageFilePath);
+
+                    switch (stepIndex)
+                    {
+                        case 0:
+                            item.RawStep0PMTImageFilePath = darkFieldImage.RawImageFilePath;
+                            item.Step0PMTImageFilePath = pmtImageFilePath;
+                            item.Step0PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+
+                            break;
+
+                        case 1:
+                            item.RawStep1PMTImageFilePath = darkFieldImage.RawImageFilePath;
+                            item.Step1PMTImageFilePath = pmtImageFilePath;
+                            item.Step1PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+
+                            break;
+
+                        default:
+                            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+
+                            break;
+                    }
+                }
+            }
+        }
+        finally
+        {
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentShinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+        }
     }
 
     private bool Save(IReadOnlyList<FourierSideChannelSpecularBlockerDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
