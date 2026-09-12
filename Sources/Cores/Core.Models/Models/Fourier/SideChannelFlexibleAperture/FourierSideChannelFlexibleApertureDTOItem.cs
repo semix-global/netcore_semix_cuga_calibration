@@ -66,8 +66,24 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         ResetDocument();
     }
 
-    public FourierSideChannelFlexibleApertureDTOItem() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount, 1, string.Empty)
+    [Newtonsoft.Json.JsonConstructor]
+    private FourierSideChannelFlexibleApertureDTOItem(
+        [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
+        int rodTotalCount,
+        int channelId,
+        string channelImageFilePath,
+        Item evenItem,
+        Item oddItem,
+        RodResult[] rodResults)
+        : this(rodTotalCount, channelId, channelImageFilePath)
     {
+        EvenItem.Dispose();
+        EvenItem = evenItem;
+
+        OddItem.Dispose();
+        OddItem = oddItem;
+
+        foreach (var target in RodResults) target.AdaptIn(rodResults.Single(t => t.Index == target.Index));
     }
 
     private void ResetDocument()

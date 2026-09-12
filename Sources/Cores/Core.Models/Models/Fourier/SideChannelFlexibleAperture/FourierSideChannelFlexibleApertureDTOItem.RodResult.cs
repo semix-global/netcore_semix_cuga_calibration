@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
@@ -25,6 +25,11 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
         [Newtonsoft.Json.JsonIgnore]
         public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
+
+        [Newtonsoft.Json.JsonConstructor]
+        private RodResult() : this(new BitmapImageDrawable())
+        {
+        }
 
         public RodResult AdaptIn(RodResult obj)
         {

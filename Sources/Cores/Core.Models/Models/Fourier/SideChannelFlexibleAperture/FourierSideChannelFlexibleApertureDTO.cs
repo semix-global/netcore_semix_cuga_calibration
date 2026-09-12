@@ -9,26 +9,45 @@ using Net.Utilities.WPF.MVVM;
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("2.0.0")]
-public sealed class FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath) : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
+public sealed class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
 {
     internal const int DefaultRodTotalCount = 46;
 
     [Newtonsoft.Json.JsonProperty]
-    private readonly int _rodTotalCount = rodTotalCount;
+    private readonly int _rodTotalCount;
 
-    public FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; private init; } = new(rodTotalCount, 1, channel1ImageFilePath);
+    public FourierSideChannelFlexibleApertureDTOItem Channel1Item { get; private init; }
 
-    public FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; private init; } = new(rodTotalCount, 2, channel2ImageFilePath);
+    public FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; private init; }
+
+    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath)
+    {
+        _rodTotalCount = rodTotalCount;
+        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 1, channel1ImageFilePath);
+        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 2, channel2ImageFilePath);
+    }
 
     public FourierSideChannelFlexibleApertureDTO() : this(DefaultRodTotalCount, string.Empty, string.Empty)
     {
+    }
+
+    [Newtonsoft.Json.JsonConstructor]
+    private FourierSideChannelFlexibleApertureDTO(
+        [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
+        int rodTotalCount,
+        FourierSideChannelFlexibleApertureDTOItem channel1Item,
+        FourierSideChannelFlexibleApertureDTOItem channel2Item)
+    {
+        _rodTotalCount = rodTotalCount;
+        Channel1Item = channel1Item;
+        Channel2Item = channel2Item;
     }
 
     #region Mapper
 
 #pragma warning disable IDISP003
 
-    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, channel1ImageFilePath, channel2ImageFilePath)
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, Channel1Item.ChannelImageFilePath, Channel2Item.ChannelImageFilePath)
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),

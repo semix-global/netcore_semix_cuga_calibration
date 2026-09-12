@@ -19,6 +19,11 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
+    /// <summary>
+    /// Step0: 奇/偶 中间2个挡杆落下 Step0AndStep1MotorAbsoluteValue
+    /// Step1: 奇/偶 所有挡杆落下 Step0AndStep1MotorAbsoluteValue
+    /// Step2: 奇/偶 所有挡杆落下 Step2MotorAbsoluteValue
+    /// </summary>
     public sealed partial class Item : ObservableObject, ICloneable<Item>, IDisposable
     {
         private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
@@ -110,8 +115,23 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             ResetDocument();
         }
 
-        public Item() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount, true)
+        [Newtonsoft.Json.JsonConstructor]
+        private Item(
+            [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
+            int rodTotalCount,
+            [Newtonsoft.Json.JsonProperty(nameof(_isEven))]
+            bool isEven,
+            Rod step0LeftRod,
+            Rod step0RightRod,
+            Rod[] step1Rods,
+            Rod[] step2Rods)
+            : this(rodTotalCount, isEven)
         {
+            Step0LeftRod.AdaptIn(step0LeftRod);
+            Step0RightRod.AdaptIn(step0RightRod);
+
+            foreach (var target in Step1Rods) target.AdaptIn(step1Rods.Single(t => t.Index == target.Index));
+            foreach (var target in Step2Rods) target.AdaptIn(step2Rods.Single(t => t.Index == target.Index));
         }
 
         private void ResetDocument()

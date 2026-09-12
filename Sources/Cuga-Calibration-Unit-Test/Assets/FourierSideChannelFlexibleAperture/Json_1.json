@@ -1,0 +1,3561 @@
+{
+  "_rodTotalCount": 46,
+  "Channel1Item": {
+    "_rodTotalCount": 46,
+    "ChannelId": 1,
+    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\2026091215074711660\\_ROI_(330, 431); {2428, 1516}.jpg",
+    "EvenItem": {
+      "_rodTotalCount": 46,
+      "_isEven": true,
+      "Step0AndStep1MotorAbsoluteValue": 40.0,
+      "Step2MotorAbsoluteValue": 30.0,
+      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step0_Even_2026091216463942565_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step1_Even_2026091216471611722_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step2ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step2_Even_2026091216475273031_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step0LeftRod": {
+        "Index": 21,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 782.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1036.0
+        }
+      },
+      "Step0RightRod": {
+        "Index": 23,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 899.0,
+          "Y": 0.0,
+          "Width": 74.0,
+          "Height": 1008.0
+        }
+      },
+      "Step1Rods": [
+        {
+          "Index": 1,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 3,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 5,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 7,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 9,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 11,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 39.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 13,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 161.0,
+            "Y": 0.0,
+            "Width": 118.0,
+            "Height": 1088.0
+          }
+        },
+        {
+          "Index": 15,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 318.0,
+            "Y": 0.0,
+            "Width": 123.0,
+            "Height": 1054.0
+          }
+        },
+        {
+          "Index": 17,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 476.0,
+            "Y": 0.0,
+            "Width": 115.0,
+            "Height": 1052.0
+          }
+        },
+        {
+          "Index": 19,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 635.0,
+            "Y": 0.0,
+            "Width": 100.0,
+            "Height": 1027.0
+          }
+        },
+        {
+          "Index": 21,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 782.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 23,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 899.0,
+            "Y": 0.0,
+            "Width": 74.0,
+            "Height": 1008.0
+          }
+        },
+        {
+          "Index": 25,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1026.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 27,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1157.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 29,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1286.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 31,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1424.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 33,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1554.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 35,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1687.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 37,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1810.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 1022.0
+          }
+        },
+        {
+          "Index": 39,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1951.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 1047.0
+          }
+        },
+        {
+          "Index": 41,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 2075.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 1063.0
+          }
+        },
+        {
+          "Index": 43,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2206.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1036.0
+          }
+        },
+        {
+          "Index": 45,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2341.0,
+            "Y": 0.0,
+            "Width": 87.0,
+            "Height": 1036.0
+          }
+        }
+      ],
+      "Step2Rods": [
+        {
+          "Index": 1,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 3,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 5,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 7,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 9,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 11,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 39.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 13,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 161.0,
+            "Y": 0.0,
+            "Width": 118.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 15,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 318.0,
+            "Y": 0.0,
+            "Width": 123.0,
+            "Height": 867.0
+          }
+        },
+        {
+          "Index": 17,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 476.0,
+            "Y": 0.0,
+            "Width": 115.0,
+            "Height": 850.0
+          }
+        },
+        {
+          "Index": 19,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 635.0,
+            "Y": 0.0,
+            "Width": 100.0,
+            "Height": 827.0
+          }
+        },
+        {
+          "Index": 21,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 782.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 810.0
+          }
+        },
+        {
+          "Index": 23,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 899.0,
+            "Y": 0.0,
+            "Width": 74.0,
+            "Height": 796.0
+          }
+        },
+        {
+          "Index": 25,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1026.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 27,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1157.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 29,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1286.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 31,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1424.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 33,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1554.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 35,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1687.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 37,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1810.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 807.0
+          }
+        },
+        {
+          "Index": 39,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1951.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 832.0
+          }
+        },
+        {
+          "Index": 41,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2075.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 43,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2206.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 818.0
+          }
+        },
+        {
+          "Index": 45,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2341.0,
+            "Y": 0.0,
+            "Width": 87.0,
+            "Height": 818.0
+          }
+        }
+      ]
+    },
+    "OddItem": {
+      "_rodTotalCount": 46,
+      "_isEven": false,
+      "Step0AndStep1MotorAbsoluteValue": 40.0,
+      "Step2MotorAbsoluteValue": 30.0,
+      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step0_Odd_2026091217052701657_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step1_Odd_2026091217060371338_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step2ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel1\\Step2_Odd_2026091217064040581_ROI_(330, 431); {2428, 1516}.jpg",
+      "Step0LeftRod": {
+        "Index": 20,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 708.0,
+          "Y": 0.0,
+          "Width": 96.0,
+          "Height": 1023.0
+        }
+      },
+      "Step0RightRod": {
+        "Index": 22,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 850.0,
+          "Y": 0.0,
+          "Width": 65.0,
+          "Height": 967.0
+        }
+      },
+      "Step1Rods": [
+        {
+          "Index": 0,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 2,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 4,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 6,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 8,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 10,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 12,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 137.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 14,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 273.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 16,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 402.0,
+            "Y": 0.0,
+            "Width": 103.0,
+            "Height": 1057.0
+          }
+        },
+        {
+          "Index": 18,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 563.0,
+            "Y": 0.0,
+            "Width": 114.0,
+            "Height": 1043.0
+          }
+        },
+        {
+          "Index": 20,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 708.0,
+            "Y": 0.0,
+            "Width": 96.0,
+            "Height": 1023.0
+          }
+        },
+        {
+          "Index": 22,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 850.0,
+            "Y": 0.0,
+            "Width": 65.0,
+            "Height": 967.0
+          }
+        },
+        {
+          "Index": 24,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 963.0,
+            "Y": 0.0,
+            "Width": 86.0,
+            "Height": 1005.0
+          }
+        },
+        {
+          "Index": 26,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1095.0,
+            "Y": 0.0,
+            "Width": 80.0,
+            "Height": 995.0
+          }
+        },
+        {
+          "Index": 28,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1221.0,
+            "Y": 0.0,
+            "Width": 88.0,
+            "Height": 995.0
+          }
+        },
+        {
+          "Index": 30,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1359.0,
+            "Y": 0.0,
+            "Width": 86.0,
+            "Height": 998.0
+          }
+        },
+        {
+          "Index": 32,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1492.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 34,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1628.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 36,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1763.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 38,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1899.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 40,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2034.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 42,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2170.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 1011.0
+          }
+        },
+        {
+          "Index": 44,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2305.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 1011.0
+          }
+        }
+      ],
+      "Step2Rods": [
+        {
+          "Index": 0,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 2,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 4,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 6,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 8,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 10,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 12,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 137.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 14,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 273.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 16,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 402.0,
+            "Y": 0.0,
+            "Width": 103.0,
+            "Height": 835.0
+          }
+        },
+        {
+          "Index": 18,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 563.0,
+            "Y": 0.0,
+            "Width": 114.0,
+            "Height": 821.0
+          }
+        },
+        {
+          "Index": 20,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 708.0,
+            "Y": 0.0,
+            "Width": 96.0,
+            "Height": 812.0
+          }
+        },
+        {
+          "Index": 22,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 850.0,
+            "Y": 0.0,
+            "Width": 65.0,
+            "Height": 745.0
+          }
+        },
+        {
+          "Index": 24,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 963.0,
+            "Y": 0.0,
+            "Width": 86.0,
+            "Height": 800.0
+          }
+        },
+        {
+          "Index": 26,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1095.0,
+            "Y": 0.0,
+            "Width": 80.0,
+            "Height": 781.0
+          }
+        },
+        {
+          "Index": 28,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1221.0,
+            "Y": 0.0,
+            "Width": 88.0,
+            "Height": 790.0
+          }
+        },
+        {
+          "Index": 30,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1359.0,
+            "Y": 0.0,
+            "Width": 86.0,
+            "Height": 795.0
+          }
+        },
+        {
+          "Index": 32,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1492.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 34,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1628.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 36,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1763.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 38,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1899.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 40,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2034.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 42,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2170.0,
+            "Y": 0.0,
+            "Width": 89.0,
+            "Height": 798.0
+          }
+        },
+        {
+          "Index": 44,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2305.0,
+            "Y": 0.0,
+            "Width": 90.0,
+            "Height": 798.0
+          }
+        }
+      ]
+    },
+    "MinMotorAbsoluteValue": 0.0,
+    "MaxMotorAbsoluteValue": 55.0,
+    "RodResults": [
+      {
+        "Index": 0,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 1,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 2,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 3,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 4,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 5,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 6,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 7,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 8,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 9,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 10,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 11,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 39.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 39.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 12,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 137.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 137.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 13,
+        "IsDeleted": true,
+        "PixelSize": 0.037037037037037035,
+        "MinImageROI": {
+          "X": 161.0,
+          "Y": 0.0,
+          "Width": 118.0,
+          "Height": 8.0
+        },
+        "MaxImageROI": {
+          "X": 161.0,
+          "Y": 0.0,
+          "Width": 118.0,
+          "Height": 1493.0
+        }
+      },
+      {
+        "Index": 14,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 273.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 273.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 15,
+        "IsDeleted": false,
+        "PixelSize": 0.053475935828877004,
+        "MinImageROI": {
+          "X": 318.0,
+          "Y": 0.0,
+          "Width": 123.0,
+          "Height": 306.0
+        },
+        "MaxImageROI": {
+          "X": 318.0,
+          "Y": 0.0,
+          "Width": 123.0,
+          "Height": 1335.0
+        }
+      },
+      {
+        "Index": 16,
+        "IsDeleted": false,
+        "PixelSize": 0.04504504504504504,
+        "MinImageROI": {
+          "X": 402.0,
+          "Y": 0.0,
+          "Width": 103.0,
+          "Height": 169.0
+        },
+        "MaxImageROI": {
+          "X": 402.0,
+          "Y": 0.0,
+          "Width": 103.0,
+          "Height": 1390.0
+        }
+      },
+      {
+        "Index": 17,
+        "IsDeleted": false,
+        "PixelSize": 0.04950495049504951,
+        "MinImageROI": {
+          "X": 476.0,
+          "Y": 0.0,
+          "Width": 115.0,
+          "Height": 244.0
+        },
+        "MaxImageROI": {
+          "X": 476.0,
+          "Y": 0.0,
+          "Width": 115.0,
+          "Height": 1355.0
+        }
+      },
+      {
+        "Index": 18,
+        "IsDeleted": false,
+        "PixelSize": 0.04504504504504504,
+        "MinImageROI": {
+          "X": 563.0,
+          "Y": 0.0,
+          "Width": 114.0,
+          "Height": 155.0
+        },
+        "MaxImageROI": {
+          "X": 563.0,
+          "Y": 0.0,
+          "Width": 114.0,
+          "Height": 1376.0
+        }
+      },
+      {
+        "Index": 19,
+        "IsDeleted": false,
+        "PixelSize": 0.05,
+        "MinImageROI": {
+          "X": 635.0,
+          "Y": 0.0,
+          "Width": 100.0,
+          "Height": 227.0
+        },
+        "MaxImageROI": {
+          "X": 635.0,
+          "Y": 0.0,
+          "Width": 100.0,
+          "Height": 1327.0
+        }
+      },
+      {
+        "Index": 20,
+        "IsDeleted": false,
+        "PixelSize": 0.04739336492890995,
+        "MinImageROI": {
+          "X": 708.0,
+          "Y": 0.0,
+          "Width": 96.0,
+          "Height": 179.0
+        },
+        "MaxImageROI": {
+          "X": 708.0,
+          "Y": 0.0,
+          "Width": 96.0,
+          "Height": 1340.0
+        }
+      },
+      {
+        "Index": 21,
+        "IsDeleted": false,
+        "PixelSize": 0.04424778761061947,
+        "MinImageROI": {
+          "X": 782.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 132.0
+        },
+        "MaxImageROI": {
+          "X": 782.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1375.0
+        }
+      },
+      {
+        "Index": 22,
+        "IsDeleted": false,
+        "PixelSize": 0.04504504504504504,
+        "MinImageROI": {
+          "X": 850.0,
+          "Y": 0.0,
+          "Width": 65.0,
+          "Height": 79.0
+        },
+        "MaxImageROI": {
+          "X": 850.0,
+          "Y": 0.0,
+          "Width": 65.0,
+          "Height": 1300.0
+        }
+      },
+      {
+        "Index": 23,
+        "IsDeleted": false,
+        "PixelSize": 0.04716981132075472,
+        "MinImageROI": {
+          "X": 899.0,
+          "Y": 0.0,
+          "Width": 74.0,
+          "Height": 160.0
+        },
+        "MaxImageROI": {
+          "X": 899.0,
+          "Y": 0.0,
+          "Width": 74.0,
+          "Height": 1326.0
+        }
+      },
+      {
+        "Index": 24,
+        "IsDeleted": false,
+        "PixelSize": 0.04878048780487805,
+        "MinImageROI": {
+          "X": 963.0,
+          "Y": 0.0,
+          "Width": 86.0,
+          "Height": 185.0
+        },
+        "MaxImageROI": {
+          "X": 963.0,
+          "Y": 0.0,
+          "Width": 86.0,
+          "Height": 1313.0
+        }
+      },
+      {
+        "Index": 25,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1026.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1026.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 26,
+        "IsDeleted": false,
+        "PixelSize": 0.04672897196261682,
+        "MinImageROI": {
+          "X": 1095.0,
+          "Y": 0.0,
+          "Width": 80.0,
+          "Height": 139.0
+        },
+        "MaxImageROI": {
+          "X": 1095.0,
+          "Y": 0.0,
+          "Width": 80.0,
+          "Height": 1316.0
+        }
+      },
+      {
+        "Index": 27,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1157.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1157.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 28,
+        "IsDeleted": false,
+        "PixelSize": 0.04878048780487805,
+        "MinImageROI": {
+          "X": 1221.0,
+          "Y": 0.0,
+          "Width": 88.0,
+          "Height": 175.0
+        },
+        "MaxImageROI": {
+          "X": 1221.0,
+          "Y": 0.0,
+          "Width": 88.0,
+          "Height": 1303.0
+        }
+      },
+      {
+        "Index": 29,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1286.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1286.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 30,
+        "IsDeleted": false,
+        "PixelSize": 0.04926108374384237,
+        "MinImageROI": {
+          "X": 1359.0,
+          "Y": 0.0,
+          "Width": 86.0,
+          "Height": 186.0
+        },
+        "MaxImageROI": {
+          "X": 1359.0,
+          "Y": 0.0,
+          "Width": 86.0,
+          "Height": 1303.0
+        }
+      },
+      {
+        "Index": 31,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1424.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1424.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 32,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1492.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1492.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 33,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1554.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1554.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 34,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1628.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1628.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 35,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1687.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1687.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 36,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1763.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1763.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 37,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1810.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1810.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1345.0
+        }
+      },
+      {
+        "Index": 38,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1899.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1899.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 39,
+        "IsDeleted": false,
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1951.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 187.0
+        },
+        "MaxImageROI": {
+          "X": 1951.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1370.0
+        }
+      },
+      {
+        "Index": 40,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2034.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2034.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 41,
+        "IsDeleted": true,
+        "PixelSize": 0.04081632653061224,
+        "MinImageROI": {
+          "X": 2075.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 83.0
+        },
+        "MaxImageROI": {
+          "X": 2075.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1431.0
+        }
+      },
+      {
+        "Index": 42,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2170.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2170.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 43,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 2206.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 2206.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1363.0
+        }
+      },
+      {
+        "Index": 44,
+        "IsDeleted": true,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2305.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2305.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        }
+      },
+      {
+        "Index": 45,
+        "IsDeleted": true,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 2341.0,
+          "Y": 0.0,
+          "Width": 87.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 2341.0,
+          "Y": 0.0,
+          "Width": 87.0,
+          "Height": 1363.0
+        }
+      }
+    ]
+  },
+  "Channel2Item": {
+    "_rodTotalCount": 46,
+    "ChannelId": 2,
+    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\2026091215085150229\\_ROI_(214, 489); {2524, 1512}.jpg",
+    "EvenItem": {
+      "_rodTotalCount": 46,
+      "_isEven": true,
+      "Step0AndStep1MotorAbsoluteValue": 40.0,
+      "Step2MotorAbsoluteValue": 30.0,
+      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step0_Even_2026091217111791171_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step1_Even_2026091217115474480_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step2ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step2_Even_2026091217123147143_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step0LeftRod": {
+        "Index": 21,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1435.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 888.0
+        }
+      },
+      "Step0RightRod": {
+        "Index": 23,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1559.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 898.0
+        }
+      },
+      "Step1Rods": [
+        {
+          "Index": 1,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 234.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 3,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 359.0,
+            "Y": 0.0,
+            "Width": 73.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 5,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 479.0,
+            "Y": 0.0,
+            "Width": 74.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 7,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 596.0,
+            "Y": 0.0,
+            "Width": 76.0,
+            "Height": 876.0
+          }
+        },
+        {
+          "Index": 9,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 723.0,
+            "Y": 0.0,
+            "Width": 75.0,
+            "Height": 882.0
+          }
+        },
+        {
+          "Index": 11,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 850.0,
+            "Y": 0.0,
+            "Width": 72.0,
+            "Height": 879.0
+          }
+        },
+        {
+          "Index": 13,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 956.0,
+            "Y": 0.0,
+            "Width": 66.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 15,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1064.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 17,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1188.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 19,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1311.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 21,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1435.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 888.0
+          }
+        },
+        {
+          "Index": 23,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1559.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 898.0
+          }
+        },
+        {
+          "Index": 25,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1682.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 27,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1808.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 29,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1935.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 893.0
+          }
+        },
+        {
+          "Index": 31,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 2063.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 903.0
+          }
+        },
+        {
+          "Index": 33,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2187.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 35,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2309.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 37,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2431.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 39,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 41,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 43,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 891.0
+          }
+        },
+        {
+          "Index": 45,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 891.0
+          }
+        }
+      ],
+      "Step2Rods": [
+        {
+          "Index": 1,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 234.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 3,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 359.0,
+            "Y": 0.0,
+            "Width": 73.0,
+            "Height": 721.0
+          }
+        },
+        {
+          "Index": 5,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 479.0,
+            "Y": 0.0,
+            "Width": 74.0,
+            "Height": 719.0
+          }
+        },
+        {
+          "Index": 7,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 596.0,
+            "Y": 0.0,
+            "Width": 76.0,
+            "Height": 704.0
+          }
+        },
+        {
+          "Index": 9,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 723.0,
+            "Y": 0.0,
+            "Width": 75.0,
+            "Height": 710.0
+          }
+        },
+        {
+          "Index": 11,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 850.0,
+            "Y": 0.0,
+            "Width": 72.0,
+            "Height": 691.0
+          }
+        },
+        {
+          "Index": 13,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 956.0,
+            "Y": 0.0,
+            "Width": 66.0,
+            "Height": 676.0
+          }
+        },
+        {
+          "Index": 15,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1064.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 721.0
+          }
+        },
+        {
+          "Index": 17,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1188.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 702.0
+          }
+        },
+        {
+          "Index": 19,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1311.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 704.0
+          }
+        },
+        {
+          "Index": 21,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1435.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 716.0
+          }
+        },
+        {
+          "Index": 23,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1559.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 726.0
+          }
+        },
+        {
+          "Index": 25,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1682.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 721.0
+          }
+        },
+        {
+          "Index": 27,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1808.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 721.0
+          }
+        },
+        {
+          "Index": 29,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1935.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 721.0
+          }
+        },
+        {
+          "Index": 31,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2063.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 33,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2187.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 35,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2309.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 37,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2431.0,
+            "Y": 0.0,
+            "Width": 78.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 39,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 41,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 43,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 711.0
+          }
+        },
+        {
+          "Index": 45,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 711.0
+          }
+        }
+      ]
+    },
+    "OddItem": {
+      "_rodTotalCount": 46,
+      "_isEven": false,
+      "Step0AndStep1MotorAbsoluteValue": 40.0,
+      "Step2MotorAbsoluteValue": 30.0,
+      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step0_Odd_2026091217160602663_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step1_Odd_2026091217164283610_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step2ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelFlexibleApertureViewModel\\20260912\\Channel2\\Step2_Odd_2026091217171964009_ROI_(214, 489); {2524, 1512}.jpg",
+      "Step0LeftRod": {
+        "Index": 20,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1370.0,
+          "Y": 0.0,
+          "Width": 85.0,
+          "Height": 886.0
+        }
+      },
+      "Step0RightRod": {
+        "Index": 22,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1494.0,
+          "Y": 0.0,
+          "Width": 79.0,
+          "Height": 886.0
+        }
+      },
+      "Step1Rods": [
+        {
+          "Index": 0,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 168.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 2,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 290.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 4,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 412.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 6,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 534.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 8,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 656.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 10,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 780.0,
+            "Y": 0.0,
+            "Width": 76.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 12,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 895.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 14,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1008.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 16,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1129.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 18,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1250.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 20,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1370.0,
+            "Y": 0.0,
+            "Width": 85.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 22,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1494.0,
+            "Y": 0.0,
+            "Width": 79.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 24,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1613.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 26,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1751.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 28,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1877.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 30,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1998.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 32,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2120.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 34,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2242.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 36,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2364.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 38,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2486.0,
+            "Y": 0.0,
+            "Width": 38.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 40,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 42,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 886.0
+          }
+        },
+        {
+          "Index": 44,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 886.0
+          }
+        }
+      ],
+      "Step2Rods": [
+        {
+          "Index": 0,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 168.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 2,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 290.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 4,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 412.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 6,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 534.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 657.0
+          }
+        },
+        {
+          "Index": 8,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 656.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 668.0
+          }
+        },
+        {
+          "Index": 10,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 780.0,
+            "Y": 0.0,
+            "Width": 76.0,
+            "Height": 673.0
+          }
+        },
+        {
+          "Index": 12,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 895.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 687.0
+          }
+        },
+        {
+          "Index": 14,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1008.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 649.0
+          }
+        },
+        {
+          "Index": 16,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1129.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 18,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1250.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 20,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1370.0,
+            "Y": 0.0,
+            "Width": 85.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 22,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1494.0,
+            "Y": 0.0,
+            "Width": 79.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 24,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1613.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 26,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1751.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 28,
+          "IsDeleted": false,
+          "ImageROI": {
+            "X": 1877.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 706.0
+          }
+        },
+        {
+          "Index": 30,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 1998.0,
+            "Y": 0.0,
+            "Width": 82.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 32,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2120.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 34,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2242.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 36,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2364.0,
+            "Y": 0.0,
+            "Width": 81.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 38,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2486.0,
+            "Y": 0.0,
+            "Width": 38.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 40,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 42,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 690.0
+          }
+        },
+        {
+          "Index": 44,
+          "IsDeleted": true,
+          "ImageROI": {
+            "X": 2524.0,
+            "Y": 0.0,
+            "Width": 0.0,
+            "Height": 690.0
+          }
+        }
+      ]
+    },
+    "MinMotorAbsoluteValue": 0.0,
+    "MaxMotorAbsoluteValue": 55.0,
+    "RodResults": [
+      {
+        "Index": 0,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 168.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 168.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 1,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 234.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 234.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 2,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 290.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 290.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 3,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 359.0,
+          "Y": 0.0,
+          "Width": 73.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 359.0,
+          "Y": 0.0,
+          "Width": 73.0,
+          "Height": 1151.0
+        }
+      },
+      {
+        "Index": 4,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 412.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 412.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 5,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 479.0,
+          "Y": 0.0,
+          "Width": 74.0,
+          "Height": 203.0
+        },
+        "MaxImageROI": {
+          "X": 479.0,
+          "Y": 0.0,
+          "Width": 74.0,
+          "Height": 1149.0
+        }
+      },
+      {
+        "Index": 6,
+        "IsDeleted": false,
+        "PixelSize": 0.043668122270742356,
+        "MinImageROI": {
+          "X": 534.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 0.0
+        },
+        "MaxImageROI": {
+          "X": 534.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1230.0
+        }
+      },
+      {
+        "Index": 7,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 596.0,
+          "Y": 0.0,
+          "Width": 76.0,
+          "Height": 188.0
+        },
+        "MaxImageROI": {
+          "X": 596.0,
+          "Y": 0.0,
+          "Width": 76.0,
+          "Height": 1134.0
+        }
+      },
+      {
+        "Index": 8,
+        "IsDeleted": false,
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 656.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 14.0
+        },
+        "MaxImageROI": {
+          "X": 656.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1213.0
+        }
+      },
+      {
+        "Index": 9,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 723.0,
+          "Y": 0.0,
+          "Width": 75.0,
+          "Height": 194.0
+        },
+        "MaxImageROI": {
+          "X": 723.0,
+          "Y": 0.0,
+          "Width": 75.0,
+          "Height": 1140.0
+        }
+      },
+      {
+        "Index": 10,
+        "IsDeleted": false,
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 780.0,
+          "Y": 0.0,
+          "Width": 76.0,
+          "Height": 34.0
+        },
+        "MaxImageROI": {
+          "X": 780.0,
+          "Y": 0.0,
+          "Width": 76.0,
+          "Height": 1206.0
+        }
+      },
+      {
+        "Index": 11,
+        "IsDeleted": false,
+        "PixelSize": 0.05319148936170213,
+        "MinImageROI": {
+          "X": 850.0,
+          "Y": 0.0,
+          "Width": 72.0,
+          "Height": 127.0
+        },
+        "MaxImageROI": {
+          "X": 850.0,
+          "Y": 0.0,
+          "Width": 72.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 12,
+        "IsDeleted": false,
+        "PixelSize": 0.05025125628140704,
+        "MinImageROI": {
+          "X": 895.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 90.0
+        },
+        "MaxImageROI": {
+          "X": 895.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1185.0
+        }
+      },
+      {
+        "Index": 13,
+        "IsDeleted": false,
+        "PixelSize": 0.047619047619047616,
+        "MinImageROI": {
+          "X": 956.0,
+          "Y": 0.0,
+          "Width": 66.0,
+          "Height": 46.0
+        },
+        "MaxImageROI": {
+          "X": 956.0,
+          "Y": 0.0,
+          "Width": 66.0,
+          "Height": 1201.0
+        }
+      },
+      {
+        "Index": 14,
+        "IsDeleted": false,
+        "PixelSize": 0.04219409282700422,
+        "MinImageROI": {
+          "X": 1008.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 0.0
+        },
+        "MaxImageROI": {
+          "X": 1008.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1242.0
+        }
+      },
+      {
+        "Index": 15,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1064.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1064.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1151.0
+        }
+      },
+      {
+        "Index": 16,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1129.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1129.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 17,
+        "IsDeleted": false,
+        "PixelSize": 0.05235602094240838,
+        "MinImageROI": {
+          "X": 1188.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 129.0
+        },
+        "MaxImageROI": {
+          "X": 1188.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 18,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1250.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1250.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 19,
+        "IsDeleted": false,
+        "PixelSize": 0.05291005291005291,
+        "MinImageROI": {
+          "X": 1311.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 137.0
+        },
+        "MaxImageROI": {
+          "X": 1311.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1177.0
+        }
+      },
+      {
+        "Index": 20,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1370.0,
+          "Y": 0.0,
+          "Width": 85.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1370.0,
+          "Y": 0.0,
+          "Width": 85.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 21,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1435.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 200.0
+        },
+        "MaxImageROI": {
+          "X": 1435.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1146.0
+        }
+      },
+      {
+        "Index": 22,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1494.0,
+          "Y": 0.0,
+          "Width": 79.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1494.0,
+          "Y": 0.0,
+          "Width": 79.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 23,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1559.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 210.0
+        },
+        "MaxImageROI": {
+          "X": 1559.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 24,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1613.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1613.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 25,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1682.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1682.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1151.0
+        }
+      },
+      {
+        "Index": 26,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1751.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1751.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 27,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1808.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1808.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1151.0
+        }
+      },
+      {
+        "Index": 28,
+        "IsDeleted": false,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1877.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1877.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        }
+      },
+      {
+        "Index": 29,
+        "IsDeleted": false,
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1935.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1935.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1151.0
+        }
+      },
+      {
+        "Index": 30,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 1998.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 1998.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 31,
+        "IsDeleted": true,
+        "PixelSize": 0.052083333333333336,
+        "MinImageROI": {
+          "X": 2063.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 135.0
+        },
+        "MaxImageROI": {
+          "X": 2063.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1191.0
+        }
+      },
+      {
+        "Index": 32,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2120.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2120.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 33,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2187.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2187.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 34,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2242.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2242.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 35,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2309.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2309.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 36,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2364.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2364.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 37,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2431.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2431.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 38,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2486.0,
+          "Y": 0.0,
+          "Width": 38.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2486.0,
+          "Y": 0.0,
+          "Width": 38.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 39,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 40,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 41,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 42,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 43,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1161.0
+        }
+      },
+      {
+        "Index": 44,
+        "IsDeleted": true,
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1180.0
+        }
+      },
+      {
+        "Index": 45,
+        "IsDeleted": true,
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1161.0
+        }
+      }
+    ]
+  },
+  "IsVerified": true,
+  "IsCalibrated": true,
+  "IsRequiredSelfCheck": false,
+  "IsOk": true
+}

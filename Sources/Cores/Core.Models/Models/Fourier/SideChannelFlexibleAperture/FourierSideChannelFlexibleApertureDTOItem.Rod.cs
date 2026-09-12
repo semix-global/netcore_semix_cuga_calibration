@@ -20,6 +20,11 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         [Newtonsoft.Json.JsonIgnore]
         public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
 
+        [Newtonsoft.Json.JsonConstructor]
+        private Rod() : this(new BitmapImageDrawable())
+        {
+        }
+
         public Rod AdaptIn(Rod obj)
         {
             IsDeleted = obj.IsDeleted;
