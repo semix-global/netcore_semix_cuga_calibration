@@ -65,68 +65,42 @@
         <GroupBox Grid.Column="2" Header="History">
             <TabControl>
                 <TabItem Header="Channel 1">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TabControl>
-                            <TabItem Header="Result">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                        </TabControl>
-                        <GridSplitter Grid.Row="1"
-                                      Height="5"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Center" />
-                        <TabControl Grid.Row="2">
-                            <TabItem Header="Even">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.EvenItem.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                            <TabItem Header="Odd">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.OddItem.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                        </TabControl>
-                    </Grid>
+                    <TabControl Margin="5">
+                        <TabItem Header="Result">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Even">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.EvenItem.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Odd">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.OddItem.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
                 <TabItem Header="Channel 2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <TabControl>
-                            <TabItem Header="Result">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                        </TabControl>
-                        <GridSplitter Grid.Row="1"
-                                      Height="5"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Center" />
-                        <TabControl Grid.Row="2">
-                            <TabItem Header="Even">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.EvenItem.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                            <TabItem Header="Odd">
-                                <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.OddItem.Document, Mode=OneWay}" />
-                                </Border>
-                            </TabItem>
-                        </TabControl>
-                    </Grid>
+                    <TabControl Margin="5">
+                        <TabItem Header="Result">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Even">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.EvenItem.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Odd">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.OddItem.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
             </TabControl>
         </GroupBox>

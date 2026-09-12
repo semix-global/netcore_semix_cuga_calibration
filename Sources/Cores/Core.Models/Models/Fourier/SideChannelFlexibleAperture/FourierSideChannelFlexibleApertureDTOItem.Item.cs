@@ -313,7 +313,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
                             try
                             {
-                                Rod[] temps = [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                                Rod[] temps = [.. Step1Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)];
                                 Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
 
                                 foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
@@ -382,10 +382,11 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                     Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
 
-                    var averageWidth = visibleRods.Average(t => t.ImageROI.Width);
-                    var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
-                    var averageY = visibleRods.Average(t => t.ImageROI.Y);
-                    var averageCenterXOffsetPerRod = visibleRods.Zip(visibleRods.Skip(1))
+                    Rod[] orderedVisibleRods = [.. visibleRods.OrderBy(t => t.Index)];
+                    var averageWidth = orderedVisibleRods.Average(t => t.ImageROI.Width);
+                    var averageHeight = orderedVisibleRods.Average(t => t.ImageROI.Height);
+                    var averageY = orderedVisibleRods.Average(t => t.ImageROI.Y);
+                    var averageCenterXOffsetPerRod = orderedVisibleRods.Zip(orderedVisibleRods.Skip(1))
                         .Average(pair => (pair.Second.ImageROI.Center.X - pair.First.ImageROI.Center.X) / ((pair.Second.Index - pair.First.Index) / 2d));
 
                     Guard.IsEqualTo(averageY, 0d);
@@ -438,7 +439,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                         case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
                             try
                             {
-                                Rod[] temps = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
+                                Rod[] temps = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)];
                                 Guard.IsGreaterThanOrEqualTo(temps.Length, 2);
 
                                 foreach (var (previousRod, nextRod) in temps.Zip(temps.Skip(1)))
@@ -493,8 +494,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     step2Rod.ImageROI = _step2BitmapImageDrawable.CartesianCoordinateToImageCoordinate(step2Rod.BitmapImageROIDrawable.Rect);
                 }
 
-                Rod[] visibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible)];
-                Rod[] invisibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible == false)];
+                Rod[] visibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)];
+                Rod[] invisibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible == false).OrderBy(t => t.Index)];
 
                 if (invisibleRods.Length == 0) return;
 

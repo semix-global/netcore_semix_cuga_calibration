@@ -74,7 +74,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="Channel 2 Image">
+        <GroupBox Grid.Column="2" Header="Channel 2 Odd Image">
             <TabControl>
                 <TabItem Header="Odd">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
