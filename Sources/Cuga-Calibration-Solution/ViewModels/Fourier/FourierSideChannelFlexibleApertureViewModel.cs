@@ -15,6 +15,9 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using System.IO;
+using Core.Models.Models.Fourier.PupilCameraAlignment;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.WPF.Enums;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Fourier;
@@ -59,6 +62,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     public partial FourierSideChannelFlexibleApertureDTO Calibration { get; set; } = new();
 
     [ObservableProperty]
+    public partial FourierPupilCameraAlignmentDTO FourierPupilCameraAlignment { get; set; } = new();
+
+    [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #endregion 缓存
@@ -71,10 +77,16 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        FourierPupilCameraAlignment = ApplicationCookieService.GetCalibration<FourierPupilCameraAlignmentDTO>(cancellationToken);
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<FourierSideChannelFlexibleApertureCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<FourierSideChannelFlexibleApertureDTO>(cancellationToken);
+
+        var config = FourierViewModel.GetFourierConfig();
+        Cache.RodTotalCount = config.RodNum;
+        Cache.MinMotorAbsoluteValue = config.CH12MinPOS;
+        Cache.MaxMotorAbsoluteValue = config.CH12MaxPOS;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -88,8 +100,10 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Review = Calibration;
         Review.Channel1Item.EvenItem.Review();
         Review.Channel1Item.OddItem.Review();
+        Review.Channel1Item.Review();
         Review.Channel2Item.EvenItem.Review();
         Review.Channel2Item.OddItem.Review();
+        Review.Channel2Item.Review();
 
         return Review.IsCalibrated;
     }
@@ -134,11 +148,11 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         switch (CalibrationStepIndex)
         {
             case 0:
-                var rodTotalCount = FourierViewModel.GetFourierConfig().RodNum;
-                Guard.IsGreaterThan(rodTotalCount, 5);
-
                 CalibratingItem.Dispose();
-                CalibratingItem = new FourierSideChannelFlexibleApertureDTO(rodTotalCount);
+                CalibratingItem = new FourierSideChannelFlexibleApertureDTO(
+                    Cache.RodTotalCount,
+                    FourierPupilCameraAlignment.Channel1Item.ROIChannelImageFilePath,
+                    FourierPupilCameraAlignment.Channel2Item.ROIChannelImageFilePath);
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
@@ -191,18 +205,27 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0Async(CancellationToken cancellationToken)
+    private Task<bool> Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
-            var rodTotalCount = FourierViewModel.GetFourierConfig().RodNum;
-            var minMotorAbsoluteValue = FourierViewModel.GetFourierConfig().CH12MinPOS;
-            var maxMotorAbsoluteValue = FourierViewModel.GetFourierConfig().CH12MaxPOS;
+            if (FourierPupilCameraAlignment.IsOk == false)
+            {
+                const string comment = "Fourier Pupil Camera Alignment is not calibrated!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            Guard.IsGreaterThan(Cache.RodTotalCount, 5);
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                rodTotalCount,
-                minMotorAbsoluteValue,
-                maxMotorAbsoluteValue,
+                Cache.RodTotalCount,
+                Cache.MinMotorAbsoluteValue,
+                Cache.MaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
@@ -217,8 +240,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             OpticsViewModel.SetOpticsConfiguration(Cache.OpticsConfiguration);
 
-            Guard.IsBetweenOrEqualTo(Cache.Step0AndStep1MotorAbsoluteValue, minMotorAbsoluteValue, maxMotorAbsoluteValue);
-            Guard.IsBetweenOrEqualTo(Cache.Step2MotorAbsoluteValue, minMotorAbsoluteValue, maxMotorAbsoluteValue);
+            Guard.IsBetweenOrEqualTo(Cache.Step0AndStep1MotorAbsoluteValue, Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue);
+            Guard.IsBetweenOrEqualTo(Cache.Step2MotorAbsoluteValue, Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue);
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation)
                    && ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation)
@@ -227,7 +250,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private Task<bool> Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -238,6 +261,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.RodTotalCount,
+                Cache.MinMotorAbsoluteValue,
+                Cache.MaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
@@ -253,40 +279,54 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, CalibratingItem.Channel1Item.EvenItem, "Even", false, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, true, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, CalibratingItem.Channel1Item.OddItem, "Odd", false, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, false, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, CalibratingItem.Channel2Item.EvenItem, "Even", false, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, true, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step5Async(CancellationToken cancellationToken)
+    private Task<bool> Step5Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, CalibratingItem.Channel2Item.OddItem, "Odd", true, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, false, cancellationToken));
     }
 
     private async Task<bool> InvokeAsync(
         FourierSideChannelFlexibleApertureDTOItem item,
-        FourierSideChannelFlexibleApertureDTOItem.Item itemData,
-        string itemName,
-        bool isLast,
+        bool isEven,
         CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
+        var channelId = item.ChannelId switch
+        {
+            1 => FFCH.Ch1,
+            2 => FFCH.Ch2,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(item.ChannelId))
+        };
+
+        var fourierPupilCameraAlignmentItem = item.ChannelId switch
+        {
+            1 => FourierPupilCameraAlignment.Channel1Item,
+            2 => FourierPupilCameraAlignment.Channel2Item,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierPupilCameraAlignmentDTOItem>(nameof(item.ChannelId))
+        };
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
+            Cache.RodTotalCount,
+            Cache.MinMotorAbsoluteValue,
+            Cache.MaxMotorAbsoluteValue,
             Cache.ProductivityInformation,
             Cache.MicroscopeLensInformation,
             Cache.LaserLightInformation,
@@ -294,9 +334,14 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             Cache.ScanLength,
             Cache.Step0AndStep1MotorAbsoluteValue,
             Cache.Step2MotorAbsoluteValue,
-            Cache.HazeFindBFMachinePosition
+            Cache.HazeFindBFMachinePosition,
+            channelId,
+            fourierPupilCameraAlignmentItem.ImageROI
         }), HtmlLogUniqueId.LoggingHtml());
 
+        var itemData = isEven ? item.EvenItem : item.OddItem;
+
+        item.Reset();
         itemData.Reset();
 
         var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
@@ -309,34 +354,37 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+        AfViewModel.ToggleDarkFieldEnable(true);
 
         try
         {
-            var ffch = item.ChannelId == 1 ? FFCH.Ch1 : FFCH.Ch2;
-            FourierViewModel.SetFFHome(ffch);
+            FourierViewModel.SetFFHome(channelId);
 
-            MoveRods(ffch, itemData, Cache.Step0AndStep1MotorAbsoluteValue);
-
-            var itemDirectory = Path.Combine(detectImageDirectory, $"Channel{item}", itemName);
-            Directory.CreateDirectory(itemDirectory);
-
-            itemData.Step0ChannelImageFilePath = Grab(item, itemDirectory, "Step0");
-            itemData.Step1ChannelImageFilePath = Grab(item, itemDirectory, "Step1");
-
-            MoveRods(ffch, itemData, Cache.Step2MotorAbsoluteValue);
-            itemData.Step2ChannelImageFilePath = Grab(item, itemDirectory, "Step2");
+            MoveRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
+            Grab(0);
+            MoveRods(1, Cache.Step0AndStep1MotorAbsoluteValue);
+            Grab(1);
+            MoveRods(2, Cache.Step2MotorAbsoluteValue);
+            Grab(2);
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             await itemData.CalibratingAsync(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            if (isLast)
+            if (isEven == false)
             {
-                CalibratingItem.IsCalibrated = true;
+                item.Calibrating(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
 
-                Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                if (item.ChannelId == 2)
+                {
+                    CalibratingItem.IsCalibrated = true;
+
+                    Guard.IsTrue(Save(CalibratingItem, cancellationToken));
+                }
             }
 
             return true;
@@ -346,25 +394,60 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
         }
-    }
 
-    private void MoveRods(FFCH ffch, FourierSideChannelFlexibleApertureDTOItem.Item item, double motorAbsoluteValue)
-    {
-        FourierViewModel.FF_Move_CH12(ffch, item.Step1Rods.Select(t => (t.Index + 1, motorAbsoluteValue)).ToList());
-    }
+        void MoveRods(int stepIndex, double motorAbsoluteValue)
+        {
+            var indexes = stepIndex switch
+            {
+                0 => [itemData.Step0LeftRod.Index, itemData.Step0RightRod.Index],
+                1 => [.. itemData.Step1Rods.Select(t => t.Index)],
+                2 => [.. itemData.Step2Rods.Select(t => t.Index)],
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<int[]>(nameof(stepIndex))
+            };
 
-    private string Grab(int channelId, string directory, string name)
-    {
-        using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-            channelId - 1,
-            Cache.ProductivityInformation,
-            Cache.LaserLightInformation.Level,
-            StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-            Cache.ScanLength);
-        var imageFilePath = Path.Combine(directory, $"{name}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-        bitmapImage.SaveImage(imageFilePath);
+            FourierViewModel.FF_Move_CH12(channelId,
+            [
+                .. item.RodResults.Select(t => (t.Index,
+                    indexes.Contains(t.Index)
+                        ? motorAbsoluteValue
+                        : Cache.MinMotorAbsoluteValue))
+            ]);
+        }
 
-        return imageFilePath;
+        void Grab(int stepIndex)
+        {
+            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
+                item.ChannelId - 1,
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation.Level,
+                StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
+                Cache.ScanLength);
+            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            bitmapImage.SaveImage(imageFilePath);
+            var roiChannelImageFilePath = Path.Combine(FileHelper.GetFileFullName(imageFilePath), $"ROI_{fourierPupilCameraAlignmentItem.ImageROI}_{Path.GetFileName(imageFilePath)}");
+
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
+            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+
+            switch (stepIndex)
+            {
+                case 0:
+                    itemData.Step0ChannelImageFilePath = imageFilePath;
+                    break;
+
+                case 1:
+                    itemData.Step1ChannelImageFilePath = imageFilePath;
+                    break;
+
+                case 2:
+                    itemData.Step2ChannelImageFilePath = imageFilePath;
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+                    break;
+            }
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -374,6 +457,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                Cache.RodTotalCount,
+                Cache.MinMotorAbsoluteValue,
+                Cache.MaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
                 Cache.MicroscopeLensInformation,
                 Cache.LaserLightInformation,
@@ -386,8 +472,10 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                Channel1Item = new HtmlQuote(CalibratingItem.Channel1Item.ToHtmlAnonymous()),
                 Channel1EvenItem = new HtmlQuote(Review.Channel1Item.EvenItem.ToHtmlAnonymous()),
                 Channel1OddItem = new HtmlQuote(Review.Channel1Item.OddItem.ToHtmlAnonymous()),
+                Channel2Item = new HtmlQuote(CalibratingItem.Channel2Item.ToHtmlAnonymous()),
                 Channel2EvenItem = new HtmlQuote(Review.Channel2Item.EvenItem.ToHtmlAnonymous()),
                 Channel2OddItem = new HtmlQuote(Review.Channel2Item.OddItem.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
@@ -417,11 +505,13 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         var temp = Guard.IsAssignableToTypeAndReturn<FourierSideChannelFlexibleApertureDTO>(calibration);
         var status = Entry.Status;
 
+        var config = FourierViewModel.GetFourierConfig();
+
         Calibration = temp;
 
-        status.TotalCalibrationCount = 1;
-        status.CalibratedCount = Calibration.IsCalibrated ? 1 : 0;
-        status.VerifiedCount = Calibration.IsVerified ? 1 : 0;
+        status.TotalCalibrationCount = config.RodNum * 2;
+        status.CalibratedCount = Calibration.Channel1Item.RodResults.Length + Calibration.Channel2Item.RodResults.Length;
+        status.VerifiedCount = Calibration.Channel1Item.RodResults.Length + Calibration.Channel2Item.RodResults.Length;
         status.Details = [];
     }
 

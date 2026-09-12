@@ -238,10 +238,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     public object ToImageHtmlAnonymous() => new
     {
         ChannelImageFilePath,
-        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
-        [
-            new HtmlImageRectangleOverlay(ImageROI)
-        ])
+        Image = new HtmlImage(ChannelImageFilePath)
     };
 
     public object ToHtmlAnonymous() => new

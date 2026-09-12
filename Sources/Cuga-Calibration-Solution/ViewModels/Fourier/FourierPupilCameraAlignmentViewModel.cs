@@ -131,7 +131,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             case 0:
                 CalibratingItem.Dispose();
                 CalibratingItem = new FourierPupilCameraAlignmentDTO();
-                
+
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
@@ -179,7 +179,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
     #region 校准
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step0Async(CancellationToken cancellationToken)
+    private Task<bool> Step0Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -204,7 +204,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private Task<bool> Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -228,19 +228,19 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel3Item, cancellationToken));
     }
@@ -271,6 +271,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
         StageViewModel.SetAbsoluteStageTheta(0d);
         StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
+        AfViewModel.ToggleDarkFieldEnable(true);
 
         try
         {
@@ -290,6 +291,10 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                     FourierViewModel.SetFFHome(FFCH.Ch3_X);
                     FourierViewModel.SetFFHome(FFCH.Ch3_Y);
 
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(dtoItem.ChannelId));
                     break;
             }
 

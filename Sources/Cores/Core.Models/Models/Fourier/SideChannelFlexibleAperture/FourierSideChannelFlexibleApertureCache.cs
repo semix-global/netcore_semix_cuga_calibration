@@ -9,6 +9,15 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 public sealed partial class FourierSideChannelFlexibleApertureCache : CalibrationCacheBase<FourierSideChannelFlexibleApertureCache>
 {
     [ObservableProperty]
+    public partial int RodTotalCount { get; set; }
+
+    [ObservableProperty]
+    public partial double MinMotorAbsoluteValue { get; set; }
+
+    [ObservableProperty]
+    public partial double MaxMotorAbsoluteValue { get; set; }
+
+    [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
@@ -34,6 +43,9 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
 
     public override FourierSideChannelFlexibleApertureCache Clone() => new()
     {
+        RodTotalCount = RodTotalCount,
+        MinMotorAbsoluteValue = MinMotorAbsoluteValue,
+        MaxMotorAbsoluteValue = MaxMotorAbsoluteValue,
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),

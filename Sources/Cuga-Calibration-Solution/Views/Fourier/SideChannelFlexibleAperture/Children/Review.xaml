@@ -43,6 +43,34 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
+                        <TextBox Text="{Binding Review.Channel1Item.MinMotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Ch1 Min Motor: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.Channel1Item.MaxMotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Ch1 Max Motor: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.Channel2Item.MinMotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Ch2 Min Motor: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.Channel2Item.MaxMotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Ch2 Max Motor: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding Review.Channel1Item.EvenItem.Step0AndStep1MotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="Ch1 Even Step0/1 Motor: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -118,6 +146,16 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <TabControl>
+                <TabItem Header="Channel 1 Result">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Channel 2 Result">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
                 <TabItem Header="Channel 1 Even">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.EvenItem.Document, Mode=OneWay}" />

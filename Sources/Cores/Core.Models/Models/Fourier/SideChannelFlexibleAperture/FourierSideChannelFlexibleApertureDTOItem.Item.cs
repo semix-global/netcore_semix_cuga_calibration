@@ -576,23 +576,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             Step0ChannelImageFilePath,
             Step1ChannelImageFilePath,
             Step2ChannelImageFilePath,
-            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
-            [
-                new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
-                new HtmlImageRectangleOverlay(Step0RightRod.ImageROI),
-                new HtmlImageTextOverlay(Step0LeftRod.ImageROI.Center, Step0LeftRod.BitmapImageROIDrawable.Text),
-                new HtmlImageTextOverlay(Step0RightRod.ImageROI.Center, Step0RightRod.BitmapImageROIDrawable.Text)
-            ]),
-            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
-            [
-                .. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
-                .. Step1Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
-            ]),
-            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays:
-            [
-                .. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
-                .. Step2Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
-            ])
+            Step0Image = new HtmlImage(Step0ChannelImageFilePath),
+            Step1Image = new HtmlImage(Step1ChannelImageFilePath),
+            Step2Image = new HtmlImage(Step2ChannelImageFilePath)
         };
 
         public object ToHtmlAnonymous() => new
