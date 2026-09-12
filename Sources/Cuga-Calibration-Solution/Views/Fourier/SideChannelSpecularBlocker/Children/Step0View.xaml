@@ -40,13 +40,6 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Extinction Ratio Threshold: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="0"
-                                          Increment="0.001"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ExtinctionRatioThreshold}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

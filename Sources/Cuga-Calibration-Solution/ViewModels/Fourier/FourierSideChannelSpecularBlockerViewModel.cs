@@ -341,6 +341,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
             CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
             Cache.Item.ScanLength,
+            Cache.Item.ImageWidth,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             Cache.ExtinctionRatioThreshold,
             channelId,
@@ -422,7 +423,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Dark,
                 shinyBFPosition,
-                Cache.Item.ScanLength,
+                Cache.Item.ImageWidth,
                 CalibrationSetting.SettingCommonParam.MainCIBInformation,
                 (false, CalChipSiteModelEnum.ShinyWaferModel),
                 (false, Cache.Item.OpticsConfiguration),
@@ -437,12 +438,14 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             switch (stepIndex)
             {
                 case 0:
+                    item.HomeFourierImageFilePath = roiChannelImageFilePath;
                     item.HomePMTImageFilePath = pmtImageFilePath;
                     item.HomePMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
                     break;
 
                 case 1:
+                    item.BlockedFourierImageFilePath = roiChannelImageFilePath;
                     item.BlockedPMTImageFilePath = pmtImageFilePath;
                     item.BlockedPMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
@@ -477,6 +480,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.ScanLength,
+                Cache.Item.ImageWidth,
                 Cache.Item.ShinyWaferFindBFMachinePosition,
                 Cache.ExtinctionRatioThreshold,
             }), HtmlLogUniqueId.LoggingHtml());

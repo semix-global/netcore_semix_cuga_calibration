@@ -110,7 +110,11 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
+                            <GridViewColumn Header="Ch1 Home PMT" DisplayMemberBinding="{Binding Channel1Item.HomePMTImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch1 Blocked PMT" DisplayMemberBinding="{Binding Channel1Item.BlockedPMTImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch1 Extinction Ratio" DisplayMemberBinding="{Binding Channel1Item.ExtinctionRatio, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch2 Home PMT" DisplayMemberBinding="{Binding Channel2Item.HomePMTImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch2 Blocked PMT" DisplayMemberBinding="{Binding Channel2Item.BlockedPMTImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch2 Extinction Ratio" DisplayMemberBinding="{Binding Channel2Item.ExtinctionRatio, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>

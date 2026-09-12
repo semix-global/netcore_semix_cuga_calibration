@@ -107,6 +107,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
             BlockedFourierImageFilePath = BlockedFourierImageFilePath,
             HomePMTImageFilePath = HomePMTImageFilePath,
             BlockedPMTImageFilePath = BlockedPMTImageFilePath,
+            HomePMTImageAverageValue = HomePMTImageAverageValue,
+            BlockedPMTImageAverageValue = BlockedPMTImageAverageValue,
             ExtinctionRatio = ExtinctionRatio
         };
 
@@ -127,6 +129,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         BlockedFourierImageFilePath = string.Empty;
         HomePMTImageFilePath = string.Empty;
         BlockedPMTImageFilePath = string.Empty;
+        HomePMTImageAverageValue = 0d;
+        BlockedPMTImageAverageValue = 0d;
         ExtinctionRatio = 0d;
 
         foreach (var rod in Rods) rod.Reset();
@@ -270,6 +274,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     public object ToHtmlAnonymous() => new
     {
         ChannelId,
+        HomePMTImageAverageValue,
+        BlockedPMTImageAverageValue,
         ExtinctionRatio,
         HomeFourierImageFilePath,
         BlockedFourierImageFilePath,
