@@ -53,8 +53,15 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
             .. EvenItem.Step2Rods
                 .Select(t => t.Index)
                 .Union(OddItem.Step2Rods.Select(t => t.Index))
+                .Order()
                 .Select(t => new RodResult(_resultBitmapImageDrawable) { Index = t })
         ];
+
+        Document.RunDesign(() =>
+        {
+            Document.ImageModel.Add(_resultBitmapImageDrawable);
+            Document.ROIModel.AddRange(RodResults.Select(t => t.BitmapImageROIDrawable));
+        });
 
         ResetDocument();
     }
@@ -63,7 +70,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     {
         Document.Reset();
 
-        foreach (var step1Rod in RodResults) step1Rod.BitmapImageROIDrawable.Text = $"{step1Rod.Index + 1}";
+        foreach (var rodResult in RodResults) rodResult.BitmapImageROIDrawable.Text = $"{rodResult.Index + 1}";
     }
 
     #region Mapper
@@ -80,7 +87,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
             MaxMotorAbsoluteValue = MaxMotorAbsoluteValue
         };
 
-        foreach (var (target, source) in item.RodResults.Zip(RodResults)) target.AdaptIn(source);
+        foreach (var target in item.RodResults) target.AdaptIn(RodResults.Single(t => t.Index == target.Index));
 
         return item;
     }
@@ -89,11 +96,13 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     #endregion
 
-
     #region 校准
 
     public void Reset()
     {
+        MinMotorAbsoluteValue = 0d;
+        MaxMotorAbsoluteValue = 0d;
+
         foreach (var rodResult in RodResults) rodResult.Reset();
 
         ResetDocument();
@@ -140,16 +149,21 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 var rodResult = RodResults.Single(t => t.Index == step2Rod.Index);
 
                 rodResult.IsDeleted = step2Rod.IsDeleted;
-                rodResult.PixelSize = (item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue) / (step2Rod.ImageROI.Height - step1Rod.ImageROI.Height);
+
+                var heightDelta = step2Rod.ImageROI.Height - step1Rod.ImageROI.Height;
+                var motorDelta = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
+                Guard.IsGreaterThan(heightDelta, 0d);
+
+                rodResult.PixelSize = motorDelta / heightDelta;
                 Guard.IsGreaterThan(rodResult.PixelSize, 0);
 
                 rodResult.MinImageROI = new Rect(
                     step2Rod.ImageROI.Point,
-                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize));
+                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize)).ImageCoordinateRound();
 
                 rodResult.MaxImageROI = new Rect(
                     step2Rod.ImageROI.Point,
-                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize));
+                    new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize)).ImageCoordinateRound();
             }
         }
     }

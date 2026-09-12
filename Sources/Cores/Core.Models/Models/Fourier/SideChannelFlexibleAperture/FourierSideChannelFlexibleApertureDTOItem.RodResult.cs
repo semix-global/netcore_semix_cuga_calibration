@@ -33,7 +33,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             MinImageROI = obj.MinImageROI;
             MaxImageROI = obj.MaxImageROI;
 
-            return obj;
+            return this;
         }
 
         public void Reset()

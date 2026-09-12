@@ -1,8 +1,10 @@
 using Core.Models.Extensions;
 using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
@@ -41,10 +43,40 @@ public sealed class FourierSideChannelFlexibleApertureDTO(int rodTotalCount, str
 
     public CalibrationPupilSideChannelFlexibleAperture AdaptTo()
     {
-        var channel1FirstRod = Channel1Item.RodResults.First(t => t.IsDeleted == false);
-        var channel1LastRod = Channel1Item.RodResults.Last(t => t.IsDeleted == false);
-        var channel2FirstRod = Channel2Item.RodResults.First(t => t.IsDeleted == false);
-        var channel2LastRod = Channel2Item.RodResults.Last(t => t.IsDeleted == false);
+        FourierSideChannelFlexibleApertureDTOItem.RodResult[] channel1ItemRodResults = [.. Channel1Item.RodResults.OrderBy(t => t.Index)];
+        FourierSideChannelFlexibleApertureDTOItem.RodResult[] channel2ItemRodResults = [.. Channel2Item.RodResults.OrderBy(t => t.Index)];
+
+        var channel1FirstRod = channel1ItemRodResults.FirstOrDefault(t => t.IsDeleted == false);
+        var channel1LastRod = channel1ItemRodResults.LastOrDefault(t => t.IsDeleted == false);
+        var channel2FirstRod = channel2ItemRodResults.FirstOrDefault(t => t.IsDeleted == false);
+        var channel2LastRod = channel2ItemRodResults.LastOrDefault(t => t.IsDeleted == false);
+
+        if (channel1ItemRodResults.Length != _rodTotalCount
+            || channel2ItemRodResults.Length != _rodTotalCount
+            || channel1FirstRod is null
+            || channel1LastRod is null
+            || channel2FirstRod is null
+            || channel2LastRod is null)
+        {
+            if (IsCalibrated)
+            {
+                var logger = HostApplication.GetRequiredService<ILogger<FourierSideChannelFlexibleApertureDTO>>();
+
+                if (channel1ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 1 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
+                if (channel2ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 2 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
+                if (channel1FirstRod is null) logger.LogError("Channel 1 first rod is null.");
+                if (channel1LastRod is null) logger.LogError("Channel 1 last rod is null.");
+                if (channel2FirstRod is null) logger.LogError("Channel 2 first rod is null.");
+                if (channel2LastRod is null) logger.LogError("Channel 2 last rod is null.");
+            }
+
+            return new CalibrationPupilSideChannelFlexibleAperture
+            {
+                IsCalibrated = false,
+                IsVerified = false,
+                IsRequiredCalibrate = IsRequiredSelfCheck
+            };
+        }
 
         return new CalibrationPupilSideChannelFlexibleAperture
         {
@@ -60,12 +92,12 @@ public sealed class FourierSideChannelFlexibleApertureDTO(int rodTotalCount, str
             CgFFBoxEndNumber2Ch1 = channel1LastRod.Index,
             CgFFBoxEndNumber1Ch2 = channel2LastRod.Index,
             CgFFBoxEndNumber2Ch2 = channel2LastRod.Index,
-            CgFFBoxRodWidthListCh1 = [.. Channel1Item.RodResults.Select(t => ((RectI)t.MinImageROI).Width)],
-            CgFFBoxRodWidthListCh2 = [.. Channel2Item.RodResults.Select(t => ((RectI)t.MinImageROI).Width)],
-            CgFFBoxHeightRelationPercentListCh1 = [.. Channel1Item.RodResults.Select(t => t.PixelSize)],
-            CgFFBoxHeightRelationPercentListCh2 = [.. Channel2Item.RodResults.Select(t => t.PixelSize)],
-            CurrentImageRectListFirstCh1 = [.. Channel1Item.RodResults.Select(t => t.MinImageROI.ToRectD())],
-            CurrentImageRectListFirstCh2 = [.. Channel2Item.RodResults.Select(t => t.MinImageROI.ToRectD())],
+            CgFFBoxRodWidthListCh1 = [.. channel1ItemRodResults.Select(t => ((RectI)t.MinImageROI).Width)],
+            CgFFBoxRodWidthListCh2 = [.. channel2ItemRodResults.Select(t => ((RectI)t.MinImageROI).Width)],
+            CgFFBoxHeightRelationPercentListCh1 = [.. channel1ItemRodResults.Select(t => t.PixelSize)],
+            CgFFBoxHeightRelationPercentListCh2 = [.. channel2ItemRodResults.Select(t => t.PixelSize)],
+            CurrentImageRectListFirstCh1 = [.. channel1ItemRodResults.Select(t => t.MinImageROI.ToRectD())],
+            CurrentImageRectListFirstCh2 = [.. channel2ItemRodResults.Select(t => t.MinImageROI.ToRectD())],
             CgFFBoxAllRodsBeginPercentCh1 = Channel1Item.MinMotorAbsoluteValue,
             CgFFBoxAllRodsBeginPercentCh2 = Channel2Item.MinMotorAbsoluteValue,
             IsCalibrated = IsCalibrated,
