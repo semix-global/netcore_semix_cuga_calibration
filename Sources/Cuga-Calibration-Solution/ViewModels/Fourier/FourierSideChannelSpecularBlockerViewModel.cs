@@ -1,0 +1,626 @@
+using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Core.Models.Enums.Stage;
+using Core.Models.Models;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Fourier;
+using Core.Models.Models.Common.Status;
+using Core.Models.Models.Fourier.PupilCameraAlignment;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
+using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
+using Core.Models.Models.Microscope.CalChip;
+using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
+using Net.Utilities.Enums;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.SourceGenerators.Calibration.Attributes;
+using Net.Utilities.WPF.Enums;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Text;
+using Constants = Net.Utilities.Models.Constants;
+
+namespace CugaCalibration.ViewModels.Fourier;
+
+[IOCAppService(ServiceType = typeof(FourierSideChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class FourierSideChannelSpecularBlockerViewModel : CalibrationViewModelBase<FourierSideChannelSpecularBlockerCache>
+{
+    #region 属性
+
+    public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
+
+    public override string CalibrateFileName => Cache.ProductivityInformation.ToString();
+
+    public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
+    [
+        new() { StepName = "Select Productivity Information" },
+        new() { StepName = "Param" },
+        new() { StepName = "Find Shiny Wafer Position" },
+        new() { StepName = "Channel 1" },
+        new() { StepName = "Channel 2" }
+    ];
+
+    #region 界面相关
+
+    #region Calibrate
+
+    [ObservableProperty]
+    public partial FourierSideChannelSpecularBlockerDTO CalibratingItem { get; set; } = new();
+
+    [ObservableProperty]
+    public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
+
+    #endregion Calibrate
+
+    [ObservableProperty]
+    public partial IReadOnlyList<FourierSideChannelSpecularBlockerDTO> Reviews { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<FourierSideChannelSpecularBlockerDTO> SelectedReviewItems { get; set; } = [];
+
+    #endregion 界面相关
+
+    #region 缓存
+
+    [RecipeCache]
+    [ObservableProperty]
+    public override partial FourierSideChannelSpecularBlockerCache Cache { get; set; } = new();
+
+    [DefaultCache]
+    [ObservableProperty]
+    public partial FourierSideChannelSpecularBlockerDTO[] Calibrations { get; set; } = [];
+
+    [ObservableProperty]
+    public partial FourierPupilCameraAlignmentDTO FourierPupilCameraAlignment { get; set; } = new();
+
+    [ObservableProperty]
+    public partial FourierSideChannelFlexibleApertureDTO FourierSideChannelFlexibleAperture { get; set; } = new();
+
+    [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
+    #endregion 缓存
+
+    #endregion 属性
+
+    #region 控制校准业务
+
+    protected override async Task<bool> LoadedingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        FourierPupilCameraAlignment = ApplicationCookieService.GetCalibration<FourierPupilCameraAlignmentDTO>(cancellationToken);
+        FourierSideChannelFlexibleAperture = ApplicationCookieService.GetCalibration<FourierSideChannelFlexibleApertureDTO>(cancellationToken);
+        MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+
+        Cache = ApplicationCookieService.GetCache<FourierSideChannelSpecularBlockerCache>(cancellationToken);
+        Calibrations = ApplicationCookieService.GetCalibrations<FourierSideChannelSpecularBlockerDTO>(cancellationToken);
+
+        UpdateEntryStatus(Unsafe.As<CalibrationDTOBase[]>(Calibrations), cancellationToken);
+
+        return true;
+    }
+
+    protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
+    {
+        await Task.CompletedTask.ConfigureAwait(false);
+
+        foreach (var review in Reviews) review.Dispose();
+
+        Reviews =
+        [
+            .. Calibrations
+                .Select(t => t.Clone())
+                .OrderBy(t => t.ProductivityInformation)
+        ];
+
+        foreach (var review in Reviews)
+        {
+            review.Channel1Item.Review();
+            review.Channel2Item.Review();
+        }
+
+        return Reviews.Count > 0;
+    }
+
+    protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
+    {
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                return true;
+
+            case 1:
+                return true;
+
+            case 2:
+                return true;
+
+            case 3:
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition), CalChipSiteModelEnum.ShinyWaferModel);
+
+                return true;
+
+            case 4:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
+    {
+        switch (CalibrationStepIndex)
+        {
+            case 0:
+                CalibratingItem.Dispose();
+                CalibratingItem = new FourierSideChannelSpecularBlockerDTO(GetRodTotalCount())
+                {
+                    ProductivityInformation = Cache.ProductivityInformation
+                };
+
+                return true;
+
+            case 1:
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.ShinyWaferFindBFMachinePosition != Point.Origin
+                        ? Cache.Item.ShinyWaferFindBFMachinePosition
+                        : MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ShinyWaferModel)), CalChipSiteModelEnum.ShinyWaferModel);
+
+                return true;
+
+            case 2:
+
+                return true;
+
+            case 3:
+
+                return true;
+
+            case 4:
+                DialogWindowProvider.ShowDialog($"{Name} {CalibrateDirectoryName} Ok!");
+
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    protected override async Task<bool> CancelingAsync()
+    {
+        await base.CancelingAsync().ConfigureAwait(false);
+
+        CalibratingItem.Dispose();
+        foreach (var review in Reviews) review.Dispose();
+        foreach (var calibration in Calibrations) calibration.Dispose();
+
+        return true;
+    }
+
+    #endregion 控制校准业务
+
+    #region 校准
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step0Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.ExtinctionRatioThreshold
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step1Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            if (FourierPupilCameraAlignment.IsOk == false)
+            {
+                const string comment = "Fourier Pupil Camera Alignment is not calibrated!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            if (FourierSideChannelFlexibleAperture.IsOk == false)
+            {
+                const string comment = "Fourier Side Channel Flexible Aperture is not calibrated!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+                DialogWindowProvider.ShowDialog(comment, DialogButtonsEnum.OK, DialogIconEnum.Error);
+
+                return false;
+            }
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.ExtinctionRatioThreshold,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.Item.ScanLength
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
+            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+            OpticsViewModel.SetOpticsConfiguration(Cache.Item.OpticsConfiguration);
+
+            return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
+                   && ApplicationCookie.LaserLightInformations.Contains(Cache.Item.LaserLightInformation);
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step2Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(() =>
+        {
+            Guard.IsEqualTo(Cache.Item.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
+
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            Cache.Item.ShinyWaferFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.Item.MicroscopeLensInformation,
+                Cache.Item.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.Item.ScanLength,
+                Cache.Item.ShinyWaferFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            return true;
+        });
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step3Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, cancellationToken));
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task Step4Async(CancellationToken cancellationToken)
+    {
+        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, cancellationToken));
+    }
+
+    private async Task<bool> InvokeAsync(FourierSideChannelSpecularBlockerDTOItem dtoItem, CancellationToken cancellationToken)
+    {
+        var detectImageDirectory = ImageFileDirectory;
+        var channelId = dtoItem.ChannelId switch
+        {
+            1 => FFCH.Ch1,
+            2 => FFCH.Ch2,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(dtoItem.ChannelId))
+        };
+
+        var fourierPupilCameraAlignmentItem = dtoItem.ChannelId switch
+        {
+            1 => FourierPupilCameraAlignment.Channel1Item,
+            2 => FourierPupilCameraAlignment.Channel2Item,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierPupilCameraAlignmentDTOItem>(nameof(dtoItem.ChannelId))
+        };
+
+        var flexibleApertureItem = dtoItem.ChannelId switch
+        {
+            1 => FourierSideChannelFlexibleAperture.Channel1Item,
+            2 => FourierSideChannelFlexibleAperture.Channel2Item,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierSideChannelFlexibleApertureDTOItem>(nameof(dtoItem.ChannelId))
+        };
+
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+        {
+            Cache.ProductivityInformation,
+            Cache.ExtinctionRatioThreshold,
+            Cache.Item.MicroscopeLensInformation,
+            Cache.Item.LaserLightInformation,
+            OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+            Cache.Item.ScanLength,
+            Cache.Item.ShinyWaferFindBFMachinePosition,
+            channelId,
+            fourierPupilCameraAlignmentItem.ImageROI,
+            flexibleApertureItem.MinMotorAbsoluteValue,
+            flexibleApertureItem.MaxMotorAbsoluteValue
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
+        Guard.IsEqualTo(flexibleApertureItem.RodResults.Length, dtoItem.Rods.Length);
+
+        dtoItem.Reset();
+
+        var shinyBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition);
+        var startCurrentShinyBFPosition = CIBViewModel.GetCIBInformationPosition(
+            StageCoordinateSystemEnum.Dark,
+            Cache.ProductivityInformation,
+            CalibrationSetting.SettingCommonParam.MainCIBInformation,
+            shinyBFPosition,
+            Cache.Item.MicroscopeLensInformation);
+
+        StageViewModel.SetAbsoluteStageTheta(0d);
+        StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startCurrentShinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+        AfViewModel.ToggleDarkFieldEnable(true);
+
+        try
+        {
+            FourierViewModel.SetFFHome(channelId);
+            dtoItem.HomeFourierImageFilePath = GrabFourierImage("Home");
+
+            Logger.LogHtmlInformation("Home Fourier Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+            await dtoItem.CalibratingAsync(flexibleApertureItem.RodResults, cancellationToken);
+
+            Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+            FourierViewModel.FF_Move_CH12(channelId, dtoItem.ToRodPositions(flexibleApertureItem.MinMotorAbsoluteValue, flexibleApertureItem.MaxMotorAbsoluteValue));
+            dtoItem.BlockedFourierImageFilePath = GrabFourierImage("Blocked");
+            dtoItem.Review();
+
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(dtoItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+            if (dtoItem.ChannelId == 2)
+            {
+                CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+                CalibratingItem.IsCalibrated = true;
+
+                Guard.IsTrue(Save([CalibratingItem], cancellationToken));
+            }
+
+            return true;
+        }
+        finally
+        {
+            StageViewModel.SetAbsoluteStageTheta(0d);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentShinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+        }
+
+        string GrabFourierImage(string stepName)
+        {
+            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
+                dtoItem.ChannelId - 1,
+                Cache.ProductivityInformation,
+                Cache.Item.LaserLightInformation.Level,
+                StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition),
+                Cache.Item.ScanLength);
+            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{dtoItem.ChannelId}", $"{stepName}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
+            bitmapImage.SaveImage(imageFilePath);
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
+
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
+            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+
+            return roiChannelImageFilePath;
+        }
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0)
+        {
+            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return;
+        }
+
+        await InvokeVerifyAsync(async () =>
+        {
+            var errorMessageStringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var title = selectedReviewItem.ProductivityInformation.ToString();
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+                {
+                    Cache.ProductivityInformation,
+                    Cache.ExtinctionRatioThreshold,
+                    Cache.Item.MicroscopeLensInformation,
+                    Cache.Item.LaserLightInformation,
+                    OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+                    Cache.Item.ScanLength,
+                    Cache.Item.ShinyWaferFindBFMachinePosition
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
+                LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
+                LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
+                OpticsViewModel.SetOpticsConfiguration(Cache.Item.OpticsConfiguration);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
+
+                var shinyBFPosition = StageViewModel.MachineToBrightFieldPosition(
+                    Cache.Item.ShinyWaferFindBFMachinePosition != Point.Origin
+                        ? Cache.Item.ShinyWaferFindBFMachinePosition
+                        : MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ShinyWaferModel));
+
+                StageViewModel.SetAbsoluteStageTheta(0d);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(shinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+
+                try
+                {
+                    await VerifyChannelAsync(selectedReviewItem.Channel1Item);
+                    await VerifyChannelAsync(selectedReviewItem.Channel2Item);
+                }
+                finally
+                {
+                    StageViewModel.SetAbsoluteStageTheta(0d);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(shinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
+                }
+
+                selectedReviewItem.Channel1Item.Review();
+                selectedReviewItem.Channel2Item.Review();
+
+                var isExtinctionOk = selectedReviewItem.Channel1Item.ExtinctionRatio <= Cache.ExtinctionRatioThreshold
+                                     && selectedReviewItem.Channel2Item.ExtinctionRatio <= Cache.ExtinctionRatioThreshold;
+                if (selectedReviewItem.IsCalibrated && isExtinctionOk) selectedReviewItem.IsVerified = true;
+
+                var htmlBullet = new HtmlBullet(new
+                {
+                    Channel1Item = new HtmlQuote(selectedReviewItem.Channel1Item.ToHtmlAnonymous()),
+                    Channel2Item = new HtmlQuote(selectedReviewItem.Channel2Item.ToHtmlAnonymous())
+                });
+
+                if (selectedReviewItem.IsOk)
+                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                else
+                {
+                    errorMessageStringBuilder.AppendLine($"{title}: Error");
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
+
+                async Task VerifyChannelAsync(FourierSideChannelSpecularBlockerDTOItem item)
+                {
+                    var detectImageDirectory = ImageFileDirectory;
+                    var channelId = item.ChannelId switch
+                    {
+                        1 => FFCH.Ch1,
+                        2 => FFCH.Ch2,
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(item.ChannelId))
+                    };
+                    var flexibleApertureItem = item.ChannelId switch
+                    {
+                        1 => FourierSideChannelFlexibleAperture.Channel1Item,
+                        2 => FourierSideChannelFlexibleAperture.Channel2Item,
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierSideChannelFlexibleApertureDTOItem>(nameof(item.ChannelId))
+                    };
+
+                    FourierViewModel.SetFFHome(channelId);
+                    item.HomePMTImageFilePath = await GrabPMTImageAsync("Home");
+
+                    FourierViewModel.FF_Move_CH12(channelId, item.ToRodPositions(flexibleApertureItem.MinMotorAbsoluteValue, flexibleApertureItem.MaxMotorAbsoluteValue));
+                    item.BlockedPMTImageFilePath = await GrabPMTImageAsync("Blocked");
+
+                    item.RefreshExtinctionRatio();
+
+                    async Task<string> GrabPMTImageAsync(string stepName)
+                    {
+                        using var darkFieldImage = await CIBViewModel.GetPMTImageAsync(
+                            Cache.ProductivityInformation,
+                            StageCoordinateSystemEnum.Dark,
+                            shinyBFPosition,
+                            Cache.Item.ScanLength,
+                            CalibrationSetting.SettingCommonParam.MainCIBInformation,
+                            (false, CalChipSiteModelEnum.ShinyWaferModel),
+                            (false, Cache.Item.OpticsConfiguration),
+                            (true, null),
+                            (true, null),
+                            true,
+                            cancellationToken);
+                        var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{stepName}PMT_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
+                        darkFieldImage.Image.SaveImage(imageFilePath);
+
+                        return imageFilePath;
+                    }
+                }
+            }
+
+            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
+
+            var result = SelectedReviewItems.All(t => t.IsOk);
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    private bool Save(IReadOnlyList<FourierSideChannelSpecularBlockerDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
+    {
+        update(Cache);
+
+        foreach (var dto in dtos)
+        {
+            update(dto);
+            Calibrations =
+            [
+                dto.Clone(),
+                .. Calibrations.Where(t => t.ProductivityInformation != dto.ProductivityInformation)
+            ];
+        }
+
+        ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
+        ApplicationCookieService.SetCache(Cache, cancellationToken);
+    });
+
+    public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
+    {
+        var temps = Guard.IsAssignableToTypeAndReturn<FourierSideChannelSpecularBlockerDTO[]>(calibrations);
+        var status = Entry.Status;
+
+        CalibratingStatuses =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+        ];
+
+        Calibrations =
+        [
+            .. temps
+                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .DistinctBy(t => t.ProductivityInformation)
+                .Select(t =>
+                {
+                    CalibratingStatuses.Single(tt => tt.SelectedItem == t.ProductivityInformation).IsCalibrated = t.IsCalibrated;
+
+                    return t;
+                })
+        ];
+
+        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count;
+        status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
+        status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
+        status.Details =
+        [
+            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(productivityInformation =>
+            {
+                var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+
+                return new CalibrationViewModelStatus.Detail(
+                    productivityInformation.ToString(),
+                    item?.IsCalibrated,
+                    item?.IsVerified);
+            })
+        ];
+    }
+
+    private int GetRodTotalCount()
+    {
+        if (FourierSideChannelFlexibleAperture.IsOk)
+            return FourierSideChannelFlexibleAperture.Channel1Item.RodResults.Length;
+
+        return FourierViewModel.GetFourierConfig().RodNum;
+    }
+
+    #endregion 校准
+}
