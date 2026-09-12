@@ -84,8 +84,15 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         ResetDocument();
     }
 
-    public FourierSideChannelSpecularBlockerDTOItem() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount, 1)
+    [Newtonsoft.Json.JsonConstructor]
+    private FourierSideChannelSpecularBlockerDTOItem(
+        [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
+        int rodTotalCount,
+        int channelId,
+        Rod[] rods)
+        : this(rodTotalCount, channelId)
     {
+        foreach (var target in Rods) target.AdaptIn(rods.Single(t => t.Index == target.Index));
     }
 
     private void ResetDocument()

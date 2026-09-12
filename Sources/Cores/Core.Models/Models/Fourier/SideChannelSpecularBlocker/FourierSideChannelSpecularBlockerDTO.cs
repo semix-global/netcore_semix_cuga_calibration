@@ -13,20 +13,39 @@ using Net.Utilities.WPF.MVVM;
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 [CacheVersion("1.0.0")]
-public sealed partial class FourierSideChannelSpecularBlockerDTO(int rodTotalCount) : CalibrationDTOBase<FourierSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>, IDisposable
+public sealed partial class FourierSideChannelSpecularBlockerDTO : CalibrationDTOBase<FourierSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>, IDisposable
 {
     [Newtonsoft.Json.JsonProperty]
-    private readonly int _rodTotalCount = rodTotalCount;
+    private readonly int _rodTotalCount;
 
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    public FourierSideChannelSpecularBlockerDTOItem Channel1Item { get; private init; } = new(rodTotalCount, 1);
+    public FourierSideChannelSpecularBlockerDTOItem Channel1Item { get; private init; }
 
-    public FourierSideChannelSpecularBlockerDTOItem Channel2Item { get; private init; } = new(rodTotalCount, 2);
+    public FourierSideChannelSpecularBlockerDTOItem Channel2Item { get; private init; }
+
+    public FourierSideChannelSpecularBlockerDTO(int rodTotalCount)
+    {
+        _rodTotalCount = rodTotalCount;
+        Channel1Item = new FourierSideChannelSpecularBlockerDTOItem(rodTotalCount, 1);
+        Channel2Item = new FourierSideChannelSpecularBlockerDTOItem(rodTotalCount, 2);
+    }
 
     public FourierSideChannelSpecularBlockerDTO() : this(FourierSideChannelFlexibleApertureDTO.DefaultRodTotalCount)
     {
+    }
+
+    [Newtonsoft.Json.JsonConstructor]
+    private FourierSideChannelSpecularBlockerDTO(
+        [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
+        int rodTotalCount,
+        FourierSideChannelSpecularBlockerDTOItem channel1Item,
+        FourierSideChannelSpecularBlockerDTOItem channel2Item)
+    {
+        _rodTotalCount = rodTotalCount;
+        Channel1Item = channel1Item;
+        Channel2Item = channel2Item;
     }
 
     #region Mapper

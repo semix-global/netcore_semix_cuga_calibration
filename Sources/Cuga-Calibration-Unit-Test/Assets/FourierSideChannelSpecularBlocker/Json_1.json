@@ -1,0 +1,214 @@
+{
+  "_rodTotalCount": 8,
+  "ProductivityInformation": {
+    "OpticsIlluminationModeEnum": 0,
+    "OpticsMagType": -1,
+    "StageSpeedType": -1
+  },
+  "Channel1Item": {
+    "_rodTotalCount": 8,
+    "ChannelId": 1,
+    "HomeFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel1\\HomeFourier.jpg",
+    "BlockedFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel1\\BlockedFourier.jpg",
+    "HomePMTImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel1\\HomePMT.jpg",
+    "BlockedPMTImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel1\\BlockedPMT.jpg",
+    "HomePMTImageAverageValue": 1200.5,
+    "BlockedPMTImageAverageValue": 45.75,
+    "Rods": [
+      {
+        "Index": 0,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 1,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 23.0,
+          "Y": 23.0,
+          "Width": 31.0,
+          "Height": 45.0
+        },
+        "MotorAbsoluteValue": 2.75
+      },
+      {
+        "Index": 2,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 35.0,
+          "Y": 26.0,
+          "Width": 32.0,
+          "Height": 50.0
+        },
+        "MotorAbsoluteValue": 3.25
+      },
+      {
+        "Index": 3,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 4,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 59.0,
+          "Y": 32.0,
+          "Width": 34.0,
+          "Height": 60.0
+        },
+        "MotorAbsoluteValue": 4.25
+      },
+      {
+        "Index": 5,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 71.0,
+          "Y": 35.0,
+          "Width": 35.0,
+          "Height": 65.0
+        },
+        "MotorAbsoluteValue": 4.75
+      },
+      {
+        "Index": 6,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 7,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 95.0,
+          "Y": 41.0,
+          "Width": 37.0,
+          "Height": 75.0
+        },
+        "MotorAbsoluteValue": 5.75
+      }
+    ],
+    "ExtinctionRatio": 0.42
+  },
+  "Channel2Item": {
+    "_rodTotalCount": 8,
+    "ChannelId": 2,
+    "HomeFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel2\\HomeFourier.jpg",
+    "BlockedFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel2\\BlockedFourier.jpg",
+    "HomePMTImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel2\\HomePMT.jpg",
+    "BlockedPMTImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierSideChannelSpecularBlockerViewModel\\20260912\\Channel2\\BlockedPMT.jpg",
+    "HomePMTImageAverageValue": 980.25,
+    "BlockedPMTImageAverageValue": 33.5,
+    "Rods": [
+      {
+        "Index": 0,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 1,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 24.0,
+          "Y": 23.0,
+          "Width": 31.0,
+          "Height": 45.0
+        },
+        "MotorAbsoluteValue": 3.75
+      },
+      {
+        "Index": 2,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 36.0,
+          "Y": 26.0,
+          "Width": 32.0,
+          "Height": 50.0
+        },
+        "MotorAbsoluteValue": 4.25
+      },
+      {
+        "Index": 3,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 4,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 60.0,
+          "Y": 32.0,
+          "Width": 34.0,
+          "Height": 60.0
+        },
+        "MotorAbsoluteValue": 5.25
+      },
+      {
+        "Index": 5,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 72.0,
+          "Y": 35.0,
+          "Width": 35.0,
+          "Height": 65.0
+        },
+        "MotorAbsoluteValue": 5.75
+      },
+      {
+        "Index": 6,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        },
+        "MotorAbsoluteValue": 0.0
+      },
+      {
+        "Index": 7,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 96.0,
+          "Y": 41.0,
+          "Width": 37.0,
+          "Height": 75.0
+        },
+        "MotorAbsoluteValue": 6.75
+      }
+    ],
+    "ExtinctionRatio": 0.38
+  },
+  "IsVerified": true,
+  "IsCalibrated": true,
+  "IsRequiredSelfCheck": false,
+  "IsOk": true
+}

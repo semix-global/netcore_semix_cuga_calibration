@@ -23,6 +23,11 @@ public partial class FourierSideChannelSpecularBlockerDTOItem
         [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }
 
+        [Newtonsoft.Json.JsonConstructor]
+        private Rod() : this(new BitmapImageDrawable())
+        {
+        }
+
         public Rod AdaptIn(Rod obj)
         {
             IsDeleted = obj.IsDeleted;
