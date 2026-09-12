@@ -89,6 +89,8 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         {
             channel.Step0FourierImageFilePath = RandomPath(random, "Step0Fourier");
             channel.Step1FourierImageFilePath = RandomPath(random, "Step1Fourier");
+            channel.RawStep0PMTImageFilePath = RandomPath(random, "RawStep0PMT");
+            channel.RawStep1PMTImageFilePath = RandomPath(random, "RawStep1PMT");
             channel.Step0PMTImageFilePath = RandomPath(random, "Step0PMT");
             channel.Step1PMTImageFilePath = RandomPath(random, "Step1PMT");
             channel.Step0PMTImageAverageValue = NextCoordinate(random);
@@ -127,6 +129,8 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
         actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
         actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+        actual.RawStep0PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.RawStep0PMTImageFilePath)));
+        actual.RawStep1PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.RawStep1PMTImageFilePath)));
         actual.Step0PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0PMTImageFilePath)));
         actual.Step1PMTImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1PMTImageFilePath)));
         actual.Step0PMTImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.Step0PMTImageAverageValue)));
@@ -189,6 +193,8 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         actual.ChannelId.Should().Be(expected.ChannelId);
         actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
         actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+        actual.RawStep0PMTImageFilePath.Should().Be(expected.RawStep0PMTImageFilePath);
+        actual.RawStep1PMTImageFilePath.Should().Be(expected.RawStep1PMTImageFilePath);
         actual.Step0PMTImageFilePath.Should().Be(expected.Step0PMTImageFilePath);
         actual.Step1PMTImageFilePath.Should().Be(expected.Step1PMTImageFilePath);
         actual.Step0PMTImageAverageValue.Should().Be(expected.Step0PMTImageAverageValue);
