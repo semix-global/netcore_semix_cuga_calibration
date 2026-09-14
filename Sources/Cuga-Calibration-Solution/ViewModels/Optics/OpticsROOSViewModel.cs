@@ -263,7 +263,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
             Guard.IsInRange(Cache.Item.StartROOSPos, limitMinPos, limitMaxPos);
             Guard.IsInRange(Cache.Item.StopROOSPos, limitMinPos, limitMaxPos);
             Guard.IsGreaterThanOrEqualTo(Cache.Item.StepROOSPos, motorAccuracy);
-            Guard.IsGreaterThan(Cache.Item.StartROOSPos, Cache.Item.StopROOSPos);
+            Guard.IsLessThan(Cache.Item.StartROOSPos, Cache.Item.StopROOSPos);
 
             var yPixelSize = GuardExtensions.IsNotNullAndReturn(
                 CIBYPixelSizes.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.Item.CIBInformation.PMTId)?.YPixelSize,
@@ -310,12 +310,12 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
             {
                 #region 硬件安装对中验证
 
-                var initialOpticsROOSDTOItem = new OpticsROOSDTOItem { ROOSPos = (limitMinPos + limitMaxPos) / 2d };
+                var initialOpticsROOSDTOItem = new OpticsROOSDTOItem { ROOSPos = (Cache.Item.StartROOSPos + Cache.Item.StopROOSPos) / 2d };
 
                 await GetImageCropYPixelPositionByCurrentROOSAsync(initialOpticsROOSDTOItem, false, cancellationToken);
 
                 var roosCenterYPixelPos = (initialOpticsROOSDTOItem.EndImageYPixel + initialOpticsROOSDTOItem.StartImageYPixel) / 2d;
-                var alignOffsetPix = roosCenterYPixelPos - Cache.Item.IdealImageYPixelHeight / 2d;
+                var alignOffsetPix = roosCenterYPixelPos - Cache.Item.ConfigImageYPixelHeight / 2d;
                 var alignOffsetUm = alignOffsetPix * yPixelSize;
 
                 Logger.LogHtmlInformation("Align Verify", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -362,7 +362,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                 Point[] fitPoints =
                 [
                     .. CalibratingItem.Items
-                        .Where(t => t.StartImageYPixel > 0 && t.EndImageYPixel < Cache.Item.ConfigImageYPixelHeight)
+                        .Where(t => t.StartImageYPixel > 0 && t.EndImageYPixel < Cache.Item.ConfigImageYPixelHeight && t.CropImageYPixelHeight >= 1)
                         .Select(tt => new Point(tt.ROOSPos, tt.CropImageYPixelHeight))
                 ];
 
@@ -425,6 +425,8 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
         {
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
+                CropYPixelExtendCoefficient = Cache.ExtendCoefficient,
+                Cache.ROOSExtendPixel,
                 Cache.VerifyThreshold
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -440,9 +442,19 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                     Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
 
                     var opticsROOSDTOItem = selectedReviewItem.ResultDTOItem.Clone();
+
+                    var roosExtendPos = ((Cache.ROOSExtendPixel * 2) - selectedReviewItem.Intercept) / selectedReviewItem.Slope;
+                    opticsROOSDTOItem.ROOSPos = opticsROOSDTOItem.ROOSPos * Cache.ExtendCoefficient + roosExtendPos;
+
+                    var extendIdeaImageYPixelHeight = Cache.Item.IdealImageYPixelHeight * Cache.ExtendCoefficient;
+                    var extendPix = (extendIdeaImageYPixelHeight - Cache.Item.IdealImageYPixelHeight) / 2d;
+                    opticsROOSDTOItem.StartImageYPixel -= extendPix;
+                    opticsROOSDTOItem.EndImageYPixel += extendPix;
+                    opticsROOSDTOItem.ConvertYPixelToNearestEvenPrecise();
+
                     await GetImageCropYPixelPositionByCurrentROOSAsync(opticsROOSDTOItem, true, cancellationToken);
 
-                    var imageCropYPixelOffset = Cache.Item.IdealImageYPixelHeight - opticsROOSDTOItem.CropImageYPixelHeight;
+                    var imageCropYPixelOffset = extendIdeaImageYPixelHeight - opticsROOSDTOItem.CropImageYPixelHeight;
 
                     var verifyResult = Math.Abs(imageCropYPixelOffset) <= Cache.VerifyThreshold;
 
@@ -453,6 +465,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                     var htmlBullet = new HtmlBullet(new
                     {
                         Cache.Item.IdealImageYPixelHeight,
+                        extendIdeaImageYPixelHeight,
                         calibrationDetails = new HtmlQuote(new
                         {
                             selectedReviewItem.ResultDTOItem.ROOSPos,
@@ -462,6 +475,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                         }),
                         VerifyResult = new HtmlQuote(new
                         {
+                            roosExtendPos,
                             opticsROOSDTOItem.ROOSPos,
                             opticsROOSDTOItem.StartImageYPixel,
                             opticsROOSDTOItem.EndImageYPixel,
@@ -602,6 +616,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
         opticsROOSDTOItem.DrawFilePath = Path.Combine(imageFileDirectory, "Draw", fileName);
         drawImageObject.Save(opticsROOSDTOItem.DrawFilePath);
 
+        var delays = CIBViewModel.GetDelays(Cache.ProductivityInformation, [Cache.Item.CIBInformation]);
         Logger.LogHtmlInformation($"ROOS Pos: {opticsROOSDTOItem.ROOSPos:0.###} mm", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
             darkFieldImageDto.CIBInformation,
@@ -617,6 +632,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                 DrawImage = new HtmlImage(opticsROOSDTOItem.DrawFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
                 OriginImage = new HtmlImage(opticsROOSDTOItem.FilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
             }),
+            Delays = new HtmlTable(delays)
         }), HtmlLogUniqueId.LoggingHtml());
     }
 

@@ -10,9 +10,8 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Optics.INC;
 using MathNet.Numerics;
-using Microsoft.Extensions.Hosting;
+using Net.Utilities.Algorithms.Extensions;
 using Net.Utilities.Algorithms.Halcon.Extensions;
-using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
@@ -304,7 +303,7 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
             {
                 Logger.LogHtmlInformation("INC", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                await CatchINCAsync(Generate.LinearRange(
+                await CatchINCAsync(Generate.LinearRangeContainsEdge(
                     Cache.Item.StartRoughINCMotorAbsoluteValue,
                     Cache.Item.StepRoughINCMotorAbsoluteValue,
                     Cache.Item.StopRoughINCMotorAbsoluteValue));
@@ -312,10 +311,10 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
                 Algorithm(CalibratingItem);
                 Guard.IsNotNull(CalibratingItem.MaxItemINCMotorAbsoluteValue);
 
-                await CatchINCAsync(Generate.LinearRange(
-                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value - Cache.Item.RangeRefinedINCMotorAbsoluteValue,
+                await CatchINCAsync(Generate.LinearRangeContainsEdge(
+                    Math.Max(CalibratingItem.MaxItemINCMotorAbsoluteValue.Value - Cache.Item.RangeRefinedINCMotorAbsoluteValue, Cache.Item.StartRoughINCMotorAbsoluteValue),
                     Cache.Item.StepRefinedINCMotorAbsoluteValue,
-                    CalibratingItem.MaxItemINCMotorAbsoluteValue.Value + Cache.Item.RangeRefinedINCMotorAbsoluteValue));
+                    Math.Min(CalibratingItem.MaxItemINCMotorAbsoluteValue.Value + Cache.Item.RangeRefinedINCMotorAbsoluteValue, Cache.Item.StopRoughINCMotorAbsoluteValue)));
 
                 Algorithm(CalibratingItem);
                 CalibratingItem.IsCalibrated = true;
@@ -495,17 +494,18 @@ public sealed partial class OpticsINCViewModel : CalibrationViewModelBase<Optics
 
     private void Algorithm(OpticsINCDTO opticsINC)
     {
-        opticsINC.SmoothPoints = Filter.MovMean([.. opticsINC.Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))], Cache.SmoothWindowSize);
-
-        if (HostEnvironment.IsDevelopment())
-        {
-            opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.SmoothPoints.Maxima(t => t.Y).First().X;
-
-            return;
-        }
-
-        var (_, results) = Extremumor.FindMaxima(opticsINC.SmoothPoints);
-        opticsINC.MaxItemINCMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
+        opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.Items.Maxima(t => t.PMTValue).First().INCMotorAbsoluteValue;
+        // opticsINC.SmoothPoints = Filter.MovMean([.. opticsINC.Items.Select(t => new Point(t.INCMotorAbsoluteValue, t.PMTValue))], Cache.SmoothWindowSize);
+        //
+        // if (HostEnvironment.IsDevelopment())
+        // {
+        //     opticsINC.MaxItemINCMotorAbsoluteValue = opticsINC.SmoothPoints.Maxima(t => t.Y).First().X;
+        //
+        //     return;
+        // }
+        //
+        // var (_, results) = Extremumor.FindMaxima(opticsINC.SmoothPoints);
+        // opticsINC.MaxItemINCMotorAbsoluteValue = results.Maxima(t => t.Y).First().X;
     }
 
     private bool Save(IReadOnlyList<OpticsINCDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
