@@ -6,6 +6,7 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Basic;
 using Semix.GRPC.DTO;
 using Semix.GRPC.DTO.Basic;
+
 #else
 using Core.Models.Enums.ADS;
 using Cuga.Data.DataStruct.ADS;

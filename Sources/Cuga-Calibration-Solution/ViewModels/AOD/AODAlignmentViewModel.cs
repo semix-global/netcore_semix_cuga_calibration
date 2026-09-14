@@ -194,7 +194,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
     {
         return InvokeCalibrateAsync(() =>
         {
-            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>(false, cancellationToken);
+            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>(false, cancellationToken);
             var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (prescanResult is null)
