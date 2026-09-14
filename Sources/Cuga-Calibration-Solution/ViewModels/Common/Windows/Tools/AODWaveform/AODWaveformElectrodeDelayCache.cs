@@ -39,10 +39,10 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     public partial double LegacyScoreGamma { get; set; } = 0d;
 
     [ObservableProperty]
-    public partial double BandWidthScoreThreshold { get; set; }
+    public partial double BandWidthScoreThreshold { get; set; } = 0.5;
 
     [ObservableProperty]
-    public partial double BandWidthScoreEpsilon { get; set; }
+    public partial double BandWidthScoreEpsilon { get; set; } = 0.1;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeDelayParam[] ElectrodeDelayParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
