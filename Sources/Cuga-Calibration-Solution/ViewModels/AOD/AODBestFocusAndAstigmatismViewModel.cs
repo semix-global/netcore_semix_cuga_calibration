@@ -801,7 +801,7 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
                 temp.IsKeepRawImageCIBProfileModeEnum = false;
                 using var image = temp.GetImage();
 
-                item = CalibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, HtmlLogUniqueId);
+                item = CalibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
                 item.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
             }
             catch (Exception ex)

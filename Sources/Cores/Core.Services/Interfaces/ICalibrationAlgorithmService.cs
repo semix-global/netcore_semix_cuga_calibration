@@ -52,9 +52,11 @@ public interface ICalibrationAlgorithmService
     /// <param name="image">图片</param>
     /// <param name="startECS">开始ECS</param>
     /// <param name="stopECS">停止ECS</param>
+    /// <param name="algorithmEngineTypeEnum">算法库</param>
+    /// <param name="algorithmBestFocusTypeEnum">bestfocus目标晶圆类型</param>
     /// <param name="guid">日志Id</param>
     /// <returns>Best Focus结果</returns>
-    BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, Guid guid);
+    BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum, Guid guid);
 
     #endregion 清晰度
 

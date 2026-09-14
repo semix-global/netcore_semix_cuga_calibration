@@ -378,7 +378,7 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
                     try
                     {
-                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, HtmlLogUniqueId);
+                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
                         item.BestFocus = bestFocus;
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 

@@ -219,11 +219,11 @@ public sealed class AfViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Trigger, double X, double Ecs)> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<(double Trigger, double X, double Ecs, double NSC)>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetZAndXSyncModeTraceBufferList(timeSpan);
+        var ret = await calibrationAfService.GetZAndXSyncModeTraceBufferListAsync(cancellationToken);
 
         logger.LogInformation("End TraceBuffer");
 
