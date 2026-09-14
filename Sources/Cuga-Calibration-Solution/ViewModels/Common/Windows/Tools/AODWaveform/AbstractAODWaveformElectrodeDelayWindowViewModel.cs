@@ -284,6 +284,11 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
                 Cache.Step1 = new AODWaveformElectrodeDelay<TItem>();
             }
+            else if (Cache.Step1.StabilityStartIndex is not null)
+            {
+                Cache.Step1.Items = [.. Cache.Step1.Items.Take(Cache.Step1.StabilityStartIndex.Value)];
+                Cache.Step1.StabilityStartIndex = null;
+            }
 
             Cache.ElectrodeConfigurationResults =
             [
