@@ -192,7 +192,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Retry Times: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
                                     <TextBox Text="{Binding Cache.Frequencies, Converter={StaticResource DoublesToStringConverter}}"

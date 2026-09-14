@@ -191,7 +191,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Measure Power Retry Times: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
                                     <Expander Header="Frequencies"
@@ -241,7 +241,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.DetailLogInterval}" />
                                     <Expander Header="{Binding Steps[0]}"
@@ -373,13 +373,13 @@
                                                 <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
+                                                                  Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmInitialPoints}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Early Stop: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
+                                                                  Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmEarlyStop}" />
                                                 <ComboBox hc:TitleElement.Title="Acquisition Function: "
@@ -397,7 +397,7 @@
                                                 <hc:NumericUpDown hc:TitleElement.Title="Retry Times: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
+                                                                  Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.AlgorithmRetryTimes}" />
                                             </hc:UniformSpacingPanel>
