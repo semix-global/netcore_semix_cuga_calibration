@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -11,8 +12,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
-using CommunityToolkit.Diagnostics;
-
 
 #if NETFRAMEWORK
 using Core.Models.Extensions;
