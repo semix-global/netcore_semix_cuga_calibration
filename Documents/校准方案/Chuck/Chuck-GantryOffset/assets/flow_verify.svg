@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" font-family="'PingFang SC','Noto Sans CJK SC','WenQuanYi Micro Hei','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .ns { fill: #E0F7EE; stroke: #1DC981; stroke-width: 1.2; }
+    .nr { fill: #FDECEA; stroke: #E8463A; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsg { fill: #0E9F6E; font-size: 12px; }
+    .tsr { fill: #E8463A; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+  <defs>
+    <marker id="aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+
+  <rect class="n" x="160" y="16" width="400" height="56" rx="12"/>
+  <text class="th" x="360" y="39" text-anchor="middle">下发校准 Offset</text>
+  <text class="ts" x="360" y="59" text-anchor="middle">把所选校准记录的 Offset 下发到载台</text>
+
+  <rect class="n" x="160" y="100" width="400" height="56" rx="12"/>
+  <text class="th" x="360" y="123" text-anchor="middle">重新对齐并复测</text>
+  <text class="ts" x="360" y="143" text-anchor="middle">P5 对齐 + 上、下两点低/高倍共 4 次匹配</text>
+
+  <path class="n" d="M 369.3 187.7 L 460.7 224.3 Q 470 228 460.7 231.7 L 369.3 268.3 Q 360 272 350.7 268.3 L 259.3 231.7 Q 250 228 259.3 224.3 L 350.7 187.7 Q 360 184 369.3 187.7 Z"/>
+  <text class="th" x="360" y="222" text-anchor="middle">验证 Offset 绝对值</text>
+  <text class="th" x="360" y="246" text-anchor="middle">严格小于阈值 ?</text>
+
+  <rect class="ns" x="100" y="324" width="180" height="48" rx="24"/>
+  <text class="th" x="190" y="344" text-anchor="middle">验证通过</text>
+  <text class="tsg" x="190" y="362" text-anchor="middle">标记通过并保存结果</text>
+
+  <rect class="nr" x="440" y="324" width="180" height="48" rx="24"/>
+  <text class="th" x="530" y="344" text-anchor="middle">验证失败</text>
+  <text class="tsr" x="530" y="362" text-anchor="middle">记录失败状态与实测值</text>
+
+  <path class="arr" d="M360 72 V96" marker-end="url(#aw)"/>
+  <path class="arr" d="M360 156 V180" marker-end="url(#aw)"/>
+  <path class="arr" d="M360 272 V290 Q360 298 352 298 H198 Q190 298 190 306 V320" marker-end="url(#aw)"/>
+  <path class="arr" d="M360 272 V290 Q360 298 368 298 H522 Q530 298 530 306 V320" marker-end="url(#aw)"/>
+</svg>

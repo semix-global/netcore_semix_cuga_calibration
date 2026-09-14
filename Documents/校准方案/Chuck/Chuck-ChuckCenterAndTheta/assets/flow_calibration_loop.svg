@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 730" width="720" height="730" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsb { fill: #4B3FE3; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .arrb { stroke: #4B3FE3; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .cap { fill: #FFFFFF; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+  </style>
+  <defs>
+    <marker id="aw2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+    <marker id="aw2b" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#4B3FE3"/>
+    </marker>
+  </defs>
+  <path class="arr" d="M360 94 V116" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 174 V196" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 254 V276" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 334 V356" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 414 V425" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 518 V552" marker-end="url(#aw2)"/>
+  <path class="arr" d="M360 610 V632" marker-end="url(#aw2)"/>
+  <path class="arrb" d="M530 472 L636 472 L636 147 L552 147" marker-end="url(#aw2b)"/>
+  <rect class="n" x="170" y="40" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="61" text-anchor="middle">初始化</text>
+  <text class="ts" x="360" y="81" text-anchor="middle">旋转角校验 · 比例系数 = 1 · 清空历史</text>
+  <rect class="n" x="170" y="120" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="141" text-anchor="middle">下发比例系数</text>
+  <text class="ts" x="360" y="161" text-anchor="middle">当前比例系数下发到控制器（θ 轴）</text>
+  <rect class="n" x="170" y="200" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="221" text-anchor="middle">正向旋转测量</text>
+  <text class="ts" x="360" y="241" text-anchor="middle">正旋转 → 四点位高低倍匹配 → 4 个正向高倍位置</text>
+  <rect class="n" x="170" y="280" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="301" text-anchor="middle">反向旋转测量</text>
+  <text class="ts" x="360" y="321" text-anchor="middle">负旋转 → 四点位匹配 → 4 个反向高倍位置</text>
+  <rect class="n" x="170" y="360" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="381" text-anchor="middle">计算旋转中心与比例</text>
+  <text class="ts" x="360" y="401" text-anchor="middle">8 点圆心（外部算法）· 实测比例系数 · 比例残差</text>
+  <path class="nb" d="M392 436.3 L498 463.7 Q530 472 498 480.3 L392 507.7 Q360 516 328 507.7 L222 480.3 Q190 472 222 463.7 L328 436.3 Q360 428 392 436.3 Z"/>
+  <text class="tbr" x="360" y="468" text-anchor="middle">比例残差均值</text>
+  <text class="tbr" x="360" y="487" text-anchor="middle">&lt; 旋转比例阈值？</text>
+  <rect class="n" x="170" y="556" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="577" text-anchor="middle">各轮中心取均值</text>
+  <text class="ts" x="360" y="597" text-anchor="middle">最终旋转中心 → 折算校正后明场中心</text>
+  <rect class="n" x="170" y="636" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="657" text-anchor="middle">判定与保存</text>
+  <text class="ts" x="360" y="677" text-anchor="middle">中心校准阈值判定 · 保存记录 → 标记已校准</text>
+  <rect class="cap" x="508" y="482" width="148" height="40" rx="8"/>
+  <text class="ts" x="582" y="497" text-anchor="middle">否 · 进入下一轮</text>
+  <text class="ts" x="582" y="513" text-anchor="middle">≤ 循环次数上限</text>
+  <rect class="cap" x="372" y="524" width="84" height="22" rx="11"/>
+  <text class="ts" x="414" y="539" text-anchor="middle">是 · 收敛</text>
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 692" width="720" height="692" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .nd { fill: rgba(232,70,58,0.10); stroke: rgba(232,70,58,0.5); stroke-width: 1; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tb { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+  <defs>
+    <marker id="aw2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+  <rect class="n" x="220" y="44" width="160" height="36" rx="18"/>
+  <text class="th" x="300" y="67" text-anchor="middle">开始验证</text>
+  <path class="arr" d="M300 80 V104" marker-end="url(#aw2)"/>
+  <g>
+    <rect class="n" x="150" y="104" width="300" height="76" rx="8"/>
+    <text class="th" x="300" y="128" text-anchor="middle">复测清晰度</text>
+    <text class="ts" x="300" y="148" text-anchor="middle">设标准 ECS 与中继透镜电压，等 5s 稳定</text>
+    <text class="ts" x="300" y="166" text-anchor="middle">抓图计算 NewQ，与校准值 OldQ 比差</text>
+  </g>
+  <path class="arr" d="M300 180 V204" marker-end="url(#aw2)"/>
+  <polygon class="n" points="300,204 450,240 300,276 150,240"/>
+  <text class="tb" x="300" y="245" text-anchor="middle">abs(NewQ − OldQ) &lt; 阈值？</text>
+  <path class="arr" d="M450 240 H490" marker-end="url(#aw2)"/>
+  <text class="ts" x="468" y="230" text-anchor="middle">否</text>
+  <g>
+    <rect class="nd" x="490" y="208" width="180" height="64" rx="8"/>
+    <text class="th" x="580" y="232" text-anchor="middle">校准失败</text>
+    <text class="ts" x="580" y="252" text-anchor="middle">重新校准该倍镜</text>
+  </g>
+  <path class="arr" d="M300 276 V300" marker-end="url(#aw2)"/>
+  <text class="ts" x="312" y="291">是</text>
+  <g>
+    <rect class="n" x="150" y="300" width="300" height="76" rx="8"/>
+    <text class="th" x="300" y="324" text-anchor="middle">齐焦（Parfocal）检查</text>
+    <text class="ts" x="300" y="344" text-anchor="middle">已验证倍镜 ≥ 2 时执行，否则跳过</text>
+    <text class="ts" x="300" y="362" text-anchor="middle">比较全部已校准倍镜 ECS 极差</text>
+  </g>
+  <path class="arr" d="M300 376 V400" marker-end="url(#aw2)"/>
+  <polygon class="n" points="300,400 450,436 300,472 150,436"/>
+  <text class="tb" x="300" y="441" text-anchor="middle">ECS 极差 ≤ 齐焦阈值？</text>
+  <path class="arr" d="M450 436 H490" marker-end="url(#aw2)"/>
+  <text class="ts" x="468" y="426" text-anchor="middle">否</text>
+  <g>
+    <rect class="nd" x="490" y="404" width="180" height="64" rx="8"/>
+    <text class="th" x="580" y="428" text-anchor="middle">校准失败</text>
+    <text class="ts" x="580" y="448" text-anchor="middle">该倍镜置为未验证</text>
+  </g>
+  <path class="arr" d="M300 472 V496" marker-end="url(#aw2)"/>
+  <text class="ts" x="312" y="487">是</text>
+  <polygon class="n" points="300,496 440,532 300,568 160,532"/>
+  <text class="tb" x="300" y="537" text-anchor="middle">还有未验证倍镜？</text>
+  <path class="arr" d="M160 532 H110 V142 H150" marker-end="url(#aw2)"/>
+  <text class="ts" x="135" y="521" text-anchor="middle">是</text>
+  <path class="arr" d="M300 568 V596" marker-end="url(#aw2)"/>
+  <text class="ts" x="312" y="584">否</text>
+  <rect class="nb" x="200" y="596" width="200" height="40" rx="20"/>
+  <text class="tbr" x="300" y="621" text-anchor="middle">校准验证成功</text>
+  <text class="ts" x="360" y="662" text-anchor="middle">推荐阈值：Verify 清晰度 B3 600 / B4 150 · 齐焦极差 B3 150 / B4 250（以当次配置为准）</text>
+</svg>

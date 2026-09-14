@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 672" width="720" height="672" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsb { fill: #4B3FE3; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .cap { fill: #FFFFFF; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+  </style>
+  <defs>
+    <marker id="awl" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+
+  <path class="arr" d="M250 76 V96" marker-end="url(#awl)"/>
+  <path class="arr" d="M250 156 V176" marker-end="url(#awl)"/>
+  <path class="arr" d="M250 236 V256" marker-end="url(#awl)"/>
+  <path class="arr" d="M250 316 V336" marker-end="url(#awl)"/>
+  <path class="arr" d="M250 408 V428" marker-end="url(#awl)"/>
+  <path class="arr" d="M250 544 V568" marker-end="url(#awl)"/>
+  <path class="arr" d="M402 488 L496 488" marker-end="url(#awl)"/>
+  <path class="arr" d="M588 456 V228 Q588 208 568 208 L446 208" marker-end="url(#awl)"/>
+
+  <rect class="n" x="180" y="44" width="140" height="32" rx="16"/>
+  <text class="th" x="250" y="64" text-anchor="middle">进入 Step 7</text>
+
+  <rect class="n" x="60" y="100" width="380" height="56" rx="8"/>
+  <text class="th" x="76" y="124">重置比例并初始化</text>
+  <text class="ts" x="76" y="143">AppliedScaleXY = (1, 1)，记录初始结果</text>
+
+  <rect class="n" x="60" y="180" width="380" height="56" rx="8"/>
+  <text class="th" x="76" y="204">下发 AppliedScaleXY</text>
+  <text class="ts" x="76" y="223">每轮先把当前累乘比例下发到控制器</text>
+
+  <rect class="n" x="60" y="260" width="380" height="56" rx="8"/>
+  <text class="th" x="76" y="284">四方向模板匹配</text>
+  <text class="ts" x="76" y="303">低倍定位 → 加坐标差预测高倍 → 高倍精定位</text>
+
+  <rect class="n" x="60" y="340" width="380" height="68" rx="8"/>
+  <text class="th" x="76" y="364">计算比例与全片误差</text>
+  <text class="ts" x="76" y="384">k = 实测距离 / 理论距离（左右、上下）</text>
+  <text class="ts" x="76" y="402">ScaleErrorValue = |2×WaferRadius×(1−k)|</text>
+
+  <path class="n" d="M263.2 436.6 L396.8 483.4 Q410 488 396.8 492.6 L263.2 539.4 Q250 544 236.8 539.4 L103.2 492.6 Q90 488 103.2 483.4 L236.8 436.6 Q250 432 263.2 436.6 Z"/>
+  <text class="th" x="250" y="482" text-anchor="middle">|误差| &lt; Threshold ?</text>
+  <text class="ts" x="250" y="504" text-anchor="middle">全片累计误差对比阈值</text>
+
+  <rect class="cap" x="262" y="548" width="28" height="20" rx="10"/>
+  <text class="ts" x="276" y="562" text-anchor="middle">是</text>
+  <rect class="cap" x="436" y="452" width="28" height="20" rx="10"/>
+  <text class="ts" x="450" y="466" text-anchor="middle">否</text>
+  <rect class="cap" x="460" y="180" width="52" height="20" rx="10"/>
+  <text class="ts" x="486" y="194" text-anchor="middle">下一轮</text>
+
+  <rect class="n" x="500" y="456" width="176" height="64" rx="8"/>
+  <text class="th" x="516" y="480">累乘进入下一轮</text>
+  <text class="ts" x="516" y="499">Applied ×= Result</text>
+  <text class="ts" x="516" y="515">轮数 +1，上限 Times</text>
+
+  <text class="ts" x="588" y="540" text-anchor="middle">达到 Times 上限仍不收敛</text>
+  <text class="ts" x="588" y="558" text-anchor="middle">校准失败，无已校准结果</text>
+
+  <rect class="nb" x="60" y="572" width="380" height="56" rx="8"/>
+  <text class="tbr" x="76" y="596">收敛：取最后一轮为校准结果</text>
+  <text class="tsb" x="76" y="615">离开步骤时保存并标记 IsCalibrated</text>
+</svg>
