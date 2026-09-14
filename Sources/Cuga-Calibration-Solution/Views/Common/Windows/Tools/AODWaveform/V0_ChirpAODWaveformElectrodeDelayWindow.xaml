@@ -33,7 +33,6 @@
             <paramUI:GenerateAODWaveformUniformityConfigurationsToPointsConvert x:Key="GenerateAODWaveformUniformityConfigurationsToPointsConvert" />
             <system:String x:Key="PrimaryFlatnessParamTitleString">Flatness Changed Chirp AOD Waveform</system:String>
             <system:String x:Key="SecondaryFlatnessParamTitleString">Flatness Fixed Prescan AOD Waveform</system:String>
-            <system:String x:Key="ResultParamTitleString">Flatness Result Chirp AOD Waveform</system:String>
         </ResourceDictionary>
     </hc:Window.Resources>
     <i:Interaction.Triggers>
@@ -214,11 +213,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <StackPanel>
-                                                    <TextBlock Text="Electrode Delay Params"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Interpolation Count: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -247,8 +241,13 @@
                                                                   Background="{StaticResource InfoBrush}"
                                                                   Style="{StaticResource ToggleButtonSwitch}" />
                                                 </StackPanel>
+                                                <StackPanel>
+                                                    <TextBlock Text="Electrode Delay Params"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
                                                 <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
+                                                                        Spacing="2"
                                                                         Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
                                                     <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                         <Button Content="Add"
@@ -281,7 +280,7 @@
                                                     </DataGrid>
                                                 </hc:UniformSpacingPanel>
                                                 <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
+                                                                        Spacing="2"
                                                                         Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <StackPanel>
                                                         <TextBlock Text="Electrode2"
@@ -368,14 +367,14 @@
                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                              Style="{StaticResource TextBoxExtend}" />
                                                 </hc:UniformSpacingPanel>
-                                                <StackPanel>
-                                                    <TextBlock Text="Electrode Delay Frequency Weight Params"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
                                                 <hc:UniformSpacingPanel Orientation="Vertical"
-                                                                        Spacing="8"
+                                                                        Spacing="2"
                                                                         Visibility="{Binding Cache.IsOnlyElectrode4, Converter={StaticResource BoolNegationToVisibilityConverter}}">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Electrode Delay Frequency Weight Params"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
                                                     <DataGrid MaxHeight="500"
                                                               hc:DataGridAttach.ShowRowNumber="False"
                                                               CanUserSortColumns="False"
@@ -414,11 +413,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                                                <StackPanel>
-                                                    <TextBlock Text="Electrode Frequency Uniformity Params"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
                                                 <hc:NumericUpDown hc:TitleElement.Title="Split Chunk Size: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -516,11 +510,6 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <StackPanel>
-                                                    <TextBlock Text="{StaticResource ResultParamTitleString}"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Add"
                                                             Command="{Binding Cache.AddResultCommand}"
@@ -533,12 +522,13 @@
                                                             Style="{StaticResource ButtonDanger}" />
                                                 </hc:UniformSpacingPanel>
                                                 <ListBox x:Name="ResultTabControl"
+                                                         HorizontalContentAlignment="Stretch"
                                                          SelectionMode="Extended"
                                                          ItemsSource="{Binding Cache.Results}">
                                                     <ListBox.ItemTemplate>
                                                         <DataTemplate DataType="{x:Type viewModels:V0ChirpAODWaveformElectrodeDelayResult}">
                                                             <Border Height="360"
-                                                                    Margin="0,2"
+                                                                    Margin="0,10"
                                                                     Style="{StaticResource BorderRegion}">
                                                                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                                     <Grid>

@@ -100,7 +100,7 @@ public sealed partial class AODWaveformElectrodeDelay<TItem> : ObservableObject
             scatterLines.ElementAtOrDefault(0)?.Update("Score", [.. Items.Index().Select(t => new Point(t.Index + 1, t.Item.Score))], Colors.Blue);
 
             var yLines = StabilityPlotDataSource.GetOrAddYLines(scores.Length > 0 ? 1 : 0);
-            yLines.ElementAtOrDefault(0)?.Update($"Stability std: {scores.StandardDeviation():0.######}", scores.Average(), Colors.DarkRed);
+            yLines.ElementAtOrDefault(0)?.Update($"Stability STD: {scores.StandardDeviation():0.######}", scores.Average(), Colors.DarkRed);
 
             var xLines = StabilityPlotDataSource.GetOrAddXLines(StabilityStartIndex is not null ? 1 : 0);
             xLines.ElementAtOrDefault(0)?.Update("Stability Start", (StabilityStartIndex ?? 0) + 1, Colors.Green);

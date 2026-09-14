@@ -185,6 +185,14 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
+            DialogWindowProvider.ShowDialog(
+                $"""
+                 Please check whether the noise curve is abnormal. Current noise: {Cache.Noise}
+                 If it is abnormal, remeasure the noise or input the noise value manually.
+                 """,
+                DialogButtonsEnum.OK,
+                DialogIconEnum.Warning);
+
             return isSuccess;
 
             Guid StartDetailLog(int times)
@@ -441,6 +449,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                             finally
                             {
                                 if (isCurrentFrequenciesOk == false) Cache.Step1.Items = [.. Cache.Step1.Items.AsSpan()[..^1]];
+
+                                item.IsSelected = true;
                             }
                         }
                         finally
