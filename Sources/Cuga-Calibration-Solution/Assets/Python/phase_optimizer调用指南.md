@@ -1,280 +1,122 @@
-# `phase_optimizer.py` 调用指南
+# phase_optimizer.py 调用指南
 
-本文档对应当前版本的 [phase_optimizer.py](../phase_optimizer.py)。当前接口的状态格式为 version 5，不兼容旧版 `optimizer_state.pkl`。
+本文档对应同目录的 [phase_optimizer.py](phase_optimizer.py). 当前幅值模型使用 4 个原始归一化参数, 由 `single_sigmoid_amplitude_curve()` 生成完整测量频段的幅值数组.
 
-## 1. 接口概览
+## 1. 接口与参数
 
-优化器提供 `suggest()` 主接口；单调幅值转换函数也保留为可独立使用的工具：
+`suggest()` 只接受位置参数, 顺序如下:
 
 ```python
-import phase_optimizer
-
-phase_optimizer.suggest(
-    cost,
-    n_phase,
-    n_normal,
-    n_initial,
-    noise,
-    n_early_stop,
-    acq_func,
-)
-
-phase_optimizer.monotonic_amplitude_anchors(parameters)
-```
-
-`suggest()` 只能按下面的固定顺序使用位置参数，不能使用关键字参数：
-
-```text
 suggest(cost, n_phase, n_normal, n_initial, noise, n_early_stop, acq_func)
+single_sigmoid_amplitude_curve(normal_parameters, frequencies)
 ```
 
-首次调用至少提供前三个参数；后续调用可以从末尾省略不变的配置。若需要传入靠后的参数，前面的参数必须用 `None` 占位。
+- `cost`: 上一次测量的代价. 首次调用或恢复尚未测量的点时传 `None`. score 越大越好时传 `-score`.
+- `n_phase`: 非基准电极的延时变量数量, 当前 C# 调用为电极数量减 1.
+- `n_normal`: 单 Sigmoid 幅值模型固定传 `4`.
+- `n_initial`: 初始采样点数. 传 `None` 时按总维度的 2 倍向上取 2 的幂.
+- `noise`: score 的测量噪声方差, 不是标准差. 默认值为 `1e-4`.
+- `n_early_stop`: 连续无显著改善的早停步数. 默认 `"auto"` 为总维度的 20 倍, `None` 禁用早停.
+- `acq_func`: 采集函数, 默认 `"LCB"`, 也可使用 `"EI"` 或 `"PI"`.
 
-## 2. 优化变量的顺序和含义
+后续调用可以从末尾省略不变的配置. 如需传靠后的参数, 前面的可省略参数用 `None` 占位. 显式传入的参数数量, noise 和早停配置必须与首次调用一致.
 
-优化器内部使用一个连续的归一化向量；内部向量的普通段记为 `p_normal`。返回时拆成相位段和已经解码的幅值锚点段：
+## 2. 返回值
+
+| 字段 | 含义 |
+| --- | --- |
+| `x_phase` | 当前待测点的原始归一化延时参数, 长度为 `n_phase` |
+| `x_normal` | 当前待测点的 4 个原始归一化幅值参数 |
+| `best_x_phase` | 历史最优点的原始归一化延时参数, 尚无测量时为 `None` |
+| `best_x_normal` | 历史最优点的 4 个原始归一化幅值参数, 尚无测量时为 `None` |
+| `best_cost` | 历史最小代价, 尚无测量时为 `None` |
+| `done` | 是否已经满足早停条件 |
+
+当前接口使用 `x_phase` 和 `best_x_phase`. 旧调用中的 `x_periodic` 和 `best_x_periodic` 应替换为这两个字段.
+
+`x_normal` 和 `best_x_normal` 都是原始搜索参数, 不再是幅值锚点, 不能直接插值或下发硬件.
+
+## 3. 幅值曲线与外部 scale
+
+4 个参数依次为 `[u_A_low, u_A_high, u_center, u_width]`, 均位于 `[0, 1]`. 解码关系如下:
 
 ```text
-x_internal = [x_phase[0], ..., x_phase[n_phase-1],
-              p_normal[0], ..., p_normal[n_normal-1]]
-result["x_normal"] = monotonic_amplitude_anchors(p_normal)
+A_low = u_A_low
+A_high = A_low + (1 - A_low) * u_A_high
+B = max(frequencies) - min(frequencies)
+C = min(frequencies) + B * u_center
+W = B * 0.01 * 100**u_width
+A(f) = A_low + (A_high - A_low) * sigmoid(2 * ln(9) * (f - C) / W)
 ```
 
-### 相位参数
+`frequencies` 必须是本次任务的完整测量频率数组. C 和 W 与输入频率使用相同单位. W 表示幅值变化的 10%-90% 过渡宽度, 范围为频段跨度的 1%-100%.
 
-- `x_phase` 长度为 `n_phase`，每个值位于 `[0, 1]`。
-- 每个值表示非基准电极在参考频率下相位差的归一化值。
-- 参考频率相位差：
-
-  ```text
-  phase_ref = 2π × x_phase
-  ```
-
-- 基准电极不参与优化，相位差默认为 0。
-
-优化器本身不保存参考频率，也不负责把相位转换为硬件延时。参考频率和硬件接口语义由外部程序处理。
-
-### 幅值参数
-
-优化器内部使用的幅值控制量按频率从低到高排列，并保存在 `optimizer_state.pkl` 中。`suggest()` 返回的 `x_normal` 已经转换为单调不减的幅值锚点，可以直接用于幅值曲线插值：
+函数返回与输入频率顺序一致的一维 NumPy 数组, 幅值范围为 `[0, 1]`. 支持乱序和重复频率. 空数组返回空数组, 非空数组至少需要两个不同的有限频率且跨度有限.
 
 ```python
-amplitude_anchors = result["x_normal"]
-```
-
-转换关系为：
-
-```text
-w[0] = p[0]
-w[i] = w[i-1] + (1-w[i-1]) × p[i]
-```
-
-因此返回的 `anchors` 满足：
-
-```text
-0 ≤ w[0] ≤ w[1] ≤ ... ≤ w[M-1] ≤ 1
-```
-
-这些是归一化幅值锚点，不是必然对应伏值或 dBm 的硬件量。若硬件使用电压、功率或 DAC 码值，仍需由外部程序完成物理量映射。
-
-对于独立于 `suggest()` 的控制量，仍可直接调用转换函数。例如：
-
-```python
-controls = [0.25, 0.0, 0.5, 0.0, 1.0]
-anchors = phase_optimizer.monotonic_amplitude_anchors(controls)
-# [0.25, 0.25, 0.625, 0.625, 1.0]
-```
-
-当锚点位于均匀归一化频率位置时，可用分段线性插值得到目标频率的幅值：
-
-```python
-import numpy as np
-
-anchor_frequency = np.linspace(0.0, 1.0, len(anchors))
-frequency = (frequency_hz - f_min_hz) / (f_max_hz - f_min_hz)
-amplitude = np.interp(frequency, anchor_frequency, anchors)
-```
-
-## 3. 首次调用
-
-以 5 电极、4 个相位变量和 5 个幅值控制量为例：
-
-```python
-import phase_optimizer
-
-n_phase = 5 - 1
-n_normal = 5
-n_initial = 32
-noise_variance = 0.02 ** 2       # 测量 score 噪声的方差，不是标准差
-n_early_stop = 100                # 连续 100 次无显著改善后停止
-acq_func = "LCB"
-
-result = phase_optimizer.suggest(
-    None,
-    n_phase,
-    n_normal,
-    n_initial,
-    noise_variance,
-    n_early_stop,
-    acq_func,
+normalized_amplitudes = phase_optimizer.single_sigmoid_amplitude_curve(
+    result["x_normal"], measured_frequencies
 )
+amplitudes = normalized_amplitudes * scale
 ```
 
-首次调用的 `cost` 必须是 `None`。函数会创建当前工作目录下的 `optimizer_state.pkl`，并返回第一个待测点。
+scale 由外部程序处理, 可以是统一缩放值或与频率一一对应的数组. 不要再次进行锚点插值, 不要重复乘 scale. 同一任务应保持完整频段和 scale 不变, 传入子频段会改变曲线的解码结果.
 
-## 4. 标准测量循环
+## 4. 标准测量循环与最佳参数
 
-外部程序的基本流程是“取得候选参数 → 下发硬件 → 测量 → 反馈 cost”：
+以下示例中的 `measured_frequencies`, `scale`, `decode_delays_for_hardware`, `measure_score` 和 `apply_best_parameters` 由外部程序提供.
 
 ```python
-import numpy as np
 import phase_optimizer
 
 n_electrodes = 5
 n_phase = n_electrodes - 1
-n_normal = 5
 n_initial = 32
 noise_variance = 0.02 ** 2
 n_early_stop = 100
 
 result = phase_optimizer.suggest(
-    None, n_phase, n_normal, n_initial, noise_variance, n_early_stop, "LCB"
+    None, n_phase, 4, n_initial, noise_variance, n_early_stop, "LCB"
 )
 
 while not result["done"]:
-    # 1. 读取优化器返回的相位归一化参数和可直接插值的幅值锚点。
-    x_phase = np.asarray(result["x_phase"], dtype=float)
-    amplitude_anchors = np.asarray(
-        result["x_normal"], dtype=float
-    )
+    delays = decode_delays_for_hardware(result["x_phase"])
+    amplitudes = phase_optimizer.single_sigmoid_amplitude_curve(
+        result["x_normal"], measured_frequencies
+    ) * scale
+    score = measure_score(delays, measured_frequencies, amplitudes)
+    result = phase_optimizer.suggest(-float(score), n_phase, 4)
 
-    # 2. 按硬件接口定义，把 x_phase / amplitude_anchors 解码为实际命令。
-    hardware_parameters = decode_for_hardware(
-        x_phase, amplitude_anchors
-    )
-
-    # 3. 下发并测量。score 越大越好，而 suggest() 约定 cost 越小越好。
-    score = measure_score(hardware_parameters)
-    cost = -float(score)
-
-    # 后续位置参数仍按同一顺序传入；不变的首次配置用 None 占位。
-    result = phase_optimizer.suggest(
-        cost, n_phase, n_normal, None, None, n_early_stop, "LCB"
-    )
-
-best_x_phase = np.asarray(result["best_x_phase"], dtype=float)
-best_amplitude_anchors = np.asarray(
-    result["best_x_normal"], dtype=float
-)
+best_delays = decode_delays_for_hardware(result["best_x_phase"])
+best_amplitudes = phase_optimizer.single_sigmoid_amplitude_curve(
+    result["best_x_normal"], measured_frequencies
+) * scale
 best_score = -float(result["best_cost"])
+apply_best_parameters(best_delays, measured_frequencies, best_amplitudes)
 ```
 
-注意：`n_initial` 只在首次创建优化器时生效；`noise` 和采集函数配置也应保持首次调用时的值。后续调用若不需要重复传配置，可以直接写成：
+若外部循环在早停前自行中止, 应先反馈最后一次测量的 cost, 再读取最佳参数. 尚无有效测量时, 不应解码为 `None` 的最佳参数.
 
-```python
-result = phase_optimizer.suggest(cost)
-```
+## 5. 当前 C# 调用方式
 
-如果进程在硬件测量期间重启，使用 `cost=None` 会重新返回状态中尚未完成的同一个待测点，不会跳过该次测量：
+Chirp 和 Prescan 共用 `AbstractAODWaveformElectrodeDelayWindowViewModel` 的调用逻辑:
 
-```python
-result = phase_optimizer.suggest(None)
-```
+- `suggest()` 的幅值参数数量直接写死为 `4`. 界面和缓存中的 `AlgorithmUniformityAnchorCount` 保持原样, 不再参与此调用.
+- 完整频率数组来自 `Cache.AODWaveformElectrodeDelayFrequencies`, 单位为 MHz.
+- 当前点读取 `x_normal`, 调用 `single_sigmoid_amplitude_curve()` 生成幅值. `done` 为真时仍完成同样的参数读取和幅值生成, 再由外层循环结束.
+- NumPy 返回值通过 `tolist()` 转换后读取. 测量更新函数在原有幅值计算位置, 将归一化曲线值乘对应频点的 `Amplitude` 作为外部 scale.
+- 测量流程按频率索引直接下发缩放后的幅值. 噪声测量仍使用配置的频点幅值.
+- `x_phase` 先乘 `AlgorithmMaxDelay`, 再按现有电极顺序累加并叠加板卡延时. 基准电极延时为 `0`, 延时单位为 ns.
+- 每轮测量的 `finally` 从本地有效测量记录中选取最高 Score 项, 将该项的延时和已下发幅值写入电极结果配置. 优化完成后保留该结果, 供后续波形生成使用.
 
-## 5. 相位差和延时的换算
+Python 文件作为嵌入资源读取, 资源名为 `CugaCalibration.Assets.Python.phase_optimizer.py`. 当前源码已经包含新曲线函数, 部署时需要使用包含该资源及新 C# 调用逻辑的程序版本.
 
-假设：
+## 6. 状态与重新开始
 
-- `f_ref_hz` 是参考频率，单位为 Hz；
-- `x_phase[j]` 是第 `j+1` 个电极相对基准电极的归一化参考相位差；
-- 硬件采用固定延时语义。
+Python 默认将状态保存在当前工作目录的 `optimizer_state.pkl`. 当前 C# 调用通过 `_STATE_FILE` 指定为应用目录下 `Python/<调用类型名称>/optimizer_state.pkl`.
 
-先计算参考频率相位和相对延时：
-
-```python
-phase_ref = 2.0 * np.pi * x_phase
-delay = x_phase / f_ref_hz
-```
-
-在目标频率 `frequency_hz` 下，第 `j+1` 个电极的相位差为：
-
-```python
-phase_at_frequency = 2.0 * np.pi * frequency_hz * delay
-```
-
-等价地：
-
-```python
-phase_at_frequency = phase_ref * frequency_hz / f_ref_hz
-```
-
-如果硬件接口要求相位范围为 `[0, 2π)`，只在最终下发前进行包络：
-
-```python
-phase_command = np.mod(phase_at_frequency, 2.0 * np.pi)
-```
-
-不要把这个包络操作用于优化器输入变量本身；优化器返回的 `x_phase` 应原样参与本次候选参数对应的测量反馈。
-
-## 6. 返回值说明
-
-| 字段 | 含义 |
-|---|---|
-| `x_phase` | 当前待测点的相位归一化参数，长度为 `n_phase` |
-| `x_normal` | 当前待测点已转换的单调不减幅值锚点，长度为 `n_normal`，可直接用于插值 |
-| `best_x_phase` | 当前历史最优点的相位参数；尚无测量时为 `None` |
-| `best_x_normal` | 当前历史最优点已转换的幅值锚点；尚无测量时为 `None` |
-| `best_cost` | 历史最小 cost；尚无测量时为 `None` |
-| `done` | 是否已满足早停条件 |
-
-由于约定 `cost = -score`：
-
-```text
-best_score = -best_cost
-```
-
-当前接口不再返回 `x_periodic`、`best_x_periodic` 或合并后的 `x` 字段。
-
-## 7. 状态文件和重新开始
-
-- 状态文件名为 `optimizer_state.pkl`，默认位于调用程序的当前工作目录。
-- 同一个状态文件只能对应一组固定的 `n_phase` 和 `n_normal`。
-- 更换参数数量、优化器算法、评分定义或变量语义时，应使用新的工作目录或新的状态文件，从首次调用重新开始。
-- 当前版本不兼容旧版状态文件；不要将旧状态直接交给当前 `phase_optimizer.py` 恢复。
-- `suggest()` 不设置总测量次数上限；正式仿真使用 `n_early_stop=100`。如需调试时限制次数，应由外部循环自行中止，并将该结果标记为短预算结果。
-
-## 8. 常见错误
-
-### 关键字传参
-
-错误：
-
-```python
-phase_optimizer.suggest(None, n_phase=4, n_normal=5)
-```
-
-正确：
-
-```python
-phase_optimizer.suggest(None, 4, 5)
-```
-
-### 把标准差当成 `noise`
-
-`noise` 要传方差。如果重复测量估计出的 score 噪声标准差为 `sigma`，应传：
-
-```python
-noise_variance = sigma ** 2
-```
-
-### 把 score 直接传给 `suggest()`
-
-`suggest()` 按 cost 越小越好处理。如果业务评分是越大越好，应传入负值：
-
-```python
-cost = -score
-```
-
-### 跳过 `cost=None` 的待测点
-
-调用 `suggest(None)` 表示“当前待测点还没有测量结果”，函数会返回状态中保存的同一点。只有拿到该点的测量结果后，才应将对应的 `cost` 传回。
+- 由旧锚点插值模型迁移到单 Sigmoid 模型时, 必须重新开始优化. 不要用新曲线解释旧模型的历史测量.
+- 更换变量数量, 延时范围, 测量频段, scale 或评分定义时, 应使用新的优化状态.
+- 当前 C# 重置流程会备份原状态文件, 清空待反馈 cost 和测量记录.
+- `suggest(None)` 会恢复同一个尚未测量的候选点. 只有获得对应测量结果后才反馈 cost, 避免重复记录或错误配对.
+- 已完成的状态可以重复查询, 不会再次记录同一次测量.

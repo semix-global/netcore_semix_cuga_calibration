@@ -19,6 +19,7 @@ using Local.SQL.DB.Providers.Services.Interfaces;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Helpers;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Semix.CoreLib;
 using System.IO;
@@ -52,8 +53,7 @@ public sealed class CalibrationConfigServiceImpl(
 
     public async Task<SxExecuteRet<SysUserDTO>> LoginAsync(SysUserDTO user, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password))
-            throw new LoginException("The account or password cannot be empty!");
+        if (string.IsNullOrWhiteSpace(user.UserName) || string.IsNullOrWhiteSpace(user.Password)) throw new LoginException("The account or password cannot be empty!");
 
         if (user.Id != 1 && user.IsAdmin == false && user.SysRoleList.Any(t => t.Id == 4) == false)
         {
@@ -62,16 +62,13 @@ public sealed class CalibrationConfigServiceImpl(
         }
 
         var sysUser = await sysUserRepository
-                          .Select
-                          .WhereIf(user.IsAdmin, t => t.UserName == user.UserName && t.Password == user.Password)
-                          .WhereIf(user.IsAdmin == false, t => t.UserName == user.UserName)
-                          .ToOneAsync(cancellationToken).ConfigureAwait(false) ??
-                      throw new LoginException("The account or password is incorrect!");
-        if (sysUser.IsDeleted || sysUser.IsEnabled == false)
-            throw new LoginException("The account has been deactivated and login is prohibited!");
+            .Select
+            .WhereIf(user.IsAdmin, t => t.UserName == user.UserName && t.Password == EncryptUtils.Encrypt32(user.Password))
+            .WhereIf(user.IsAdmin == false, t => t.UserName == user.UserName)
+            .ToOneAsync(cancellationToken).ConfigureAwait(false) ?? throw new LoginException("The account or password is incorrect!");
+        if (sysUser.IsDeleted || sysUser.IsEnabled == false) throw new LoginException("The account has been deactivated and login is prohibited!");
 
-        var sysUserDto = await sysUserService.GetAsync(sysUser.Id, cancellationToken).ConfigureAwait(false) ??
-                         throw new DbException();
+        var sysUserDto = await sysUserService.GetAsync(sysUser.Id, cancellationToken).ConfigureAwait(false) ?? throw new DbException();
 
         sysUserDto.LoginDate = DateTime.Now;
         var isSuccess = await sysUserService.UpdateAsync(sysUserDto, cancellationToken).ConfigureAwait(false);

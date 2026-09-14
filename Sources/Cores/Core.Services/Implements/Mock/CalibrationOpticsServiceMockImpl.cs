@@ -8,10 +8,8 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
 
-
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif

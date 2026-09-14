@@ -196,7 +196,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
         {
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.ProductivityInformation,
+                Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation);
@@ -479,8 +479,8 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                             opticsROOSDTOItem.ROOSPos,
                             opticsROOSDTOItem.StartImageYPixel,
                             opticsROOSDTOItem.EndImageYPixel,
-                            opticsROOSDTOItem.CropImageYPixelHeight,
-                        }),
+                            opticsROOSDTOItem.CropImageYPixelHeight
+                        })
                     });
 
                     if (selectedReviewItem.IsOk)
@@ -496,7 +496,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
                         opticsROOSDTOItem.ROOSPos,
                         opticsROOSDTOItem.StartImageYPixel,
                         opticsROOSDTOItem.EndImageYPixel,
-                        opticsROOSDTOItem.CropImageYPixelHeight,
+                        opticsROOSDTOItem.CropImageYPixelHeight
                     }), HtmlLogUniqueId.LoggingHtml());
                 }
                 finally

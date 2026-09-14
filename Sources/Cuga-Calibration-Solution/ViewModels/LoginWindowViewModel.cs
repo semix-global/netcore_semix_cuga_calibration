@@ -68,40 +68,31 @@ public partial class LoginWindowViewModel(
                 return;
             }
 
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(150000));
-
-            await applicationCookieService.LoadingRoleMenuDataAsync(cancellationTokenSource.Token);
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(20));
 
             var cugaRegisterUsers = await configViewModel.GetRegisteredUsersInformationAsync(cancellationTokenSource.Token).ConfigureAwait(false);
 
             var allUsers = await sysUserService.GetAllAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-
             foreach (var registerUser in cugaRegisterUsers.Where(t => t.IsAdmin == false))
             {
                 var user = allUsers.SingleOrDefault(t => t.UserName == registerUser.UserName);
-                if (user == null)
+                if (user is null)
                 {
-                    if (await sysUserService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
+                    if (await sysUserService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false) ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user failed!");
 
-                    if (await sysUserRoleService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user Roles failed!");
+                    if (await sysUserRoleService.InsertAsync(registerUser, cancellationTokenSource.Token).ConfigureAwait(false) == false) ThrowHelper.ThrowArgumentException<SysUserDTO>("Insert cuga register user Roles failed!");
                 }
                 else
                 {
-                    // 用户表已存在: 只更新密码
-                    user.Password = registerUser.Password;
+                    user.Password = registerUser.Password; // 密码已经hash
 
-                    if (await sysUserService.UpdateAsync(user, cancellationTokenSource.Token).ConfigureAwait(false) == false)
-                        ThrowHelper.ThrowArgumentException<SysUserDTO>("Update cuga register user failed!");
+                    if (await sysUserService.UpdateAsync(user, cancellationTokenSource.Token).ConfigureAwait(false) == false) ThrowHelper.ThrowArgumentException<SysUserDTO>("Update cuga register user failed!");
                 }
             }
 
-            var users = await sysUserService.GetAllAsync(CancellationToken.None).ConfigureAwait(false);
+            await applicationCookieService.LoadingRoleMenuDataAsync(cancellationTokenSource.Token);
 
-            Guard.IsNotEmpty(users, "The user list is empty, please register a user first!");
-
-            Users = [.. users.OrderBy(t => t.Id)];
+            Users = [.. (await sysUserService.GetAllAsync(CancellationToken.None).ConfigureAwait(false)).OrderBy(t => t.Id)];
 
             if (hostEnvironment.IsProduction())
             {
@@ -115,6 +106,7 @@ public partial class LoginWindowViewModel(
         catch (Exception ex)
         {
             logger.LogError(ex, "{@Name}: LoadedAsync", nameof(LoginWindowViewModel));
+
             CloseView(false);
         }
     }

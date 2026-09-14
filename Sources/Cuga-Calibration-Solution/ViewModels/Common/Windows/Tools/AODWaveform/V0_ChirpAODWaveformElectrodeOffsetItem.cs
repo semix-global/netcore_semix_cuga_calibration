@@ -1,3 +1,0 @@
-﻿namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
-
-public sealed class V0ChirpAODWaveformElectrodeOffsetItem : V0AODWaveformElectrodeOffsetItem;

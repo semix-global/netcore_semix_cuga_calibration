@@ -1,15 +1,14 @@
 """
-贝叶斯优化器——单一函数接口，供外部硬件程序调用。
+贝叶斯优化器、幅值解码与评分接口，供外部硬件程序调用。
 
 优化器直接处理两类按固定顺序排列的搜索变量：
 
-* 前 ``n_phase`` 维是参考频率相位差的归一化表示，范围为 [0, 1]；
-  调用方将其解码为 ``phase_ref = 2π * x_phase``。
+* 前 ``n_phase`` 维保留历史字段名称，范围为 [0, 1]；当前调用方用于
+  延时控制，实际延时范围与换算由外部程序负责。
 * 后 ``n_normal`` 维是归一化普通变量（当前用于幅值控制量），范围为 [0, 1]；
-  内部状态保存控制量，``suggest()`` 返回时将其转换为单调幅值锚点。
-
-相位差的参考频率以及从相位差换算为延时的工作由外部程序完成。例如，
-参考频率为 ``f_ref`` 时，``delay = x_phase / f_ref``。
+  内部状态和 ``suggest()`` 返回值均保留这些原始普通参数，不在优化器层
+  解释为锚点或执行其他幅值变换。当前四参数单 Sigmoid 曲线由
+  ``single_sigmoid_amplitude_curve()`` 单独解码。
 
 典型用法::
 
@@ -20,14 +19,21 @@
         result = po.suggest(
             cost,
             n_electrodes - 1,
-            n_amplitude_anchors,
+            4,
         )
         if result["done"]:
             break
-        phase_parameters = result["x_phase"]
-        amplitude_anchors = result["x_normal"]
-        physical_parameters = decode(phase_parameters, amplitude_anchors)
-        cost = hardware(physical_parameters)
+        delay_parameters = result["x_phase"]
+        normal_parameters = result["x_normal"]
+        amplitude = po.single_sigmoid_amplitude_curve(
+            normal_parameters, measured_frequencies
+        )
+        physical_parameters = decode(delay_parameters, amplitude)
+        efficiencies = hardware(physical_parameters)
+        score = po.calculate_score(
+            measured_frequencies, efficiencies, "bandwidth", threshold, epsilon
+        )
+        cost = -score
 """
 
 import os
@@ -36,6 +42,7 @@ import time
 from typing import Iterable
 
 import numpy as np
+from scipy.special import expit
 from sklearn.base import clone
 from skopt import Optimizer
 from skopt.learning import GaussianProcessRegressor
@@ -43,19 +50,22 @@ from skopt.learning.gaussian_process.kernels import ConstantKernel, Matern
 from skopt.space import Real
 
 
-# 状态文件放在调用程序的当前工作目录。整个公开接口刻意只保留 suggest()，
-# 因而优化器、历史观测、待测点和早停计数都必须通过这个文件跨调用保存。
+# 状态文件放在调用程序的当前工作目录。优化器状态接口刻意只保留
+# suggest()；因此优化器、历史观测、待测点和早停计数都必须通过这个文件跨调用保存。
 _STATE_FILE = "optimizer_state.pkl"
-_STATE_VERSION = 5
 
-# 相位变量使用参考频率下相位差的归一化表示。
+# 保留历史相位字段；当前调用方将这组 [0,1] 参数用于延时控制。
 _PHASE_LOWER_BOUND = 0.0
 _PHASE_UPPER_BOUND = 1.0
 
-# 普通变量是归一化幅值控制量，由 monotonic_amplitude_anchors() 解码为
-# 单调不减的幅值锚点。
+# 普通变量是归一化幅值控制量；suggest() 对外原样返回 [0,1] 搜索坐标。
 _NORMAL_LOWER_BOUND = 0.0
 _NORMAL_UPPER_BOUND = 1.0
+
+# 单 Sigmoid 的中心覆盖输入频段；10%--90% 过渡宽度按频段跨度的
+# 1%--100% 对数映射。正下限避免零宽度，不代表硬件分辨率。
+_SINGLE_SIGMOID_MIN_WIDTH_FRACTION = 0.01
+_SINGLE_SIGMOID_FACTOR = 2.0 * np.log(9.0)
 
 # GP 核超参数的优化比较昂贵。前 50 次拟合每次优化，之后每 5 次优化一次；
 # 每 25 次再用多个起点进行一次较完整的校准，兼顾速度和长期稳定性。
@@ -74,25 +84,191 @@ _ACQ_N_RESTARTS = 3
 _MODEL_COST_SPAN = 1.0
 
 
-def monotonic_amplitude_anchors(parameters: Iterable[float], /) -> np.ndarray:
-    """将归一化幅值控制量转换为单调不减的幅值锚点。
+def calculate_score(
+    frequencies: Iterable[float],
+    efficiencies: Iterable[float],
+    method: str = "legacy",
+    threshold: float | None = None,
+    epsilon: float | None = None,
+    lam: float = 1.0,
+    gamma: float = 0.5,
+    /,
+) -> float:
+    """从频率及对应效率计算标量 score；越大越好，suggest() 接收 -score。
 
-    第一个控制量是最低频点幅值；后续控制量表示在当前幅值到上限 1
-    之间填充的比例：``w[i] = w[i-1] + (1-w[i-1]) * p[i]``。
-    外部程序应按频率从低到高传入控制量，返回值可直接用于幅值曲线插值。
+    固定位置参数顺序：frequencies, efficiencies, method, threshold,
+    epsilon, lam, gamma。两数组必须一维、等长、至少两个点且全部有限。
+    效率使用比值（60% 传 0.6），不自动转换百分数或功率。与旧评分一致，
+    拒绝负效率，但不自动截断大于 1 的观测值。输入数组不会被修改。
+
+    method="legacy"（默认）：原有线性效率评分
+    mean(eta) - lam*std(eta) - gamma*(max(eta)-min(eta))。
+    std 为总体标准差，频点等权；lam/gamma 为有限非负数，默认 1/0.5。
+    threshold/epsilon 在本模式不使用。原 scoring.py 的接口继续保留。
+
+    method="bandwidth"：必须显式传 threshold∈(0,1]、epsilon∈[0,1]。
+    按频率配对排序，重复频率拒绝（重复测量应由调用方先汇总）。在相邻
+    点间将效率作线性插值，F=max(f)-min(f)，B 是 eta>=threshold 的
+    最长连续区间宽度，中间不达标的低谷会切断区间，不累加分离的频带。
+    C = integral(min(eta(f)/threshold, 1), df)/F；先插值效率，再封顶积分，
+    阈值交点处拆段，支持不等间隔频率。返回 (1-epsilon)*B/F+epsilon*C，
+    范围 [0,1]。epsilon=0 只看带宽，epsilon=1 只看达标进度。
+    lam/gamma 在本模式不使用。带宽仅在已测频域内估计，不向带外外推。
+
+    本函数无优化状态副作用。一次优化中保持方法、参数和测量频段固定；
+    更改评分应新开优化状态，noise 也应按新 score 的重复测量方差设置。
     """
-    raw = np.asarray(parameters, dtype=float)
-    if raw.ndim != 1 or raw.size == 0:
-        raise ValueError("幅值控制量必须是一维非空数组")
-    if not np.all(np.isfinite(raw)) or np.any(raw < 0.0) or np.any(raw > 1.0):
-        raise ValueError("幅值控制量必须位于 [0,1]")
-    anchors = np.empty_like(raw)
-    anchors[0] = raw[0]
-    for index in range(1, raw.size):
-        anchors[index] = anchors[index - 1] + (
-            1.0 - anchors[index - 1]
-        ) * raw[index]
-    return anchors
+    try:
+        frequency_array = np.asarray(frequencies, dtype=float)
+    except TypeError:
+        frequency_array = np.asarray(list(frequencies), dtype=float)
+    try:
+        efficiency_array = np.asarray(efficiencies, dtype=float)
+    except TypeError:
+        efficiency_array = np.asarray(list(efficiencies), dtype=float)
+    if (
+        frequency_array.ndim != 1
+        or efficiency_array.ndim != 1
+        or frequency_array.size < 2
+        or frequency_array.shape != efficiency_array.shape
+    ):
+        raise ValueError("frequencies 和 efficiencies 必须是一维等长数组，且至少有两个点")
+    if not np.all(np.isfinite(frequency_array)):
+        raise ValueError("frequencies 必须是有限数值")
+    if not np.all(np.isfinite(efficiency_array)) or np.any(efficiency_array < 0.0):
+        raise ValueError("efficiencies 必须是有限非负数，使用效率比值而非百分数")
+
+    if method == "legacy":
+        lam, gamma = float(lam), float(gamma)
+        if not np.isfinite(lam) or lam < 0.0:
+            raise ValueError("lam 必须是有限非负数")
+        if not np.isfinite(gamma) or gamma < 0.0:
+            raise ValueError("gamma 必须是有限非负数")
+        return float(
+            np.mean(efficiency_array)
+            - lam * np.std(efficiency_array)
+            - gamma * (np.max(efficiency_array) - np.min(efficiency_array))
+        )
+    if method != "bandwidth":
+        raise ValueError("method 必须是 'legacy' 或 'bandwidth'")
+    if threshold is None or epsilon is None:
+        raise ValueError("bandwidth 模式必须显式提供 threshold 和 epsilon")
+    threshold, epsilon = float(threshold), float(epsilon)
+    if not np.isfinite(threshold) or not 0.0 < threshold <= 1.0:
+        raise ValueError("threshold 必须是 (0,1] 内的有限效率比值")
+    if not np.isfinite(epsilon) or not 0.0 <= epsilon <= 1.0:
+        raise ValueError("epsilon 必须是 [0,1] 内的有限数值")
+
+    order = np.argsort(frequency_array)
+    frequencies_sorted = frequency_array[order]
+    efficiencies_sorted = efficiency_array[order]
+    if np.any(frequencies_sorted[1:] == frequencies_sorted[:-1]):
+        raise ValueError("bandwidth 模式不接受重复频率，请先汇总重复测量")
+    frequency_min = float(frequencies_sorted[0])
+    span = float(frequencies_sorted[-1]) - frequency_min
+    if not np.isfinite(span) or span <= 0.0:
+        raise ValueError("频段跨度必须是有限正数")
+
+    # 在 [0,1] 频率坐标上累积 B/F 和 C，避免 MHz/Hz 单位改变分数。
+    positions = (frequencies_sorted - frequency_min) / span
+    longest_width = current_width = progress = 0.0
+    for left, right, y_left, y_right in zip(
+        positions[:-1], positions[1:], efficiencies_sorted[:-1], efficiencies_sorted[1:]
+    ):
+        width = float(right - left)
+        left_passes, right_passes = y_left >= threshold, y_right >= threshold
+        if left_passes and right_passes:
+            current_width += width
+            progress += width
+        elif not left_passes and not right_passes:
+            current_width = 0.0
+            progress += width * (y_left / threshold + y_right / threshold) / 2.0
+        elif not left_passes:
+            below_width = width * (threshold - y_left) / (y_right - y_left)
+            current_width = width - below_width
+            progress += below_width * (y_left / threshold + 1.0) / 2.0 + current_width
+        else:
+            above_width = width * (y_left - threshold) / (y_left - y_right)
+            current_width += above_width
+            progress += above_width + (width - above_width) * (1.0 + y_right / threshold) / 2.0
+        longest_width = max(longest_width, current_width)
+        if not right_passes:
+            current_width = 0.0
+    score = (1.0 - epsilon) * longest_width + epsilon * progress
+    return float(np.clip(score, 0.0, 1.0))
+
+
+def single_sigmoid_amplitude_curve(
+    normal_parameters: Iterable[float],
+    frequencies: Iterable[float],
+    /,
+) -> np.ndarray:
+    """将四个 [0,1] 参数解码为低频低、高频高的单 Sigmoid 幅值数组。
+
+    顺序为 ``[u_A_low, u_A_high, u_center, u_width]``。解码公式：
+
+    * ``A_low = u_A_low``；
+    * ``A_high = A_low + (1 - A_low) * u_A_high``；
+    * ``B = max(frequencies) - min(frequencies)``；
+    * ``C = min(frequencies) + B * u_center``；
+    * ``W = B * 0.01 * 100**u_width``（对数宽度映射）；
+    * ``A(f) = A_low + (A_high - A_low) * sigmoid(2*ln(9)*(f-C)/W)``。
+
+    ``frequencies``、C 和 W 使用相同频率单位。W 是幅值变化
+    的 10%--90% 过渡宽度，不是效率达标带宽。输出单调不减且在 [0,1]；
+    高频增量为 0 或低平台为 1 时允许常值曲线，硬件 scale 由外部处理。
+
+    范围由本次完整测量频率数组确定，不接受可选范围参数。宽度范围
+    为频段跨度的 1%--100%，是内部搜索配置，不是硬件限制。同一优化
+    任务须保持频段端点不变；只传子区间会重新解码曲线。乱序和重复
+    频率可用，空数组返回空数组；非空数组需有至少两个不同频率，且
+    跨度有限。返回一维 float 数组，与输入频率顺序一致。
+
+    外部调用 suggest(None, n_phase, 4, ...) 取得原始 normal 参数，再调用
+    本函数。更换参数数量、解码范围或模型后需新开优化状态；不能用新
+    解码规则解释旧实验。延时变量、GP 和评分逻辑不由本函数处理。
+    """
+    try:
+        parameters = np.asarray(normal_parameters, dtype=float)
+    except TypeError:
+        parameters = np.asarray(list(normal_parameters), dtype=float)
+    if parameters.shape != (4,):
+        raise ValueError("单 Sigmoid 幅值曲线需要 4 个一维 normal 参数")
+    if (
+        not np.all(np.isfinite(parameters))
+        or np.any(parameters < 0.0)
+        or np.any(parameters > 1.0)
+    ):
+        raise ValueError("单 Sigmoid normal 参数必须是 [0,1] 内的有限数值")
+
+    try:
+        frequency_array = np.asarray(frequencies, dtype=float)
+    except TypeError:
+        frequency_array = np.asarray(list(frequencies), dtype=float)
+    if frequency_array.ndim != 1:
+        raise ValueError("frequencies 必须是一维数组")
+    if not np.all(np.isfinite(frequency_array)):
+        raise ValueError("frequencies 必须是有限数值")
+
+    if frequency_array.size == 0:
+        return np.empty(0, dtype=float)
+    frequency_min = float(np.min(frequency_array))
+    bandwidth = float(np.max(frequency_array)) - frequency_min
+    if not np.isfinite(bandwidth) or bandwidth <= 0.0:
+        raise ValueError("frequencies 至少需要两个不同频率，且频段跨度必须有限")
+
+    u_low, u_high, u_center, u_width = parameters
+    low = u_low
+    high = low + (1.0 - low) * u_high
+    # 在归一化频率上求值，避免物理宽度乘法在极小跨度下下溢。
+    normalized_frequency = (frequency_array - frequency_min) / bandwidth
+    width_fraction = np.exp(
+        (1.0 - u_width) * np.log(_SINGLE_SIGMOID_MIN_WIDTH_FRACTION)
+    )
+    z = (
+        (normalized_frequency - u_center) / width_fraction
+    ) * _SINGLE_SIGMOID_FACTOR
+    return low + (high - low) * expit(z)
 
 
 class CalibratedNoiseGaussianProcessRegressor(GaussianProcessRegressor):
@@ -274,11 +450,6 @@ def _load_state():
 
     if not isinstance(state, dict):
         raise RuntimeError("优化状态格式无效")
-    if state.get("state_version") != _STATE_VERSION:
-        raise RuntimeError(
-            "optimizer_state.pkl 是旧版或不兼容的优化状态；"
-            "请备份后删除该状态文件，再按新的相位变量定义重新开始。"
-        )
     return state
 
 
@@ -362,18 +533,6 @@ def _split_parameter_values(values, n_phase):
     return flat_values[:n_phase], flat_values[n_phase:]
 
 
-def _format_amplitude_anchors(parameters):
-    """把内部幅值控制量格式化为可直接插值的幅值锚点。"""
-    if parameters is None:
-        return None
-    if len(parameters) == 0:
-        return []
-    return [
-        float(value)
-        for value in monotonic_amplitude_anchors(parameters)
-    ]
-
-
 def _format_result(state, x, done=False):
     """格式化分段结果。"""
     # 显式转为内置 float/bool，便于调用方做 JSON 序列化或跨进程传输。
@@ -386,8 +545,10 @@ def _format_result(state, x, done=False):
     best_phase, best_normal_parameters = _split_parameter_values(
         best_x, n_phase
     )
-    x_normal = _format_amplitude_anchors(x_normal_parameters)
-    best_normal = _format_amplitude_anchors(best_normal_parameters)
+    # 普通参数对外保持优化器的原始 [0,1] 坐标；幅值曲线由调用方显式
+    # 调用相应的幅值曲线函数解码。
+    x_normal = x_normal_parameters
+    best_normal = best_normal_parameters
     best_cost = state["best_cost"]
     return {
         "x_phase": x_phase,
@@ -449,8 +610,9 @@ def suggest(
 
     返回:
          包含 x_phase、x_normal、best_x_phase、best_x_normal、best_cost、done
-         的字典。x_phase 位于 [0,1]；x_normal 已按低频到高频转换为单调
-         不减幅值锚点，可直接用于幅值曲线插值。
+         的字典。x_phase 和 x_normal 均为优化器的原始 [0,1] 坐标；当
+         n_normal=4 时，x_normal 可直接作为
+         single_sigmoid_amplitude_curve() 的第一个参数。
 
         若进程重启后仍有一个待评估点，传入 cost=None 会再次返回同一点，
         不会静默跳过该次实验。
@@ -523,7 +685,6 @@ def suggest(
         )
         x = _dedup(opt, opt.ask())
         state = {
-            "state_version": _STATE_VERSION,
             # opt 内含 Xi/yi、随机数状态和下一点缓存，是恢复优化所需的主体。
             "opt": opt,
             "n_phase": n_phase,

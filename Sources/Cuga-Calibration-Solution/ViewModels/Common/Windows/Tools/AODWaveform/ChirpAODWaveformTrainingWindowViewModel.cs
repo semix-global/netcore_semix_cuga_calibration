@@ -108,7 +108,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             var stringBuilder = new StringBuilder();
 
-            var prescanCache = cacheProvider.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>();
+            var prescanCache = cacheProvider.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>();
 
             var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
@@ -125,7 +125,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
                 stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
             }
 
-            var chirpCache = cacheProvider.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>();
+            var chirpCache = cacheProvider.GetOrDefault<ChirpAODWaveformElectrodeDelayCache>();
 
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);

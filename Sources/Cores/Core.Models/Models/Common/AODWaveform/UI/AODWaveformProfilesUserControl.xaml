@@ -51,11 +51,8 @@
                                 <hc:Shield Subject="Zero Sample Count(sa): "
                                            Status="{Binding ZeroSampleCount}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Offset Frequency(MHz): "
-                                           Status="{Binding OffsetFrequency}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Offset Period(2pi): "
-                                           Status="{Binding OffsetFrequencyPeriodCoefficient}"
+                                <hc:Shield Subject="Delay(ns): "
+                                           Status="{Binding Delay}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="Total Sample Count(sa): "
                                            Status="{Binding TotalSampleCount}"
