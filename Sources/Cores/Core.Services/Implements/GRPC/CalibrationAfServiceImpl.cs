@@ -208,7 +208,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

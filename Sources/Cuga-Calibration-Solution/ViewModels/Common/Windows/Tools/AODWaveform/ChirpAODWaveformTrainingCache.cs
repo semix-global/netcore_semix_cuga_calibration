@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -13,6 +14,12 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
 {
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
+
+    [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
+    [ObservableProperty]
+    public partial AlgorithmBestFocusTypeEnum AlgorithmBestFocusTypeEnum { get; set; } = AlgorithmBestFocusTypeEnum.DSW065;
 
     [ObservableProperty]
     public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
@@ -90,6 +97,8 @@ public sealed partial class ChirpAODWaveformTrainingCache : ObservableCacheBase
     public object ToHtmlAnonymous() => new
     {
         ProductivityInformation,
+        AlgorithmEngineTypeEnum,
+        AlgorithmBestFocusTypeEnum,
         LaserLightInformation,
         GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToHtmlAnonymous()),
         GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToHtmlAnonymous()),

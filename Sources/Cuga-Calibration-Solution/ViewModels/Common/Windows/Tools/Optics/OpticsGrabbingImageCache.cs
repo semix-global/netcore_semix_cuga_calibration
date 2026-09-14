@@ -12,6 +12,9 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 public partial class OpticsGrabbingImageCache : ObservableCacheBase
 {
     [ObservableProperty]
+    public partial int Count { get; set; } = 1;
+
+    [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]

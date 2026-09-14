@@ -56,7 +56,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
     }
 
-    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, Guid guid)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum, Guid guid)
     {
         // var size = image.Size;
         //
@@ -112,7 +112,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         using var hImage = RAWImageFactory.CreateImage(filePath, true);
 
         using var linerImage = hImage.ToBitmapImage();
-        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS, guid);
+        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS, algorithmEngineTypeEnum, algorithmBestFocusTypeEnum, guid);
     }
 
     public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)

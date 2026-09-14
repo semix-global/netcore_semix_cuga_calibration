@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -15,6 +16,12 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase<OpticsRelayC
     public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
     [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
+    [ObservableProperty]
+    public partial AlgorithmBestFocusTypeEnum AlgorithmBestFocusTypeEnum { get; set; } = AlgorithmBestFocusTypeEnum.DSW065;
+
+    [ObservableProperty]
     public partial double Threshold { get; set; } = 0.999;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<OpticsIlluminationModeEnum, OpticsRelayCacheItem>))]
@@ -26,6 +33,8 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase<OpticsRelayC
     public override OpticsRelayCache Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
+        AlgorithmBestFocusTypeEnum = AlgorithmBestFocusTypeEnum,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(t.Key, t.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
