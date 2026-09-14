@@ -79,11 +79,11 @@ public sealed class CalibrationConfigServiceMockImpl(
             },
             new SysUserDTO
             {
-                UserName = "EngineerMock", Password =EncryptUtils.Encrypt32("2"), NickName = "EngineerMock", Remark = "EngineerMock", SysRoleList = [engineerRole]
+                UserName = "EngineerMock", Password = EncryptUtils.Encrypt32("2"), NickName = "EngineerMock", Remark = "EngineerMock", SysRoleList = [engineerRole]
             },
             new SysUserDTO
             {
-                UserName = "UserMock", Password =EncryptUtils.Encrypt32("3"), NickName = "UserMock", Remark = "UserMock", SysRoleList = [userRole]
+                UserName = "UserMock", Password = EncryptUtils.Encrypt32("3"), NickName = "UserMock", Remark = "UserMock", SysRoleList = [userRole]
             }
         ]);
     }

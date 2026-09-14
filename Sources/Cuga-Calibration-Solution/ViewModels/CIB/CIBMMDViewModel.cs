@@ -258,7 +258,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         return InvokeCalibrateAsync(() =>
         {
             Guard.IsNotEmpty(Cache.CIBInformations);
-            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeOffsetCache>(false, cancellationToken);
+            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>(false, cancellationToken);
             var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                           && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (prescanResult is null)
@@ -278,7 +278,7 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
             Cache.GeneratePrescanAODWaveformParam.FlatnessTime = 4800d;
             Cache.GeneratePrescanAODWaveformParam.ZeroSampleCount = 0;
 
-            var chirpCache = ApplicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeOffsetCache>(false, cancellationToken);
+            var chirpCache = ApplicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeDelayCache>(false, cancellationToken);
             var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
                                                                       && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
             if (chirpResult is null)

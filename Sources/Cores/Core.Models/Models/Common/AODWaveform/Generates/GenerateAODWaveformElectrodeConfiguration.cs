@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
@@ -12,7 +13,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
 
-
 #if NETFRAMEWORK
 using Core.Models.Extensions;
 #endif
@@ -21,17 +21,14 @@ namespace Core.Models.Models.Common.AODWaveform.Generates;
 
 public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     ObservableObject,
-    IAdaptTo<AODWaveformGenerator1.AODWaveformOffsetConfiguration>,
+    IAdaptTo<AODWaveformGenerator1.ElectrodeConfiguration>,
     ICloneable<GenerateAODWaveformElectrodeConfiguration>
 {
     [ObservableProperty]
     public partial OpticsAODElectrodeEnum OpticsAODElectrodeEnum { get; set; }
 
     [ObservableProperty]
-    public partial double OffsetFrequency { get; set; }
-
-    [ObservableProperty]
-    public partial double OffsetFrequencyPeriodCoefficient { get; set; }
+    public partial double Delay { get; set; }
 
     [ObservableProperty]
     public partial double Amplitude { get; set; } = 1d;
@@ -60,8 +57,8 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     }
 
 
-    [RelayCommand]
-    private void ImportUniformityConfiguration()
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task ImportUniformityConfigurationAsync(CancellationToken cancellationToken)
     {
         var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
 
@@ -70,33 +67,55 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
             var dialog = dialogWindowProvider.TryShowSelectFilePathDialog(".xlsx", out var filePath);
             if (dialog == false) return;
 
-            UniformityConfigurations = [];
-
-            var values = MiniExcel.Query<GenerateAODWaveformUniformityConfiguration>(filePath)
+            var values = (await MiniExcel.QueryAsync<GenerateAODWaveformUniformityConfiguration>(filePath, cancellationToken: cancellationToken))
                 .Where(t => t.Frequency > 0)
                 .ToArray();
             if (values.Length <= 0)
             {
                 values =
                 [
-                    .. MiniExcel.Query(filePath, useHeaderRow: true)
-                        .Cast<IDictionary<string, object>>()
-                        .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
-                        .Where(t => t.Frequency > 0)
+                    .. (await MiniExcel.QueryAsync(filePath, useHeaderRow: true, cancellationToken: cancellationToken))
+                    .Cast<IDictionary<string, object>>()
+                    .Select(t => new GenerateAODWaveformUniformityConfiguration { Frequency = (double)t[nameof(Point.X)], Coefficient = (double)t[nameof(Point.Y)] })
+                    .Where(t => t.Frequency > 0)
                 ];
             }
 
-            if (values.Length > 0)
-            {
-                UniformityConfigurations = values;
-                dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
-            }
-            else dialogWindowProvider.ShowDialog("Import Uniformity Configuration Failed! No data found.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            Guard.IsNotEmpty(values, "Import Uniformity Configuration must not be empty.");
+
+            UniformityConfigurations = values;
+            dialogWindowProvider.ShowDialog("Import Uniformity Configuration OK!");
         }
         catch (Exception ex)
         {
             dialogWindowProvider.ShowDialog($"""
                                              Import Uniformity Configuration Failed!
+                                             {ex.Message}
+                                             """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportUniformityConfigurationAsync()
+    {
+        var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+        try
+        {
+            if (dialogWindowProvider.TryShowSaveFilePathDialog(".xlsx", out var filePath) != true) return;
+
+            await MiniExcel.SaveAsAsync(filePath, new[]
+            {
+                new GenerateAODWaveformUniformityConfiguration { Frequency = 100d, Coefficient = 0.5 },
+                new GenerateAODWaveformUniformityConfiguration { Frequency = 150d, Coefficient = 1d }
+            }, overwriteFile: true);
+
+            dialogWindowProvider.ShowDialog("Export Uniformity Configuration Template OK!");
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Export Uniformity Configuration Template Failed!
                                              {ex.Message}
                                              """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
         }
@@ -132,14 +151,13 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         return this;
     }
 
-    public AODWaveformGenerator1.AODWaveformOffsetConfiguration AdaptTo() => new(
+    public AODWaveformGenerator1.ElectrodeConfiguration AdaptTo() => new(
 #if NETFRAMEWORK
         OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum().ToString(),
 #else
         OpticsAODElectrodeEnum.ToString(),
 #endif
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero)
     {
@@ -149,8 +167,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public GenerateAODWaveformElectrodeConfiguration Clone() => new()
     {
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum,
-        OffsetFrequency = OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient = OffsetFrequencyPeriodCoefficient,
+        Delay = Delay,
         Amplitude = Amplitude,
         IsGenerateAODWaveformZero = IsGenerateAODWaveformZero,
         UniformityConfigurations = [.. UniformityConfigurations.Select(t => t.Clone())]
@@ -159,8 +176,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero,
         UniformityConfigurations = new HtmlPlot2DLinesChart([(string.Empty, [.. UniformityConfigurations.Select(t => new Point(t.Frequency, t.Coefficient))])], string.Empty)
@@ -169,8 +185,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     public object ToFlatnessHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        OffsetFrequency,
-        OffsetFrequencyPeriodCoefficient,
+        Delay,
         Amplitude,
         IsGenerateAODWaveformZero
     };

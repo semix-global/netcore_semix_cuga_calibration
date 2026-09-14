@@ -36,7 +36,7 @@ public sealed partial class GenerateChirpAODWaveformParam :
         FileNameSuffix = $"{ProductivityInformation.OpticsIlluminationModeEnum}_{ProductivityInformation.AdaptTo().Mag}",
         ZeroSampleCount = ZeroSampleCount,
         EndpointSampleCount = EndpointSampleCount,
-        OffsetConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
+        ElectrodeConfigurations = [.. ElectrodeConfigurations.Select(t => t.AdaptTo())],
         SlopeConfigurations = [.. SlopeConfigurations.Select(t => t.AdaptTo())]
     };
 

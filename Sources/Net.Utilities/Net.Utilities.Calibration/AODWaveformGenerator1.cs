@@ -15,20 +15,26 @@ namespace Net.Utilities.Algorithms.Modules;
 
 public static class AODWaveformGenerator1
 {
-    public const string ChirpAODWaveformFileExtension = ".caw";
-    public const string PrescanAODWaveformFileExtension = ".paw";
+    /// <summary>
+    /// Chirp AOD波形结果文件扩展名(V2电极延时配置)
+    /// </summary>
+    public const string ChirpAODWaveformFileExtension = ".caw2";
+
+    /// <summary>
+    /// Prescan AOD波形结果文件扩展名(V2电极延时配置)
+    /// </summary>
+    public const string PrescanAODWaveformFileExtension = ".paw2";
 
     #region 参数
 
     /// <summary>
-    /// AOD波形的频率偏移配置
+    /// AOD波形的电极配置
     /// </summary>
-    /// <param name="DirectoryName">文件夹名称</param>
-    /// <param name="OffsetFrequency">偏移频率(Mhz)</param>
-    /// <param name="OffsetFrequencyPeriodCoefficient">偏移频率的2π周期的系数</param>
+    /// <param name="ElectrodeName">电极名称</param>
+    /// <param name="Delay">延时(ns)</param>
     /// <param name="Amplitude">幅值</param>
     /// <param name="IsGenerateAODWaveformZero">生成的波形是否都为0</param>
-    public sealed record AODWaveformOffsetConfiguration(string DirectoryName, double OffsetFrequency, double OffsetFrequencyPeriodCoefficient, double Amplitude, bool IsGenerateAODWaveformZero = false)
+    public sealed record ElectrodeConfiguration(string ElectrodeName, double Delay, double Amplitude, bool IsGenerateAODWaveformZero = false)
     {
         /// <summary>
         /// AOD波形频的率均匀性配置集合
@@ -37,8 +43,7 @@ public static class AODWaveformGenerator1
 
         public void Validate()
         {
-            Guard.IsNotNullOrWhiteSpace(DirectoryName, nameof(AODWaveformOffsetConfiguration) + nameof(DirectoryName));
-            Guard.IsGreaterThanOrEqualTo(OffsetFrequency, 0d, nameof(AODWaveformOffsetConfiguration) + nameof(OffsetFrequency));
+            Guard.IsNotNullOrWhiteSpace(ElectrodeName, nameof(ElectrodeConfiguration) + nameof(ElectrodeName));
             Guard.IsBetweenOrEqualTo(Amplitude, 0d, 1d);
 
             foreach (var item in UniformityConfigurations) item.Validate();
@@ -145,9 +150,9 @@ public static class AODWaveformGenerator1
         public int EndpointSampleCount { get; init; }
 
         /// <summary>
-        /// 生成多个AOD波形中每个波形的频率偏移配置集合
+        /// 生成多个AOD波形中每个波形的电极配置集合
         /// </summary>
-        public IReadOnlyList<AODWaveformOffsetConfiguration> OffsetConfigurations { get; init; } = [];
+        public IReadOnlyList<ElectrodeConfiguration> ElectrodeConfigurations { get; init; } = [];
 
         /// <summary>
         /// AOD波形的斜率变化率分段的配置项集合
@@ -190,9 +195,9 @@ public static class AODWaveformGenerator1
             Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d);
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d);
 
-            Guard.IsNotEmpty(OffsetConfigurations, "Offset Configuration is must be not empty.");
+            Guard.IsNotEmpty(ElectrodeConfigurations, "Electrode Configurations must not be empty.");
 
-            foreach (var item in OffsetConfigurations)
+            foreach (var item in ElectrodeConfigurations)
             {
                 item.Validate();
             }
@@ -243,13 +248,13 @@ public static class AODWaveformGenerator1
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.OffsetConfigurations)
+            foreach (var item in Param.ElectrodeConfigurations)
             {
                 fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
-                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
+                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$02${item.Delay:0.###}$.txt";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(item.ElectrodeName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -282,13 +287,13 @@ public static class AODWaveformGenerator1
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.OffsetConfigurations)
+            foreach (var item in Param.ElectrodeConfigurations)
             {
                 fileName = chirp +
                            $"_{Param.FileNameSuffix}" +
-                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.OffsetFrequency:0.###}${item.OffsetFrequencyPeriodCoefficient:0.###}$.txt";
+                           $"${Param.NumberOfSamples + Param.ZeroSampleCount}${Param.ZeroSampleCount}$600$03${item.Delay:0.###}$.txt";
 
-                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(item.DirectoryName), FileHelper.RemoveInvalidFileName(fileName)))));
+                itemList.Add(new AODWaveformResultItem(item, FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(item.ElectrodeName), FileHelper.RemoveInvalidFileName(fileName)))));
             }
 
             Items = itemList;
@@ -319,9 +324,9 @@ public static class AODWaveformGenerator1
     /// <summary>
     /// AOD波形结果项
     /// </summary>
-    /// <param name="OffsetConfiguration">AOD波形的频率偏移配置</param>
+    /// <param name="ElectrodeConfiguration">AOD波形的电极配置</param>
     /// <param name="FilePath">AOD波形文件</param>
-    public sealed record AODWaveformResultItem(AODWaveformOffsetConfiguration OffsetConfiguration, string FilePath)
+    public sealed record AODWaveformResultItem(ElectrodeConfiguration ElectrodeConfiguration, string FilePath)
     {
         /// <summary>
         /// AOD波形信号
@@ -436,16 +441,16 @@ public static class AODWaveformGenerator1
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var (flatnessFrequencies, flatnessUniformities, flatnessPhases) = FFT(item.OffsetConfiguration.Amplitude, item.OffsetConfiguration.OffsetFrequency, item.OffsetConfiguration.OffsetFrequencyPeriodCoefficient);
+            var (flatnessFrequencies, flatnessUniformities, flatnessPhases) = FFT(item.ElectrodeConfiguration.Amplitude, item.ElectrodeConfiguration.Delay);
 
             var frequencyCoefficientList = new List<Point>();
 
             if (param.FunctionMonotonicTypeEnum != FunctionMonotonicTypeEnum.Flatness)
             {
-                var linearSpline = item.OffsetConfiguration.UniformityConfigurations.Count > 0
+                var linearSpline = item.ElectrodeConfiguration.UniformityConfigurations.Count > 0
                     ? LinearSpline.InterpolateSorted(
-                        [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Frequency)],
-                        [.. item.OffsetConfiguration.UniformityConfigurations.Select(configuration => configuration.Coefficient)])
+                        [.. item.ElectrodeConfiguration.UniformityConfigurations.Select(configuration => configuration.Frequency)],
+                        [.. item.ElectrodeConfiguration.UniformityConfigurations.Select(configuration => configuration.Coefficient)])
                     : null;
 
                 var flatnessAODWaveformSignals = aodWaveformSignals.SubVectorRange(flatnessSampleIndices[0], flatnessSampleIndices[^1]);
@@ -496,7 +501,7 @@ public static class AODWaveformGenerator1
              */
 
             // 将结果转换为16位整数并保存到文件
-            var hexStrings = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            var hexStrings = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (string[])[.. Enumerable.Repeat(((short)0).ToString("x4"), aodWaveformSignals.Count)]
                 : [.. aodWaveformSignals.Select(y => ((short)Math.Clamp(Math.Round(y * Math.Pow(2d, 15d), MidpointRounding.AwayFromZero), short.MinValue, short.MaxValue)).ToString("x4"))];
 
@@ -504,20 +509,20 @@ public static class AODWaveformGenerator1
             FileHelper.DeleteFileIfExists(item.FilePath);
             File.WriteAllText(item.FilePath, string.Join(Environment.NewLine, hexStrings));
 
-            item.Signals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            item.Signals = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                 : [.. allSampleIndices.Index().Select(tuple => new Point(tuple.Item, aodWaveformSignals[tuple.Index]))];
-            item.FFTSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            item.FFTSignals = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. fftFrequencies.Zip(fftMagnitudes, (x, _) => new Point(x, 0))]
                 : [.. fftFrequencies.Zip(fftMagnitudes, (x, y) => new Point(x, y))];
-            item.FrequencyCoefficients = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            item.FrequencyCoefficients = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. frequencyCoefficientList.Select(point => new Point(point.X, 0d))]
                 : [.. frequencyCoefficientList];
 
-            item.FlatnessFrequencySignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            item.FlatnessFrequencySignals = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                 : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessFrequencies[tuple.Index]))];
-            item.FlatnessPhaseSignals = item.OffsetConfiguration.IsGenerateAODWaveformZero
+            item.FlatnessPhaseSignals = item.ElectrodeConfiguration.IsGenerateAODWaveformZero
                 ? (Point[])[.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, 0d))]
                 : [.. flatnessSampleIndices.Index().Select(tuple => new Point(tuple.Item, flatnessPhases[tuple.Index]))];
         }
@@ -528,7 +533,7 @@ public static class AODWaveformGenerator1
 
         return result;
 
-        (Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double offsetFrequency, double offsetFrequencyPeriodCoefficient)
+        (Vector<double> FlatnessFrequencies, Vector<double> FlatnessUniformities, Vector<double> FlatnessPhases) FFT(double amplitude, double delay)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -539,7 +544,7 @@ public static class AODWaveformGenerator1
             var headerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, headerFrequency) * dt).IntegrateCumulative();
 
             var flatnessPhases = (2d * Math.PI * dFlatnessFrequencies * dt).IntegrateCumulative();
-            if (offsetFrequency != 0d && offsetFrequencyPeriodCoefficient != 0d) flatnessPhases += 2d * Math.PI * dFlatnessFrequencies * offsetFrequencyPeriodCoefficient * 1d / offsetFrequency;
+            if (delay != 0d) flatnessPhases += 2d * Math.PI * dFlatnessFrequencies * delay / 1000d; // MHz * ns / 1000 -> MHz * us
 
             var footerPhases = 2d * Math.PI * (Vector<double>.Build.Dense(headerSampleIndices.Length, footerFrequency) * dt).IntegrateCumulative();
 
