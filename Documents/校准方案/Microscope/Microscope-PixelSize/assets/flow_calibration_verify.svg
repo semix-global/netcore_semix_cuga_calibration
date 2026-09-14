@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1192" width="720" height="1192" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .ng { fill: #FDECEA; stroke: #E8463A; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsd { fill: #E8463A; font-size: 12px; }
+    .thb { fill: #171717; font-weight: 500; }
+    .cnum { fill: #52525B; font-size: 12px; font-weight: 500; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .arrd { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 5 4; fill: none; }
+    .chip { fill: #E4E4E7; }
+    .note { fill: none; stroke: rgba(23,23,23,0.16); stroke-width: 1; stroke-dasharray: 5 4; }
+  </style>
+  <defs>
+    <marker id="aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+
+  <path class="arr" d="M260 136 V194" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 284 V342" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 432 V490" marker-end="url(#aw)"/>
+  <path class="arrd" d="M380 530 H497" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 568 V622" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 676 V734" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 824 V882" marker-end="url(#aw)"/>
+  <path class="arrd" d="M390 924 H497" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 964 V1022" marker-end="url(#aw)"/>
+
+  <rect class="n" x="70" y="48" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="75">① 选择镜头 · Select a lens</text>
+  <text class="ts" x="86" y="99">选定 Cal Chip Site 与倍镜，软件自动切换镜头</text>
+  <text class="ts" x="86" y="120">移动至记录的 FindPosition；DSW 先转 Theta 对准</text>
+
+  <rect class="n" x="70" y="196" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="223">② 选择位置 · Select a location</text>
+  <text class="ts" x="86" y="247">选定 Wafer Mask Type（不参与算法）</text>
+  <text class="ts" x="86" y="268">对位网格区域中心；缓存校验后记录 FindPosition</text>
+
+  <rect class="n" x="70" y="344" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="371">③ 采图计算 · Find Pixel Size</text>
+  <text class="ts" x="86" y="395">选网格周期 10/25/50/100μm（高倍配小周期、低倍配大周期）</text>
+  <text class="ts" x="86" y="416">设 AngleThreshold（角度阈值，须非零）；切镜对位 1 次，连续采图 10 次</text>
+
+  <polygon class="n" points="140,530 260,492 380,530 260,568" stroke-linejoin="round"/>
+  <text class="th" x="260" y="535" text-anchor="middle">10 次全部成功？</text>
+
+  <rect class="ng" x="500" y="494" width="188" height="72" rx="8"/>
+  <text class="th" x="514" y="518">否 · 任一次失败</text>
+  <text class="tsd" x="514" y="538">流程中止，结果不保存</text>
+  <text class="tsd" x="514" y="556">报告标记 Failed</text>
+
+  <rect class="nb" x="90" y="624" width="340" height="52" rx="12"/>
+  <text class="tbr" x="260" y="646" text-anchor="middle">X/Y 各取 10 次均值，保存校准结果</text>
+  <text class="ts" x="260" y="664" text-anchor="middle">该镜头标记为已校准</text>
+
+  <rect class="chip" x="275" y="584" width="30" height="20" rx="10"/>
+  <text class="cnum" x="290" y="598" text-anchor="middle">是</text>
+  <rect class="chip" x="424" y="500" width="28" height="20" rx="10"/>
+  <text class="cnum" x="438" y="514" text-anchor="middle">否</text>
+
+  <rect class="n" x="70" y="736" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="763">④ 验证 · Verify</text>
+  <text class="ts" x="86" y="787">设 Threshold（验证阈值，须非零）；DSW 先转 Theta 再对位</text>
+  <text class="ts" x="86" y="808">切镜单次采图：Error = 新测量 − 校准值</text>
+
+  <polygon class="n" points="130,924 260,884 390,924 260,964" stroke-linejoin="round"/>
+  <text class="th" x="260" y="929" text-anchor="middle">误差对角线 &lt; Threshold？</text>
+
+  <rect class="ng" x="500" y="888" width="188" height="72" rx="8"/>
+  <text class="th" x="514" y="912">否 · 验证不通过</text>
+  <text class="tsd" x="514" y="932">排查对位 / 对焦问题</text>
+  <text class="tsd" x="514" y="950">排除后复校</text>
+
+  <rect class="chip" x="275" y="980" width="30" height="20" rx="10"/>
+  <text class="cnum" x="290" y="994" text-anchor="middle">是</text>
+  <rect class="chip" x="424" y="894" width="28" height="20" rx="10"/>
+  <text class="cnum" x="438" y="908" text-anchor="middle">否</text>
+
+  <rect class="nb" x="130" y="1024" width="260" height="44" rx="22"/>
+  <text class="tbr" x="260" y="1051" text-anchor="middle">验证通过 · 标记为已验证</text>
+
+  <rect class="note" x="90" y="1100" width="540" height="56" rx="8"/>
+  <text class="ts" x="360" y="1121" text-anchor="middle"><tspan class="thb">结果合理性核查：</tspan>实测值须与理论值 3.45 ÷ 倍率核对</text>
+  <text class="ts" x="360" y="1141" text-anchor="middle">明显偏离须排查网格周期、镜头与对焦，排除前不得放行</text>
+</svg>

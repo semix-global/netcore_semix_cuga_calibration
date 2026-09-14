@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1132" width="720" height="1132" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .ok { fill: #E9FAF2; stroke: #1DC981; stroke-width: 1.2; }
+    .cont { fill: none; stroke: #4B3FE3; stroke-width: 1.5; stroke-dasharray: 7 6; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .arrd { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; stroke-dasharray: 5 4; }
+    .capsule { fill: #E4E4E7; }
+  </style>
+  <defs>
+    <marker id="aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+
+  <text class="th" x="106" y="24">① 校准主流程：选位与逐倍镜校准</text>
+
+  <rect class="n" x="265" y="44" width="190" height="36" rx="18"/>
+  <text class="th" x="360" y="67" text-anchor="middle">开始 Centricity 校准</text>
+  <path class="arr" d="M360 80 V102" marker-end="url(#aw)"/>
+
+  <rect class="n" x="190" y="104" width="340" height="56" rx="8"/>
+  <text class="th" x="360" y="127" text-anchor="middle">前置条件检查</text>
+  <text class="ts" x="360" y="147" text-anchor="middle">CalChip · PixelSize 已校准 · 明场清晰</text>
+  <path class="arr" d="M360 160 V182" marker-end="url(#aw)"/>
+
+  <rect class="n" x="160" y="184" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="207" text-anchor="middle">Select a location（选位置）</text>
+  <text class="ts" x="360" y="227" text-anchor="middle">选 Site / 模板类型 → 对准标记 → 记录 FindPosition</text>
+  <path class="arr" d="M360 240 V258" marker-end="url(#aw)"/>
+
+  <rect class="cont" x="106" y="260" width="508" height="258" rx="12"/>
+  <text class="tbr" x="360" y="286" text-anchor="middle">各倍镜校准（倍率从高到低：100X → … → 5X）</text>
+
+  <rect class="nb" x="142" y="306" width="200" height="50" rx="8"/>
+  <text class="th" x="242" y="327" text-anchor="middle">切换倍镜 · 对准标记</text>
+  <text class="ts" x="242" y="345" text-anchor="middle">记录 FindPosition</text>
+  <path class="arr" d="M342 331 H400" marker-end="url(#aw)"/>
+
+  <rect class="nb" x="402" y="306" width="190" height="50" rx="8"/>
+  <text class="th" x="497" y="327" text-anchor="middle">生成模板</text>
+  <text class="ts" x="497" y="345" text-anchor="middle">视场中心截取（NCC）</text>
+
+  <path class="arr" d="M497 356 V369 Q497 376 490 376 H249 Q242 376 242 383 V394" marker-end="url(#aw)"/>
+
+  <rect class="nb" x="142" y="396" width="200" height="50" rx="8"/>
+  <text class="th" x="242" y="417" text-anchor="middle">模板匹配 ×5</text>
+  <text class="ts" x="242" y="435" text-anchor="middle">采图 → 定位 → 换算 μm</text>
+  <path class="arr" d="M342 421 H400" marker-end="url(#aw)"/>
+
+  <rect class="nb" x="402" y="396" width="190" height="50" rx="8"/>
+  <text class="th" x="497" y="417" text-anchor="middle">结果处理</text>
+  <text class="ts" x="497" y="435" text-anchor="middle">5 次均值 · 计算 Offset</text>
+
+  <path class="arrd" d="M497 446 V463 Q497 470 490 470 H135 Q128 470 128 463 V338 Q128 331 135 331 H140" marker-end="url(#aw)"/>
+  <rect class="capsule" x="260" y="478" width="76" height="20" rx="10"/>
+  <text class="ts" x="298" y="492" text-anchor="middle">下一个倍镜</text>
+
+  <path class="arr" d="M360 518 V540" marker-end="url(#aw)"/>
+  <text class="ts" x="372" y="534">全部倍镜完成</text>
+
+  <text class="th" x="106" y="576">② Verify：验证与同心度判定</text>
+
+  <rect class="n" x="285" y="596" width="150" height="36" rx="18"/>
+  <text class="th" x="360" y="619" text-anchor="middle">进入 Verify</text>
+  <path class="arr" d="M360 632 V654" marker-end="url(#aw)"/>
+
+  <rect class="n" x="140" y="656" width="440" height="64" rx="8"/>
+  <text class="th" x="360" y="681" text-anchor="middle">Verify：模拟一次倍镜切换</text>
+  <text class="ts" x="360" y="703" text-anchor="middle">设阈值 → 移至最高倍镜位置 → 施加 Offset → 单次匹配</text>
+  <path class="arr" d="M360 720 V742" marker-end="url(#aw)"/>
+
+  <path class="n" d="M371 748 L479 784 Q490 788 479 792 L371 828 Q360 832 349 828 L241 792 Q230 788 241 784 L349 748 Q360 744 371 748 Z"/>
+  <text class="th" x="360" y="793" text-anchor="middle">Error &lt; Threshold ?</text>
+
+  <path class="arr" d="M230 788 H126 Q118 788 118 796 V1068" marker-end="url(#aw)"/>
+  <path class="arr" d="M190 914 H118"/>
+  <rect class="capsule" x="134" y="760" width="52" height="20" rx="10"/>
+  <text class="ts" x="160" y="774" text-anchor="middle">不通过</text>
+
+  <path class="arr" d="M360 832 V854" marker-end="url(#aw)"/>
+
+  <path class="n" d="M371 860 L519 910 Q530 914 519 918 L371 968 Q360 972 349 968 L201 918 Q190 914 201 910 L349 860 Q360 856 371 860 Z"/>
+  <text class="th" x="360" y="906" text-anchor="middle">Offset 极差 ≤</text>
+  <text class="th" x="360" y="926" text-anchor="middle">ConcentricThreshold ?</text>
+  <text class="ts" x="360" y="944" text-anchor="middle">（≥2 个倍镜已验证）</text>
+
+  <path class="arr" d="M360 972 V994" marker-end="url(#aw)"/>
+  <rect class="ok" x="240" y="996" width="240" height="36" rx="18"/>
+  <text class="th" x="360" y="1019" text-anchor="middle">校准通过 · 保存记录</text>
+  <text class="ts" x="360" y="1058" text-anchor="middle">输出：CentricityPosition · Offset · HTML 报告</text>
+
+  <rect class="n" x="56" y="1070" width="120" height="40" rx="20"/>
+  <text class="th" x="116" y="1095" text-anchor="middle">重新校准</text>
+  <path class="arrd" d="M86 1070 V646" marker-end="url(#aw)"/>
+  <text class="ts" x="96" y="644">回到各倍镜校准后重新验证</text>
+</svg>
