@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 656" width="720" height="656" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .ns { fill: #DFF7ED; stroke: #1DC981; stroke-width: 1.2; }
+    .nd { fill: #FCE5E3; stroke: #E8463A; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tss { fill: #1DC981; font-size: 12px; }
+    .tsd { fill: #E8463A; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .cap { fill: #FFFFFF; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+  </style>
+  <defs>
+    <marker id="aw3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+  <path class="arr" d="M480 90 H556" marker-end="url(#aw3)"/>
+  <path class="arr" d="M360 126 V156" marker-end="url(#aw3)"/>
+  <path class="arr" d="M360 214 V236" marker-end="url(#aw3)"/>
+  <path class="arr" d="M360 294 V316" marker-end="url(#aw3)"/>
+  <path class="arr" d="M360 374 V404" marker-end="url(#aw3)"/>
+  <path class="arr" d="M190 452 L180 452 L180 552" marker-end="url(#aw3)"/>
+  <path class="arr" d="M530 452 L540 452 L540 552" marker-end="url(#aw3)"/>
+  <path class="n" d="M384 61.2 L456 82.8 Q480 90 456 97.2 L384 118.8 Q360 126 336 118.8 L264 97.2 Q240 90 264 82.8 L336 61.2 Q360 54 384 61.2 Z"/>
+  <text class="th" x="360" y="95" text-anchor="middle">记录已校准？</text>
+  <rect class="n" x="560" y="68" width="124" height="44" rx="8"/>
+  <text class="th" x="622" y="95" text-anchor="middle">不执行验证</text>
+  <rect class="cap" x="494" y="60" width="36" height="22" rx="11"/>
+  <text class="ts" x="512" y="75" text-anchor="middle">否</text>
+  <rect class="cap" x="372" y="132" width="36" height="22" rx="11"/>
+  <text class="ts" x="390" y="147" text-anchor="middle">是</text>
+  <rect class="n" x="170" y="160" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="181" text-anchor="middle">下发校正后的明场中心</text>
+  <text class="ts" x="360" y="201" text-anchor="middle">先下发新中心，再重测（下发后验证）</text>
+  <rect class="n" x="170" y="240" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="261" text-anchor="middle">重做校准测量</text>
+  <text class="ts" x="360" y="281" text-anchor="middle">正/负旋转 · 八点位高低倍匹配（同校准）</text>
+  <rect class="n" x="170" y="320" width="380" height="54" rx="8"/>
+  <text class="th" x="360" y="341" text-anchor="middle">计算新旋转中心</text>
+  <text class="ts" x="360" y="361" text-anchor="middle">折算新的明场中心</text>
+  <path class="n" d="M392 416.3 L498 443.7 Q530 452 498 460.3 L392 487.7 Q360 496 328 487.7 L222 460.3 Q190 452 222 443.7 L328 416.3 Q360 408 392 416.3 Z"/>
+  <text class="th" x="360" y="448" text-anchor="middle">中心 &lt; 验证阈值 且</text>
+  <text class="th" x="360" y="467" text-anchor="middle">残差 &lt; 比例阈值？</text>
+  <rect class="cap" x="190" y="498" width="52" height="22" rx="11"/>
+  <text class="ts" x="216" y="513" text-anchor="middle">通过</text>
+  <rect class="cap" x="480" y="498" width="52" height="22" rx="11"/>
+  <text class="ts" x="506" y="513" text-anchor="middle">失败</text>
+  <rect class="ns" x="60" y="556" width="240" height="60" rx="8"/>
+  <text class="th" x="180" y="578" text-anchor="middle">验证通过</text>
+  <text class="tss" x="180" y="598" text-anchor="middle">保留新明场中心 · 保存状态</text>
+  <rect class="nd" x="420" y="556" width="240" height="60" rx="8"/>
+  <text class="th" x="540" y="578" text-anchor="middle">验证失败</text>
+  <text class="tsd" x="540" y="598" text-anchor="middle">回退旧明场中心 · θ 归零 · 回原点</text>
+</svg>

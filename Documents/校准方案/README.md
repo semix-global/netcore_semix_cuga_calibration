@@ -16,3 +16,7 @@
 | Microscope | Microscope-CalChip | [Microscope CalChip 校准方案](Microscope/Microscope-CalChip/校准方案.md) | [Microscope CalChip 验收](Microscope/Microscope-CalChip/验收.md) |
 | Microscope | Microscope-PixelSize | [Microscope PixelSize 校准方案](Microscope/Microscope-PixelSize/校准方案.md) | [Microscope PixelSize 验收](Microscope/Microscope-PixelSize/验收.md) |
 | Microscope | Microscope-Centricity | [Microscope Centricity 校准方案](Microscope/Microscope-Centricity/校准方案.md) | [Microscope Centricity 验收](Microscope/Microscope-Centricity/验收.md) |
+| Chuck | Chuck-GantryOffset | [Chuck Gantry Offset 校准方案](Chuck/Chuck-GantryOffset/校准方案.md) | [Chuck Gantry Offset 验收](Chuck/Chuck-GantryOffset/验收.md) |
+| Chuck | Chuck-GlobalScaleError | [Chuck Global Scale Error 校准方案](Chuck/Chuck-GlobalScaleError/校准方案.md) | [Chuck Global Scale Error 验收](Chuck/Chuck-GlobalScaleError/验收.md) |
+| Chuck | Chuck-ChuckCenterAndTheta | [Chuck Center And Theta 校准方案](Chuck/Chuck-ChuckCenterAndTheta/校准方案.md) | [Chuck Center And Theta 验收](Chuck/Chuck-ChuckCenterAndTheta/验收.md) |
+| Chuck | Chuck-PrealignerToStage | [Chuck Prealigner To Stage 校准方案](Chuck/Chuck-PrealignerToStage/校准方案.md) | [Chuck Prealigner To Stage 验收](Chuck/Chuck-PrealignerToStage/验收.md) |

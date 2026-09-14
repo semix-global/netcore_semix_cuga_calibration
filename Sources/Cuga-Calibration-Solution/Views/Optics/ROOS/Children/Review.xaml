@@ -40,6 +40,21 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Extend Coefficient: "
+                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="10"
+                                          Increment="0.01"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ExtendCoefficient}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="ROOS Extend(pix): "
+                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          Minimum="0"
+                                          Maximum="30"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ROOSExtendPixel}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Threshold(pix): "
                                           hc:TitleElement.TitleWidth="190"
                                           hc:TitleElement.TitlePlacement="Left"

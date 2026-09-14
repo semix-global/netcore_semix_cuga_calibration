@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 736" width="720" height="736" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsb { fill: #4B3FE3; font-size: 12px; }
+    .tm { fill: #52525B; font-size: 12px; font-weight: 500; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .cap { fill: #FFFFFF; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+  </style>
+  <defs>
+    <marker id="awm" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+  <path class="arr" d="M360 76 V96" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 156 V176" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 236 V256" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 316 V336" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 396 V416" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 476 V496" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 556 V576" marker-end="url(#awm)"/>
+  <path class="arr" d="M360 636 V656" marker-end="url(#awm)"/>
+
+  <rect class="n" x="312" y="44" width="96" height="32" rx="16"/>
+  <text class="th" x="360" y="64" text-anchor="middle">开始</text>
+
+  <rect class="n" x="130" y="100" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="110" width="32" height="18" rx="9"/>
+  <text class="tm" x="164" y="123" text-anchor="middle">S0</text>
+  <text class="th" x="206" y="124">P5 明场对齐</text>
+  <text class="ts" x="206" y="143">ChuckModel 明场对齐，记录对齐角度 P5Angle</text>
+
+  <rect class="n" x="130" y="180" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="190" width="32" height="18" rx="9"/>
+  <text class="tm" x="164" y="203" text-anchor="middle">S1</text>
+  <text class="th" x="206" y="204">低倍基础位置与模板</text>
+  <text class="ts" x="206" y="223">校验镜头与配方，生成栅格并定四个测量位置</text>
+
+  <rect class="n" x="130" y="260" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="270" width="32" height="18" rx="9"/>
+  <text class="tm" x="164" y="283" text-anchor="middle">S2</text>
+  <text class="th" x="206" y="284">高倍基础位置与模板</text>
+  <text class="ts" x="206" y="303">记录高倍基础位置与低倍到高倍坐标差</text>
+
+  <rect class="n" x="130" y="340" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="350" width="40" height="18" rx="9"/>
+  <text class="tm" x="168" y="363" text-anchor="middle">S3-6</text>
+  <text class="th" x="206" y="364">四个低倍位置依次匹配</text>
+  <text class="ts" x="206" y="383">Top / Bottom / Left / Right 低倍模板匹配</text>
+
+  <rect class="nb" x="130" y="420" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="430" width="32" height="18" rx="9"/>
+  <text class="tsb" x="164" y="443" text-anchor="middle">S7</text>
+  <text class="tbr" x="206" y="444">Calibration 迭代收敛</text>
+  <text class="ts" x="206" y="463">下发 → 四方向测量 → 判敛，最多 Times 轮</text>
+
+  <rect class="n" x="130" y="500" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="510" width="42" height="18" rx="9"/>
+  <text class="tm" x="169" y="523" text-anchor="middle">SAVE</text>
+  <text class="th" x="206" y="524">保存校准记录</text>
+  <text class="ts" x="206" y="543">离开步骤时保存，失败则回置并重置比例</text>
+
+  <rect class="n" x="130" y="580" width="460" height="56" rx="8"/>
+  <rect class="cap" x="148" y="590" width="34" height="18" rx="9"/>
+  <text class="tm" x="165" y="603" text-anchor="middle">VER</text>
+  <text class="th" x="206" y="604">Verify 复测验证</text>
+  <text class="ts" x="206" y="623">下发已存比例重测，|误差| &lt; 阈值即标记 IsVerified</text>
+
+  <rect class="n" x="312" y="660" width="96" height="32" rx="16"/>
+  <text class="th" x="360" y="680" text-anchor="middle">完成</text>
+</svg>

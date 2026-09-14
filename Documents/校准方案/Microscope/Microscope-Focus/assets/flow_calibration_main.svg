@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 956" width="720" height="956" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .cont { fill: none; stroke: rgba(23,23,23,0.16); stroke-width: 1.5; stroke-dasharray: 7 6; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tb { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+  <defs>
+    <marker id="aw1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+  <rect class="n" x="220" y="44" width="160" height="36" rx="18"/>
+  <text class="th" x="300" y="67" text-anchor="middle">开始校准</text>
+  <path class="arr" d="M300 80 V114" marker-end="url(#aw1)"/>
+  <g>
+    <rect class="n" x="150" y="114" width="300" height="78" rx="8"/>
+    <text class="th" x="300" y="140" text-anchor="middle">前置准备</text>
+    <text class="ts" x="300" y="160" text-anchor="middle">ADS 三项校准（P/X/Y Gains）已完成</text>
+    <text class="ts" x="300" y="178" text-anchor="middle">放晶圆吸附 · 关 AF · 开 Z 向（ECS）· 对中</text>
+  </g>
+  <path class="arr" d="M300 192 V272" marker-end="url(#aw1)"/>
+  <rect class="cont" x="70" y="216" width="600" height="524" rx="12"/>
+  <text class="th" x="94" y="240">逐倍镜校准循环（每个物镜）</text>
+  <text class="ts" x="94" y="258">建议 5X 起步 · 顺序不强制</text>
+  <text class="ts" x="650" y="254" text-anchor="end">5X → 10X → 50X → 100X → 10X-IR</text>
+  <g>
+    <rect class="n" x="150" y="272" width="300" height="56" rx="8"/>
+    <text class="th" x="300" y="294" text-anchor="middle">① 选定物镜与点位</text>
+    <text class="ts" x="300" y="314" text-anchor="middle">图案移至明场中心，记录点位坐标</text>
+  </g>
+  <path class="arr" d="M300 328 V352" marker-end="url(#aw1)"/>
+  <g>
+    <rect class="n" x="150" y="352" width="300" height="88" rx="8"/>
+    <text class="th" x="300" y="374" text-anchor="middle">② 扫描寻峰（遍历采样）</text>
+    <text class="ts" x="300" y="394" text-anchor="middle">在 [Min, Max] 内按固定间隔采样记录 Q</text>
+    <text class="ts" x="300" y="412" text-anchor="middle">连续 30 点 Q 不上升 → 提前终止</text>
+    <text class="ts" x="300" y="430" text-anchor="middle">取已采样 Q 最高点对应 ECS 为最佳焦面</text>
+  </g>
+  <path class="arr" d="M300 440 V464" marker-end="url(#aw1)"/>
+  <g>
+    <rect class="n" x="150" y="464" width="300" height="66" rx="8"/>
+    <text class="th" x="300" y="486" text-anchor="middle">③ 中继透镜电压二分归零</text>
+    <text class="ts" x="300" y="504" text-anchor="middle">取中点电压，读 AF error（Trace 均值）</text>
+    <text class="ts" x="300" y="522" text-anchor="middle">按正负缩小区间至收敛，记录为 offset</text>
+  </g>
+  <path class="arr" d="M300 530 V558" marker-end="url(#aw1)"/>
+  <polygon class="n" points="300,558 390,592 300,626 210,592"/>
+  <text class="tb" x="300" y="597" text-anchor="middle">归零收敛？</text>
+  <path class="arr" d="M300 626 V652" marker-end="url(#aw1)"/>
+  <text class="ts" x="312" y="643">是</text>
+  <path class="arr" d="M390 592 H480" marker-end="url(#aw1)"/>
+  <text class="ts" x="433" y="580" text-anchor="middle">否</text>
+  <g>
+    <rect class="n" x="480" y="560" width="170" height="64" rx="8"/>
+    <text class="th" x="565" y="584" text-anchor="middle">重试</text>
+    <text class="ts" x="565" y="604" text-anchor="middle">重选点位 / 调整扫描区间</text>
+  </g>
+  <path class="arr" d="M565 560 V396 H450" marker-end="url(#aw1)"/>
+  <text class="ts" x="578" y="478">重新扫描</text>
+  <g>
+    <rect class="n" x="150" y="652" width="300" height="70" rx="8"/>
+    <text class="th" x="300" y="674" text-anchor="middle">④ 保存校准结果</text>
+    <text class="ts" x="300" y="694" text-anchor="middle">先设置标准 ECS 与中继透镜电压</text>
+    <text class="ts" x="300" y="712" text-anchor="middle">存校准记录：ECS / 电压 / Q / AF error</text>
+  </g>
+  <path class="arr" d="M300 740 V768" marker-end="url(#aw1)"/>
+  <polygon class="n" points="300,768 420,800 300,832 180,800"/>
+  <text class="tb" x="300" y="805" text-anchor="middle">还有未校准物镜？</text>
+  <path class="arr" d="M180 800 H110 V300 H150" marker-end="url(#aw1)"/>
+  <text class="ts" x="144" y="786" text-anchor="middle">是（换镜）</text>
+  <path class="arr" d="M300 832 V864" marker-end="url(#aw1)"/>
+  <text class="ts" x="312" y="852">否</text>
+  <rect class="nb" x="180" y="864" width="240" height="40" rx="20"/>
+  <text class="tbr" x="300" y="889" text-anchor="middle">全部物镜校准完成</text>
+  <text class="ts" x="360" y="930" text-anchor="middle">AF error 收敛阈值推荐：B3 5X/10X/10X-IR 100 · 50X 300 · 100X 500 ｜ B4 五镜统一 500</text>
+</svg>

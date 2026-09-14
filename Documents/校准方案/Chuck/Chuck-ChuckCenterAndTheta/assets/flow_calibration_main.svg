@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 680" width="720" height="680" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsb { fill: #4B3FE3; font-size: 12px; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+  <defs>
+    <marker id="aw1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+  <rect class="n" x="270" y="40" width="180" height="36" rx="18"/>
+  <text class="th" x="360" y="63" text-anchor="middle">开始校准</text>
+  <path class="arr" d="M360 76 V100" marker-end="url(#aw1)"/>
+  <rect class="n" x="160" y="106" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="128" text-anchor="middle">Step 0 · P5 明场对齐</text>
+  <text class="ts" x="360" y="148" text-anchor="middle">ChuckModel 明场对齐，记录对齐角度</text>
+  <path class="arr" d="M360 162 V184" marker-end="url(#aw1)"/>
+  <rect class="n" x="160" y="188" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="210" text-anchor="middle">Step 1 · 低倍基础位置与模板</text>
+  <text class="ts" x="360" y="230" text-anchor="middle">参数校验 · 参考格点 · 低倍模板</text>
+  <path class="arr" d="M360 244 V266" marker-end="url(#aw1)"/>
+  <rect class="n" x="160" y="270" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="292" text-anchor="middle">Step 2 · 高倍基础位置与模板</text>
+  <text class="ts" x="360" y="312" text-anchor="middle">高倍模板 · 低倍到高倍坐标偏移</text>
+  <path class="arr" d="M360 326 V348" marker-end="url(#aw1)"/>
+  <rect class="n" x="160" y="352" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="374" text-anchor="middle">Step 3–6 · 四方向低倍位置</text>
+  <text class="ts" x="360" y="394" text-anchor="middle">上/下/左/右依次匹配，共用同一动作</text>
+  <path class="arr" d="M360 408 V430" marker-end="url(#aw1)"/>
+  <rect class="nb" x="160" y="434" width="400" height="56" rx="8"/>
+  <text class="tbr" x="360" y="456" text-anchor="middle">Step 7 · 校准计算</text>
+  <text class="tsb" x="360" y="476" text-anchor="middle">累乘收敛循环：比例系数与旋转中心</text>
+  <path class="arr" d="M360 490 V512" marker-end="url(#aw1)"/>
+  <rect class="n" x="160" y="516" width="400" height="56" rx="8"/>
+  <text class="th" x="360" y="538" text-anchor="middle">Verify · 验证</text>
+  <text class="ts" x="360" y="558" text-anchor="middle">未校准不执行；先下发新中心再重测</text>
+  <path class="arr" d="M360 572 V598" marker-end="url(#aw1)"/>
+  <rect class="n" x="250" y="602" width="220" height="36" rx="18"/>
+  <text class="th" x="360" y="625" text-anchor="middle">校准完成</text>
+</svg>

@@ -28,12 +28,21 @@ public sealed partial class OpticsROOSCache : CalibrationCacheBase<OpticsROOSCac
     [ObservableProperty]
     public partial double VerifyThreshold { get; set; }
 
+    [ObservableProperty]
+    public partial double ExtendCoefficient { get; set; } = 1.05;
+
+    [ObservableProperty]
+    public partial double ROOSExtendPixel { get; set; } = 15;
+
     public override OpticsROOSCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation,
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         ProductivityInformation = ProductivityInformation,
         Items = new ConcurrentDictionary<ProductivityInformation, OpticsROOSCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, OpticsROOSCacheItem>(t.Key, t.Value.Clone()))),
+        VerifyThreshold = VerifyThreshold,
+        ExtendCoefficient = ExtendCoefficient,
+        ROOSExtendPixel = ROOSExtendPixel,
         Id = Id,
         Expiration = Expiration
     };

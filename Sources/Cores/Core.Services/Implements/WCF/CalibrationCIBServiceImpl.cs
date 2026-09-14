@@ -557,8 +557,6 @@ public sealed class CalibrationCIBServiceImpl(
 
             result[index] = new DarkFieldRawScanImageDTO().AdaptIn(m2CImgSysCollectImgDTOs[0], cibInformation, isForward, getCIBProfileModeEnumRet.Anything[index], isKeepRawImageCIBProfileModeEnum);
 
-            Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);
-
             return SxExecuteRetHelper.CreateSuccess(true);
         }, cancellationToken)));
 

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1290" width="720" height="1290" font-family="'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif">
+  <style>
+    .n { fill: #EFEFF2; stroke: rgba(23,23,23,0.16); stroke-width: 1; }
+    .nb { fill: #F2F7FF; stroke: #4B3FE3; stroke-width: 1.2; }
+    .ng { fill: #FDECEA; stroke: #E8463A; stroke-width: 1.2; }
+    .th { fill: #171717; font-size: 14px; font-weight: 500; }
+    .tbr { fill: #1A1759; font-size: 14px; font-weight: 500; }
+    .ts { fill: #52525B; font-size: 12px; }
+    .tsd { fill: #E8463A; font-size: 12px; }
+    .cnum { fill: #52525B; font-size: 12px; font-weight: 500; }
+    .arr { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .arrd { stroke: #52525B; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 5 4; fill: none; }
+    .chip { fill: #E4E4E7; }
+  </style>
+  <defs>
+    <marker id="aw" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1 L7 4 L1 7 Z" fill="#52525B"/>
+    </marker>
+  </defs>
+
+  <path class="arr" d="M260 128 V186" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 296 V354" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 444 V502" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 592 V650" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 740 V756" marker-end="url(#aw)"/>
+  <path class="arrd" d="M380 796 H497" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 834 V926" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 1016 V1072" marker-end="url(#aw)"/>
+  <path class="arrd" d="M380 1112 H497" marker-end="url(#aw)"/>
+  <path class="arr" d="M260 1150 V1210" marker-end="url(#aw)"/>
+
+  <rect class="n" x="70" y="40" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="67">① 准备 · EFEM 重新上料（不补偿）</text>
+  <text class="ts" x="86" y="91">清空上一次的边缘标记点与边缘图记录</text>
+  <text class="ts" x="86" y="112">重新上料失败则校准无法启动</text>
+
+  <rect class="n" x="70" y="188" width="380" height="108" rx="12"/>
+  <text class="th" x="86" y="215">② Step 0 · P8 圆心偏移</text>
+  <text class="ts" x="86" y="239">明场原点起 8 方向找边缘点，56 组三点圆心取平均</text>
+  <text class="ts" x="86" y="260">偏移按方向矢量逐轴折算，得修正后 EFEM 上料位置</text>
+  <text class="ts" x="86" y="281">示教位置阈值结论仅记录，不阻断本步</text>
+
+  <rect class="n" x="70" y="356" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="383">③ Step 1–2 · 低倍标记点 1 / 2</text>
+  <text class="ts" x="86" y="407">点1 读取低倍明场坐标，截取图案建低倍模板</text>
+  <text class="ts" x="86" y="428">点2 移动 die 间距宽度 × reticle 内 die 列数，模板匹配定位</text>
+
+  <rect class="n" x="70" y="504" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="531">④ Step 3–4 · 高倍标记点 1 / 2</text>
+  <text class="ts" x="86" y="555">校验高倍镜倍率严格大于低倍镜后切换高倍镜</text>
+  <text class="ts" x="86" y="576">点1 建高倍模板，点2 在低倍标记点2 附近模板匹配</text>
+
+  <rect class="n" x="70" y="652" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="679">⑤ Step 5 · P5 旋转角求解</text>
+  <text class="ts" x="86" y="703">载台旋转角归零，四标记点与低/高倍信息交算法库</text>
+  <text class="ts" x="86" y="724">旋转角由外部算法库返回，应用层不参与数值计算</text>
+
+  <polygon class="n" points="140,796 260,758 380,796 260,834" stroke-linejoin="round"/>
+  <text class="th" x="260" y="801" text-anchor="middle">旋转角 &lt; 示教角度阈值？</text>
+
+  <rect class="ng" x="500" y="760" width="188" height="72" rx="8"/>
+  <text class="th" x="514" y="784">否 · 超出示教角度阈值</text>
+  <text class="tsd" x="514" y="806">P5 步失败，流程中止</text>
+
+  <rect class="chip" x="424" y="766" width="28" height="20" rx="10"/>
+  <text class="cnum" x="438" y="780" text-anchor="middle">否</text>
+  <rect class="chip" x="275" y="846" width="30" height="20" rx="10"/>
+  <text class="cnum" x="290" y="860" text-anchor="middle">是</text>
+
+  <rect class="n" x="70" y="928" width="380" height="88" rx="12"/>
+  <text class="th" x="86" y="955">⑥ Step 6 · 循环重测与判定</text>
+  <text class="ts" x="86" y="979">以示教补偿量带补偿上料，重测圆心偏移与旋转角</text>
+  <text class="ts" x="86" y="1000">任一轮上料失败 → 本步失败，不产生校准结果</text>
+
+  <polygon class="n" points="140,1112 260,1074 380,1112 260,1150" stroke-linejoin="round"/>
+  <text class="th" x="260" y="1117" text-anchor="middle">第 1 轮 &lt; 验证阈值？</text>
+
+  <rect class="ng" x="500" y="1076" width="188" height="72" rx="8"/>
+  <text class="th" x="514" y="1100">否 · 判定失败</text>
+  <text class="tsd" x="514" y="1122">记录仍保存，不标记已校准</text>
+
+  <rect class="chip" x="424" y="1082" width="28" height="20" rx="10"/>
+  <text class="cnum" x="438" y="1096" text-anchor="middle">否</text>
+  <rect class="chip" x="275" y="1162" width="30" height="20" rx="10"/>
+  <text class="cnum" x="290" y="1176" text-anchor="middle">是</text>
+
+  <rect class="nb" x="90" y="1210" width="340" height="60" rx="28"/>
+  <text class="tbr" x="260" y="1234" text-anchor="middle">保存校准记录 · 标记已校准</text>
+  <text class="ts" x="260" y="1254" text-anchor="middle">修正后 EFEM 上料位置 + 起始旋转绝对角度</text>
+</svg>
