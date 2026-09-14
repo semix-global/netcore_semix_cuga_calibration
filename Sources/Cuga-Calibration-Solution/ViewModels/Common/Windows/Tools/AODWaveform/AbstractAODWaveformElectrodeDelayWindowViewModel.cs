@@ -187,8 +187,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             DialogWindowProvider.ShowDialog(
                 $"""
-                 Please check whether the noise curve is abnormal. Current noise: {Cache.Noise}
-                 If it is abnormal, remeasure the noise or input the noise value manually.
+                 Please check whether the Step 1 Stability Plots are abnormal. Current noise: {Cache.Noise}
+                 If they are abnormal, remeasure the noise or input the noise value manually.
                  """,
                 DialogButtonsEnum.OK,
                 DialogIconEnum.Warning);
@@ -516,7 +516,20 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 });
 
                 if (isSuccess)
+                {
+                    var bestScoreItem = Cache.Step1.Items.First(t => t.IsSelected);
+
+                    Logger.LogHtmlInformation("Best Score Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                    {
+                        bestScoreItem.Score,
+                        bestScoreItem.Delays,
+                        FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty),
+                        MeasurePower = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower))])], string.Empty),
+                        PercentMeasurePowerp = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower / Cache.TotalMeasurePower))])], string.Empty)
+                    }), HtmlLogUniqueId.LoggingHtml());
+
                     Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
                 else
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
