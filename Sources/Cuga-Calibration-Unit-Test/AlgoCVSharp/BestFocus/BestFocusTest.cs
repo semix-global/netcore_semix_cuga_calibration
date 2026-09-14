@@ -1,17 +1,17 @@
-#define BestFocusTest
+// #define BestFocusTest
 
 using AwesomeAssertions;
 using Core.Models.Enums.Algorithm;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.ScottPlot;
-using Net.Utilities.ScottPlot.WPF.V2;
 using Xunit.Abstractions;
 
 #if BestFocusTest
 using System.Windows;
 using System.Windows.Controls;
 using ScottPlot.MultiplotLayouts;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.WPF.V2;
 #endif
 
 namespace CugaCalibrationUnitTest.AlgoCVSharp.BestFocus;

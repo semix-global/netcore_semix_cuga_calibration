@@ -42,48 +42,6 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <StackPanel>
-                            <TextBlock Text="Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Extinction Ratio Threshold: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="0"
-                                          Increment="0.001"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.ExtinctionRatioThreshold}" />
-                        <StackPanel>
-                            <TextBlock Text="Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.Channel1Item.Step0PMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
-                                 hc:TitleElement.Title="Step0 PMT Average: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Channel1Item.Step1PMTImageAverageValue, StringFormat='0.###', Mode=OneWay}"
-                                 hc:TitleElement.Title="Step1 PMT Average: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Channel1Item.ExtinctionRatio, StringFormat='0.###', Mode=OneWay}"
-                                 hc:TitleElement.Title="Extinction Ratio: "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

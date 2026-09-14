@@ -87,7 +87,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Cache.RodTotalCount = config.RodNum;
         Cache.MinMotorAbsoluteValue = config.CH12MinPOS;
         Cache.MaxMotorAbsoluteValue = config.CH12MaxPOS;
-        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = config.CH12MaxPOS * 0.9;
+        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = config.CH12MaxPOS * 0.8;
         if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = config.CH12MaxPOS * 0.5;
 
         UpdateEntryStatus(Calibration, cancellationToken);
@@ -440,22 +440,22 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             {
                 case 0:
                     itemData.Step0ChannelImageFilePath = roiChannelImageFilePath;
-                  
+
                     break;
 
                 case 1:
                     itemData.Step1ChannelImageFilePath = roiChannelImageFilePath;
-                   
+
                     break;
 
                 case 2:
                     itemData.Step2ChannelImageFilePath = roiChannelImageFilePath;
-                    
+
                     break;
 
                 default:
                     ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
-                    
+
                     break;
             }
         }
@@ -481,15 +481,15 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item })
             {
-                Channel1Item = new HtmlQuote(Review.Channel1Item.ToHtmlAnonymous()),
-                Channel1EvenItem = new HtmlQuote(Review.Channel1Item.EvenItem.ToHtmlAnonymous()),
-                Channel1OddItem = new HtmlQuote(Review.Channel1Item.OddItem.ToHtmlAnonymous()),
-                Channel2Item = new HtmlQuote(Review.Channel2Item.ToHtmlAnonymous()),
-                Channel2EvenItem = new HtmlQuote(Review.Channel2Item.EvenItem.ToHtmlAnonymous()),
-                Channel2OddItem = new HtmlQuote(Review.Channel2Item.OddItem.ToHtmlAnonymous())
-            }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Even ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.EvenItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Odd ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.OddItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             Review.IsVerified = true;
             Guard.IsTrue(Save(Review, cancellationToken));

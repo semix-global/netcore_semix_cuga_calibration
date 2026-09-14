@@ -17,12 +17,13 @@ namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 public sealed partial class FourierSideChannelSpecularBlockerDTOItem : ObservableObject, ICloneable<FourierSideChannelSpecularBlockerDTOItem>, IDisposable
 {
-    private const string StepsComment = "Step0: Move rods home and grab Fourier / PMT images; Step1: Drop rods to the calibrated positions and grab Fourier / PMT images";
+    private const string StepsComment = "Step0: Move rods home; Step1: Drop rods to the calibrated positions. Grab Fourier images during calibration and PMT images during verification";
 
     private readonly BitmapImageDrawable _step0FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step0PMTBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1PMTBitmapImageDrawable = new();
+    private readonly BitmapImageROIDrawable[] _step1FourierROIDrawables;
 
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount;
@@ -63,6 +64,9 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
+    [Newtonsoft.Json.JsonIgnore]
+    public OpticsFourierImageDocument PMTDocument { get; } = new();
+
     public FourierSideChannelSpecularBlockerDTOItem(int rodTotalCount, int channelId)
     {
         _rodTotalCount = rodTotalCount;
@@ -77,19 +81,23 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 })
         ];
 
+        _step1FourierROIDrawables = [.. Rods.Select(_ => new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable))];
+
         Document.RunDesign(() =>
         {
             Document.ImageModel.AddRange(
             [
                 _step0FourierBitmapImageDrawable,
-                _step1FourierBitmapImageDrawable,
-                _step0PMTBitmapImageDrawable,
-                _step1PMTBitmapImageDrawable
+                _step1FourierBitmapImageDrawable
             ]);
             Document.ROIModel.AddRange(Rods.Select(t => t.BitmapImageROIDrawable));
+            Document.ROIModel.AddRange(_step1FourierROIDrawables);
         });
 
+        PMTDocument.RunDesign(() => PMTDocument.ImageModel.AddRange([_step0PMTBitmapImageDrawable, _step1PMTBitmapImageDrawable]));
+
         ResetDocument();
+        ResetPMTDocument();
     }
 
     [Newtonsoft.Json.JsonConstructor]
@@ -108,6 +116,13 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Document.Reset();
 
         foreach (var rod in Rods) rod.BitmapImageROIDrawable.Text = $"{rod.Index + 1}";
+    }
+
+    private void ResetPMTDocument()
+    {
+        PMTDocument.Reset();
+
+        foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
 
     #region Mapper
@@ -144,6 +159,16 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     {
         Step0FourierImageFilePath = string.Empty;
         Step1FourierImageFilePath = string.Empty;
+
+        foreach (var rod in Rods) rod.Reset();
+
+        ResetDocument();
+
+        ResetPMT();
+    }
+
+    public void ResetPMT()
+    {
         RawStep0PMTImageFilePath = string.Empty;
         RawStep1PMTImageFilePath = string.Empty;
         Step0PMTImageFilePath = string.Empty;
@@ -152,9 +177,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Step1PMTImageAverageValue = 0d;
         ExtinctionRatio = 0d;
 
-        foreach (var rod in Rods) rod.Reset();
-
-        ResetDocument();
+        ResetPMTDocument();
     }
 
     public async Task CalibratingAsync(FourierSideChannelFlexibleApertureDTOItem fourierSideChannelFlexibleApertureItem, CancellationToken cancellationToken)
@@ -176,12 +199,11 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
 
                 rod.IsDeleted = rodResult.IsDeleted;
-                rod.ImageROI = rodResult.MinImageROI
-                    .ClampToBounds(new Rect(Point.Origin, _step0FourierBitmapImageDrawable.BitmapImage.Size));
+                rod.ImageROI = rodResult.MinImageROI;
                 if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
                 rod.BitmapImageROIDrawable.IsFixed = false;
                 rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
-                rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0};
+                rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
 
             while (true)
@@ -244,33 +266,50 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         {
             ResetDocument();
 
-            if (string.IsNullOrWhiteSpace(Step0FourierImageFilePath)
-                || string.IsNullOrWhiteSpace(Step1FourierImageFilePath)
-                || string.IsNullOrWhiteSpace(Step0PMTImageFilePath)
-                || string.IsNullOrWhiteSpace(Step1PMTImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(Step0FourierImageFilePath) || string.IsNullOrWhiteSpace(Step1FourierImageFilePath)) return;
 
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
 
             _step1FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
             _step1FourierBitmapImageDrawable.Point = _step0FourierBitmapImageDrawable.Point - new Vector(0d, _step0FourierBitmapImageDrawable.BitmapImage.Height + 10d);
 
-            _step0PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0PMTImageFilePath);
-            _step0PMTBitmapImageDrawable.Point = _step0FourierBitmapImageDrawable.Point + new Vector(_step0FourierBitmapImageDrawable.BitmapImage.Width + 10d, 0d);
-
-            _step1PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1PMTImageFilePath);
-            _step1PMTBitmapImageDrawable.Point = _step0PMTBitmapImageDrawable.Point - new Vector(0d, _step0PMTBitmapImageDrawable.BitmapImage.Height + 10d);
-
             foreach (var rod in Rods)
             {
-                if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
-                rod.BitmapImageROIDrawable.IsFixed = true;
+                var step1ROI = _step1FourierROIDrawables[rod.Index];
+
+                if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = step1ROI.Text = $"X {rod.BitmapImageROIDrawable.Text}";
+                rod.BitmapImageROIDrawable.IsFixed = step1ROI.IsFixed = true;
                 rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
-                rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
+                rod.BitmapImageROIDrawable.IsVisible = step1ROI.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
+
+                step1ROI.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
             }
         }
         finally
         {
             Document.View.ZoomToFit();
+        }
+    }
+
+    public void ReviewPMT()
+    {
+        try
+        {
+            ResetPMTDocument();
+
+            if (string.IsNullOrWhiteSpace(Step0PMTImageFilePath)) return;
+
+            _step0PMTBitmapImageDrawable.Point = Point.Origin;
+            _step0PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep0PMTImageFilePath);
+
+            if (string.IsNullOrWhiteSpace(Step1PMTImageFilePath)) return;
+
+            _step1PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep1PMTImageFilePath);
+            _step1PMTBitmapImageDrawable.Point = _step0PMTBitmapImageDrawable.Point - new Vector(0d, _step0PMTBitmapImageDrawable.BitmapImage.Height + 10d);
+        }
+        finally
+        {
+            PMTDocument.View.ZoomToFit();
         }
     }
 
@@ -281,25 +320,15 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Comment = new HtmlComment(StepsComment),
         ChannelId,
         Step0FourierImageFilePath,
-        RawStep0PMTImageFilePath,
-        Step0PMTImageFilePath,
-        Step0FourierImage = new HtmlImage(Step0FourierImageFilePath),
-        Step0PMTImage = new HtmlImage(Step0PMTImageFilePath)
+        Step0FourierImage = new HtmlImage(Step0FourierImageFilePath)
     };
 
     public object ToHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
         ChannelId,
-        Step0PMTImageAverageValue,
-        Step1PMTImageAverageValue,
-        ExtinctionRatio,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        RawStep0PMTImageFilePath,
-        RawStep1PMTImageFilePath,
-        Step0PMTImageFilePath,
-        Step1PMTImageFilePath,
         Rods = new HtmlTable([.. Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI, t.MotorAbsoluteValue })]),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
@@ -310,7 +339,19 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         [
             .. Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
             .. Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
-        ]),
+        ])
+    };
+
+    public object ToPMTHtmlAnonymous() => new
+    {
+        ChannelId,
+        Step0PMTImageAverageValue,
+        Step1PMTImageAverageValue,
+        ExtinctionRatio,
+        RawStep0PMTImageFilePath,
+        RawStep1PMTImageFilePath,
+        Step0PMTImageFilePath,
+        Step1PMTImageFilePath,
         Step0PMTImage = new HtmlImage(Step0PMTImageFilePath),
         Step1PMTImage = new HtmlImage(Step1PMTImageFilePath)
     };

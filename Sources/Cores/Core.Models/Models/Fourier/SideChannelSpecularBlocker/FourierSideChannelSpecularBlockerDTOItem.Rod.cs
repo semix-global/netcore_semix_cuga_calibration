@@ -17,11 +17,11 @@ public partial class FourierSideChannelSpecularBlockerDTOItem
         [ObservableProperty]
         public partial Rect ImageROI { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
-
         [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }
+
+        [Newtonsoft.Json.JsonIgnore]
+        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
 
         [Newtonsoft.Json.JsonConstructor]
         private Rod() : this(new BitmapImageDrawable())

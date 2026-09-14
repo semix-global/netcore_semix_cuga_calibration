@@ -68,9 +68,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTO : CalibrationDT
 
     public CalibrationPupilSideChannelSpecularBlocker AdaptTo()
     {
-        if (IsCalibrated == false
-            || Channel1Item.Rods.Length != _rodTotalCount
-            || Channel2Item.Rods.Length != _rodTotalCount)
+        if (Channel1Item.Rods.Length != _rodTotalCount || Channel2Item.Rods.Length != _rodTotalCount)
         {
             if (IsCalibrated)
             {

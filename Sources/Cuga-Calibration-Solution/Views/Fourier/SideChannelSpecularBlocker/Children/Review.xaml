@@ -57,12 +57,13 @@
                                 <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.VerifyLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
+                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.VerifyCIBConfiguration}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.ImageWidth}" />
+                                          Value="{Binding Cache.VerifyImageWidth}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -151,12 +152,34 @@
                                 <TabControl Margin="5">
                                     <TabItem Header="Channel 1">
                                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.Document, Mode=OneWay}" />
+                                            <TabControl>
+                                                <TabItem Header="Fourier">
+                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.Document, Mode=OneWay}" />
+                                                    </Border>
+                                                </TabItem>
+                                                <TabItem Header="PMT" IsSelected="True">
+                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.PMTDocument, Mode=OneWay}" />
+                                                    </Border>
+                                                </TabItem>
+                                            </TabControl>
                                         </Border>
                                     </TabItem>
                                     <TabItem Header="Channel 2">
                                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.Document, Mode=OneWay}" />
+                                            <TabControl>
+                                                <TabItem Header="Fourier">
+                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.Document, Mode=OneWay}" />
+                                                    </Border>
+                                                </TabItem>
+                                                <TabItem Header="PMT" IsSelected="True">
+                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.PMTDocument, Mode=OneWay}" />
+                                                    </Border>
+                                                </TabItem>
+                                            </TabControl>
                                         </Border>
                                     </TabItem>
                                 </TabControl>

@@ -347,12 +347,12 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item, Review.Channel3Item })
             {
-                Channel1Item = new HtmlQuote(Review.Channel1Item.ToHtmlAnonymous()),
-                Channel2Item = new HtmlQuote(Review.Channel2Item.ToHtmlAnonymous()),
-                Channel3Item = new HtmlQuote(Review.Channel3Item.ToHtmlAnonymous())
-            }), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             Review.IsVerified = true;
             Guard.IsTrue(Save(Review, cancellationToken));

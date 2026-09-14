@@ -16,7 +16,7 @@ namespace CugaCalibrationUnitTest;
 
 public sealed class FourierSideChannelSpecularBlockerSerializationTest
 {
-    private static readonly string[] NonPersistentNames = ["Document", "BitmapImageROIDrawable", "document", "bitmapImageROIDrawable"];
+    private static readonly string[] NonPersistentNames = ["Document", "PMTDocument", "BitmapImageROIDrawable", "document", "pmtDocument", "bitmapImageROIDrawable"];
     private static readonly string[] InfrastructureNames =
     [
         "Id",
@@ -284,15 +284,20 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
 
     private static void AssertChannelDrawableBindings(FourierSideChannelSpecularBlockerDTOItem channel)
     {
-        channel.Document.ImageModel.Should().HaveCount(4);
-        channel.Document.ROIModel.Should().Equal(channel.Rods.Select(t => t.BitmapImageROIDrawable));
+        channel.Document.ImageModel.Should().HaveCount(2);
+        channel.PMTDocument.ImageModel.Should().HaveCount(2);
+        channel.PMTDocument.ROIModel.Should().BeEmpty();
+        channel.Document.ROIModel.Should().HaveCount(channel.Rods.Length * 2);
+        channel.Document.ROIModel.Take(channel.Rods.Length).Should().Equal(channel.Rods.Select(t => t.BitmapImageROIDrawable));
         var step0Fourier = channel.Document.ImageModel.First();
-        foreach (var rod in channel.Rods)
+        var step1Fourier = channel.Document.ImageModel.ElementAt(1);
+        foreach (var (rod, step1ROI) in channel.Rods.Zip(channel.Document.ROIModel.Skip(channel.Rods.Length)))
         {
             rod.BitmapImageROIDrawable.BitmapImageDrawable.Should().BeSameAs(step0Fourier);
             rod.BitmapImageROIDrawable.BitmapImageDrawable.BitmapImage.Should().BeNull();
             rod.BitmapImageROIDrawable.Text.Should().Be($"{rod.Index + 1}");
             rod.BitmapImageROIDrawable.ResizeJoystickStateEnum.Should().Be(BitmapImageROIResizeJoystickStateEnum.XCenterYMin);
+            step1ROI.BitmapImageDrawable.Should().BeSameAs(step1Fourier);
         }
     }
 
