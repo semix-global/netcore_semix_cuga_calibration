@@ -199,7 +199,7 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="2">
                                                     <Button Content="Import"
                                                             Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCommand}"
                                                             hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"

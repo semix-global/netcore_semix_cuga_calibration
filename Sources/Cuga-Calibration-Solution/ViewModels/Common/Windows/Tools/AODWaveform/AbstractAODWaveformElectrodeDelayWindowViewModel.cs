@@ -185,13 +185,14 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
-            DialogWindowProvider.ShowDialog(
-                $"""
-                 Please check whether the Step 1 Stability Plots are abnormal. Current noise: {Cache.Noise}
-                 If they are abnormal, remeasure the noise or input the noise value manually.
-                 """,
-                DialogButtonsEnum.OK,
-                DialogIconEnum.Warning);
+            if (isSilent == false)
+            {
+                DialogWindowProvider.ShowDialog(
+                    $"""
+                     Please check whether the Step 1 Stability Plots are abnormal. Current noise: {Cache.Noise}
+                     If they are abnormal, remeasure the noise or input the noise value manually.
+                     """);
+            }
 
             return isSuccess;
 
@@ -356,26 +357,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                         {
                             if (isCurrentFrequenciesOk == false) Cache.Step1.Items = [.. Cache.Step1.Items.AsSpan()[..^1]];
 
-                            foreach (var temp in Cache.Step1.Items) temp.IsSelected = false;
-
-                            if (Cache.Step1.Items.Length > 0)
-                            {
-                                var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
-                                bestScoreItem.IsSelected = true;
-
-                                foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
-                                {
-                                    result.Delay = bestScoreItem.Delays[index];
-                                    result.UniformityConfigurations =
-                                    [
-                                        .. bestScoreItem.FrequencyItems.Select(t => new GenerateAODWaveformUniformityConfiguration
-                                        {
-                                            Frequency = t.Frequency,
-                                            Coefficient = t.Amplitude // todo: 后续要除以Cache.Amplitude 因为要归一化
-                                        })
-                                    ];
-                                }
-                            }
+                            Maxima();
                         }
 
                         _lastCost = -item.Score;
@@ -403,6 +385,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 if (isSuccess)
                 {
                     EndDetailLog();
+                    
+                    Maxima();
 
                     double[] resultDelays = [.. Cache.ElectrodeConfigurationResults.Select(t => t.Delay)];
                     double[] resultAmplitudes =
@@ -517,12 +501,19 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
                 if (isSuccess)
                 {
-                    var bestScoreItem = Cache.Step1.Items.First(t => t.IsSelected);
+                    var (index, bestScoreItem) = Cache.Step1.Items.Index().First(t => t.Item.IsSelected);
 
                     Logger.LogHtmlInformation("Best Score Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
+                        Index = index + 1,
                         bestScoreItem.Score,
                         bestScoreItem.Delays,
+                        SubtractBoardCardDelays = Cache.ElectrodeDelayParams
+                            .Index()
+                            .Select(tt => bestScoreItem.Delays[tt.Index] - (tt.Index == 0
+                                ? 0d
+                                : tt.Item.BoardCardDelay))
+                            .ToArray(),
                         FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty),
                         MeasurePower = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower))])], string.Empty),
                         PercentMeasurePowerp = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower / Cache.TotalMeasurePower))])], string.Empty)
@@ -535,6 +526,30 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             }
 
             return isSuccess;
+
+            void Maxima()
+            {
+                foreach (var temp in Cache.Step1.Items) temp.IsSelected = false;
+
+                if (Cache.Step1.Items.Length > 0)
+                {
+                    var bestScoreItem = Cache.Step1.Items.Maxima(t => t.Score).First();
+                    bestScoreItem.IsSelected = true;
+
+                    foreach (var (index, result) in Cache.ElectrodeConfigurationResults.Index())
+                    {
+                        result.Delay = bestScoreItem.Delays[index];
+                        result.UniformityConfigurations =
+                        [
+                            .. bestScoreItem.FrequencyItems.Select(t => new GenerateAODWaveformUniformityConfiguration
+                            {
+                                Frequency = t.Frequency,
+                                Coefficient = t.Amplitude // todo: 后续要除以Cache.Amplitude 因为要归一化
+                            })
+                        ];
+                    }
+                }
+            }
 
             Guid StartDetailLog(int times, int detailLogMaxTimes, string additionalName = Constants.EmptyString)
             {
