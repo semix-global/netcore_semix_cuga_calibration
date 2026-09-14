@@ -261,40 +261,64 @@
                                                           ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:AODWaveformScoreMethodEnum}}}"
                                                           SelectedItem="{Binding Cache.AODWaveformScoreMethodEnum}"
                                                           Style="{StaticResource ComboBoxExtend}" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Legacy: μ - λ * σ - γ * pv"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
-                                                <hc:NumericUpDown hc:TitleElement.Title="Lambda: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.LegacyScoreLambda}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Gamma: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.LegacyScoreGamma}" />
-                                                <StackPanel>
-                                                    <TextBlock Text="Band Width"
-                                                               HorizontalAlignment="Center"
-                                                               Style="{StaticResource TextBlockDefaultInfo}" />
-                                                </StackPanel>
-                                                <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Maximum="1"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.BandWidthScoreThreshold}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Epsilon: "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Maximum="1"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.BandWidthScoreEpsilon}" />
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel.Style>
+                                                        <Style TargetType="{x:Type hc:UniformSpacingPanel}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Cache.AODWaveformScoreMethodEnum}" Value="{x:Static viewModels:AODWaveformScoreMethodEnum.Legacy}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </hc:UniformSpacingPanel.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Legacy: μ - λ * σ - γ * pv"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Lambda: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.LegacyScoreLambda}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Gamma: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.LegacyScoreGamma}" />
+                                                </hc:UniformSpacingPanel>
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel.Style>
+                                                        <Style TargetType="{x:Type hc:UniformSpacingPanel}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Cache.AODWaveformScoreMethodEnum}" Value="{x:Static viewModels:AODWaveformScoreMethodEnum.BandWidth}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </hc:UniformSpacingPanel.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="Band Width"
+                                                                   HorizontalAlignment="Center"
+                                                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                                                    </StackPanel>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Maximum="1"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.BandWidthScoreThreshold}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Epsilon: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Maximum="1"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.BandWidthScoreEpsilon}" />
+                                                </hc:UniformSpacingPanel>
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Delay Params"
                                                                HorizontalAlignment="Center"

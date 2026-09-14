@@ -74,7 +74,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             {
                 Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
                 Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
-                Guard.IsGreaterThan(Cache.BandWidthScoreEpsilon, 0);
+                Guard.IsGreaterThanOrEqualTo(Cache.BandWidthScoreEpsilon, 0);
                 Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
             }
 
@@ -248,7 +248,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             {
                 Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
                 Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
-                Guard.IsGreaterThan(Cache.BandWidthScoreEpsilon, 0);
+                Guard.IsGreaterThanOrEqualTo(Cache.BandWidthScoreEpsilon, 0);
                 Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
             }
 
@@ -589,8 +589,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
         }
 
         using var pyMethod = EnumHelper.ToDescriptionString(Cache.AODWaveformScoreMethodEnum).ToPython();
-        using var pyThreshold = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.Legacy ? (double?)Cache.BandWidthScoreThreshold : null).ToPython();
-        using var pyEpsilon = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.Legacy ? (double?)Cache.BandWidthScoreEpsilon : null).ToPython();
+        using var pyThreshold = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth ? (double?)Cache.BandWidthScoreThreshold : null).ToPython();
+        using var pyEpsilon = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth ? (double?)Cache.BandWidthScoreEpsilon : null).ToPython();
         using var pyLambda = Cache.LegacyScoreLambda.ToPython();
         using var pyGamma = Cache.LegacyScoreGamma.ToPython();
         using var result = calculateScore.Invoke(pyFrequencies, pyEfficiencies, pyMethod, pyThreshold, pyEpsilon, pyLambda, pyGamma);
