@@ -169,9 +169,9 @@ public interface ICalibrationAfService
     /// <summary>
     ///  获取传感器: TracesBuffer XZ同步模式下的 触发信号、X机械位置、ECS的Buffer值
     /// </summary>
-    /// <param name="timeSpan"></param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns></returns>
-    SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 获取传感器: Nsc相对零点

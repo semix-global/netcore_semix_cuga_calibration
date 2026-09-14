@@ -1,4 +1,5 @@
 using algocv_sharp;
+using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
@@ -131,11 +132,16 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
     }
 
-    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, Guid guid)
+    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum, Guid guid)
     {
         try
         {
-            var bestFocus = GetAlgoCVSharpBestFocus(image);
+            var bestFocus = algorithmEngineTypeEnum switch
+            {
+                AlgorithmEngineTypeEnum.HAlgorithm => GetHAlgorithemBestFocus(image),
+                AlgorithmEngineTypeEnum.AlgoCSharp => GetAlgoCVSharpBestFocus(image, algorithmBestFocusTypeEnum),
+                _ => ThrowHelper.ThrowNotSupportedException<BestFocus>()
+            };
 
             bestFocus.BestXStrehlRatioECS = startECS + bestFocus.BestXStrehlRatioPoint.X / image.Size.Width * (stopECS - startECS);
             bestFocus.BestYStrehlRatioECS = startECS + bestFocus.BestYStrehlRatioPoint.X / image.Size.Width * (stopECS - startECS);
@@ -154,7 +160,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
     private BestFocus GetHAlgorithemBestFocus(BitmapImage image)
     {
         using var hImage = image.ToHImage();
-        var size = hImage.GetSize();
 
         #region 算法调用
 
@@ -255,13 +260,32 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return bestFocus;
     }
 
-    private BestFocus GetAlgoCVSharpBestFocus(BitmapImage image)
+    private BestFocus GetAlgoCVSharpBestFocus(BitmapImage image, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum)
     {
         using var algoImage = image.ToAlgoCVImage();
-        using var engine = new BestFocusEngine(new BestFocusConfig());
-        var result = engine.Process(algoImage);
+        BestFocusEngineResult algoResult;
 
-        return ConvertToBestFocus(result);
+        switch (algorithmBestFocusTypeEnum)
+        {
+            case AlgorithmBestFocusTypeEnum.DSW065:
+                using (var engine = new BestFocusEngine(new BestFocusConfig()))
+                {
+                    algoResult = engine.Process(algoImage);
+                }
+
+                break;
+
+            case AlgorithmBestFocusTypeEnum.DSW:
+                algoResult = BestFocusEngine.ProcessDSW163(algoImage);
+                break;
+
+            default:
+                throw new NotSupportedException($"Algorithm Best Focus Type {algorithmBestFocusTypeEnum} is not supported.");
+        }
+
+        var bestfocus = ConvertToBestFocus(algoResult);
+        algoResult.Dispose();
+        return bestfocus;
     }
 
     public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)
@@ -578,60 +602,61 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     private static BestFocus ConvertToBestFocus(BestFocusEngineResult result)
     {
-        var xStrehlCols = Generate.LinearRangeInt32(0, result.strehl_array_info_x.strehl_array_cols - 1);
-        var yStrehlCols = Generate.LinearRangeInt32(0, result.strehl_array_info_y.strehl_array_cols - 1);
+        var xStrehlCols = Generate.LinearRangeInt32(0, result.metric_array_info_x.metric_array_cols - 1);
+        var yStrehlCols = Generate.LinearRangeInt32(0, result.metric_array_info_y.metric_array_cols - 1);
 
-        var xStrehlRows = Generate.LinearRangeInt32(0, result.strehl_array_info_x.strehl_array_rows - 1);
-        var yStrehlRows = Generate.LinearRangeInt32(0, result.strehl_array_info_y.strehl_array_rows - 1);
+        var xStrehlRows = Generate.LinearRangeInt32(0, result.metric_array_info_x.metric_array_rows - 1);
+        var yStrehlRows = Generate.LinearRangeInt32(0, result.metric_array_info_y.metric_array_rows - 1);
 
         // X/YStrehlRatioFitPoints暂时不实现
         var bestFocus = new BestFocus
         {
             IsAlgorithmOk = true,
-            XStrehlRatioPoints = GetStrehlRatioPoints(result.strehl_array_info_x, true),
-            XStrehlRatioColumnPoints = GetStrehlRatioColumnPoints(result.strehl_array_info_x, true),
-            XIntraRibbonFieldsPoints = GetIntraRibbonFieldsPoints(result.strehl_array_info_x, true),
-            YStrehlRatioPoints = GetStrehlRatioPoints(result.strehl_array_info_y, false),
-            YStrehlRatioColumnPoints = GetStrehlRatioColumnPoints(result.strehl_array_info_y, false),
-            YIntraRibbonFieldsPoints = GetIntraRibbonFieldsPoints(result.strehl_array_info_y, false)
+            XStrehlRatioPoints = GetStrehlRatioPoints(result.metric_array_info_x, true),
+            XStrehlRatioColumnPoints = GetStrehlRatioColumnPoints(result.metric_array_info_x, true),
+            XIntraRibbonFieldsPoints = GetIntraRibbonFieldsPoints(result.metric_array_info_x, true),
+            YStrehlRatioPoints = GetStrehlRatioPoints(result.metric_array_info_y, false),
+            YStrehlRatioColumnPoints = GetStrehlRatioColumnPoints(result.metric_array_info_y, false),
+            YIntraRibbonFieldsPoints = GetIntraRibbonFieldsPoints(result.metric_array_info_y, false)
         };
 
-        BuildDirectionData(result.strehl_array_info_x, true);
-        BuildDirectionData(result.strehl_array_info_y, false);
+        BuildDirectionData(result.metric_array_info_x, true);
+        BuildDirectionData(result.metric_array_info_y, false);
 
         return bestFocus;
 
-        IReadOnlyList<Point> GetStrehlRatioPoints(StrehlRatioArrayInfo info, bool isX)
+
+        IReadOnlyList<Point> GetStrehlRatioPoints(FocusMetricArrayInfo info, bool isX)
         {
             var cols = isX ? xStrehlCols : yStrehlCols;
-            return [.. cols.Select(t => new Point(info.pixel_pos_per_col[t], info.median_strehl_per_col[t]))];
+            return [.. cols.Select(t => new Point(info.pixel_pos_per_col[t], info.median_metric_per_col[t]))];
         }
 
-        IReadOnlyList<IReadOnlyList<Point>> GetStrehlRatioColumnPoints(StrehlRatioArrayInfo info, bool isX)
+        IReadOnlyList<IReadOnlyList<Point>> GetStrehlRatioColumnPoints(FocusMetricArrayInfo info, bool isX)
         {
             var cols = isX ? xStrehlCols : yStrehlCols;
             return
             [
                 .. cols.Select<int, IReadOnlyList<Point>>(t =>
                 [
-                    new Point(info.pixel_pos_per_col[t], info.min_strehl_per_col[t]),
-                    new Point(info.pixel_pos_per_col[t], info.max_strehl_per_col[t])
+                    new Point(info.pixel_pos_per_col[t], info.min_metric_per_col[t]),
+                    new Point(info.pixel_pos_per_col[t], info.max_metric_per_col[t])
                 ])
             ];
         }
 
-        IReadOnlyList<IReadOnlyList<Point>> GetIntraRibbonFieldsPoints(StrehlRatioArrayInfo info, bool isX)
+        IReadOnlyList<IReadOnlyList<Point>> GetIntraRibbonFieldsPoints(FocusMetricArrayInfo info, bool isX)
         {
             var rows = isX ? xStrehlRows : yStrehlRows;
             return
             [
                 .. rows
-                    .Select(rowIndex => info.strehl_array_filtered.GetRow<float>(rowIndex).ToArray())
+                    .Select(rowIndex => info.metric_array_filtered.GetRow<float>(rowIndex).ToArray())
                     .Select<float[], IReadOnlyList<Point>>(cols => [.. cols.Zip(info.pixel_pos_per_col, (col, px) => new Point(px, col))])
             ];
         }
 
-        void BuildDirectionData(StrehlRatioArrayInfo info, bool isX)
+        void BuildDirectionData(FocusMetricArrayInfo info, bool isX)
         {
             Point[] fieldTiltPoints = [.. info.max_pixel_pos_per_row.Select((t, i) => new Point(i, t))];
 
@@ -640,7 +665,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
                 Vector<double>.Build.Dense([.. fieldTiltPoints.Select(t => t.Y)]));
 
             var fieldTiltFitPoints = fieldTiltPoints.Select((p, i) => new Point(p.X, fieldTiltFitYPredicted[i])).ToArray();
-            var bestPoint = new Point(info.max_strehl_in_median_pixel_pos, info.max_strehl_in_median);
+            var bestPoint = new Point(info.max_metric_in_median_pixel_pos, info.max_metric_in_median);
 
             if (isX)
             {

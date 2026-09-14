@@ -16,6 +16,8 @@
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:OpticsBestFocusWindowViewModel}"
@@ -127,6 +129,38 @@
                                                   ExpandDirection="Down">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                            </Border>
+                                        </Expander>
+                                        <Expander Header="Algorithm Configuration"
+                                                  IsExpanded="False"
+                                                  ExpandDirection="Down">
+                                            <Border Style="{StaticResource BorderRegion}">
+                                                <hc:UniformSpacingPanel Orientation="Vertical">
+                                                    <ComboBox hc:TitleElement.Title="Algorithm Engine Type: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}"
+                                                              SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
+                                                              Style="{StaticResource ComboBoxExtend}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                    <ComboBox hc:TitleElement.Title="Algorithm BestFocus Type: "
+                                                              hc:TitleElement.TitlePlacement="Left"
+                                                              hc:TitleElement.TitleWidth="160"
+                                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmBestFocusTypeEnum}}}"
+                                                              SelectedItem="{Binding Cache.AlgorithmBestFocusTypeEnum}"
+                                                              Style="{StaticResource ComboBoxExtend}">
+                                                        <ComboBox.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                            </DataTemplate>
+                                                        </ComboBox.ItemTemplate>
+                                                    </ComboBox>
+                                                </hc:UniformSpacingPanel>
                                             </Border>
                                         </Expander>
                                         <ComboBox hc:TitleElement.Title="Laser Light Information: "
@@ -317,6 +351,12 @@
                                                   ExpandDirection="Down">
                                             <Border Style="{StaticResource BorderRegion}">
                                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Repeat Count: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="160"
+                                                                      Minimum="1"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.Count}" />
                                                     <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="160"

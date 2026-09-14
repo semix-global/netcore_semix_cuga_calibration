@@ -8,6 +8,7 @@ using Cuga.Data.DataStruct.Autofocus;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -252,24 +253,35 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
         ]);
     }
 
-    public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetAutofocusTraceBuff([
+        var sxExecuteRetStartTraceBufferExec = Invoke(() => Service!.StartTraceBufferExec([
             CgAutofocusTraceBufferReg.Z_Sync,
             CgAutofocusTraceBufferReg.ACS_X,
-            CgAutofocusTraceBufferReg.ECS
-        ], Convert.ToInt32(timeSpan.TotalMilliseconds)));
+            CgAutofocusTraceBufferReg.ECS,
+            CgAutofocusTraceBufferReg.NSC
+        ]));
 
-        if (sxExecuteRet.Anything.Count != 3
-            || sxExecuteRet.Anything.Any(t => t.Count == 0)
-            || sxExecuteRet.Anything[0].Count != sxExecuteRet.Anything[1].Count
-            || sxExecuteRet.Anything[1].Count != sxExecuteRet.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs)>>("AF Trace buffer is empty", []);
+        if (sxExecuteRetStartTraceBufferExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>(sxExecuteRetStartTraceBufferExec.Msg, []);
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec(sxExecuteRetStartTraceBufferExec.Anything));
+
+        if (sxExecuteRetStopTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>(sxExecuteRetStopTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopTraceBuffExec.Anything.Count != 4
+            || sxExecuteRetStopTraceBuffExec.Anything.Any(t => t.Count == 0)
+            || sxExecuteRetStopTraceBuffExec.Anything[0].Count != sxExecuteRetStopTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopTraceBuffExec.Anything[1].Count != sxExecuteRetStopTraceBuffExec.Anything[2].Count
+            || sxExecuteRetStopTraceBuffExec.Anything[2].Count != sxExecuteRetStopTraceBuffExec.Anything[3].Count) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>("AF Trace buffer is empty", []);
+
         // 将三个地址的traceBuffer的数据合并成一个列表
-        var traceBufferList = sxExecuteRet.Anything
+        var traceBufferList = sxExecuteRetStopTraceBuffExec.Anything
             .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
         var resultList = traceBufferList[0]
-            .Select((_, index) => (Trigger: traceBufferList[0][index], X: traceBufferList[1][index], Ecs: traceBufferList[2][index]))
+            .Select((_, index) => (Trigger: traceBufferList[0][index], X: traceBufferList[1][index], Ecs: traceBufferList[2][index], NSC: traceBufferList[3][index]))
             .ToList();
 
         return SxExecuteRetHelper.CreateSuccess(resultList);

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
@@ -14,6 +15,12 @@ public sealed partial class OpticsSCCache : CalibrationCacheBase<OpticsSCCache>
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; }
 
+    [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
+    [ObservableProperty]
+    public partial AlgorithmBestFocusTypeEnum AlgorithmBestFocusTypeEnum { get; set; } = AlgorithmBestFocusTypeEnum.DSW065;
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<OpticsIlluminationModeEnum, OpticsSCCacheItem>))]
     public ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsSCCacheItem> Items { get; init; } = [];
 
@@ -23,6 +30,8 @@ public sealed partial class OpticsSCCache : CalibrationCacheBase<OpticsSCCache>
     public override OpticsSCCache Clone() => new()
     {
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
+        AlgorithmBestFocusTypeEnum = AlgorithmBestFocusTypeEnum,
         Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsSCCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsSCCacheItem>(t.Key, t.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,

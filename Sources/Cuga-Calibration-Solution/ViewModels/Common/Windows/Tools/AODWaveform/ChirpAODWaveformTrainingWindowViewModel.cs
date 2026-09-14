@@ -497,7 +497,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             try
             {
-                var bestFocus = calibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, HtmlLogUniqueId);
+                var bestFocus = calibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
                 item.BestFocus = bestFocus;
             }
             finally

@@ -130,7 +130,7 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, IsToLiner);
+        using var hImage = RAWImageFactoryV2.CreateImage(RawImageFilePath, IsToLiner);
 
         return hImage.ToBitmapImage(IsToLiner ? 16 : 12);
     }

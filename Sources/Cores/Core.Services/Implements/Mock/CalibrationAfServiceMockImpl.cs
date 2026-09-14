@@ -4,6 +4,7 @@ using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using MiniExcelLibs;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -217,11 +218,11 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(dataList);
     }
 
-    public SxExecuteRet<List<(double Trigger, double X, double Ecs)>> GetZAndXSyncModeTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
 
-        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
+        return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
     public SxExecuteRet<double> GetSensorNscRelativeZero()

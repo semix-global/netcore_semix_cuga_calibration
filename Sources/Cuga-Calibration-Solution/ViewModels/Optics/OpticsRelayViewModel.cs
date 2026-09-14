@@ -660,7 +660,7 @@ public sealed partial class OpticsRelayViewModel : CalibrationViewModelBase<Opti
                         false,
                         cancellationToken);
 
-                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, HtmlLogUniqueId);
+                    var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
                     item.BestFocus = bestFocus;
                     item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 

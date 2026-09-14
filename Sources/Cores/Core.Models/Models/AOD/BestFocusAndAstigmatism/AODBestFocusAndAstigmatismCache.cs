@@ -20,6 +20,12 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial OpticsApodizationModeEnum ApodizationModeEnum { get; set; }
 
+    [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
+    [ObservableProperty]
+    public partial AlgorithmBestFocusTypeEnum AlgorithmBestFocusTypeEnum { get; set; } = AlgorithmBestFocusTypeEnum.DSW065;
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>))]
     public ConcurrentDictionary<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem> Items { get; init; } = [];
 
@@ -48,6 +54,8 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         ApodizationModeEnum = ApodizationModeEnum,
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
+        AlgorithmBestFocusTypeEnum = AlgorithmBestFocusTypeEnum,
         Items = new ConcurrentDictionary<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>(Items.Select(x => new KeyValuePair<(ProductivityInformation, OpticsApodizationModeEnum), AODBestFocusAndAstigmatismCacheItem>((x.Key.Item1.Clone(), x.Key.Item2), x.Value.Clone()))),
         PmtInterval = PmtInterval,
         Times = Times,

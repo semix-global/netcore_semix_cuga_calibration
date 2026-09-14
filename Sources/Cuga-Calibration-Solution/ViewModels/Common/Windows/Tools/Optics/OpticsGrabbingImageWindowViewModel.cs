@@ -27,7 +27,7 @@ using System.Text;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache> : ViewModelBase where TCache : OpticsGrabbingImageCache, new()
+public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache> : ViewModelBase, IDisposable where TCache : OpticsGrabbingImageCache, new()
 {
     protected readonly IDialogWindowProvider DialogWindowProvider;
     protected readonly ILogger<AbstractOpticsGrabbingImageWindowViewModel<TCache>> Logger;
@@ -78,6 +78,16 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
     }).ConfigureAwait(false);
 
     protected virtual bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage)
+    {
+        Logger.LogHtmlInformation($"{darkFieldImage.CIBInformation}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        {
+            Result = new HtmlBullet(darkFieldImage.ToHtmlAnonymous())
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        return true;
+    }
+
+    protected virtual bool InvokeDarkFieldImageDTO(DarkFieldImageDTO darkFieldImage, List<(double Trigger, double X, double Ecs, double NSC)> traceBuffer)
     {
         Logger.LogHtmlInformation($"{darkFieldImage.CIBInformation}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {
@@ -435,33 +445,45 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                 MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
             var currentStopPosition = currentStartPosition + new Vector(Cache.ScanLength, 0);
+            StageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(currentStartPosition, Cache.CalChipSiteModelEnum);
 
             var startECS = Cache.CenterECS - Cache.RangeECS;
             var stopECS = Cache.CenterECS + Cache.RangeECS;
-            var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
-                Cache.ProductivityInformation,
-                Cache.StageCoordinateSystemEnum,
-                currentStartPosition,
-                currentStopPosition,
-                startECS,
-                stopECS,
-                cibInformations,
-                (true, null),
-                (false, Cache.OpticsConfiguration),
-                (false, Cache.CIBConfiguration),
-                (true, null),
-                true,
-                cancellationToken,
-                isForward: Cache.IsForward).ConfigureAwait(false);
-
-            foreach (var darkFieldImage in darkFieldImages)
+            for (var i = 0; i < Cache.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage));
-            }
+                using var cancellationTokenSource = new CancellationTokenSource();
+                var task = AFViewModel.GetZAndXSyncModeTraceBufferListAsync(cancellationTokenSource.Token);
+                var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
+                    Cache.ProductivityInformation,
+                    Cache.StageCoordinateSystemEnum,
+                    currentStartPosition,
+                    currentStopPosition,
+                    startECS,
+                    stopECS,
+                    cibInformations,
+                    (true, null),
+                    (false, Cache.OpticsConfiguration),
+                    (false, Cache.CIBConfiguration),
+                    (true, null),
+                    true,
+                    cancellationToken,
+                    isForward: Cache.IsForward).ConfigureAwait(false);
 
-            Results = [.. Results, darkFieldImages];
+                cancellationTokenSource.CancelAfter(10000);
+                var traceBuffers = await task.ConfigureAwait(false);
+
+                foreach (var darkFieldImage in darkFieldImages)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage, traceBuffers));
+                }
+
+
+                Results = [.. Results, darkFieldImages];
+            }
         }
 
         return boolList.All(t => t);
@@ -647,7 +669,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
         CloseView(true);
     }
 
-    private void Dispose()
+    public virtual void Dispose()
     {
         foreach (var temps in Results)
         {
