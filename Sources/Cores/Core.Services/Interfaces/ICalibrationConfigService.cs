@@ -43,8 +43,9 @@ public interface ICalibrationConfigService
     /// <summary>
     /// 获得cuga注册的用户信息
     /// </summary>
+    /// <param name="cancellationToken"></param>
     /// <returns>result文件路径</returns>
-    SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation();
+    Task<SxExecuteRet<IReadOnlyList<SysUserDTO>>> GetRegisteredUsersInformationAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 获取prescan默认波形列表

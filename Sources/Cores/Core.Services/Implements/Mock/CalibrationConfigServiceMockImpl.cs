@@ -25,7 +25,8 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationConfigService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationConfigServiceMockImpl(
     IOptions<ApplicationSetting> options,
-    ISysUserService sysUserService) : ICalibrationConfigService
+    ISysUserService sysUserService,
+    ISysRoleService sysRoleService) : ICalibrationConfigService
 {
     public SxExecuteRet<bool> Connect()
     {
@@ -66,20 +67,23 @@ public sealed class CalibrationConfigServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(filePath);
     }
 
-    public SxExecuteRet<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformation()
+    public async Task<SxExecuteRet<IReadOnlyList<SysUserDTO>>> GetRegisteredUsersInformationAsync(CancellationToken cancellationToken)
     {
+        var allRoles = await sysRoleService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var engineerRole = allRoles.Single(t => t.Id == 2);
+        var userRole = allRoles.Single(t => t.Id == 3);
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<SysUserDTO>>([
             new SysUserDTO
             {
-                UserName = "Test1", Password = EncryptUtils.Encrypt32("123"), NickName = "Test1", Remark = "Test1"
+                Id = 1, UserName = "AdminMock", Password = EncryptUtils.Encrypt32("1"), NickName = "AdminMock", Remark = "AdminMock", SysRoleList = [engineerRole]
             },
             new SysUserDTO
             {
-                UserName = "Test2", Password = EncryptUtils.Encrypt32("2"), NickName = "Test2", Remark = "Test2"
+                UserName = "EngineerMock", Password =EncryptUtils.Encrypt32("2"), NickName = "EngineerMock", Remark = "EngineerMock", SysRoleList = [engineerRole]
             },
             new SysUserDTO
             {
-                UserName = "Test4", Password = EncryptUtils.Encrypt32("12345"), NickName = "Test3", Remark = "Test3"
+                UserName = "UserMock", Password =EncryptUtils.Encrypt32("3"), NickName = "UserMock", Remark = "UserMock", SysRoleList = [userRole]
             }
         ]);
     }

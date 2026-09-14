@@ -11,7 +11,8 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(ConfigViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigService) : ViewModelBase
+public sealed class ConfigViewModel(
+    ICalibrationConfigService calibrationConfigService) : ViewModelBase
 {
     public bool Connect()
     {
@@ -48,9 +49,9 @@ public sealed class ConfigViewModel(ICalibrationConfigService calibrationConfigS
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public IReadOnlyList<SysUserDTO> GetRegisteredUsersInformation()
+    public async Task<IReadOnlyList<SysUserDTO>> GetRegisteredUsersInformationAsync(CancellationToken cancellationToken)
     {
-        var ret = calibrationConfigService.GetRegisteredUsersInformation();
+        var ret = await calibrationConfigService.GetRegisteredUsersInformationAsync(cancellationToken);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
