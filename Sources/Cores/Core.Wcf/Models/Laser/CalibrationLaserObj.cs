@@ -1046,4 +1046,14 @@ public sealed class CalibrationOpticsROOS : CalibrationBase
     ///  图像分割起始Y像素位置, **Cuga内部使用**
     /// </summary>
     public double EndImageYPixel { get; set; }
+
+    /// <summary>
+    /// ROOS电机和图像高度的关系：k
+    /// </summary>
+    public double Slope { get; set; }
+
+    /// <summary>
+    /// ROOS电机和图像高度的关系：b
+    /// </summary>
+    public double Intercept { get; set; }
 }

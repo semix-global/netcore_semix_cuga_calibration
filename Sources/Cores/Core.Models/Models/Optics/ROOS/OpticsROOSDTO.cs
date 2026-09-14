@@ -143,6 +143,8 @@ public sealed partial class OpticsROOSDTO : CalibrationDTOBase<OpticsROOSDTO>, I
         ROOSPos = ResultDTOItem.ROOSPos,
         StartImageYPixel = ResultDTOItem.StartImageYPixel,
         EndImageYPixel = ResultDTOItem.EndImageYPixel,
+        Slope = Slope,
+        Intercept = Intercept,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
