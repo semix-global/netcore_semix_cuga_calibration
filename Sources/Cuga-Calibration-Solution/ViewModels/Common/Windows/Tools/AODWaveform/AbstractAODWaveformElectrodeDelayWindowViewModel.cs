@@ -5,11 +5,11 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
@@ -69,6 +69,15 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
             Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
+
+            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth)
+            {
+                Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
+                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
+                Guard.IsGreaterThan(Cache.BandWidthScoreEpsilon, 0);
+                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
+            }
+
             Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
@@ -234,6 +243,14 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             Guard.IsTrue(Cache.AODWaveformElectrodeDelayFrequencies.Select(t => t.Amplitude).All(t => t is >= 0d and <= 1d));
             Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeDelayFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
+
+            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth)
+            {
+                Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
+                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
+                Guard.IsGreaterThan(Cache.BandWidthScoreEpsilon, 0);
+                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
+            }
 
             Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
 
@@ -551,8 +568,36 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             delayItem.FrequencyItems = [.. delayItem.FrequencyItems, item];
         }
 
-        var vector = Vector<double>.Build.Dense([.. delayItem.FrequencyItems.Select(t => t.MeasurePower)]) / Cache.TotalMeasurePower;
-        delayItem.Score = vector.Average() - Cache.ScoreLambda * vector.StandardDeviation() - Cache.ScoreGamma * (vector.Max() - vector.Min());
+        delayItem.Score = CalculateScore(delayItem);
+    }
+
+    private double CalculateScore(AODWaveformElectrodeDelayItem<TItem> delayItem)
+    {
+        using var _ = Py.GIL();
+        using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeDelayWindowViewModelShared.PhaseOptimizerPythonScript);
+        using var calculateScore = module.GetAttr("calculate_score");
+        using var pyFrequencies = new PyList();
+        using var pyEfficiencies = new PyList();
+
+        foreach (var item in delayItem.FrequencyItems)
+        {
+            using var pyFrequency = item.Frequency.ToPython();
+            using var pyEfficiency = (item.MeasurePower / Cache.TotalMeasurePower).ToPython();
+
+            pyFrequencies.Append(pyFrequency);
+            pyEfficiencies.Append(pyEfficiency);
+        }
+
+        using var pyMethod = EnumHelper.ToDescriptionString(Cache.AODWaveformScoreMethodEnum).ToPython();
+        using var pyThreshold = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.Legacy ? (double?)Cache.BandWidthScoreThreshold : null).ToPython();
+        using var pyEpsilon = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.Legacy ? (double?)Cache.BandWidthScoreEpsilon : null).ToPython();
+        using var pyLambda = Cache.LegacyScoreLambda.ToPython();
+        using var pyGamma = Cache.LegacyScoreGamma.ToPython();
+        using var result = calculateScore.Invoke(pyFrequencies, pyEfficiencies, pyMethod, pyThreshold, pyEpsilon, pyLambda, pyGamma);
+
+        var score = result.As<double>();
+
+        return score;
     }
 
     private (bool IsSuccess, double[] Delays, double[] Amplitudes) AlgorithmSuggest(double? previousCost, int delayCount)

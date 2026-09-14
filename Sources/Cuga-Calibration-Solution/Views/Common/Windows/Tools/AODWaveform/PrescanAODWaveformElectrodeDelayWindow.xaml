@@ -194,47 +194,50 @@
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.MeasurePowerTimes}" />
-                                    <StackPanel>
-                                        <TextBlock Text="Frequencies"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                        <Button Content="Import"
-                                                Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCommand}"
-                                                hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
-                                                Style="{StaticResource ButtonInfo}" />
-                                        <Button Content="Cancel"
-                                                Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCancelCommand}"
-                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                Style="{StaticResource ButtonWarning}" />
-                                        <Button Content="Template"
-                                                Command="{Binding Cache.ExportAODWaveformElectrodeDelayFrequenciesTemplateCommand}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
-                                        <Button Content="Add"
-                                                Command="{Binding Cache.AddAODWaveformElectrodeDelayFrequencyCommand}"
-                                                hc:IconElement.Geometry="{StaticResource AddGeometry}"
-                                                Style="{StaticResource ButtonInfo}" />
-                                        <Button Content="Delete"
-                                                Command="{Binding Cache.RemoveAODWaveformElectrodeDelayFrequenciesCommand}"
-                                                CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridFrequencies}"
-                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                Style="{StaticResource ButtonDanger}" />
-                                    </hc:UniformSpacingPanel>
-                                    <DataGrid x:Name="DataGridFrequencies"
-                                              MaxHeight="500"
-                                              hc:DataGridAttach.ShowRowNumber="False"
-                                              CanUserSortColumns="False"
-                                              Style="{StaticResource DataGrid.Small}"
-                                              HeadersVisibility="Column"
-                                              RowHeaderWidth="60"
-                                              AutoGenerateColumns="False"
-                                              ItemsSource="{Binding Cache.AODWaveformElectrodeDelayFrequencies}">
-                                        <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
-                                            <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
+                                    <Expander Header="Frequencies"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Import"
+                                                            Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource DialogBoxLauncherGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding Cache.ImportAODWaveformElectrodeDelayFrequenciesCancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
+                                                    <Button Content="Template"
+                                                            Command="{Binding Cache.ExportAODWaveformElectrodeDelayFrequenciesTemplateCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}" />
+                                                    <Button Content="Add"
+                                                            Command="{Binding Cache.AddAODWaveformElectrodeDelayFrequencyCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource AddGeometry}"
+                                                            Style="{StaticResource ButtonInfo}" />
+                                                    <Button Content="Delete"
+                                                            Command="{Binding Cache.RemoveAODWaveformElectrodeDelayFrequenciesCommand}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridFrequencies}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <DataGrid x:Name="DataGridFrequencies"
+                                                          MaxHeight="500"
+                                                          hc:DataGridAttach.ShowRowNumber="False"
+                                                          CanUserSortColumns="False"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="Column"
+                                                          RowHeaderWidth="60"
+                                                          AutoGenerateColumns="False"
+                                                          ItemsSource="{Binding Cache.AODWaveformElectrodeDelayFrequencies}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="Frequency(MHz)" Binding="{Binding Frequency, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Amplitude" Binding="{Binding Amplitude, StringFormat='0.###'}" />
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                     <hc:NumericUpDown hc:TitleElement.Title="Detail Log Interval: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"
@@ -252,8 +255,14 @@
                                                                   Minimum="2"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.NoiseMeasureTimes}" />
+                                                <ComboBox hc:TitleElement.Title="Score Method: "
+                                                          hc:TitleElement.TitlePlacement="Left"
+                                                          hc:TitleElement.TitleWidth="200"
+                                                          ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:AODWaveformScoreMethodEnum}}}"
+                                                          SelectedItem="{Binding Cache.AODWaveformScoreMethodEnum}"
+                                                          Style="{StaticResource ComboBoxExtend}" />
                                                 <StackPanel>
-                                                    <TextBlock Text="μdB - λ * σdB - γ * rangedB"
+                                                    <TextBlock Text="Legacy: μ - λ * σ - γ * pv"
                                                                HorizontalAlignment="Center"
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
@@ -261,12 +270,31 @@
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.ScoreLambda}" />
+                                                                  Value="{Binding Cache.LegacyScoreLambda}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Gamma: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.ScoreGamma}" />
+                                                                  Value="{Binding Cache.LegacyScoreGamma}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="Band Width"
+                                                               HorizontalAlignment="Center"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:NumericUpDown hc:TitleElement.Title="Threshold: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Maximum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.BandWidthScoreThreshold}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Epsilon: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  Maximum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.BandWidthScoreEpsilon}" />
                                                 <StackPanel>
                                                     <TextBlock Text="Electrode Delay Params"
                                                                HorizontalAlignment="Center"

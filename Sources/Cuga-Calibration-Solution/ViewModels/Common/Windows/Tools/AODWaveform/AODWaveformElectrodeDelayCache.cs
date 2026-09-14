@@ -9,6 +9,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
+using System.ComponentModel;
 using CommunityToolkit.Diagnostics;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -29,10 +30,19 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     public partial int NoiseMeasureTimes { get; set; } = 20;
 
     [ObservableProperty]
-    public partial double ScoreLambda { get; set; } = 0d;
+    public partial AODWaveformScoreMethodEnum AODWaveformScoreMethodEnum { get; set; } = AODWaveformScoreMethodEnum.Legacy;
 
     [ObservableProperty]
-    public partial double ScoreGamma { get; set; } = 0d;
+    public partial double LegacyScoreLambda { get; set; } = 0d;
+
+    [ObservableProperty]
+    public partial double LegacyScoreGamma { get; set; } = 0d;
+
+    [ObservableProperty]
+    public partial double BandWidthScoreThreshold { get; set; }
+
+    [ObservableProperty]
+    public partial double BandWidthScoreEpsilon { get; set; }
 
     [ObservableProperty]
     public partial AODWaveformElectrodeDelayParam[] ElectrodeDelayParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
@@ -190,8 +200,11 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         AODWaveformElectrodeDelayFrequencies = new HtmlTable([.. AODWaveformElectrodeDelayFrequencies.Select(t => t.ToHtmlAnonymous())]),
         DetailLogInterval,
         NoiseMeasureTimes,
-        ScoreLambda,
-        ScoreGamma,
+        AODWaveformScoreMethodEnum,
+        LegacyScoreLambda,
+        LegacyScoreGamma,
+        BandWidthScoreThreshold,
+        BandWidthScoreEpsilon,
         ElectrodeDelayParams = new HtmlTable([.. ElectrodeDelayParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmMaxDelay,
         AlgorithmInitialPoints,
@@ -205,6 +218,15 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
 }
 
 // ReSharper disable InconsistentNaming
+public enum AODWaveformScoreMethodEnum
+{
+    [Description("legacy")]
+    Legacy,
+
+    [Description("bandwidth")]
+    BandWidth
+}
+
 public enum AlgorithmAcquisitionFunctionEnum
 {
     LCB,
