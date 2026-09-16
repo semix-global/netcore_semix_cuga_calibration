@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 
-namespace CugaCalibrationUnitTest;
+namespace CugaCalibrationUnitTest.FourierSerialization;
 
 public sealed class FourierPupilCameraAlignmentSerializationTest
 {
@@ -27,7 +27,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
         "HasErrors"
     ];
 
-    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierPupilCameraAlignment", "Json_1.json")));
+    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierPupilCameraAlignment.json")));
 
     [Theory]
     [InlineData(false)]

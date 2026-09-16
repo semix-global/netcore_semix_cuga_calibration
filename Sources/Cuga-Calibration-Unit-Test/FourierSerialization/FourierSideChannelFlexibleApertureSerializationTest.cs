@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Reflection;
 
-namespace CugaCalibrationUnitTest;
+namespace CugaCalibrationUnitTest.FourierSerialization;
 
 public sealed class FourierSideChannelFlexibleApertureSerializationTest
 {
@@ -28,7 +28,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest
         "HasErrors"
     ];
 
-    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSideChannelFlexibleAperture", "Json_1.json")));
+    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierSideChannelFlexibleAperture.json")));
 
     [Theory]
     [InlineData(false)]

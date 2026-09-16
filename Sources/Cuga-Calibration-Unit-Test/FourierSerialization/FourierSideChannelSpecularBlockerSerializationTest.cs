@@ -12,7 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Reflection;
 
-namespace CugaCalibrationUnitTest;
+namespace CugaCalibrationUnitTest.FourierSerialization;
 
 public sealed class FourierSideChannelSpecularBlockerSerializationTest
 {
@@ -30,7 +30,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         "HasErrors"
     ];
 
-    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSideChannelSpecularBlocker", "Json_1.json")));
+    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierSideChannelSpecularBlocker.json")));
 
     [Theory]
     [InlineData(false)]
