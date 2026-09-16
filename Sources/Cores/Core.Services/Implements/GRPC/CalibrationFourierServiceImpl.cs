@@ -30,11 +30,6 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
-    {
-        throw new NotImplementedException();
-    }
-
     public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
 #pragma warning disable IDE0079

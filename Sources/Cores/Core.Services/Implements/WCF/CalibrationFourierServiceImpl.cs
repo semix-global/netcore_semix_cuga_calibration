@@ -32,29 +32,6 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         }, false);
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
-    {
-        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImg(channelId));
-
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-
-        var defaultBitmapImage = BitmapImage.Random(2448, 2048, 10);
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, defaultBitmapImage);
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-
-
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-
-        var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-    }
-
     public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
         // 类型转换：Core.Models.Models.Common.SxNew.SxOpticsParam -> Semix.WcfTransfer.DTO.SxOpticsParam

@@ -19,13 +19,6 @@ public interface ICalibrationFourierService
     /// <summary>
     /// 获取傅里叶相机的图片
     /// </summary>
-    /// <param name="channelId">通道ID</param>
-    /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<BitmapImage> GetFourierImage(int channelId);
-
-    /// <summary>
-    /// 获取傅里叶相机的图片
-    /// </summary>
     /// <param name="id">通道ID: 0-CH1, 1-CH2, 2-CH3</param>
     /// <param name="productivityInformation">生产率信息</param>
     /// <param name="level">光强</param>

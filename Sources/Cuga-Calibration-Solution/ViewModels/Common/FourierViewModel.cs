@@ -8,11 +8,14 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Reflection;
+using CommunityToolkit.Diagnostics;
+using Core.Services.Implements.Mock;
 
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(FourierViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed class FourierViewModel(
+public sealed partial class FourierViewModel(
     ICalibrationFourierService calibrationFourierService) : ViewModelBase
 {
     public bool Connect()
@@ -22,19 +25,11 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public BitmapImage GetFourierImage(int channelId)
-    {
-        var ret = calibrationFourierService.GetFourierImage(channelId);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
     public BitmapImage GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
         var ret = calibrationFourierService.GetFFReviewImgForTrigger(id, productivityInformation, level, pos, width);
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
-
 
     public C2MFFRangeModel GetFourierConfig()
     {
@@ -100,5 +95,12 @@ public sealed class FourierViewModel(
     {
         var ret = calibrationFourierService.SetFFPPOS_CH3(ch, pos);
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void UseSimulatorImages(string[] imageFilePaths)
+    {
+        var mock = Guard.IsAssignableToTypeAndReturn<CalibrationFourierServiceMockImpl>(calibrationFourierService);
+
+        mock.MockImageFilePaths = imageFilePaths;
     }
 }

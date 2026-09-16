@@ -16,6 +16,7 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using System.IO;
 using Net.Utilities.Helpers.Helpers.Files;
+using Microsoft.Extensions.Hosting;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Fourier;
@@ -23,6 +24,17 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(FourierPupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationViewModelBase<FourierPupilCameraAlignmentCache>
 {
+    #region 仿真器
+
+    private static readonly string[] SimulatorImageFilePaths =
+    [
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel1.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel2.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel3.jpg")
+    ];
+
+    #endregion 仿真器
+
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -172,6 +184,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         Review.Dispose();
         Calibration.Dispose();
 
+        FourierViewModel.UseSimulatorImages([]);
+
         return true;
     }
 
@@ -223,6 +237,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 Cache.ScanLength,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
+
+            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImages(SimulatorImageFilePaths);
 
             return true;
         });

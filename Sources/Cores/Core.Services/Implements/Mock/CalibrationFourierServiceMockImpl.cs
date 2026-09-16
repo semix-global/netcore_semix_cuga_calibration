@@ -8,6 +8,8 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.IO;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
@@ -16,6 +18,19 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
+    private int _mockImageIndex;
+
+    public string[] MockImageFilePaths
+    {
+        get;
+        set
+        {
+            _mockImageIndex = 0;
+
+            field = value;
+        }
+    } = [];
+
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
@@ -23,35 +38,27 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
-    {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-        var bitmapImage = BitmapImage.Random(2048, 2044, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-    }
-
     public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
     {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
+        Thread.Sleep(100);
 
-        var bitmapImage = BitmapImage.Random(width, width, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
+        var filePath = MockImageFilePaths.ElementAtOrDefault(_mockImageIndex++ % MockImageFilePaths.Length) ?? string.Empty;
 
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
+#pragma warning disable IDISP004
+
+        return SxExecuteRetHelper.CreateSuccess(File.Exists(filePath)
+            ? BitmapHelper.OpenImage(filePath)
+            : BitmapImage.Random(width, width, 10));
+
+#pragma warning restore IDISP004
     }
 
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
+    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig() => SxExecuteRetHelper.CreateSuccess(new C2MFFRangeModel
     {
-        var c2MFFRangeModel = new C2MFFRangeModel();
-
-        return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
-    }
+        RodNum = 46,
+        CH12MinPOS = 0,
+        CH12MaxPOS = 55
+    });
 
     public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
     {
