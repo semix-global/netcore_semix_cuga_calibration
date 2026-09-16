@@ -98,7 +98,7 @@ public abstract class AbstractAODWaveformProfile :
 
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$延时(ns)$
         var strings = value.Split('$');
-        Guard.IsTrue(strings.Length >= 7, "filePath name error.");
+        Guard.IsGreaterThanOrEqualTo(strings.Length, 7, "filePath name error.");
 
         ZeroSampleCount = int.Parse(strings[2]);
         if (strings.Length >= 8)
@@ -184,7 +184,7 @@ public abstract class AbstractAODWaveformProfile :
     {
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$延时(ns)$
         var strings = FilePath.Split('$');
-        Guard.IsTrue(strings.Length >= 7, "filePath name error.");
+        Guard.IsGreaterThanOrEqualTo(strings.Length, 7, "filePath name error.");
 
         var registerId = strings[4];
         var filePath = Path.Combine(directoryPath, EnumHelper.ToDescriptionString(OpticsAODElectrodeEnum), $"{Guid.NewGuid():N}${TotalSampleCount}${ZeroSampleCount}$600${registerId}${Delay:0.###}$.txt");

@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Core.Models.Models.Microscope.CalChip;
 using Net.Utilities.Attributes;
@@ -245,24 +244,46 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step2Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, cancellationToken));
-    }
+    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, cancellationToken));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, cancellationToken));
-    }
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, cancellationToken));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken));
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel3Item, cancellationToken));
+        await InvokeVerifyAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.ProductivityInformation,
+                Cache.MicroscopeLensInformation,
+                Cache.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.ScanLength,
+                Cache.HazeFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item, Review.Channel3Item })
+            {
+                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
+
+            Review.IsVerified = true;
+            Guard.IsTrue(Save(Review, cancellationToken));
+
+            DialogWindowProvider.ShowDialog("Verify : OK");
+
+            return true;
+        }).ConfigureAwait(false);
     }
 
-    private async Task<bool> InvokeAsync(FourierPupilCameraAlignmentDTOItem item, CancellationToken cancellationToken)
+    private async Task<bool> InvokeCalibrateAsync(FourierPupilCameraAlignmentDTOItem item, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
 
@@ -273,7 +294,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             Cache.LaserLightInformation,
             OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.ScanLength,
-            Cache.HazeFindBFMachinePosition
+            Cache.HazeFindBFMachinePosition,
+            detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         item.Reset();
@@ -325,37 +347,6 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
         }
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyAsync(CancellationToken cancellationToken)
-    {
-        await InvokeVerifyAsync(() =>
-        {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
-                Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.ScanLength,
-                Cache.HazeFindBFMachinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item, Review.Channel3Item })
-            {
-                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            Review.IsVerified = true;
-            Guard.IsTrue(Save(Review, cancellationToken));
-
-            DialogWindowProvider.ShowDialog("Verify : OK");
-
-            return true;
-        }).ConfigureAwait(false);
     }
 
     private bool Save(FourierPupilCameraAlignmentDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>

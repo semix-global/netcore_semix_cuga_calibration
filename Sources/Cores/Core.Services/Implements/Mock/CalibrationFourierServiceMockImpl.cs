@@ -43,7 +43,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions)
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -64,7 +64,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
         return SxExecuteRetHelper.CreateSuccess(File.Exists(filePath)
             ? BitmapHelper.OpenImage(filePath)
-            : BitmapImage.Random((int)scanLength, (int)scanLength, 10));
+            : BitmapImage.Random(Convert.ToInt32(scanLength), Convert.ToInt32(scanLength), 10));
 
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079

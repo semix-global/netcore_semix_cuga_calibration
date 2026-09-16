@@ -15,9 +15,6 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial double ExtinctionRatioThreshold { get; set; } = 0.2d;
-
-    [ObservableProperty]
     public partial LaserLightInformation VerifyLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
@@ -25,6 +22,9 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
 
     [ObservableProperty]
     public partial int VerifyImageWidth { get; set; } = 1000;
+
+    [ObservableProperty]
+    public partial double ExtinctionRatioThreshold { get; set; } = 0.2;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
@@ -35,10 +35,10 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
     public override FourierSideChannelSpecularBlockerCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        ExtinctionRatioThreshold = ExtinctionRatioThreshold,
         VerifyLaserLightInformation = VerifyLaserLightInformation.Clone(),
         VerifyCIBConfiguration = VerifyCIBConfiguration.Clone(),
         VerifyImageWidth = VerifyImageWidth,
+        ExtinctionRatioThreshold = ExtinctionRatioThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
@@ -59,7 +59,7 @@ public sealed partial class FourierSideChannelSpecularBlockerCacheItem : Calibra
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 500;
+    public partial double ScanLength { get; set; } = 500d;
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }

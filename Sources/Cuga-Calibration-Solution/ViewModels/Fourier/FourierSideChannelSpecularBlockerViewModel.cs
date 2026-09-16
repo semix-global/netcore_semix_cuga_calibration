@@ -4,12 +4,12 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Core.Models.Models.Microscope.CalChip;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
@@ -31,6 +31,18 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(FourierSideChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FourierSideChannelSpecularBlockerViewModel : CalibrationViewModelBase<FourierSideChannelSpecularBlockerCache>
 {
+    #region 仿真器
+
+    private static readonly string[] SimulatorFourierImageFilePaths =
+    [
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Step0.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Step1.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Step0.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Step1.jpg")
+    ];
+
+    #endregion 仿真器
+
     #region 属性
 
     public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
@@ -124,8 +136,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         {
             review.Channel1Item.Review();
             review.Channel2Item.Review();
-            review.Channel1Item.ReviewPMT();
-            review.Channel2Item.ReviewPMT();
+            review.Channel1Item.ReviewCIB();
+            review.Channel2Item.ReviewCIB();
         }
 
         return Reviews.Count > 0;
@@ -207,6 +219,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         CalibratingItem.Dispose();
         foreach (var review in Reviews) review.Dispose();
         foreach (var calibration in Calibrations) calibration.Dispose();
+
+        FourierViewModel.UseSimulatorImages([]);
 
         return true;
     }
@@ -291,6 +305,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 Cache.Item.ShinyWaferFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
+            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImages(SimulatorFourierImageFilePaths);
+
             return true;
         });
     }
@@ -298,32 +314,97 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step4Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, cancellationToken));
     }
 
-    private async Task<bool> InvokeAsync(FourierSideChannelSpecularBlockerDTOItem item, CancellationToken cancellationToken)
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
+    {
+        if (SelectedReviewItems.Count == 0)
+        {
+            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            return;
+        }
+
+        await InvokeVerifyAsync(async () =>
+        {
+            Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
+
+            var detectImageDirectory = ImageFileDirectory;
+            var errorMessageStringBuilder = new StringBuilder();
+
+            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var title = selectedReviewItem.ProductivityInformation.ToString();
+
+                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
+
+                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                selectedReviewItem.IsVerified = false;
+                if (selectedReviewItem.IsCalibrated)
+                {
+                    await InvokeVerifyAsync(selectedReviewItem, cancellationToken);
+
+                    selectedReviewItem.IsVerified = new[] { selectedReviewItem.Channel1Item, selectedReviewItem.Channel2Item }
+                        .All(t => Math.Abs(t.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold);
+                }
+
+                foreach (var item in new[] { selectedReviewItem.Channel1Item, selectedReviewItem.Channel2Item })
+                {
+                    Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+                    Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header5, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                    var htmlQuote = new HtmlQuote(new
+                    {
+                        item.ChannelId,
+                        item.Step0CIBImageAverageValue,
+                        item.Step1CIBImageAverageValue,
+                        item.ExtinctionRatio
+                    });
+
+                    if (Math.Abs(item.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold)
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                    else
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                }
+
+                if (selectedReviewItem.IsOk == false) errorMessageStringBuilder.AppendLine($"{title}: Error");
+            }
+
+            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
+
+            var result = SelectedReviewItems.All(t => t.IsOk);
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(result ? "OK" : "Failed")}
+                                             {errorMessageStringBuilder}
+                                             """,
+                DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+            return result;
+        }).ConfigureAwait(false);
+    }
+
+    private async Task<bool> InvokeCalibrateAsync(FourierSideChannelSpecularBlockerDTOItem item, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
-        var channelId = item.ChannelId switch
-        {
-            1 => FFCH.Ch1,
-            2 => FFCH.Ch2,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(item.ChannelId))
-        };
-
         var fourierPupilCameraAlignmentItem = item.ChannelId switch
         {
             1 => FourierPupilCameraAlignment.Channel1Item,
             2 => FourierPupilCameraAlignment.Channel2Item,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierPupilCameraAlignmentDTOItem>(nameof(item.ChannelId))
         };
-
         var flexibleApertureItem = item.ChannelId switch
         {
             1 => FourierSideChannelFlexibleAperture.Channel1Item,
@@ -339,10 +420,10 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
-            channelId,
             fourierPupilCameraAlignmentItem.ImageROI,
             flexibleApertureItem.MinMotorAbsoluteValue,
-            flexibleApertureItem.MaxMotorAbsoluteValue
+            flexibleApertureItem.MaxMotorAbsoluteValue,
+            detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
@@ -367,16 +448,16 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         {
             FourierViewModel.Home(item.ChannelId);
 
-            GrabFourierImage(0);
+            Grab(0);
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
 
-            FourierViewModel.SetChannel1Or2Position(
+            FourierViewModel.SetRods(
                 item.ChannelId,
                 [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
-            GrabFourierImage(1);
+            Grab(1);
 
             item.Review();
 
@@ -397,7 +478,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentShinyBFPosition, CalChipSiteModelEnum.ShinyWaferModel);
         }
 
-        void GrabFourierImage(int stepIndex)
+        void Grab(int stepIndex)
         {
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
@@ -433,89 +514,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         }
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyAsync(CancellationToken cancellationToken)
+    private async Task InvokeVerifyAsync(FourierSideChannelSpecularBlockerDTO dto, CancellationToken cancellationToken)
     {
-        if (SelectedReviewItems.Count == 0)
-        {
-            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return;
-        }
-
-        await InvokeVerifyAsync(async () =>
-        {
-            Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
-
-            var detectImageDirectory = ImageFileDirectory;
-            var errorMessageStringBuilder = new StringBuilder();
-
-            foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var title = selectedReviewItem.ProductivityInformation.ToString();
-
-                Cache.ProductivityInformation = selectedReviewItem.ProductivityInformation;
-
-                Logger.LogHtmlInformation(title, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
-                {
-                    Cache.ProductivityInformation,
-                    Cache.Item.MicroscopeLensInformation,
-                    Cache.VerifyLaserLightInformation,
-                    OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
-                    CIBConfiguration = new HtmlQuote(Cache.VerifyCIBConfiguration.ToHtmlAnonymous()),
-                    ImageWidth = Cache.VerifyImageWidth,
-                    Cache.Item.ShinyWaferFindBFMachinePosition,
-                    Cache.ExtinctionRatioThreshold
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                selectedReviewItem.IsVerified = false;
-
-                if (selectedReviewItem.IsCalibrated)
-                {
-                    await VerifySelectedItemAsync(selectedReviewItem, detectImageDirectory, cancellationToken);
-                    selectedReviewItem.IsVerified = new[] { selectedReviewItem.Channel1Item, selectedReviewItem.Channel2Item }
-                        .All(t => Math.Abs(t.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold);
-                }
-
-                foreach (var item in new[] { selectedReviewItem.Channel1Item, selectedReviewItem.Channel2Item })
-                {
-                    Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-
-                    Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                    var htmlQuote = new HtmlQuote(item.ToPMTHtmlAnonymous());
-
-                    if (Math.Abs(item.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold)
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-                    else
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-                }
-
-                if (selectedReviewItem.IsOk == false) errorMessageStringBuilder.AppendLine($"{title}: Error");
-            }
-
-            Guard.IsTrue(Save(SelectedReviewItems, cancellationToken));
-
-            var result = SelectedReviewItems.All(t => t.IsOk);
-
-            DialogWindowProvider.ShowDialog($"""
-                                             Verify : {(result ? "OK" : "Failed")}
-                                             {errorMessageStringBuilder}
-                                             """,
-                DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
-            return result;
-        }).ConfigureAwait(false);
-    }
-
-    private async Task VerifySelectedItemAsync(FourierSideChannelSpecularBlockerDTO dto, string detectImageDirectory, CancellationToken cancellationToken)
-    {
-        Guard.IsGreaterThan(Cache.VerifyImageWidth, 0);
-
+        var detectImageDirectory = ImageFileDirectory;
         FourierSideChannelSpecularBlockerDTOItem[] items = [dto.Channel1Item, dto.Channel2Item];
         CIBInformation[] cibInformations =
         [
@@ -523,8 +524,22 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 t.PMTId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && t.ChannelId == item.ChannelId))
         ];
 
-        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
+        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
+        {
+            Cache.ProductivityInformation,
+            Cache.VerifyLaserLightInformation,
+            VerifyCIBConfiguration = new HtmlQuote(Cache.VerifyCIBConfiguration.ToHtmlAnonymous()),
+            Cache.VerifyImageWidth,
+            Cache.Item.MicroscopeLensInformation,
+            Cache.Item.LaserLightInformation,
+            OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
+            Cache.Item.ScanLength,
+            Cache.Item.ShinyWaferFindBFMachinePosition,
+            Cache.ExtinctionRatioThreshold,
+            CIBInformations = new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])
+        }), HtmlLogUniqueId.LoggingHtml());
 
+        await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.Item.MicroscopeLensInformation, cancellationToken: cancellationToken);
         var shinyBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition);
         var startCurrentShinyBFPosition = CIBViewModel.GetCIBInformationPosition(
             StageCoordinateSystemEnum.Dark,
@@ -539,25 +554,31 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         try
         {
-            foreach (var item in items) item.ResetPMT();
+            foreach (var item in items)
+            {
+                item.ResetCIB();
 
-            FourierViewModel.Home(1);
-            FourierViewModel.Home(2);
+                FourierViewModel.Home(item.ChannelId);
+            }
+
             await GrabAsync(0);
 
-            FourierViewModel.SetChannel1Or2Position(
-                1,
-                [.. dto.Channel1Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
-            FourierViewModel.SetChannel1Or2Position(
-                2,
-                [.. dto.Channel2Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
+            foreach (var item in items)
+            {
+                FourierViewModel.SetRods(
+                    item.ChannelId,
+                    [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
+            }
+
             await GrabAsync(1);
 
             foreach (var item in items)
             {
-                Guard.IsGreaterThan(item.Step0PMTImageAverageValue, 0d);
+                Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
 
-                item.ExtinctionRatio = item.Step1PMTImageAverageValue / item.Step0PMTImageAverageValue;
+                item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
+
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
             return;
@@ -587,23 +608,23 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
                     using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == item.ChannelId);
 
-                    var pmtImageFilePath = Path.Combine(detectImageDirectory, dto.ProductivityInformation.ToString(), $"Channel{item.ChannelId}", $"Verify_Step{stepIndex}_PMT_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    DirectoryHelper.CreateFileDirectoryIfNotExists(pmtImageFilePath);
-                    darkFieldImage.Image.SaveImage(pmtImageFilePath);
+                    var cibImageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
+                    darkFieldImage.Image.SaveImage(cibImageFilePath);
 
                     switch (stepIndex)
                     {
                         case 0:
-                            item.RawStep0PMTImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step0PMTImageFilePath = pmtImageFilePath;
-                            item.Step0PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                            item.RawStep0CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                            item.Step0CIBImageFilePath = cibImageFilePath;
+                            item.Step0CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
                             break;
 
                         case 1:
-                            item.RawStep1PMTImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step1PMTImageFilePath = pmtImageFilePath;
-                            item.Step1PMTImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                            item.RawStep1CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                            item.Step1CIBImageFilePath = cibImageFilePath;
+                            item.Step1CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
                             break;
 
@@ -613,7 +634,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                             break;
                     }
 
-                    item.ReviewPMT();
+                    item.ReviewCIB();
                 }
             }
         }

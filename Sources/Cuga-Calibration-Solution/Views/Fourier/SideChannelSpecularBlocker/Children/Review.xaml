@@ -127,11 +127,11 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="Ch1 Step0 PMT" DisplayMemberBinding="{Binding Channel1Item.Step0PMTImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch1 Step1 PMT" DisplayMemberBinding="{Binding Channel1Item.Step1PMTImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch1 Step0 CIB" DisplayMemberBinding="{Binding Channel1Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch1 Step1 CIB" DisplayMemberBinding="{Binding Channel1Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch1 Extinction Ratio" DisplayMemberBinding="{Binding Channel1Item.ExtinctionRatio, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch2 Step0 PMT" DisplayMemberBinding="{Binding Channel2Item.Step0PMTImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch2 Step1 PMT" DisplayMemberBinding="{Binding Channel2Item.Step1PMTImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch2 Step0 CIB" DisplayMemberBinding="{Binding Channel2Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch2 Step1 CIB" DisplayMemberBinding="{Binding Channel2Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch2 Extinction Ratio" DisplayMemberBinding="{Binding Channel2Item.ExtinctionRatio, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
@@ -158,9 +158,9 @@
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.Document, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
-                                                <TabItem Header="PMT" IsSelected="True">
+                                                <TabItem Header="CIB" IsSelected="True">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.PMTDocument, Mode=OneWay}" />
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
                                             </TabControl>
@@ -174,9 +174,9 @@
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.Document, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
-                                                <TabItem Header="PMT" IsSelected="True">
+                                                <TabItem Header="CIB" IsSelected="True">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.PMTDocument, Mode=OneWay}" />
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
                                             </TabControl>

@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
 using Net.Utilities.Attributes;
@@ -307,42 +306,62 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step2Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, true, cancellationToken));
-    }
+    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, true, cancellationToken));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel1Item, false, cancellationToken));
-    }
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, false, cancellationToken));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, true, cancellationToken));
-    }
+    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, true, cancellationToken));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step5Async(CancellationToken cancellationToken)
+    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, false, cancellationToken));
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task VerifyAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeAsync(CalibratingItem.Channel2Item, false, cancellationToken));
+        await InvokeVerifyAsync(() =>
+        {
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            {
+                Cache.RodTotalCount,
+                Cache.MinMotorAbsoluteValue,
+                Cache.MaxMotorAbsoluteValue,
+                Cache.ProductivityInformation,
+                Cache.MicroscopeLensInformation,
+                Cache.LaserLightInformation,
+                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+                Cache.ScanLength,
+                Cache.Step0AndStep1MotorAbsoluteValue,
+                Cache.Step2MotorAbsoluteValue,
+                Cache.HazeFindBFMachinePosition
+            }), HtmlLogUniqueId.LoggingHtml());
+
+            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item })
+            {
+                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlInformation("Even ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.EvenItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Odd ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.OddItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
+
+            Review.IsVerified = true;
+            Guard.IsTrue(Save(Review, cancellationToken));
+
+            DialogWindowProvider.ShowDialog("Verify : OK");
+
+            return true;
+        }).ConfigureAwait(false);
     }
 
-    private async Task<bool> InvokeAsync(
+    private async Task<bool> InvokeCalibrateAsync(
         FourierSideChannelFlexibleApertureDTOItem item,
         bool isEven,
         CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
-        var channelId = item.ChannelId switch
-        {
-            1 => FFCH.Ch1,
-            2 => FFCH.Ch2,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(item.ChannelId))
-        };
-
         var fourierPupilCameraAlignmentItem = item.ChannelId switch
         {
             1 => FourierPupilCameraAlignment.Channel1Item,
@@ -363,8 +382,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             Cache.Step0AndStep1MotorAbsoluteValue,
             Cache.Step2MotorAbsoluteValue,
             Cache.HazeFindBFMachinePosition,
-            channelId,
-            fourierPupilCameraAlignmentItem.ImageROI
+            fourierPupilCameraAlignmentItem.ImageROI,
+            detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
@@ -391,11 +410,11 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         {
             FourierViewModel.Home(item.ChannelId);
 
-            MoveRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
+            SetRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
             Grab(0);
-            MoveRods(1, Cache.Step0AndStep1MotorAbsoluteValue);
+            SetRods(1, Cache.Step0AndStep1MotorAbsoluteValue);
             Grab(1);
-            MoveRods(2, Cache.Step2MotorAbsoluteValue);
+            SetRods(2, Cache.Step2MotorAbsoluteValue);
             Grab(2);
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
@@ -426,7 +445,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
         }
 
-        void MoveRods(int stepIndex, double motorAbsoluteValue)
+        void SetRods(int stepIndex, double motorAbsoluteValue)
         {
             var indexes = stepIndex switch
             {
@@ -436,7 +455,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int[]>(nameof(stepIndex))
             };
 
-            FourierViewModel.SetChannel1Or2Position(
+            FourierViewModel.SetRods(
                 item.ChannelId,
                 [
                     .. item.RodResults.OrderBy(t => t.Index).Select(t =>
@@ -485,45 +504,6 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                     break;
             }
         }
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task VerifyAsync(CancellationToken cancellationToken)
-    {
-        await InvokeVerifyAsync(() =>
-        {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
-            {
-                Cache.RodTotalCount,
-                Cache.MinMotorAbsoluteValue,
-                Cache.MaxMotorAbsoluteValue,
-                Cache.ProductivityInformation,
-                Cache.MicroscopeLensInformation,
-                Cache.LaserLightInformation,
-                OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-                Cache.ScanLength,
-                Cache.Step0AndStep1MotorAbsoluteValue,
-                Cache.Step2MotorAbsoluteValue,
-                Cache.HazeFindBFMachinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            foreach (var item in new[] { Review.Channel1Item, Review.Channel2Item })
-            {
-                Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                Logger.LogHtmlInformation("Even ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.EvenItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-                Logger.LogHtmlInformation("Odd ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.OddItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            }
-
-            Review.IsVerified = true;
-            Guard.IsTrue(Save(Review, cancellationToken));
-
-            DialogWindowProvider.ShowDialog("Verify : OK");
-
-            return true;
-        }).ConfigureAwait(false);
     }
 
     private bool Save(FourierSideChannelFlexibleApertureDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>

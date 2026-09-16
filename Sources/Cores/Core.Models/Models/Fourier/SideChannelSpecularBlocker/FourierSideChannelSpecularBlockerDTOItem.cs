@@ -17,12 +17,12 @@ namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 public sealed partial class FourierSideChannelSpecularBlockerDTOItem : ObservableObject, ICloneable<FourierSideChannelSpecularBlockerDTOItem>, IDisposable
 {
-    private const string StepsComment = "Step0: Move rods home; Step1: Drop rods to the calibrated positions. Grab Fourier images during calibration and PMT images during verification";
+    private const string StepsComment = "Step0: Move rods home; Step1: Drop rods to the calibrated positions. Grab Fourier images during calibration and CIB images during verification";
 
     private readonly BitmapImageDrawable _step0FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1FourierBitmapImageDrawable = new();
-    private readonly BitmapImageDrawable _step0PMTBitmapImageDrawable = new();
-    private readonly BitmapImageDrawable _step1PMTBitmapImageDrawable = new();
+    private readonly BitmapImageDrawable _step0CIBBitmapImageDrawable = new();
+    private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
     private readonly BitmapImageROIDrawable[] _step1FourierROIDrawables;
 
     [Newtonsoft.Json.JsonProperty]
@@ -38,22 +38,22 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string RawStep0PMTImageFilePath { get; set; } = string.Empty;
+    public partial string RawStep0CIBImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string RawStep1PMTImageFilePath { get; set; } = string.Empty;
+    public partial string RawStep1CIBImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string Step0PMTImageFilePath { get; set; } = string.Empty;
+    public partial string Step0CIBImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string Step1PMTImageFilePath { get; set; } = string.Empty;
+    public partial string Step1CIBImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial double Step0PMTImageAverageValue { get; set; }
+    public partial double Step0CIBImageAverageValue { get; set; }
 
     [ObservableProperty]
-    public partial double Step1PMTImageAverageValue { get; set; }
+    public partial double Step1CIBImageAverageValue { get; set; }
 
     [Newtonsoft.Json.JsonProperty]
     public Rod[] Rods { get; }
@@ -65,7 +65,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     public OpticsFourierImageDocument Document { get; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
-    public OpticsFourierImageDocument PMTDocument { get; } = new();
+    public OpticsFourierImageDocument CIBDocument { get; } = new();
 
     public FourierSideChannelSpecularBlockerDTOItem(int rodTotalCount, int channelId)
     {
@@ -94,10 +94,10 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
             Document.ROIModel.AddRange(_step1FourierROIDrawables);
         });
 
-        PMTDocument.RunDesign(() => PMTDocument.ImageModel.AddRange([_step0PMTBitmapImageDrawable, _step1PMTBitmapImageDrawable]));
+        CIBDocument.RunDesign(() => CIBDocument.ImageModel.AddRange([_step0CIBBitmapImageDrawable, _step1CIBBitmapImageDrawable]));
 
         ResetDocument();
-        ResetPMTDocument();
+        ResetCIBDocument();
     }
 
     [Newtonsoft.Json.JsonConstructor]
@@ -118,9 +118,9 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         foreach (var rod in Rods) rod.BitmapImageROIDrawable.Text = $"{rod.Index + 1}";
     }
 
-    private void ResetPMTDocument()
+    private void ResetCIBDocument()
     {
-        PMTDocument.Reset();
+        CIBDocument.Reset();
 
         foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
@@ -135,12 +135,12 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         {
             Step0FourierImageFilePath = Step0FourierImageFilePath,
             Step1FourierImageFilePath = Step1FourierImageFilePath,
-            RawStep0PMTImageFilePath = RawStep0PMTImageFilePath,
-            RawStep1PMTImageFilePath = RawStep1PMTImageFilePath,
-            Step0PMTImageFilePath = Step0PMTImageFilePath,
-            Step1PMTImageFilePath = Step1PMTImageFilePath,
-            Step0PMTImageAverageValue = Step0PMTImageAverageValue,
-            Step1PMTImageAverageValue = Step1PMTImageAverageValue,
+            RawStep0CIBImageFilePath = RawStep0CIBImageFilePath,
+            RawStep1CIBImageFilePath = RawStep1CIBImageFilePath,
+            Step0CIBImageFilePath = Step0CIBImageFilePath,
+            Step1CIBImageFilePath = Step1CIBImageFilePath,
+            Step0CIBImageAverageValue = Step0CIBImageAverageValue,
+            Step1CIBImageAverageValue = Step1CIBImageAverageValue,
             ExtinctionRatio = ExtinctionRatio
         };
 
@@ -164,20 +164,20 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
         ResetDocument();
 
-        ResetPMT();
+        ResetCIB();
     }
 
-    public void ResetPMT()
+    public void ResetCIB()
     {
-        RawStep0PMTImageFilePath = string.Empty;
-        RawStep1PMTImageFilePath = string.Empty;
-        Step0PMTImageFilePath = string.Empty;
-        Step1PMTImageFilePath = string.Empty;
-        Step0PMTImageAverageValue = 0d;
-        Step1PMTImageAverageValue = 0d;
+        RawStep0CIBImageFilePath = string.Empty;
+        RawStep1CIBImageFilePath = string.Empty;
+        Step0CIBImageFilePath = string.Empty;
+        Step1CIBImageFilePath = string.Empty;
+        Step0CIBImageAverageValue = 0d;
+        Step1CIBImageAverageValue = 0d;
         ExtinctionRatio = 0d;
 
-        ResetPMTDocument();
+        ResetCIBDocument();
     }
 
     public async Task CalibratingAsync(FourierSideChannelFlexibleApertureDTOItem fourierSideChannelFlexibleApertureItem, CancellationToken cancellationToken)
@@ -291,25 +291,25 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         }
     }
 
-    public void ReviewPMT()
+    public void ReviewCIB()
     {
         try
         {
-            ResetPMTDocument();
+            ResetCIBDocument();
 
-            if (string.IsNullOrWhiteSpace(Step0PMTImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(Step0CIBImageFilePath)) return;
 
-            _step0PMTBitmapImageDrawable.Point = Point.Origin;
-            _step0PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep0PMTImageFilePath);
+            _step0CIBBitmapImageDrawable.Point = Point.Origin;
+            _step0CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep0CIBImageFilePath);
 
-            if (string.IsNullOrWhiteSpace(Step1PMTImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(Step1CIBImageFilePath)) return;
 
-            _step1PMTBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep1PMTImageFilePath);
-            _step1PMTBitmapImageDrawable.Point = _step0PMTBitmapImageDrawable.Point - new Vector(0d, _step0PMTBitmapImageDrawable.BitmapImage.Height + 10d);
+            _step1CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep1CIBImageFilePath);
+            _step1CIBBitmapImageDrawable.Point = _step0CIBBitmapImageDrawable.Point - new Vector(0d, _step0CIBBitmapImageDrawable.BitmapImage.Height + 10d);
         }
         finally
         {
-            PMTDocument.View.ZoomToFit();
+            CIBDocument.View.ZoomToFit();
         }
     }
 
@@ -342,25 +342,25 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         ])
     };
 
-    public object ToPMTHtmlAnonymous() => new
+    public object ToCIBHtmlAnonymous() => new
     {
         ChannelId,
-        Step0PMTImageAverageValue,
-        Step1PMTImageAverageValue,
+        Step0CIBImageAverageValue,
+        Step1CIBImageAverageValue,
         ExtinctionRatio,
-        RawStep0PMTImageFilePath,
-        RawStep1PMTImageFilePath,
-        Step0PMTImageFilePath,
-        Step1PMTImageFilePath,
-        Step0PMTImage = new HtmlImage(Step0PMTImageFilePath),
-        Step1PMTImage = new HtmlImage(Step1PMTImageFilePath)
+        RawStep0CIBImageFilePath,
+        RawStep1CIBImageFilePath,
+        Step0CIBImageFilePath,
+        Step1CIBImageFilePath,
+        Step0CIBImage = new HtmlImage(Step0CIBImageFilePath),
+        Step1CIBImage = new HtmlImage(Step1CIBImageFilePath)
     };
 
     public void Dispose()
     {
         _step0FourierBitmapImageDrawable.Dispose();
         _step1FourierBitmapImageDrawable.Dispose();
-        _step0PMTBitmapImageDrawable.Dispose();
-        _step1PMTBitmapImageDrawable.Dispose();
+        _step0CIBBitmapImageDrawable.Dispose();
+        _step1CIBBitmapImageDrawable.Dispose();
     }
 }

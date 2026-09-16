@@ -27,7 +27,7 @@ public interface ICalibrationFourierService
     /// </summary>
     /// <param name="channelId">1(channel 1), 2(channel 2)</param>
     /// <param name="rodPositions">挡杆位置，下标为杆号</param>
-    SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions);
+    SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions);
 
     /// <summary>
     /// 获取傅里叶相机的图片

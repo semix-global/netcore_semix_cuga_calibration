@@ -8,14 +8,13 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Reflection;
 using CommunityToolkit.Diagnostics;
 using Core.Services.Implements.Mock;
 
 namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(FourierViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class FourierViewModel(
+public sealed class FourierViewModel(
     ICalibrationFourierService calibrationFourierService) : ViewModelBase
 {
     public bool Connect()
@@ -25,18 +24,18 @@ public sealed partial class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool Home(int channelId)
+    public void Home(int channelId)
     {
         var ret = calibrationFourierService.Home(channelId);
 
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool SetChannel1Or2Position(int channelId, double[] rodPositions)
+    public void SetRods(int channelId, double[] rodPositions)
     {
-        var ret = calibrationFourierService.SetChannel1Or2Position(channelId, rodPositions);
+        var ret = calibrationFourierService.SetRods(channelId, rodPositions);
 
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public BitmapImage GetImage(

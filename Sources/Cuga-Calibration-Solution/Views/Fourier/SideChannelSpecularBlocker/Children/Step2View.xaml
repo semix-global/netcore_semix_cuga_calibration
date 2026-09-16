@@ -48,7 +48,7 @@
                         <TextBox Text="{Binding Cache.Item.ShinyWaferFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                  hc:TitleElement.Title="Shiny Wafer BF Machine Position(um): "
                                  hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
+                                 hc:TitleElement.TitleWidth="230"
                                  Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"

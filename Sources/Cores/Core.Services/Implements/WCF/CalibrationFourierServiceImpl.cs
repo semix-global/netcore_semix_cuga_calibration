@@ -54,7 +54,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions)
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
     {
         var wcfChannelId = channelId switch
         {
@@ -67,7 +67,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         [
             .. rodPositions
                 .Index()
-                .Select(t => (t.Index + 1, t.Item))
+                .Select(t => (t.Index + 1 /* Cuga配置规定 */, t.Item))
         ]));
 
         return sxExecuteRet.IsSuccess
@@ -91,7 +91,11 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             OpenZoos = true
         };
 
-        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(channelId - 1, wcfParam, dfPosition.ToSxPointD(), (int)scanLength));
+        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(
+            channelId - 1, /* Cuga配置规定 */
+            wcfParam,
+            dfPosition.ToSxPointD(),
+            Convert.ToInt32(scanLength)));
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001

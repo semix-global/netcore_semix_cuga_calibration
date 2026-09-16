@@ -6,7 +6,6 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -32,29 +31,17 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
 
     public SxExecuteRet<bool> Home(int channelId)
     {
-        return SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions)
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
     {
-        return SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<BitmapImage> GetImage(
-        ProductivityInformation productivityInformation,
-        LaserLightInformation laserLightInformation,
-        Point dfPosition,
-        double scanLength,
-        int channelId)
+    public SxExecuteRet<BitmapImage> GetImage(ProductivityInformation productivityInformation, LaserLightInformation laserLightInformation, Point dfPosition, double scanLength, int channelId)
     {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-
-        var bitmapImage = BitmapImage.Random((int)scanLength, (int)scanLength, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
