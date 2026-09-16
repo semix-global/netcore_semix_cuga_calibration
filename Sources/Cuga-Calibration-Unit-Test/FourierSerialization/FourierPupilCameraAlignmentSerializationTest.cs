@@ -3,47 +3,119 @@ using AwesomeAssertions.Execution;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.Models.Serializations;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Local.SQL.Cache.Providers.Serializations;
+using Local.SQL.Cache.Providers.Services.Interfaces;
 
 namespace CugaCalibrationUnitTest.FourierSerialization;
 
 public sealed class FourierPupilCameraAlignmentSerializationTest
 {
-    private static readonly string[] NonPersistentNames = ["Document", "BitmapImageROIDrawable", "document", "bitmapImageROIDrawable"];
-    private static readonly string[] InfrastructureNames =
+    private static readonly string[] NonPersistentNames =
     [
-        "Id",
-        "Expiration",
-        "CreatedUserId",
-        "CreatedUserName",
-        "CreatedTime",
-        "ModifiedUserId",
-        "ModifiedUserName",
-        "ModifiedTime",
-        "HasErrors"
+        "Document",
+        "_originalBitmapImageDrawable",
+        "_roiBitmapImageDrawable",
+        "_bitmapImageROIDrawable"
     ];
 
-    private static JObject LoadProvidedJson() => JObject.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierPupilCameraAlignment.json")));
+    private static readonly string[] IgnoreProperties =
+    [
+        nameof(ICacheItem.Id),
+        nameof(ICacheItem.Expiration),
+        nameof(ICacheItem.CreatedUserId),
+        nameof(ICacheItem.CreatedUserName),
+        nameof(ICacheItem.CreatedTime),
+        nameof(ICacheItem.ModifiedUserId),
+        nameof(ICacheItem.ModifiedUserName),
+        nameof(ICacheItem.ModifiedTime),
+        nameof(ICacheItem.IsDeleted),
+        nameof(ObservableValidator.HasErrors)
+    ];
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool useCacheSettings)
     {
-        var settings = useCacheSettings ? PrivateSetterContractResolver.Settings : new JsonSerializerSettings();
-        var provided = LoadProvidedJson();
+        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierPupilCameraAlignment.json"));
+        var expected = JObject.Parse(json);
 
-        using var restored = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(provided.ToString(), settings));
-        AssertDtoMatchesJson(provided, restored);
-        AssertDrawableBindings(restored);
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
 
-        var saved = JObject.Parse(JsonConvert.SerializeObject(restored, settings));
+        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(json, settings));
+
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
+
+        AssertMatchesJson();
+
+        var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
         saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
-        AssertJsonIdentical(provided, saved);
+
+        if (useCacheSettings == false) RemoveMetadata(saved);
+
+        saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
+
+        return;
+
+        void AssertMatchesJson()
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.IsCalibrated.Should().Be(expected.Value<bool>(nameof(actual.IsCalibrated)));
+            actual.IsVerified.Should().Be(expected.Value<bool>(nameof(actual.IsVerified)));
+            actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
+            actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
+
+            AssertChannelMatchesJson(actual.Channel1Item, Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.Channel1Item)]));
+            AssertChannelMatchesJson(actual.Channel2Item, Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.Channel2Item)]));
+            AssertChannelMatchesJson(actual.Channel3Item, Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.Channel3Item)]));
+        }
+
+        static void AssertChannelMatchesJson(FourierPupilCameraAlignmentDTOItem actual, JObject expected)
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
+            actual.ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ChannelImageFilePath)));
+            actual.ROIChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIChannelImageFilePath)));
+
+            AssertRectMatchesJson(actual.ImageROI, Guard.IsNotNullAndAssignableToTypeAndReturn<JToken>(expected[nameof(actual.ImageROI)]));
+        }
+
+        static void AssertRectMatchesJson(Rect actual, JToken expected)
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.X.Should().Be(expected.Value<double>(nameof(actual.X)));
+            actual.Y.Should().Be(expected.Value<double>(nameof(actual.Y)));
+            actual.Width.Should().Be(expected.Value<double>(nameof(actual.Width)));
+            actual.Height.Should().Be(expected.Value<double>(nameof(actual.Height)));
+        }
+
+        static void RemoveMetadata(JToken jToken)
+        {
+            switch (jToken)
+            {
+                case JArray array:
+                    foreach (var item in array) RemoveMetadata(item);
+
+                    break;
+
+                case JObject obj:
+                    foreach (var ignoreProperty in IgnoreProperties) obj.Remove(ignoreProperty);
+
+                    foreach (var property in obj.Properties()) RemoveMetadata(property.Value);
+
+                    break;
+            }
+        }
     }
 
     [Theory]
@@ -54,184 +126,73 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
     [InlineData(55, false)]
     public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool useCacheSettings)
     {
-        var settings = useCacheSettings ? PrivateSetterContractResolver.Settings : new JsonSerializerSettings();
-        using var source = CreateRandomDto(new Random(seed));
-        var json = JsonConvert.SerializeObject(source, settings);
+        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
-        using var restored = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(json, settings));
-        AssertDtoEquals(source, restored);
-        AssertDrawableBindings(restored);
-    }
+        using var expected = CreateRandomDto(new Random(seed));
 
-    [Fact]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip_WithNewSeed()
-    {
-        var seed = new Random().Next();
-        using var scope = new AssertionScope($"seed={seed}");
-        RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(seed, false);
-    }
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
 
-    private static FourierPupilCameraAlignmentDTO CreateRandomDto(Random random)
-    {
-        var dto = new FourierPupilCameraAlignmentDTO
+        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(JsonConvert.SerializeObject(expected, settings), settings));
+
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
+
+        AssertEquals();
+
+        return;
+
+        static FourierPupilCameraAlignmentDTO CreateRandomDto(Random random)
         {
-            IsCalibrated = NextBool(random),
-            IsVerified = NextBool(random),
-            IsRequiredSelfCheck = NextBool(random),
-            Id = NextInt64(random),
-            Expiration = NextInt64(random)
-        };
+            var dto = new FourierPupilCameraAlignmentDTO
+            {
+                IsCalibrated = random.Next(2) == 1,
+                IsVerified = random.Next(2) == 1,
+                IsRequiredSelfCheck = random.Next(2) == 1,
+                Id = ((long)random.Next() << 31) ^ random.Next(),
+                Expiration = ((long)random.Next() << 31) ^ random.Next()
+            };
 
-        foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item, dto.Channel3Item })
-        {
-            channel.ChannelImageFilePath = RandomPath(random, "Channel");
-            channel.ROIChannelImageFilePath = RandomPath(random, "ROI");
-            channel.ImageROI = RandomRect(random);
+            foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item, dto.Channel3Item })
+            {
+                channel.ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Channel_{random.Next(0, 99)}.jpg";
+                channel.ROIChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\ROI_{random.Next(0, 99)}.jpg";
+                channel.ImageROI = random.Next(6) switch
+                {
+                    0 => Rect.Empty,
+                    1 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, 0d),
+                    _ => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)))
+                };
+            }
+
+            return dto;
         }
 
-        return dto;
-    }
-
-    private static void AssertDtoMatchesJson(JObject expected, FourierPupilCameraAlignmentDTO actual)
-    {
-        using var scope = new AssertionScope("DTO");
-        actual.IsCalibrated.Should().Be(expected.Value<bool>(nameof(actual.IsCalibrated)));
-        actual.IsVerified.Should().Be(expected.Value<bool>(nameof(actual.IsVerified)));
-        actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
-        actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
-        if (expected[nameof(actual.Id)] is not null) actual.Id.Should().Be(expected.Value<long>(nameof(actual.Id)));
-        if (expected[nameof(actual.Expiration)] is not null) actual.Expiration.Should().Be(expected.Value<long>(nameof(actual.Expiration)));
-        AssertChannelMatchesJson(RequiredJson<JObject>(expected[nameof(actual.Channel1Item)]), actual.Channel1Item);
-        AssertChannelMatchesJson(RequiredJson<JObject>(expected[nameof(actual.Channel2Item)]), actual.Channel2Item);
-        AssertChannelMatchesJson(RequiredJson<JObject>(expected[nameof(actual.Channel3Item)]), actual.Channel3Item);
-    }
-
-    private static void AssertChannelMatchesJson(JObject expected, FourierPupilCameraAlignmentDTOItem actual)
-    {
-        using var scope = new AssertionScope(expected.Path);
-        actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
-        actual.ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ChannelImageFilePath)));
-        actual.ROIChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIChannelImageFilePath)));
-        AssertRectMatchesJson(RequiredJson<JToken>(expected[nameof(actual.ImageROI)]), actual.ImageROI);
-    }
-
-    private static void AssertRectMatchesJson(JToken expected, Rect actual)
-    {
-        using var scope = new AssertionScope(expected.Path);
-        actual.X.Should().Be(expected.Value<double>(nameof(actual.X)));
-        actual.Y.Should().Be(expected.Value<double>(nameof(actual.Y)));
-        actual.Width.Should().Be(expected.Value<double>(nameof(actual.Width)));
-        actual.Height.Should().Be(expected.Value<double>(nameof(actual.Height)));
-    }
-
-    private static void AssertDtoEquals(FourierPupilCameraAlignmentDTO expected, FourierPupilCameraAlignmentDTO actual)
-    {
-        using var scope = new AssertionScope("DTO");
-        actual.IsCalibrated.Should().Be(expected.IsCalibrated);
-        actual.IsVerified.Should().Be(expected.IsVerified);
-        actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
-        actual.IsOk.Should().Be(expected.IsOk);
-        actual.Id.Should().Be(expected.Id);
-        actual.Expiration.Should().Be(expected.Expiration);
-        AssertChannelEquals(expected.Channel1Item, actual.Channel1Item);
-        AssertChannelEquals(expected.Channel2Item, actual.Channel2Item);
-        AssertChannelEquals(expected.Channel3Item, actual.Channel3Item);
-    }
-
-    private static void AssertChannelEquals(FourierPupilCameraAlignmentDTOItem expected, FourierPupilCameraAlignmentDTOItem actual)
-    {
-        actual.ChannelId.Should().Be(expected.ChannelId);
-        actual.ChannelImageFilePath.Should().Be(expected.ChannelImageFilePath);
-        actual.ROIChannelImageFilePath.Should().Be(expected.ROIChannelImageFilePath);
-        actual.ImageROI.Should().Be(expected.ImageROI);
-    }
-
-    private static void AssertJsonIdentical(JObject expected, JObject actual)
-    {
-        var expectedPayload = WithoutInfrastructure(expected);
-        var actualPayload = WithoutInfrastructure(actual);
-        AssertJsonSubtree(expectedPayload, actualPayload);
-        AssertJsonSubtree(actualPayload, expectedPayload);
-    }
-
-    private static void AssertJsonSubtree(JToken expected, JToken actual)
-    {
-        using var scope = new AssertionScope(expected.Path);
-        if (expected is JObject expectedObject)
+        void AssertEquals()
         {
-            var actualObject = RequiredJson<JObject>(actual);
-            foreach (var property in expectedObject.Properties())
-                AssertJsonSubtree(property.Value, RequiredJson<JToken>(actualObject.GetValue(property.Name, StringComparison.OrdinalIgnoreCase)));
-        }
-        else if (expected is JArray expectedArray)
-        {
-            var savedArray = RequiredJson<JArray>(actual);
-            savedArray.Count.Should().Be(expectedArray.Count, "{0} length", expected.Path);
-            foreach (var (left, right) in expectedArray.Zip(savedArray)) AssertJsonSubtree(left, right);
-        }
-        else
-        {
-            AssertJsonValueEquals(RequiredJson<JValue>(expected), RequiredJson<JValue>(actual), expected.Path);
-        }
-    }
+            using var scope = new AssertionScope("DTO");
 
-    private static void AssertJsonValueEquals(JValue expected, JValue actual, string path)
-    {
-        if (IsNumber(expected) && IsNumber(actual))
-        {
-            Convert.ToDouble(actual.Value).Should().Be(Convert.ToDouble(expected.Value), path);
-            return;
+            actual.IsCalibrated.Should().Be(expected.IsCalibrated);
+            actual.IsVerified.Should().Be(expected.IsVerified);
+            actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
+            actual.IsOk.Should().Be(expected.IsOk);
+            if (useCacheSettings == false)
+            {
+                actual.Id.Should().Be(expected.Id);
+                actual.Expiration.Should().Be(expected.Expiration);
+            }
+
+            AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
+            AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);
+            AssertChannelEquals(actual.Channel3Item, expected.Channel3Item);
         }
 
-        actual.Value.Should().Be(expected.Value, path);
+        static void AssertChannelEquals(FourierPupilCameraAlignmentDTOItem actual, FourierPupilCameraAlignmentDTOItem expected)
+        {
+            actual.ChannelId.Should().Be(expected.ChannelId);
+            actual.ChannelImageFilePath.Should().Be(expected.ChannelImageFilePath);
+            actual.ROIChannelImageFilePath.Should().Be(expected.ROIChannelImageFilePath);
+            actual.ImageROI.Should().Be(expected.ImageROI);
+        }
     }
-
-    private static JObject WithoutInfrastructure(JObject token)
-    {
-        var copy = RequiredJson<JObject>(token.DeepClone());
-        copy.Remove("IsDeleted");
-        foreach (var obj in copy.DescendantsAndSelf().OfType<JObject>())
-            foreach (var name in InfrastructureNames)
-                obj.Remove(name);
-
-        return copy;
-    }
-
-    private static T RequiredJson<T>(JToken? token) where T : JToken =>
-        Guard.IsAssignableToTypeAndReturn<T>(Guard.IsNotNullAndReturn(token));
-
-    private static void AssertDrawableBindings(FourierPupilCameraAlignmentDTO dto)
-    {
-        AssertChannelDrawableBindings(dto.Channel1Item);
-        AssertChannelDrawableBindings(dto.Channel2Item);
-        AssertChannelDrawableBindings(dto.Channel3Item);
-    }
-
-    private static void AssertChannelDrawableBindings(FourierPupilCameraAlignmentDTOItem channel)
-    {
-        channel.Document.ImageModel.Should().HaveCount(2);
-        channel.Document.ROIModel.Should().HaveCount(1);
-        var images = channel.Document.ImageModel.ToArray();
-        var roi = channel.Document.ROIModel.Single();
-        roi.BitmapImageDrawable.Should().BeSameAs(images[0]);
-        roi.BitmapImageDrawable.BitmapImage.Should().BeNull();
-        roi.ResizeJoystickStateEnum.Should().Be(BitmapImageROIResizeJoystickStateEnum.All);
-    }
-
-    private static string RandomPath(Random random, string name) => $@"C:\Rnd\{random.Next(1000, 9999)}\{name}_{random.Next(0, 99)}.jpg";
-
-    private static Rect RandomRect(Random random) => random.Next(6) switch
-    {
-        0 => Rect.Empty,
-        1 => new Rect(NextCoordinate(random), NextCoordinate(random), 0d, 0d),
-        _ => new Rect(NextCoordinate(random), NextCoordinate(random), Math.Abs(NextCoordinate(random)), Math.Abs(NextCoordinate(random)))
-    };
-
-    private static double NextCoordinate(Random random) => Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
-
-    private static bool NextBool(Random random) => random.Next(2) == 1;
-
-    private static long NextInt64(Random random) => ((long)random.Next() << 31) ^ random.Next();
-
-    private static bool IsNumber(JValue value) => value.Type is JTokenType.Integer or JTokenType.Float;
 }

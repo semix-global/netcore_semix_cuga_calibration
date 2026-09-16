@@ -24,29 +24,11 @@ namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 [CacheVersion("2.0.0")]
 public sealed class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
-    public FourierPupilCameraAlignmentDTOItem Channel1Item { get; private init; }
+    public FourierPupilCameraAlignmentDTOItem Channel1Item { get; private init; } = new(1);
 
-    public FourierPupilCameraAlignmentDTOItem Channel2Item { get; private init; }
+    public FourierPupilCameraAlignmentDTOItem Channel2Item { get; private init; } = new(2);
 
-    public FourierPupilCameraAlignmentDTOItem Channel3Item { get; private init; }
-
-    public FourierPupilCameraAlignmentDTO()
-    {
-        Channel1Item = new FourierPupilCameraAlignmentDTOItem(1);
-        Channel2Item = new FourierPupilCameraAlignmentDTOItem(2);
-        Channel3Item = new FourierPupilCameraAlignmentDTOItem(3);
-    }
-
-    [Newtonsoft.Json.JsonConstructor]
-    private FourierPupilCameraAlignmentDTO(
-        FourierPupilCameraAlignmentDTOItem channel1Item,
-        FourierPupilCameraAlignmentDTOItem channel2Item,
-        FourierPupilCameraAlignmentDTOItem channel3Item)
-    {
-        Channel1Item = channel1Item;
-        Channel2Item = channel2Item;
-        Channel3Item = channel3Item;
-    }
+    public FourierPupilCameraAlignmentDTOItem Channel3Item { get; private init; } = new(3);
 
     #region Mapper
 
