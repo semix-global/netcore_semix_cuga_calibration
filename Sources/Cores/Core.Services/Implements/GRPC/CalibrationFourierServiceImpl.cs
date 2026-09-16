@@ -30,12 +30,27 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<bool> Home(int channelId)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<BitmapImage> GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
     {
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
 
-        var bitmapImage = BitmapImage.Random(width, width, 10);
+        var bitmapImage = BitmapImage.Random((int)scanLength, (int)scanLength, 10);
         return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
 #pragma warning restore IDISP001
@@ -49,22 +64,12 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
     }
 
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFHome(FFCH ch)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }

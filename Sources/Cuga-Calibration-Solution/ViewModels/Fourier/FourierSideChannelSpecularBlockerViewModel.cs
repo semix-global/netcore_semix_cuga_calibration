@@ -365,7 +365,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         try
         {
-            FourierViewModel.SetFFHome(channelId);
+            FourierViewModel.Home(item.ChannelId);
 
             GrabFourierImage(0);
 
@@ -373,7 +373,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
 
-            FourierViewModel.FF_Move_CH12(channelId, [.. item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
+            FourierViewModel.SetChannel1Or2Position(
+                item.ChannelId,
+                [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
             GrabFourierImage(1);
 
             item.Review();
@@ -397,12 +399,12 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         void GrabFourierImage(int stepIndex)
         {
-            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                item.ChannelId - 1,
+            using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.Item.LaserLightInformation.Level,
-                StageViewModel.MachineToBrightFieldPosition(Cache.Item.ShinyWaferFindBFMachinePosition),
-                Cache.Item.ScanLength);
+                Cache.Item.LaserLightInformation,
+                shinyBFPosition,
+                Cache.Item.ScanLength,
+                item.ChannelId);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
@@ -539,12 +541,16 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         {
             foreach (var item in items) item.ResetPMT();
 
-            FourierViewModel.SetFFHome(FFCH.Ch1);
-            FourierViewModel.SetFFHome(FFCH.Ch2);
+            FourierViewModel.Home(1);
+            FourierViewModel.Home(2);
             await GrabAsync(0);
 
-            FourierViewModel.FF_Move_CH12(FFCH.Ch1, [.. dto.Channel1Item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
-            FourierViewModel.FF_Move_CH12(FFCH.Ch2, [.. dto.Channel2Item.Rods.Select(t => (t.Index, t.MotorAbsoluteValue))]);
+            FourierViewModel.SetChannel1Or2Position(
+                1,
+                [.. dto.Channel1Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
+            FourierViewModel.SetChannel1Or2Position(
+                2,
+                [.. dto.Channel2Item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
             await GrabAsync(1);
 
             foreach (var item in items)

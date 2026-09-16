@@ -25,9 +25,34 @@ public sealed partial class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public BitmapImage GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public bool Home(int channelId)
     {
-        var ret = calibrationFourierService.GetFFReviewImgForTrigger(id, productivityInformation, level, pos, width);
+        var ret = calibrationFourierService.Home(channelId);
+
+        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public bool SetChannel1Or2Position(int channelId, double[] rodPositions)
+    {
+        var ret = calibrationFourierService.SetChannel1Or2Position(channelId, rodPositions);
+
+        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public BitmapImage GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
+    {
+        var ret = calibrationFourierService.GetImage(
+            productivityInformation,
+            laserLightInformation,
+            dfPosition,
+            scanLength,
+            channelId);
+
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
@@ -35,12 +60,6 @@ public sealed partial class FourierViewModel(
     {
         var ret = calibrationFourierService.GetFourierConfig();
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        var ret = calibrationFourierService.FF_Move_CH12(channelId, rodpostions);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
     public bool FF_Move_CH3X(int rpos, double lpos, double ppos)
@@ -52,12 +71,6 @@ public sealed partial class FourierViewModel(
     public bool FF_Move_CH3Y(int rpos, double lpos)
     {
         var ret = calibrationFourierService.FF_Move_CH3Y(rpos, lpos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool SetFFHome(FFCH ch)
-    {
-        var ret = calibrationFourierService.SetFFHome(ch);
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 

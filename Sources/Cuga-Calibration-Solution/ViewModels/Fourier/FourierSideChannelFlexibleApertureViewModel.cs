@@ -389,7 +389,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         try
         {
-            FourierViewModel.SetFFHome(channelId);
+            FourierViewModel.Home(item.ChannelId);
 
             MoveRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
             Grab(0);
@@ -436,23 +436,24 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<int[]>(nameof(stepIndex))
             };
 
-            FourierViewModel.FF_Move_CH12(channelId,
-            [
-                .. item.RodResults.Select(t => (t.Index,
-                    indexes.Contains(t.Index)
-                        ? motorAbsoluteValue
-                        : Cache.MinMotorAbsoluteValue))
-            ]);
+            FourierViewModel.SetChannel1Or2Position(
+                item.ChannelId,
+                [
+                    .. item.RodResults.OrderBy(t => t.Index).Select(t =>
+                        indexes.Contains(t.Index)
+                            ? motorAbsoluteValue
+                            : Cache.MinMotorAbsoluteValue)
+                ]);
         }
 
         void Grab(int stepIndex)
         {
-            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                item.ChannelId - 1,
+            using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.LaserLightInformation.Level,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-                Cache.ScanLength);
+                Cache.LaserLightInformation,
+                hazeBFPosition,
+                Cache.ScanLength,
+                item.ChannelId);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

@@ -292,35 +292,14 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
         try
         {
-            switch (item.ChannelId)
-            {
-                case 1:
-                    FourierViewModel.SetFFHome(FFCH.Ch1);
+            FourierViewModel.Home(item.ChannelId);
 
-                    break;
-
-                case 2:
-                    FourierViewModel.SetFFHome(FFCH.Ch2);
-
-                    break;
-
-                case 3:
-                    FourierViewModel.SetFFHome(FFCH.Ch3_X);
-                    FourierViewModel.SetFFHome(FFCH.Ch3_Y);
-
-                    break;
-
-                default:
-                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(item.ChannelId));
-                    break;
-            }
-
-            using var bitmapImage = FourierViewModel.GetFFReviewImgForTrigger(
-                item.ChannelId - 1,
+            using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.LaserLightInformation.Level,
-                StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition),
-                Cache.ScanLength);
+                Cache.LaserLightInformation,
+                hazeBFPosition,
+                Cache.ScanLength,
+                item.ChannelId);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

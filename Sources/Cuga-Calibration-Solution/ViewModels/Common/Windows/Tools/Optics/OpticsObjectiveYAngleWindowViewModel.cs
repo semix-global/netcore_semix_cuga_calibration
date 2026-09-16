@@ -280,7 +280,12 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-                    hazeFourierImage = fourierViewModel.GetFFReviewImgForTrigger(Cache.ChannelId, Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Level, brightFieldPosition);
+                    hazeFourierImage = fourierViewModel.GetImage(
+                        Cache.ProductivityInformation,
+                        Cache.HazeLaserLightInformation,
+                        brightFieldPosition,
+                        800,
+                        Cache.ChannelId); // todo: 改为界面输入
 
                     var resultHazeImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     hazeFourierImage.SaveImage(resultHazeImageFilePath);
@@ -319,7 +324,12 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-                    shinyWaferFourierImage = fourierViewModel.GetFFReviewImgForTrigger(Cache.ChannelId, Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Level, brightFieldPosition);
+                    shinyWaferFourierImage = fourierViewModel.GetImage(
+                        Cache.ProductivityInformation,
+                        Cache.ShinyWaferLaserLightInformation,
+                        brightFieldPosition,
+                        800,
+                        Cache.ChannelId); // todo: 改为界面输入
 
                     var resultShinyWaferImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     shinyWaferFourierImage.SaveImage(resultShinyWaferImageFilePath);

@@ -38,19 +38,36 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<bool> Home(int channelId)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetChannel1Or2Position(int channelId, double[] rodPositions)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<BitmapImage> GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
     {
         Thread.Sleep(100);
 
         var filePath = MockImageFilePaths.ElementAtOrDefault(_mockImageIndex++ % MockImageFilePaths.Length) ?? string.Empty;
 
+#pragma warning disable IDE0079
 #pragma warning disable IDISP004
 
         return SxExecuteRetHelper.CreateSuccess(File.Exists(filePath)
             ? BitmapHelper.OpenImage(filePath)
-            : BitmapImage.Random(width, width, 10));
+            : BitmapImage.Random((int)scanLength, (int)scanLength, 10));
 
 #pragma warning restore IDISP004
+#pragma warning restore IDE0079
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig() => SxExecuteRetHelper.CreateSuccess(new C2MFFRangeModel
@@ -60,22 +77,12 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         CH12MaxPOS = 55
     });
 
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFHome(FFCH ch)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
