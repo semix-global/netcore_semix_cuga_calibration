@@ -1,147 +1,194 @@
 using AwesomeAssertions;
-using Core.Models;
-using Core.Models.Helper;
+using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.CIB;
+using Core.Models.Enums.Optics;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
-using Core.Recipe.Services;
-using Core.Services;
-using CugaCalibration.Core;
-using CugaCalibration.ViewModels.Common;
-using Local.SQL.Cache.Providers;
-using Local.SQL.Cache.Providers.Services.Interfaces;
-using Local.SQL.DB.Providers;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Net.Utilities.Helpers.Helpers;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Serializations;
-using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
-using SourceGenerator.AssemblyMetadata;
 using System.Collections.Concurrent;
-using System.Windows;
-using Net.Utilities.Calibration;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibrationUnitTest;
 
-/// <summary>
-/// ValueTuple Key 序列化和反序列化一致性测试
-/// </summary>
-public sealed class CacheSerializationTest : IDisposable
+public sealed class CacheSerializationTest(HostFixture fixture) : IClassFixture<HostFixture>
 {
-    private static readonly Application Application = new();
-
-    private readonly IHost _host;
-    private readonly ProductivityInformation _oiProductivityInfo;
-    private readonly ProductivityInformation _niProductivityInfo;
-
-    public CacheSerializationTest()
-    {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP004
-
-        _host = Host.CreateDefaultBuilder()
-            .ConfigureLogging(logging => logging.ClearProviders())
-            .ConfigureServices((context, services) =>
-            {
-                services
-                    .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
-                    .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationUnitTestAssemblyMetadata.Version, Application, context.HostingEnvironment)
-                    .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
-                    .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                    .AddNetUtilitiesCalibrationService(context.HostingEnvironment)
-                    .AddRecipeService(context.HostingEnvironment)
-                    .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
-                    .AddCoreService(context.HostingEnvironment)
-                    .AddApplication(context.HostingEnvironment);
-            })
-            .UseEnvironment(Environments.Development)
-            .Build()
-            .ConfigureHostApplication();
-
-#pragma warning restore IDISP004
-#pragma warning restore IDE0079
-
-        var microscopeLensInformations = HostApplication.GetRequiredService<MicroscopeViewModel>().GetMicroscopeLensInformations();
-        var laserLightInformations = HostApplication.GetRequiredService<LaserViewModel>().GetLaserLightInformations();
-        var productivityInformations = HostApplication.GetRequiredService<OpticsViewModel>().GetProductivityInformations();
-        var cibInformations = HostApplication.GetRequiredService<CIBViewModel>().GetCIBInformations();
-
-        var applicationCookie = HostApplication.GetRequiredService<ApplicationCookie>();
-        applicationCookie.MicroscopeLensInformations = [.. microscopeLensInformations.Select(t => t.Clone())];
-        applicationCookie.LaserLightInformations = [.. laserLightInformations.Select(t => t.Clone())];
-        applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
-        applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
-
-        _oiProductivityInfo = applicationCookie.OIProductivityInformations[0];
-        _niProductivityInfo = applicationCookie.NIProductivityInformations[0];
-    }
-
-    public void Dispose()
-    {
-        HostApplication.GetRequiredService<IFreeSql>().Dispose();
-        HostApplication.GetRequiredService<ICacheProvider>().Dispose();
-        HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey).Dispose();
-        _host.Dispose();
-    }
+    private readonly ApplicationCookie _applicationCookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
 
     [Fact]
     public void LaserLineCentricityCacheSerialization_ShouldBeConsistent()
     {
-        // Arrange - 创建包含多个items的Cache
         var oiCacheItem = new CIBLineCentricityCacheItem
         {
-            ImageWidth = 1024,
+            MicroscopeLensInformation = _applicationCookie.MicroscopeLensInformations[0],
+            LaserLightInformation = _applicationCookie.LaserLightInformations[0],
+            CIBInformation = _applicationCookie.CIBInformations[0],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.Gaussian,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.P
+            },
+            CIBConfiguration = new CIBConfiguration
+            {
+                Gain = 3,
+                IsAutoGainControl = false,
+                IsL0K = true,
+                CIBProfileMode = CIBProfileModeEnum.PMTVoltage,
+                IsKeepRawImageCIBProfileModeEnum = false
+            },
             FindBFMachinePosition = new Point(100.5, 200.5),
+            ImageWidth = 1024,
             BrightTemplateFilePath = @"C:\Test\OI_bright.tpl",
-            TemplateFilePath = @"C:\Test\OI_template.tpl"
+            BrightTemplateImageFilePath = @"C:\Test\OI_bright.jpg",
+            TemplateFilePath = @"C:\Test\OI_template.tpl",
+            TemplateImageFilePath = @"C:\Test\OI_template.jpg",
+            IsDarkFieldAlignment = false,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size128,
+            Id = 11,
+            Expiration = 22,
+            IsDeleted = false,
+            CreatedUserId = 11,
+            CreatedUserName = "Created_OI",
+            CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 12,
+            ModifiedUserName = "Modified_OI"
         };
+        oiCacheItem.ModifiedTime = oiCacheItem.CreatedTime.AddTicks(1);
 
         var niCacheItem = new CIBLineCentricityCacheItem
         {
-            ImageWidth = 2048,
+            MicroscopeLensInformation = _applicationCookie.MicroscopeLensInformations[^1],
+            LaserLightInformation = _applicationCookie.LaserLightInformations[^1],
+            CIBInformation = _applicationCookie.CIBInformations[^1],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.SuperGaussian,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.C,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.None
+            },
+            CIBConfiguration = new CIBConfiguration
+            {
+                Gain = -5,
+                IsAutoGainControl = true,
+                IsL0K = false,
+                CIBProfileMode = CIBProfileModeEnum.PMTLog,
+                IsKeepRawImageCIBProfileModeEnum = true
+            },
             FindBFMachinePosition = new Point(150.0, 250.0),
+            ImageWidth = 2048,
             BrightTemplateFilePath = @"C:\Test\NI_bright.tpl",
-            TemplateFilePath = @"C:\Test\NI_template.tpl"
+            BrightTemplateImageFilePath = @"C:\Test\NI_bright.jpg",
+            TemplateFilePath = @"C:\Test\NI_template.tpl",
+            TemplateImageFilePath = @"C:\Test\NI_template.jpg",
+            IsDarkFieldAlignment = true,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size512,
+            Id = 33,
+            Expiration = 44,
+            IsDeleted = true,
+            CreatedUserId = 33,
+            CreatedUserName = "Created_NI",
+            CreatedTime = new DateTime(2001, 2, 2, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 34,
+            ModifiedUserName = "Modified_NI"
         };
+        niCacheItem.ModifiedTime = niCacheItem.CreatedTime.AddTicks(2);
 
         var cache = new CIBLineCentricityCache
         {
+            ProductivityInformation = _applicationCookie.OIProductivityInformations[0],
+            CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel,
+            PmtInterval = 640,
+            Threshold = new Point(1.5, 2.5),
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size64,
+            Id = 101,
+            Expiration = 202,
+            IsDeleted = true,
+            CreatedUserId = 101,
+            CreatedUserName = "Created_LineCentricity",
+            CreatedTime = new DateTime(2000, 3, 3, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 102,
+            ModifiedUserName = "Modified_LineCentricity",
             Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>
             {
-                [_oiProductivityInfo] = oiCacheItem,
-                [_niProductivityInfo] = niCacheItem
+                [_applicationCookie.OIProductivityInformations[0]] = oiCacheItem,
+                [_applicationCookie.NIProductivityInformations[0]] = niCacheItem
             }
         };
+        cache.ModifiedTime = cache.CreatedTime.AddTicks(3);
 
-        // Act - 序列化和反序列化
         ObjectHelper.SetPropertyValue(cache, nameof(cache.Items), new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(cache.Items.OrderBy(t => t.Key)));
         var json = JsonConvert.SerializeObject(cache);
         var deserialized = JsonConvert.DeserializeObject<CIBLineCentricityCache>(json);
 
-        // Assert
         deserialized.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items),
-            new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(deserialized.Items.OrderBy(t => t.Key)));
+        ObjectHelper.SetPropertyValue(deserialized, nameof(deserialized.Items), new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(deserialized.Items.OrderBy(t => t.Key)));
 
-        deserialized.Items.Should().NotBeNull();
+        deserialized.ProductivityInformation.Should().Be(cache.ProductivityInformation);
+        deserialized.CalChipSiteModelEnum.Should().Be(cache.CalChipSiteModelEnum);
+        deserialized.PmtInterval.Should().Be(cache.PmtInterval);
+        deserialized.Threshold.Should().Be(cache.Threshold);
+        deserialized.AlgorithmTemplateTypeEnum.Should().Be(cache.AlgorithmTemplateTypeEnum);
+        deserialized.AlgorithmTemplateSizeEnum.Should().Be(cache.AlgorithmTemplateSizeEnum);
+        deserialized.Id.Should().Be(cache.Id);
+        deserialized.Expiration.Should().Be(cache.Expiration);
+        deserialized.IsDeleted.Should().Be(cache.IsDeleted);
+        deserialized.CreatedUserId.Should().Be(cache.CreatedUserId);
+        deserialized.CreatedUserName.Should().Be(cache.CreatedUserName);
+        deserialized.CreatedTime.Should().Be(cache.CreatedTime);
+        deserialized.ModifiedUserId.Should().Be(cache.ModifiedUserId);
+        deserialized.ModifiedUserName.Should().Be(cache.ModifiedUserName);
+        deserialized.ModifiedTime.Should().Be(cache.ModifiedTime);
+        deserialized.HasErrors.Should().BeFalse();
+
         deserialized.Items.Should().HaveCount(2);
-
-        // 验证OI item
-        var oiItem = deserialized.Items.Single(i => i.Key == _oiProductivityInfo);
-        oiItem.Value.ImageWidth.Should().Be(1024);
-        oiItem.Value.FindBFMachinePosition.Should().Be(new Point(100.5, 200.5));
-
-        // 验证NI item
-        var niItem = deserialized.Items.Single(i => i.Key == _niProductivityInfo);
-        niItem.Value.ImageWidth.Should().Be(2048);
-        niItem.Value.FindBFMachinePosition.Should().Be(new Point(150.0, 250.0));
+        AssertItemEquals(deserialized.Items.Single(i => i.Key == _applicationCookie.OIProductivityInformations[0]).Value, oiCacheItem);
+        AssertItemEquals(deserialized.Items.Single(i => i.Key == _applicationCookie.NIProductivityInformations[0]).Value, niCacheItem);
 
         JsonConvert.SerializeObject(deserialized).Should().Be(json);
+
+        return;
+
+        static void AssertItemEquals(CIBLineCentricityCacheItem actual, CIBLineCentricityCacheItem expected)
+        {
+            actual.MicroscopeLensInformation.Should().Be(expected.MicroscopeLensInformation);
+            actual.LaserLightInformation.Should().Be(expected.LaserLightInformation);
+            actual.CIBInformation.Should().Be(expected.CIBInformation);
+            actual.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsApodizationModeEnum);
+            actual.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsPolarizationModeEnum);
+            actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
+            actual.CIBConfiguration.Gain.Should().Be(expected.CIBConfiguration.Gain);
+            actual.CIBConfiguration.IsAutoGainControl.Should().Be(expected.CIBConfiguration.IsAutoGainControl);
+            actual.CIBConfiguration.IsL0K.Should().Be(expected.CIBConfiguration.IsL0K);
+            actual.CIBConfiguration.CIBProfileMode.Should().Be(expected.CIBConfiguration.CIBProfileMode);
+            actual.CIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.CIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
+            actual.FindBFMachinePosition.Should().Be(expected.FindBFMachinePosition);
+            actual.ImageWidth.Should().Be(expected.ImageWidth);
+            actual.BrightTemplateFilePath.Should().Be(expected.BrightTemplateFilePath);
+            actual.BrightTemplateImageFilePath.Should().Be(expected.BrightTemplateImageFilePath);
+            actual.TemplateFilePath.Should().Be(expected.TemplateFilePath);
+            actual.TemplateImageFilePath.Should().Be(expected.TemplateImageFilePath);
+            actual.IsDarkFieldAlignment.Should().Be(expected.IsDarkFieldAlignment);
+            actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
+            actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+            actual.Id.Should().Be(expected.Id);
+            actual.Expiration.Should().Be(expected.Expiration);
+            actual.IsDeleted.Should().Be(expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(expected.CreatedUserId);
+            actual.CreatedUserName.Should().Be(expected.CreatedUserName);
+            actual.CreatedTime.Should().Be(expected.CreatedTime);
+            actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
+            actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
+            actual.ModifiedTime.Should().Be(expected.ModifiedTime);
+            actual.HasErrors.Should().BeFalse();
+        }
     }
 
     [Fact]

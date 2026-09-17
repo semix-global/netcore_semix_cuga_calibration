@@ -2,21 +2,25 @@ using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.CIB;
+using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Concurrent;
 using System.IO;
 
 namespace CugaCalibrationUnitTest.FourierSerialization;
 
-/// <summary>
-/// ProductivityInformation 这个不判断, 否则需要注入IOC容器
-/// </summary>
-public sealed class FourierSideChannelSpecularBlockerSerializationTest
+public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixture fixture) : IClassFixture<HostFixture>
 {
     private static readonly string[] NonPersistentNames =
     [
@@ -55,10 +59,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
 
-        using var actual = Deserialize(json, settings);
+        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings));
 
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079
+
+        actual.HasErrors.Should().BeFalse();
 
         AssertMatchesJson();
 
@@ -68,7 +74,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         if (useCacheSettings == false)
         {
             RemoveMetadata(saved);
-            saved.Remove(nameof(ICacheItem.IsDeleted)); // Rod 不能删除
+            saved.Remove(nameof(ICacheItem.IsDeleted)); // Rod 的 IsDeleted 不能删除
         }
 
         saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
@@ -80,6 +86,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
             using var scope = new AssertionScope(expected.Path);
 
             ObjectHelper.GetFieldValue(actual, "_rodTotalCount").Should().Be(expected.Value<int>("_rodTotalCount"));
+
+            var productivityJson = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.ProductivityInformation)]);
+            actual.ProductivityInformation.OpticsIlluminationModeEnum.Should().Be((OpticsIlluminationModeEnum)productivityJson.Value<int>(nameof(ProductivityInformation.OpticsIlluminationModeEnum)));
+            actual.ProductivityInformation.OpticsMagType.Should().Be(productivityJson.Value<int>(nameof(ProductivityInformation.OpticsMagType)));
+            actual.ProductivityInformation.StageSpeedType.Should().Be(productivityJson.Value<int>(nameof(ProductivityInformation.StageSpeedType)));
+
             actual.IsCalibrated.Should().Be(expected.Value<bool>(nameof(actual.IsCalibrated)));
             actual.IsVerified.Should().Be(expected.Value<bool>(nameof(actual.IsVerified)));
             actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
@@ -111,6 +123,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         static void AssertRodsMatchJson(FourierSideChannelSpecularBlockerDTOItem.Rod[] actual, JArray expected)
         {
             actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod indexes", expected.Path);
+
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
 
@@ -121,6 +134,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
             actual.Index.Should().Be(expected.Value<int>(nameof(actual.Index)));
             actual.IsDeleted.Should().Be(expected.Value<bool>(nameof(actual.IsDeleted)));
             actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
+
             AssertRectMatchesJson(actual.ImageROI, Guard.IsNotNullAndAssignableToTypeAndReturn<JToken>(expected[nameof(actual.ImageROI)]));
         }
 
@@ -142,6 +156,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
                     foreach (var item in array) RemoveMetadata(item);
 
                     break;
+
                 case JObject obj:
                     foreach (var ignoreProperty in IgnoreProperties) obj.Remove(ignoreProperty);
 
@@ -162,21 +177,38 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
-        using var expected = CreateRandomDto(new Random(seed), rodTotalCount);
+        using var testScope = new AssertionScope($"seed={seed}, cache={useCacheSettings}");
+
+        var productivityInformations = fixture.Host.Services.GetRequiredService<ApplicationCookie>().ProductivityInformations;
+        using var expected = CreateRandomDto(new Random(seed), rodTotalCount, productivityInformations);
+
+        var json = JsonConvert.SerializeObject(expected, settings);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
 
-        using var actual = Deserialize(JsonConvert.SerializeObject(expected, settings), settings);
+        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings));
 
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079
 
         AssertEquals();
 
+        var expectedJson = JObject.Parse(json);
+        var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
+        saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
+        saved.ToString(Formatting.Indented).Should().Be(expectedJson.ToString(Formatting.Indented));
+
+        foreach (var name in IgnoreProperties)
+        {
+            expectedJson.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
+        }
+
+        expectedJson.ContainsKey(nameof(ICacheItem.IsDeleted)).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", nameof(ICacheItem.IsDeleted));
+
         return;
 
-        static FourierSideChannelSpecularBlockerDTO CreateRandomDto(Random random, int rodTotalCount)
+        static FourierSideChannelSpecularBlockerDTO CreateRandomDto(Random random, int rodTotalCount, IReadOnlyList<ProductivityInformation> productivityInformations)
         {
             var dto = new FourierSideChannelSpecularBlockerDTO(rodTotalCount)
             {
@@ -184,8 +216,18 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
                 IsVerified = random.Next(2) == 1,
                 IsRequiredSelfCheck = random.Next(2) == 1,
                 Id = ((long)random.Next() << 31) ^ random.Next(),
-                Expiration = ((long)random.Next() << 31) ^ random.Next()
+                Expiration = ((long)random.Next() << 31) ^ random.Next(),
+                IsDeleted = random.Next(2) == 1,
+                CreatedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                CreatedUserName = $"Created_{random.Next()}",
+                CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
+                ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                ModifiedUserName = $"Modified_{random.Next()}",
             };
+
+            dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
+
+            dto.ProductivityInformation = productivityInformations[random.Next(productivityInformations.Count)].Clone();
 
             foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item })
             {
@@ -198,6 +240,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
                 channel.Step0CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                 channel.Step1CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                 channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
+
                 foreach (var rod in channel.Rods)
                 {
                     rod.IsDeleted = random.Next(2) == 1;
@@ -205,6 +248,8 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
                     {
                         0 => Rect.Empty,
                         1 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, 0d),
+                        2 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, random.NextDouble() * 4000d + 1d),
+                        3 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), random.NextDouble() * 4000d + 1d, 0d),
                         _ => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)))
                     };
                     rod.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
@@ -219,15 +264,26 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
             using var scope = new AssertionScope("DTO");
 
             ObjectHelper.GetFieldValue(actual, "_rodTotalCount").Should().Be(ObjectHelper.GetFieldValue(expected, "_rodTotalCount"));
+
+            actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
+            actual.ProductivityInformation.OpticsIlluminationModeEnum.Should().Be(expected.ProductivityInformation.OpticsIlluminationModeEnum);
+            actual.ProductivityInformation.OpticsMagType.Should().Be(expected.ProductivityInformation.OpticsMagType);
+            actual.ProductivityInformation.StageSpeedType.Should().Be(expected.ProductivityInformation.StageSpeedType);
+
             actual.IsCalibrated.Should().Be(expected.IsCalibrated);
             actual.IsVerified.Should().Be(expected.IsVerified);
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
-            if (useCacheSettings == false)
-            {
-                actual.Id.Should().Be(expected.Id);
-                actual.Expiration.Should().Be(expected.Expiration);
-            }
+            actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
+            actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
+            actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
+            actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
+            actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
+            actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
+            actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
+            actual.HasErrors.Should().BeFalse();
 
             AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
             AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);
@@ -246,10 +302,14 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
             actual.Step0CIBImageAverageValue.Should().Be(expected.Step0CIBImageAverageValue);
             actual.Step1CIBImageAverageValue.Should().Be(expected.Step1CIBImageAverageValue);
             actual.ExtinctionRatio.Should().Be(expected.ExtinctionRatio);
+
             actual.Rods.Should().Equal(expected.Rods, (t1, t2) => t1.Index == t2.Index);
+
             foreach (var source in expected.Rods)
             {
                 var rod = actual.Rods.Single(t => t.Index == source.Index);
+
+                rod.Index.Should().Be(source.Index);
                 rod.IsDeleted.Should().Be(source.IsDeleted);
                 rod.ImageROI.Should().Be(source.ImageROI);
                 rod.MotorAbsoluteValue.Should().Be(source.MotorAbsoluteValue);
@@ -257,15 +317,150 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest
         }
     }
 
-    private static FourierSideChannelSpecularBlockerDTO Deserialize(string json, JsonSerializerSettings settings)
+    [Fact]
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip()
     {
-        var payload = JObject.Parse(json);
-        payload.Remove(nameof(FourierSideChannelSpecularBlockerDTO.ProductivityInformation));
+        var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
+        var oiItem = new FourierSideChannelSpecularBlockerCacheItem
+        {
+            MicroscopeLensInformation = cookie.MicroscopeLensInformations[0],
+            LaserLightInformation = cookie.LaserLightInformations[0],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.Cosine,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.N
+            },
+            ScanLength = 510.5d,
+            ShinyWaferFindBFMachinePosition = new Point(3.5, 4.5),
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size32,
+            Id = 51,
+            Expiration = 52,
+            IsDeleted = false,
+            CreatedUserId = 3001,
+            CreatedUserName = "Created_Specular_OI",
+            CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 3002,
+            ModifiedUserName = "Modified_Specular_OI"
+        };
+        oiItem.ModifiedTime = oiItem.CreatedTime.AddTicks(7);
 
-#pragma warning disable IDISP004
+        var niItem = new FourierSideChannelSpecularBlockerCacheItem
+        {
+            MicroscopeLensInformation = cookie.MicroscopeLensInformations[^1],
+            LaserLightInformation = cookie.LaserLightInformations[^1],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.None,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.None
+            },
+            ScanLength = 720.25d,
+            ShinyWaferFindBFMachinePosition = new Point(13.5, 14.5),
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size256,
+            Id = 53,
+            Expiration = 54,
+            IsDeleted = true,
+            CreatedUserId = 3003,
+            CreatedUserName = "Created_Specular_NI",
+            CreatedTime = new DateTime(2001, 2, 2, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 3004,
+            ModifiedUserName = "Modified_Specular_NI"
+        };
+        niItem.ModifiedTime = niItem.CreatedTime.AddTicks(9);
 
-        return Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(payload.ToString(), settings));
+        var expected = new FourierSideChannelSpecularBlockerCache
+        {
+            ProductivityInformation = cookie.OIProductivityInformations[0],
+            VerifyLaserLightInformation = cookie.LaserLightInformations[0],
+            VerifyCIBConfiguration = new CIBConfiguration
+            {
+                Gain = 4,
+                IsAutoGainControl = false,
+                IsL0K = true,
+                CIBProfileMode = CIBProfileModeEnum.PMTLog,
+                IsKeepRawImageCIBProfileModeEnum = true
+            },
+            VerifyImageWidth = 2048,
+            ExtinctionRatioThreshold = 0.35d,
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size512,
+            Id = 61,
+            Expiration = 62,
+            IsDeleted = true,
+            CreatedUserId = 3101,
+            CreatedUserName = "Created_Specular",
+            CreatedTime = new DateTime(2000, 3, 3, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 3102,
+            ModifiedUserName = "Modified_Specular",
+            Items = new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>
+            {
+                [cookie.OIProductivityInformations[0]] = oiItem,
+                [cookie.NIProductivityInformations[0]] = niItem
+            }
+        };
+        expected.ModifiedTime = expected.CreatedTime.AddTicks(11);
 
-#pragma warning restore IDISP004
+        ObjectHelper.SetPropertyValue(expected, nameof(expected.Items), new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(expected.Items.OrderBy(t => t.Key)));
+        var json = JsonConvert.SerializeObject(expected);
+        var actual = JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerCache>(json);
+
+        actual.Should().NotBeNull();
+        ObjectHelper.SetPropertyValue(actual, nameof(actual.Items), new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(actual.Items.OrderBy(t => t.Key)));
+
+        actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
+        actual.VerifyLaserLightInformation.Should().Be(expected.VerifyLaserLightInformation);
+        actual.VerifyCIBConfiguration.Gain.Should().Be(expected.VerifyCIBConfiguration.Gain);
+        actual.VerifyCIBConfiguration.IsAutoGainControl.Should().Be(expected.VerifyCIBConfiguration.IsAutoGainControl);
+        actual.VerifyCIBConfiguration.IsL0K.Should().Be(expected.VerifyCIBConfiguration.IsL0K);
+        actual.VerifyCIBConfiguration.CIBProfileMode.Should().Be(expected.VerifyCIBConfiguration.CIBProfileMode);
+        actual.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
+        actual.VerifyImageWidth.Should().Be(expected.VerifyImageWidth);
+        actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
+        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
+        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+        actual.Id.Should().Be(expected.Id);
+        actual.Expiration.Should().Be(expected.Expiration);
+        actual.IsDeleted.Should().Be(expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(expected.ModifiedTime);
+        actual.HasErrors.Should().BeFalse();
+
+        actual.Items.Should().HaveCount(2);
+        AssertItemEquals(actual.Items.Single(i => i.Key == cookie.OIProductivityInformations[0]).Value, oiItem);
+        AssertItemEquals(actual.Items.Single(i => i.Key == cookie.NIProductivityInformations[0]).Value, niItem);
+
+        JsonConvert.SerializeObject(actual).Should().Be(json);
+
+        return;
+
+        static void AssertItemEquals(FourierSideChannelSpecularBlockerCacheItem actual, FourierSideChannelSpecularBlockerCacheItem expected)
+        {
+            actual.MicroscopeLensInformation.Should().Be(expected.MicroscopeLensInformation);
+            actual.LaserLightInformation.Should().Be(expected.LaserLightInformation);
+            actual.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsApodizationModeEnum);
+            actual.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsPolarizationModeEnum);
+            actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
+            actual.ScanLength.Should().Be(expected.ScanLength);
+            actual.ShinyWaferFindBFMachinePosition.Should().Be(expected.ShinyWaferFindBFMachinePosition);
+            actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
+            actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+            actual.Id.Should().Be(expected.Id);
+            actual.Expiration.Should().Be(expected.Expiration);
+            actual.IsDeleted.Should().Be(expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(expected.CreatedUserId);
+            actual.CreatedUserName.Should().Be(expected.CreatedUserName);
+            actual.CreatedTime.Should().Be(expected.CreatedTime);
+            actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
+            actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
+            actual.ModifiedTime.Should().Be(expected.ModifiedTime);
+            actual.HasErrors.Should().BeFalse();
+        }
     }
 }

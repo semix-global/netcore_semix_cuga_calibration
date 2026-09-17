@@ -1,18 +1,23 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
+using Local.SQL.Cache.Providers.Serializations;
+using Local.SQL.Cache.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Local.SQL.Cache.Providers.Serializations;
-using Local.SQL.Cache.Providers.Services.Interfaces;
 
 namespace CugaCalibrationUnitTest.FourierSerialization;
 
-public sealed class FourierPupilCameraAlignmentSerializationTest
+public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fixture) : IClassFixture<HostFixture>
 {
     private static readonly string[] NonPersistentNames =
     [
@@ -52,6 +57,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
 
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079
+
+        actual.HasErrors.Should().BeFalse();
 
         AssertMatchesJson();
 
@@ -128,17 +135,31 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
+        using var testScope = new AssertionScope($"seed={seed}, cache={useCacheSettings}");
+
         using var expected = CreateRandomDto(new Random(seed));
+
+        var json = JsonConvert.SerializeObject(expected, settings);
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
 
-        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(JsonConvert.SerializeObject(expected, settings), settings));
+        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierPupilCameraAlignmentDTO>(json, settings));
 
 #pragma warning restore IDISP004
 #pragma warning restore IDE0079
 
         AssertEquals();
+
+        var expectedJson = JObject.Parse(json);
+        var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
+        saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
+        saved.ToString(Formatting.Indented).Should().Be(expectedJson.ToString(Formatting.Indented));
+
+        foreach (var name in IgnoreProperties)
+        {
+            expectedJson.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
+        }
 
         return;
 
@@ -150,8 +171,16 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
                 IsVerified = random.Next(2) == 1,
                 IsRequiredSelfCheck = random.Next(2) == 1,
                 Id = ((long)random.Next() << 31) ^ random.Next(),
-                Expiration = ((long)random.Next() << 31) ^ random.Next()
+                Expiration = ((long)random.Next() << 31) ^ random.Next(),
+                IsDeleted = random.Next(2) == 1,
+                CreatedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                CreatedUserName = $"Created_{random.Next()}",
+                CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
+                ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                ModifiedUserName = $"Modified_{random.Next()}",
             };
+
+            dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
 
             foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item, dto.Channel3Item })
             {
@@ -161,6 +190,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
                 {
                     0 => Rect.Empty,
                     1 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, 0d),
+                    2 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, random.NextDouble() * 4000d + 1d),
+                    3 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), random.NextDouble() * 4000d + 1d, 0d),
                     _ => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)))
                 };
             }
@@ -176,11 +207,16 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
             actual.IsVerified.Should().Be(expected.IsVerified);
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
-            if (useCacheSettings == false)
-            {
-                actual.Id.Should().Be(expected.Id);
-                actual.Expiration.Should().Be(expected.Expiration);
-            }
+            actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
+            actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
+            actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
+            actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
+            actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
+            actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
+            actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
+            actual.HasErrors.Should().BeFalse();
 
             AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
             AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);
@@ -194,5 +230,63 @@ public sealed class FourierPupilCameraAlignmentSerializationTest
             actual.ROIChannelImageFilePath.Should().Be(expected.ROIChannelImageFilePath);
             actual.ImageROI.Should().Be(expected.ImageROI);
         }
+    }
+
+    [Fact]
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip()
+    {
+        var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
+        var expected = new FourierPupilCameraAlignmentCache
+        {
+            ProductivityInformation = cookie.ProductivityInformations[0],
+            MicroscopeLensInformation = cookie.MicroscopeLensInformations[0],
+            LaserLightInformation = cookie.LaserLightInformations[0],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.Gaussian,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.P
+            },
+            ScanLength = 1234.5d,
+            HazeFindBFMachinePosition = new Point(10.5, 20.5),
+            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
+            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size64,
+            Id = 11,
+            Expiration = 22,
+            IsDeleted = true,
+            CreatedUserId = 1001,
+            CreatedUserName = "Created_Pupil",
+            CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 1002,
+            ModifiedUserName = "Modified_Pupil"
+        };
+        expected.ModifiedTime = expected.CreatedTime.AddTicks(3);
+
+        var json = JsonConvert.SerializeObject(expected);
+        var actual = JsonConvert.DeserializeObject<FourierPupilCameraAlignmentCache>(json);
+
+        actual.Should().NotBeNull();
+        actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
+        actual.MicroscopeLensInformation.Should().Be(expected.MicroscopeLensInformation);
+        actual.LaserLightInformation.Should().Be(expected.LaserLightInformation);
+        actual.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsApodizationModeEnum);
+        actual.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsPolarizationModeEnum);
+        actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
+        actual.ScanLength.Should().Be(expected.ScanLength);
+        actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
+        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
+        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+        actual.Id.Should().Be(expected.Id);
+        actual.Expiration.Should().Be(expected.Expiration);
+        actual.IsDeleted.Should().Be(expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(expected.ModifiedTime);
+        actual.HasErrors.Should().BeFalse();
+
+        JsonConvert.SerializeObject(actual).Should().Be(json);
     }
 }
