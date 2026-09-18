@@ -80,7 +80,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 evenRodIndexes[evenRodIndexes.Length / 2]
             ];
 
-            const BitmapImageROIResizeJoystickStateEnum joystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+            const BitmapImageROIResizeJoystickStateEnum joystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYCenter |
+                                                                            BitmapImageROIResizeJoystickStateEnum.XMaxYCenter |
+                                                                            BitmapImageROIResizeJoystickStateEnum.XMinYMin |
                                                                             BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
                                                                             BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
             Step0LeftRod = new Rod(_step0BitmapImageDrawable) { Index = _isEven ? evenCenterRodIndexes[0] : oddCenterRodIndexes[0], BitmapImageROIDrawable = { ResizeJoystickStateEnum = joystickStateEnum } };

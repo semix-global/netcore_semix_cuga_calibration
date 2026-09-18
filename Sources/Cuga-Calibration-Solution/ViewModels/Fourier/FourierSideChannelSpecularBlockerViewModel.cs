@@ -373,9 +373,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
                 foreach (var item in new[] { selectedReviewItem.Channel1Item, selectedReviewItem.Channel2Item })
                 {
-                    Logger.LogHtmlInformation($"Channel {item.ChannelId}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-
-                    Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header5, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"Channel {item.ChannelId} ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                     var htmlQuote = new HtmlQuote(new
                     {
@@ -386,9 +384,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                     });
 
                     if (Math.Abs(item.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold)
-                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                     else
-                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlQuote, HtmlLogUniqueId.LoggingHtml());
                 }
 
                 if (selectedReviewItem.IsOk == false) errorMessageStringBuilder.AppendLine($"{title}: Error");
@@ -591,7 +589,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
                 item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
 
-                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"Channel{item.ChannelId} Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
             return;
