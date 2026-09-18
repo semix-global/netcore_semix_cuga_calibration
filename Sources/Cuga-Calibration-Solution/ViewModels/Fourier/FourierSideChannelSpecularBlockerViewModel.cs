@@ -336,9 +336,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         {
             Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
 
-            var detectImageDirectory = ImageFileDirectory;
             var errorMessageStringBuilder = new StringBuilder();
-
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
             {
                 cancellationToken.ThrowIfCancellationRequested();

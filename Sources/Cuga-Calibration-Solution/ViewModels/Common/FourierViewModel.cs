@@ -109,10 +109,10 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void UseSimulatorImages(string[] imageFilePaths)
+    public void UseSimulatorImages(string[] simulatorImageFilePaths)
     {
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationFourierServiceMockImpl>(calibrationFourierService);
 
-        mock.MockImageFilePaths = imageFilePaths;
+        mock.SimulatorImageFilePaths = simulatorImageFilePaths;
     }
 }

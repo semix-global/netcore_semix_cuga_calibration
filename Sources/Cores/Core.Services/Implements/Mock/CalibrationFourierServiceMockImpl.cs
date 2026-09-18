@@ -18,14 +18,14 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
-    private int _mockImageIndex;
+    private int _simulatorImageIndex;
 
-    public string[] MockImageFilePaths
+    public string[] SimulatorImageFilePaths
     {
         get;
         set
         {
-            _mockImageIndex = 0;
+            _simulatorImageIndex = 0;
 
             field = value;
         }
@@ -57,7 +57,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     {
         Thread.Sleep(100);
 
-        var filePath = MockImageFilePaths.ElementAtOrDefault(_mockImageIndex++ % MockImageFilePaths.Length) ?? string.Empty;
+        var filePath = SimulatorImageFilePaths.ElementAtOrDefault(_simulatorImageIndex++ % SimulatorImageFilePaths.Length) ?? string.Empty;
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004

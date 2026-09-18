@@ -27,6 +27,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Services.Implements.Mock;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -937,5 +938,12 @@ public sealed class CIBViewModel(
         }
 
         return isSuccess;
+    }
+
+    public void UseSimulatorImages(string[][] simulatorImagesFilePaths)
+    {
+        var mock = Guard.IsAssignableToTypeAndReturn<CalibrationCIBServiceMockImpl>(calibrationCIBService);
+
+        mock.SimulatorImagesFilePaths = simulatorImagesFilePaths;
     }
 }
