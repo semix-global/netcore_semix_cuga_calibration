@@ -121,6 +121,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     }
 
     [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
     [InlineData(11, false)]
     [InlineData(22, true)]
     [InlineData(33, false)]
@@ -130,7 +132,9 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
-        using var expected = CreateRandom(new Random(seed));
+        using var expected = seed == 0
+            ? new FourierPupilCameraAlignmentDTO()
+            : CreateRandom(new Random(seed));
 
         var json = JsonConvert.SerializeObject(expected, settings);
 
@@ -138,7 +142,16 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         actual.Should().NotBeNull();
         actual.HasErrors.Should().BeFalse();
 
-        AssertEquals();
+        AssertEquals(actual, expected, useCacheSettings);
+
+        using var cloned = expected.Clone();
+        cloned.Should().NotBeNull();
+        cloned.Should().NotBeSameAs(expected);
+        cloned.HasErrors.Should().BeFalse();
+        cloned.Channel1Item.Should().NotBeSameAs(expected.Channel1Item);
+        cloned.Channel2Item.Should().NotBeSameAs(expected.Channel2Item);
+        cloned.Channel3Item.Should().NotBeSameAs(expected.Channel3Item);
+        AssertEquals(cloned, expected, useCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
@@ -188,24 +201,26 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
             return dto;
         }
 
-        void AssertEquals()
+        static void AssertEquals(FourierPupilCameraAlignmentDTO actual, FourierPupilCameraAlignmentDTO expected, bool useCacheSettings, bool isClone = false)
         {
             using var scope = new AssertionScope("DTO");
+
+            var persistAudit = useCacheSettings == false && isClone == false;
 
             actual.IsCalibrated.Should().Be(expected.IsCalibrated);
             actual.IsVerified.Should().Be(expected.IsVerified);
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
 
-            actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
-            actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
-            actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
-            actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
-            actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
-            actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
-            actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
-            actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
-            actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
+            actual.Id.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Id);
+            actual.Expiration.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(persistAudit && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(persistAudit ? expected.CreatedUserId : 0L);
+            actual.CreatedUserName.Should().Be(persistAudit ? expected.CreatedUserName : string.Empty);
+            actual.CreatedTime.Should().Be(persistAudit ? expected.CreatedTime : default);
+            actual.ModifiedUserId.Should().Be(persistAudit ? expected.ModifiedUserId : 0L);
+            actual.ModifiedUserName.Should().Be(persistAudit ? expected.ModifiedUserName : string.Empty);
+            actual.ModifiedTime.Should().Be(persistAudit ? expected.ModifiedTime : default);
 
             AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
             AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);

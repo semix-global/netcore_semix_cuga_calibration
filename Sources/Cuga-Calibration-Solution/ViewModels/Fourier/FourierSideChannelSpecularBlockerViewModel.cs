@@ -140,7 +140,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         Reviews =
         [
             .. Calibrations
-                .Select(t => t.Clone())
+                .Select(t => t)
                 .OrderBy(t => t.ProductivityInformation)
         ];
 
