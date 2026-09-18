@@ -6,6 +6,8 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Fourier"
              xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:FourierSideChannelFlexibleApertureViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -64,8 +66,14 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
             <TabControl>
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
                 <TabItem Header="Channel 1">
                     <TabControl Margin="5">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
                         <TabItem Header="Result">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel1Item.Document, Mode=OneWay}" />
@@ -85,6 +93,9 @@
                 </TabItem>
                 <TabItem Header="Channel 2">
                     <TabControl Margin="5">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
                         <TabItem Header="Result">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Channel2Item.Document, Mode=OneWay}" />
