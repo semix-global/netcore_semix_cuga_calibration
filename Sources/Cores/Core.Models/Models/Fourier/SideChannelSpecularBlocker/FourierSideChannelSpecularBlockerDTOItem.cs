@@ -84,11 +84,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
         Document.RunDesign(() =>
         {
-            Document.ImageModel.AddRange(
-            [
-                _step0FourierBitmapImageDrawable,
-                _step1FourierBitmapImageDrawable
-            ]);
+            Document.ImageModel.AddRange([_step0FourierBitmapImageDrawable, _step1FourierBitmapImageDrawable]);
             Document.ROIModel.AddRange(Rods.Select(t => t.BitmapImageROIDrawable));
             Document.ROIModel.AddRange(_step1FourierROIDrawables);
         });
@@ -150,7 +146,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
 #pragma warning restore IDISP003
 
-    #endregion
+    #endregion Mapper
 
     #region 校准
 
@@ -276,6 +272,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 var step1ROI = _step1FourierROIDrawables[rod.Index];
 
                 if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = step1ROI.Text = $"X {rod.BitmapImageROIDrawable.Text}";
+
                 rod.BitmapImageROIDrawable.IsFixed = step1ROI.IsFixed = true;
                 rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
                 rod.BitmapImageROIDrawable.IsVisible = step1ROI.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
@@ -311,7 +308,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         }
     }
 
-    #endregion
+    #endregion 校准
 
     public object ToImageHtmlAnonymous() => new
     {

@@ -1,16 +1,16 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MathNet.Numerics;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.OpticsFourierImageViewer.WPF;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
-using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -158,7 +158,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             return item;
         }
 
-        #endregion
+        #endregion Mapper
 
         #region 校准
 
@@ -591,13 +591,14 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             static void RestoreRod(Rod rod, BitmapImageDrawable bitmapImageDrawable)
             {
                 if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
+
                 rod.BitmapImageROIDrawable.IsFixed = true;
                 rod.BitmapImageROIDrawable.Rect = bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
                 rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
         }
 
-        #endregion
+        #endregion 校准
 
         public object ToImageHtmlAnonymous() => new
         {

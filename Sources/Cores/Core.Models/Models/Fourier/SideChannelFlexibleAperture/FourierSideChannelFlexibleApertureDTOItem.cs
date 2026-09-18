@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Mapper.Interfaces;
@@ -111,7 +111,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
 #pragma warning restore IDISP003
 
-    #endregion
+    #endregion Mapper
 
     #region 校准
 
@@ -218,7 +218,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         }
     }
 
-    #endregion
+    #endregion 校准
 
     public object ToHtmlAnonymous() => new
     {

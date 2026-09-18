@@ -1,4 +1,3 @@
-﻿using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Calibration;
@@ -15,6 +14,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using System.IO;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
@@ -65,7 +65,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         ImageROI = ImageROI
     };
 
-    #endregion
+    #endregion Mapper
 
     #region 校准
 
@@ -162,6 +162,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         static bool ShouldContinue(Exception ex)
         {
             var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
             return dialogWindowProvider.TryShowDialog($"""
                                                        Error: {ex.Message}
                                                        Yes: continue to modify ROI.
@@ -193,7 +194,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         }
     }
 
-    #endregion
+    #endregion 校准
 
     public object ToImageHtmlAnonymous() => new
     {
