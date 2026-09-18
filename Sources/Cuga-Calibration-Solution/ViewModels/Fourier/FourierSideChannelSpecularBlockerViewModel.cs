@@ -41,6 +41,18 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Step1.jpg")
     ];
 
+    private static readonly string[][] SimulatorCIBImageFilePaths =
+    [
+        [
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Verify_Step0_CIB.raw"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Verify_Step0_CIB.raw")
+        ],
+        [
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Verify_Step1_CIB.raw"),
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Verify_Step1_CIB.raw")
+        ]
+    ];
+
     #endregion 仿真器
 
     #region 属性
@@ -221,6 +233,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         foreach (var calibration in Calibrations) calibration.Dispose();
 
         FourierViewModel.UseSimulatorImages([]);
+        CIBViewModel.UseSimulatorImages([]);
 
         return true;
     }
@@ -335,6 +348,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         await InvokeVerifyAsync(async () =>
         {
             Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
+
+            if (HostEnvironment.IsDevelopment()) CIBViewModel.UseSimulatorImages(SimulatorCIBImageFilePaths);
 
             var errorMessageStringBuilder = new StringBuilder();
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))

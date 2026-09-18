@@ -233,7 +233,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
             var bytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
 
-            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
+            results[i] = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum });
         }
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results);
