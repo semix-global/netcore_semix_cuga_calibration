@@ -1,0 +1,39 @@
+{
+  "Channel1Item": {
+    "ChannelId": 1,
+    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel.jpg",
+    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel_ROI.jpg",
+    "ImageROI": {
+      "X": 330.0,
+      "Y": 431.0,
+      "Width": 2428.0,
+      "Height": 1516.0
+    }
+  },
+  "Channel2Item": {
+    "ChannelId": 2,
+    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel.jpg",
+    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel_ROI.jpg",
+    "ImageROI": {
+      "X": 214.0,
+      "Y": 489.0,
+      "Width": 2524.0,
+      "Height": 1512.0
+    }
+  },
+  "Channel3Item": {
+    "ChannelId": 3,
+    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel.jpg",
+    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel_ROI.jpg",
+    "ImageROI": {
+      "X": 0.0,
+      "Y": 0.0,
+      "Width": 0.0,
+      "Height": 0.0
+    }
+  },
+  "IsVerified": true,
+  "IsCalibrated": true,
+  "IsRequiredSelfCheck": false,
+  "IsOk": true
+}

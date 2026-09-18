@@ -108,7 +108,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     public List<int> CgFFBoxRodWidthListCh2 { get; set; }
 
     /// <summary>
-    /// 每根杆子像素高度和真实高度对应比例换算，按照百分比, 每1%相当于多少像素,**需要记录**
+    /// 每根杆子像素高度和真实高度对应比例换算**需要记录**
     /// </summary> 
     public List<double> CgFFBoxHeightRelationPercentListCh1 { get; set; }
 

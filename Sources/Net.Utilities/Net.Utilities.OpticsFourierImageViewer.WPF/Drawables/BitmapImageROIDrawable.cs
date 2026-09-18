@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Graphics.Drawables;
-using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Editors;
 using Net.Utilities.Graphics.Primitives.Enums.Medias;
 using Net.Utilities.Graphics.Primitives.Medias;
@@ -62,10 +61,10 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         if (string.IsNullOrEmpty(Text) == false)
         {
             renderer.DrawString(
-                new TextStyle(Fonts.Monospace, Math.Min(Rect.Width, Rect.Height) / 2d, isUnitPx: false),
+                new TextStyle(Fonts.Monospace, Math.Min(Rect.Width, Rect.Height) / 4d, isUnitPx: true),
                 new FillStyle(IsFixed
-                    ? FixedFillStyle.BackgroundColor.ToReadableForegroundColor().WithAlpha(FixedFillStyle.BackgroundColor.Alpha)
-                    : FillStyle.BackgroundColor.ToReadableForegroundColor().WithAlpha(FillStyle.BackgroundColor.Alpha)),
+                    ? FixedFillStyle.BackgroundColor.WithAlpha(255)
+                    : FillStyle.BackgroundColor.WithAlpha(255)),
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,

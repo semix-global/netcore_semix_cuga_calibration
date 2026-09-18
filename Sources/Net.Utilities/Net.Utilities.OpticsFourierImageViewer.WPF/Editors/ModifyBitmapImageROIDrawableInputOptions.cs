@@ -22,6 +22,12 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     public partial BitmapImageROIDragMoveTypeEnum BitmapImageROIDragMoveTypeEnum { get; set; } = BitmapImageROIDragMoveTypeEnum.All;
 
     /// <summary>
+    /// 是否允许按 Delete 隐藏选中的 ROI, 默认关闭. 隐藏支持撤销, 重做和取消恢复.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsDeleteEnabled { get; set; } = false;
+
+    /// <summary>
     /// 创建只编辑已有Rect ROI的输入选项.
     /// </summary>
     public ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable bitmapImageDrawable) : base("Select ROI")

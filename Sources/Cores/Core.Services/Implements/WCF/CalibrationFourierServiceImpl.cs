@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
@@ -28,56 +29,86 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             var ep = new SxWcfEndPoint("127.0.0.1", 80, CgInernalAddr.CalAddr);
             var createService = CreateService(ep);
             IsConnected = createService.IsSuccess;
+
             return createService;
         }, false);
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
+    public SxExecuteRet<bool> Home(int channelId)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImg(channelId));
+        var channels = channelId switch
+        {
+            1 => [Semix.WcfTransfer.DTO.FFCH.Ch1],
+            2 => [Semix.WcfTransfer.DTO.FFCH.Ch2],
+            3 => [Semix.WcfTransfer.DTO.FFCH.Ch3_X, Semix.WcfTransfer.DTO.FFCH.Ch3_Y],
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Semix.WcfTransfer.DTO.FFCH[]>(nameof(channelId))
+        };
 
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
+        foreach (var channel in channels)
+        {
+            var sxExecuteRet = Invoke(() => Service!.SetFFHome(channel));
 
-        var defaultBitmapImage = BitmapImage.Random(2448, 2048, 10);
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, defaultBitmapImage);
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        }
 
-
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-
-        var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
     {
-        // 类型转换：Core.Models.Models.Common.SxNew.SxOpticsParam -> Semix.WcfTransfer.DTO.SxOpticsParam
+        var wcfChannelId = channelId switch
+        {
+            1 => Semix.WcfTransfer.DTO.FFCH.Ch1,
+            2 => Semix.WcfTransfer.DTO.FFCH.Ch2,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Semix.WcfTransfer.DTO.FFCH>(nameof(channelId))
+        };
+
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH12_Pos(wcfChannelId,
+        [
+            .. rodPositions
+                .Index()
+                .Select(t => (t.Index + 1 /* Cuga配置规定 */, t.Item))
+        ]));
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+    }
+
+    public SxExecuteRet<BitmapImage> GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
+    {
         var wcfParam = new Semix.WcfTransfer.DTO.SxOpticsParam
         {
             Magnification = productivityInformation.AdaptTo().Mag,
             Speed = productivityInformation.AdaptTo().Speed,
             NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
-            LightLevelUnit = level
+            LightLevelUnit = laserLightInformation.Level,
+            OpenZoos = true
         };
 
-        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(id, wcfParam, UtilitiesPointExtension.ToSxPointD(pos), width));
+        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(
+            channelId - 1, /* Cuga配置规定 */
+            wcfParam,
+            dfPosition.ToSxPointD(),
+            Convert.ToInt32(scanLength)));
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
 
         if (sxExecuteRet.IsSuccess == false)
         {
-            var defaultBitmapImage = BitmapImage.Random(width, width, 10);
+            var defaultBitmapImage = BitmapImage.Empty;
+
             return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, defaultBitmapImage);
         }
 
         var bitmapImage = new BitmapImage(sxExecuteRet.Anything);
+
         return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
 #pragma warning restore IDISP001
@@ -105,16 +136,6 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         return SxExecuteRetHelper.CreateSuccess(model);
     }
 
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        // 枚举跨命名空间转换
-        var wcfChannelId = (Semix.WcfTransfer.DTO.FFCH)channelId;
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH12(wcfChannelId, rodpostions));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
         var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3X(rpos, lpos, ppos));
@@ -127,13 +148,6 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
     {
         var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3Y(rpos, lpos));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFHome(FFCH ch)
-    {
-        var sxExecuteRet = Invoke(() => Service!.SetFFHome((Semix.WcfTransfer.DTO.FFCH)ch));
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
         return SxExecuteRetHelper.CreateSuccess(true);
     }
