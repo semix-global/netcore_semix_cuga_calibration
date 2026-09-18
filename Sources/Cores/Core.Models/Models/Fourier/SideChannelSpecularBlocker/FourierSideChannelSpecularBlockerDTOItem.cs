@@ -29,7 +29,6 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount;
 
-    [Newtonsoft.Json.JsonProperty]
     public int ChannelId { get; }
 
     [ObservableProperty]
@@ -38,7 +37,6 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     [ObservableProperty]
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
-    [Newtonsoft.Json.JsonProperty]
     public Rod[] Rods { get; }
 
     [ObservableProperty]
@@ -202,7 +200,6 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 rod.IsDeleted = rodResult.IsDeleted;
                 rod.ImageROI = rodResult.MinImageROI;
                 if (rod.IsDeleted) rod.BitmapImageROIDrawable.Text = $"X {rod.BitmapImageROIDrawable.Text}";
-                rod.BitmapImageROIDrawable.IsFixed = false;
                 rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
                 rod.BitmapImageROIDrawable.IsVisible = rod.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
@@ -319,6 +316,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     public object ToImageHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
+        _rodTotalCount,
         ChannelId,
         Step0FourierImageFilePath,
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath)
@@ -327,6 +325,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     public object ToHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
+        _rodTotalCount,
         ChannelId,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
@@ -345,14 +344,16 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
     public object ToCIBHtmlAnonymous() => new
     {
+        Comment = new HtmlComment(StepsComment),
+        _rodTotalCount,
         ChannelId,
-        Step0CIBImageAverageValue,
-        Step1CIBImageAverageValue,
-        ExtinctionRatio,
         RawStep0CIBImageFilePath,
         RawStep1CIBImageFilePath,
         Step0CIBImageFilePath,
         Step1CIBImageFilePath,
+        Step0CIBImageAverageValue,
+        Step1CIBImageAverageValue,
+        ExtinctionRatio,
         Step0CIBImage = new HtmlImage(Step0CIBImageFilePath),
         Step1CIBImage = new HtmlImage(Step1CIBImageFilePath)
     };

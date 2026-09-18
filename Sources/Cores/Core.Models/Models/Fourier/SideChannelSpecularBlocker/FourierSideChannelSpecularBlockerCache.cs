@@ -7,7 +7,7 @@ using System.Collections.Concurrent;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("2.0.0")]
 public sealed partial class FourierSideChannelSpecularBlockerCache : CalibrationCacheBase<FourierSideChannelSpecularBlockerCache>
 {
     [ObservableProperty]

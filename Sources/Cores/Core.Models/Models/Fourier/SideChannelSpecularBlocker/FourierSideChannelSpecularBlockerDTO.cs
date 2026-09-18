@@ -12,7 +12,7 @@ using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("2.0.0")]
 public sealed partial class FourierSideChannelSpecularBlockerDTO : CalibrationDTOBase<FourierSideChannelSpecularBlockerDTO>, IAdaptTo<CalibrationPupilSideChannelSpecularBlocker>, IDisposable
 {
     [Newtonsoft.Json.JsonProperty]

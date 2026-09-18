@@ -17,10 +17,8 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount;
 
-    [Newtonsoft.Json.JsonProperty]
     public int ChannelId { get; }
 
-    [Newtonsoft.Json.JsonProperty]
     public string ChannelImageFilePath { get; }
 
     public Item EvenItem { get; private init; }
@@ -33,7 +31,6 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     [ObservableProperty]
     public partial double MaxMotorAbsoluteValue { get; set; }
 
-    [Newtonsoft.Json.JsonProperty]
     public RodResult[] RodResults { get; }
 
     [Newtonsoft.Json.JsonIgnore]
@@ -134,10 +131,10 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         {
             ResetDocument();
 
+            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+
             MinMotorAbsoluteValue = minMotorAbsoluteValue;
             MaxMotorAbsoluteValue = maxMotorAbsoluteValue;
-
-            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
             _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             Document.View.ZoomToFit();
@@ -147,9 +144,13 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
             foreach (var rodResult in RodResults)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (rodResult.IsDeleted) rodResult.BitmapImageROIDrawable.Text = $"X {rodResult.BitmapImageROIDrawable.Text}";
+
                 rodResult.BitmapImageROIDrawable.IsFixed = true;
                 rodResult.BitmapImageROIDrawable.Rect = _resultBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rodResult.MinImageROI);
+                rodResult.BitmapImageROIDrawable.IsVisible = rodResult.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
         }
         finally
@@ -205,8 +206,10 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
             foreach (var rodResult in RodResults)
             {
                 if (rodResult.IsDeleted) rodResult.BitmapImageROIDrawable.Text = $"X {rodResult.BitmapImageROIDrawable.Text}";
+
                 rodResult.BitmapImageROIDrawable.IsFixed = true;
                 rodResult.BitmapImageROIDrawable.Rect = _resultBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rodResult.MinImageROI);
+                rodResult.BitmapImageROIDrawable.IsVisible = rodResult.BitmapImageROIDrawable.Rect is { Width: > 0 };
             }
         }
         finally
@@ -219,11 +222,12 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     public object ToHtmlAnonymous() => new
     {
+        _rodTotalCount,
         ChannelId,
+        ChannelImageFilePath,
         MinMotorAbsoluteValue,
         MaxMotorAbsoluteValue,
-        MinRods = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MinImageROI })]),
-        MaxRods = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MaxImageROI })]),
+        RodResults = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MinImageROI, t.MaxImageROI })]),
         MinResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MinImageROI)),
@@ -238,8 +242,8 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     public void Dispose()
     {
+        _resultBitmapImageDrawable.Dispose();
         EvenItem.Dispose();
         OddItem.Dispose();
-        _resultBitmapImageDrawable.Dispose();
     }
 }

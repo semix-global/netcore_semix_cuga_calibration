@@ -48,16 +48,12 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         [ObservableProperty]
         public partial string Step2ChannelImageFilePath { get; set; } = string.Empty;
 
-        [Newtonsoft.Json.JsonProperty]
         public Rod Step0LeftRod { get; }
 
-        [Newtonsoft.Json.JsonProperty]
         public Rod Step0RightRod { get; }
 
-        [Newtonsoft.Json.JsonProperty]
         public Rod[] Step1Rods { get; }
 
-        [Newtonsoft.Json.JsonProperty]
         public Rod[] Step2Rods { get; }
 
         [Newtonsoft.Json.JsonIgnore]
@@ -84,9 +80,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 evenRodIndexes[evenRodIndexes.Length / 2]
             ];
 
-            var joystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
-                                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
-                                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+            const BitmapImageROIResizeJoystickStateEnum joystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XMinYMin |
+                                                                            BitmapImageROIResizeJoystickStateEnum.XCenterYMin |
+                                                                            BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
             Step0LeftRod = new Rod(_step0BitmapImageDrawable) { Index = _isEven ? evenCenterRodIndexes[0] : oddCenterRodIndexes[0], BitmapImageROIDrawable = { ResizeJoystickStateEnum = joystickStateEnum } };
             Step0RightRod = new Rod(_step0BitmapImageDrawable) { Index = _isEven ? evenCenterRodIndexes[1] : oddCenterRodIndexes[1], BitmapImageROIDrawable = { ResizeJoystickStateEnum = joystickStateEnum } };
 
@@ -188,12 +184,12 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             {
                 ResetDocument();
 
-                Step0AndStep1MotorAbsoluteValue = step0AndStep1MotorAbsoluteValue;
-                Step2MotorAbsoluteValue = step2MotorAbsoluteValue;
-
                 Guard.IsNotNullOrWhiteSpace(Step0ChannelImageFilePath);
                 Guard.IsNotNullOrWhiteSpace(Step1ChannelImageFilePath);
                 Guard.IsNotNullOrWhiteSpace(Step2ChannelImageFilePath);
+
+                Step0AndStep1MotorAbsoluteValue = step0AndStep1MotorAbsoluteValue;
+                Step2MotorAbsoluteValue = step2MotorAbsoluteValue;
 
                 _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
 
@@ -229,6 +225,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step0Async()
             {
+                InnerLoop:
+
                 var width = _step0BitmapImageDrawable.BitmapImage.Width / (Step1Rods.Length * 2d);
 
                 Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
@@ -264,7 +262,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                             }
                             catch (Exception ex) when (ex is not OperationCanceledException)
                             {
-                                if (ShouldContinue(ex)) continue;
+                                if (ShouldContinue(ex)) goto InnerLoop;
 
                                 throw;
                             }
@@ -298,6 +296,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step1Async()
             {
+                InnerLoop:
+
                 var step0LeftRod = Step1Rods.Single(t => t.Index == Step0LeftRod.Index);
                 var step0RightRod = Step1Rods.Single(t => t.Index == Step0RightRod.Index);
 
@@ -351,7 +351,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                             }
                             catch (Exception ex) when (ex is not OperationCanceledException)
                             {
-                                if (ShouldContinue(ex)) continue;
+                                if (ShouldContinue(ex)) goto InnerLoop;
 
                                 throw;
                             }
@@ -386,8 +386,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                         continue;
                     }
 
-                    step1Rod.BitmapImageROIDrawable.IsFixed = true;
                     step1Rod.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(step1Rod.BitmapImageROIDrawable.Rect);
+                    step1Rod.BitmapImageROIDrawable.IsFixed = true;
                 }
 
                 CalculateInvisibleRodPositions(
@@ -432,6 +432,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step2Async()
             {
+                InnerLoop:
+
                 foreach (var step1Rod in Step1Rods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -441,7 +443,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     step2Rod.IsDeleted = step1Rod.IsDeleted;
                     step2Rod.ImageROI = step1Rod.ImageROI;
                     step2Rod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step2Rod.ImageROI);
-                    step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod.IsDeleted == false;
+                    step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod is { IsDeleted: false, BitmapImageROIDrawable.Rect.Width: > 0 };
                 }
 
                 Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
@@ -478,7 +480,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                             }
                             catch (Exception ex) when (ex is not OperationCanceledException)
                             {
-                                if (ShouldContinue(ex)) continue;
+                                if (ShouldContinue(ex)) goto InnerLoop;
 
                                 throw;
                             }
@@ -513,8 +515,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                         continue;
                     }
 
-                    step2Rod.BitmapImageROIDrawable.IsFixed = true;
                     step2Rod.ImageROI = _step2BitmapImageDrawable.CartesianCoordinateToImageCoordinate(step2Rod.BitmapImageROIDrawable.Rect);
+                    step2Rod.BitmapImageROIDrawable.IsFixed = true;
                 }
 
                 Rod[] visibleRods = [.. Step2Rods.Where(t => t.BitmapImageROIDrawable.IsVisible).OrderBy(t => t.Index)];
@@ -549,7 +551,6 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 return dialogWindowProvider.TryShowDialog($"""
                                                            Error: {ex.Message}
-
                                                            Yes: continue to modify ROI.
                                                            No: abort calibration.
                                                            """, out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Warning) == true
@@ -601,6 +602,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         public object ToImageHtmlAnonymous() => new
         {
             Comment = new HtmlComment(StepsComment),
+            _rodTotalCount,
+            _isEven,
             Step0ChannelImageFilePath,
             Step1ChannelImageFilePath,
             Step2ChannelImageFilePath,
@@ -612,6 +615,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         public object ToHtmlAnonymous() => new
         {
             Comment = new HtmlComment(StepsComment),
+            _rodTotalCount,
+            _isEven,
             Step0AndStep1MotorAbsoluteValue,
             Step2MotorAbsoluteValue,
             Step0ChannelImageFilePath,
