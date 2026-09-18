@@ -1,4 +1,3 @@
-using System.Windows;
 using Core.Models;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
@@ -17,6 +16,7 @@ using Net.Utilities.Calibration;
 using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
 using SourceGenerator.AssemblyMetadata;
+using System.Windows;
 
 namespace CugaCalibrationUnitTest;
 

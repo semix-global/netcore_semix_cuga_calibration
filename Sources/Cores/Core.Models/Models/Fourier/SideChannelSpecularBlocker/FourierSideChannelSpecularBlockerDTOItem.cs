@@ -232,7 +232,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 }
             }
 
-            OuterLoop:
+        OuterLoop:
 
             foreach (var rod in Rods)
             {

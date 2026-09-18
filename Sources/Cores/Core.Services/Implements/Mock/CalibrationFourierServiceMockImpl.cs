@@ -4,12 +4,12 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 

@@ -227,7 +227,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step0Async()
             {
-                InnerLoop:
+            InnerLoop:
 
                 var width = _step0BitmapImageDrawable.BitmapImage.Width / (Step1Rods.Length * 2d);
 
@@ -285,7 +285,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     }
                 }
 
-                OuterLoop:
+            OuterLoop:
 
                 Step0LeftRod.IsDeleted = false;
                 Step0LeftRod.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0LeftRod.BitmapImageROIDrawable.Rect);
@@ -298,7 +298,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step1Async()
             {
-                InnerLoop:
+            InnerLoop:
 
                 var step0LeftRod = Step1Rods.Single(t => t.Index == Step0LeftRod.Index);
                 var step0RightRod = Step1Rods.Single(t => t.Index == Step0RightRod.Index);
@@ -374,7 +374,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     }
                 }
 
-                OuterLoop:
+            OuterLoop:
 
                 foreach (var step1Rod in Step1Rods)
                 {
@@ -434,7 +434,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step2Async()
             {
-                InnerLoop:
+            InnerLoop:
 
                 foreach (var step1Rod in Step1Rods)
                 {
@@ -503,7 +503,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     }
                 }
 
-                OuterLoop:
+            OuterLoop:
 
                 foreach (var step2Rod in Step2Rods)
                 {

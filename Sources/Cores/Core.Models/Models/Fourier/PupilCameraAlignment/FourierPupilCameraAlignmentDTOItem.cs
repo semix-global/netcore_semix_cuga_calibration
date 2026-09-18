@@ -86,7 +86,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
-            InnerLoop:
+        InnerLoop:
 
             _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
             var roiSize = (Size)_originalBitmapImageDrawable.BitmapImage.Size / 2d;
@@ -140,7 +140,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
                 }
             }
 
-            OuterLoop:
+        OuterLoop:
 
             ImageROI = _originalBitmapImageDrawable.CartesianCoordinateToImageCoordinate(_bitmapImageROIDrawable.Rect);
             _bitmapImageROIDrawable.IsFixed = true;

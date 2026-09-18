@@ -1,4 +1,3 @@
-using System.IO;
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace CugaCalibrationUnitTest.Serializations;
 

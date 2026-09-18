@@ -1,6 +1,8 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
+using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
@@ -8,8 +10,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using CommunityToolkit.Diagnostics;
-using Core.Services.Implements.Mock;
 
 namespace CugaCalibration.ViewModels.Common;
 
