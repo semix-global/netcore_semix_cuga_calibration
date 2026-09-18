@@ -6,7 +6,6 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
@@ -30,21 +29,19 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
+    public SxExecuteRet<bool> Home(int channelId)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
     {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
+        throw new NotImplementedException();
+    }
 
-        var bitmapImage = BitmapImage.Random(width, width, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
+    public SxExecuteRet<BitmapImage> GetImage(ProductivityInformation productivityInformation, LaserLightInformation laserLightInformation, Point dfPosition, double scanLength, int channelId)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
@@ -54,22 +51,12 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
     }
 
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFHome(FFCH ch)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }

@@ -152,7 +152,7 @@ public static class AODWaveformGenerator1
         /// <summary>
         /// 生成多个AOD波形中每个波形的电极配置集合
         /// </summary>
-        public IReadOnlyList<ElectrodeConfiguration> ElectrodeConfigurations { get; init; } = [];
+        public IReadOnlyList<ElectrodeConfiguration> OffsetConfigurations { get; init; } = [];
 
         /// <summary>
         /// AOD波形的斜率变化率分段的配置项集合
@@ -195,9 +195,9 @@ public static class AODWaveformGenerator1
             Guard.IsGreaterThanOrEqualTo(ZeroSampleCount, 0d);
             Guard.IsGreaterThanOrEqualTo(EndpointSampleCount, 0d);
 
-            Guard.IsNotEmpty(ElectrodeConfigurations, "Electrode Configurations must not be empty.");
+            Guard.IsNotEmpty(OffsetConfigurations, "Electrode Configurations must not be empty.");
 
-            foreach (var item in ElectrodeConfigurations)
+            foreach (var item in OffsetConfigurations)
             {
                 item.Validate();
             }
@@ -248,7 +248,7 @@ public static class AODWaveformGenerator1
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, prescan + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.ElectrodeConfigurations)
+            foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = prescan +
                            $"_{Param.FileNameSuffix}" +
@@ -287,7 +287,7 @@ public static class AODWaveformGenerator1
             FilePath = FileHelper.GetEnsureLongPathSupport(Path.Combine(Param.DirectoryPath, chirp + Id, FileHelper.RemoveInvalidFileName(fileName)));
 
             var itemList = new List<AODWaveformResultItem>();
-            foreach (var item in Param.ElectrodeConfigurations)
+            foreach (var item in Param.OffsetConfigurations)
             {
                 fileName = chirp +
                            $"_{Param.FileNameSuffix}" +

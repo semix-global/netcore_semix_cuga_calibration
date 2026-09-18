@@ -65,7 +65,7 @@ public class ImageProcTest
         algoLinearImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\algoLinearImage.raw");
         halconImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\halconImage.bmp");
 
-        algoPixels.Length.Should().Be(halconPixels.Length);
+        algoPixels.Should().HaveCount(halconPixels.Length);
         algoPixels.Should().BeEquivalentTo(halconPixels, options => options
             .WithStrictOrdering()
             .Using<ushort>(ctx =>

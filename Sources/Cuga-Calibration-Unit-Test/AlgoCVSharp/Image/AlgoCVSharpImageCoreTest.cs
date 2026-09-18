@@ -86,9 +86,9 @@ public class AlgoCVSharpImageCoreTest
 
         // is_empty_image currently returns true even after a successful file load,
         // so only verify concrete metadata and buffer state here.
-        image.Width.Should().BeGreaterThan(0);
-        image.Height.Should().BeGreaterThan(0);
-        image.Channels.Should().BeGreaterThan(0);
+        image.Width.Should().BePositive();
+        image.Height.Should().BePositive();
+        image.Channels.Should().BePositive();
         image.DataPtr.Should().NotBe(IntPtr.Zero);
     }
 
@@ -101,9 +101,9 @@ public class AlgoCVSharpImageCoreTest
 
         // is_empty_image currently returns true even after a successful file load,
         // so only verify concrete metadata and buffer state here.
-        image.Width.Should().BeGreaterThan(0);
-        image.Height.Should().BeGreaterThan(0);
-        image.Channels.Should().BeGreaterThan(0);
+        image.Width.Should().BePositive();
+        image.Height.Should().BePositive();
+        image.Channels.Should().BePositive();
         image.DataPtr.Should().NotBe(IntPtr.Zero);
     }
 

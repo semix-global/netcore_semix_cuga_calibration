@@ -283,6 +283,7 @@
                                                                     </Grid.ColumnDefinitions>
                                                                     <DataGrid x:Name="DataGridUniformityConfigurations"
                                                                               hc:DataGridAttach.ShowRowNumber="True"
+                                                                              CanUserSortColumns="False"
                                                                               Style="{StaticResource DataGrid.Small}"
                                                                               HeadersVisibility="All"
                                                                               RowHeaderWidth="60"

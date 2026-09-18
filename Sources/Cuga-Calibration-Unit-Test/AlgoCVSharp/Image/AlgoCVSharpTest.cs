@@ -31,7 +31,7 @@ public class AlgoCVSharpTest(ITestOutputHelper output)
         // Sanity check: all pixel values fit in the 16-bit range and the buffer length matches.
         var pixels = algoImage.ToSpan<ushort>().ToArray();
         pixels.Should().OnlyContain(v => v <= 65535);
-        pixels.Length.Should().Be(algoImage.Width * algoImage.Height * algoImage.Channels);
+        pixels.Should().HaveCount(algoImage.Width * algoImage.Height * algoImage.Channels);
     }
 
     [Fact]
