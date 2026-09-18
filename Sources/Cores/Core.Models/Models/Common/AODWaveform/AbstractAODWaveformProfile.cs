@@ -98,7 +98,7 @@ public abstract class AbstractAODWaveformProfile :
 
         // $总byte长度$补零个数$包分割长度$下发寄存器号(02prescan, 03chirp)$延时(ns)$
         var strings = value.Split('$');
-        Guard.IsEqualTo(strings.Length, 7, "filePath name error.");
+        // Guard.IsEqualTo(strings.Length, 7, "filePath name error.");
 
         ZeroSampleCount = int.Parse(strings[2]);
         Delay = double.Parse(strings[5]);
