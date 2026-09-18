@@ -7,13 +7,8 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
-    public sealed partial class RodResult(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<RodResult, RodResult>
+    public sealed partial class RodResult(BitmapImageDrawable bitmapImageDrawable) : Rod(bitmapImageDrawable), IAdaptIn<RodResult, RodResult>
     {
-        public int Index { get; init; }
-
-        [ObservableProperty]
-        public partial bool IsDeleted { get; set; } = false;
-
         [ObservableProperty]
         public partial double PixelSize { get; set; }
 
@@ -23,17 +18,10 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         [ObservableProperty]
         public partial Rect MaxImageROI { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
-
-        [Newtonsoft.Json.JsonConstructor]
-        private RodResult() : this(new BitmapImageDrawable())
-        {
-        }
-
         public RodResult AdaptIn(RodResult obj)
         {
-            IsDeleted = obj.IsDeleted;
+            base.AdaptIn(obj);
+
             PixelSize = obj.PixelSize;
             MinImageROI = obj.MinImageROI;
             MaxImageROI = obj.MaxImageROI;
@@ -41,9 +29,10 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             return this;
         }
 
-        public void Reset()
+        public override void Reset()
         {
-            IsDeleted = false;
+            base.Reset();
+
             PixelSize = 0d;
             MinImageROI = Rect.Empty;
             MaxImageROI = Rect.Empty;

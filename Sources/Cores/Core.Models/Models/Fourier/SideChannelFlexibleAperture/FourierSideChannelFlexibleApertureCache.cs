@@ -30,7 +30,7 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 500d;
+    public partial double ScanLength { get; set; } = 20d;
 
     [ObservableProperty]
     public partial double Step0AndStep1MotorAbsoluteValue { get; set; }

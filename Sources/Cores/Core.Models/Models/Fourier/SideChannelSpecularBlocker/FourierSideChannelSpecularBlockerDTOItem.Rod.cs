@@ -1,46 +1,30 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
 public partial class FourierSideChannelSpecularBlockerDTOItem
 {
-    public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<Rod, Rod>
+    public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : FourierSideChannelFlexibleApertureDTOItem.Rod(bitmapImageDrawable), IAdaptIn<Rod, Rod>
     {
-        public int Index { get; init; }
-
-        [ObservableProperty]
-        public partial bool IsDeleted { get; set; } = false;
-
-        [ObservableProperty]
-        public partial Rect ImageROI { get; set; }
-
         [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }
 
-        [Newtonsoft.Json.JsonIgnore]
-        public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
-
-        [Newtonsoft.Json.JsonConstructor]
-        private Rod() : this(new BitmapImageDrawable())
-        {
-        }
-
         public Rod AdaptIn(Rod obj)
         {
-            IsDeleted = obj.IsDeleted;
-            ImageROI = obj.ImageROI;
+            base.AdaptIn(obj);
+
             MotorAbsoluteValue = obj.MotorAbsoluteValue;
 
             return this;
         }
 
-        public void Reset()
+        public override void Reset()
         {
-            IsDeleted = false;
-            ImageROI = Rect.Empty;
+            base.Reset();
+
             MotorAbsoluteValue = 0d;
         }
     }

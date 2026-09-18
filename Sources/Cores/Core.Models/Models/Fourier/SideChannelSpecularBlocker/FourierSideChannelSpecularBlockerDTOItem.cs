@@ -21,9 +21,10 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
     private readonly BitmapImageDrawable _step0FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1FourierBitmapImageDrawable = new();
+    private readonly BitmapImageROIDrawable[] _step1FourierROIDrawables;
+
     private readonly BitmapImageDrawable _step0CIBBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
-    private readonly BitmapImageROIDrawable[] _step1FourierROIDrawables;
 
     [Newtonsoft.Json.JsonProperty]
     private readonly int _rodTotalCount;
@@ -36,6 +37,9 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
     [ObservableProperty]
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
+
+    [Newtonsoft.Json.JsonProperty]
+    public Rod[] Rods { get; }
 
     [ObservableProperty]
     public partial string RawStep0CIBImageFilePath { get; set; } = string.Empty;
@@ -54,9 +58,6 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
     [ObservableProperty]
     public partial double Step1CIBImageAverageValue { get; set; }
-
-    [Newtonsoft.Json.JsonProperty]
-    public Rod[] Rods { get; }
 
     [ObservableProperty]
     public partial double ExtinctionRatio { get; set; }

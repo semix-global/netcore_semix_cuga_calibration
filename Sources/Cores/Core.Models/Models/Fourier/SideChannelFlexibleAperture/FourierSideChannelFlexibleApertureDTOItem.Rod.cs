@@ -7,7 +7,7 @@ namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 public partial class FourierSideChannelFlexibleApertureDTOItem
 {
-    public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<Rod, Rod>
+    public partial class Rod(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<Rod, Rod>
     {
         public int Index { get; init; }
 
@@ -33,7 +33,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             return this;
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             IsDeleted = false;
             ImageROI = Rect.Empty;

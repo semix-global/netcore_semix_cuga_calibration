@@ -994,195 +994,259 @@
     "MaxMotorAbsoluteValue": 55.0,
     "RodResults": [
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1331.0
+        },
         "Index": 0,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
+        "ImageROI": {
+          "X": 626.3,
+          "Y": 295.4,
+          "Width": 1124.7,
+          "Height": 266.2
+        }
+      },
+      {
+        "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 159.0
+          "Height": 164.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1331.0
-        }
-      },
-      {
+          "Height": 1363.0
+        },
         "Index": 1,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
+        "ImageROI": {
+          "X": 786.7,
+          "Y": -176.9,
+          "Width": 1820.0,
+          "Height": 1412.3
+        }
+      },
+      {
+        "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 164.0
+          "Height": 159.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1363.0
-        }
-      },
-      {
+          "Height": 1331.0
+        },
         "Index": 2,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        }
+      },
+      {
+        "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 159.0
+          "Height": 164.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1331.0
-        }
-      },
-      {
+          "Height": 1363.0
+        },
         "Index": 3,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
+        "ImageROI": {
+          "X": 1159.1,
+          "Y": 756.2,
+          "Width": 0.0,
+          "Height": 0.0
+        }
+      },
+      {
+        "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 164.0
+          "Height": 159.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1363.0
-        }
-      },
-      {
+          "Height": 1331.0
+        },
         "Index": 4,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
+        "ImageROI": {
+          "X": 1987.3,
+          "Y": 1960.4,
+          "Width": 1336.7,
+          "Height": 547.1
+        }
+      },
+      {
+        "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 159.0
+          "Height": 164.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1331.0
-        }
-      },
-      {
+          "Height": 1363.0
+        },
         "Index": 5,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
+        "ImageROI": {
+          "X": -389.6,
+          "Y": -1199.2,
+          "Width": 278.7,
+          "Height": 524.6
+        }
+      },
+      {
+        "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 164.0
+          "Height": 159.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1363.0
-        }
-      },
-      {
+          "Height": 1331.0
+        },
         "Index": 6,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
+        }
+      },
+      {
+        "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 159.0
+          "Height": 164.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1331.0
-        }
-      },
-      {
+          "Height": 1363.0
+        },
         "Index": 7,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
+        "ImageROI": {
+          "X": -24.7,
+          "Y": -1694.9,
+          "Width": 2472.3,
+          "Height": 0.0
+        }
+      },
+      {
+        "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 164.0
+          "Height": 159.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1363.0
-        }
-      },
-      {
+          "Height": 1331.0
+        },
         "Index": 8,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
+        "ImageROI": {
+          "X": -633.3,
+          "Y": -984.1,
+          "Width": 355.3,
+          "Height": 1024.2
+        }
+      },
+      {
+        "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 159.0
+          "Height": 164.0
         },
         "MaxImageROI": {
           "X": 0.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1331.0
-        }
-      },
-      {
+          "Height": 1363.0
+        },
         "Index": 9,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
-        "MinImageROI": {
-          "X": 0.0,
-          "Y": 0.0,
+        "ImageROI": {
+          "X": -191.1,
+          "Y": -659.3,
           "Width": 0.0,
-          "Height": 164.0
-        },
-        "MaxImageROI": {
-          "X": 0.0,
-          "Y": 0.0,
-          "Width": 0.0,
-          "Height": 1363.0
+          "Height": 832.6
         }
       },
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        },
         "Index": 10,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
-        "MinImageROI": {
-          "X": 2.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 159.0
-        },
-        "MaxImageROI": {
-          "X": 2.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 1331.0
+        "ImageROI": {
+          "X": -921.6,
+          "Y": 110.5,
+          "Width": 0.0,
+          "Height": 3446.0
         }
       },
       {
-        "Index": 11,
-        "IsDeleted": true,
         "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 39.0,
@@ -1195,11 +1259,17 @@
           "Y": 0.0,
           "Width": 90.0,
           "Height": 1363.0
+        },
+        "Index": 11,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 1524.7,
+          "Y": -510.3,
+          "Width": 0.0,
+          "Height": 19.4
         }
       },
       {
-        "Index": 12,
-        "IsDeleted": true,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 137.0,
@@ -1212,11 +1282,17 @@
           "Y": 0.0,
           "Width": 90.0,
           "Height": 1331.0
+        },
+        "Index": 12,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -1914.8,
+          "Y": 408.5,
+          "Width": 3769.1,
+          "Height": 0.0
         }
       },
       {
-        "Index": 13,
-        "IsDeleted": true,
         "PixelSize": 0.037037037037037035,
         "MinImageROI": {
           "X": 161.0,
@@ -1229,11 +1305,17 @@
           "Y": 0.0,
           "Width": 118.0,
           "Height": 1493.0
+        },
+        "Index": 13,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -1667.8,
+          "Y": 1960.9,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 14,
-        "IsDeleted": true,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 273.0,
@@ -1246,11 +1328,17 @@
           "Y": 0.0,
           "Width": 89.0,
           "Height": 1331.0
+        },
+        "Index": 14,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 15,
-        "IsDeleted": false,
         "PixelSize": 0.053475935828877004,
         "MinImageROI": {
           "X": 318.0,
@@ -1263,11 +1351,17 @@
           "Y": 0.0,
           "Width": 123.0,
           "Height": 1335.0
+        },
+        "Index": 15,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 784.1,
+          "Y": -836.4,
+          "Width": 0.0,
+          "Height": 1239.2
         }
       },
       {
-        "Index": 16,
-        "IsDeleted": false,
         "PixelSize": 0.04504504504504504,
         "MinImageROI": {
           "X": 402.0,
@@ -1280,11 +1374,17 @@
           "Y": 0.0,
           "Width": 103.0,
           "Height": 1390.0
+        },
+        "Index": 16,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 565.7,
+          "Y": 1789.1,
+          "Width": 1788.3,
+          "Height": 446.8
         }
       },
       {
-        "Index": 17,
-        "IsDeleted": false,
         "PixelSize": 0.04950495049504951,
         "MinImageROI": {
           "X": 476.0,
@@ -1297,11 +1397,17 @@
           "Y": 0.0,
           "Width": 115.0,
           "Height": 1355.0
+        },
+        "Index": 17,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -558.4,
+          "Y": 1563.7,
+          "Width": 1163.0,
+          "Height": 698.8
         }
       },
       {
-        "Index": 18,
-        "IsDeleted": false,
         "PixelSize": 0.04504504504504504,
         "MinImageROI": {
           "X": 563.0,
@@ -1314,11 +1420,17 @@
           "Y": 0.0,
           "Width": 114.0,
           "Height": 1376.0
+        },
+        "Index": 18,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 19,
-        "IsDeleted": false,
         "PixelSize": 0.05,
         "MinImageROI": {
           "X": 635.0,
@@ -1331,11 +1443,17 @@
           "Y": 0.0,
           "Width": 100.0,
           "Height": 1327.0
+        },
+        "Index": 19,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1212.4,
+          "Y": 1911.5,
+          "Width": 0.0,
+          "Height": 2089.9
         }
       },
       {
-        "Index": 20,
-        "IsDeleted": false,
         "PixelSize": 0.04739336492890995,
         "MinImageROI": {
           "X": 708.0,
@@ -1348,11 +1466,17 @@
           "Y": 0.0,
           "Width": 96.0,
           "Height": 1340.0
+        },
+        "Index": 20,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1550.9,
+          "Y": 1077.2,
+          "Width": 0.0,
+          "Height": 3601.4
         }
       },
       {
-        "Index": 21,
-        "IsDeleted": false,
         "PixelSize": 0.04424778761061947,
         "MinImageROI": {
           "X": 782.0,
@@ -1365,11 +1489,17 @@
           "Y": 0.0,
           "Width": 89.0,
           "Height": 1375.0
+        },
+        "Index": 21,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -32.2,
+          "Y": -1201.4,
+          "Width": 2.8,
+          "Height": 321.3
         }
       },
       {
-        "Index": 22,
-        "IsDeleted": false,
         "PixelSize": 0.04504504504504504,
         "MinImageROI": {
           "X": 850.0,
@@ -1382,11 +1512,17 @@
           "Y": 0.0,
           "Width": 65.0,
           "Height": 1300.0
+        },
+        "Index": 22,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1668.2,
+          "Y": 1984.6,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 23,
-        "IsDeleted": false,
         "PixelSize": 0.04716981132075472,
         "MinImageROI": {
           "X": 899.0,
@@ -1399,11 +1535,17 @@
           "Y": 0.0,
           "Width": 74.0,
           "Height": 1326.0
+        },
+        "Index": 23,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 239.5,
+          "Y": -1823.2,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 24,
-        "IsDeleted": false,
         "PixelSize": 0.04878048780487805,
         "MinImageROI": {
           "X": 963.0,
@@ -1416,11 +1558,17 @@
           "Y": 0.0,
           "Width": 86.0,
           "Height": 1313.0
+        },
+        "Index": 24,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -233.5,
+          "Y": 1021.0,
+          "Width": 3346.4,
+          "Height": 0.0
         }
       },
       {
-        "Index": 25,
-        "IsDeleted": false,
         "PixelSize": 0.046511627906976744,
         "MinImageROI": {
           "X": 1026.0,
@@ -1433,11 +1581,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1345.0
+        },
+        "Index": 25,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 837.9,
+          "Y": -526.2,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 26,
-        "IsDeleted": false,
         "PixelSize": 0.04672897196261682,
         "MinImageROI": {
           "X": 1095.0,
@@ -1450,11 +1604,17 @@
           "Y": 0.0,
           "Width": 80.0,
           "Height": 1316.0
+        },
+        "Index": 26,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1900.5,
+          "Y": -1132.4,
+          "Width": 2546.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 27,
-        "IsDeleted": false,
         "PixelSize": 0.046511627906976744,
         "MinImageROI": {
           "X": 1157.0,
@@ -1467,11 +1627,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1345.0
+        },
+        "Index": 27,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1638.6,
+          "Y": -1067.7,
+          "Width": 1169.4,
+          "Height": 1972.1
         }
       },
       {
-        "Index": 28,
-        "IsDeleted": false,
         "PixelSize": 0.04878048780487805,
         "MinImageROI": {
           "X": 1221.0,
@@ -1484,11 +1650,17 @@
           "Y": 0.0,
           "Width": 88.0,
           "Height": 1303.0
+        },
+        "Index": 28,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -546.4,
+          "Y": -767.3,
+          "Width": 752.0,
+          "Height": 368.3
         }
       },
       {
-        "Index": 29,
-        "IsDeleted": false,
         "PixelSize": 0.046511627906976744,
         "MinImageROI": {
           "X": 1286.0,
@@ -1501,11 +1673,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1345.0
+        },
+        "Index": 29,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 412.1,
+          "Y": -1562.8,
+          "Width": 0.0,
+          "Height": 2372.9
         }
       },
       {
-        "Index": 30,
-        "IsDeleted": false,
         "PixelSize": 0.04926108374384237,
         "MinImageROI": {
           "X": 1359.0,
@@ -1518,113 +1696,155 @@
           "Y": 0.0,
           "Width": 86.0,
           "Height": 1303.0
+        },
+        "Index": 30,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -804.2,
+          "Y": -1870.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1424.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1424.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1345.0
+        },
         "Index": 31,
         "IsDeleted": false,
-        "PixelSize": 0.046511627906976744,
-        "MinImageROI": {
-          "X": 1424.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 162.0
-        },
-        "MaxImageROI": {
-          "X": 1424.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1345.0
+        "ImageROI": {
+          "X": 1873.3,
+          "Y": 1298.6,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1492.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1492.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        },
         "Index": 32,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
-        "MinImageROI": {
-          "X": 1492.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 159.0
-        },
-        "MaxImageROI": {
-          "X": 1492.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 1331.0
+        "ImageROI": {
+          "X": -134.5,
+          "Y": 813.5,
+          "Width": 1319.8,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1554.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1554.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1345.0
+        },
         "Index": 33,
         "IsDeleted": false,
-        "PixelSize": 0.046511627906976744,
-        "MinImageROI": {
-          "X": 1554.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 162.0
-        },
-        "MaxImageROI": {
-          "X": 1554.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 1345.0
+        "ImageROI": {
+          "X": -0.4,
+          "Y": -92.1,
+          "Width": 617.3,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1628.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1628.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        },
         "Index": 34,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
-        "MinImageROI": {
-          "X": 1628.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 159.0
-        },
-        "MaxImageROI": {
-          "X": 1628.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 1331.0
+        "ImageROI": {
+          "X": -610.6,
+          "Y": 503.6,
+          "Width": 1358.0,
+          "Height": 720.8
         }
       },
       {
+        "PixelSize": 0.046511627906976744,
+        "MinImageROI": {
+          "X": 1687.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 162.0
+        },
+        "MaxImageROI": {
+          "X": 1687.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1345.0
+        },
         "Index": 35,
         "IsDeleted": false,
-        "PixelSize": 0.046511627906976744,
-        "MinImageROI": {
-          "X": 1687.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 162.0
-        },
-        "MaxImageROI": {
-          "X": 1687.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1345.0
+        "ImageROI": {
+          "X": -1893.2,
+          "Y": -780.0,
+          "Width": 1952.7,
+          "Height": 1140.3
         }
       },
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 1763.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 1763.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1331.0
+        },
         "Index": 36,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
-        "MinImageROI": {
-          "X": 1763.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 159.0
-        },
-        "MaxImageROI": {
-          "X": 1763.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 1331.0
+        "ImageROI": {
+          "X": -1193.5,
+          "Y": -1713.1,
+          "Width": 1343.9,
+          "Height": 653.9
         }
       },
       {
-        "Index": 37,
-        "IsDeleted": false,
         "PixelSize": 0.046511627906976744,
         "MinImageROI": {
           "X": 1810.0,
@@ -1637,11 +1857,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1345.0
+        },
+        "Index": 37,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1248.1,
+          "Y": 1160.1,
+          "Width": 2381.2,
+          "Height": 0.0
         }
       },
       {
-        "Index": 38,
-        "IsDeleted": true,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 1899.0,
@@ -1654,11 +1880,17 @@
           "Y": 0.0,
           "Width": 89.0,
           "Height": 1331.0
+        },
+        "Index": 38,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 39,
-        "IsDeleted": false,
         "PixelSize": 0.046511627906976744,
         "MinImageROI": {
           "X": 1951.0,
@@ -1671,11 +1903,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1370.0
+        },
+        "Index": 39,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -375.3,
+          "Y": -671.3,
+          "Width": 0.0,
+          "Height": 84.3
         }
       },
       {
-        "Index": 40,
-        "IsDeleted": true,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 2034.0,
@@ -1688,11 +1926,17 @@
           "Y": 0.0,
           "Width": 90.0,
           "Height": 1331.0
+        },
+        "Index": 40,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -1009.3,
+          "Y": -1182.2,
+          "Width": 0.0,
+          "Height": 315.0
         }
       },
       {
-        "Index": 41,
-        "IsDeleted": true,
         "PixelSize": 0.04081632653061224,
         "MinImageROI": {
           "X": 2075.0,
@@ -1705,45 +1949,63 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1431.0
+        },
+        "Index": 41,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -1181.9,
+          "Y": 1060.3,
+          "Width": 1004.4,
+          "Height": 1741.9
         }
       },
       {
+        "PixelSize": 0.046948356807511735,
+        "MinImageROI": {
+          "X": 2170.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 159.0
+        },
+        "MaxImageROI": {
+          "X": 2170.0,
+          "Y": 0.0,
+          "Width": 89.0,
+          "Height": 1331.0
+        },
         "Index": 42,
         "IsDeleted": true,
-        "PixelSize": 0.046948356807511735,
-        "MinImageROI": {
-          "X": 2170.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 159.0
-        },
-        "MaxImageROI": {
-          "X": 2170.0,
-          "Y": 0.0,
-          "Width": 89.0,
-          "Height": 1331.0
+        "ImageROI": {
+          "X": 33.6,
+          "Y": 657.4,
+          "Width": 1886.7,
+          "Height": 1672.1
         }
       },
       {
+        "PixelSize": 0.045871559633027525,
+        "MinImageROI": {
+          "X": 2206.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 164.0
+        },
+        "MaxImageROI": {
+          "X": 2206.0,
+          "Y": 0.0,
+          "Width": 90.0,
+          "Height": 1363.0
+        },
         "Index": 43,
         "IsDeleted": true,
-        "PixelSize": 0.045871559633027525,
-        "MinImageROI": {
-          "X": 2206.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 164.0
-        },
-        "MaxImageROI": {
-          "X": 2206.0,
-          "Y": 0.0,
-          "Width": 90.0,
-          "Height": 1363.0
+        "ImageROI": {
+          "X": 1890.1,
+          "Y": 938.9,
+          "Width": 1926.4,
+          "Height": 758.5
         }
       },
       {
-        "Index": 44,
-        "IsDeleted": true,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 2305.0,
@@ -1756,11 +2018,17 @@
           "Y": 0.0,
           "Width": 90.0,
           "Height": 1331.0
+        },
+        "Index": 44,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 337.8,
+          "Y": 1663.5,
+          "Width": 0.0,
+          "Height": 3356.7
         }
       },
       {
-        "Index": 45,
-        "IsDeleted": true,
         "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 2341.0,
@@ -1773,6 +2041,14 @@
           "Y": 0.0,
           "Width": 87.0,
           "Height": 1363.0
+        },
+        "Index": 45,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -618.0,
+          "Y": 433.1,
+          "Width": 3991.8,
+          "Height": 0.0
         }
       }
     ]
@@ -2771,8 +3047,6 @@
     "MaxMotorAbsoluteValue": 55.0,
     "RodResults": [
       {
-        "Index": 0,
-        "IsDeleted": true,
         "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 168.0,
@@ -2785,11 +3059,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1180.0
+        },
+        "Index": 0,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 1,
-        "IsDeleted": true,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 234.0,
@@ -2802,11 +3082,17 @@
           "Y": 0.0,
           "Width": 78.0,
           "Height": 1161.0
+        },
+        "Index": 1,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 2,
-        "IsDeleted": true,
         "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 290.0,
@@ -2819,11 +3105,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1180.0
+        },
+        "Index": 2,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -383.5,
+          "Y": -1661.6,
+          "Width": 3819.9,
+          "Height": 0.0
         }
       },
       {
-        "Index": 3,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 359.0,
@@ -2836,11 +3128,17 @@
           "Y": 0.0,
           "Width": 73.0,
           "Height": 1151.0
+        },
+        "Index": 3,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1517.3,
+          "Y": 97.8,
+          "Width": 0.0,
+          "Height": 3428.9
         }
       },
       {
-        "Index": 4,
-        "IsDeleted": true,
         "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 412.0,
@@ -2853,11 +3151,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1180.0
+        },
+        "Index": 4,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 516.4,
+          "Y": -833.0,
+          "Width": 188.6,
+          "Height": 1997.7
         }
       },
       {
-        "Index": 5,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 479.0,
@@ -2870,11 +3174,17 @@
           "Y": 0.0,
           "Width": 74.0,
           "Height": 1149.0
+        },
+        "Index": 5,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -402.3,
+          "Y": 453.4,
+          "Width": 818.2,
+          "Height": 0.0
         }
       },
       {
-        "Index": 6,
-        "IsDeleted": false,
         "PixelSize": 0.043668122270742356,
         "MinImageROI": {
           "X": 534.0,
@@ -2887,11 +3197,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1230.0
+        },
+        "Index": 6,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1046.9,
+          "Y": -676.3,
+          "Width": 25.5,
+          "Height": 1718.0
         }
       },
       {
-        "Index": 7,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 596.0,
@@ -2904,11 +3220,17 @@
           "Y": 0.0,
           "Width": 76.0,
           "Height": 1134.0
+        },
+        "Index": 7,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 8,
-        "IsDeleted": false,
         "PixelSize": 0.045871559633027525,
         "MinImageROI": {
           "X": 656.0,
@@ -2921,11 +3243,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1213.0
+        },
+        "Index": 8,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1273.9,
+          "Y": 308.4,
+          "Width": 407.6,
+          "Height": 349.4
         }
       },
       {
-        "Index": 9,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 723.0,
@@ -2938,11 +3266,17 @@
           "Y": 0.0,
           "Width": 75.0,
           "Height": 1140.0
+        },
+        "Index": 9,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1428.9,
+          "Y": -835.6,
+          "Width": 1885.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 10,
-        "IsDeleted": false,
         "PixelSize": 0.046948356807511735,
         "MinImageROI": {
           "X": 780.0,
@@ -2955,11 +3289,17 @@
           "Y": 0.0,
           "Width": 76.0,
           "Height": 1206.0
+        },
+        "Index": 10,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 447.1,
+          "Y": 1495.2,
+          "Width": 3578.4,
+          "Height": 0.0
         }
       },
       {
-        "Index": 11,
-        "IsDeleted": false,
         "PixelSize": 0.05319148936170213,
         "MinImageROI": {
           "X": 850.0,
@@ -2972,11 +3312,17 @@
           "Y": 0.0,
           "Width": 72.0,
           "Height": 1161.0
+        },
+        "Index": 11,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -464.2,
+          "Y": -1899.9,
+          "Width": 409.3,
+          "Height": 543.7
         }
       },
       {
-        "Index": 12,
-        "IsDeleted": false,
         "PixelSize": 0.05025125628140704,
         "MinImageROI": {
           "X": 895.0,
@@ -2989,11 +3335,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1185.0
+        },
+        "Index": 12,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 13,
-        "IsDeleted": false,
         "PixelSize": 0.047619047619047616,
         "MinImageROI": {
           "X": 956.0,
@@ -3006,11 +3358,17 @@
           "Y": 0.0,
           "Width": 66.0,
           "Height": 1201.0
+        },
+        "Index": 13,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -953.2,
+          "Y": -675.4,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 14,
-        "IsDeleted": false,
         "PixelSize": 0.04219409282700422,
         "MinImageROI": {
           "X": 1008.0,
@@ -3023,11 +3381,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1242.0
+        },
+        "Index": 14,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 99.1,
+          "Y": 1639.2,
+          "Width": 0.0,
+          "Height": 2418.7
         }
       },
       {
-        "Index": 15,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 1064.0,
@@ -3040,11 +3404,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1151.0
+        },
+        "Index": 15,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 359.5,
+          "Y": 1781.4,
+          "Width": 1657.1,
+          "Height": 0.0
         }
       },
       {
-        "Index": 16,
-        "IsDeleted": false,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 1129.0,
@@ -3057,11 +3427,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1156.0
+        },
+        "Index": 16,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -352.2,
+          "Y": -1698.3,
+          "Width": 1801.8,
+          "Height": 1013.4
         }
       },
       {
-        "Index": 17,
-        "IsDeleted": false,
         "PixelSize": 0.05235602094240838,
         "MinImageROI": {
           "X": 1188.0,
@@ -3074,11 +3450,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1180.0
+        },
+        "Index": 17,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1066.1,
+          "Y": -945.7,
+          "Width": 1450.3,
+          "Height": 0.0
         }
       },
       {
-        "Index": 18,
-        "IsDeleted": false,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 1250.0,
@@ -3091,11 +3473,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1156.0
+        },
+        "Index": 18,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1485.9,
+          "Y": 1229.9,
+          "Width": 799.5,
+          "Height": 180.6
         }
       },
       {
-        "Index": 19,
-        "IsDeleted": false,
         "PixelSize": 0.05291005291005291,
         "MinImageROI": {
           "X": 1311.0,
@@ -3108,11 +3496,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1177.0
+        },
+        "Index": 19,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -1031.2,
+          "Y": 157.4,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 20,
-        "IsDeleted": false,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 1370.0,
@@ -3125,11 +3519,17 @@
           "Y": 0.0,
           "Width": 85.0,
           "Height": 1156.0
+        },
+        "Index": 20,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 21,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 1435.0,
@@ -3142,11 +3542,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1146.0
+        },
+        "Index": 21,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -735.0,
+          "Y": 1640.6,
+          "Width": 0.0,
+          "Height": 3872.3
         }
       },
       {
-        "Index": 22,
-        "IsDeleted": false,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 1494.0,
@@ -3159,11 +3565,17 @@
           "Y": 0.0,
           "Width": 79.0,
           "Height": 1156.0
+        },
+        "Index": 22,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -42.3,
+          "Y": 118.9,
+          "Width": 663.1,
+          "Height": 0.0
         }
       },
       {
-        "Index": 23,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 1559.0,
@@ -3176,79 +3588,109 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1156.0
+        },
+        "Index": 23,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -319.5,
+          "Y": 354.7,
+          "Width": 447.1,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1613.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1613.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        },
         "Index": 24,
         "IsDeleted": false,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 1613.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 166.0
-        },
-        "MaxImageROI": {
-          "X": 1613.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 1156.0
+        "ImageROI": {
+          "X": 1499.2,
+          "Y": -318.0,
+          "Width": 3727.7,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1682.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1682.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1151.0
+        },
         "Index": 25,
         "IsDeleted": false,
-        "PixelSize": 0.05813953488372093,
-        "MinImageROI": {
-          "X": 1682.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 205.0
-        },
-        "MaxImageROI": {
-          "X": 1682.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1151.0
+        "ImageROI": {
+          "X": 1978.9,
+          "Y": -96.1,
+          "Width": 0.0,
+          "Height": 3059.2
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 1751.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 166.0
+        },
+        "MaxImageROI": {
+          "X": 1751.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1156.0
+        },
         "Index": 26,
         "IsDeleted": false,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 1751.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 166.0
-        },
-        "MaxImageROI": {
-          "X": 1751.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 1156.0
+        "ImageROI": {
+          "X": 380.4,
+          "Y": 1971.2,
+          "Width": 0.0,
+          "Height": 868.2
         }
       },
       {
+        "PixelSize": 0.05813953488372093,
+        "MinImageROI": {
+          "X": 1808.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 205.0
+        },
+        "MaxImageROI": {
+          "X": 1808.0,
+          "Y": 0.0,
+          "Width": 82.0,
+          "Height": 1151.0
+        },
         "Index": 27,
         "IsDeleted": false,
-        "PixelSize": 0.05813953488372093,
-        "MinImageROI": {
-          "X": 1808.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 205.0
-        },
-        "MaxImageROI": {
-          "X": 1808.0,
-          "Y": 0.0,
-          "Width": 82.0,
-          "Height": 1151.0
+        "ImageROI": {
+          "X": 965.4,
+          "Y": -1741.0,
+          "Width": 0.0,
+          "Height": 1936.2
         }
       },
       {
-        "Index": 28,
-        "IsDeleted": false,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 1877.0,
@@ -3261,11 +3703,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1156.0
+        },
+        "Index": 28,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": -52.2,
+          "Y": 585.0,
+          "Width": 1010.7,
+          "Height": 1876.0
         }
       },
       {
-        "Index": 29,
-        "IsDeleted": false,
         "PixelSize": 0.05813953488372093,
         "MinImageROI": {
           "X": 1935.0,
@@ -3278,11 +3726,17 @@
           "Y": 0.0,
           "Width": 81.0,
           "Height": 1151.0
+        },
+        "Index": 29,
+        "IsDeleted": false,
+        "ImageROI": {
+          "X": 1819.7,
+          "Y": -1509.3,
+          "Width": 3773.8,
+          "Height": 0.0
         }
       },
       {
-        "Index": 30,
-        "IsDeleted": true,
         "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 1998.0,
@@ -3295,11 +3749,17 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1180.0
+        },
+        "Index": 30,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 208.0,
+          "Y": -814.3,
+          "Width": 3137.1,
+          "Height": 0.0
         }
       },
       {
-        "Index": 31,
-        "IsDeleted": true,
         "PixelSize": 0.052083333333333336,
         "MinImageROI": {
           "X": 2063.0,
@@ -3312,215 +3772,293 @@
           "Y": 0.0,
           "Width": 82.0,
           "Height": 1191.0
+        },
+        "Index": 31,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2120.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2120.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        },
         "Index": 32,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
-        "MinImageROI": {
-          "X": 2120.0,
+        "ImageROI": {
+          "X": 0.0,
           "Y": 0.0,
-          "Width": 81.0,
-          "Height": 102.0
-        },
-        "MaxImageROI": {
-          "X": 2120.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1180.0
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2187.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2187.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        },
         "Index": 33,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 2187.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 171.0
-        },
-        "MaxImageROI": {
-          "X": 2187.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 1161.0
+        "ImageROI": {
+          "X": -1535.6,
+          "Y": 1934.3,
+          "Width": 665.8,
+          "Height": 984.3
         }
       },
       {
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2242.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2242.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        },
         "Index": 34,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
-        "MinImageROI": {
-          "X": 2242.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 102.0
-        },
-        "MaxImageROI": {
-          "X": 2242.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1180.0
+        "ImageROI": {
+          "X": -1391.7,
+          "Y": 174.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2309.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2309.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        },
         "Index": 35,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 2309.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 171.0
-        },
-        "MaxImageROI": {
-          "X": 2309.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 1161.0
+        "ImageROI": {
+          "X": -364.7,
+          "Y": 1292.2,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2364.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2364.0,
+          "Y": 0.0,
+          "Width": 81.0,
+          "Height": 1180.0
+        },
         "Index": 36,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
-        "MinImageROI": {
-          "X": 2364.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 102.0
-        },
-        "MaxImageROI": {
-          "X": 2364.0,
-          "Y": 0.0,
-          "Width": 81.0,
-          "Height": 1180.0
+        "ImageROI": {
+          "X": -574.0,
+          "Y": 1612.3,
+          "Width": 2718.2,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2431.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2431.0,
+          "Y": 0.0,
+          "Width": 78.0,
+          "Height": 1161.0
+        },
         "Index": 37,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 2431.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 171.0
-        },
-        "MaxImageROI": {
-          "X": 2431.0,
-          "Y": 0.0,
-          "Width": 78.0,
-          "Height": 1161.0
+        "ImageROI": {
+          "X": 1507.6,
+          "Y": 1325.4,
+          "Width": 3980.8,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05102040816326531,
+        "MinImageROI": {
+          "X": 2486.0,
+          "Y": 0.0,
+          "Width": 38.0,
+          "Height": 102.0
+        },
+        "MaxImageROI": {
+          "X": 2486.0,
+          "Y": 0.0,
+          "Width": 38.0,
+          "Height": 1180.0
+        },
         "Index": 38,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
-        "MinImageROI": {
-          "X": 2486.0,
-          "Y": 0.0,
-          "Width": 38.0,
-          "Height": 102.0
-        },
-        "MaxImageROI": {
-          "X": 2486.0,
-          "Y": 0.0,
-          "Width": 38.0,
-          "Height": 1180.0
+        "ImageROI": {
+          "X": 446.2,
+          "Y": 1604.1,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
+        "PixelSize": 0.05555555555555555,
+        "MinImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 171.0
+        },
+        "MaxImageROI": {
+          "X": 2524.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 1161.0
+        },
         "Index": 39,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
+        "ImageROI": {
+          "X": -1246.6,
+          "Y": -1578.2,
+          "Width": 1447.9,
+          "Height": 590.4
+        }
+      },
+      {
+        "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 171.0
+          "Height": 102.0
         },
         "MaxImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1161.0
-        }
-      },
-      {
+          "Height": 1180.0
+        },
         "Index": 40,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
+        "ImageROI": {
+          "X": -107.3,
+          "Y": 1855.6,
+          "Width": 1023.5,
+          "Height": 0.0
+        }
+      },
+      {
+        "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 102.0
+          "Height": 171.0
         },
         "MaxImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1180.0
-        }
-      },
-      {
+          "Height": 1161.0
+        },
         "Index": 41,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
+        "ImageROI": {
+          "X": -1192.0,
+          "Y": -1052.8,
+          "Width": 1274.4,
+          "Height": 813.5
+        }
+      },
+      {
+        "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 171.0
+          "Height": 102.0
         },
         "MaxImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1161.0
-        }
-      },
-      {
+          "Height": 1180.0
+        },
         "Index": 42,
         "IsDeleted": true,
-        "PixelSize": 0.05102040816326531,
+        "ImageROI": {
+          "X": -923.6,
+          "Y": -390.9,
+          "Width": 971.6,
+          "Height": 189.4
+        }
+      },
+      {
+        "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 102.0
+          "Height": 171.0
         },
         "MaxImageROI": {
           "X": 2524.0,
           "Y": 0.0,
           "Width": 0.0,
-          "Height": 1180.0
-        }
-      },
-      {
+          "Height": 1161.0
+        },
         "Index": 43,
         "IsDeleted": true,
-        "PixelSize": 0.05555555555555555,
-        "MinImageROI": {
-          "X": 2524.0,
-          "Y": 0.0,
-          "Width": 0.0,
-          "Height": 171.0
-        },
-        "MaxImageROI": {
-          "X": 2524.0,
-          "Y": 0.0,
-          "Width": 0.0,
-          "Height": 1161.0
+        "ImageROI": {
+          "X": 1388.4,
+          "Y": 1547.6,
+          "Width": 1608.2,
+          "Height": 49.8
         }
       },
       {
-        "Index": 44,
-        "IsDeleted": true,
         "PixelSize": 0.05102040816326531,
         "MinImageROI": {
           "X": 2524.0,
@@ -3533,11 +4071,17 @@
           "Y": 0.0,
           "Width": 0.0,
           "Height": 1180.0
+        },
+        "Index": 44,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": 0.0,
+          "Y": 0.0,
+          "Width": 0.0,
+          "Height": 0.0
         }
       },
       {
-        "Index": 45,
-        "IsDeleted": true,
         "PixelSize": 0.05555555555555555,
         "MinImageROI": {
           "X": 2524.0,
@@ -3550,6 +4094,14 @@
           "Y": 0.0,
           "Width": 0.0,
           "Height": 1161.0
+        },
+        "Index": 45,
+        "IsDeleted": true,
+        "ImageROI": {
+          "X": -201.1,
+          "Y": -504.6,
+          "Width": 1867.5,
+          "Height": 1994.6
         }
       }
     ]

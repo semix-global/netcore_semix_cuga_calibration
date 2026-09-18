@@ -1,6 +1,7 @@
+using System.Collections.Concurrent;
+using System.IO;
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
@@ -15,23 +16,22 @@ using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Concurrent;
-using System.IO;
 
-namespace CugaCalibrationUnitTest.FourierSerialization;
+namespace CugaCalibrationUnitTest.Serializations;
 
-public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixture fixture) : IClassFixture<HostFixture>
+[Collection(HostCollection.Name)]
+public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixture fixture)
 {
     private static readonly string[] NonPersistentNames =
     [
-        "Document",
-        "CIBDocument",
         "BitmapImageROIDrawable",
         "_step0FourierBitmapImageDrawable",
         "_step1FourierBitmapImageDrawable",
+        "_step1FourierROIDrawables",
         "_step0CIBBitmapImageDrawable",
         "_step1CIBBitmapImageDrawable",
-        "_step1FourierROIDrawables"
+        "CIBDocument",
+        "Document"
     ];
 
     private static readonly string[] IgnoreProperties =
@@ -53,17 +53,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
     public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool useCacheSettings)
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+
         var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierSideChannelSpecularBlocker.json"));
         var expected = JObject.Parse(json);
 
-#pragma warning disable IDE0079
-#pragma warning disable IDISP004
-
-        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings));
-
-#pragma warning restore IDISP004
-#pragma warning restore IDE0079
-
+        using var actual = JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings);
+        actual.Should().NotBeNull();
         actual.HasErrors.Should().BeFalse();
 
         AssertMatchesJson();
@@ -87,7 +82,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
 
             ObjectHelper.GetFieldValue(actual, "_rodTotalCount").Should().Be(expected.Value<int>("_rodTotalCount"));
 
-            var productivityJson = Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.ProductivityInformation)]);
+            var productivityJson = expected[nameof(actual.ProductivityInformation)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
             actual.ProductivityInformation.OpticsIlluminationModeEnum.Should().Be((OpticsIlluminationModeEnum)productivityJson.Value<int>(nameof(ProductivityInformation.OpticsIlluminationModeEnum)));
             actual.ProductivityInformation.OpticsMagType.Should().Be(productivityJson.Value<int>(nameof(ProductivityInformation.OpticsMagType)));
             actual.ProductivityInformation.StageSpeedType.Should().Be(productivityJson.Value<int>(nameof(ProductivityInformation.StageSpeedType)));
@@ -97,11 +92,11 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
             actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
 
-            AssertChannelMatchesJson(actual.Channel1Item, Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.Channel1Item)]));
-            AssertChannelMatchesJson(actual.Channel2Item, Guard.IsNotNullAndAssignableToTypeAndReturn<JObject>(expected[nameof(actual.Channel2Item)]));
+            AssertChannelMatchesJson(actual.Channel1Item, expected[nameof(actual.Channel1Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertChannelMatchesJson(actual.Channel2Item, expected[nameof(actual.Channel2Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
-        static void AssertChannelMatchesJson(FourierSideChannelSpecularBlockerDTOItem actual, JObject expected)
+        static void AssertChannelMatchesJson(FourierSideChannelSpecularBlockerDTOItem actual, JToken expected)
         {
             using var scope = new AssertionScope(expected.Path);
 
@@ -117,12 +112,12 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.Step1CIBImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.Step1CIBImageAverageValue)));
             actual.ExtinctionRatio.Should().Be(expected.Value<double>(nameof(actual.ExtinctionRatio)));
 
-            AssertRodsMatchJson(actual.Rods, Guard.IsNotNullAndAssignableToTypeAndReturn<JArray>(expected[nameof(actual.Rods)]));
+            AssertRodsMatchJson(actual.Rods, expected[nameof(actual.Rods)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
         }
 
         static void AssertRodsMatchJson(FourierSideChannelSpecularBlockerDTOItem.Rod[] actual, JArray expected)
         {
-            actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod indexes", expected.Path);
+            actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod indexes", expected.Path); // 不考虑顺序
 
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
@@ -135,7 +130,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.IsDeleted.Should().Be(expected.Value<bool>(nameof(actual.IsDeleted)));
             actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
 
-            AssertRectMatchesJson(actual.ImageROI, Guard.IsNotNullAndAssignableToTypeAndReturn<JToken>(expected[nameof(actual.ImageROI)]));
+            AssertRectMatchesJson(actual.ImageROI, expected[nameof(actual.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertRectMatchesJson(Rect actual, JToken expected)
@@ -177,20 +172,14 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
-        using var testScope = new AssertionScope($"seed={seed}, cache={useCacheSettings}");
-
         var productivityInformations = fixture.Host.Services.GetRequiredService<ApplicationCookie>().ProductivityInformations;
-        using var expected = CreateRandomDto(new Random(seed), rodTotalCount, productivityInformations);
+        using var expected = CreateRandom(new Random(seed), rodTotalCount, productivityInformations);
 
         var json = JsonConvert.SerializeObject(expected, settings);
 
-#pragma warning disable IDE0079
-#pragma warning disable IDISP004
-
-        using var actual = Guard.IsNotNullAndReturn(JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings));
-
-#pragma warning restore IDISP004
-#pragma warning restore IDE0079
+        using var actual = JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerDTO>(json, settings);
+        actual.Should().NotBeNull();
+        actual.HasErrors.Should().BeFalse();
 
         AssertEquals();
 
@@ -201,14 +190,14 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
 
         foreach (var name in IgnoreProperties)
         {
-            expectedJson.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
+            saved.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
         }
 
-        expectedJson.ContainsKey(nameof(ICacheItem.IsDeleted)).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", nameof(ICacheItem.IsDeleted));
+        saved.ContainsKey(nameof(ICacheItem.IsDeleted)).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", nameof(ICacheItem.IsDeleted));
 
         return;
 
-        static FourierSideChannelSpecularBlockerDTO CreateRandomDto(Random random, int rodTotalCount, IReadOnlyList<ProductivityInformation> productivityInformations)
+        static FourierSideChannelSpecularBlockerDTO CreateRandom(Random random, int rodTotalCount, IReadOnlyList<ProductivityInformation> productivityInformations)
         {
             var dto = new FourierSideChannelSpecularBlockerDTO(rodTotalCount)
             {
@@ -274,6 +263,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.IsVerified.Should().Be(expected.IsVerified);
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
+
             actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
             actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
             actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
@@ -283,7 +273,6 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
             actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
             actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
-            actual.HasErrors.Should().BeFalse();
 
             AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
             AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);
@@ -317,9 +306,13 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
         }
     }
 
-    [Fact]
-    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool useCacheSettings)
     {
+        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+
         var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
         var oiItem = new FourierSideChannelSpecularBlockerCacheItem
         {
@@ -403,12 +396,11 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
         };
         expected.ModifiedTime = expected.CreatedTime.AddTicks(11);
 
-        ObjectHelper.SetPropertyValue(expected, nameof(expected.Items), new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(expected.Items.OrderBy(t => t.Key)));
-        var json = JsonConvert.SerializeObject(expected);
-        var actual = JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerCache>(json);
+        var json = JsonConvert.SerializeObject(expected, settings);
+        var actual = JsonConvert.DeserializeObject<FourierSideChannelSpecularBlockerCache>(json, settings);
 
         actual.Should().NotBeNull();
-        ObjectHelper.SetPropertyValue(actual, nameof(actual.Items), new ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>(actual.Items.OrderBy(t => t.Key)));
+        actual.HasErrors.Should().BeFalse();
 
         actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
         actual.VerifyLaserLightInformation.Should().Be(expected.VerifyLaserLightInformation);
@@ -421,46 +413,47 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
         actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
         actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
         actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
-        actual.Id.Should().Be(expected.Id);
-        actual.Expiration.Should().Be(expected.Expiration);
-        actual.IsDeleted.Should().Be(expected.IsDeleted);
-        actual.CreatedUserId.Should().Be(expected.CreatedUserId);
-        actual.CreatedUserName.Should().Be(expected.CreatedUserName);
-        actual.CreatedTime.Should().Be(expected.CreatedTime);
-        actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
-        actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
-        actual.ModifiedTime.Should().Be(expected.ModifiedTime);
-        actual.HasErrors.Should().BeFalse();
+
+        actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
+        actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
+        actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
 
         actual.Items.Should().HaveCount(2);
         AssertItemEquals(actual.Items.Single(i => i.Key == cookie.OIProductivityInformations[0]).Value, oiItem);
         AssertItemEquals(actual.Items.Single(i => i.Key == cookie.NIProductivityInformations[0]).Value, niItem);
 
-        JsonConvert.SerializeObject(actual).Should().Be(json);
+        JsonConvert.SerializeObject(actual, settings).Should().Be(json);
 
         return;
 
-        static void AssertItemEquals(FourierSideChannelSpecularBlockerCacheItem actual, FourierSideChannelSpecularBlockerCacheItem expected)
+        void AssertItemEquals(FourierSideChannelSpecularBlockerCacheItem actualItem, FourierSideChannelSpecularBlockerCacheItem expectedItem)
         {
-            actual.MicroscopeLensInformation.Should().Be(expected.MicroscopeLensInformation);
-            actual.LaserLightInformation.Should().Be(expected.LaserLightInformation);
-            actual.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsApodizationModeEnum);
-            actual.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsPolarizationModeEnum);
-            actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
-            actual.ScanLength.Should().Be(expected.ScanLength);
-            actual.ShinyWaferFindBFMachinePosition.Should().Be(expected.ShinyWaferFindBFMachinePosition);
-            actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
-            actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
-            actual.Id.Should().Be(expected.Id);
-            actual.Expiration.Should().Be(expected.Expiration);
-            actual.IsDeleted.Should().Be(expected.IsDeleted);
-            actual.CreatedUserId.Should().Be(expected.CreatedUserId);
-            actual.CreatedUserName.Should().Be(expected.CreatedUserName);
-            actual.CreatedTime.Should().Be(expected.CreatedTime);
-            actual.ModifiedUserId.Should().Be(expected.ModifiedUserId);
-            actual.ModifiedUserName.Should().Be(expected.ModifiedUserName);
-            actual.ModifiedTime.Should().Be(expected.ModifiedTime);
-            actual.HasErrors.Should().BeFalse();
+            actualItem.HasErrors.Should().BeFalse();
+            actualItem.MicroscopeLensInformation.Should().Be(expectedItem.MicroscopeLensInformation);
+            actualItem.LaserLightInformation.Should().Be(expectedItem.LaserLightInformation);
+            actualItem.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsApodizationModeEnum);
+            actualItem.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsPolarizationModeEnum);
+            actualItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
+            actualItem.ScanLength.Should().Be(expectedItem.ScanLength);
+            actualItem.ShinyWaferFindBFMachinePosition.Should().Be(expectedItem.ShinyWaferFindBFMachinePosition);
+            actualItem.AlgorithmTemplateTypeEnum.Should().Be(expectedItem.AlgorithmTemplateTypeEnum);
+            actualItem.AlgorithmTemplateSizeEnum.Should().Be(expectedItem.AlgorithmTemplateSizeEnum);
+
+            actualItem.Id.Should().Be(useCacheSettings ? 0L : expectedItem.Id);
+            actualItem.Expiration.Should().Be(useCacheSettings ? 0L : expectedItem.Expiration);
+            actualItem.IsDeleted.Should().Be(useCacheSettings == false && expectedItem.IsDeleted);
+            actualItem.CreatedUserId.Should().Be(useCacheSettings ? 0L : expectedItem.CreatedUserId);
+            actualItem.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expectedItem.CreatedUserName);
+            actualItem.CreatedTime.Should().Be(useCacheSettings ? default : expectedItem.CreatedTime);
+            actualItem.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expectedItem.ModifiedUserId);
+            actualItem.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expectedItem.ModifiedUserName);
+            actualItem.ModifiedTime.Should().Be(useCacheSettings ? default : expectedItem.ModifiedTime);
         }
     }
 }

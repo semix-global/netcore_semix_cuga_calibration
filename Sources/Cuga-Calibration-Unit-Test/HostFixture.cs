@@ -20,6 +20,12 @@ using SourceGenerator.AssemblyMetadata;
 
 namespace CugaCalibrationUnitTest;
 
+[CollectionDefinition(Name)]
+public sealed class HostCollection : ICollectionFixture<HostFixture>
+{
+    public const string Name = nameof(HostCollection);
+}
+
 public sealed class HostFixture : IDisposable
 {
     private static readonly Application Application = new();

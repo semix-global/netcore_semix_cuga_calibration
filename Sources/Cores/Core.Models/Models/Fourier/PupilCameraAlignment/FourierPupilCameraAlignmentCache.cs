@@ -21,7 +21,7 @@ public sealed partial class FourierPupilCameraAlignmentCache : CalibrationCacheB
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 1000d;
+    public partial double ScanLength { get; set; } = 20d;
 
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
