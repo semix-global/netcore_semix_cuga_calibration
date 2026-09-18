@@ -117,7 +117,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
 
         static void AssertRodsMatchJson(FourierSideChannelSpecularBlockerDTOItem.Rod[] actual, JArray expected)
         {
-            actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod indexes", expected.Path); // 不考虑顺序
+            actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod indexes", expected.Path);
 
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
@@ -292,7 +292,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             actual.Step1CIBImageAverageValue.Should().Be(expected.Step1CIBImageAverageValue);
             actual.ExtinctionRatio.Should().Be(expected.ExtinctionRatio);
 
-            actual.Rods.Should().Equal(expected.Rods, (t1, t2) => t1.Index == t2.Index);
+            actual.Rods.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Rods.Select(t => t.Index).Order(), options => options.WithStrictOrdering());
 
             foreach (var source in expected.Rods)
             {

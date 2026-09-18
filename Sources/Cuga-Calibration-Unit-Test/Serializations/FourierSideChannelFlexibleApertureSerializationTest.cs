@@ -121,14 +121,14 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
 
         static void AssertRodsMatchJson(FourierSideChannelFlexibleApertureDTOItem.Rod[] actual, JArray expected)
         {
-            actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod indexes", expected.Path); // 不考虑顺序
+            actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod indexes", expected.Path);
 
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
 
         static void AssertRodResultsMatchJson(FourierSideChannelFlexibleApertureDTOItem.RodResult[] actual, JArray expected)
         {
-            actual.Select(t => t.Index).Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")), "{0} rod result indexes", expected.Path); // 不考虑顺序
+            actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod result indexes", expected.Path);
 
             foreach (var token in expected)
             {
@@ -315,7 +315,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
 
             AssertItemEquals(actual.EvenItem, expected.EvenItem);
             AssertItemEquals(actual.OddItem, expected.OddItem);
-            actual.RodResults.Should().Equal(expected.RodResults, (t1, t2) => t1.Index == t2.Index);
+            actual.RodResults.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.RodResults.Select(t => t.Index).Order(), options => options.WithStrictOrdering());
 
             foreach (var source in expected.RodResults)
             {
@@ -342,8 +342,8 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
 
             AssertRodEquals(actual.Step0LeftRod, expected.Step0LeftRod);
             AssertRodEquals(actual.Step0RightRod, expected.Step0RightRod);
-            actual.Step1Rods.Should().Equal(expected.Step1Rods, (t1, t2) => t1.Index == t2.Index);
-            actual.Step2Rods.Should().Equal(expected.Step2Rods, (t1, t2) => t1.Index == t2.Index);
+            actual.Step1Rods.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Step1Rods.Select(t => t.Index).Order(), options => options.WithStrictOrdering());
+            actual.Step2Rods.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Step2Rods.Select(t => t.Index).Order(), options => options.WithStrictOrdering());
 
             foreach (var source in expected.Step1Rods) AssertRodEquals(actual.Step1Rods.Single(t => t.Index == source.Index), source);
             foreach (var source in expected.Step2Rods) AssertRodEquals(actual.Step2Rods.Single(t => t.Index == source.Index), source);
