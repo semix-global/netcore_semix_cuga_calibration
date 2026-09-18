@@ -1,5 +1,4 @@
 using CommunityToolkit.Diagnostics;
-using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.WPF;
 using System.ComponentModel;
 using System.Windows;
@@ -16,7 +15,7 @@ public class OpticsFourierImageCanvasControl : Control
 
     public static readonly DependencyProperty DocumentProperty = DependencyProperty.Register(
         nameof(Document),
-        typeof(CanvasDocument),
+        typeof(OpticsFourierImageDocument),
         typeof(OpticsFourierImageCanvasControl),
         new FrameworkPropertyMetadata(new OpticsFourierImageDocument()));
 
@@ -37,7 +36,7 @@ public class OpticsFourierImageCanvasControl : Control
 
     public OpticsFourierImageCanvasControl()
     {
-        var defaultCanvasDocument = new CanvasDocument();
+        var defaultCanvasDocument = new OpticsFourierImageDocument();
 
         SetCurrentValue(DocumentProperty, defaultCanvasDocument);
     }

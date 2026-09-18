@@ -27,14 +27,23 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
     public void Reset()
     {
-        foreach (var bitmapImageDrawable in ImageModel) bitmapImageDrawable.BitmapImage = null;
+        foreach (var bitmapImageDrawable in ImageModel)
+        {
+            bitmapImageDrawable.BitmapImage = null;
+
+            bitmapImageDrawable.IsVisible = true;
+            bitmapImageDrawable.IsSelected = false;
+        }
 
         foreach (var bitmapImageROIDrawable in ROIModel)
         {
-            bitmapImageROIDrawable.IsVisible = true;
             bitmapImageROIDrawable.Rect = Rect.Empty;
             bitmapImageROIDrawable.IsFixed = false;
             bitmapImageROIDrawable.Text = string.Empty;
+            bitmapImageROIDrawable.IsEditorModified = false;
+
+            bitmapImageROIDrawable.IsVisible = true;
+            bitmapImageROIDrawable.IsSelected = false;
         }
     }
 }
