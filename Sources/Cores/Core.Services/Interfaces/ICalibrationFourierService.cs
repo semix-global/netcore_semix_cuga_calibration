@@ -17,22 +17,33 @@ public interface ICalibrationFourierService
     SxExecuteRet<bool> Connect();
 
     /// <summary>
-    /// 获取傅里叶相机的图片
+    /// 通道回零
     /// </summary>
-    /// <param name="channelId">通道ID</param>
-    /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<BitmapImage> GetFourierImage(int channelId);
+    /// <param name="channelId">1(channel 1), 2(channel 2), 3(channel 3)</param>
+    SxExecuteRet<bool> Home(int channelId);
+
+    /// <summary>
+    /// 设置通道1或2挡杆位置
+    /// </summary>
+    /// <param name="channelId">1(channel 1), 2(channel 2)</param>
+    /// <param name="rodPositions">挡杆位置，下标为杆号</param>
+    SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions);
 
     /// <summary>
     /// 获取傅里叶相机的图片
     /// </summary>
-    /// <param name="id">通道ID: 0-CH1, 1-CH2, 2-CH3</param>
     /// <param name="productivityInformation">生产率信息</param>
-    /// <param name="level">光强</param>
-    /// <param name="pos">晶圆位置</param>
-    /// <param name="width">图像宽度</param>
+    /// <param name="laserLightInformation">激光光强</param>
+    /// <param name="dfPosition">暗场位置</param>
+    /// <param name="scanLength">扫描长度</param>
+    /// <param name="channelId">1(channel 1), 2(channel 2), 3(channel 3)</param>
     /// <returns>傅里叶相机的图片</returns>
-    SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800);
+    SxExecuteRet<BitmapImage> GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId);
 
     /// <summary>
     /// 获取傅里叶相机的配置
@@ -40,13 +51,9 @@ public interface ICalibrationFourierService
     /// <returns>傅里叶相机的配置</returns>
     SxExecuteRet<C2MFFRangeModel> GetFourierConfig();
 
-    SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions);
-
     SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos);
 
     SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos);
-
-    SxExecuteRet<bool> SetFFHome(FFCH ch);
 
     /// <summary>
     /// 获取旋转电机MARK实时位置，只有CH3有（X和Y都有）

@@ -1,6 +1,8 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Exceptions;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
+using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
@@ -22,30 +24,41 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public BitmapImage GetFourierImage(int channelId)
+    public void Home(int channelId)
     {
-        var ret = calibrationFourierService.GetFourierImage(channelId);
+        var ret = calibrationFourierService.Home(channelId);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetRods(int channelId, double[] rodPositions)
+    {
+        var ret = calibrationFourierService.SetRods(channelId, rodPositions);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public BitmapImage GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
+    {
+        var ret = calibrationFourierService.GetImage(
+            productivityInformation,
+            laserLightInformation,
+            dfPosition,
+            scanLength,
+            channelId);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
-
-    public BitmapImage GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
-    {
-        var ret = calibrationFourierService.GetFFReviewImgForTrigger(id, productivityInformation, level, pos, width);
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
 
     public C2MFFRangeModel GetFourierConfig()
     {
         var ret = calibrationFourierService.GetFourierConfig();
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
-    {
-        var ret = calibrationFourierService.FF_Move_CH12(channelId, rodpostions);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
     public bool FF_Move_CH3X(int rpos, double lpos, double ppos)
@@ -57,12 +70,6 @@ public sealed class FourierViewModel(
     public bool FF_Move_CH3Y(int rpos, double lpos)
     {
         var ret = calibrationFourierService.FF_Move_CH3Y(rpos, lpos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool SetFFHome(FFCH ch)
-    {
-        var ret = calibrationFourierService.SetFFHome(ch);
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
@@ -100,5 +107,12 @@ public sealed class FourierViewModel(
     {
         var ret = calibrationFourierService.SetFFPPOS_CH3(ch, pos);
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void UseSimulatorImages(string[] simulatorImageFilePaths)
+    {
+        var mock = Guard.IsAssignableToTypeAndReturn<CalibrationFourierServiceMockImpl>(calibrationFourierService);
+
+        mock.SimulatorImageFilePaths = simulatorImageFilePaths;
     }
 }

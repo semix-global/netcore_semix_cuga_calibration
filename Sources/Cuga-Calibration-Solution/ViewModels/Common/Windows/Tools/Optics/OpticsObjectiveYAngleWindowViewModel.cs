@@ -272,14 +272,20 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition), CalChipSiteModelEnum.HazeModel);
+                    var brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(brightFieldPosition, CalChipSiteModelEnum.HazeModel);
                     afViewModel.ToggleDarkFieldEnable(true);
                     laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
                     laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-                    hazeFourierImage = fourierViewModel.GetFourierImage(Cache.ChannelId);
+                    hazeFourierImage = fourierViewModel.GetImage(
+                        Cache.ProductivityInformation,
+                        Cache.HazeLaserLightInformation,
+                        brightFieldPosition,
+                        800,
+                        Cache.ChannelId); // todo: 改为界面输入
 
                     var resultHazeImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     hazeFourierImage.SaveImage(resultHazeImageFilePath);
@@ -297,7 +303,8 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition), CalChipSiteModelEnum.ShinyWaferModel);
+                    var brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(brightFieldPosition, CalChipSiteModelEnum.ShinyWaferModel);
                     afViewModel.ToggleDarkFieldEnable(true);
 
                     Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
@@ -317,7 +324,12 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                     laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
 
                     await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
-                    shinyWaferFourierImage = fourierViewModel.GetFourierImage(Cache.ChannelId);
+                    shinyWaferFourierImage = fourierViewModel.GetImage(
+                        Cache.ProductivityInformation,
+                        Cache.ShinyWaferLaserLightInformation,
+                        brightFieldPosition,
+                        800,
+                        Cache.ChannelId); // todo: 改为界面输入
 
                     var resultShinyWaferImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     shinyWaferFourierImage.SaveImage(resultShinyWaferImageFilePath);

@@ -4,10 +4,12 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
+using System.IO;
 using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
 using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
@@ -16,6 +18,19 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
+    private int _simulatorImageIndex;
+
+    public string[] SimulatorImageFilePaths
+    {
+        get;
+        set
+        {
+            _simulatorImageIndex = 0;
+
+            field = value;
+        }
+    } = [];
+
     public SxExecuteRet<bool> Connect()
     {
         Thread.Sleep(100);
@@ -23,40 +38,44 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<BitmapImage> GetFourierImage(int channelId)
-    {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-        var bitmapImage = BitmapImage.Random(2048, 2044, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-    }
-
-    public SxExecuteRet<BitmapImage> GetFFReviewImgForTrigger(int id, ProductivityInformation productivityInformation, double level, Point pos, int width = 800)
-    {
-#pragma warning disable IDE0079
-#pragma warning disable IDISP001
-
-        var bitmapImage = BitmapImage.Random(width, width, 10);
-        return SxExecuteRetHelper.CreateSuccess(bitmapImage);
-
-#pragma warning restore IDISP001
-#pragma warning restore IDE0079
-    }
-
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
-    {
-        var c2MFFRangeModel = new C2MFFRangeModel();
-
-        return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
-    }
-
-    public SxExecuteRet<bool> FF_Move_CH12(FFCH channelId, List<(int rodnumber, double rodpos)> rodpostions)
+    public SxExecuteRet<bool> Home(int channelId)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<BitmapImage> GetImage(
+        ProductivityInformation productivityInformation,
+        LaserLightInformation laserLightInformation,
+        Point dfPosition,
+        double scanLength,
+        int channelId)
+    {
+        Thread.Sleep(100);
+
+        var filePath = SimulatorImageFilePaths.ElementAtOrDefault(_simulatorImageIndex++ % SimulatorImageFilePaths.Length) ?? string.Empty;
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP004
+
+        return SxExecuteRetHelper.CreateSuccess(File.Exists(filePath)
+            ? BitmapHelper.OpenImage(filePath)
+            : BitmapImage.Random(Convert.ToInt32(scanLength), Convert.ToInt32(scanLength), 10));
+
+#pragma warning restore IDISP004
+#pragma warning restore IDE0079
+    }
+
+    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig() => SxExecuteRetHelper.CreateSuccess(new C2MFFRangeModel
+    {
+        RodNum = 46,
+        CH12MinPOS = 0,
+        CH12MaxPOS = 55
+    });
 
     public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
     {
@@ -64,11 +83,6 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     }
 
     public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFHome(FFCH ch)
     {
         return SxExecuteRetHelper.CreateSuccess(true);
     }
