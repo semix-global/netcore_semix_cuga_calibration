@@ -33,14 +33,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 {
     #region 仿真器
 
-    private static readonly string[] SimulatorFourierImageFilePaths =
-    [
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Step1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Step1.jpg")
-    ];
-
     private static readonly string[][] SimulatorCIBImageFilePaths =
     [
         [
@@ -232,7 +224,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         foreach (var review in Reviews) review.Dispose();
         foreach (var calibration in Calibrations) calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImages([]);
+        FourierViewModel.UseSimulatorImage(null);
         CIBViewModel.UseSimulatorImages([]);
 
         return true;
@@ -317,8 +309,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 Cache.Item.ScanLength,
                 Cache.Item.ShinyWaferFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-
-            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImages(SimulatorFourierImageFilePaths);
 
             return true;
         });
@@ -491,6 +481,15 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         void Grab(int stepIndex)
         {
+            if (HostEnvironment.IsDevelopment())
+            {
+                FourierViewModel.UseSimulatorImage(Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"Assets\Data\Fourier",
+                    nameof(FourierSideChannelSpecularBlockerViewModel),
+                    $"Channel{item.ChannelId}_Step{stepIndex}.jpg"));
+            }
+
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
                 Cache.Item.LaserLightInformation,

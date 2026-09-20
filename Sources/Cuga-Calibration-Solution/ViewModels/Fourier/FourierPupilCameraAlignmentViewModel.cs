@@ -23,17 +23,6 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(FourierPupilCameraAlignmentViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationViewModelBase<FourierPupilCameraAlignmentCache>
 {
-    #region 仿真器
-
-    private static readonly string[] SimulatorImageFilePaths =
-    [
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel2.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierPupilCameraAlignmentViewModel), "Channel3.jpg")
-    ];
-
-    #endregion 仿真器
-
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -183,7 +172,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         Review.Dispose();
         Calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImages([]);
+        FourierViewModel.UseSimulatorImage(null);
 
         return true;
     }
@@ -236,8 +225,6 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 Cache.ScanLength,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-
-            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImages(SimulatorImageFilePaths);
 
             return true;
         });
@@ -315,6 +302,15 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         try
         {
             FourierViewModel.Home(item.ChannelId);
+
+            if (HostEnvironment.IsDevelopment())
+            {
+                FourierViewModel.UseSimulatorImage(Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"Assets\Data\Fourier",
+                    nameof(FourierPupilCameraAlignmentViewModel),
+                    $"Channel{item.ChannelId}.jpg"));
+            }
 
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
