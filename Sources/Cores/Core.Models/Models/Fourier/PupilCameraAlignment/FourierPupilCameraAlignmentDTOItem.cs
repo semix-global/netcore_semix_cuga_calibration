@@ -119,9 +119,17 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
                         }
                         catch (Exception ex) when (ex is not OperationCanceledException)
                         {
-                            if (ShouldContinue(ex)) goto InnerLoop;
+                            switch (ShouldContinue(ex))
+                            {
+                                case DialogResultEnum.Yes:
+                                    continue;
 
-                            throw;
+                                case DialogResultEnum.No:
+                                    goto InnerLoop;
+
+                                default:
+                                    throw;
+                            }
                         }
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
@@ -159,16 +167,18 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
         return;
 
-        static bool ShouldContinue(Exception ex)
+        static DialogResultEnum ShouldContinue(Exception ex)
         {
             var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
 
-            return dialogWindowProvider.TryShowDialog($"""
-                                                       Error: {ex.Message}
-                                                       Yes: continue to modify ROI.
-                                                       No: abort calibration.
-                                                       """, out var dialogResult, DialogButtonsEnum.YesNo, DialogIconEnum.Warning) == true
-                   && dialogResult == DialogResultEnum.Yes;
+            dialogWindowProvider.TryShowDialog($"""
+                                                Error: {ex.Message}
+                                                Yes: continue to modify ROI.
+                                                No: restart from the beginning.
+                                                Cancel: abort calibration.
+                                                """, out var dialogResult, DialogButtonsEnum.YesNoCancel, DialogIconEnum.Warning);
+
+            return dialogResult;
         }
     }
 
