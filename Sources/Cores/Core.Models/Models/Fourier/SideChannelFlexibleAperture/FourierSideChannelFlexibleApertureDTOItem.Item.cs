@@ -406,22 +406,22 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
 
                     Rod[] orderedVisibleRods = [.. visibleRods.OrderBy(t => t.Index)];
-                    var averageWidth = orderedVisibleRods.Average(t => t.ImageROI.Width);
-                    var averageHeight = orderedVisibleRods.Average(t => t.ImageROI.Height);
-                    var averageY = orderedVisibleRods.Average(t => t.ImageROI.Y);
-                    var averageCenterXOffsetPerRod = orderedVisibleRods.Zip(orderedVisibleRods.Skip(1))
-                        .Average(pair => (pair.Second.ImageROI.Center.X - pair.First.ImageROI.Center.X) / ((pair.Second.Index - pair.First.Index) / 2d));
-
-                    Guard.IsEqualTo(averageY, 0d);
+                    Guard.IsEqualTo(orderedVisibleRods.Average(t => t.ImageROI.Y), 0d);
 
                     foreach (var invisibleRod in invisibleRods)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var nearestVisibleRod = visibleRods.OrderBy(t => Math.Abs(t.Index - invisibleRod.Index)).First();
-                        var centerX = nearestVisibleRod.ImageROI.Center.X + averageCenterXOffsetPerRod * ((invisibleRod.Index - nearestVisibleRod.Index) / 2d);
+                        var isLeft = invisibleRod.Index < orderedVisibleRods[0].Index;
+                        var firstVisibleRod = isLeft ? orderedVisibleRods[0] : orderedVisibleRods[^2];
+                        var secondVisibleRod = isLeft ? orderedVisibleRods[1] : orderedVisibleRods[^1];
+                        var centerXOffsetPerRod = (secondVisibleRod.ImageROI.Center.X - firstVisibleRod.ImageROI.Center.X) / ((secondVisibleRod.Index - firstVisibleRod.Index) / 2d);
+                        var centerX = isLeft
+                            ? firstVisibleRod.ImageROI.Center.X - centerXOffsetPerRod * ((firstVisibleRod.Index - invisibleRod.Index) / 2d)
+                            : secondVisibleRod.ImageROI.Center.X + centerXOffsetPerRod * ((invisibleRod.Index - secondVisibleRod.Index) / 2d);
+                        var referenceVisibleRod = isLeft ? firstVisibleRod : secondVisibleRod;
 
-                        invisibleRod.ImageROI = new Rect(centerX - averageWidth / 2d, 0d, averageWidth, averageHeight)
+                        invisibleRod.ImageROI = new Rect(centerX - referenceVisibleRod.ImageROI.Width / 2d, 0d, referenceVisibleRod.ImageROI.Width, referenceVisibleRod.ImageROI.Height)
                             .ImageCoordinateRound()
                             .ClampToBounds(new Rect(Point.Origin, _step1BitmapImageDrawable.BitmapImage.Size));
 
@@ -526,18 +526,22 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 if (invisibleRods.Length == 0) return;
 
-                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 1);
-
-                var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
-                var averageY = visibleRods.Average(t => t.ImageROI.Y);
-
-                Guard.IsEqualTo(averageY, 0d);
+                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
+                Guard.IsEqualTo(visibleRods.Average(t => t.ImageROI.Y), 0d);
 
                 foreach (var invisibleRod in invisibleRods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, averageHeight))
+                    var isLeft = invisibleRod.Index < visibleRods[0].Index;
+                    var firstVisibleRod = isLeft ? visibleRods[0] : visibleRods[^2];
+                    var secondVisibleRod = isLeft ? visibleRods[1] : visibleRods[^1];
+                    var heightOffsetPerRod = (secondVisibleRod.ImageROI.Height - firstVisibleRod.ImageROI.Height) / ((secondVisibleRod.Index - firstVisibleRod.Index) / 2d);
+                    var height = isLeft
+                        ? firstVisibleRod.ImageROI.Height - heightOffsetPerRod * ((firstVisibleRod.Index - invisibleRod.Index) / 2d)
+                        : secondVisibleRod.ImageROI.Height + heightOffsetPerRod * ((invisibleRod.Index - secondVisibleRod.Index) / 2d);
+
+                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
                         .ImageCoordinateRound()
                         .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
 
