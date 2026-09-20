@@ -31,22 +31,6 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(FourierSideChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FourierSideChannelSpecularBlockerViewModel : CalibrationViewModelBase<FourierSideChannelSpecularBlockerCache>
 {
-    #region 仿真器
-
-    private static readonly string[][] SimulatorCIBImageFilePaths =
-    [
-        [
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Verify_Step0_CIB.raw"),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Verify_Step0_CIB.raw")
-        ],
-        [
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel1_Verify_Step1_CIB.raw"),
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelSpecularBlockerViewModel), "Channel2_Verify_Step1_CIB.raw")
-        ]
-    ];
-
-    #endregion 仿真器
-
     #region 属性
 
     public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
@@ -225,7 +209,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         foreach (var calibration in Calibrations) calibration.Dispose();
 
         FourierViewModel.UseSimulatorImage(null);
-        CIBViewModel.UseSimulatorImages([]);
+        CIBViewModel.UseSimulatorImages(null);
 
         return true;
     }
@@ -338,8 +322,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         await InvokeVerifyAsync(async () =>
         {
             Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.VerifyLaserLightInformation));
-
-            if (HostEnvironment.IsDevelopment()) CIBViewModel.UseSimulatorImages(SimulatorCIBImageFilePaths);
 
             var errorMessageStringBuilder = new StringBuilder();
             foreach (var selectedReviewItem in SelectedReviewItems.OrderBy(t => t.ProductivityInformation))
@@ -596,6 +578,18 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             async Task GrabAsync(int stepIndex)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (HostEnvironment.IsDevelopment())
+                {
+                    CIBViewModel.UseSimulatorImages(
+                    [
+                        .. items.Select(item => Path.Combine(
+                            AppDomain.CurrentDomain.BaseDirectory,
+                            @"Assets\Data\Fourier",
+                            nameof(FourierSideChannelSpecularBlockerViewModel),
+                            $"Channel{item.ChannelId}_Verify_Step{stepIndex}_CIB.raw"))
+                    ]);
+                }
 
                 var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
                     Cache.ProductivityInformation,
