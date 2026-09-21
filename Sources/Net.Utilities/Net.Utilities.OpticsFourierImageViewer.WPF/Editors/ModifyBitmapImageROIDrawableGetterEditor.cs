@@ -215,6 +215,18 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.A && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
+        {
+            CommitToHistory();
+            ResetInteractionState();
+            SelectAllROIs();
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
             CommitToHistory();
@@ -396,6 +408,19 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         {
             if (isControlPressed) ToggleSelection(rectROIDrawable);
             else Select(rectROIDrawable);
+        }
+    }
+
+    private void SelectAllROIs()
+    {
+        var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+
+        ClearSelection();
+
+        foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
+                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
+        {
+            Select(bitmapImageROIDrawable);
         }
     }
 
