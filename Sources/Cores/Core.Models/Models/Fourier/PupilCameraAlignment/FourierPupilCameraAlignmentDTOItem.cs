@@ -101,6 +101,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_originalBitmapImageDrawable)
                 {
+                    Title = "Select the pupil camera ROI",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken

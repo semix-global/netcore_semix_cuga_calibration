@@ -13,13 +13,18 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDrawableInputOptions options) : AbstractDrawable
 {
-    private static readonly TextStyle BodyTextStyle = new(Fonts.Monospace, 11d);
-    private static readonly TextStyle SaveTextStyle = new(Fonts.Monospace, 13d, isBold: true);
-    private static readonly FillStyle BackgroundStyle = new(new SKColor(20, 25, 35, 225));
-    private static readonly FillStyle ForegroundStyle = new(SKColors.White);
-    private static readonly FillStyle SaveForegroundStyle = new(new SKColor(255, 215, 90));
-    private static readonly FillStyle TransparentFillStyle = new(SKColors.Transparent);
-    private static readonly LineStyle TransparentLineStyle = new(SKColors.Transparent);
+    private static readonly TextStyle TitleTextStyle = new(Fonts.Sans, 13d, isBold: true);
+    private static readonly FillStyle TitleForegroundStyle = new(new SKColor(185, 220, 255));
+
+    private static readonly TextStyle SubTitleTextStyle = new(Fonts.Sans);
+    private static readonly FillStyle SubTitleForegroundStyle = new(new SKColor(168, 182, 202));
+    private static readonly FillStyle ShortcutForegroundStyle = new(new SKColor(242, 204, 143));
+
+    private static readonly TextStyle BodyTextStyle = new(Fonts.Sans, 11d);
+    private static readonly FillStyle BodyForegroundStyle = new(new SKColor(214, 222, 233));
+
+    private static readonly FillStyle BackgroundStyle = new(new SKColor(20, 28, 40, 238));
+    private static readonly LineStyle BorderStyle = new(new SKColor(67, 83, 106, 190));
 
     public override bool IsInModel => false;
 
@@ -28,33 +33,36 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
         var image = options.BitmapImageDrawable;
         if (image.BitmapImage?.IsEmpty != false) return;
 
-        string[] lines =
+        List<(string Text, TextStyle TextStyle, FillStyle ForegroundStyle)> lines =
         [
-            "Enter / Ctrl + S: Save and exit editing",
-            "ROI editing: Only visible, unlocked ROIs can be edited",
-            "Left-click / drag to select; hold Ctrl to toggle selection",
-            "Drag inside a selected ROI to move; drag a handle to resize",
-            $"Movement: {options.BitmapImageROIDragMoveTypeEnum switch
+            ("ROI editing: Only visible, unlocked ROIs can be edited", SubTitleTextStyle, SubTitleForegroundStyle),
+            ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit", BodyTextStyle, ShortcutForegroundStyle),
+            ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo", BodyTextStyle, ShortcutForegroundStyle),
+            ("Select ROIs: Left-Click / drag; Ctrl + Left-Click / drag: Toggle; Ctrl + A: All", BodyTextStyle, BodyForegroundStyle),
+            ($"Resize ROIs: Drag a Joystick; Shift + Arrows: Expand edge ({options.KeyboardResizeStep} px)", BodyTextStyle, BodyForegroundStyle),
+            ($"Move ROIs: {options.BitmapImageROIDragMoveTypeEnum switch
             {
-                BitmapImageROIDragMoveTypeEnum.None => "disabled",
-                BitmapImageROIDragMoveTypeEnum.X => "horizontal only",
-                BitmapImageROIDragMoveTypeEnum.Y => "vertical only",
-                _ => "horizontal and vertical"
-            }}; resize uses each ROI's allowed handles",
-            $"Arrow keys: Move by {options.KeyboardMoveStep:g} px",
-            $"Shift + Arrow keys: Expand the corresponding edge by {options.KeyboardResizeStep:g} px",
-            "Ctrl + A: Select all editable ROIs",
-            "Ctrl + Z: Undo; Ctrl + Shift + Z: Redo",
-            options.IsDeleteEnabled ? "Delete: Hide selected ROIs (can be undone)" : "Delete: Disabled",
-            "Esc: Cancel editing and restore the original state"
+                BitmapImageROIDragMoveTypeEnum.None => "Disabled",
+                BitmapImageROIDragMoveTypeEnum.X => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, horizontal only)",
+                BitmapImageROIDragMoveTypeEnum.Y => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, vertical only)",
+                _ => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, all directions)"
+            }}", BodyTextStyle, BodyForegroundStyle),
+            (options.IsDeleteEnabled ? "Delete ROIs: Delete selected ROIs (invisible, can be undone)" : "Delete ROIs: Disabled", BodyTextStyle, BodyForegroundStyle),
         ];
 
+        if (string.IsNullOrWhiteSpace(options.Title) == false) lines.Insert(0, (options.Title, TitleTextStyle, TitleForegroundStyle));
+
         var bounds = renderer.View.GetViewBounds();
-        var padding = renderer.View.ScreenToWorldDistance(6d);
-        var gap = renderer.View.ScreenToWorldDistance(2d);
-        var sizes = lines.Select((text, index) => renderer.Measure(index == 0 ? SaveTextStyle : BodyTextStyle, ForegroundStyle, text).Size).ToArray();
-        var width = sizes.Max(size => size.Width) + padding * 2d;
-        var height = sizes.Sum(size => size.Height) + gap * (lines.Length - 1) + padding * 2d;
+
+        var padding = renderer.View.ScreenToWorldDistance(5d);
+        var gap = renderer.View.ScreenToWorldDistance(1d);
+        var measuredLines = lines.Select(line => (
+            line.Text,
+            line.TextStyle,
+            line.ForegroundStyle,
+            renderer.Measure(line.TextStyle, line.ForegroundStyle, line.Text).Size)).ToArray();
+        var width = measuredLines.Max(line => line.Size.Width) + padding * 2d;
+        var height = measuredLines.Sum(line => line.Size.Height) + gap * (lines.Count - 1) + padding * 2d;
 
         var origin = options.EditInformationCorner switch
         {
@@ -64,22 +72,24 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
             BitmapImageROIResizeJoystickStateEnum.XMaxYMin => new Point(bounds.XMax - padding - width, bounds.YMin + padding),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(options.EditInformationCorner))
         };
+
         renderer.FillRectangle(BackgroundStyle, new Rect(origin, new Size(width, height)));
+        renderer.DrawRectangle(BorderStyle, new Rect(origin, new Size(width, height)));
 
         var y = origin.Y + height - padding;
-        for (var i = 0; i < lines.Length; i++)
+        foreach (var (text, textStyle, foregroundStyle, size) in measuredLines)
         {
             renderer.DrawString(
-                i == 0 ? SaveTextStyle : BodyTextStyle,
-                i == 0 ? SaveForegroundStyle : ForegroundStyle,
-                new Point(origin.X + padding, y - sizes[i].Height / 2d),
-                lines[i],
+                textStyle,
+                foregroundStyle,
+                new Point(origin.X + padding, y - size.Height / 2d),
+                text,
                 AlignmentEnum.MiddleRight,
-                TransparentFillStyle,
-                TransparentLineStyle,
+                new FillStyle(SKColors.Transparent),
+                new LineStyle(SKColors.Transparent),
                 new Vector(0d, 0d),
                 new Padding(0d));
-            y -= sizes[i].Height + gap;
+            y -= size.Height + gap;
         }
     }
 

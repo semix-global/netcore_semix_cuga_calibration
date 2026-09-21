@@ -49,7 +49,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial Rect Rect { get; set; }
 
     /// <summary>
-    /// 是否锁定该 ROI. 锁定后不可编辑, 并使用 FixedFillStyle 绘制.
+    /// 是否锁定该ROI. 锁定后不可编辑, 并使用 FixedFillStyle 绘制.
     /// </summary>
     [ObservableProperty]
     public partial bool IsFixed { get; set; } = false;

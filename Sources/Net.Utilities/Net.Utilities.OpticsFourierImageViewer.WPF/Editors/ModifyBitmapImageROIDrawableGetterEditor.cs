@@ -518,7 +518,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void DeleteSelectedROIs()
     {
-        // 先提交当前拖拽, 使位置修改和批量隐藏分别作为一次历史操作.
+        // 先提交当前拖拽, 使位置修改和批量删除分别作为一次历史操作.
         CommitToHistory();
         ResetInteractionState();
 
