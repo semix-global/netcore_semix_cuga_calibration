@@ -22,6 +22,7 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
 
     private static readonly TextStyle BodyTextStyle = new(Fonts.Sans, 11d);
     private static readonly FillStyle BodyForegroundStyle = new(new SKColor(214, 222, 233));
+    private static readonly FillStyle BodyShortcutForegroundStyle = new(new SKColor(154, 198, 210));
 
     private static readonly FillStyle BackgroundStyle = new(new SKColor(20, 28, 40, 238));
     private static readonly LineStyle BorderStyle = new(new SKColor(67, 83, 106, 190));
@@ -35,28 +36,28 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
 
         List<(string Text, TextStyle TextStyle, FillStyle ForegroundStyle)> lines =
         [
-            ("ROI editing: Only visible and unlocked ROIs can be edited", SubTitleTextStyle, SubTitleForegroundStyle),
-            ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit", BodyTextStyle, ShortcutForegroundStyle),
-            ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo", BodyTextStyle, ShortcutForegroundStyle),
-            ("Tab: Show / hide this help panel", BodyTextStyle, ShortcutForegroundStyle),
-            ("Select ROIs: Left-Click a ROI or drag a selection box; Ctrl + Left-Click / drag box: toggle ROIs; Ctrl + A: select all", BodyTextStyle, BodyForegroundStyle),
+            ("ROI editing: Only visible and unlocked ROIs can be edited.", SubTitleTextStyle, SubTitleForegroundStyle),
+            ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit.", BodyTextStyle, ShortcutForegroundStyle),
+            ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo.", BodyTextStyle, ShortcutForegroundStyle),
+            ("Tab: Show / hide this help panel.", BodyTextStyle, ShortcutForegroundStyle),
+            ("Select ROIs(Mouse): Left-Click a ROI or drag a selection box; Ctrl + Left-Click / drag box: toggle; Ctrl + A: select all.", BodyTextStyle, BodyForegroundStyle),
             ($"Move ROIs(Mouse): {options.BitmapImageROIDragMoveTypeEnum switch
             {
-                BitmapImageROIDragMoveTypeEnum.None => "Disabled",
-                BitmapImageROIDragMoveTypeEnum.X => "Drag a selected ROI (horizontal only)",
-                BitmapImageROIDragMoveTypeEnum.Y => "Drag a selected ROI (vertical only)",
-                _ => "Drag a selected ROI in any direction"
+                BitmapImageROIDragMoveTypeEnum.None => "Disabled.",
+                BitmapImageROIDragMoveTypeEnum.X => "Drag a selected ROI (horizontal only).",
+                BitmapImageROIDragMoveTypeEnum.Y => "Drag a selected ROI (vertical only).",
+                _ => "Drag a selected ROI (all directions)."
             }}", BodyTextStyle, BodyForegroundStyle),
+            ("Resize ROIs(Mouse): Drag a handle (joystick) on the ROI edge or corner.", BodyTextStyle, BodyForegroundStyle),
             ($"Move ROIs(Keyboard): {options.BitmapImageROIDragMoveTypeEnum switch
             {
-                BitmapImageROIDragMoveTypeEnum.None => "Disabled",
-                BitmapImageROIDragMoveTypeEnum.X => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; horizontal only)",
-                BitmapImageROIDragMoveTypeEnum.Y => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; vertical only)",
-                _ => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; all directions)"
-            }}", BodyTextStyle, BodyForegroundStyle),
-            ("Resize ROIs(Mouse): Drag a handle (joystick) on the ROI edge or corner", BodyTextStyle, BodyForegroundStyle),
-            ($"Resize ROIs(Keyboard): ↑↓←→ slides the bottom / left edge; hold Shift to slide the top / right edge (step: {options.KeyboardResizeStep} px; hold Ctrl: 10x step)", BodyTextStyle, BodyForegroundStyle),
-            (options.IsDeleteEnabled ? "Delete ROIs: Press Delete to hide the selected ROIs (undo with Ctrl + Z)" : "Delete ROIs: Disabled", BodyTextStyle, BodyForegroundStyle),
+                BitmapImageROIDragMoveTypeEnum.None => "Disabled.",
+                BitmapImageROIDragMoveTypeEnum.X => $"Alt + ←→ step: {options.KeyboardMoveStep} px; Ctrl + Alt + ←→: 10x step; (horizontal only).",
+                BitmapImageROIDragMoveTypeEnum.Y => $"Alt + ↑↓ step: {options.KeyboardMoveStep} px; Ctrl + Alt + ↑↓: 10x step; (vertical only).",
+                _ => $"Alt + ↑↓←→ step: {options.KeyboardMoveStep} px; Ctrl + Alt + ↑↓←→: 10x step; (all directions)."
+            }}", BodyTextStyle, BodyShortcutForegroundStyle),
+            ($"Resize ROIs(Keyboard): ↑↓←→: bottom / left edge; Shift + ↑↓←→: top / right edge (step: {options.KeyboardResizeStep} px); Ctrl or (Ctrl + Shift) + ↑↓←→ : 10x step.", BodyTextStyle, BodyShortcutForegroundStyle),
+            (options.IsDeleteEnabled ? "Delete ROIs(Keyboard): Delete: hide the selected ROIs (undo with Ctrl + Z)" : "Delete ROIs: Disabled.", BodyTextStyle, BodyShortcutForegroundStyle),
         ];
 
         if (string.IsNullOrWhiteSpace(options.Title) == false) lines.Insert(0, (options.Title, TitleTextStyle, TitleForegroundStyle));

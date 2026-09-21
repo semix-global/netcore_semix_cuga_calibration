@@ -641,7 +641,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
-            bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta).ClampToBounds(imageRect);
+            bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta)
+                .ImageCoordinateRound()
+                .ClampToBounds(imageRect);
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
@@ -665,37 +667,46 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             if ((bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedJoysticks) == BitmapImageROIResizeJoystickStateEnum.None) continue;
 
             var originalRect = originalState.Rect;
+
+            // 先限制移动边不能越过对侧边, 避免 Extents 交换边界后改变固定边. 允许收缩到零尺寸.
+            var xMin = Math.Min(originalRect.XMin + delta.X, originalRect.XMax);
+            var xMax = Math.Max(originalRect.XMax + delta.X, originalRect.XMin);
+            var yMin = Math.Min(originalRect.YMin + delta.Y, originalRect.YMax);
+            var yMax = Math.Max(originalRect.YMax + delta.Y, originalRect.YMin);
+
             var modifiedRect = _resizeJoystickStateEnum switch
             {
                 BitmapImageROIResizeJoystickStateEnum.None => originalRect,
                 BitmapImageROIResizeJoystickStateEnum.XMinYMax => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMax) + delta,
+                    new Point(xMin, yMax),
                     new Point(originalRect.XMax, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XCenterYMax => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMax, yMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYMax => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + delta,
+                    new Point(xMax, yMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(delta.X, 0),
+                    new Point(xMax, originalRect.YMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYMin => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMin) + delta,
+                    new Point(xMax, yMin),
                     new Point(originalRect.XMin, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XCenterYMin => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMin, yMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XMinYMin => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + delta,
+                    new Point(xMin, yMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XMinYCenter => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(delta.X, 0),
+                    new Point(xMin, originalRect.YMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
+            bitmapImageROIDrawable.Rect = modifiedRect
+                .ImageCoordinateRound()
+                .ClampToBounds(imageRect);
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }

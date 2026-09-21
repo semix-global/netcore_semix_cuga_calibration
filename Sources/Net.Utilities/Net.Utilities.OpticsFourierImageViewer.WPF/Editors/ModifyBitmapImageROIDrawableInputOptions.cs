@@ -19,7 +19,7 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     /// 编辑提示信息面板顶部显示的标题. 为空时不显示, 默认 "Please edit ROI".
     /// </summary>
     [ObservableProperty]
-    public partial string Title { get; set; } = "Please edit ROI";
+    public partial string Title { get; set; } = "Please edit ROI.";
 
     /// <summary>
     /// 允许拖拽移动ROI的方向. 可限制为仅水平、仅垂直、全部方向或禁止移动.
@@ -41,13 +41,13 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     public partial BitmapImageROIResizeJoystickStateEnum EditInformationCorner { get; set; } = BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
 
     /// <summary>
-    /// 方向键移动ROI的步距, 单位为像素, 必须为有限正数.
+    /// Alt + 方向键移动ROI的步距, 单位为像素, 必须为有限正数.
     /// </summary>
     [ObservableProperty]
     public partial double KeyboardMoveStep { get; set; } = 1d;
 
     /// <summary>
-    /// Shift+方向键向外扩展ROI对应边的步距, 单位为像素, 必须为有限正数.
+    /// 方向键调整ROI对应边的步距, 单位为像素, 必须为有限正数.
     /// </summary>
     [ObservableProperty]
     public partial double KeyboardResizeStep { get; set; } = 1d;
