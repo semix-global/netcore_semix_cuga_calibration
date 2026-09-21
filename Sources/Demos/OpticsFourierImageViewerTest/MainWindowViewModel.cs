@@ -124,7 +124,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                         Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
                         IsFixed = Random.Shared.NextDouble() > 0.5,
                         Text = $"{i + 1}",
-                        ResizeJoystickStateEnum = resizeJoystickStateEnum
+                        ResizeJoystickStateEnum = resizeJoystickStateEnum & (BitmapImageROIResizeJoystickStateEnum)Random.Shared.Next((int)BitmapImageROIResizeJoystickStateEnum.All + 1)
                     });
                 }
             });
