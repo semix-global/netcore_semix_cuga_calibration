@@ -28,22 +28,28 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     public partial bool IsDeleteEnabled { get; set; } = false;
 
     /// <summary>
+    /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
+    /// </summary>
+    [ObservableProperty]
+    public partial BitmapImageROIResizeJoystickStateEnum EditInformationCorner { get; set; } = BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+
+    /// <summary>
     /// 方向键移动 ROI 的步距, 单位为像素, 必须为有限正数.
     /// </summary>
     [ObservableProperty]
     public partial double KeyboardMoveStep { get; set; } = 1d;
-
-    partial void OnKeyboardMoveStepChanging(double value)
-    {
-        Guard.IsTrue(double.IsFinite(value));
-        Guard.IsGreaterThan(value, 0d);
-    }
 
     /// <summary>
     /// Shift + 方向键向外扩展 ROI 对应边的步距, 单位为像素, 必须为有限正数.
     /// </summary>
     [ObservableProperty]
     public partial double KeyboardResizeStep { get; set; } = 1d;
+
+    partial void OnKeyboardMoveStepChanging(double value)
+    {
+        Guard.IsTrue(double.IsFinite(value));
+        Guard.IsGreaterThan(value, 0d);
+    }
 
     partial void OnKeyboardResizeStepChanging(double value)
     {

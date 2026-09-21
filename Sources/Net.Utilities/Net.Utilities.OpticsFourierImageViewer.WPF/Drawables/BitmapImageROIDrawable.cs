@@ -42,6 +42,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
+    /// </summary>
     [ObservableProperty]
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 

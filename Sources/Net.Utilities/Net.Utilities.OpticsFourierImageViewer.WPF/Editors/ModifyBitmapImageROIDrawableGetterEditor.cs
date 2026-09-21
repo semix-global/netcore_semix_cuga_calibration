@@ -23,6 +23,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
     private ImmutableDictionary<BitmapImageROIDrawable, ROIState> _originalDictionary = [];
+    private BitmapImageROIEditInformationDrawable? _editInformationDrawable;
+
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> _edits = [];
     private ImmutableStack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)>> _undoStack = [];
     private ImmutableStack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)>> _redoStack = [];
@@ -46,8 +48,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         using var scope = Edit.Document.View.Sync.EnterScope();
 
         base.Init(args);
-
-        _lastCursorTypeEnum = null;
 
         Reset();
 
@@ -73,6 +73,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
 
         _originalDictionary = builder.ToImmutable();
+
+        _editInformationDrawable = new BitmapImageROIEditInformationDrawable(Options);
+        Edit.Document.Transients.Add(_editInformationDrawable);
 
         args.IsInputValid = true;
         args.IsContinueAsync = true;
@@ -283,12 +286,17 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
-        if (_isAccepted == false)
+        try
         {
-            foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
+            if (_isAccepted == false)
+            {
+                foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
+            }
         }
-
-        Reset();
+        finally
+        {
+            Reset();
+        }
     }
 
     #endregion
@@ -297,6 +305,12 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void Reset()
     {
+        if (_editInformationDrawable is not null)
+        {
+            Edit.Document.Transients.Remove(_editInformationDrawable);
+            _editInformationDrawable = null;
+        }
+
         ClearSelection();
         _originalDictionary = [];
         _undoStack = [];
