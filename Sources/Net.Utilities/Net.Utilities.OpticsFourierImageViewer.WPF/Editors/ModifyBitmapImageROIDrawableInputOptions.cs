@@ -11,24 +11,25 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOptions<Unit>
 {
     /// <summary>
-    /// 编辑器操作所依据的图片: 所有ROI坐标都会被限制在该图片范围内.
+    /// 编辑器操作所依据的图片. 所有 ROI 坐标都会被限制在该图片范围内.
     /// </summary>
     public BitmapImageDrawable BitmapImageDrawable { get; }
 
     /// <summary>
-    /// 表示位图图像感兴趣区域 (ROI) 拖拽移动的类型枚举, 用于定义可以操作的拖拽方向.
+    /// 允许拖拽移动 ROI 的方向. 可限制为仅水平、仅垂直、全部方向或禁止移动.
     /// </summary>
     [ObservableProperty]
     public partial BitmapImageROIDragMoveTypeEnum BitmapImageROIDragMoveTypeEnum { get; set; } = BitmapImageROIDragMoveTypeEnum.All;
 
     /// <summary>
-    /// 是否允许按 Delete 隐藏选中的 ROI, 默认关闭. 隐藏支持撤销, 重做和取消恢复.
+    /// 是否允许按 Delete 隐藏选中的 ROI, 默认关闭. 隐藏支持撤销、重做和取消恢复.
     /// </summary>
     [ObservableProperty]
     public partial bool IsDeleteEnabled { get; set; } = false;
 
     /// <summary>
-    /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
+    /// 笛卡尔坐标系: 编辑提示信息面板在视图中的停靠角.
+    /// 仅支持四个角点 (XMinYMax / XMaxYMax / XMinYMin / XMaxYMin), 默认右下角.
     /// </summary>
     [ObservableProperty]
     public partial BitmapImageROIResizeJoystickStateEnum EditInformationCorner { get; set; } = BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
@@ -58,7 +59,7 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     }
 
     /// <summary>
-    /// 创建只编辑已有Rect ROI的输入选项.
+    /// 创建只编辑已有 ROI 的输入选项. 所依据的图片不能为空.
     /// </summary>
     public ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable bitmapImageDrawable) : base("Select ROI")
     {
@@ -67,6 +68,9 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
         BitmapImageDrawable = bitmapImageDrawable;
     }
 
+    /// <summary>
+    /// 笛卡尔坐标系: 返回所依据图片的外接矩形, 用于将 ROI 限制在图片范围内.
+    /// </summary>
     public Rect GetImageRect()
     {
         var bitmapImage = BitmapImageDrawable.BitmapImage;

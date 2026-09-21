@@ -25,20 +25,38 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYCenter), rect => rect.XMaxYCenter)
     ];
 
+    /// <summary>
+    /// 该ROI所依附的图片. 所有ROI坐标都会被限制在该图片范围内.
+    /// </summary>
     public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 
+    /// <summary>
+    /// 未锁定时ROI的填充样式.
+    /// </summary>
     [ObservableProperty]
     public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(64));
 
+    /// <summary>
+    /// 锁定时ROI的填充样式.
+    /// </summary>
     [ObservableProperty]
     public partial FillStyle FixedFillStyle { get; set; } = new(SKColors.Green.WithAlpha(64));
 
+    /// <summary>
+    /// 笛卡尔坐标系: 当前ROI矩形区域.
+    /// </summary>
     [ObservableProperty]
     public partial Rect Rect { get; set; }
 
+    /// <summary>
+    /// 是否锁定该 ROI. 锁定后不可编辑, 并使用 FixedFillStyle 绘制.
+    /// </summary>
     [ObservableProperty]
     public partial bool IsFixed { get; set; } = false;
 
+    /// <summary>
+    /// 绘制在ROI中心的文本标签. 为空时不绘制.
+    /// </summary>
     [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
 
@@ -48,6 +66,9 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     [ObservableProperty]
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
+    /// <summary>
+    /// 编辑器是否已修改该 ROI. 仅由编辑器内部更新, 用于标识相对进入编辑前的原始状态是否发生变化.
+    /// </summary>
     [ObservableProperty]
     public partial bool IsEditorModified { get; internal set; } = false;
 
