@@ -35,6 +35,11 @@ public sealed class CalibrationEFEMServiceImpl : BaseService<ICgCalibMWHService>
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<bool> SyncFoupStatus(EFEMStationEnum stationEnum)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
     {
         var sxExecuteRetState = Invoke(() => Service?.GetLoadPortSTA(new SxParamObj<ESxStation>(stationEnum.ToESxStation())));

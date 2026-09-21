@@ -411,7 +411,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         }), HtmlLogUniqueId.LoggingHtml());
 
         StageViewModel.SetAbsoluteStageTheta(0d);
-        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, Cache.CalChipSiteModelEnum);
+        StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         var averageEcs = HostEnvironment.IsDevelopment() == false

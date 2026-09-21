@@ -70,6 +70,7 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
+    [RelayCommand]
     private Task LoadFoupAsync(EFEMStationEnum stationEnum)
     {
         return InvokeAsync(() =>
@@ -79,6 +80,7 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
+    [RelayCommand]
     private Task UnLoadFoupAsync(EFEMStationEnum stationEnum)
     {
         return InvokeAsync(() =>
@@ -90,11 +92,13 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
+    [RelayCommand]
     private Task GetMapDataAsync(EFEMStationEnum efemStationEnum)
     {
         return InvokeAsync(() => { GetMapData(efemStationEnum); });
     }
 
+    [RelayCommand]
     private Task LoadWaferAsync()
     {
         return InvokeAsync(() =>
@@ -127,6 +131,7 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
+    [RelayCommand]
     private Task UnLoadWaferAsync()
     {
         return InvokeAsync(() =>
@@ -153,12 +158,22 @@ public sealed partial class EFEMWindowViewModel(
     private void GetMapData(EFEMStationEnum efemStationEnum)
     {
         var result = efemViewModel.GetMapData(efemStationEnum);
+        var port = efemStationEnum == EFEMStationEnum.P1 ? EFEMFoupLoadPort1 : EFEMFoupLoadPort2;
+
+        if (result.Count == 0)
+        {
+            foreach (var item in port)
+            {
+                item.IsHasWafer = false;
+                item.IsLoadWafer = false;
+            }
+
+            return;
+        }
 
         foreach (var efemFoupItem in result)
         {
-            var foupItem = efemStationEnum == EFEMStationEnum.P1
-                ? EFEMFoupLoadPort1.SingleOrDefault(t => t.SlotId == efemFoupItem.SlotId && t.StationEnum == efemFoupItem.StationEnum)
-                : EFEMFoupLoadPort2.SingleOrDefault(t => t.SlotId == efemFoupItem.SlotId && t.StationEnum == efemFoupItem.StationEnum);
+            var foupItem = port.SingleOrDefault(t => t.SlotId == efemFoupItem.SlotId && t.StationEnum == efemFoupItem.StationEnum);
             if (foupItem is null) continue;
             foupItem.IsHasWafer = efemFoupItem.IsHasWafer;
             foupItem.IsLoadWafer = efemFoupItem.IsLoadWafer;
