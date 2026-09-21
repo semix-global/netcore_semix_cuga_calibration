@@ -22,6 +22,15 @@ public sealed class EFEMViewModel(ICalibrationEFEMService calibrationEfemService
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
+    public bool SyncFoupStatus(EFEMStationEnum stationEnum)
+    {
+        var ret = calibrationEfemService.SyncFoupStatus(stationEnum);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        return ret.Anything;
+    }
+
     public void LoadFoup(EFEMStationEnum stationEnum)
     {
         var ret = calibrationEfemService.LoadFoup(stationEnum);

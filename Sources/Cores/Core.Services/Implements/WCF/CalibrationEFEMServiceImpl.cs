@@ -33,11 +33,26 @@ public sealed class CalibrationEFEMServiceImpl : BaseService<ICgCalibrationServi
 
     public SxExecuteRet<bool> IsChuckLoadedWafer() => Invoke(() => Service!.WaferOnChuck());
 
-    public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
+    public SxExecuteRet<bool> SyncFoupStatus(EFEMStationEnum stationEnum)
     {
         var sxExecuteRetState = Invoke(() => Service!.GetLoadPortSTA(stationEnum.ToESxStation()));
         if (sxExecuteRetState.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetState.Msg, false);
-        if (sxExecuteRetState.Anything == ESxFoupState.Opened) return SxExecuteRetHelper.CreateSuccess(true); // 已经加载Foup盒了
+        return sxExecuteRetState.Anything switch
+        {
+            ESxFoupState.Opened => SxExecuteRetHelper.CreateSuccess(true),
+            ESxFoupState.Exsit or ESxFoupState.Empty => SxExecuteRetHelper.CreateSuccess(false),
+            ESxFoupState.Unknown => SxExecuteRetHelper.CreateError("EFEM is Abnormal! Foup status is unknown!", false),
+            _ => SxExecuteRetHelper.CreateError($"Unsupported foup state: {sxExecuteRetState.Anything}", false)
+        };
+    }
+
+    public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
+    {
+        var foupStatusRet = SyncFoupStatus(stationEnum);
+        if (foupStatusRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(foupStatusRet.Msg, false);
+
+        // 已处于load状态
+        if (foupStatusRet.Anything) return SxExecuteRetHelper.CreateSuccess(true);
 
         var sxExecuteRet = Invoke(() => Service!.LoadFoup(stationEnum.ToESxStation(), false /*不读FOUP盒的ID*/));
 
@@ -84,6 +99,11 @@ public sealed class CalibrationEFEMServiceImpl : BaseService<ICgCalibrationServi
 
     public SxExecuteRet<List<EFEMFoupItem>> GetMapData(EFEMStationEnum stationEnum)
     {
+        // 必须处于load状态才能mapping；未 Load 返回空集合，状态未知/通信失败按错误返回
+        var foupStatusRet = SyncFoupStatus(stationEnum);
+        if (foupStatusRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<EFEMFoupItem>>(foupStatusRet.Msg, []);
+        if (foupStatusRet.Anything == false) return SxExecuteRetHelper.CreateSuccess<List<EFEMFoupItem>>([]);
+
         // 1-上手臂，2-下手臂，3-校准台，4-chuck台
         var sxExecuteRetState = Invoke(() => Service!.GetWaferInfo(4));
         if (sxExecuteRetState.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<EFEMFoupItem>>(sxExecuteRetState.Msg, []);

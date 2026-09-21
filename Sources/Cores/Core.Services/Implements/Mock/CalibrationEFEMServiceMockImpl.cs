@@ -1,5 +1,4 @@
 using Core.Models.Enums.EFEM;
-using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.EFEM;
 using Core.Services.Interfaces;
@@ -32,8 +31,22 @@ public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SyncFoupStatus(EFEMStationEnum stationEnum)
+    {
+        return stationEnum switch
+        {
+            EFEMStationEnum.P1 => SxExecuteRetHelper.CreateSuccess(IsLp1Loaded),
+            EFEMStationEnum.P2 => SxExecuteRetHelper.CreateSuccess(IsLp2Loaded),
+            _ => SxExecuteRetHelper.CreateError($"Unsupported station: {stationEnum}", false)
+        };
+    }
+
     public SxExecuteRet<bool> LoadFoup(EFEMStationEnum stationEnum)
     {
+        var foupStatusRet = SyncFoupStatus(stationEnum);
+        if (foupStatusRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(foupStatusRet.Msg, false);
+        if (foupStatusRet.Anything) return SxExecuteRetHelper.CreateSuccess(true);
+
         Thread.Sleep(2000);
 
         switch (stationEnum)
@@ -107,12 +120,10 @@ public sealed class CalibrationEFEMServiceMockImpl : ICalibrationEFEMService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(stationEnum == EFEMStationEnum.P1
-            ? IsLp1Loaded
-                ? Lp1
-                : throw new CugaException("Currently in unload state, can't mapping!")
-            : IsLp2Loaded
-                ? Lp2
-                : throw new CugaException("Currently in unload state, can't mapping!"));
+        var foupStatusRet = SyncFoupStatus(stationEnum);
+        if (foupStatusRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<EFEMFoupItem>>(foupStatusRet.Msg, []);
+        if (foupStatusRet.Anything == false) return SxExecuteRetHelper.CreateSuccess<List<EFEMFoupItem>>([]);
+
+        return SxExecuteRetHelper.CreateSuccess(stationEnum == EFEMStationEnum.P1 ? Lp1 : Lp2);
     }
 }

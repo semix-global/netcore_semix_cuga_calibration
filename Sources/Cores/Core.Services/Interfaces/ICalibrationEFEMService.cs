@@ -20,6 +20,13 @@ public interface ICalibrationEFEMService
     SxExecuteRet<bool> IsChuckLoadedWafer();
 
     /// <summary>
+    /// FOUP盒载入状态: FOUP 是用于半导体晶圆的封装和传输的标准化载体
+    /// </summary>
+    /// <param name="stationEnum">站点</param>
+    /// <returns>Success 且 true：已 Load（Opened）；Success 且 false：未 Load（Empty/Exsit）；IsSuccess=false：状态未知或查询失败</returns>
+    SxExecuteRet<bool> SyncFoupStatus(EFEMStationEnum stationEnum);
+
+    /// <summary>
     /// 载入FOUP盒: FOUP 是用于半导体晶圆的封装和传输的标准化载体
     /// </summary>
     /// <param name="stationEnum">站点</param>
