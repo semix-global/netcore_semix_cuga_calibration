@@ -257,7 +257,22 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         if (eventInputArgs.Event.KeyEnum is KeyEnum.Up or KeyEnum.Down or KeyEnum.Left or KeyEnum.Right)
         {
-            ModifySelectedROIs(eventInputArgs.Event.KeyEnum, eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Shift));
+            ModifySelectedROIs(eventInputArgs.Event.KeyEnum, eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Alt), eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Shift), eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Tab)
+        {
+            // Tab 切换显示 / 隐藏 ROI 编辑说明信息
+            if (_editInformationDrawable is not null)
+            {
+                if (Edit.Document.Transients.Contains(_editInformationDrawable)) Edit.Document.Transients.Remove(_editInformationDrawable);
+                else Edit.Document.Transients.Add(_editInformationDrawable);
+            }
 
             eventInputArgs.IsInputValid = true;
             eventInputArgs.IsInputCompleted = false;
@@ -535,7 +550,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
     }
 
-    private void ModifySelectedROIs(KeyEnum keyEnum, bool isResize)
+    private void ModifySelectedROIs(KeyEnum keyEnum, bool isMove, bool isMax, bool isLargeStepDistance)
     {
         CommitToHistory();
         ResetInteractionState();
@@ -544,22 +559,31 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         {
             _edits = GetEdits();
 
-            var step = isResize ? Options.KeyboardResizeStep : Options.KeyboardMoveStep;
-            var (joystickStateEnum, delta) = keyEnum switch
+            var step = isMove ? Options.KeyboardMoveStep : Options.KeyboardResizeStep;
+            step = isLargeStepDistance ? step * 10d : step;
+
+            var (joystickStateEnum, delta) = (keyEnum, isMax) switch
             {
-                KeyEnum.Up => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, step)),
-                KeyEnum.Down => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, -step)),
-                KeyEnum.Left => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(-step, 0d)),
-                KeyEnum.Right => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(step, 0d)),
+                (KeyEnum.Up, false) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, step)),
+                (KeyEnum.Down, false) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, -step)),
+
+                (KeyEnum.Up, true) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, step)),
+                (KeyEnum.Down, true) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, -step)),
+
+                (KeyEnum.Left, false) => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(-step, 0d)),
+                (KeyEnum.Right, false) => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(step, 0d)),
+
+                (KeyEnum.Left, true) => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(-step, 0d)),
+                (KeyEnum.Right, true) => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(step, 0d)),
                 _ => ThrowHelper.ThrowArgumentException<(BitmapImageROIResizeJoystickStateEnum JoystickStateEnum, Vector Delta)>(nameof(keyEnum))
             };
 
-            if (isResize)
+            if (isMove) _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
+            else
             {
                 _resizeJoystickStateEnum = joystickStateEnum;
                 _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
             }
-            else _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
 
             ApplyModification(delta);
         }

@@ -35,19 +35,28 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
 
         List<(string Text, TextStyle TextStyle, FillStyle ForegroundStyle)> lines =
         [
-            ("ROI editing: Only visible, unlocked ROIs can be edited", SubTitleTextStyle, SubTitleForegroundStyle),
+            ("ROI editing: Only visible and unlocked ROIs can be edited", SubTitleTextStyle, SubTitleForegroundStyle),
             ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit", BodyTextStyle, ShortcutForegroundStyle),
             ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo", BodyTextStyle, ShortcutForegroundStyle),
-            ("Select ROIs: Left-Click / drag; Ctrl + Left-Click / drag: Toggle; Ctrl + A: All", BodyTextStyle, BodyForegroundStyle),
-            ($"Resize ROIs: Drag a Joystick; Shift + Arrows: Expand edge ({options.KeyboardResizeStep} px)", BodyTextStyle, BodyForegroundStyle),
-            ($"Move ROIs: {options.BitmapImageROIDragMoveTypeEnum switch
+            ("Tab: Show / hide this help panel", BodyTextStyle, ShortcutForegroundStyle),
+            ("Select ROIs: Left-Click a ROI or drag a selection box; Ctrl + Left-Click / drag box: toggle ROIs; Ctrl + A: select all", BodyTextStyle, BodyForegroundStyle),
+            ($"Move ROIs(Mouse): {options.BitmapImageROIDragMoveTypeEnum switch
             {
                 BitmapImageROIDragMoveTypeEnum.None => "Disabled",
-                BitmapImageROIDragMoveTypeEnum.X => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, horizontal only)",
-                BitmapImageROIDragMoveTypeEnum.Y => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, vertical only)",
-                _ => $"Drag selected ROI / Arrows ({options.KeyboardMoveStep} px, all directions)"
+                BitmapImageROIDragMoveTypeEnum.X => "Drag a selected ROI (horizontal only)",
+                BitmapImageROIDragMoveTypeEnum.Y => "Drag a selected ROI (vertical only)",
+                _ => "Drag a selected ROI in any direction"
             }}", BodyTextStyle, BodyForegroundStyle),
-            (options.IsDeleteEnabled ? "Delete ROIs: Delete selected ROIs (invisible, can be undone)" : "Delete ROIs: Disabled", BodyTextStyle, BodyForegroundStyle),
+            ($"Move ROIs(Keyboard): {options.BitmapImageROIDragMoveTypeEnum switch
+            {
+                BitmapImageROIDragMoveTypeEnum.None => "Disabled",
+                BitmapImageROIDragMoveTypeEnum.X => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; horizontal only)",
+                BitmapImageROIDragMoveTypeEnum.Y => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; vertical only)",
+                _ => $"Hold Alt and press ↑↓←→ (step: {options.KeyboardMoveStep} px; hold Ctrl: 10x step; all directions)"
+            }}", BodyTextStyle, BodyForegroundStyle),
+            ("Resize ROIs(Mouse): Drag a handle (joystick) on the ROI edge or corner", BodyTextStyle, BodyForegroundStyle),
+            ($"Resize ROIs(Keyboard): ↑↓←→ slides the bottom / left edge; hold Shift to slide the top / right edge (step: {options.KeyboardResizeStep} px; hold Ctrl: 10x step)", BodyTextStyle, BodyForegroundStyle),
+            (options.IsDeleteEnabled ? "Delete ROIs: Press Delete to hide the selected ROIs (undo with Ctrl + Z)" : "Delete ROIs: Disabled", BodyTextStyle, BodyForegroundStyle),
         ];
 
         if (string.IsNullOrWhiteSpace(options.Title) == false) lines.Insert(0, (options.Title, TitleTextStyle, TitleForegroundStyle));
@@ -85,8 +94,8 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
                 new Point(origin.X + padding, y - size.Height / 2d),
                 text,
                 AlignmentEnum.MiddleRight,
-                new FillStyle(SKColors.Transparent),
-                new LineStyle(SKColors.Transparent),
+                FillStyles.Transparent,
+                LineStyles.Transparent,
                 new Vector(0d, 0d),
                 new Padding(0d));
             y -= size.Height + gap;

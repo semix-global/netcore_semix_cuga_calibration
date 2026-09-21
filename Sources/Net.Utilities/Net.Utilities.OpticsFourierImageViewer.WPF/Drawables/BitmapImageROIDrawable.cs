@@ -92,8 +92,8 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,
-                new FillStyle(SKColors.Transparent),
-                new LineStyle(SKColors.Transparent),
+                FillStyles.Transparent,
+                LineStyles.Transparent,
                 new Vector(0d, 0d),
                 new Padding(0d));
         }
