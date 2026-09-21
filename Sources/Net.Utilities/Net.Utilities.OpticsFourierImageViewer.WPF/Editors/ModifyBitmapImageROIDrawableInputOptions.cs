@@ -28,6 +28,30 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     public partial bool IsDeleteEnabled { get; set; } = false;
 
     /// <summary>
+    /// 方向键移动 ROI 的步距, 单位为像素, 必须为有限正数.
+    /// </summary>
+    [ObservableProperty]
+    public partial double KeyboardMoveStep { get; set; } = 1d;
+
+    partial void OnKeyboardMoveStepChanging(double value)
+    {
+        Guard.IsTrue(double.IsFinite(value));
+        Guard.IsGreaterThan(value, 0d);
+    }
+
+    /// <summary>
+    /// Shift + 方向键向外扩展 ROI 对应边的步距, 单位为像素, 必须为有限正数.
+    /// </summary>
+    [ObservableProperty]
+    public partial double KeyboardResizeStep { get; set; } = 1d;
+
+    partial void OnKeyboardResizeStepChanging(double value)
+    {
+        Guard.IsTrue(double.IsFinite(value));
+        Guard.IsGreaterThan(value, 0d);
+    }
+
+    /// <summary>
     /// 创建只编辑已有Rect ROI的输入选项.
     /// </summary>
     public ModifyBitmapImageROIDrawableInputOptions(BitmapImageDrawable bitmapImageDrawable) : base("Select ROI")

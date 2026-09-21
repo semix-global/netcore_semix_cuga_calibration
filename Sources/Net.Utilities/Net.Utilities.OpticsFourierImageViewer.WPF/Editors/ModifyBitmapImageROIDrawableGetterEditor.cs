@@ -219,6 +219,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         {
             CommitToHistory();
             ResetInteractionState();
+
             SelectAllROIs();
 
             eventInputArgs.IsInputValid = true;
@@ -244,6 +245,16 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Delete && Options.IsDeleteEnabled)
         {
             DeleteSelectedROIs();
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
+        if (eventInputArgs.Event.KeyEnum is KeyEnum.Up or KeyEnum.Down or KeyEnum.Left or KeyEnum.Right)
+        {
+            ModifySelectedROIs(eventInputArgs.Event.KeyEnum, eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Shift));
 
             eventInputArgs.IsInputValid = true;
             eventInputArgs.IsInputCompleted = false;
@@ -510,6 +521,41 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
     }
 
+    private void ModifySelectedROIs(KeyEnum keyEnum, bool isResize)
+    {
+        CommitToHistory();
+        ResetInteractionState();
+
+        try
+        {
+            _edits = GetEdits();
+
+            var step = isResize ? Options.KeyboardResizeStep : Options.KeyboardMoveStep;
+            var (joystickStateEnum, delta) = keyEnum switch
+            {
+                KeyEnum.Up => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, step)),
+                KeyEnum.Down => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, -step)),
+                KeyEnum.Left => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(-step, 0d)),
+                KeyEnum.Right => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(step, 0d)),
+                _ => ThrowHelper.ThrowArgumentException<(BitmapImageROIResizeJoystickStateEnum JoystickStateEnum, Vector Delta)>(nameof(keyEnum))
+            };
+
+            if (isResize)
+            {
+                _resizeJoystickStateEnum = joystickStateEnum;
+                _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
+            }
+            else _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
+
+            ApplyModification(delta);
+        }
+        finally
+        {
+            CommitToHistory();
+            ResetInteractionState();
+        }
+    }
+
     private void ApplyModification(Vector delta)
     {
         if (_edits.IsEmpty) return;
@@ -565,10 +611,21 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void ApplyResize(Vector delta)
     {
         var imageRect = Options.GetImageRect();
+        var allowedJoysticks = _resizeJoystickStateEnum switch
+        {
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMax, // 上
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMin, // 下
+            BitmapImageROIResizeJoystickStateEnum.XMinYCenter => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMinYMax, // 左
+            BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYMax, // 右
+            _ => _resizeJoystickStateEnum
+        };
 
         // 多选缩放使用相同锚点和拖动向量, 但每个 ROI 独立限制在图片内
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
+            // 键盘和鼠标缩放统一检查每个 ROI 的权限; 无权限的对象保留原状.
+            if ((bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedJoysticks) == BitmapImageROIResizeJoystickStateEnum.None) continue;
+
             var originalRect = originalState.Rect;
             var modifiedRect = _resizeJoystickStateEnum switch
             {
