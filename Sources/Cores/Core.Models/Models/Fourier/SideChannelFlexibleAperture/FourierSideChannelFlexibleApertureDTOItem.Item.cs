@@ -424,24 +424,22 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
 
                     Rod[] orderedVisibleRods = [.. visibleRods.OrderBy(t => t.Index)];
-                    Guard.IsEqualTo(orderedVisibleRods.Average(t => t.ImageROI.Y), 0d);
+                    var averageWidth = orderedVisibleRods.Average(t => t.ImageROI.Width);
+                    var averageHeight = orderedVisibleRods.Average(t => t.ImageROI.Height);
+                    var averageY = orderedVisibleRods.Average(t => t.ImageROI.Y);
+                    var averageCenterXOffsetPerRod = orderedVisibleRods.Zip(orderedVisibleRods.Skip(1))
+                        .Average(pair => (pair.Second.ImageROI.Center.X - pair.First.ImageROI.Center.X) / ((pair.Second.Index - pair.First.Index) / 2d));
+
+                    Guard.IsEqualTo(averageY, 0d);
 
                     foreach (var invisibleRod in invisibleRods)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var isLeft = invisibleRod.Index < orderedVisibleRods[0].Index;
-                        var firstVisibleRod = isLeft ? orderedVisibleRods[0] : orderedVisibleRods[^2];
-                        var secondVisibleRod = isLeft ? orderedVisibleRods[1] : orderedVisibleRods[^1];
-                        var centerXOffsetPerRod = (secondVisibleRod.ImageROI.Center.X - firstVisibleRod.ImageROI.Center.X) / ((secondVisibleRod.Index - firstVisibleRod.Index) / 2d);
-                        var centerX = isLeft
-                            ? firstVisibleRod.ImageROI.Center.X - centerXOffsetPerRod * ((firstVisibleRod.Index - invisibleRod.Index) / 2d)
-                            : secondVisibleRod.ImageROI.Center.X + centerXOffsetPerRod * ((invisibleRod.Index - secondVisibleRod.Index) / 2d);
-                        var referenceVisibleRod = isLeft ? firstVisibleRod : secondVisibleRod;
-                        // Step1 外推高度至少保留一个像素, 避免 Step2 收缩后与基准高度同时为零.
-                        var height = Math.Clamp(Math.Ceiling(referenceVisibleRod.ImageROI.Height), 1d, _step1BitmapImageDrawable.BitmapImage.Height);
+                        var nearestVisibleRod = visibleRods.OrderBy(t => Math.Abs(t.Index - invisibleRod.Index)).First();
+                        var centerX = nearestVisibleRod.ImageROI.Center.X + averageCenterXOffsetPerRod * ((invisibleRod.Index - nearestVisibleRod.Index) / 2d);
 
-                        invisibleRod.ImageROI = new Rect(centerX - referenceVisibleRod.ImageROI.Width / 2d, 0d, referenceVisibleRod.ImageROI.Width, height)
+                        invisibleRod.ImageROI = new Rect(centerX - averageWidth / 2d, 0d, averageWidth, averageHeight)
                             .ImageCoordinateRound()
                             .ClampToBounds(new Rect(Point.Origin, _step1BitmapImageDrawable.BitmapImage.Size));
 
@@ -555,54 +553,25 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 if (invisibleRods.Length == 0) return;
 
-                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
-                Guard.IsEqualTo(visibleRods.Average(t => t.ImageROI.Y), 0d);
+                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 1);
 
-                var motorDelta = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
-                Guard.IsTrue(double.IsFinite(motorDelta));
-                Guard.IsNotEqualTo(motorDelta, 0d);
+                var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
+                var averageY = visibleRods.Average(t => t.ImageROI.Y);
+
+                Guard.IsEqualTo(averageY, 0d);
 
                 foreach (var invisibleRod in invisibleRods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var isLeft = invisibleRod.Index < visibleRods[0].Index;
-                    var firstVisibleRod = isLeft ? visibleRods[0] : visibleRods[^2];
-                    var secondVisibleRod = isLeft ? visibleRods[1] : visibleRods[^1];
-                    var firstHeightDelta = firstVisibleRod.ImageROI.Height - Step1Rods.Single(t => t.Index == firstVisibleRod.Index).ImageROI.Height;
-                    var secondHeightDelta = secondVisibleRod.ImageROI.Height - Step1Rods.Single(t => t.Index == secondVisibleRod.Index).ImageROI.Height;
-                    var referenceHeightDelta = isLeft ? firstHeightDelta : secondHeightDelta;
-                    Guard.IsTrue(IsValidHeightDelta(referenceHeightDelta));
-
-                    // 外推相对 Step1 的高度变化量, 避免两步的绝对高度趋势不同导致高度差为零或反号.
-                    var heightDeltaOffsetPerRod = (secondHeightDelta - firstHeightDelta) / ((secondVisibleRod.Index - firstVisibleRod.Index) / 2d);
-                    var heightDelta = isLeft
-                        ? firstHeightDelta - heightDeltaOffsetPerRod * ((firstVisibleRod.Index - invisibleRod.Index) / 2d)
-                        : secondHeightDelta + heightDeltaOffsetPerRod * ((invisibleRod.Index - secondVisibleRod.Index) / 2d);
-                    if (IsValidHeightDelta(heightDelta) == false) heightDelta = referenceHeightDelta;
-
-                    var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
-                    var imageROI = CalculateImageROI(step1Rod, heightDelta);
-
-                    // 取整或图片边界裁剪也可能消除高度差, 此时改用最近可见 rod 的有效变化量.
-                    if (IsValidHeightDelta(imageROI.Height - step1Rod.ImageROI.Height) == false)
-                        imageROI = CalculateImageROI(step1Rod, referenceHeightDelta);
-
-                    Guard.IsTrue(IsValidHeightDelta(imageROI.Height - step1Rod.ImageROI.Height));
-                    invisibleRod.ImageROI = imageROI;
+                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, averageHeight))
+                        .ImageCoordinateRound()
+                        .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
 
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
                 }
-
-                bool IsValidHeightDelta(double heightDelta) => double.IsFinite(heightDelta) && (motorDelta < 0d ? heightDelta < 0d : heightDelta > 0d);
-
-                Rect CalculateImageROI(Rod step1Rod, double heightDelta) => new Rect(
-                        step1Rod.ImageROI.Point,
-                        new Size(step1Rod.ImageROI.Width, step1Rod.ImageROI.Height + heightDelta))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
             }
 
             static DialogResultEnum ShouldContinue(Exception ex)
