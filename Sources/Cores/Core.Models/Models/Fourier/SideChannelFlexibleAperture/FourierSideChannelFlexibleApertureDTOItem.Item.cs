@@ -424,22 +424,29 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
 
                     Rod[] orderedVisibleRods = [.. visibleRods.OrderBy(t => t.Index)];
-                    var averageWidth = orderedVisibleRods.Average(t => t.ImageROI.Width);
-                    var averageHeight = orderedVisibleRods.Average(t => t.ImageROI.Height);
-                    var averageY = orderedVisibleRods.Average(t => t.ImageROI.Y);
-                    var averageCenterXOffsetPerRod = orderedVisibleRods.Zip(orderedVisibleRods.Skip(1))
-                        .Average(pair => (pair.Second.ImageROI.Center.X - pair.First.ImageROI.Center.X) / ((pair.Second.Index - pair.First.Index) / 2d));
-
-                    Guard.IsEqualTo(averageY, 0d);
+                    Guard.IsTrue(orderedVisibleRods.All(t => t.ImageROI.Y == 0d));
 
                     foreach (var invisibleRod in invisibleRods)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                        var nearestVisibleRod = visibleRods.OrderBy(t => Math.Abs(t.Index - invisibleRod.Index)).First();
-                        var centerX = nearestVisibleRod.ImageROI.Center.X + averageCenterXOffsetPerRod * ((invisibleRod.Index - nearestVisibleRod.Index) / 2d);
+                        // 可见 rod 连续排列, 两侧分别使用同侧最近两个可见 rod 计算中心间距和平均宽度.
+                        var isLeft = invisibleRod.Index < orderedVisibleRods[0].Index;
+                        var firstRod = isLeft ? orderedVisibleRods[0] : orderedVisibleRods[^2];
+                        var secondRod = isLeft ? orderedVisibleRods[1] : orderedVisibleRods[^1];
+                        var nearestVisibleRod = isLeft ? firstRod : secondRod;
+                        // 同组相邻 rod 的编号相差 2, 从边缘可见 rod 按每根差值向外延伸.
+                        var rodOffset = (invisibleRod.Index - nearestVisibleRod.Index) / 2;
+                        var centerX = nearestVisibleRod.ImageROI.Center.X + (secondRod.ImageROI.Center.X - firstRod.ImageROI.Center.X) * rodOffset;
+                        var width = (firstRod.ImageROI.Width + secondRod.ImageROI.Width) / 2d;
+                        var height = nearestVisibleRod.ImageROI.Height;
+                        Guard.IsTrue(double.IsFinite(centerX));
+                        Guard.IsTrue(double.IsFinite(width));
+                        Guard.IsTrue(double.IsFinite(height));
+                        Guard.IsGreaterThan(width, 0d);
+                        Guard.IsGreaterThan(height, 0d);
 
-                        invisibleRod.ImageROI = new Rect(centerX - averageWidth / 2d, 0d, averageWidth, averageHeight)
+                        invisibleRod.ImageROI = new Rect(centerX - width / 2d, 0d, width, height)
                             .ImageCoordinateRound()
                             .ClampToBounds(new Rect(Point.Origin, _step1BitmapImageDrawable.BitmapImage.Size));
 
@@ -553,21 +560,35 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 if (invisibleRods.Length == 0) return;
 
-                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 1);
+                Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
+                Guard.IsTrue(visibleRods.All(t => t.ImageROI.Y == 0d));
 
-                var averageHeight = visibleRods.Average(t => t.ImageROI.Height);
-                var averageY = visibleRods.Average(t => t.ImageROI.Y);
-
-                Guard.IsEqualTo(averageY, 0d);
+                var motorDelta = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
+                Guard.IsTrue(double.IsFinite(motorDelta));
+                Guard.IsNotEqualTo(motorDelta, 0d);
 
                 foreach (var invisibleRod in invisibleRods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, averageHeight))
+                    // Step2 保留 Step1 的横向位置和宽度, 高度直接使用同侧最近的可见 rod.
+                    var isLeft = invisibleRod.Index < visibleRods[0].Index;
+                    var nearestVisibleRod = isLeft ? visibleRods[0] : visibleRods[^1];
+                    var height = nearestVisibleRod.ImageROI.Height;
+                    Guard.IsTrue(double.IsFinite(height));
+                    Guard.IsGreaterThan(height, 0d);
+
+                    var imageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
                         .ImageCoordinateRound()
                         .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
 
+                    // 检查实际写入的高度差, 取整或裁剪后为零或反向时直接报错, 不使用回退值.
+                    var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
+                    var heightDelta = imageROI.Height - step1Rod.ImageROI.Height;
+                    if (heightDelta == 0d || (motorDelta < 0d ? heightDelta > 0d : heightDelta < 0d))
+                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Motor displacement={motorDelta}.");
+
+                    invisibleRod.ImageROI = imageROI;
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
