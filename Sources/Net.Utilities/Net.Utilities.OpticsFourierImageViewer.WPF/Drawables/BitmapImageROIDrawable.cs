@@ -61,6 +61,12 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial string Text { get; set; } = string.Empty;
 
     /// <summary>
+    /// 是否在ROI中心绘制贯穿矩形上下边和左右边的十字线.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsShowCrossLine { get; set; } = false;
+
+    /// <summary>
     /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
     /// </summary>
     [ObservableProperty]
@@ -96,6 +102,12 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
                 LineStyles.Transparent,
                 new Vector(0d, 0d),
                 new Padding(0d));
+        }
+
+        if (IsShowCrossLine)
+        {
+            renderer.DrawLine(lineStyle, Rect.XCenterYMax, Rect.XCenterYMin);
+            renderer.DrawLine(lineStyle, Rect.XMinYCenter, Rect.XMaxYCenter);
         }
     }
 

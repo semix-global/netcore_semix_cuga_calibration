@@ -11,15 +11,19 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 {
     public readonly ILayer ImageLayer = new ImmutableLayer("Image", 100);
     public readonly ILayer ROILayer = new ImmutableLayer("ROI", 200);
+    public readonly ILayer CircleLayer = new ImmutableLayer("Circle", 300);
 
     public Model<BitmapImageDrawable> ImageModel { get; }
 
     public Model<BitmapImageROIDrawable> ROIModel { get; }
 
+    public Model<CircleDrawable> CircleModel { get; }
+
     public OpticsFourierImageDocument()
     {
         ImageModel = ModelStorages.GetOrAddLayer<BitmapImageDrawable>(ImageLayer);
         ROIModel = ModelStorages.GetOrAddLayer<BitmapImageROIDrawable>(ROILayer);
+        CircleModel = ModelStorages.GetOrAddLayer<CircleDrawable>(CircleLayer);
 
         Settings.SelectionHighlightOverrideFillStyle = null;
         Settings.SelectionHighlightOverrideLineStyle = null;
@@ -27,6 +31,14 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
     public void Reset()
     {
+        foreach (var circleDrawable in CircleModel)
+        {
+            circleDrawable.Circle = Circle.Empty;
+
+            circleDrawable.IsVisible = true;
+            circleDrawable.IsSelected = false;
+        }
+
         foreach (var bitmapImageDrawable in ImageModel)
         {
             bitmapImageDrawable.BitmapImage = null;
