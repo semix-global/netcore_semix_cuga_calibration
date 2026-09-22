@@ -172,10 +172,10 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 rodResult.IsDeleted = step2Rod.IsDeleted;
 
                 var heightDelta = step2Rod.ImageROI.Height - step1Rod.ImageROI.Height;
-                var motorDelta = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
+                var deltaMotorAbsoluteValue = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
                 Guard.IsNotEqualTo(heightDelta, 0d);
 
-                rodResult.PixelSize = motorDelta / heightDelta;
+                rodResult.PixelSize = deltaMotorAbsoluteValue / heightDelta;
                 Guard.IsGreaterThan(rodResult.PixelSize, 0);
 
                 rodResult.MinImageROI = new Rect(

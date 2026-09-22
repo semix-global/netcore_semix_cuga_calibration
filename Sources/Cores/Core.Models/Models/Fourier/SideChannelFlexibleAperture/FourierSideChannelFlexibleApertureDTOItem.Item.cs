@@ -234,7 +234,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
                 Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
-                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
+                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
 
                 while (true)
                 {
@@ -309,25 +309,25 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             {
             InnerLoop:
 
-                var step0LeftRod = Step1Rods.Single(t => t.Index == Step0LeftRod.Index);
-                var step0RightRod = Step1Rods.Single(t => t.Index == Step0RightRod.Index);
+                var step1LeftRod = Step1Rods.Single(t => t.Index == Step0LeftRod.Index);
+                var step1RightRod = Step1Rods.Single(t => t.Index == Step0RightRod.Index);
 
-                step0LeftRod.IsDeleted = false;
-                step0LeftRod.ImageROI = Step0LeftRod.ImageROI;
-                step0LeftRod.BitmapImageROIDrawable.IsFixed = true;
-                step0LeftRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step0LeftRod.ImageROI);
+                step1LeftRod.IsDeleted = false;
+                step1LeftRod.ImageROI = Step0LeftRod.ImageROI;
+                step1LeftRod.BitmapImageROIDrawable.IsFixed = true;
+                step1LeftRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step1LeftRod.ImageROI);
 
-                step0RightRod.IsDeleted = false;
-                step0RightRod.ImageROI = Step0RightRod.ImageROI;
-                step0RightRod.BitmapImageROIDrawable.IsFixed = true;
-                step0RightRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step0RightRod.ImageROI);
+                step1RightRod.IsDeleted = false;
+                step1RightRod.ImageROI = Step0RightRod.ImageROI;
+                step1RightRod.BitmapImageROIDrawable.IsFixed = true;
+                step1RightRod.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(step1RightRod.ImageROI);
 
                 CalculateInvisibleRodPositions(
-                    [step0LeftRod, step0RightRod],
-                    [.. Step1Rods.Except([step0LeftRod, step0RightRod])],
+                    [step1LeftRod, step1RightRod],
+                    [.. Step1Rods.Except([step1LeftRod, step1RightRod])],
                     false);
 
-                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents());
+                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
 
                 while (true)
                 {
@@ -440,9 +440,6 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                         var centerX = nearestVisibleRod.ImageROI.Center.X + (secondRod.ImageROI.Center.X - firstRod.ImageROI.Center.X) * rodOffset;
                         var width = (firstRod.ImageROI.Width + secondRod.ImageROI.Width) / 2d;
                         var height = nearestVisibleRod.ImageROI.Height;
-                        Guard.IsTrue(double.IsFinite(centerX));
-                        Guard.IsTrue(double.IsFinite(width));
-                        Guard.IsTrue(double.IsFinite(height));
                         Guard.IsGreaterThan(width, 0d);
                         Guard.IsGreaterThan(height, 0d);
 
@@ -473,7 +470,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod is { IsDeleted: false, BitmapImageROIDrawable.Rect.Width: > 0 };
                 }
 
-                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
+                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
 
                 while (true)
                 {
@@ -563,9 +560,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
                 Guard.IsTrue(visibleRods.All(t => t.ImageROI.Y == 0d));
 
-                var motorDelta = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
-                Guard.IsTrue(double.IsFinite(motorDelta));
-                Guard.IsNotEqualTo(motorDelta, 0d);
+                var deltaMotorAbsoluteValue = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
+                Guard.IsNotEqualTo(deltaMotorAbsoluteValue, 0d);
 
                 foreach (var invisibleRod in invisibleRods)
                 {
@@ -575,23 +571,22 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     var isLeft = invisibleRod.Index < visibleRods[0].Index;
                     var nearestVisibleRod = isLeft ? visibleRods[0] : visibleRods[^1];
                     var height = nearestVisibleRod.ImageROI.Height;
-                    Guard.IsTrue(double.IsFinite(height));
                     Guard.IsGreaterThan(height, 0d);
 
                     var imageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
                         .ImageCoordinateRound()
                         .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
 
-                    // 检查实际写入的高度差, 取整或裁剪后为零或反向时直接报错, 不使用回退值.
-                    var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
-                    var heightDelta = imageROI.Height - step1Rod.ImageROI.Height;
-                    if (heightDelta == 0d || (motorDelta < 0d ? heightDelta > 0d : heightDelta < 0d))
-                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Motor displacement={motorDelta}.");
-
                     invisibleRod.ImageROI = imageROI;
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
+
+                    // 检查实际写入的高度差, 取整或裁剪后为零或反向时直接报错, 不使用回退值.
+                    var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
+                    var heightDelta = invisibleRod.ImageROI.Height - step1Rod.ImageROI.Height;
+                    if (heightDelta == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
+                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
                 }
             }
 
