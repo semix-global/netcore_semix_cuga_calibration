@@ -19,7 +19,6 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureLightHoleItem>, IDisposable
 {
-    private const string StepsComment = "At 60 degree, pick 5 light-hole points and fit a circle.";
     private const int FindItemCount = 5;
     private readonly BitmapImageDrawable _bitmapImageDrawable = new();
 
@@ -108,57 +107,14 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
         InnerLoop:
 
-            var imageSize = _bitmapImageDrawable.BitmapImage.Size;
-            var center = new Point(
-                imageSize.Width / 2d,
-                imageSize.Height / 2d);
-            var radius = Math.Min(imageSize.Width, imageSize.Height) * 0.25d;
-
-            var points = new Point[FindItemCount];
-            for (var i = 0; i < points.Length; i++)
+            var rects = CreateSquareROIs(
+                new Rect(Point.Origin, _bitmapImageDrawable.BitmapImage.Size),
+                FindItems.Length);
+            for (var i = 0; i < rects.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var angle = -Math.PI / 2d + i * 2d * Math.PI / points.Length;
-
-                points[i] = new Point(
-                    center.X + radius * Math.Cos(angle),
-                    center.Y + radius * Math.Sin(angle));
-            }
-
-            var rectLength = double.MaxValue;
-            for (var i = 0; i < FindItemCount; i++)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                for (var j = i + 1; j < points.Length; j++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var dx = Math.Abs(points[i].X - points[j].X);
-                    var dy = Math.Abs(points[i].Y - points[j].Y);
-
-                    rectLength = Math.Min(rectLength, Math.Max(dx, dy));
-                }
-            }
-
-            var rects = new Rect[points.Length];
-            for (var i = 0; i < points.Length; i++)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                rects[i] = new Rect(
-                        points[i].X - rectLength / 2d,
-                        points[i].Y - rectLength / 2d,
-                        rectLength,
-                        rectLength)
-                    .ClampToBounds(new Rect(Point.Origin, imageSize))
-                    .ImageCoordinateRound();
-            }
-
-            foreach (var (index, rect) in rects.Index())
-            {
-                FindItems[index].BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rect);
+                FindItems[i].BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rects[i]);
             }
 
             Document.View.ZoomToFit();
@@ -258,6 +214,66 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         }
     }
 
+    /// <summary>
+    /// 在边界中心的参考圆周上等分布置正方形ROI, 中心取最近整数坐标后统一计算最大可用偶数边长.
+    /// </summary>
+    /// <param name="bounds">布局边界, 坐标必须有限且宽高为正数, 支持非零原点.</param>
+    /// <param name="count">ROI数量, 必须大于零.</param>
+    /// <returns>与边界处于同一坐标系的矩形数组. 所有ROI尺寸相同且内部不重叠, 允许边缘接触. 整数中心仅近似圆周等分.</returns>
+    /// <exception cref="InvalidOperationException">取整后的中心无法容纳至少两个像素边长的ROI.</exception>
+    private static Rect[] CreateSquareROIs(Rect bounds, int count)
+    {
+        var center = new Point(bounds.XMin + bounds.Width / 2d, bounds.YMin + bounds.Height / 2d);
+        var radius = Math.Min(bounds.Width, bounds.Height) * 0.25d;
+        var points = new Point[count];
+        var angleStep = 2d * Math.PI / points.Length;
+        for (var i = 0; i < points.Length; i++)
+        {
+            var angle = -Math.PI / 2d + i * angleStep;
+            points[i] = new Point(
+                Math.Round(center.X + radius * Math.Cos(angle), MidpointRounding.AwayFromZero),
+                Math.Round(center.Y + radius * Math.Sin(angle), MidpointRounding.AwayFromZero));
+        }
+
+        var rectLength = double.MaxValue;
+        for (var i = 0; i < points.Length; i++)
+        {
+            // 统一限制边长, 保证所有矩形均在边界内且不需要单独裁剪.
+            var point = points[i];
+            var boundaryDistance = Math.Min(
+                Math.Min(point.X - bounds.XMin, bounds.XMax - point.X),
+                Math.Min(point.Y - bounds.YMin, bounds.YMax - point.Y));
+            rectLength = Math.Min(rectLength, 2d * boundaryDistance);
+
+            for (var j = i + 1; j < points.Length; j++)
+            {
+                var dx = Math.Abs(points[i].X - points[j].X);
+                var dy = Math.Abs(points[i].Y - points[j].Y);
+
+                // 任一坐标方向的间距不小于边长即可避免内部重叠, 允许边缘接触.
+                rectLength = Math.Min(rectLength, Math.Max(dx, dy));
+            }
+        }
+
+        // 使用偶数像素边长, 保持整数中心及四条边的位置, 并确保所有ROI尺寸一致.
+        var halfLength = Math.Floor(rectLength / 2d);
+        if (halfLength < 1d)
+            throw new InvalidOperationException("The layout cannot accommodate non-overlapping ROIs with a minimum side length of two pixels.");
+
+        rectLength = halfLength * 2d;
+        var rects = new Rect[points.Length];
+        for (var i = 0; i < points.Length; i++)
+        {
+            rects[i] = new Rect(
+                points[i].X - halfLength,
+                points[i].Y - halfLength,
+                rectLength,
+                rectLength);
+        }
+
+        return rects;
+    }
+
     public void Review()
     {
         try
@@ -284,7 +300,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
     public object ToImageHtmlAnonymous() => new
     {
-        Comment = new HtmlComment(StepsComment),
         FindItemCount,
         CenterChannelMotionKindEnum,
         ChannelImageFilePath,
@@ -293,7 +308,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
     public object ToHtmlAnonymous() => new
     {
-        Comment = new HtmlComment(StepsComment),
         FindItemCount,
         CenterChannelMotionKindEnum,
         ChannelImageFilePath,
