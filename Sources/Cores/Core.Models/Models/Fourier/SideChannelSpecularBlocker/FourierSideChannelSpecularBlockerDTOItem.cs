@@ -206,7 +206,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
                 {
-                    Title = "Adjust rod height on the home Fourier image",
+                    Title = $"Adjust rod height on the Channel{ChannelId} Fourier image.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken

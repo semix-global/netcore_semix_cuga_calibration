@@ -242,7 +242,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                     var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0BitmapImageDrawable)
                     {
-                        Title = $"Step 0: Edit the two center {(_isEven ? "even" : "odd")} rod ROIs",
+                        Title = $"Step 0: Edit the two center {(_isEven ? "even" : "odd")} rod ROIs.",
                         BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                         IsDeleteEnabled = false,
                         CancellationToken = cancellationToken
@@ -335,7 +335,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                     var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step1BitmapImageDrawable)
                     {
-                        Title = $"Step 1: Edit remaining {(_isEven ? "even" : "odd")} rod ROIs; delete unused rods",
+                        Title = $"Step 1: Edit remaining {(_isEven ? "even" : "odd")} rod ROIs; delete unused rods.",
                         BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                         IsDeleteEnabled = true,
                         CancellationToken = cancellationToken
@@ -476,7 +476,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                     var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step2BitmapImageDrawable)
                     {
-                        Title = $"Step 2: Adjust {(_isEven ? "even" : "odd")} rod height; delete unused rods",
+                        Title = $"Step 2: Adjust {(_isEven ? "even" : "odd")} rod height; delete unused rods.",
                         BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
                         IsDeleteEnabled = true,
                         CancellationToken = cancellationToken

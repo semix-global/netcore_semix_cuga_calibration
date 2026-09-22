@@ -664,8 +664,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         var allowedYJoysticks = _resizeJoystickStateEnum switch
         {
             BitmapImageROIResizeJoystickStateEnum.XMinYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
-            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
             BitmapImageROIResizeJoystickStateEnum.XMaxYMin => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
+            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
             BitmapImageROIResizeJoystickStateEnum.XMaxYMax => BitmapImageROIResizeJoystickStateEnum.XMaxYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
             BitmapImageROIResizeJoystickStateEnum.XCenterYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMin,
             BitmapImageROIResizeJoystickStateEnum.XCenterYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
