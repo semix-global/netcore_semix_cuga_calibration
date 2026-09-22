@@ -397,15 +397,33 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await itemData.CalibratingAsync(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
+            var isSuccess = false;
+            try
+            {
+                await itemData.CalibratingAsync(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
 
-            Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                isSuccess = true;
+            }
+            finally
+            {
+                if (isSuccess) Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             if (isEven == false)
             {
-                item.Calibrating(Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue, cancellationToken);
+                isSuccess = false;
+                try
+                {
+                    item.Calibrating(Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue, cancellationToken);
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    isSuccess = true;
+                }
+                finally
+                {
+                    if (isSuccess) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                }
 
                 if (item.ChannelId == 2)
                 {

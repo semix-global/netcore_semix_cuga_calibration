@@ -435,16 +435,25 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
+            var isSuccess = false;
+            try
+            {
+                await item.CalibratingAsync(flexibleApertureItem, cancellationToken);
 
-            FourierViewModel.SetRods(
-                item.ChannelId,
-                [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
-            Grab(1);
+                FourierViewModel.SetRods(
+                    item.ChannelId,
+                    [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
+                Grab(1);
 
-            item.Review();
+                item.Review();
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                isSuccess = true;
+            }
+            finally
+            {
+                if (isSuccess) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             if (item.ChannelId == 2)
             {

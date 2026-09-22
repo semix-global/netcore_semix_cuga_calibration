@@ -325,9 +325,18 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await item.CalibratingAsync(cancellationToken);
+            var isSuccess = false;
+            try
+            {
+                await item.CalibratingAsync(cancellationToken);
 
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                isSuccess = true;
+            }
+            finally
+            {
+                if (isSuccess) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             if (item.ChannelId == 3)
             {
