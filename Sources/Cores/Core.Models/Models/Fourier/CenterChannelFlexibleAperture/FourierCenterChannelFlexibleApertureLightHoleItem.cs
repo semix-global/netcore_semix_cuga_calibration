@@ -21,6 +21,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 {
     private const int FindItemCount = 5;
     private readonly BitmapImageDrawable _bitmapImageDrawable = new();
+    private readonly CircleDrawable _circleDrawable = new();
 
     public CenterChannelMotionKindEnum CenterChannelMotionKindEnum { get; }
 
@@ -43,13 +44,14 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         [
             .. Generate.Repeat(FindItemCount, 0d).Select(_ => new FourierCenterChannelFlexibleApertureDTO.FindItem(_bitmapImageDrawable)
             {
-                BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All }
+                BitmapImageROIDrawable = { IsShowCrossLine = true, ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All }
             })
         ];
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.Add(_bitmapImageDrawable);
+            Document.CircleModel.Add(_circleDrawable);
             Document.ROIModel.AddRange([.. FindItems.Select(t => t.BitmapImageROIDrawable)]);
         });
 
@@ -100,6 +102,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         try
         {
             Document.Reset();
+            Circle = Circle.Empty;
 
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
@@ -125,7 +128,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
                 {
-                    Title = $"Adjust {CenterChannelMotionKindEnum} light hole points.",
+                    Title = $"{CenterChannelMotionKindEnum} aperture - angle 60 degrees, position 0: place all {FindItemCount} ROI centers on distinct points spread along the curved aperture edge. Avoid straight edges. Press Enter to fit the circle.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
@@ -144,6 +147,18 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
                                 Guard.IsTrue(findItem.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
                             }
+
+                            var points = FindItems.Select(t => _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(t.BitmapImageROIDrawable.Rect).Center).ToArray();
+                            if (points.Distinct().Count() != points.Length)
+                                ThrowHelper.ThrowInvalidOperationException("ROI centers must be distinct points on the curved aperture edge.");
+                            var baseline = points[1] - points[0];
+                            if (points.Skip(2).All(point => Math.Abs(baseline.X * (point.Y - points[0].Y) - baseline.Y * (point.X - points[0].X)) < 1d))
+                                ThrowHelper.ThrowInvalidOperationException("ROI centers must not be collinear. Spread them along the curved aperture edge.");
+
+                            var (resultCenter, resultRadius) = fitCircle(points);
+                            if (!double.IsFinite(resultCenter.X) || !double.IsFinite(resultCenter.Y) || !double.IsFinite(resultRadius) || resultRadius <= 0d)
+                                ThrowHelper.ThrowInvalidOperationException("Circle fitting must return a finite center and a positive finite radius.");
+                            Circle = new Circle(resultCenter, resultRadius);
 
                             goto OuterLoop;
                         }
@@ -188,9 +203,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
                 findItem.BitmapImageROIDrawable.IsFixed = true;
             }
 
-            var (resultCenter, resultRadius) = fitCircle([.. FindItems.Select(t => t.ImageROI.Center)]);
-
-            Circle = new Circle(resultCenter, resultRadius);
+            UpdateCircleDrawable();
         }
         finally
         {
@@ -289,11 +302,23 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
                 findItem.BitmapImageROIDrawable.IsFixed = true;
                 findItem.BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(findItem.ImageROI);
             }
+
+            UpdateCircleDrawable();
         }
         finally
         {
             Document.View.ZoomToFit();
         }
+    }
+
+    private void UpdateCircleDrawable()
+    {
+        if (_bitmapImageDrawable.BitmapImage is null || Circle.IsEmpty) return;
+
+        // 拟合圆保留亚像素精度, 仅翻转图片Y轴并加上图片在世界坐标中的偏移.
+        _circleDrawable.Circle = new Circle(new Point(
+            _bitmapImageDrawable.Point.X + Circle.Center.X,
+            _bitmapImageDrawable.Point.Y + _bitmapImageDrawable.BitmapImage.Height - Circle.Center.Y), Circle.Radius);
     }
 
     #endregion 校准

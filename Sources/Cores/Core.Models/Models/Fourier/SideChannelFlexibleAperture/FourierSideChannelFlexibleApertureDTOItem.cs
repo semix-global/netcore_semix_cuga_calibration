@@ -173,10 +173,28 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
                 var heightDelta = step2Rod.ImageROI.Height - step1Rod.ImageROI.Height;
                 var deltaMotorAbsoluteValue = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
-                Guard.IsNotEqualTo(heightDelta, 0d);
+                if (heightDelta == 0d)
+                {
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"""
+                         Channel {ChannelId}, rod {step2Rod.Index}: ROI height did not change.
+                         Step1 height={step1Rod.ImageROI.Height:0.###} px, Step2 height={step2Rod.ImageROI.Height:0.###} px, Step2-Step1={heightDelta:0.###} px.
+                         Motor: Step1={item.Step0AndStep1MotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
+                         PixelSize cannot be calculated with a zero height change. Check the image order and adjust the same rod's ROI boundaries in both images.
+                         """);
+                }
 
                 rodResult.PixelSize = deltaMotorAbsoluteValue / heightDelta;
-                Guard.IsGreaterThan(rodResult.PixelSize, 0);
+                if (!(rodResult.PixelSize > 0d))
+                {
+                    ThrowHelper.ThrowInvalidOperationException($"""
+                                                                Channel {ChannelId}, rod {step2Rod.Index}: {(deltaMotorAbsoluteValue != 0d && ((deltaMotorAbsoluteValue < 0d && heightDelta > 0d) || (deltaMotorAbsoluteValue > 0d && heightDelta < 0d)) ? "motor displacement and ROI height change have opposite signs" : "motor displacement and ROI height change do not produce a positive PixelSize")}.
+                                                                Motor: Step1={item.Step0AndStep1MotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
+                                                                ROI height (px): Step1={step1Rod.ImageROI.Height:0.###}, Step2={step2Rod.ImageROI.Height:0.###}, Step2-Step1={heightDelta:0.###}.
+                                                                PixelSize = motor displacement / ROI height change = {rodResult.PixelSize:0.###}; a positive value is required.
+                                                                Expected: motor displacement and ROI height change must be nonzero and have the same sign. Check the recorded motor positions, Step1/Step2 image order, and the same rod's ROI boundaries before recalibrating.
+                                                                """);
+                }
 
                 rodResult.MinImageROI = new Rect(
                         step2Rod.ImageROI.Point,

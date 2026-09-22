@@ -29,10 +29,10 @@
                 <hc:Shield Subject="Kind: "
                            Status="{Binding CalibratingItem.XLightHoleItem.CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Circle Center: "
+                <hc:Shield Subject="Circle Center (px): "
                            Status="{Binding CalibratingItem.XLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Circle Radius: "
+                <hc:Shield Subject="Circle Radius (px): "
                            Status="{Binding CalibratingItem.XLightHoleItem.Circle.Radius}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
@@ -42,10 +42,13 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <TextBlock Text="Capture at 60 degrees, linear position 0 and push position 0. Place all five ROI crosshair centers on distinct points spread along the visible curved aperture edge. Avoid straight rod edges. Press Enter to fit the center and radius."
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Action"
+                            <Button Content="Capture and Fit Circle"
                                     Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />

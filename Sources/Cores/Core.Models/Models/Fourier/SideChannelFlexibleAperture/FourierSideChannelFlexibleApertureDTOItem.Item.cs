@@ -587,7 +587,14 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     var heightDelta = invisibleRod.ImageROI.Height - step1Rod.ImageROI.Height;
                     if (heightDelta == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
                     {
-                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. {heightDelta}: Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
+                        ThrowHelper.ThrowInvalidOperationException($"""
+                                                                    Side-channel {(_isEven ? "even" : "odd")} rod {invisibleRod.Index}: {(heightDelta == 0d ? "the ROI height did not change despite a nonzero motor displacement" : "motor displacement and ROI height change have opposite signs")}.
+                                                                    Motor: Step1={Step0AndStep1MotorAbsoluteValue:0.###}, Step2={Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
+                                                                    ROI height (px): Step1={step1Rod.ImageROI.Height:0.###}, Step2={invisibleRod.ImageROI.Height:0.###}, Step2-Step1={heightDelta:0.###}.
+                                                                    Step2 height was copied from visible rod {nearestVisibleRod.Index} and then rounded/clipped to the image bounds.
+                                                                    Expected: ROI height must {(deltaMotorAbsoluteValue > 0d ? "increase" : "decrease")} when the motor position {(deltaMotorAbsoluteValue > 0d ? "increases" : "decreases")}, so PixelSize is positive.
+                                                                    Check the recorded motor positions, Step1/Step2 image order, and the same rod's ROI boundaries. For this extrapolated rod, also check visible rod {nearestVisibleRod.Index} and whether image clipping removed the height change.
+                                                                    """);
                     }
                 }
             }

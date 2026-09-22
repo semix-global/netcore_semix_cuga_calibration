@@ -32,7 +32,7 @@
                 <hc:Shield Subject="Default Angle: "
                            Status="{Binding CalibratingItem.XItems[1].DefaultAngleMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Pixel Size: "
+                <hc:Shield Subject="Pixel Size (motor/px): "
                            Status="{Binding CalibratingItem.XItems[1].PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="X Min Motor: "
@@ -48,34 +48,40 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown hc:TitleElement.Title="Angle: "
+                        <TextBlock Text="Step 0: move horizontally and adjust width with the left/right center handles. Step 1: move onto the same rod without resizing. PixelSize = motor displacement / X center displacement (signed motor units/pixel)."
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,8" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Angle (deg): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step4Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
                                           Minimum="0"
                                           Maximum="360"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[1].AngleMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step0 Motor: "
+                                          Value="{Binding CalibratingItem.XItems[1].AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step4Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
                                           Minimum="-100000"
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[1].Step0MotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step1 Motor: "
+                                          Value="{Binding CalibratingItem.XItems[1].Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step4Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
                                           Minimum="-100000"
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[1].Step1MotorAbsoluteValue}" />
+                                          Value="{Binding CalibratingItem.XItems[1].Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Action"
+                            <Button Content="Capture and Calibrate"
                                     Command="{Binding Step4Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />

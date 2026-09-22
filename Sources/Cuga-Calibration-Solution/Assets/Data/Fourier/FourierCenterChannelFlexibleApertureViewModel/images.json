@@ -1,0 +1,332 @@
+[
+  {
+    "file": "Channel3_X_120_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeX\\120_0_f25a62fc7952490c8ea38015baa674f3.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "54e7dfc4b6f562f2b4467a150c4d88f76355b076aea7cd0fe2f4a1f0e4615e28",
+    "originalEmbeddedFile": "20260427_CH3DegreeX_120_0.png",
+    "originalEmbeddedSha256": "3edba67562186eaeb32bee5eb4121816b564fa482c7960bad5cbe3648f271d48",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_180_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeX\\180_0_f547ff98d2894e1ba32b71a620c1ec24.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "7f9aa40a2795c571b527e5d6b94b3f1509770ac275431f26510eeae6f6d3670d",
+    "originalEmbeddedFile": "20260427_CH3DegreeX_180_0.png",
+    "originalEmbeddedSha256": "edf730963ebcf4501ed676adcabc3a95df9fea37c0a59704ef8f97412dc1d058",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_240_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeX\\240_0_53130f130e2c458dada9ed574491be91.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "0538d5afaf27ab2f65c5934397ad8916fdaf78b103edc36920beabad402a7a79",
+    "originalEmbeddedFile": "20260427_CH3DegreeX_240_0.png",
+    "originalEmbeddedSha256": "d388920e8cca18a95f775c7eddad97309acfd1e7c777e3df8405ff1122fc1aaf",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_300_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeX\\300_0_6926921dcd4a4fde88373ace5a5d460b.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "83d5105b7f6cd03543bbf849b870d375151a21230db7aa488b72e0aaf502ca58",
+    "originalEmbeddedFile": "20260427_CH3DegreeX_300_0.png",
+    "originalEmbeddedSha256": "6136f4426ae699bea025b2bd87f3e9d800e1571e6ad6643edd14e15f70d62562",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_120_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\120_-6_4a2191f8b4e04fdc87bc08780e360876.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "87a7af6593449464dedc6a75baaa8358c7965a9478e0b569f10bdbf396d2e470",
+    "originalEmbeddedFile": "20260427_CH3TurnX_120_-6.png",
+    "originalEmbeddedSha256": "4939e85991140320d3b911615d652c91fd4bd12258eb10c8c9c9a32e41bd198d",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_120_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\120_-8_05a3436ed4f2408abd7f368a745e933d.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "0cf03b81c042170c20dc0d8f6c45a9487b694e792b635da65e206edd887db154",
+    "originalEmbeddedFile": "20260427_CH3TurnX_120_-8.png",
+    "originalEmbeddedSha256": "71f1166b746b61bd0cc92c9c3ad7f7f94213696b00a3df360148ad1a663337fe",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_180_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\180_-8_339fef18818b4abf997311aa97859531.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "e3b8a122ec37061b1ff45c8edd1249067d353e0114c525f1fac4121ffd4efc9d",
+    "originalEmbeddedFile": "20260427_CH3TurnX_180_-8.png",
+    "originalEmbeddedSha256": "73dd69a68f8956cfe09e62d212ed683023e437c1682e3e62ec078ee95aeac58d",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_180_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\180_-10_42204a646e7646c58acdc9153db1c3ac.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "f6658753d31db1708f4bee9acc419abf02c91515e4de5df992139ee1f8ae6915",
+    "originalEmbeddedFile": "20260427_CH3TurnX_180_-10.png",
+    "originalEmbeddedSha256": "841c0d134f32204e8738bcbf25fcd1c98c5e81f07453bf82f36f7e01d434784e",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_240_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\240_-10_3e0ec5cf889c4dc7a5e55a7193cf38d7.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "075fb89c14e3ac84f59b7e82848efc26f991abce689c6387c3e59c4b69b8df4b",
+    "originalEmbeddedFile": "20260427_CH3TurnX_240_-10.png",
+    "originalEmbeddedSha256": "5d61f37cb0a6f9b9487188bccca544d67c17d6f431ca80b8a146f454af19b5d5",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_240_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\240_-8_1792dcf1f2104fdf9186f4a6f6b487da.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "cdfca5ef9ed0aef472710972ef6998f09a9aa12a59885901ae549d5cf80dea54",
+    "originalEmbeddedFile": "20260427_CH3TurnX_240_-8.png",
+    "originalEmbeddedSha256": "7a092cb10511e78bbc46f3655895eaff75d731fff1da8da3e9b517c9071e10b7",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_300_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\300_-8_e56a24422ae24d1889cea759a576d43c.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "aececf419f50125dfcfd8ade05f7fb2dc1d14bfd276609fb48806dbbd5e82e44",
+    "originalEmbeddedFile": "20260427_CH3TurnX_300_-8.png",
+    "originalEmbeddedSha256": "9e8a900722db5b823cf2b5391198ed9bbd409a69a29000a4403053b074155c07",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_300_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnX\\300_-10_97864eabb1c34822869976bc829c0fb1.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "4df3e4594d450666f66b28d828d80bb0d9b2a36d03a99b86273dd434c3071585",
+    "originalEmbeddedFile": "20260427_CH3TurnX_300_-10.png",
+    "originalEmbeddedSha256": "4d6720c652b969bd92ed28527dd47603936e37f4e77461147e97adfc2ef787dc",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_LightHole_Reference20260416_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260416\\Ch3Angle60X\\60_0_40f688b8be0b48cb94d6223251701b05.jpg",
+    "width": 2590,
+    "height": 2814,
+    "sha256": "c2be4e30eb5a5d22ed6837c48a3997658f0de4e04022ac3e8d905a51393e0584",
+    "originalEmbeddedFile": "20260416_Ch3Angle60X_60_0.png",
+    "originalEmbeddedSha256": "2a3f1a30be7516f106415191f92ed981cf20dc5431a65fb932210b79cc793830",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_X_LightHole_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\Ch3Angle60X\\60_0_4c7174ee52e443fbab890ba6f7cf81b7.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "36bd20ca03d9ca8243d13baad9807a62cb93c773ac74eb1b83bd17f0c163cdd4",
+    "originalEmbeddedFile": "20260427_Ch3Angle60X_60_0.png",
+    "originalEmbeddedSha256": "4b0b6504d5613ab08debde96358ca502919e72d2c0baabc3886f22e6b86477a6",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_120_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeY\\120_0_5a7acbfd3b2c46ffb271d64a1f57f732.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "3ae9e73f1b61de2ea85a01385b359ed4e182599fa9ef3cfe1fd20de413f667a0",
+    "originalEmbeddedFile": "20260427_CH3DegreeY_120_0.png",
+    "originalEmbeddedSha256": "8035b1c8b99fe2d65e3fc2c1a0b6df058fe88346c2d1a5733480109f2ac150e7",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_180_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeY\\180_0_8402942c1e8d4e55bf55b6d7448f35f5.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "5088207a972c498c1558331bb42809b7a2e12887d90f4c93acf01904abcb2ce2",
+    "originalEmbeddedFile": "20260427_CH3DegreeY_180_0.png",
+    "originalEmbeddedSha256": "1dc8fa4316ab644a30f0d4e3c9f08befa6d16a46fb03d31a350cc9c224a4bda4",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_240_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeY\\240_0_b2af0d235a0141ffa63c16144efedd41.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "51084ae4c2be94fbfe455d0d94735dd337c1c626850cc09861503d09db28c2f3",
+    "originalEmbeddedFile": "20260427_CH3DegreeY_240_0.png",
+    "originalEmbeddedSha256": "e9494aea619d4d75df3bcace392297c367e5c7959692b6fe0749deba5ed42e07",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_300_Reference_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3DegreeY\\300_0_b3b1d06f87604a53b15fc714ce7665ee.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "895375782e4b4ff8b056fa478c53084398ebb414b14bef992dbb2c99b48a1757",
+    "originalEmbeddedFile": "20260427_CH3DegreeY_300_0.png",
+    "originalEmbeddedSha256": "e5d64051509febc9b116aa6066822c222954a26f4b71298c2b728a842f18e1de",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_120_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\120_2_adc8330688ba4c869a7cca9b6f6f9dca.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "2a336dcd159428a19e6feb826222dc4f9360a990f0b64c671934c8bb4845cc05",
+    "originalEmbeddedFile": "20260427_CH3TurnY_120_2.png",
+    "originalEmbeddedSha256": "0e83f0b71f9b7059f2369923d2e796d735782d6a2105f3e294d82e796eed2330",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_120_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\120_4_8222094b91084b62901ac2e664569ee3.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "ea43e2c035300c779655f6be67ff8137d1e69fb9d722838b6ca7f44c86454bb6",
+    "originalEmbeddedFile": "20260427_CH3TurnY_120_4.png",
+    "originalEmbeddedSha256": "b4fd05e2ca5b073b48ff7fb0cf95c1e042bb90fc4dd93eee02e8dc092d909f43",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_180_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\180_4_5088ae4740504141a9b9f168499fd42c.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "c1798022202168a77a4ea193637927c31fe0a763b242a973636774ff26b38bf7",
+    "originalEmbeddedFile": "20260427_CH3TurnY_180_4.png",
+    "originalEmbeddedSha256": "6f86884b1b4891f0a9fff9399c2bb2e70be744f8f2ee916abd1d184781394cad",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_180_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\180_6_eb98217982364ee9a89637d81d635a70.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "84e9b7f0ca8b1f1c027a6aada0e2ba9c2930fed699f12e2c60d9d1df7b0981c2",
+    "originalEmbeddedFile": "20260427_CH3TurnY_180_6.png",
+    "originalEmbeddedSha256": "b06edbde6094c3ca12f006f0c9a2cca21bcf2c807ca5af1a498990c385f7b73e",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_240_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\240_6_347b189e914448918c64c81be26b8b3a.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "55d14c9181195968680167682ee82894c66f853142037b1e959b32eacad0850a",
+    "originalEmbeddedFile": "20260427_CH3TurnY_240_6.png",
+    "originalEmbeddedSha256": "518e7b942f01dae6ce134805cf4d0876e1684b270109d5d1088aeb5bd5f10399",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_240_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\240_8_74933e3b548a4abab722a6a00e5e744d.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "be6d2c70dada9947583f0a836b33875f60b2dc834edea09bcb9ec7edeff6042f",
+    "originalEmbeddedFile": "20260427_CH3TurnY_240_8.png",
+    "originalEmbeddedSha256": "039fe534463c28201f5acb6d4a9d0d994b720680b5e88afac2bff3a03e12da9e",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_300_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\300_8_618c63c21ec240ea9487ada56c1befdf.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "e2286921c6eb7e32728ddebe4e85500603ec71a6f11658fdb6a778c140212f73",
+    "originalEmbeddedFile": "20260427_CH3TurnY_300_8.png",
+    "originalEmbeddedSha256": "56d34b0b8140482862d6a6be4da1770d4014c526de1b7ca5c706fc90be204d5b",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_300_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3TurnY\\300_10_88073d86794d4d17acd71bb17a45198d.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "20dcedf1d02960a052ea21780a8f6f069cb3df3006cf929c07504025595d30bc",
+    "originalEmbeddedFile": "20260427_CH3TurnY_300_10.png",
+    "originalEmbeddedSha256": "1468be329b8ebfb037999e2479f47ef474c9e90b2f2ddc2f2a7e040ac3b97f94",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_LightHole_Reference20260416_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260416\\Ch3Angle60Y\\60_0_71d45fb13f1b496f849f70b5268b195b.jpg",
+    "width": 2590,
+    "height": 2814,
+    "sha256": "618067e085672d31fc9d9836d74610debd59c744b9f80f6536b4d585f2e3827c",
+    "originalEmbeddedFile": "20260416_Ch3Angle60Y_60_0.png",
+    "originalEmbeddedSha256": "0a5b19edee247f06927b664e61391f03bb5d986c3fa4316a8505aede6461bdb5",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Y_LightHole_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\Ch3Angle60Y\\60_0_a931e3d701b14ce184f0c017f6d93469.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "d7493fc2029aaada87f6ca47774a966085bafd1bd280ad34e05850ef70572bf4",
+    "originalEmbeddedFile": "20260427_Ch3Angle60Y_60_0.png",
+    "originalEmbeddedSha256": "11cefe576a69eb94c85cb863a3031cb960d7c23fd5dedd62f00da81750ae53c4",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Push_300_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3PushX\\300_2_07485039efd647ee8b3004dd0c130dc0.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "a6710e1b7aac09309a123699c5fd974ded29581b15f8f2778de3cc3f03dc3e4f",
+    "originalEmbeddedFile": "20260427_CH3PushX_300_2.png",
+    "originalEmbeddedSha256": "cfe838fd083abd56f0c0642ef4314ea8c9e3d59e8d524575f095e93209c36a07",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Push_300_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3PushX\\300_42_80bc4525f0824062bfae86e06b9c67be.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "c67e1b9b8f85ac1bcd2f55819e978532d90762060cc050b113f83b807d3ba0d9",
+    "originalEmbeddedFile": "20260427_CH3PushX_300_42.png",
+    "originalEmbeddedSha256": "61609bf967420fd61b6e789c1eb29fb36b57881958b0f81dd8dedf2f6d2dab3a",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Push_300_Step2.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3PushX\\300_43_b0e7a4769aee40f19f80410ab8fa0ff5.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "c67f892135b7c50120d91047ba768b416488251b6a83a02c1e370377636c4c96",
+    "originalEmbeddedFile": "20260427_CH3PushX_300_43.png",
+    "originalEmbeddedSha256": "699a6a7a34203e1c8c99e6b48240a9dfa24a2d1e52a83d9170416a59386d7927",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Push_0_Step0.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3PushX\\0_42_0387cab7c3a749ce914b272cfd0f85fe.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "c67e1b9b8f85ac1bcd2f55819e978532d90762060cc050b113f83b807d3ba0d9",
+    "originalEmbeddedFile": "20260427_CH3PushX_0_42.png",
+    "originalEmbeddedSha256": "61609bf967420fd61b6e789c1eb29fb36b57881958b0f81dd8dedf2f6d2dab3a",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  },
+  {
+    "file": "Channel3_Push_0_Step1.jpg",
+    "source": "D:\\Nano\\Cuga-Calibration\\Images\\PupilCenterChannelFlexibleApertureViewModel\\20260427\\CH3PushX\\0_43_f313775f674449b5b23f0880d43612b5.jpg",
+    "width": 2538,
+    "height": 2819,
+    "sha256": "c67f892135b7c50120d91047ba768b416488251b6a83a02c1e370377636c4c96",
+    "originalEmbeddedFile": "20260427_CH3PushX_0_43.png",
+    "originalEmbeddedSha256": "699a6a7a34203e1c8c99e6b48240a9dfa24a2d1e52a83d9170416a59386d7927",
+    "encoding": "JPEG quality=95, subsampling=0; original dimensions retained"
+  }
+]
