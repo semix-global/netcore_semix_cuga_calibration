@@ -1,5 +1,4 @@
 using Core.Models.Extensions;
-using Core.Models.Models;
 using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
@@ -7,88 +6,39 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 [CacheVersion("2.0.0")]
-public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>, IDisposable
+public sealed partial class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>, IDisposable
 {
-    public FourierCenterChannelFlexibleApertureLightHoleItem XLightHoleItem { get; private init; }
+    public FourierCenterChannelFlexibleApertureLightHoleItem XLightHoleItem { get; private init; } = new(CenterChannelMotionKindEnum.X);
 
-    public FourierCenterChannelFlexibleApertureLightHoleItem YLightHoleItem { get; private init; }
+    public FourierCenterChannelFlexibleApertureMotionItem[] XItems { get; private init; } =
+    [
+        new(CenterChannelMotionKindEnum.X, 120d) { Step0MotorAbsoluteValue = -6d, Step1MotorAbsoluteValue = -8d },
+        new(CenterChannelMotionKindEnum.X, 180d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d },
+        new(CenterChannelMotionKindEnum.X, 240d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d },
+        new(CenterChannelMotionKindEnum.X, 300d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d }
+    ];
 
-    public FourierCenterChannelFlexibleApertureMotionItem[] MotionItems { get; private init; }
+    public FourierCenterChannelFlexibleApertureMotionItem PushItem { get; private init; } = new(CenterChannelMotionKindEnum.Push, 0) { Step0MotorAbsoluteValue = 42d, Step1MotorAbsoluteValue = 43d };
 
-    [Newtonsoft.Json.JsonIgnore]
-    public IReadOnlyList<FourierCenterChannelFlexibleApertureMotionItem> XMotionItems => MotionItems.Where(t => t.Kind == CenterChannelMotionKind.X).OrderBy(t => t.NominalAngle).ToArray();
+    public FourierCenterChannelFlexibleApertureLightHoleItem YLightHoleItem { get; private init; } = new(CenterChannelMotionKindEnum.Y);
 
-    [Newtonsoft.Json.JsonIgnore]
-    public IReadOnlyList<FourierCenterChannelFlexibleApertureMotionItem> YMotionItems => MotionItems.Where(t => t.Kind == CenterChannelMotionKind.Y).OrderBy(t => t.NominalAngle).ToArray();
+    public FourierCenterChannelFlexibleApertureMotionItem[] YItems { get; private init; } =
+    [
+        new(CenterChannelMotionKindEnum.Y, 120d) { Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = 4d },
+        new(CenterChannelMotionKindEnum.Y, 180d) { Step0MotorAbsoluteValue = 4d, Step1MotorAbsoluteValue = 6d },
+        new(CenterChannelMotionKindEnum.Y, 240d) { Step0MotorAbsoluteValue = 6d, Step1MotorAbsoluteValue = 8d },
+        new(CenterChannelMotionKindEnum.Y, 300d) { Step0MotorAbsoluteValue = 8d, Step1MotorAbsoluteValue = 10d }
+    ];
 
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem PushItem => MotionItems.Single(t => t.Kind == CenterChannelMotionKind.Push);
+#pragma warning disable IDISP003
 
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem X120Item => XMotionItems[0];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem X180Item => XMotionItems[1];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem X240Item => XMotionItems[2];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem X300Item => XMotionItems[3];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem Y120Item => YMotionItems[0];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem Y180Item => YMotionItems[1];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem Y240Item => YMotionItems[2];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public FourierCenterChannelFlexibleApertureMotionItem Y300Item => YMotionItems[3];
-
-    [Newtonsoft.Json.JsonIgnore]
-    public bool IsComplete => XLightHoleItem.IsCalculated
-                              && YLightHoleItem.IsCalculated
-                              && MotionItems.All(t => t.IsSecondCompleted)
-                              && XMotionItems.Count == 4
-                              && YMotionItems.Count == 4;
-
-    public FourierCenterChannelFlexibleApertureDTO()
+    public override FourierCenterChannelFlexibleApertureDTO Clone() => new()
     {
-        XLightHoleItem = new FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKind.X);
-        YLightHoleItem = new FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKind.Y);
-        MotionItems =
-        [
-            new(CenterChannelMotionKind.X, 120d),
-            new(CenterChannelMotionKind.X, 180d),
-            new(CenterChannelMotionKind.X, 240d),
-            new(CenterChannelMotionKind.X, 300d),
-            new(CenterChannelMotionKind.Y, 120d),
-            new(CenterChannelMotionKind.Y, 180d),
-            new(CenterChannelMotionKind.Y, 240d),
-            new(CenterChannelMotionKind.Y, 300d),
-            new(CenterChannelMotionKind.Push, null)
-        ];
-    }
-
-    [Newtonsoft.Json.JsonConstructor]
-    private FourierCenterChannelFlexibleApertureDTO(
-        FourierCenterChannelFlexibleApertureLightHoleItem xLightHoleItem,
-        FourierCenterChannelFlexibleApertureLightHoleItem yLightHoleItem,
-        FourierCenterChannelFlexibleApertureMotionItem[] motionItems)
-    {
-        XLightHoleItem = xLightHoleItem;
-        YLightHoleItem = yLightHoleItem;
-        MotionItems = motionItems;
-    }
-
-    public override FourierCenterChannelFlexibleApertureDTO Clone() => new(
-        XLightHoleItem.Clone(),
-        YLightHoleItem.Clone(),
-        [.. MotionItems.Select(t => t.Clone())])
-    {
+        XLightHoleItem = XLightHoleItem.Clone(),
+        XItems = [.. XItems.Select(t => t.Clone())],
+        PushItem = PushItem.Clone(),
+        YLightHoleItem = YLightHoleItem.Clone(),
+        YItems = [.. YItems.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -96,62 +46,40 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
         Expiration = Expiration
     };
 
-    public CalibrationPupilCenterChannelFlexibleAperture AdaptTo()
+#pragma warning restore IDISP003
+
+    public CalibrationPupilCenterChannelFlexibleAperture AdaptTo() => new()
     {
-        if (IsComplete == false)
-        {
-            return new CalibrationPupilCenterChannelFlexibleAperture
-            {
-                IsCalibrated = false,
-                IsVerified = false,
-                IsRequiredCalibrate = IsRequiredSelfCheck,
-                CgFFBoxTurnXAngleCh3 = [],
-                CgFFBoxTurnXWidthCh3 = [],
-                CgFFBoxTurnXMotorRelationCh3 = [],
-                CgFFBoxTurnXMotorPositionCh3 = [],
-                CgFFBoxTurnXRectPositionCh3 = [],
-                CgFFBoxTurnYAngleCh3 = [],
-                CgFFBoxTurnYWidthCh3 = [],
-                CgFFBoxTurnYMotorRelationCh3 = [],
-                CgFFBoxTurnYMotorPositionCh3 = [],
-                CgFFBoxTurnYRectPositionCh3 = []
-            };
-        }
-
-        var xItems = XMotionItems;
-        var yItems = YMotionItems;
-        var push = PushItem;
-
-        return new CalibrationPupilCenterChannelFlexibleAperture
-        {
-            CgFFBoxTurnXAngleCh3 = [.. xItems.Select(t => t.ActualAngle ?? t.NominalAngle ?? 0d)],
-            CgFFBoxTurnXWidthCh3 = [.. xItems.Select(t => t.FirstROI.Width)],
-            CgFFBoxTurnXMotorRelationCh3 = [.. xItems.Select(t => Math.Abs(t.PixelSize))],
-            CgFFBoxTurnXMotorPositionCh3 = [.. xItems.Select(t => t.FirstPosition)],
-            CgFFBoxTurnXRectPositionCh3 = [.. xItems.Select(t => t.FirstROI.ToRectD())],
-            CgFFBoxTurnXLightHoleCircleCenterCh3 = XLightHoleItem.Center.ToCgPoint(),
-            CgFFBoxTurnXLightHoleCircleRadiusCh3 = XLightHoleItem.Radius,
-            CgFFBoxTurnYAngleCh3 = [.. yItems.Select(t => t.ActualAngle ?? t.NominalAngle ?? 0d)],
-            CgFFBoxTurnYWidthCh3 = [.. yItems.Select(t => t.FirstROI.Height)],
-            CgFFBoxTurnYMotorRelationCh3 = [.. yItems.Select(t => Math.Abs(t.PixelSize))],
-            CgFFBoxTurnYMotorPositionCh3 = [.. yItems.Select(t => t.FirstPosition)],
-            CgFFBoxTurnYRectPositionCh3 = [.. yItems.Select(t => t.FirstROI.ToRectD())],
-            CgFFBoxTurnYLightHoleCircleCenterCh3 = YLightHoleItem.Center.ToCgPoint(),
-            CgFFBoxTurnYLightHoleCircleRadiusCh3 = YLightHoleItem.Radius,
-            CgFFBoxPushXWidthCh3 = push.FirstROI.Width,
-            CgFFBoxPushXMotorRelationCh3 = Math.Abs(push.PixelSize),
-            CgFFBoxPushXMotorPositionCh3 = push.FirstPosition,
-            CgFFBoxPushXRectPositionCh3 = push.FirstROI.ToRectD(),
-            IsCalibrated = IsCalibrated,
-            IsVerified = IsVerified,
-            IsRequiredCalibrate = IsRequiredSelfCheck
-        };
-    }
+        CgFFBoxTurnXAngleCh3 = [.. XItems.Select(t => t.AngleMotorAbsoluteValue)],
+        CgFFBoxTurnXWidthCh3 = [.. XItems.Select(t => t.Step0FindItem.ImageROI.Width)],
+        CgFFBoxTurnXMotorRelationCh3 = [.. XItems.Select(t => t.PixelSize)],
+        CgFFBoxTurnXMotorPositionCh3 = [.. XItems.Select(t => t.Step0MotorAbsoluteValue)],
+        CgFFBoxTurnXRectPositionCh3 = [.. XItems.Select(t => t.Step0FindItem.ImageROI.ToRectD())],
+        CgFFBoxTurnXLightHoleCircleCenterCh3 = XLightHoleItem.Circle.Center.ToCgPoint(),
+        CgFFBoxTurnXLightHoleCircleRadiusCh3 = XLightHoleItem.Circle.Radius,
+        CgFFBoxTurnYAngleCh3 = [.. YItems.Select(t => t.AngleMotorAbsoluteValue)],
+        CgFFBoxTurnYWidthCh3 = [.. YItems.Select(t => t.Step0FindItem.ImageROI.Height)],
+        CgFFBoxTurnYMotorRelationCh3 = [.. YItems.Select(t => t.PixelSize)],
+        CgFFBoxTurnYMotorPositionCh3 = [.. YItems.Select(t => t.Step0MotorAbsoluteValue)],
+        CgFFBoxTurnYRectPositionCh3 = [.. YItems.Select(t => t.Step0FindItem.ImageROI.ToRectD())],
+        CgFFBoxTurnYLightHoleCircleCenterCh3 = YLightHoleItem.Circle.Center.ToCgPoint(),
+        CgFFBoxTurnYLightHoleCircleRadiusCh3 = YLightHoleItem.Circle.Radius,
+        CgFFBoxPushXWidthCh3 = PushItem.Step0FindItem.ImageROI.Width,
+        CgFFBoxPushXMotorRelationCh3 = PushItem.PixelSize,
+        CgFFBoxPushXMotorPositionCh3 = PushItem.Step0MotorAbsoluteValue,
+        CgFFBoxPushXRectPositionCh3 = PushItem.Step0FindItem.ImageROI.ToRectD(),
+        IsCalibrated = IsCalibrated,
+        IsVerified = IsVerified,
+        IsRequiredCalibrate = IsRequiredSelfCheck
+    };
 
     public void Dispose()
     {
         XLightHoleItem.Dispose();
+        foreach (var xItem in XItems) xItem.Dispose();
+        PushItem.Dispose();
+
         YLightHoleItem.Dispose();
-        foreach (var item in MotionItems) item.Dispose();
+        foreach (var yItem in YItems) yItem.Dispose();
     }
 }

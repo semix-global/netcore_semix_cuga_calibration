@@ -79,12 +79,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         if (Cache.CircleRadiusErrorThreshold <= 0d) Cache.CircleRadiusErrorThreshold = 1d;
 
         var config = FourierViewModel.GetFourierConfig();
-        Cache.Ch3XLPOSMin = config.CH3_X_LPOSMin;
-        Cache.Ch3XLPOSMax = config.CH3_X_LPOSMax;
-        Cache.Ch3XPPOSMin = config.CH3_X_PPOSMin;
-        Cache.Ch3XPPOSMax = config.CH3_X_PPOSMax;
-        Cache.Ch3YLPOSMin = config.CH3_Y_LPOSMin;
-        Cache.Ch3YLPOSMax = config.CH3_Y_LPOSMax;
+        Cache.XMinMotorAbsoluteValue = config.CH3_X_LPOSMin;
+        Cache.XMaxMotorAbsoluteValue = config.CH3_X_LPOSMax;
+        Cache.PushMinMotorAbsoluteValue = config.CH3_X_PPOSMin;
+        Cache.PushMaxMotorAbsoluteValue = config.CH3_X_PPOSMax;
+        Cache.YMinMotorAbsoluteValue = config.CH3_Y_LPOSMin;
+        Cache.YMaxMotorAbsoluteValue = config.CH3_Y_LPOSMax;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -172,9 +172,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 return false;
             }
 
-            Guard.IsGreaterThan(Cache.Ch3XLPOSMax, Cache.Ch3XLPOSMin);
-            Guard.IsGreaterThan(Cache.Ch3YLPOSMax, Cache.Ch3YLPOSMin);
-            Guard.IsGreaterThan(Cache.Ch3XPPOSMax, Cache.Ch3XPPOSMin);
+            Guard.IsGreaterThan(Cache.XMaxMotorAbsoluteValue, Cache.XMinMotorAbsoluteValue);
+            Guard.IsGreaterThan(Cache.YMaxMotorAbsoluteValue, Cache.YMinMotorAbsoluteValue);
+            Guard.IsGreaterThan(Cache.PushMaxMotorAbsoluteValue, Cache.PushMinMotorAbsoluteValue);
             Guard.IsTrue(ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation));
             Guard.IsTrue(ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation));
             Guard.IsTrue(ApplicationCookie.LaserLightInformations.Contains(Cache.LaserLightInformation));
@@ -272,9 +272,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             var hasPoints = item.Points.Length == 4
                             && item.Points.Any(t => t != Point.Origin)
                             && item.Points.All(t => double.IsFinite(t.X) && double.IsFinite(t.Y));
-            if (string.IsNullOrWhiteSpace(item.ImageFilePath) || item.IsCalculated == false || hasPoints == false)
+            if (string.IsNullOrWhiteSpace(item.ChannelImageFilePath) || item.IsCalculated == false || hasPoints == false)
             {
-                item.ImageFilePath = CaptureImage(hazeBFPosition, axis == FFCH.Ch3_X ? "X60" : "Y60");
+                item.ChannelImageFilePath = CaptureImage(hazeBFPosition, axis == FFCH.Ch3_X ? "X60" : "Y60");
                 await item.CalibratingAsync(cancellationToken).ConfigureAwait(false);
             }
 
@@ -367,21 +367,21 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
         switch (item.Kind)
         {
-            case CenterChannelMotionKind.X:
+            case CenterChannelMotionKindEnum.X:
                 FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, (item.IsFirstCompleted ? item.FirstSampleAngle : item.ActualAngle) ?? item.NominalAngle ?? 0d);
                 FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, position);
                 FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
 
                 break;
 
-            case CenterChannelMotionKind.Y:
+            case CenterChannelMotionKindEnum.Y:
                 FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, (item.IsFirstCompleted ? item.FirstSampleAngle : item.ActualAngle) ?? item.NominalAngle ?? 0d);
                 FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, position);
                 FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
 
                 break;
 
-            case CenterChannelMotionKind.Push:
+            case CenterChannelMotionKindEnum.Push:
                 FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, 0d);
                 FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0d);
                 FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, position);
@@ -395,20 +395,20 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
     private void SetDefaultMotionPositions(FourierCenterChannelFlexibleApertureDTO dto)
     {
-        foreach (var item in dto.XMotionItems)
+        foreach (var item in dto.XItems)
         {
-            item.FirstPosition = Cache.Ch3XLPOSMin;
-            item.SecondPosition = Cache.Ch3XLPOSMax;
+            item.FirstPosition = Cache.XMinMotorAbsoluteValue;
+            item.SecondPosition = Cache.XMaxMotorAbsoluteValue;
         }
 
-        foreach (var item in dto.YMotionItems)
+        foreach (var item in dto.YItems)
         {
-            item.FirstPosition = Cache.Ch3YLPOSMin;
-            item.SecondPosition = Cache.Ch3YLPOSMax;
+            item.FirstPosition = Cache.YMinMotorAbsoluteValue;
+            item.SecondPosition = Cache.YMaxMotorAbsoluteValue;
         }
 
-        dto.PushItem.FirstPosition = Cache.Ch3XPPOSMin;
-        dto.PushItem.SecondPosition = Cache.Ch3XPPOSMax;
+        dto.PushItem.FirstPosition = Cache.PushMinMotorAbsoluteValue;
+        dto.PushItem.SecondPosition = Cache.PushMaxMotorAbsoluteValue;
     }
 
     private bool Save(FourierCenterChannelFlexibleApertureDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>

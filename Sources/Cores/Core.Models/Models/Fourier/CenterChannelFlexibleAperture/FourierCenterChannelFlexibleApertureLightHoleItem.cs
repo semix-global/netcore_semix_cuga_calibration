@@ -1,165 +1,306 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models;
+using MathNet.Numerics;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
-using Net.Utilities.WPF.Enums;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.OpticsFourierImageViewer.WPF;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
+using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
-/// <summary>
-/// 中心通道 60 度通光孔的圆拟合结果.
-/// </summary>
-public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : ObservableObject, IDisposable
+public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureLightHoleItem>, IDisposable
 {
+    private const int FindItemCount = 5;
     private readonly BitmapImageDrawable _bitmapImageDrawable = new();
-    private readonly BitmapImageROIDrawable[] _pointROIs;
+
+    public CenterChannelMotionKindEnum CenterChannelMotionKindEnum { get; }
 
     [ObservableProperty]
-    public partial string ImageFilePath { get; set; } = string.Empty;
+    public partial string ChannelImageFilePath { get; set; } = string.Empty;
+
+    public FourierCenterChannelFlexibleApertureDTO.FindItem[] FindItems { get; }
 
     [ObservableProperty]
-    public partial Point[] Points { get; set; } = new Point[4];
-
-    [ObservableProperty]
-    public partial Point Center { get; private set; }
-
-    [ObservableProperty]
-    public partial double Radius { get; private set; }
-
-    public CenterChannelMotionKind Axis { get; }
+    public partial Circle Circle { get; private set; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
-    [Newtonsoft.Json.JsonIgnore]
-    public bool IsCalculated => Radius > 0d && double.IsFinite(Radius) && Center.X is var centerX && Center.Y is var centerY && double.IsFinite(centerX) && double.IsFinite(centerY);
-
-    public FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKind axis)
+    public FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKindEnum centerChannelMotionKindEnum)
     {
-        if (axis == CenterChannelMotionKind.Push) throw new ArgumentOutOfRangeException(nameof(axis));
+        CenterChannelMotionKindEnum = centerChannelMotionKindEnum;
 
-        Axis = axis;
-
-        _pointROIs = [.. Enumerable.Range(0, 4).Select(_ => new BitmapImageROIDrawable(_bitmapImageDrawable)
-        {
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None
-        })];
+        FindItems =
+        [
+            .. Generate.Repeat(FindItemCount, 0d).Select(_ => new FourierCenterChannelFlexibleApertureDTO.FindItem(_bitmapImageDrawable)
+            {
+                BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All }
+            })
+        ];
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.Add(_bitmapImageDrawable);
-            Document.ROIModel.AddRange(_pointROIs);
+            Document.ROIModel.AddRange([.. FindItems.Select(t => t.BitmapImageROIDrawable)]);
         });
+
         Document.Reset();
     }
 
     [Newtonsoft.Json.JsonConstructor]
     private FourierCenterChannelFlexibleApertureLightHoleItem(
-        CenterChannelMotionKind axis,
-        string imageFilePath,
-        Point[] points,
-        Point center,
-        double radius)
-        : this(axis)
+        CenterChannelMotionKindEnum centerChannelMotionKindEnum,
+        FourierCenterChannelFlexibleApertureDTO.FindItem[] findItems)
+        : this(centerChannelMotionKindEnum)
     {
-        ImageFilePath = imageFilePath;
-        Points = points;
-        Center = center;
-        Radius = radius;
+        foreach (var (index, target) in FindItems.Index()) target.AdaptIn(findItems[index]);
     }
 
-    public void SetResult(Point center, double radius)
-    {
-        if (double.IsFinite(center.X) == false || double.IsFinite(center.Y) == false || double.IsFinite(radius) == false || radius <= 0d)
-            throw new ArgumentOutOfRangeException(nameof(radius), "Circle result must contain finite values and a positive radius.");
+    #region Mapper
 
-        Center = center;
-        Radius = radius;
+    public FourierCenterChannelFlexibleApertureLightHoleItem Clone()
+    {
+        var item = new FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKindEnum)
+        {
+            ChannelImageFilePath = ChannelImageFilePath,
+            Circle = Circle
+        };
+
+        foreach (var (index, target) in item.FindItems.Index()) target.AdaptIn(FindItems[index]);
+
+        return item;
     }
 
-    public void Calculate(Func<IReadOnlyList<Point>, (Point CenterPosition, double Radius)> fitCircle)
-    {
-        if (fitCircle is null) throw new ArgumentNullException(nameof(fitCircle));
-        if (Points.Length != 4 || Points.Any(t => double.IsFinite(t.X) == false || double.IsFinite(t.Y) == false))
-            throw new InvalidOperationException("Four circle points are required.");
+    #endregion Mapper
 
-        var result = fitCircle(Points);
-        SetResult(result.CenterPosition, result.Radius);
+    #region 校准
+
+    public void Reset()
+    {
+        ChannelImageFilePath = string.Empty;
+
+        foreach (var findItem in FindItems) findItem.Reset();
+
+        Circle = Circle.Empty;
+
+        Document.Reset();
+    }
+
+    public async Task CalibratingAsync(Func<IReadOnlyList<Point>, (Point CenterPosition, double Radius)> fitCircle, CancellationToken cancellationToken)
+    {
+        try
+        {
+            Document.Reset();
+
+            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+
+            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+
+        InnerLoop:
+
+            var imageSize = _bitmapImageDrawable.BitmapImage.Size;
+            var center = new Point(
+                imageSize.Width / 2d,
+                imageSize.Height / 2d);
+            var radius = Math.Min(imageSize.Width, imageSize.Height) * 0.25d;
+
+            var points = new Point[FindItemCount];
+            for (var i = 0; i < points.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var angle = -Math.PI / 2d + i * 2d * Math.PI / points.Length;
+
+                points[i] = new Point(
+                    center.X + radius * Math.Cos(angle),
+                    center.Y + radius * Math.Sin(angle));
+            }
+
+            var rectLength = double.MaxValue;
+            for (var i = 0; i < FindItemCount; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                for (var j = i + 1; j < points.Length; j++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var dx = Math.Abs(points[i].X - points[j].X);
+                    var dy = Math.Abs(points[i].Y - points[j].Y);
+
+                    rectLength = Math.Min(rectLength, Math.Max(dx, dy));
+                }
+            }
+
+            var rects = new Rect[points.Length];
+            for (var i = 0; i < points.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                rects[i] = new Rect(
+                        points[i].X - rectLength / 2d,
+                        points[i].Y - rectLength / 2d,
+                        rectLength,
+                        rectLength)
+                    .ClampToBounds(new Rect(Point.Origin, imageSize))
+                    .ImageCoordinateRound();
+            }
+
+            foreach (var (index, rect) in rects.Index())
+            {
+                FindItems[index].BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rect);
+            }
+
+            Document.View.ZoomToFit();
+
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
+                {
+                    Title = $"Adjust {CenterChannelMotionKindEnum} light hole points.",
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
+                    IsDeleteEnabled = false,
+                    CancellationToken = cancellationToken
+                }).ConfigureAwait(false);
+
+                switch (outputResult)
+                {
+                    case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                        try
+                        {
+                            foreach (var findItem in FindItems)
+                            {
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                Guard.IsTrue(findItem.BitmapImageROIDrawable.IsVisible);
+
+                                Guard.IsTrue(findItem.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                            }
+
+                            goto OuterLoop;
+                        }
+                        catch (Exception ex) when (ex is not OperationCanceledException)
+                        {
+                            switch (ShouldContinue(ex))
+                            {
+                                case DialogResultEnum.Yes:
+                                    continue;
+
+                                case DialogResultEnum.No:
+                                    goto InnerLoop;
+
+                                default:
+                                    throw;
+                            }
+                        }
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                        continue;
+
+                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                        ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                        break;
+
+                    default:
+                        ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                        break;
+                }
+            }
+
+        OuterLoop:
+
+            foreach (var findItem in FindItems)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                findItem.ImageROI = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(findItem.BitmapImageROIDrawable.Rect);
+                findItem.BitmapImageROIDrawable.IsFixed = true;
+            }
+
+            var (resultCenter, resultRadius) = fitCircle([.. FindItems.Select(t => t.ImageROI.Center)]);
+
+            Circle = new Circle(resultCenter, resultRadius);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+
+        return;
+
+        static DialogResultEnum ShouldContinue(Exception ex)
+        {
+            var dialogWindowProvider = HostApplication.GetRequiredService<IDialogWindowProvider>();
+
+            dialogWindowProvider.TryShowDialog($"""
+                                                Error: {ex.Message}
+                                                Yes: continue to modify ROI.
+                                                No: restart from the beginning.
+                                                Cancel: abort calibration.
+                                                """, out var dialogResult, DialogButtonsEnum.YesNoCancel, DialogIconEnum.Warning);
+
+            return dialogResult;
+        }
     }
 
     public void Review()
     {
-        Document.Reset();
-        if (string.IsNullOrWhiteSpace(ImageFilePath)) return;
-
-        _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ImageFilePath);
-        for (var i = 0; i < _pointROIs.Length && i < Points.Length; i++)
+        try
         {
-            var point = Points[i];
-            _pointROIs[i].Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(point.X - 5d, point.Y - 5d, 10d, 10d));
-            _pointROIs[i].Text = $"{i + 1}";
-            _pointROIs[i].IsFixed = true;
+            Document.Reset();
+
+            if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+
+            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+
+            foreach (var findItem in FindItems)
+            {
+                findItem.BitmapImageROIDrawable.IsFixed = true;
+                findItem.BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(findItem.ImageROI);
+            }
         }
-
-        Document.View.ZoomToFit();
-    }
-
-    public async Task CalibratingAsync(CancellationToken cancellationToken)
-    {
-        var imageFilePath = ImageFilePath;
-        Reset();
-        ImageFilePath = imageFilePath;
-        Guard.IsNotNullOrWhiteSpace(ImageFilePath);
-        _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ImageFilePath);
-        var imageSize = _bitmapImageDrawable.BitmapImage?.Size ?? throw new InvalidOperationException("The calibration image is empty.");
-        var points = new[]
+        finally
         {
-            new Point(imageSize.Width * 0.25d, imageSize.Height * 0.5d),
-            new Point(imageSize.Width * 0.5d, imageSize.Height * 0.25d),
-            new Point(imageSize.Width * 0.75d, imageSize.Height * 0.5d),
-            new Point(imageSize.Width * 0.5d, imageSize.Height * 0.75d)
-        };
-
-        for (var i = 0; i < _pointROIs.Length; i++)
-        {
-            var point = points[i];
-            _pointROIs[i].Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(point.X - 5d, point.Y - 5d, 10d, 10d));
-            _pointROIs[i].IsFixed = false;
-            _pointROIs[i].Text = $"{i + 1}";
+            Document.View.ZoomToFit();
         }
-
-        Document.View.ZoomToFit();
-        var output = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_bitmapImageDrawable)
-        {
-            Title = $"Select four {Axis} light hole points.",
-            BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
-            IsDeleteEnabled = false,
-            CancellationToken = cancellationToken
-        }).ConfigureAwait(false);
-        Guard.IsTrue(output.OutputResultModeEnum == OutputResultModeEnum.Ok);
-
-        Points = [.. _pointROIs.Select(t => _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(t.Rect).Center)];
-        foreach (var roi in _pointROIs) roi.IsFixed = true;
-        Document.View.ZoomToFit();
     }
 
-    public void Reset()
+    #endregion
+
+    public object ToImageHtmlAnonymous() => new
     {
-        ImageFilePath = string.Empty;
-        Points = new Point[4];
-        Center = Point.Origin;
-        Radius = 0d;
-        Document.Reset();
-    }
+        FindItemCount,
+        CenterChannelMotionKindEnum,
+        ChannelImageFilePath,
+        Image = new HtmlImage(ChannelImageFilePath)
+    };
 
-    public FourierCenterChannelFlexibleApertureLightHoleItem Clone() => new(Axis, ImageFilePath, [.. Points], Center, Radius);
+    public object ToHtmlAnonymous() => new
+    {
+        FindItemCount,
+        CenterChannelMotionKindEnum,
+        ChannelImageFilePath,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            .. FindItems.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+            .. FindItems.Select(t => new HtmlImageCrossOverlay(t.ImageROI.Center))
+        ]),
+        Circle
+    };
 
     public void Dispose()
     {
