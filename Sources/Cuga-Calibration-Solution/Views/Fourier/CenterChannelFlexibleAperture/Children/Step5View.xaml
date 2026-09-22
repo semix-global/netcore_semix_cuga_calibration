@@ -1,0 +1,33 @@
+<UserControl x:Class="CugaCalibration.Views.Fourier.CenterChannelFlexibleAperture.Children.Step5View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Fourier"
+             xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+             d:DataContext="{d:DesignInstance Type=viewModels:FourierCenterChannelFlexibleApertureViewModel}"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource BorderRegion}">
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="4">
+                <hc:Shield Subject="Step: " Status="{Binding CalibrationStepName}" Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Kind: " Status="{Binding CalibratingItem.X240Item.Kind}" Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Angle: " Status="{Binding CalibratingItem.X240Item.ActualAngle}" Color="{StaticResource SuccessBrush}" />
+                <hc:NumericUpDown Value="{Binding CalibratingItem.X240Item.ActualAngle}" Minimum="0" hc:TitleElement.Title="Actual Angle: " Style="{StaticResource NumericUpDownExtend}" />
+                <hc:NumericUpDown Value="{Binding CalibratingItem.X240Item.FirstPosition}" hc:TitleElement.Title="First Position: " Style="{StaticResource NumericUpDownExtend}" />
+                <hc:NumericUpDown Value="{Binding CalibratingItem.X240Item.SecondPosition}" hc:TitleElement.Title="Second Position: " Style="{StaticResource NumericUpDownExtend}" />
+                <hc:Shield Subject="Pixel Relation: " Status="{Binding CalibratingItem.X240Item.PixelSize}" Color="{StaticResource SuccessBrush}" />
+                <Button Content="First / Second Sample" Command="{Binding Step5Command}" Style="{StaticResource ButtonPrimary.Loading}" />
+                <Button Content="Cancel" Command="{Binding Step5CancelCommand}" Style="{StaticResource ButtonWarning}" />
+            </hc:UniformSpacingPanel>
+        </Border>
+        <Border Grid.Column="1" Style="{StaticResource BorderRegion}">
+            <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.X240Item.Document, Mode=OneWay}" />
+        </Border>
+    </Grid>
+</UserControl>
