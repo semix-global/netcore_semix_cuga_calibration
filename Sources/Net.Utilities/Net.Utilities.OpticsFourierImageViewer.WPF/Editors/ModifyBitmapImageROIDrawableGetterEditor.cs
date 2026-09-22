@@ -651,28 +651,42 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void ApplyResize(Vector delta)
     {
         var imageRect = Options.GetImageRect();
-        var allowedJoysticks = _resizeJoystickStateEnum switch
+        var allowedXJoysticks = _resizeJoystickStateEnum switch
         {
-            BitmapImageROIResizeJoystickStateEnum.XCenterYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMax, // 上
-            BitmapImageROIResizeJoystickStateEnum.XCenterYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMin, // 下
-            BitmapImageROIResizeJoystickStateEnum.XMinYCenter => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMinYMax, // 左
-            BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYMax, // 右
-            _ => _resizeJoystickStateEnum
+            BitmapImageROIResizeJoystickStateEnum.XMinYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMinYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMin => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMax => BitmapImageROIResizeJoystickStateEnum.XMaxYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMinYCenter => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMinYMax,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+            _ => BitmapImageROIResizeJoystickStateEnum.None
+        };
+        var allowedYJoysticks = _resizeJoystickStateEnum switch
+        {
+            BitmapImageROIResizeJoystickStateEnum.XMinYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
+            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMin => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMax => BitmapImageROIResizeJoystickStateEnum.XMaxYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMin,
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+            _ => BitmapImageROIResizeJoystickStateEnum.None
         };
 
-        // 多选缩放使用相同锚点和拖动向量, 但每个 ROI 独立限制在图片内
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
-            // 键盘和鼠标缩放统一检查每个 ROI 的权限; 无权限的对象保留原状.
-            if ((bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedJoysticks) == BitmapImageROIResizeJoystickStateEnum.None) continue;
+            var isCanResizeX = (bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedXJoysticks) != BitmapImageROIResizeJoystickStateEnum.None;
+            var isCanResizeY = (bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedYJoysticks) != BitmapImageROIResizeJoystickStateEnum.None;
+
+            if (isCanResizeX == false && isCanResizeY == false) continue;
 
             var originalRect = originalState.Rect;
+            var constrainedDelta = new Vector(isCanResizeX ? delta.X : 0d, isCanResizeY ? delta.Y : 0d);
 
             // 先限制移动边不能越过对侧边, 避免 Extents 交换边界后改变固定边. 允许收缩到零尺寸.
-            var xMin = Math.Min(originalRect.XMin + delta.X, originalRect.XMax);
-            var xMax = Math.Max(originalRect.XMax + delta.X, originalRect.XMin);
-            var yMin = Math.Min(originalRect.YMin + delta.Y, originalRect.YMax);
-            var yMax = Math.Max(originalRect.YMax + delta.Y, originalRect.YMin);
+            var xMin = Math.Min(originalRect.XMin + constrainedDelta.X, originalRect.XMax);
+            var xMax = Math.Max(originalRect.XMax + constrainedDelta.X, originalRect.XMin);
+            var yMin = Math.Min(originalRect.YMin + constrainedDelta.Y, originalRect.YMax);
+            var yMax = Math.Max(originalRect.YMax + constrainedDelta.Y, originalRect.YMin);
 
             var modifiedRect = _resizeJoystickStateEnum switch
             {
