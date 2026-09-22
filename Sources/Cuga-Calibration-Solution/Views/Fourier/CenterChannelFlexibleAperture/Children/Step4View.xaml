@@ -7,27 +7,92 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Fourier"
              xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
              d:DataContext="{d:DesignInstance Type=viewModels:FourierCenterChannelFlexibleApertureViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Style="{StaticResource BorderRegion}">
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="4">
-                <hc:Shield Subject="Step: " Status="{Binding CalibrationStepName}" Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Kind: " Status="{Binding CalibratingItem.X180Item.Kind}" Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Angle: " Status="{Binding CalibratingItem.X180Item.ActualAngle}" Color="{StaticResource SuccessBrush}" />
-                <hc:NumericUpDown Value="{Binding CalibratingItem.X180Item.ActualAngle}" Minimum="0" hc:TitleElement.Title="Actual Angle: " Style="{StaticResource NumericUpDownExtend}" />
-                <hc:NumericUpDown Value="{Binding CalibratingItem.X180Item.FirstPosition}" hc:TitleElement.Title="First Position: " Style="{StaticResource NumericUpDownExtend}" />
-                <hc:NumericUpDown Value="{Binding CalibratingItem.X180Item.SecondPosition}" hc:TitleElement.Title="Second Position: " Style="{StaticResource NumericUpDownExtend}" />
-                <hc:Shield Subject="Pixel Relation: " Status="{Binding CalibratingItem.X180Item.PixelSize}" Color="{StaticResource SuccessBrush}" />
-                <Button Content="First / Second Sample" Command="{Binding Step4Command}" Style="{StaticResource ButtonPrimary.Loading}" />
-                <Button Content="Cancel" Command="{Binding Step4CancelCommand}" Style="{StaticResource ButtonWarning}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Kind: "
+                           Status="{Binding CalibratingItem.XItems[1].CenterChannelMotionKindEnum}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Default Angle: "
+                           Status="{Binding CalibratingItem.XItems[1].DefaultAngleMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Pixel Size: "
+                           Status="{Binding CalibratingItem.XItems[1].PixelSize}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="X Min Motor: "
+                           Status="{Binding Cache.XMinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="X Max Motor: "
+                           Status="{Binding Cache.XMaxMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
-        </Border>
-        <Border Grid.Column="1" Style="{StaticResource BorderRegion}">
-            <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.X180Item.Document, Mode=OneWay}" />
-        </Border>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <hc:NumericUpDown hc:TitleElement.Title="Angle: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Maximum="360"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XItems[1].AngleMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step0 Motor: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="-100000"
+                                          Maximum="100000"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XItems[1].Step0MotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step1 Motor: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="-100000"
+                                          Maximum="100000"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XItems[1].Step1MotorAbsoluteValue}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step4Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding Step4CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="CH3 X 180 Degree Rod">
+            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XItems[1].Document, Mode=OneWay}" />
+            </Border>
+        </GroupBox>
     </Grid>
 </UserControl>

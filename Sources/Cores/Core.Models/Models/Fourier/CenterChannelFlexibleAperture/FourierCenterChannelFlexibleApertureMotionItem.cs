@@ -18,6 +18,8 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureMotionItem>, IDisposable
 {
+    private const string StepsComment = "Step0: Capture the center rod at Step0MotorAbsoluteValue; Step1: Capture the same rod at Step1MotorAbsoluteValue. X/Push measure width, Y measures height.";
+
     private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();
 
@@ -126,6 +128,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
         Step0FindItem.Reset();
         Step1FindItem.Reset();
+        PixelSize = 0d;
 
         Document.Reset();
     }
@@ -146,7 +149,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
             Document.View.ZoomToFit();
 
-            var bitmapImageROIResizeJoystickStateEnum = CenterChannelMotionKindEnum switch
+            var bitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
             {
                 CenterChannelMotionKindEnum.X or CenterChannelMotionKindEnum.Push => BitmapImageROIDragMoveTypeEnum.X,
                 CenterChannelMotionKindEnum.Y => BitmapImageROIDragMoveTypeEnum.Y,
@@ -156,12 +159,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             await Task.Delay(1000, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-            await Step0Async(bitmapImageROIResizeJoystickStateEnum);
+            await Step0Async(bitmapImageROIDragMoveTypeEnum);
 
             await Task.Delay(500, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-            await Step1Async(bitmapImageROIResizeJoystickStateEnum);
+            await Step1Async(bitmapImageROIDragMoveTypeEnum);
         }
         finally
         {
@@ -262,7 +265,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step1BitmapImageDrawable)
                 {
-                    Title = $"Step 1: Select the {CenterChannelMotionKindEnum} center rod ROI.",
+                    Title = $"Step 1: Adjust the {CenterChannelMotionKindEnum} center rod size.",
                     BitmapImageROIDragMoveTypeEnum = bitmapImageROIDragMoveTypeEnum,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
@@ -312,17 +315,26 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
         OuterLoop:
 
-            Step1FindItem.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1FindItem.BitmapImageROIDrawable.Rect);
+            Step1FindItem.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1FindItem.BitmapImageROIDrawable.Rect);
             Step1FindItem.BitmapImageROIDrawable.IsFixed = true;
 
             var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
             Guard.IsNotEqualTo(deltaMotorAbsoluteValue, 0d);
 
-            var heightDelta = Step1FindItem.ImageROI.Height - Step0FindItem.ImageROI.Height;
-            if (heightDelta == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
-                ThrowHelper.ThrowInvalidOperationException($"The extrapolated height difference is inconsistent with the motor displacement. Step1 height={Step1FindItem.ImageROI.Height}, Step0 height={Step0FindItem.ImageROI.Height}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
+            // 检查实际写入的尺寸差, 取整或裁剪后为零或反向时直接报错, 不使用回退值.
+            var deltaPixel = CenterChannelMotionKindEnum switch
+            {
+                CenterChannelMotionKindEnum.X or CenterChannelMotionKindEnum.Push => (Step1FindItem.ImageROI.Center - Step0FindItem.ImageROI.Center).X,
+                CenterChannelMotionKindEnum.Y => (Step1FindItem.ImageROI.Center - Step0FindItem.ImageROI.Center).Y,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(CenterChannelMotionKindEnum))
+            };
+            if (deltaPixel == 0d || (deltaMotorAbsoluteValue < 0d ? deltaPixel > 0d : deltaPixel < 0d))
+            {
+                ThrowHelper.ThrowInvalidOperationException($"The extrapolated size difference is inconsistent with the motor displacement. {deltaPixel}: Step0 center={Step1FindItem.ImageROI.Center}, Step1 center={Step0FindItem.ImageROI.Center}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
+            }
 
-            PixelSize = deltaMotorAbsoluteValue / heightDelta;
+            PixelSize = deltaMotorAbsoluteValue / deltaPixel;
+            Guard.IsGreaterThan(PixelSize, 0d);
         }
 
         static DialogResultEnum ShouldContinue(Exception ex)
@@ -354,7 +366,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
             RestoreFindItem(Step0FindItem, _step0BitmapImageDrawable);
-            RestoreFindItem(Step1FindItem, _step0BitmapImageDrawable);
+            RestoreFindItem(Step1FindItem, _step1BitmapImageDrawable);
         }
         finally
         {
@@ -370,10 +382,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
         }
     }
 
-    #endregion
+    #endregion 校准
 
     public object ToImageHtmlAnonymous() => new
     {
+        Comment = new HtmlComment(StepsComment),
         CenterChannelMotionKindEnum,
         DefaultAngleMotorAbsoluteValue,
         AngleMotorAbsoluteValue,
@@ -387,6 +400,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
     public object ToHtmlAnonymous() => new
     {
+        Comment = new HtmlComment(StepsComment),
         CenterChannelMotionKindEnum,
         DefaultAngleMotorAbsoluteValue,
         AngleMotorAbsoluteValue,

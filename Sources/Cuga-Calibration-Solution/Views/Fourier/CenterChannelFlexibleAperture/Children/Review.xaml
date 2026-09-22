@@ -6,54 +6,136 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Fourier"
              xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              d:DataContext="{d:DesignInstance Type=viewModels:FourierCenterChannelFlexibleApertureViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Style="{StaticResource BorderRegion}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="4">
-                    <hc:Shield Subject="Calibration: " Status="{Binding Review.IsCalibrated}" Color="{StaticResource InfoBrush}" />
-                    <hc:Shield Subject="Verified: " Status="{Binding Review.IsVerified}" Color="{StaticResource InfoBrush}" />
-                    <hc:Shield Subject="X Center: " Status="{Binding Review.XLightHoleItem.Center, Converter={StaticResource PointToStringConverter}}" Color="{StaticResource SuccessBrush}" />
-                    <hc:Shield Subject="X Radius: " Status="{Binding Review.XLightHoleItem.Radius}" Color="{StaticResource SuccessBrush}" />
-                    <hc:Shield Subject="Y Center: " Status="{Binding Review.YLightHoleItem.Center, Converter={StaticResource PointToStringConverter}}" Color="{StaticResource SuccessBrush}" />
-                    <hc:Shield Subject="Y Radius: " Status="{Binding Review.YLightHoleItem.Radius}" Color="{StaticResource SuccessBrush}" />
-                    <hc:NumericUpDown Value="{Binding Cache.PositionErrorThreshold}" Minimum="0" hc:TitleElement.Title="Position Threshold(px): " Style="{StaticResource NumericUpDownExtend}" />
-                    <hc:NumericUpDown Value="{Binding Cache.CircleCenterErrorThreshold}" Minimum="0" hc:TitleElement.Title="Center Threshold(px): " Style="{StaticResource NumericUpDownExtend}" />
-                    <hc:NumericUpDown Value="{Binding Cache.CircleRadiusErrorThreshold}" Minimum="0" hc:TitleElement.Title="Radius Threshold(px): " Style="{StaticResource NumericUpDownExtend}" />
-                    <Button Content="Verify" Command="{Binding VerifyCommand}" Style="{StaticResource ButtonPrimary.Loading}" />
-                    <Button Content="Cancel" Command="{Binding VerifyCancelCommand}" Style="{StaticResource ButtonWarning}" />
-                </hc:UniformSpacingPanel>
-            </ScrollViewer>
-        </Border>
-        <TabControl Grid.Column="1">
-            <TabItem Header="X 60">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XLightHoleItem.Document, Mode=OneWay}" />
-            </TabItem>
-            <TabItem Header="Y 60">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YLightHoleItem.Document, Mode=OneWay}" />
-            </TabItem>
-            <TabItem Header="X Motion">
-                <TabControl>
-                    <TabItem Header="120"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.X120Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="180"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.X180Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="240"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.X240Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="300"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.X300Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="Push"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.PushItem.Document, Mode=OneWay}" /></TabItem>
-                </TabControl>
-            </TabItem>
-            <TabItem Header="Y Motion">
-                <TabControl>
-                    <TabItem Header="120"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Y120Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="180"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Y180Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="240"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Y240Item.Document, Mode=OneWay}" /></TabItem>
-                    <TabItem Header="300"><wpf:OpticsFourierImageCanvasControl Document="{Binding Review.Y300Item.Document, Mode=OneWay}" /></TabItem>
-                </TabControl>
-            </TabItem>
-        </TabControl>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="Review: "
+                           Status="Verify"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="X Circle Center: "
+                           Status="{Binding Review.XLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="X Circle Radius: "
+                           Status="{Binding Review.XLightHoleItem.Circle.Radius}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Y Circle Center: "
+                           Status="{Binding Review.YLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Y Circle Radius: "
+                           Status="{Binding Review.YLightHoleItem.Circle.Radius}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding VerifyCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding VerifyCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="History">
+            <TabControl>
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
+                <TabItem Header="X Light Hole">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XLightHoleItem.Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="X Motion">
+                    <TabControl Margin="5">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="120">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[0].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="180">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[1].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="240">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[2].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="300">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[3].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Push">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.PushItem.Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+                <TabItem Header="Y Light Hole">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YLightHoleItem.Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Y Motion">
+                    <TabControl Margin="5">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="120">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[0].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="180">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[1].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="240">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[2].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="300">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[3].Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+            </TabControl>
+        </GroupBox>
     </Grid>
 </UserControl>

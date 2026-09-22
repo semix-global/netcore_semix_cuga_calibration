@@ -4,13 +4,13 @@ using MathNet.Numerics;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.OpticsFourierImageViewer.WPF;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
@@ -19,6 +19,7 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureLightHoleItem>, IDisposable
 {
+    private const string StepsComment = "At 60 degree, pick 5 light-hole points and fit a circle.";
     private const int FindItemCount = 5;
     private readonly BitmapImageDrawable _bitmapImageDrawable = new();
 
@@ -185,7 +186,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
                                 Guard.IsTrue(findItem.BitmapImageROIDrawable.IsVisible);
 
-                                Guard.IsTrue(findItem.BitmapImageROIDrawable.Rect is { Height: > 0d });
+                                Guard.IsTrue(findItem.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
                             }
 
                             goto OuterLoop;
@@ -279,10 +280,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         }
     }
 
-    #endregion
+    #endregion 校准
 
     public object ToImageHtmlAnonymous() => new
     {
+        Comment = new HtmlComment(StepsComment),
         FindItemCount,
         CenterChannelMotionKindEnum,
         ChannelImageFilePath,
@@ -291,6 +293,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
     public object ToHtmlAnonymous() => new
     {
+        Comment = new HtmlComment(StepsComment),
         FindItemCount,
         CenterChannelMotionKindEnum,
         ChannelImageFilePath,

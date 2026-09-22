@@ -586,7 +586,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
                     var heightDelta = invisibleRod.ImageROI.Height - step1Rod.ImageROI.Height;
                     if (heightDelta == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
-                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
+                    {
+                        ThrowHelper.ThrowInvalidOperationException($"Rod {invisibleRod.Index}: The extrapolated height difference is inconsistent with the motor displacement. {heightDelta}: Step1 height={step1Rod.ImageROI.Height}, Step2 height={imageROI.Height}, Delta Motor Absolute={deltaMotorAbsoluteValue}.");
+                    }
                 }
             }
 
