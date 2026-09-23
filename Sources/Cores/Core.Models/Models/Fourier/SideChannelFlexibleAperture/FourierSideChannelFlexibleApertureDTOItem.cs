@@ -185,7 +185,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 }
 
                 rodResult.PixelSize = deltaMotorAbsoluteValue / heightDelta;
-                if (rodResult.PixelSize <= 0d)
+                if (double.IsFinite(rodResult.PixelSize) == false || rodResult.PixelSize <= 0d)
                 {
                     ThrowHelper.ThrowInvalidOperationException($"""
                                                                 Channel {ChannelId}, rod {step2Rod.Index}: {(deltaMotorAbsoluteValue != 0d && ((deltaMotorAbsoluteValue < 0d && heightDelta > 0d) || (deltaMotorAbsoluteValue > 0d && heightDelta < 0d)) ? "motor displacement and ROI height change have opposite signs" : "motor displacement and ROI height change do not produce a positive PixelSize")}.

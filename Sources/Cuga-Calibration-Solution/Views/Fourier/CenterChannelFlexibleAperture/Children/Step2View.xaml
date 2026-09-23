@@ -29,11 +29,17 @@
                 <hc:Shield Subject="Kind: "
                            Status="{Binding CalibratingItem.XApertureItem.CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Circle Center (px): "
-                           Status="{Binding CalibratingItem.XApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="Default Angle: "
+                           Status="{Binding CalibratingItem.XApertureItem.DefaultAngleMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Circle Radius (px): "
-                           Status="{Binding CalibratingItem.XApertureItem.Circle.Radius}"
+                <hc:Shield Subject="Pixel Size (motor/px): "
+                           Status="{Binding CalibratingItem.XApertureItem.PixelSize}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="X Min Motor: "
+                           Status="{Binding Cache.XMinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="X Max Motor: "
+                           Status="{Binding Cache.XMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
                            Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -42,13 +48,40 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Capture at 60 degrees, linear position 0 and push position 0. Place all five ROI crosshair centers on distinct points spread along the visible curved aperture edge. Avoid straight rod edges. Press Enter to fit the center and radius."
+                        <TextBlock Text="Use two different motor positions. Step 0: align ellipse; corners resize. Step 1: move X to the same aperture; size locked."
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,8" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Angle (deg): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step2Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
+                                          Minimum="0"
+                                          Maximum="360"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XApertureItem.AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step2Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
+                                          Minimum="-100000"
+                                          Maximum="100000"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XApertureItem.Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position: "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          IsEnabled="{Binding Step2Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
+                                          Minimum="-100000"
+                                          Maximum="100000"
+                                          Increment="0.001"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XApertureItem.Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Capture and Fit Circle"
+                            <Button Content="Capture and Calibrate"
                                     Command="{Binding Step2Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
@@ -62,7 +95,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="CH3 X 60 Degree Light Hole">
+        <GroupBox Grid.Column="2" Header="CH3 X 60 Degree Aperture">
             <Border Margin="5" Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XApertureItem.Document, Mode=OneWay}" />
             </Border>

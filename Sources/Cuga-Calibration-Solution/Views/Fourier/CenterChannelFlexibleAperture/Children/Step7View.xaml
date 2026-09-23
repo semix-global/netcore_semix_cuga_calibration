@@ -45,7 +45,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Step 0: move horizontally and adjust width with the left/right center handles. Step 1: move onto the same rod without resizing. PixelSize = motor displacement / X center displacement (signed motor units/pixel)."
+                        <TextBlock Text="Step 0: move X; side handles resize width. Step 1: align the same rod; size locked."
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,8" />
                         <hc:NumericUpDown hc:TitleElement.Title="Angle (deg): "

@@ -19,7 +19,8 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureDTOItem>, IDisposable
 {
-    private const string StepsComment = "At the selected angle, Step 0 defines the rod ROI at the first motor position. X/Push: move horizontally and resize width with the left/right center handles. Y: move vertically and resize height with the top/bottom center handles. Step 1: move the same ROI onto the same rod at the second position without resizing. PixelSize = signed motor displacement / signed ROI center displacement (X for X/Push, Y for Y).";
+    private const string StepsComment =
+        "At the selected angle, Step 0 defines the ROI at the first motor position. XAperture/YAperture: move the ROI onto the aperture and adjust width and height with the corner handles until the ellipse follows the aperture edge. XRod/XPush: move horizontally and resize width with the left/right center handles. YRod: move vertically and resize height with the top/bottom center handles. Step 1: move the fixed-size ROI onto the same aperture or rod at the second position without resizing. PixelSize = signed motor displacement / signed ROI center displacement (X for XAperture/XRod/XPush, Y for YAperture/YRod); a positive finite value is required.";
 
     private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();
@@ -156,22 +157,15 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
             Document.View.ZoomToFit();
 
-            var bitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
-            {
-                CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => BitmapImageROIDragMoveTypeEnum.X,
-                CenterChannelMotionKindEnum.YAperture or CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.Y,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
-            };
-
             await Task.Delay(1000, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-            await Step0Async(bitmapImageROIDragMoveTypeEnum);
+            await Step0Async();
 
             await Task.Delay(500, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-            await Step1Async(bitmapImageROIDragMoveTypeEnum);
+            await Step1Async();
         }
         finally
         {
@@ -180,7 +174,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
         return;
 
-        async Task Step0Async(BitmapImageROIDragMoveTypeEnum bitmapImageROIDragMoveTypeEnum)
+        async Task Step0Async()
         {
         InnerLoop:
 
@@ -219,10 +213,20 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0BitmapImageDrawable)
                 {
-                    Title = CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod
-                        ? $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move vertically and adjust height using the top/bottom center handles. Press Enter to lock the ROI size."
-                        : $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move horizontally and adjust width using the left/right center handles. Press Enter to lock the ROI size.",
-                    BitmapImageROIDragMoveTypeEnum = bitmapImageROIDragMoveTypeEnum,
+                    Title = CenterChannelMotionKindEnum switch
+                    {
+                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move the ROI onto the aperture and adjust width and height using the corner handles until the ellipse follows the aperture edge. Press Enter to lock the ROI size.",
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move horizontally and adjust width using the left/right center handles. Press Enter to lock the ROI size.",
+                        CenterChannelMotionKindEnum.YRod => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move vertically and adjust height using the top/bottom center handles. Press Enter to lock the ROI size.",
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(CenterChannelMotionKindEnum))
+                    },
+                    BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
+                    {
+                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture => BitmapImageROIDragMoveTypeEnum.All,
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => BitmapImageROIDragMoveTypeEnum.X,
+                        CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.Y,
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
+                    },
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -275,7 +279,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
             Step0ROI.BitmapImageROIDrawable.IsFixed = true;
         }
 
-        async Task Step1Async(BitmapImageROIDragMoveTypeEnum bitmapImageROIDragMoveTypeEnum)
+        async Task Step1Async()
         {
         InnerLoop:
 
@@ -290,8 +294,20 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step1BitmapImageDrawable)
                 {
-                    Title = $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI {(CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod ? "vertically" : "horizontally")} onto the same rod. Resizing is disabled. Press Enter to calculate PixelSize.",
-                    BitmapImageROIDragMoveTypeEnum = bitmapImageROIDragMoveTypeEnum,
+                    Title = CenterChannelMotionKindEnum switch
+                    {
+                        CenterChannelMotionKindEnum.XAperture => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI horizontally onto the same aperture. Resizing is disabled. Press Enter to calculate PixelSize.",
+                        CenterChannelMotionKindEnum.YAperture => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI vertically onto the same aperture. Resizing is disabled. Press Enter to calculate PixelSize.",
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI horizontally onto the same rod. Resizing is disabled. Press Enter to calculate PixelSize.",
+                        CenterChannelMotionKindEnum.YRod => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI vertically onto the same rod. Resizing is disabled. Press Enter to calculate PixelSize.",
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(CenterChannelMotionKindEnum))
+                    },
+                    BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
+                    {
+                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => BitmapImageROIDragMoveTypeEnum.X,
+                        CenterChannelMotionKindEnum.YAperture or CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.Y,
+                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
+                    },
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -344,29 +360,33 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
             Step1ROI.BitmapImageROIDrawable.IsFixed = true;
 
             var deltaCenter = Step1ROI.ImageROI.Center - Step0ROI.ImageROI.Center;
-            var isVertical = CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod;
-            var deltaPixel = isVertical ? deltaCenter.Y : deltaCenter.X;
+            var deltaPixel = CenterChannelMotionKindEnum switch
+            {
+                CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => deltaCenter.X,
+                CenterChannelMotionKindEnum.YAperture or CenterChannelMotionKindEnum.YRod => deltaCenter.Y,
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(CenterChannelMotionKindEnum))
+            };
 
             var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
             if (deltaPixel == 0d)
             {
                 ThrowHelper.ThrowInvalidOperationException($"""
-                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: ROI center {(isVertical ? "Y" : "X")} did not change.
-                                                            ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? Step0ROI.ImageROI.Center.Y : Step0ROI.ImageROI.Center.X):0.###}, Step1={(isVertical ? Step1ROI.ImageROI.Center.Y : Step1ROI.ImageROI.Center.X):0.###}, Step1-Step0={deltaPixel:0.###}.
+                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: ROI center did not change along the selected motion axis.
+                                                            ROI centers (image px): Step0={Step0ROI.ImageROI.Center}, Step1={Step1ROI.ImageROI.Center}, displacement along the selected motion axis={deltaPixel:0.###}.
                                                             Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
-                                                            PixelSize cannot be calculated with a zero ROI center displacement. Check the image order and move the fixed-size Step1 ROI onto the same rod along the {(isVertical ? "vertical" : "horizontal")} axis.
+                                                            PixelSize cannot be calculated with a zero ROI center displacement. Check the image order and move the fixed-size Step1 ROI onto the same aperture or rod along the selected motion axis.
                                                             """);
             }
 
             PixelSize = deltaMotorAbsoluteValue / deltaPixel;
-            if (PixelSize <= 0)
+            if (double.IsFinite(PixelSize) == false || PixelSize <= 0d)
             {
                 ThrowHelper.ThrowInvalidOperationException($"""
                                                             Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: {(double.IsNaN(PixelSize) || double.IsInfinity(PixelSize) ? "calculated PixelSize is non-finite" : deltaMotorAbsoluteValue == 0d ? "motor position did not change" : ((deltaMotorAbsoluteValue < 0d && deltaPixel > 0d) || (deltaMotorAbsoluteValue > 0d && deltaPixel < 0d)) ? "motor displacement and ROI center displacement have opposite signs" : "motor displacement and ROI center displacement do not produce a positive PixelSize")}.
                                                             Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
-                                                            ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? Step0ROI.ImageROI.Center.Y : Step0ROI.ImageROI.Center.X):0.###}, Step1={(isVertical ? Step1ROI.ImageROI.Center.Y : Step1ROI.ImageROI.Center.X):0.###}, Step1-Step0={deltaPixel:0.###}.
+                                                            ROI centers (image px): Step0={Step0ROI.ImageROI.Center}, Step1={Step1ROI.ImageROI.Center}, displacement along the selected motion axis={deltaPixel:0.###}.
                                                             PixelSize = motor displacement / ROI center displacement = {PixelSize:0.###}; a positive finite value is required.
-                                                            Expected: motor displacement and ROI center displacement must be nonzero and have the same sign. Check the recorded motor positions, Step0/Step1 image order, and the same rod's ROI centers before recalibrating.
+                                                            Expected: motor displacement and ROI center displacement must be nonzero and have the same sign. Check the recorded motor positions, Step0/Step1 image order, and the ROI centers of the same aperture or rod before recalibrating.
                                                             """);
             }
         }

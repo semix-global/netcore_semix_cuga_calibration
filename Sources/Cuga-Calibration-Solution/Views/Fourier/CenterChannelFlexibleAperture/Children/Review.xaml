@@ -28,17 +28,17 @@
                 <hc:Shield Subject="Review: "
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="X Circle Center: "
-                           Status="{Binding Review.XApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="X Step 0 ROI Center: "
+                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="X Circle Radius: "
-                           Status="{Binding Review.XApertureItem.Circle.Radius}"
+                <hc:Shield Subject="X Step 0 ROI Width: "
+                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Width}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Circle Center: "
-                           Status="{Binding Review.YApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="Y Step 0 ROI Center: "
+                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Circle Radius: "
-                           Status="{Binding Review.YApertureItem.Circle.Radius}"
+                <hc:Shield Subject="Y Step 0 ROI Width: "
+                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Width}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -66,17 +66,29 @@
                 <i:Interaction.Behaviors>
                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                 </i:Interaction.Behaviors>
-                <TabItem Header="X Light Hole">
+                <TabItem Header="X Aperture">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <DockPanel>
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <hc:Shield Subject="Circle Center (px): "
-                                           Status="{Binding Review.XApertureItem.Circle.Center}"
+                                <hc:Shield Subject="Step 0 ROI Center (px): "
+                                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Center}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Circle Radius (px): "
-                                           Status="{Binding Review.XApertureItem.Circle.Radius}"
+                                <hc:Shield Subject="Step 0 ROI Width (px): "
+                                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Width}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Angle (deg): "
+                                           Status="{Binding Review.XApertureItem.AngleMotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Step 0 Position: "
+                                           Status="{Binding Review.XApertureItem.Step0MotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Step 1 Position: "
+                                           Status="{Binding Review.XApertureItem.Step1MotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Pixel Size (motor/px): "
+                                           Status="{Binding Review.XApertureItem.PixelSize}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
                             <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XApertureItem.Document, Mode=OneWay}" />
@@ -205,17 +217,29 @@
                         </TabItem>
                     </TabControl>
                 </TabItem>
-                <TabItem Header="Y Light Hole">
+                <TabItem Header="Y Aperture">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <DockPanel>
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <hc:Shield Subject="Circle Center (px): "
-                                           Status="{Binding Review.YApertureItem.Circle.Center}"
+                                <hc:Shield Subject="Step 0 ROI Center (px): "
+                                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Center}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Circle Radius (px): "
-                                           Status="{Binding Review.YApertureItem.Circle.Radius}"
+                                <hc:Shield Subject="Step 0 ROI Width (px): "
+                                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Width}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Angle (deg): "
+                                           Status="{Binding Review.YApertureItem.AngleMotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Step 0 Position: "
+                                           Status="{Binding Review.YApertureItem.Step0MotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Step 1 Position: "
+                                           Status="{Binding Review.YApertureItem.Step1MotorAbsoluteValue}"
+                                           Color="{StaticResource SuccessBrush}" />
+                                <hc:Shield Subject="Pixel Size (motor/px): "
+                                           Status="{Binding Review.YApertureItem.PixelSize}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
                             <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YApertureItem.Document, Mode=OneWay}" />
