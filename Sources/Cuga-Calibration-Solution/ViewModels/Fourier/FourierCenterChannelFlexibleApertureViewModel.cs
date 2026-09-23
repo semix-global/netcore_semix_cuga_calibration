@@ -18,7 +18,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
-using System.Globalization;
 using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -324,37 +323,37 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateLightHoleAsync(CalibratingItem.XApertureItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XApertureItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.XRodItems[0], 120d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[0], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.XRodItems[1], 180d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[1], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.XRodItems[2], 240d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[2], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.XRodItems[3], 300d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.XPushItem, 0d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XPushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateLightHoleAsync(CalibratingItem.YApertureItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YApertureItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step9Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.YRodItems[0], 120d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step9Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[0], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step10Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.YRodItems[1], 180d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step10Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[1], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step11Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.YRodItems[2], 240d, false, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step11Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[2], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step12Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await CalibrateMotionAsync(CalibratingItem.YRodItems[3], 300d, true, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step12Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -377,11 +376,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlInformation("X Light Hole", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            foreach (var item in Review.XRodItems) Logger.LogHtmlInformation($"X {item.DefaultAngleMotorAbsoluteValue}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("Y Light Hole", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.YApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y {item.DefaultAngleMotorAbsoluteValue}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Aperture", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            foreach (var item in Review.XRodItems) Logger.LogHtmlInformation($"X Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Y Aperture", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.YApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = true;
             Guard.IsTrue(Save(Review, cancellationToken));
@@ -392,19 +391,26 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         }).ConfigureAwait(false);
     }
 
-    private async Task<bool> CalibrateMotionAsync(
-        FourierCenterChannelFlexibleApertureDTOItem item,
-        double expectedDefaultAngle,
-        bool saveWhenSuccess,
-        CancellationToken cancellationToken)
+    private async Task<bool> InvokeCalibrateAsync(FourierCenterChannelFlexibleApertureDTOItem item, CancellationToken cancellationToken)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        Guard.IsEqualTo(item.DefaultAngleMotorAbsoluteValue, expectedDefaultAngle);
-
+        var detectImageDirectory = ImageFileDirectory;
         var (minMotorAbsoluteValue, maxMotorAbsoluteValue) = GetMotorRange(item.CenterChannelMotionKindEnum);
-        var alignmentItem = FourierPupilCameraAlignment.Channel3Item;
+        var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
+
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
+            Cache.XMinMotorAbsoluteValue,
+            Cache.XMaxMotorAbsoluteValue,
+            Cache.PushMinMotorAbsoluteValue,
+            Cache.PushMaxMotorAbsoluteValue,
+            Cache.YMinMotorAbsoluteValue,
+            Cache.YMaxMotorAbsoluteValue,
+            Cache.ProductivityInformation,
+            Cache.MicroscopeLensInformation,
+            Cache.LaserLightInformation,
+            OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
+            Cache.ScanLength,
+            Cache.HazeFindBFMachinePosition,
             item.CenterChannelMotionKindEnum,
             item.DefaultAngleMotorAbsoluteValue,
             item.AngleMotorAbsoluteValue,
@@ -412,28 +418,18 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             item.Step1MotorAbsoluteValue,
             minMotorAbsoluteValue,
             maxMotorAbsoluteValue,
-            Cache.ProductivityInformation,
-            Cache.MicroscopeLensInformation,
-            Cache.LaserLightInformation,
-            OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
-            Cache.ScanLength,
-            Cache.HazeFindBFMachinePosition,
-            alignmentItem.ImageROI
+            fourierPupilCameraAlignmentItem.ROI.ImageROI,
+            detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        if (!HostEnvironment.IsDevelopment())
-        {
-            Guard.IsNotNullOrWhiteSpace(alignmentItem.ROIChannelImageFilePath);
-            Guard.IsTrue(alignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
-        }
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
+        Guard.IsBetweenOrEqualTo(item.AngleMotorAbsoluteValue, item.DefaultAngleMotorAbsoluteValue - 10d, item.DefaultAngleMotorAbsoluteValue + 10d);
         Guard.IsBetweenOrEqualTo(item.Step0MotorAbsoluteValue, minMotorAbsoluteValue, maxMotorAbsoluteValue);
         Guard.IsBetweenOrEqualTo(item.Step1MotorAbsoluteValue, minMotorAbsoluteValue, maxMotorAbsoluteValue);
         Guard.IsNotEqualTo(item.Step0MotorAbsoluteValue, item.Step1MotorAbsoluteValue);
-        Guard.IsTrue(double.IsFinite(item.AngleMotorAbsoluteValue));
 
-        CalibratingItem.IsCalibrated = false;
-        CalibratingItem.IsVerified = false;
         item.Reset();
 
         var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
@@ -450,26 +446,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
         try
         {
-            var angleName = item.AngleMotorAbsoluteValue.ToString(CultureInfo.InvariantCulture);
-            cancellationToken.ThrowIfCancellationRequested();
-            ApplyMotion(item, item.Step0MotorAbsoluteValue);
-            cancellationToken.ThrowIfCancellationRequested();
-            item.Step0ChannelImageFilePath = CaptureRoiImage(
-                hazeBFPosition,
-                alignmentItem,
-                HostEnvironment.IsDevelopment() ? GetSimulatorMotionFileName(item, item.Step0MotorAbsoluteValue) : string.Empty,
-                $"{item.CenterChannelMotionKindEnum}/{angleName}_Step0");
+            SetRods(item.Step0MotorAbsoluteValue);
+            Grab(0);
 
-            cancellationToken.ThrowIfCancellationRequested();
-            ApplyMotion(item, item.Step1MotorAbsoluteValue);
-            cancellationToken.ThrowIfCancellationRequested();
-            item.Step1ChannelImageFilePath = CaptureRoiImage(
-                hazeBFPosition,
-                alignmentItem,
-                HostEnvironment.IsDevelopment() ? GetSimulatorMotionFileName(item, item.Step1MotorAbsoluteValue) : string.Empty,
-                $"{item.CenterChannelMotionKindEnum}/{angleName}_Step1");
+            SetRods(item.Step0MotorAbsoluteValue);
+            Grab(1);
 
-            cancellationToken.ThrowIfCancellationRequested();
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
@@ -481,23 +463,14 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             }
             finally
             {
-                if (isSuccess) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-                else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                if (isSuccess) Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
-            if (saveWhenSuccess)
+            if (item is { CenterChannelMotionKindEnum: CenterChannelMotionKindEnum.YRod, DefaultAngleMotorAbsoluteValue: 300d })
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                Guard.IsTrue(!CalibratingItem.XApertureItem.Circle.IsEmpty && !CalibratingItem.YApertureItem.Circle.IsEmpty);
-                foreach (var motionItem in CalibratingItem.XRodItems.Concat(CalibratingItem.YRodItems).Append(CalibratingItem.XPushItem))
-                {
-                    Guard.IsTrue(double.IsFinite(motionItem.PixelSize) && motionItem.PixelSize != 0d);
-                    Guard.IsTrue(motionItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-                    Guard.IsTrue(motionItem.Step1ROI.ImageROI is { Width: > 0d, Height: > 0d });
-                }
-
                 CalibratingItem.IsCalibrated = true;
-                CalibratingItem.IsVerified = false;
+
                 Guard.IsTrue(Save(CalibratingItem, cancellationToken));
             }
 
@@ -505,123 +478,94 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         }
         finally
         {
-            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImage(null);
-
             StageViewModel.SetAbsoluteStageTheta(0d);
             StageViewModel.SetBrightFieldAbsoluteStageXy(startCurrentHazeBFPosition, CalChipSiteModelEnum.HazeModel);
         }
-    }
 
-    private string CaptureRoiImage(
-        Point hazeBFPosition,
-        FourierPupilCameraAlignmentDTOItem alignmentItem,
-        string simulatorFileName,
-        string imageName)
-    {
-        if (HostEnvironment.IsDevelopment())
+        (double Min, double Max) GetMotorRange(CenterChannelMotionKindEnum centerChannelMotionKindEnum) => centerChannelMotionKindEnum switch
         {
-            var simulatorImageFilePath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                @"Assets\Data\Fourier",
-                nameof(FourierCenterChannelFlexibleApertureViewModel),
-                simulatorFileName);
-            if (!File.Exists(simulatorImageFilePath))
-                throw new FileNotFoundException("No recorded simulator image matches the selected angle and motor position.", simulatorImageFilePath);
-            FourierViewModel.UseSimulatorImage(simulatorImageFilePath);
-        }
-
-        using var bitmapImage = FourierViewModel.GetImage(
-            Cache.ProductivityInformation,
-            Cache.LaserLightInformation,
-            hazeBFPosition,
-            Cache.ScanLength,
-            ChannelId);
-        var imageFilePath = Path.Combine(ImageFileDirectory, $"{imageName}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-        DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
-        bitmapImage.SaveImage(imageFilePath);
-
-        // 日志图片已是原手动流程裁出的通道图, 回放时不能再次按当前相机校准ROI裁剪.
-        if (HostEnvironment.IsDevelopment()) return imageFilePath;
-
-        var roiChannelImageFilePath = Path.Combine(
-            Path.GetDirectoryName(imageFilePath) ?? string.Empty,
-            $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{alignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
-        using var roiBitmapImage = bitmapImage.ToROI(alignmentItem.ImageROI);
-        roiBitmapImage.SaveImage(roiChannelImageFilePath);
-
-        return roiChannelImageFilePath;
-    }
-
-    private static string GetSimulatorMotionFileName(FourierCenterChannelFlexibleApertureDTOItem item, double motorAbsoluteValue)
-    {
-        // 文件按步骤命名, 仍按实际角度和电机位置匹配记录样本, 避免互换位置后取错图片.
-        var stepIndex = (item.CenterChannelMotionKindEnum, item.AngleMotorAbsoluteValue, motorAbsoluteValue) switch
-        {
-            (CenterChannelMotionKindEnum.XRod, 120d, -6d) => 0,
-            (CenterChannelMotionKindEnum.XRod, 120d, -8d) => 1,
-            (CenterChannelMotionKindEnum.XRod, 180d or 240d or 300d, -8d) => 0,
-            (CenterChannelMotionKindEnum.XRod, 180d or 240d or 300d, -10d) => 1,
-            (CenterChannelMotionKindEnum.YRod, 120d, 2d) => 0,
-            (CenterChannelMotionKindEnum.YRod, 120d, 4d) => 1,
-            (CenterChannelMotionKindEnum.YRod, 180d, 4d) => 0,
-            (CenterChannelMotionKindEnum.YRod, 180d, 6d) => 1,
-            (CenterChannelMotionKindEnum.YRod, 240d, 6d) => 0,
-            (CenterChannelMotionKindEnum.YRod, 240d, 8d) => 1,
-            (CenterChannelMotionKindEnum.YRod, 300d, 8d) => 0,
-            (CenterChannelMotionKindEnum.YRod, 300d, 10d) => 1,
-            (CenterChannelMotionKindEnum.XPush, 0d, 42d) => 0,
-            (CenterChannelMotionKindEnum.XPush, 0d, 43d) => 1,
-            (CenterChannelMotionKindEnum.XPush, 300d, 2d) => 0,
-            (CenterChannelMotionKindEnum.XPush, 300d, 42d) => 1,
-            (CenterChannelMotionKindEnum.XPush, 300d, 43d) => 2,
-            _ => ThrowHelper.ThrowInvalidOperationException<int>($"No recorded simulator image matches {item.CenterChannelMotionKindEnum}, angle {item.AngleMotorAbsoluteValue}, motor position {motorAbsoluteValue}.")
+            CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XAperture => (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue),
+            CenterChannelMotionKindEnum.YRod or CenterChannelMotionKindEnum.YAperture => (Cache.YMinMotorAbsoluteValue, Cache.YMaxMotorAbsoluteValue),
+            CenterChannelMotionKindEnum.XPush => (Cache.PushMinMotorAbsoluteValue, Cache.PushMaxMotorAbsoluteValue),
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<(double Min, double Max)>(nameof(centerChannelMotionKindEnum))
         };
-        var angle = item.AngleMotorAbsoluteValue.ToString(CultureInfo.InvariantCulture);
 
-        return $"Channel3_{item.CenterChannelMotionKindEnum}_{angle}_Step{stepIndex}.jpg";
-    }
-
-    private void ApplyMotion(FourierCenterChannelFlexibleApertureDTOItem item, double motorAbsoluteValue)
-    {
-        FourierViewModel.Home(ChannelId);
-
-        switch (item.CenterChannelMotionKindEnum)
+        void SetRods(double motorAbsoluteValue)
         {
-            case CenterChannelMotionKindEnum.XRod:
-                FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, item.AngleMotorAbsoluteValue);
-                FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
+            FourierViewModel.Home(3);
 
-                break;
+            switch (item.CenterChannelMotionKindEnum)
+            {
+                case CenterChannelMotionKindEnum.XAperture:
+                case CenterChannelMotionKindEnum.XRod:
+                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, item.AngleMotorAbsoluteValue);
+                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
 
-            case CenterChannelMotionKindEnum.YRod:
-                FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.AngleMotorAbsoluteValue);
-                FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, motorAbsoluteValue);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
+                    break;
 
-                break;
+                case CenterChannelMotionKindEnum.XPush:
+                    FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
 
-            case CenterChannelMotionKindEnum.XPush:
-                FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, item.AngleMotorAbsoluteValue);
-                FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, 0d);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
+                    break;
 
-                break;
+                case CenterChannelMotionKindEnum.YAperture:
+                case CenterChannelMotionKindEnum.YRod:
+                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.AngleMotorAbsoluteValue);
+                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, motorAbsoluteValue);
 
-            default:
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(item.CenterChannelMotionKindEnum));
+                    break;
 
-                break;
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(item.CenterChannelMotionKindEnum));
+
+                    break;
+            }
+        }
+
+        void Grab(int stepIndex)
+        {
+            if (HostEnvironment.IsDevelopment())
+            {
+                FourierViewModel.UseSimulatorImage(Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"Assets\Data\Fourier",
+                    nameof(FourierCenterChannelFlexibleApertureViewModel),
+                    $"Channel3_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_Step{stepIndex}.jpg"));
+            }
+
+            using var bitmapImage = FourierViewModel.GetImage(
+                Cache.ProductivityInformation,
+                Cache.LaserLightInformation,
+                hazeBFPosition,
+                Cache.ScanLength,
+                3);
+            var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
+            bitmapImage.SaveImage(imageFilePath);
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
+            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+
+            switch (stepIndex)
+            {
+                case 0:
+                    item.Step0ChannelImageFilePath = roiChannelImageFilePath;
+
+                    break;
+
+                case 1:
+                    item.Step1ChannelImageFilePath = roiChannelImageFilePath;
+
+                    break;
+
+                default:
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+
+                    break;
+            }
         }
     }
-
-    private (double Min, double Max) GetMotorRange(CenterChannelMotionKindEnum centerChannelMotionKindEnum) => centerChannelMotionKindEnum switch
-    {
-        CenterChannelMotionKindEnum.XRod => (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue),
-        CenterChannelMotionKindEnum.YRod => (Cache.YMinMotorAbsoluteValue, Cache.YMaxMotorAbsoluteValue),
-        CenterChannelMotionKindEnum.XPush => (Cache.PushMinMotorAbsoluteValue, Cache.PushMaxMotorAbsoluteValue),
-        _ => ThrowHelper.ThrowArgumentOutOfRangeException<(double Min, double Max)>(nameof(centerChannelMotionKindEnum))
-    };
 
     private bool Save(FourierCenterChannelFlexibleApertureDTO dto, CancellationToken cancellationToken) => InvokeSave(update =>
     {
