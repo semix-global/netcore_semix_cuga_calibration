@@ -27,13 +27,13 @@
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Kind: "
-                           Status="{Binding CalibratingItem.XItems[2].CenterChannelMotionKindEnum}"
+                           Status="{Binding CalibratingItem.XRodItems[2].CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Default Angle: "
-                           Status="{Binding CalibratingItem.XItems[2].DefaultAngleMotorAbsoluteValue}"
+                           Status="{Binding CalibratingItem.XRodItems[2].DefaultAngleMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Pixel Size (motor/px): "
-                           Status="{Binding CalibratingItem.XItems[2].PixelSize}"
+                           Status="{Binding CalibratingItem.XRodItems[2].PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="X Min Motor: "
                            Status="{Binding Cache.XMinMotorAbsoluteValue}"
@@ -59,7 +59,7 @@
                                           Maximum="360"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[2].AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XRodItems[2].AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -68,7 +68,7 @@
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[2].Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XRodItems[2].Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -77,7 +77,7 @@
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XItems[2].Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XRodItems[2].Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -97,7 +97,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="CH3 X 240 Degree Rod">
             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XItems[2].Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XRodItems[2].Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>

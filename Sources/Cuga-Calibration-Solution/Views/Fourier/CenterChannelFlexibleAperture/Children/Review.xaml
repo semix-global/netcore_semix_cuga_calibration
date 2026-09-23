@@ -95,19 +95,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XItems[0].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[0].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XItems[0].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[0].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XItems[0].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[0].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.XItems[0].PixelSize}"
+                                                   Status="{Binding Review.XRodItems[0].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[0].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[0].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -118,19 +118,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XItems[1].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[1].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XItems[1].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[1].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XItems[1].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[1].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.XItems[1].PixelSize}"
+                                                   Status="{Binding Review.XRodItems[1].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[1].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[1].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -141,19 +141,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XItems[2].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[2].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XItems[2].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[2].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XItems[2].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[2].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.XItems[2].PixelSize}"
+                                                   Status="{Binding Review.XRodItems[2].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[2].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[2].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -164,19 +164,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XItems[3].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[3].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XItems[3].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[3].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XItems[3].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XRodItems[3].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.XItems[3].PixelSize}"
+                                                   Status="{Binding Review.XRodItems[3].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XItems[3].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[3].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -187,19 +187,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.PushItem.AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.XPushItem.AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.PushItem.Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XPushItem.Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.PushItem.Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.XPushItem.Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.PushItem.PixelSize}"
+                                                   Status="{Binding Review.XPushItem.PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.PushItem.Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XPushItem.Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -234,19 +234,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YItems[0].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[0].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YItems[0].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[0].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YItems[0].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[0].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.YItems[0].PixelSize}"
+                                                   Status="{Binding Review.YRodItems[0].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[0].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[0].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -257,19 +257,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YItems[1].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[1].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YItems[1].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[1].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YItems[1].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[1].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.YItems[1].PixelSize}"
+                                                   Status="{Binding Review.YRodItems[1].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[1].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[1].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -280,19 +280,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YItems[2].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[2].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YItems[2].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[2].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YItems[2].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[2].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.YItems[2].PixelSize}"
+                                                   Status="{Binding Review.YRodItems[2].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[2].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[2].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>
@@ -303,19 +303,19 @@
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YItems[3].AngleMotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[3].AngleMotorAbsoluteValue}"
                                                    Color="{StaticResource InfoBrush}" />
                                         <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YItems[3].Step0MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[3].Step0MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YItems[3].Step1MotorAbsoluteValue}"
+                                                   Status="{Binding Review.YRodItems[3].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
                                         <hc:Shield Subject="Pixel Size (motor/px): "
-                                                   Status="{Binding Review.YItems[3].PixelSize}"
+                                                   Status="{Binding Review.YRodItems[3].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YItems[3].Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[3].Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>

@@ -2,7 +2,9 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 public enum CenterChannelMotionKindEnum
 {
-    X,
-    Y,
-    Push
+    XAperture,
+    XRod,
+    XPush,
+    YAperture,
+    YRod
 }

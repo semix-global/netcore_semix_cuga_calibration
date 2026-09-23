@@ -67,6 +67,12 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     public partial bool IsShowCrossLine { get; set; } = false;
 
     /// <summary>
+    /// 是否绘制一个椭圆形, 用于表示ROI区域.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsShowEllipse { get; set; } = false;
+
+    /// <summary>
     /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
     /// </summary>
     [ObservableProperty]
@@ -109,6 +115,8 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
             renderer.DrawLine(lineStyle, Rect.XCenterYMax, Rect.XCenterYMin);
             renderer.DrawLine(lineStyle, Rect.XMinYCenter, Rect.XMaxYCenter);
         }
+
+        if (IsShowEllipse) renderer.DrawEllipse(lineStyle, (Ellipse)Rect);
     }
 
     public override Extents GetExtents() => (Extents)Rect;

@@ -27,10 +27,10 @@
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Kind: "
-                           Status="{Binding CalibratingItem.PushItem.CenterChannelMotionKindEnum}"
+                           Status="{Binding CalibratingItem.XPushItem.CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Pixel Size (motor/px): "
-                           Status="{Binding CalibratingItem.PushItem.PixelSize}"
+                           Status="{Binding CalibratingItem.XPushItem.PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Push Min Motor: "
                            Status="{Binding Cache.PushMinMotorAbsoluteValue}"
@@ -56,7 +56,7 @@
                                           Maximum="360"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.PushItem.AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XPushItem.AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -65,7 +65,7 @@
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.PushItem.Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XPushItem.Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position: "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -74,7 +74,7 @@
                                           Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.PushItem.Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.XPushItem.Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -94,7 +94,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="CH3 X Push">
             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.PushItem.Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XPushItem.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>

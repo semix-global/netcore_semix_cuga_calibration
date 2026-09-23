@@ -2,7 +2,6 @@ using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using CommunityToolkit.Diagnostics;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
@@ -102,30 +101,6 @@ public static class BitmapImageDrawableExtensions
             var endPoint = @this.ImageCoordinateToCartesianCoordinate(imageCoordinateRect.XMaxYMax);
 
             return (Rect)new Extents(startPoint, endPoint);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Circle CartesianCoordinateToImageCoordinate(Circle cartesianCoordinateCircle)
-        {
-            if (@this.BitmapImage?.IsEmpty != false) return Circle.Empty;
-
-            var rect = @this.CartesianCoordinateToImageCoordinate((Rect)cartesianCoordinateCircle);
-            Guard.IsEqualTo(rect.Width, rect.Height);
-
-            return new Circle(rect.Center, rect.Width / 2d);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Circle ImageCoordinateToCartesianCoordinate(Circle imageCoordinateCircle)
-        {
-            if (@this.BitmapImage?.IsEmpty != false) return Circle.Empty;
-
-            var rect = @this.ImageCoordinateToCartesianCoordinate((Rect)imageCoordinateCircle);
-            Guard.IsEqualTo(rect.Width, rect.Height);
-
-            return new Circle(rect.Center, rect.Width / 2d);
         }
     }
 }
