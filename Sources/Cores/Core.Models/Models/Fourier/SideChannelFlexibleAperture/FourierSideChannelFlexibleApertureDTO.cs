@@ -9,7 +9,7 @@ using Net.Utilities.WPF.MVVM;
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
 [CacheVersion("2.0.0")]
-public sealed class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
+public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<FourierSideChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilSideChannelFlexibleAperture>, IDisposable
 {
     internal const int DefaultRodTotalCount = 46;
 
@@ -62,8 +62,8 @@ public sealed class FourierSideChannelFlexibleApertureDTO : CalibrationDTOBase<F
 
     public CalibrationPupilSideChannelFlexibleAperture AdaptTo()
     {
-        FourierSideChannelFlexibleApertureDTOItem.RodResult[] channel1ItemRodResults = [.. Channel1Item.RodResults.OrderBy(t => t.Index)];
-        FourierSideChannelFlexibleApertureDTOItem.RodResult[] channel2ItemRodResults = [.. Channel2Item.RodResults.OrderBy(t => t.Index)];
+        RodResult[] channel1ItemRodResults = [.. Channel1Item.RodResults.OrderBy(t => t.Index)];
+        RodResult[] channel2ItemRodResults = [.. Channel2Item.RodResults.OrderBy(t => t.Index)];
 
         var channel1FirstRod = channel1ItemRodResults.FirstOrDefault(t => t.IsDeleted == false);
         var channel1LastRod = channel1ItemRodResults.LastOrDefault(t => t.IsDeleted == false);

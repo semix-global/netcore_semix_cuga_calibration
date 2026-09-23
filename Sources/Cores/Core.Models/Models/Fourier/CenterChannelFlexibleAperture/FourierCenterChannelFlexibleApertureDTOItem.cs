@@ -271,6 +271,15 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
             Step0ROI.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0ROI.BitmapImageROIDrawable.Rect);
             Step0ROI.BitmapImageROIDrawable.IsFixed = true;
+
+            if (CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture && Step0ROI.ImageROI.Width - Step0ROI.ImageROI.Height != 0d)
+            {
+                ThrowHelper.ThrowInvalidOperationException($"""
+                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: aperture ROI width and height must be equal.
+                                                            ROI (image px): {Step0ROI.ImageROI}, Width={Step0ROI.ImageROI.Width:0.###}, Height={Step0ROI.ImageROI.Height:0.###}.
+                                                            Resize the Step0 ROI until its width and height are the same.
+                                                            """);
+            }
         }
 
         async Task Step1Async()

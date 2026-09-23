@@ -119,14 +119,14 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             AssertRodsMatchJson(actual.Step2Rods, expected[nameof(actual.Step2Rods)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
         }
 
-        static void AssertRodsMatchJson(FourierSideChannelFlexibleApertureDTOItem.Rod[] actual, JArray expected)
+        static void AssertRodsMatchJson(FourierSideChannelFlexibleApertureDTO.Rod[] actual, JArray expected)
         {
             actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod indexes", expected.Path);
 
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
 
-        static void AssertRodResultsMatchJson(FourierSideChannelFlexibleApertureDTOItem.RodResult[] actual, JArray expected)
+        static void AssertRodResultsMatchJson(FourierSideChannelFlexibleApertureDTO.RodResult[] actual, JArray expected)
         {
             actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod result indexes", expected.Path);
 
@@ -144,7 +144,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             }
         }
 
-        static void AssertRodMatchesJson(FourierSideChannelFlexibleApertureDTOItem.Rod actual, JToken expected)
+        static void AssertRodMatchesJson(FourierSideChannelFlexibleApertureDTO.Rod actual, JToken expected)
         {
             using var scope = new AssertionScope(expected.Path);
 
@@ -363,7 +363,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             foreach (var source in expected.Step2Rods) AssertRodEquals(actual.Step2Rods.Single(t => t.Index == source.Index), source);
         }
 
-        static void AssertRodEquals(FourierSideChannelFlexibleApertureDTOItem.Rod actual, FourierSideChannelFlexibleApertureDTOItem.Rod expected)
+        static void AssertRodEquals(FourierSideChannelFlexibleApertureDTO.Rod actual, FourierSideChannelFlexibleApertureDTO.Rod expected)
         {
             actual.Index.Should().Be(expected.Index);
             actual.IsDeleted.Should().Be(expected.IsDeleted);

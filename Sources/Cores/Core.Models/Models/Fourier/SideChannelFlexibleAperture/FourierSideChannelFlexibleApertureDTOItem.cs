@@ -31,7 +31,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     [ObservableProperty]
     public partial double MaxMotorAbsoluteValue { get; set; }
 
-    public RodResult[] RodResults { get; }
+    public FourierSideChannelFlexibleApertureDTO.RodResult[] RodResults { get; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
@@ -51,7 +51,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 .Select(t => t.Index)
                 .Union(OddItem.Step2Rods.Select(t => t.Index))
                 .Order()
-                .Select(t => new RodResult(_resultBitmapImageDrawable) { Index = t })
+                .Select(t => new FourierSideChannelFlexibleApertureDTO.RodResult(_resultBitmapImageDrawable) { Index = t })
         ];
 
         Document.RunDesign(() =>
@@ -71,7 +71,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         string channelImageFilePath,
         Item evenItem,
         Item oddItem,
-        RodResult[] rodResults)
+        FourierSideChannelFlexibleApertureDTO.RodResult[] rodResults)
         : this(rodTotalCount, channelId, channelImageFilePath)
     {
         EvenItem.Dispose();

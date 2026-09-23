@@ -37,7 +37,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
     [ObservableProperty]
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
-    public Rod[] Rods { get; }
+    public FourierSideChannelSpecularBlockerDTO.Rod[] Rods { get; }
 
     [ObservableProperty]
     public partial string RawStep0CIBImageFilePath { get; set; } = string.Empty;
@@ -73,7 +73,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Rods =
         [
             .. Generate.LinearRangeInt32(0, rodTotalCount - 1)
-                .Select(i => new Rod(_step0FourierBitmapImageDrawable)
+                .Select(i => new FourierSideChannelSpecularBlockerDTO.Rod(_step0FourierBitmapImageDrawable)
                 {
                     Index = i,
                     BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.XCenterYMin }
@@ -100,7 +100,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
         int rodTotalCount,
         int channelId,
-        Rod[] rods)
+        FourierSideChannelSpecularBlockerDTO.Rod[] rods)
         : this(rodTotalCount, channelId)
     {
         foreach (var target in Rods) target.AdaptIn(rods.Single(t => t.Index == target.Index));
