@@ -1,0 +1,38 @@
+{
+  "ProductivityInformation": {
+    "OpticsIlluminationModeEnum": 0,
+    "OpticsMagType": -1,
+    "StageSpeedType": -1
+  },
+  "Channel3Item": {
+    "ChannelId": 3,
+    "YRodAngleMotorAbsoluteValue": 180.0,
+    "YRodImageROI": {
+      "X": 12.0,
+      "Y": 34.0,
+      "Width": 80.0,
+      "Height": 16.0
+    },
+    "YRodMotorAbsoluteValue": 5.5,
+    "PushImageROI": {
+      "X": 40.0,
+      "Y": 8.0,
+      "Width": 18.0,
+      "Height": 90.0
+    },
+    "PushMotorAbsoluteValue": 42.25,
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step0Fourier.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step1Fourier.jpg",
+    "RawStep0CIBImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\RawStep0CIB.jpg",
+    "RawStep1CIBImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\RawStep1CIB.jpg",
+    "Step0CIBImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step0CIB.jpg",
+    "Step1CIBImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\V0FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step1CIB.jpg",
+    "Step0CIBImageAverageValue": 1024.5,
+    "Step1CIBImageAverageValue": 48.25,
+    "ExtinctionRatio": 0.047
+  },
+  "IsVerified": true,
+  "IsCalibrated": true,
+  "IsRequiredSelfCheck": false,
+  "IsOk": true
+}
