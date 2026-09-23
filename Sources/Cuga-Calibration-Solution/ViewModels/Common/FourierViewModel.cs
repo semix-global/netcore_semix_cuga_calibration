@@ -4,7 +4,6 @@ using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -58,36 +57,6 @@ public sealed class FourierViewModel(
     public C2MFFRangeModel GetFourierConfig()
     {
         var ret = calibrationFourierService.GetFourierConfig();
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool FF_Move_CH3X(int rpos, double lpos, double ppos)
-    {
-        var ret = calibrationFourierService.FF_Move_CH3X(rpos, lpos, ppos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public bool FF_Move_CH3Y(int rpos, double lpos)
-    {
-        var ret = calibrationFourierService.FF_Move_CH3Y(rpos, lpos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public double GetFFRACT(CgFFCHEnum ch)
-    {
-        var ret = calibrationFourierService.GetFFRACT(ch);
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public double GetFFLACT(CgFFCHEnum ch)
-    {
-        var ret = calibrationFourierService.GetFFLACT(ch);
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public double GetFFPACT(CgFFCHEnum ch)
-    {
-        var ret = calibrationFourierService.GetFFPACT(ch);
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 

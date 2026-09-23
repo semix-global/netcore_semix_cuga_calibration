@@ -1,7 +1,6 @@
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -20,22 +19,11 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 {
     public string? SimulatorImageFilePath { get; set; }
 
-    public SxExecuteRet<bool> Connect()
-    {
-        Thread.Sleep(100);
+    public SxExecuteRet<bool> Connect() => SxExecuteRetHelper.CreateSuccess(true);
 
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> Home(int channelId) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> Home(int channelId)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions) => SxExecuteRetHelper.CreateSuccess(true);
 
     public SxExecuteRet<BitmapImage> GetImage(
         ProductivityInformation productivityInformation,
@@ -72,43 +60,9 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         CH3_Y_LPOSMax = 100
     });
 
-    public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<double> GetFFRACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFPACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 }

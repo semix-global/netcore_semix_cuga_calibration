@@ -744,10 +744,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                     BitmapImageROIResizeJoystickStateEnum.XMinYCenter => new Point(modifiedRect.XMax - width, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
                 };
-                modifiedRect = new Rect(point, new Size(width, height))
-                    .ImageCoordinateRound();
 
-                Guard.IsEqualTo(modifiedRect, modifiedRect.ClampToBounds(imageRect));
+                modifiedRect = new Rect(point, new Size(width, height))
+                    .ImageCoordinateRound()
+                    .ClampToBounds(imageRect);
             }
 
             bitmapImageROIDrawable.Rect = modifiedRect;

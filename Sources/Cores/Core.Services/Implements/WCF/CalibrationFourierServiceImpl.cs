@@ -4,7 +4,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -134,43 +133,6 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             RodNum = dto.RodNum
         };
         return SxExecuteRetHelper.CreateSuccess(model);
-    }
-
-    public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3X(rpos, lpos, ppos));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_CH3Y(rpos, lpos));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<double> GetFFRACT(CgFFCHEnum ch)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_GetRACT((Semix.WcfTransfer.DTO.FFCH)ch));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_GetLACT((Semix.WcfTransfer.DTO.FFCH)ch));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<double> GetFFPACT(CgFFCHEnum ch)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_GetPACT((Semix.WcfTransfer.DTO.FFCH)ch));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<double>(sxExecuteRet.ErrorMsg, 0);
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 
     public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)

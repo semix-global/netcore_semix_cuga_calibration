@@ -48,7 +48,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown hc:TitleElement.Title="Angle (deg): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Angle(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"

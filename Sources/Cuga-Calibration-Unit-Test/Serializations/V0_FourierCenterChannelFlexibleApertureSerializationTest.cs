@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Reflection;
 using Net.Utilities.Helpers.Helpers;
+using Newtonsoft.Json.Serialization;
 
 namespace CugaCalibrationUnitTest.Serializations;
 
@@ -48,7 +49,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
     [InlineData(true)]
     public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool useCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
 
         var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierCenterChannelFlexibleAperture.json"));
         var expected = JObject.Parse(json);
@@ -147,7 +148,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
     [InlineData(55, false)]
     public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool useCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
 
         using var expected = seed == 0
             ? new V0FourierCenterChannelFlexibleApertureDTO()
@@ -346,5 +347,24 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
 
         JsonConvert.SerializeObject(actual, settings).Should().Be(json);
+    }
+
+    private class PrivateSetterContractResolver : DefaultContractResolver
+    {
+        public static readonly JsonSerializerSettings Settings = new()
+        {
+            ContractResolver = new PrivateSetterContractResolver()
+        };
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+            if (property.Writable || member is not PropertyInfo propertyInfo) return property;
+
+            var hasPrivateSetter = propertyInfo.GetSetMethod(true) is not null;
+            property.Writable = hasPrivateSetter;
+
+            return property;
+        }
     }
 }
