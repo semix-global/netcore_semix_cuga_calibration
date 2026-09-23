@@ -215,9 +215,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 {
                     Title = CenterChannelMotionKindEnum switch
                     {
-                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move the ROI onto the aperture and adjust width and height using the corner handles until the ellipse follows the aperture edge. Press Enter to lock the ROI size.",
-                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move horizontally and adjust width using the left/right center handles. Press Enter to lock the ROI size.",
-                        CenterChannelMotionKindEnum.YRod => $"Step 0 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step0MotorAbsoluteValue}: move vertically and adjust height using the top/bottom center handles. Press Enter to lock the ROI size.",
+                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture => $"Step 0 - {CenterChannelMotionKindEnum}: align ellipse; corners resize. Enter: lock size.",
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 0 - {CenterChannelMotionKindEnum}: move X; side handles resize width. Enter: lock size.",
+                        CenterChannelMotionKindEnum.YRod => $"Step 0 - {CenterChannelMotionKindEnum}: move Y; top/bottom resize height. Enter: lock size.",
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(CenterChannelMotionKindEnum))
                     },
                     BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
@@ -296,10 +296,10 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 {
                     Title = CenterChannelMotionKindEnum switch
                     {
-                        CenterChannelMotionKindEnum.XAperture => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI horizontally onto the same aperture. Resizing is disabled. Press Enter to calculate PixelSize.",
-                        CenterChannelMotionKindEnum.YAperture => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI vertically onto the same aperture. Resizing is disabled. Press Enter to calculate PixelSize.",
-                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI horizontally onto the same rod. Resizing is disabled. Press Enter to calculate PixelSize.",
-                        CenterChannelMotionKindEnum.YRod => $"Step 1 - {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue}, position {Step1MotorAbsoluteValue}: move the fixed-size ROI vertically onto the same rod. Resizing is disabled. Press Enter to calculate PixelSize.",
+                        CenterChannelMotionKindEnum.XAperture => $"Step 1 - {CenterChannelMotionKindEnum}: move X to same aperture; size locked. Enter: calculate.",
+                        CenterChannelMotionKindEnum.YAperture => $"Step 1 - {CenterChannelMotionKindEnum}: move Y to same aperture; size locked. Enter: calculate.",
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XPush => $"Step 1 - {CenterChannelMotionKindEnum}: move X to same rod; size locked. Enter: calculate.",
+                        CenterChannelMotionKindEnum.YRod => $"Step 1 - {CenterChannelMotionKindEnum}: move Y to same rod; size locked. Enter: calculate.",
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(CenterChannelMotionKindEnum))
                     },
                     BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
