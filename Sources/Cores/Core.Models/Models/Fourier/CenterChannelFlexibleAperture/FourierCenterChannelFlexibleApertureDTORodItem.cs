@@ -326,16 +326,27 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTORodItem : Obs
             var deltaPixel = isVertical ? deltaCenter.Y : deltaCenter.X;
 
             var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
-            if (deltaPixel == 0d || (deltaMotorAbsoluteValue < 0d ? deltaPixel > 0d : deltaPixel < 0d))
+            if (deltaPixel == 0d)
+            {
                 ThrowHelper.ThrowInvalidOperationException($"""
-                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: PixelSize cannot be calculated because the motor displacement or ROI center displacement is zero or non-finite.
-                                                            Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
+                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: ROI center {(isVertical ? "Y" : "X")} did not change.
                                                             ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? Step0ROI.ImageROI.Center.Y : Step0ROI.ImageROI.Center.X):0.###}, Step1={(isVertical ? Step1ROI.ImageROI.Center.Y : Step1ROI.ImageROI.Center.X):0.###}, Step1-Step0={deltaPixel:0.###}.
-                                                            Check the recorded motor positions and image order. Move the fixed-size Step1 ROI onto the same rod along the {(isVertical ? "vertical" : "horizontal")} axis, then confirm again.
+                                                            Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
+                                                            PixelSize cannot be calculated with a zero ROI center displacement. Check the image order and move the fixed-size Step1 ROI onto the same rod along the {(isVertical ? "vertical" : "horizontal")} axis.
                                                             """);
+            }
 
             PixelSize = deltaMotorAbsoluteValue / deltaPixel;
-            Guard.IsGreaterThan(PixelSize, 0d);
+            if (PixelSize <= 0)
+            {
+                ThrowHelper.ThrowInvalidOperationException($"""
+                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: {(double.IsNaN(PixelSize) || double.IsInfinity(PixelSize) ? "calculated PixelSize is non-finite" : deltaMotorAbsoluteValue == 0d ? "motor position did not change" : ((deltaMotorAbsoluteValue < 0d && deltaPixel > 0d) || (deltaMotorAbsoluteValue > 0d && deltaPixel < 0d)) ? "motor displacement and ROI center displacement have opposite signs" : "motor displacement and ROI center displacement do not produce a positive PixelSize")}.
+                                                            Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
+                                                            ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? Step0ROI.ImageROI.Center.Y : Step0ROI.ImageROI.Center.X):0.###}, Step1={(isVertical ? Step1ROI.ImageROI.Center.Y : Step1ROI.ImageROI.Center.X):0.###}, Step1-Step0={deltaPixel:0.###}.
+                                                            PixelSize = motor displacement / ROI center displacement = {PixelSize:0.###}; a positive finite value is required.
+                                                            Expected: motor displacement and ROI center displacement must be nonzero and have the same sign. Check the recorded motor positions, Step0/Step1 image order, and the same rod's ROI centers before recalibrating.
+                                                            """);
+            }
         }
 
         static DialogResultEnum ShouldContinue(Exception ex)
