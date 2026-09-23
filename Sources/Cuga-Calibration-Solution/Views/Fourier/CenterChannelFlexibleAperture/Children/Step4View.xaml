@@ -32,7 +32,7 @@
                 <hc:Shield Subject="Default Angle: "
                            Status="{Binding CalibratingItem.XRodItems[1].DefaultAngleMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Pixel Size (motor/px): "
+                <hc:Shield Subject="Pixel Size (mm/px): "
                            Status="{Binding CalibratingItem.XRodItems[1].PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="X Min Motor: "

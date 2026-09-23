@@ -560,9 +560,6 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Guard.IsGreaterThanOrEqualTo(visibleRods.Length, 2);
                 Guard.IsTrue(visibleRods.All(t => t.ImageROI.Y == 0d));
 
-                var deltaMotorAbsoluteValue = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
-                Guard.IsNotEqualTo(deltaMotorAbsoluteValue, 0d);
-
                 foreach (var invisibleRod in invisibleRods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -585,14 +582,15 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     // 检查实际写入的高度差, 取整或裁剪后为零或反向时直接报错, 不使用回退值.
                     var step1Rod = Step1Rods.Single(t => t.Index == invisibleRod.Index);
                     var heightDelta = invisibleRod.ImageROI.Height - step1Rod.ImageROI.Height;
-                    if (heightDelta == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
+                    var deltaMotorAbsoluteValue = Step2MotorAbsoluteValue - Step0AndStep1MotorAbsoluteValue;
+                    if (heightDelta == 0d || deltaMotorAbsoluteValue == 0d || (deltaMotorAbsoluteValue < 0d ? heightDelta > 0d : heightDelta < 0d))
                     {
                         ThrowHelper.ThrowInvalidOperationException($"""
-                                                                    Side-channel {(_isEven ? "even" : "odd")} rod {invisibleRod.Index}: {(heightDelta == 0d ? "the ROI height did not change despite a nonzero motor displacement" : "motor displacement and ROI height change have opposite signs")}.
+                                                                    Side-channel {(_isEven ? "even" : "odd")} rod {invisibleRod.Index}: {(heightDelta == 0d ? "the ROI height did not change" : deltaMotorAbsoluteValue == 0d ? "motor position did not change" : "motor displacement and ROI height change have opposite signs")}.
                                                                     Motor: Step1={Step0AndStep1MotorAbsoluteValue:0.###}, Step2={Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
                                                                     ROI height (px): Step1={step1Rod.ImageROI.Height:0.###}, Step2={invisibleRod.ImageROI.Height:0.###}, Step2-Step1={heightDelta:0.###}.
                                                                     Step2 height was copied from visible rod {nearestVisibleRod.Index} and then rounded/clipped to the image bounds.
-                                                                    Expected: ROI height must {(deltaMotorAbsoluteValue > 0d ? "increase" : "decrease")} when the motor position {(deltaMotorAbsoluteValue > 0d ? "increases" : "decreases")}, so PixelSize is positive.
+                                                                    Expected: ROI height must {(deltaMotorAbsoluteValue > 0d ? "increase" : "decrease")} when the motor position {(deltaMotorAbsoluteValue > 0d ? "increases" : "decreases")}, so PixelSize (mm/px) is positive.
                                                                     Check the recorded motor positions, Step1/Step2 image order, and the same rod's ROI boundaries. For this extrapolated rod, also check visible rod {nearestVisibleRod.Index} and whether image clipping removed the height change.
                                                                     """);
                     }

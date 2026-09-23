@@ -8,7 +8,7 @@ namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 [CacheVersion("2.0.0")]
 public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>, IDisposable
 {
-    public FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, 60d);
+    public FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, 60d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 1d };
 
     public FourierCenterChannelFlexibleApertureDTOItem[] XRodItems { get; private init; } =
     [
@@ -20,7 +20,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
 
     public FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0) { Step0MotorAbsoluteValue = 42d, Step1MotorAbsoluteValue = 43d };
 
-    public FourierCenterChannelFlexibleApertureDTOItem YApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.YAperture, 60d);
+    public FourierCenterChannelFlexibleApertureDTOItem YApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.YAperture, 60d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 1d };
 
     public FourierCenterChannelFlexibleApertureDTOItem[] YRodItems { get; private init; } =
     [
@@ -69,7 +69,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
         CgFFBoxTurnYLightHoleCircleRelationCh3 = YApertureItem.PixelSize,
         CgFFBoxTurnYLightHoleCirclePositionCh3 = YApertureItem.Step0MotorAbsoluteValue,
         CgFFBoxTurnYLightHoleCircleCenterCh3 = YApertureItem.Step0ROI.ImageROI.Center.ToCgPoint(),
-        CgFFBoxTurnYLightHoleCircleRadiusCh3 = YApertureItem.Step0ROI.ImageROI.Width / 2d,
+        CgFFBoxTurnYLightHoleCircleRadiusCh3 = YApertureItem.Step0ROI.ImageROI.Height / 2d,
         CgFFBoxPushXWidthCh3 = XPushItem.Step0ROI.ImageROI.Width,
         CgFFBoxPushXMotorRelationCh3 = XPushItem.PixelSize,
         CgFFBoxPushXMotorPositionCh3 = XPushItem.Step0MotorAbsoluteValue,

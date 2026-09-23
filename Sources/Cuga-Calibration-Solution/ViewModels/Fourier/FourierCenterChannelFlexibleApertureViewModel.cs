@@ -449,7 +449,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             SetRods(item.Step0MotorAbsoluteValue);
             Grab(0);
 
-            SetRods(item.Step0MotorAbsoluteValue);
+            SetRods(item.Step1MotorAbsoluteValue);
             Grab(1);
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());

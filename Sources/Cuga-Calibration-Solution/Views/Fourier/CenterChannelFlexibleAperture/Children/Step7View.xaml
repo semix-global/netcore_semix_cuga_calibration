@@ -29,7 +29,7 @@
                 <hc:Shield Subject="Kind: "
                            Status="{Binding CalibratingItem.XPushItem.CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Pixel Size (motor/px): "
+                <hc:Shield Subject="Pixel Size (mm/px): "
                            Status="{Binding CalibratingItem.XPushItem.PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Push Min Motor: "

@@ -108,7 +108,7 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
     public List<int> CgFFBoxRodWidthListCh2 { get; set; }
 
     /// <summary>
-    /// 每根杆子像素高度和真实高度对应比例换算**需要记录**
+    /// 每根杆子每1像素高度相当于多少毫米,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxHeightRelationPercentListCh1 { get; set; }
 
@@ -146,7 +146,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
 
@@ -166,7 +166,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// X方向通光孔，记录下来每1像素宽度相当于多少毫米,**需要记录**
     /// </summary> 
     public double CgFFBoxTurnXLightHoleCircleRelationCh3 { get; set; }
 
@@ -196,7 +196,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米,**需要记录**
     /// </summary> 
     public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
 
@@ -216,7 +216,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public double CgFFBoxTurnYLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来位移电机每1毫米相当于多少像素宽度,**需要记录**
+    /// Y方向通光孔，记录下来每1像素高度相当于多少毫米,**需要记录**
     /// </summary> 
     public double CgFFBoxTurnYLightHoleCircleRelationCh3 { get; set; }
 
@@ -241,7 +241,7 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
     public double CgFFBoxPushXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆位移电机每移动1毫米相当于多少像素宽度,**需要记录**
+    /// X方向单独的推杆每1像素宽度相当于多少毫米,**需要记录**
     /// </summary> 
     public double CgFFBoxPushXMotorRelationCh3 { get; set; }
 

@@ -722,32 +722,14 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 .ImageCoordinateRound()
                 .ClampToBounds(imageRect);
 
-            if (Options.IsAspectRatioFixed && originalRect.Width > 0d && originalRect.Height > 0d)
+            if (Options.IsAspectRatioFixed && originalRect is { Width: > 0d, Height: > 0d })
             {
                 var aspectRatio = originalRect.Width / originalRect.Height;
                 var width = modifiedRect.Width;
                 var height = modifiedRect.Height;
 
-                height = _resizeJoystickStateEnum switch
-                {
-                    BitmapImageROIResizeJoystickStateEnum.XMinYCenter or BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => width / aspectRatio,
-                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin or BitmapImageROIResizeJoystickStateEnum.XCenterYMax => height,
-                    _ => (width * aspectRatio + height) / (aspectRatio * aspectRatio + 1d)
-                };
-                var maxWidth = _resizeJoystickStateEnum switch
-                {
-                    BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMinYCenter => modifiedRect.XMax - imageRect.XMin,
-                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => imageRect.XMax - modifiedRect.XMin,
-                    _ => 2d * Math.Min((modifiedRect.XMin + modifiedRect.XMax) / 2d - imageRect.XMin, imageRect.XMax - (modifiedRect.XMin + modifiedRect.XMax) / 2d)
-                };
-                var maxHeight = _resizeJoystickStateEnum switch
-                {
-                    BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XCenterYMin => modifiedRect.YMax - imageRect.YMin,
-                    BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XCenterYMax => imageRect.YMax - modifiedRect.YMin,
-                    _ => 2d * Math.Min((modifiedRect.YMin + modifiedRect.YMax) / 2d - imageRect.YMin, imageRect.YMax - (modifiedRect.YMin + modifiedRect.YMax) / 2d)
-                };
-                height = Math.Min(height, Math.Min(maxHeight, maxWidth / aspectRatio));
-                width = height * aspectRatio;
+                if (width > height * aspectRatio) width = height * aspectRatio;
+                else if (width < height * aspectRatio) height = width / aspectRatio; // height > width / aspectRatio
 
                 var point = _resizeJoystickStateEnum switch
                 {
@@ -762,7 +744,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                     BitmapImageROIResizeJoystickStateEnum.XMinYCenter => new Point(modifiedRect.XMax - width, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
                 };
-                modifiedRect = new Rect(point, new Size(width, height));
+                modifiedRect = new Rect(point, new Size(width, height))
+                    .ImageCoordinateRound();
+
+                Guard.IsEqualTo(modifiedRect, modifiedRect.ClampToBounds(imageRect));
             }
 
             bitmapImageROIDrawable.Rect = modifiedRect;

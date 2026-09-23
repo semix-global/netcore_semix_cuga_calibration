@@ -32,7 +32,7 @@
                 <hc:Shield Subject="Default Angle: "
                            Status="{Binding CalibratingItem.YApertureItem.DefaultAngleMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Pixel Size (motor/px): "
+                <hc:Shield Subject="Pixel Size (mm/px): "
                            Status="{Binding CalibratingItem.YApertureItem.PixelSize}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Y Min Motor: "

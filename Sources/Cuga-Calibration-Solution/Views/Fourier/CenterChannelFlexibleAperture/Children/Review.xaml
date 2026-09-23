@@ -87,7 +87,7 @@
                                 <hc:Shield Subject="Step 1 Position: "
                                            Status="{Binding Review.XApertureItem.Step1MotorAbsoluteValue}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Pixel Size (motor/px): "
+                                <hc:Shield Subject="Pixel Size (mm/px): "
                                            Status="{Binding Review.XApertureItem.PixelSize}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
@@ -115,7 +115,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.XRodItems[0].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.XRodItems[0].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -138,7 +138,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.XRodItems[1].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.XRodItems[1].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -161,7 +161,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.XRodItems[2].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.XRodItems[2].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -184,7 +184,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.XRodItems[3].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.XRodItems[3].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -207,7 +207,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.XPushItem.Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.XPushItem.PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -238,7 +238,7 @@
                                 <hc:Shield Subject="Step 1 Position: "
                                            Status="{Binding Review.YApertureItem.Step1MotorAbsoluteValue}"
                                            Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Pixel Size (motor/px): "
+                                <hc:Shield Subject="Pixel Size (mm/px): "
                                            Status="{Binding Review.YApertureItem.PixelSize}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
@@ -266,7 +266,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.YRodItems[0].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.YRodItems[0].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -289,7 +289,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.YRodItems[1].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.YRodItems[1].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -312,7 +312,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.YRodItems[2].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.YRodItems[2].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
@@ -335,7 +335,7 @@
                                         <hc:Shield Subject="Step 1 Position: "
                                                    Status="{Binding Review.YRodItems[3].Step1MotorAbsoluteValue}"
                                                    Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (motor/px): "
+                                        <hc:Shield Subject="Pixel Size (mm/px): "
                                                    Status="{Binding Review.YRodItems[3].PixelSize}"
                                                    Color="{StaticResource SuccessBrush}" />
                                     </hc:UniformSpacingPanel>
