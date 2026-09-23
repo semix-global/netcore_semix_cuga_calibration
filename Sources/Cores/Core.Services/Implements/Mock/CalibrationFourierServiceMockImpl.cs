@@ -64,7 +64,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         RodNum = 46,
         CH12MinPOS = 0,
         CH12MaxPOS = 55,
-        CH3_X_LPOSMin = -100d,
+        CH3_X_LPOSMin = -100,
         CH3_X_LPOSMax = 100,
         CH3_X_PPOSMin = 0,
         CH3_X_PPOSMax = 100,

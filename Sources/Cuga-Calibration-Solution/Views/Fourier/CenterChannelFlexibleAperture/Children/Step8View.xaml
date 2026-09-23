@@ -26,15 +26,6 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Kind: "
-                           Status="{Binding CalibratingItem.YApertureItem.CenterChannelMotionKindEnum}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Default Angle: "
-                           Status="{Binding CalibratingItem.YApertureItem.DefaultAngleMotorAbsoluteValue}"
-                           Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Pixel Size (mm/px): "
-                           Status="{Binding CalibratingItem.YApertureItem.PixelSize}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Y Min Motor: "
                            Status="{Binding Cache.YMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
@@ -60,30 +51,35 @@
                         <hc:NumericUpDown hc:TitleElement.Title="Angle (deg): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          IsEnabled="{Binding Step8Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                          Minimum="0"
-                                          Maximum="360"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YApertureItem.AngleMotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position: "
+                                          Value="{Binding CalibratingItem.YApertureItem.AngleMotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          IsEnabled="{Binding Step8Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                          Minimum="-100000"
-                                          Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YApertureItem.Step0MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position: "
+                                          Value="{Binding CalibratingItem.YApertureItem.Step0MotorAbsoluteValue}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          IsEnabled="{Binding Step8Command.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                          Minimum="-100000"
-                                          Maximum="100000"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YApertureItem.Step1MotorAbsoluteValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                          Value="{Binding CalibratingItem.YApertureItem.Step1MotorAbsoluteValue}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.YApertureItem.PixelSize, Mode=OneWay}"
+                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

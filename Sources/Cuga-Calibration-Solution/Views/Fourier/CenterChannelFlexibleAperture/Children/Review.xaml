@@ -28,17 +28,23 @@
                 <hc:Shield Subject="Review: "
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="X Step 0 ROI Center: "
-                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Center, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="X Min Motor: "
+                           Status="{Binding Cache.XMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="X Step 0 ROI Width: "
-                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Width}"
+                <hc:Shield Subject="X Max Motor: "
+                           Status="{Binding Cache.XMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Step 0 ROI Center: "
-                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Center, Converter={StaticResource PointToStringConverter}}"
+                <hc:Shield Subject="Push Min Motor: "
+                           Status="{Binding Cache.PushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Step 0 ROI Width: "
-                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Width}"
+                <hc:Shield Subject="Push Max Motor: "
+                           Status="{Binding Cache.PushMaxMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Y Min Motor: "
+                           Status="{Binding Cache.YMinMotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Y Max Motor: "
+                           Status="{Binding Cache.YMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -72,24 +78,34 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <hc:Shield Subject="Step 0 ROI Center (px): "
-                                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Center}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 0 ROI Width (px): "
-                                           Status="{Binding Review.XApertureItem.Step0ROI.ImageROI.Width}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Angle (deg): "
-                                           Status="{Binding Review.XApertureItem.AngleMotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 0 Position: "
-                                           Status="{Binding Review.XApertureItem.Step0MotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 1 Position: "
-                                           Status="{Binding Review.XApertureItem.Step1MotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Pixel Size (mm/px): "
-                                           Status="{Binding Review.XApertureItem.PixelSize}"
-                                           Color="{StaticResource SuccessBrush}" />
+                                <StackPanel>
+                                    <TextBlock Text="Result"
+                                               HorizontalAlignment="Center"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Style="{StaticResource TextBlockDefaultSuccess}" />
+                                </StackPanel>
+                                <TextBox Text="{Binding Review.XApertureItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 0 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.PixelSize, Mode=OneWay}"
+                                         hc:TitleElement.Title="Pixel Size(mm/px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                             <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XApertureItem.Document, Mode=OneWay}" />
                         </DockPanel>
@@ -106,18 +122,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XRodItems[0].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XRodItems[0].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XRodItems[0].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.XRodItems[0].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.XRodItems[0].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[0].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[0].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[0].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -129,18 +161,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XRodItems[1].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XRodItems[1].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XRodItems[1].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.XRodItems[1].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.XRodItems[1].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[1].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[1].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[1].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -152,18 +200,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XRodItems[2].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XRodItems[2].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XRodItems[2].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.XRodItems[2].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.XRodItems[2].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[2].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[2].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[2].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -175,18 +239,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XRodItems[3].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XRodItems[3].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XRodItems[3].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.XRodItems[3].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.XRodItems[3].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[3].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[3].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XRodItems[3].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -198,18 +278,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.XPushItem.AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.XPushItem.Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.XPushItem.Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.XPushItem.PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.XPushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XPushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XPushItem.PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XPushItem.Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -223,24 +319,34 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <hc:Shield Subject="Step 0 ROI Center (px): "
-                                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Center}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 0 ROI Width (px): "
-                                           Status="{Binding Review.YApertureItem.Step0ROI.ImageROI.Width}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Angle (deg): "
-                                           Status="{Binding Review.YApertureItem.AngleMotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 0 Position: "
-                                           Status="{Binding Review.YApertureItem.Step0MotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Step 1 Position: "
-                                           Status="{Binding Review.YApertureItem.Step1MotorAbsoluteValue}"
-                                           Color="{StaticResource SuccessBrush}" />
-                                <hc:Shield Subject="Pixel Size (mm/px): "
-                                           Status="{Binding Review.YApertureItem.PixelSize}"
-                                           Color="{StaticResource SuccessBrush}" />
+                                <StackPanel>
+                                    <TextBlock Text="Result"
+                                               HorizontalAlignment="Center"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Style="{StaticResource TextBlockDefaultSuccess}" />
+                                </StackPanel>
+                                <TextBox Text="{Binding Review.YApertureItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 0 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.PixelSize, Mode=OneWay}"
+                                         hc:TitleElement.Title="Pixel Size(mm/px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
                             <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YApertureItem.Document, Mode=OneWay}" />
                         </DockPanel>
@@ -257,18 +363,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YRodItems[0].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YRodItems[0].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YRodItems[0].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.YRodItems[0].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.YRodItems[0].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[0].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[0].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[0].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -280,18 +402,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YRodItems[1].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YRodItems[1].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YRodItems[1].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.YRodItems[1].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.YRodItems[1].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[1].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[1].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[1].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -303,18 +441,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YRodItems[2].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YRodItems[2].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YRodItems[2].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.YRodItems[2].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.YRodItems[2].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[2].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[2].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[2].Document, Mode=OneWay}" />
                                 </DockPanel>
@@ -326,18 +480,34 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <hc:Shield Subject="Angle (deg): "
-                                                   Status="{Binding Review.YRodItems[3].AngleMotorAbsoluteValue}"
-                                                   Color="{StaticResource InfoBrush}" />
-                                        <hc:Shield Subject="Step 0 Position: "
-                                                   Status="{Binding Review.YRodItems[3].Step0MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Step 1 Position: "
-                                                   Status="{Binding Review.YRodItems[3].Step1MotorAbsoluteValue}"
-                                                   Color="{StaticResource SuccessBrush}" />
-                                        <hc:Shield Subject="Pixel Size (mm/px): "
-                                                   Status="{Binding Review.YRodItems[3].PixelSize}"
-                                                   Color="{StaticResource SuccessBrush}" />
+                                        <StackPanel>
+                                            <TextBlock Text="Result"
+                                                       HorizontalAlignment="Center"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </StackPanel>
+                                        <TextBox Text="{Binding Review.YRodItems[3].Step0MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 0 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[3].Step1MotorAbsoluteValue, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[3].PixelSize, Mode=OneWay}"
+                                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
                                     <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YRodItems[3].Document, Mode=OneWay}" />
                                 </DockPanel>
