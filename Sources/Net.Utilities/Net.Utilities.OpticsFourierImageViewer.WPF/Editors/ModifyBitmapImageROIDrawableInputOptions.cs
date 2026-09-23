@@ -52,6 +52,12 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     [ObservableProperty]
     public partial double KeyboardResizeStep { get; set; } = 1d;
 
+    /// <summary>
+    /// 是否固定ROI的宽高比. 开启后调整尺寸时宽高按原始比例联动, 默认关闭.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsAspectRatioFixed { get; set; } = false;
+
     partial void OnKeyboardMoveStepChanging(double value)
     {
         Guard.IsTrue(double.IsFinite(value));

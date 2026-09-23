@@ -718,9 +718,40 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            bitmapImageROIDrawable.Rect = modifiedRect
+            modifiedRect = modifiedRect
                 .ImageCoordinateRound()
                 .ClampToBounds(imageRect);
+
+            if (Options.IsAspectRatioFixed && originalRect.Width > 0d && originalRect.Height > 0d)
+            {
+                var aspectRatio = originalRect.Width / originalRect.Height;
+                var width = modifiedRect.Width;
+                var height = modifiedRect.Height;
+
+                // 按较小的缩放比例收缩另一边, 不再取整以免破坏宽高比.
+                if (width > height * aspectRatio)
+                    width = height * aspectRatio;
+                else if (width < height * aspectRatio)
+                    height = width / aspectRatio;
+
+                // 根据控制点保留对角或对侧边中点, 确定比例修正后的左下角.
+                var point = _resizeJoystickStateEnum switch
+                {
+                    BitmapImageROIResizeJoystickStateEnum.None => modifiedRect.XMinYMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMax => new Point(modifiedRect.XMax - width, modifiedRect.YMin),
+                    BitmapImageROIResizeJoystickStateEnum.XCenterYMax => new Point((modifiedRect.XMin + modifiedRect.XMax - width) / 2d, modifiedRect.YMin),
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYMax => modifiedRect.XMinYMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => new Point(modifiedRect.XMin, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin => new Point(modifiedRect.XMin, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin => new Point((modifiedRect.XMin + modifiedRect.XMax - width) / 2d, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMin => new Point(modifiedRect.XMax - width, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XMinYCenter => new Point(modifiedRect.XMax - width, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
+                };
+                modifiedRect = new Rect(point, new Size(width, height));
+            }
+
+            bitmapImageROIDrawable.Rect = modifiedRect;
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
