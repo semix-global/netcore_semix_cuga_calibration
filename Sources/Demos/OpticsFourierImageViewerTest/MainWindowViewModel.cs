@@ -135,6 +135,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
             {
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 IsDeleteEnabled = isDeleteEnabled,
+                IsAspectRatioFixed = true,
                 CancellationToken = cancellationToken
             };
 
