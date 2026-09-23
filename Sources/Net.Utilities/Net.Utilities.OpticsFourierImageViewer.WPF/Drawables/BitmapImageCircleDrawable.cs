@@ -7,8 +7,13 @@ using SkiaSharp;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
-public sealed partial class CircleDrawable : AbstractDrawable
+public sealed partial class BitmapImageCircleDrawable(BitmapImageDrawable bitmapImageDrawable) : AbstractDrawable
 {
+    /// <summary>
+    /// 该圆形所依附的图片. 圆心坐标使用图片坐标系.
+    /// </summary>
+    public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
+
     /// <summary>
     /// 笛卡尔坐标系: 当前绘制的圆形.
     /// </summary>

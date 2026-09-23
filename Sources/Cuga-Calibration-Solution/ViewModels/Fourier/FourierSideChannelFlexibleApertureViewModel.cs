@@ -360,12 +360,12 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             Cache.Step0AndStep1MotorAbsoluteValue,
             Cache.Step2MotorAbsoluteValue,
             Cache.HazeFindBFMachinePosition,
-            fourierPupilCameraAlignmentItem.ImageROI,
+            fourierPupilCameraAlignmentItem.ROI.ImageROI,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
-        Guard.IsTrue(fourierPupilCameraAlignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         var itemData = isEven ? item.EvenItem : item.OddItem;
 
@@ -481,9 +481,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
-            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
 
             switch (stepIndex)

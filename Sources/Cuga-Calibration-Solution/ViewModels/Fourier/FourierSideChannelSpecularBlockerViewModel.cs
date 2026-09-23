@@ -403,14 +403,14 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
-            fourierPupilCameraAlignmentItem.ImageROI,
+            fourierPupilCameraAlignmentItem.ROI.ImageROI,
             flexibleApertureItem.MinMotorAbsoluteValue,
             flexibleApertureItem.MaxMotorAbsoluteValue,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
-        Guard.IsTrue(fourierPupilCameraAlignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
         Guard.IsEqualTo(flexibleApertureItem.RodResults.Length, item.Rods.Length);
 
         item.Reset();
@@ -490,9 +490,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
-            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
 
             switch (stepIndex)

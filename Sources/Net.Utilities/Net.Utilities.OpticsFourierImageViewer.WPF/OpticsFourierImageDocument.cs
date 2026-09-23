@@ -17,13 +17,13 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
     public Model<BitmapImageROIDrawable> ROIModel { get; }
 
-    public Model<CircleDrawable> CircleModel { get; }
+    public Model<BitmapImageCircleDrawable> CircleModel { get; }
 
     public OpticsFourierImageDocument()
     {
         ImageModel = ModelStorages.GetOrAddLayer<BitmapImageDrawable>(ImageLayer);
         ROIModel = ModelStorages.GetOrAddLayer<BitmapImageROIDrawable>(ROILayer);
-        CircleModel = ModelStorages.GetOrAddLayer<CircleDrawable>(CircleLayer);
+        CircleModel = ModelStorages.GetOrAddLayer<BitmapImageCircleDrawable>(CircleLayer);
 
         Settings.SelectionHighlightOverrideFillStyle = null;
         Settings.SelectionHighlightOverrideLineStyle = null;
@@ -31,14 +31,6 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
     public void Reset()
     {
-        foreach (var circleDrawable in CircleModel)
-        {
-            circleDrawable.Circle = Circle.Empty;
-
-            circleDrawable.IsVisible = true;
-            circleDrawable.IsSelected = false;
-        }
-
         foreach (var bitmapImageDrawable in ImageModel)
         {
             bitmapImageDrawable.BitmapImage = null;
@@ -56,6 +48,14 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
 
             bitmapImageROIDrawable.IsVisible = true;
             bitmapImageROIDrawable.IsSelected = false;
+        }
+
+        foreach (var circleDrawable in CircleModel)
+        {
+            circleDrawable.Circle = Circle.Empty;
+
+            circleDrawable.IsVisible = true;
+            circleDrawable.IsSelected = false;
         }
     }
 }

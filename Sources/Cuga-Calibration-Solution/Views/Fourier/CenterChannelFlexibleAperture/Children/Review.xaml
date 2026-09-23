@@ -29,16 +29,16 @@
                            Status="Verify"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="X Circle Center: "
-                           Status="{Binding Review.XLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Review.XApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="X Circle Radius: "
-                           Status="{Binding Review.XLightHoleItem.Circle.Radius}"
+                           Status="{Binding Review.XApertureItem.Circle.Radius}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Y Circle Center: "
-                           Status="{Binding Review.YLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding Review.YApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Y Circle Radius: "
-                           Status="{Binding Review.YLightHoleItem.Circle.Radius}"
+                           Status="{Binding Review.YApertureItem.Circle.Radius}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -73,13 +73,13 @@
                                                     Orientation="Vertical"
                                                     Spacing="2">
                                 <hc:Shield Subject="Circle Center (px): "
-                                           Status="{Binding Review.XLightHoleItem.Circle.Center}"
+                                           Status="{Binding Review.XApertureItem.Circle.Center}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="Circle Radius (px): "
-                                           Status="{Binding Review.XLightHoleItem.Circle.Radius}"
+                                           Status="{Binding Review.XApertureItem.Circle.Radius}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
-                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XLightHoleItem.Document, Mode=OneWay}" />
+                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XApertureItem.Document, Mode=OneWay}" />
                         </DockPanel>
                     </Border>
                 </TabItem>
@@ -212,13 +212,13 @@
                                                     Orientation="Vertical"
                                                     Spacing="2">
                                 <hc:Shield Subject="Circle Center (px): "
-                                           Status="{Binding Review.YLightHoleItem.Circle.Center}"
+                                           Status="{Binding Review.YApertureItem.Circle.Center}"
                                            Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="Circle Radius (px): "
-                                           Status="{Binding Review.YLightHoleItem.Circle.Radius}"
+                                           Status="{Binding Review.YApertureItem.Circle.Radius}"
                                            Color="{StaticResource SuccessBrush}" />
                             </hc:UniformSpacingPanel>
-                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YLightHoleItem.Document, Mode=OneWay}" />
+                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YApertureItem.Document, Mode=OneWay}" />
                         </DockPanel>
                     </Border>
                 </TabItem>

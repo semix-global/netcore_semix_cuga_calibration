@@ -3,11 +3,11 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
-namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
-public sealed partial class FourierCenterChannelFlexibleApertureDTO
+public sealed partial class FourierPupilCameraAlignmentDTO
 {
-    public partial class FindItem(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<FindItem, FindItem>
+    public sealed partial class ROI(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<ROI, ROI>
     {
         [ObservableProperty]
         public partial Rect ImageROI { get; set; }
@@ -16,18 +16,18 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTO
         public BitmapImageROIDrawable BitmapImageROIDrawable { get; } = new(bitmapImageDrawable);
 
         [Newtonsoft.Json.JsonConstructor]
-        private FindItem() : this(new BitmapImageDrawable())
+        private ROI() : this(new BitmapImageDrawable())
         {
         }
 
-        public FindItem AdaptIn(FindItem obj)
+        public ROI AdaptIn(ROI obj)
         {
             ImageROI = obj.ImageROI;
 
             return this;
         }
 
-        public virtual void Reset()
+        public void Reset()
         {
             ImageROI = Rect.Empty;
         }

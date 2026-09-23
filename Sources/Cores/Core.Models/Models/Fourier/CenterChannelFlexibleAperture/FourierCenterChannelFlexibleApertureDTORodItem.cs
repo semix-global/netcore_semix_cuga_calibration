@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Mapper.Interfaces;
@@ -16,7 +17,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
-public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureMotionItem>, IDisposable
+public sealed partial class FourierCenterChannelFlexibleApertureDTORodItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureDTORodItem>, IDisposable
 {
     private const string StepsComment = "At the selected angle, Step 0 defines the rod ROI at the first motor position. X/Push: move horizontally and resize width with the left/right center handles. Y: move vertically and resize height with the top/bottom center handles. Step 1: move the same ROI onto the same rod at the second position without resizing. PixelSize = signed motor displacement / signed ROI center displacement (X for X/Push, Y for Y).";
 
@@ -42,30 +43,26 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
     [ObservableProperty]
     public partial string Step1ChannelImageFilePath { get; set; } = string.Empty;
 
-    public FourierCenterChannelFlexibleApertureDTO.FindItem Step0FindItem { get; }
+    public FourierPupilCameraAlignmentDTO.ROI Step0ROI { get; }
 
-    public FourierCenterChannelFlexibleApertureDTO.FindItem Step1FindItem { get; }
+    public FourierPupilCameraAlignmentDTO.ROI Step1ROI { get; }
 
-    /// <summary>
-    /// 有符号的电机位移与图片ROI中心位移之比. X/Push使用中心X差, Y使用中心Y差, 单位为电机位置单位/像素.
-    /// </summary>
     [ObservableProperty]
     public partial double PixelSize { get; private set; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
-    public FourierCenterChannelFlexibleApertureMotionItem(CenterChannelMotionKindEnum centerChannelMotionKindEnum, double defaultAngleMotorAbsoluteValue)
+    public FourierCenterChannelFlexibleApertureDTORodItem(CenterChannelMotionKindEnum centerChannelMotionKindEnum, double defaultAngleMotorAbsoluteValue)
     {
         CenterChannelMotionKindEnum = centerChannelMotionKindEnum;
         DefaultAngleMotorAbsoluteValue = defaultAngleMotorAbsoluteValue;
         AngleMotorAbsoluteValue = defaultAngleMotorAbsoluteValue;
 
-        Step0FindItem = new FourierCenterChannelFlexibleApertureDTO.FindItem(_step0BitmapImageDrawable)
+        Step0ROI = new FourierPupilCameraAlignmentDTO.ROI(_step0BitmapImageDrawable)
         {
             BitmapImageROIDrawable =
             {
-                IsShowCrossLine = true,
                 ResizeJoystickStateEnum = centerChannelMotionKindEnum switch
                 {
                     CenterChannelMotionKindEnum.X or CenterChannelMotionKindEnum.Push => BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
@@ -75,37 +72,37 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             }
         };
 
-        Step1FindItem = new FourierCenterChannelFlexibleApertureDTO.FindItem(_step1BitmapImageDrawable)
+        Step1ROI = new FourierPupilCameraAlignmentDTO.ROI(_step1BitmapImageDrawable)
         {
-            BitmapImageROIDrawable = { IsShowCrossLine = true, ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
+            BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.AddRange([_step0BitmapImageDrawable, _step1BitmapImageDrawable]);
-            Document.ROIModel.AddRange([Step0FindItem.BitmapImageROIDrawable, Step1FindItem.BitmapImageROIDrawable]);
+            Document.ROIModel.AddRange([Step0ROI.BitmapImageROIDrawable, Step1ROI.BitmapImageROIDrawable]);
         });
 
         Document.Reset();
     }
 
     [Newtonsoft.Json.JsonConstructor]
-    private FourierCenterChannelFlexibleApertureMotionItem(
+    private FourierCenterChannelFlexibleApertureDTORodItem(
         CenterChannelMotionKindEnum centerChannelMotionKindEnum,
         double defaultAngleMotorAbsoluteValue,
-        FourierCenterChannelFlexibleApertureDTO.FindItem step0FindItem,
-        FourierCenterChannelFlexibleApertureDTO.FindItem step1FindItem)
+        FourierPupilCameraAlignmentDTO.ROI step0ROI,
+        FourierPupilCameraAlignmentDTO.ROI step1ROI)
         : this(centerChannelMotionKindEnum, defaultAngleMotorAbsoluteValue)
     {
-        Step0FindItem.AdaptIn(step0FindItem);
-        Step1FindItem.AdaptIn(step1FindItem);
+        Step0ROI.AdaptIn(step0ROI);
+        Step1ROI.AdaptIn(step1ROI);
     }
 
     #region Mapper
 
-    public FourierCenterChannelFlexibleApertureMotionItem Clone()
+    public FourierCenterChannelFlexibleApertureDTORodItem Clone()
     {
-        var item = new FourierCenterChannelFlexibleApertureMotionItem(CenterChannelMotionKindEnum, DefaultAngleMotorAbsoluteValue)
+        var item = new FourierCenterChannelFlexibleApertureDTORodItem(CenterChannelMotionKindEnum, DefaultAngleMotorAbsoluteValue)
         {
             AngleMotorAbsoluteValue = AngleMotorAbsoluteValue,
             Step0MotorAbsoluteValue = Step0MotorAbsoluteValue,
@@ -115,8 +112,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             PixelSize = PixelSize
         };
 
-        item.Step0FindItem.AdaptIn(Step0FindItem);
-        item.Step1FindItem.AdaptIn(Step1FindItem);
+        item.Step0ROI.AdaptIn(Step0ROI);
+        item.Step1ROI.AdaptIn(Step1ROI);
 
         return item;
     }
@@ -127,12 +124,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
     public void Reset()
     {
-        // 保留界面输入的角度及两步电机位置, 仅清空测量结果.
         Step0ChannelImageFilePath = string.Empty;
         Step1ChannelImageFilePath = string.Empty;
 
-        Step0FindItem.Reset();
-        Step1FindItem.Reset();
+        Step0ROI.Reset();
+        Step1ROI.Reset();
         PixelSize = 0d;
 
         Document.Reset();
@@ -143,7 +139,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
         try
         {
             Document.Reset();
-            PixelSize = 0d;
 
             Guard.IsNotNullOrWhiteSpace(Step0ChannelImageFilePath);
             Guard.IsNotNullOrWhiteSpace(Step1ChannelImageFilePath);
@@ -151,9 +146,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
 
             _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
-            if (_step0BitmapImageDrawable.BitmapImage.Size != _step1BitmapImageDrawable.BitmapImage.Size)
-                ThrowHelper.ThrowInvalidOperationException("Step 0 and Step 1 images must have the same dimensions.");
-
             _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
             Document.View.ZoomToFit();
@@ -165,8 +157,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
             };
 
+            await Task.Delay(1000, cancellationToken);
+
             cancellationToken.ThrowIfCancellationRequested();
             await Step0Async(bitmapImageROIDragMoveTypeEnum);
+
+            await Task.Delay(500, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
             await Step1Async(bitmapImageROIDragMoveTypeEnum);
@@ -185,12 +181,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             if (CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.Push or CenterChannelMotionKindEnum.X)
             {
                 var width = _step0BitmapImageDrawable.BitmapImage.Width / 4;
-                Step0FindItem.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
+                Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
             }
             else
             {
                 var height = _step0BitmapImageDrawable.BitmapImage.Height / 4;
-                Step0FindItem.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(0d, _step0BitmapImageDrawable.BitmapImage.Height / 2d - height / 2d, _step0BitmapImageDrawable.BitmapImage.Width, height)).ImageCoordinateRound();
+                Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(0d, _step0BitmapImageDrawable.BitmapImage.Height / 2d - height / 2d, _step0BitmapImageDrawable.BitmapImage.Width, height)).ImageCoordinateRound();
             }
 
             Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
@@ -214,9 +210,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
                         try
                         {
-                            Guard.IsTrue(Step0FindItem.BitmapImageROIDrawable.IsVisible);
+                            Guard.IsTrue(Step0ROI.BitmapImageROIDrawable.IsVisible);
 
-                            Guard.IsTrue(Step0FindItem.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
+                            Guard.IsTrue(Step0ROI.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
 
                             goto OuterLoop;
                         }
@@ -253,16 +249,16 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
         OuterLoop:
 
-            Step0FindItem.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0FindItem.BitmapImageROIDrawable.Rect);
-            Step0FindItem.BitmapImageROIDrawable.IsFixed = true;
+            Step0ROI.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0ROI.BitmapImageROIDrawable.Rect);
+            Step0ROI.BitmapImageROIDrawable.IsFixed = true;
         }
 
         async Task Step1Async(BitmapImageROIDragMoveTypeEnum bitmapImageROIDragMoveTypeEnum)
         {
         InnerLoop:
 
-            Step1FindItem.ImageROI = Step0FindItem.ImageROI;
-            Step1FindItem.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Step1FindItem.ImageROI);
+            Step1ROI.ImageROI = Step0ROI.ImageROI;
+            Step1ROI.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Step1ROI.ImageROI);
 
             Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
 
@@ -283,12 +279,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
                         try
                         {
-                            Guard.IsTrue(Step1FindItem.BitmapImageROIDrawable.IsVisible);
+                            Guard.IsTrue(Step1ROI.BitmapImageROIDrawable.IsVisible);
 
-                            Guard.IsTrue(Step1FindItem.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
-
-                            var imageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1FindItem.BitmapImageROIDrawable.Rect);
-                            PixelSize = CalculatePixelSize(imageROI);
+                            Guard.IsTrue(Step1ROI.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
 
                             goto OuterLoop;
                         }
@@ -325,8 +318,24 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
         OuterLoop:
 
-            Step1FindItem.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1FindItem.BitmapImageROIDrawable.Rect);
-            Step1FindItem.BitmapImageROIDrawable.IsFixed = true;
+            Step1ROI.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1ROI.BitmapImageROIDrawable.Rect);
+            Step1ROI.BitmapImageROIDrawable.IsFixed = true;
+
+            var deltaCenter = Step1ROI.ImageROI.Center - Step0ROI.ImageROI.Center;
+            var isVertical = CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.Y;
+            var deltaPixel = isVertical ? deltaCenter.Y : deltaCenter.X;
+
+            var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
+            if (deltaPixel == 0d || (deltaMotorAbsoluteValue < 0d ? deltaPixel > 0d : deltaPixel < 0d))
+                ThrowHelper.ThrowInvalidOperationException($"""
+                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: PixelSize cannot be calculated because the motor displacement or ROI center displacement is zero or non-finite.
+                                                            Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
+                                                            ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? Step0ROI.ImageROI.Center.Y : Step0ROI.ImageROI.Center.X):0.###}, Step1={(isVertical ? Step1ROI.ImageROI.Center.Y : Step1ROI.ImageROI.Center.X):0.###}, Step1-Step0={deltaPixel:0.###}.
+                                                            Check the recorded motor positions and image order. Move the fixed-size Step1 ROI onto the same rod along the {(isVertical ? "vertical" : "horizontal")} axis, then confirm again.
+                                                            """);
+
+            PixelSize = deltaMotorAbsoluteValue / deltaPixel;
+            Guard.IsGreaterThan(PixelSize, 0d);
         }
 
         static DialogResultEnum ShouldContinue(Exception ex)
@@ -344,35 +353,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
         }
     }
 
-    private double CalculatePixelSize(Rect step1ImageROI)
-    {
-        var step0ImageROI = Step0FindItem.ImageROI;
-        if (step1ImageROI.Width != step0ImageROI.Width || step1ImageROI.Height != step0ImageROI.Height)
-            ThrowHelper.ThrowInvalidOperationException("Step 1 must retain the ROI dimensions established in Step 0.");
-
-        var deltaCenter = step1ImageROI.Center - step0ImageROI.Center;
-        var isVertical = CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.Y;
-        if ((isVertical ? deltaCenter.X : deltaCenter.Y) != 0d)
-            ThrowHelper.ThrowInvalidOperationException("The ROI must only move along the calibrated axis.");
-
-        // 图片坐标系与电机的正方向可能相反, 保留有符号比例, 不将中心位移误写成尺寸差.
-        var deltaPixel = isVertical ? deltaCenter.Y : deltaCenter.X;
-        var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
-        if (!double.IsFinite(deltaMotorAbsoluteValue) || deltaMotorAbsoluteValue == 0d || !double.IsFinite(deltaPixel) || deltaPixel == 0d)
-            ThrowHelper.ThrowInvalidOperationException($"""
-                Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:G17}: PixelSize cannot be calculated because the motor displacement or ROI center displacement is zero or non-finite.
-                Motor: Step0={Step0MotorAbsoluteValue:G17}, Step1={Step1MotorAbsoluteValue:G17}, Step1-Step0={deltaMotorAbsoluteValue:G17}.
-                ROI center {(isVertical ? "Y" : "X")} (image px): Step0={(isVertical ? step0ImageROI.Center.Y : step0ImageROI.Center.X):G17}, Step1={(isVertical ? step1ImageROI.Center.Y : step1ImageROI.Center.X):G17}, Step1-Step0={deltaPixel:G17}.
-                Check the recorded motor positions and image order. Move the fixed-size Step1 ROI onto the same rod along the {(isVertical ? "vertical" : "horizontal")} axis, then confirm again.
-                """);
-
-        var pixelSize = deltaMotorAbsoluteValue / deltaPixel;
-        if (!double.IsFinite(pixelSize) || pixelSize == 0d)
-            ThrowHelper.ThrowInvalidOperationException($"Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:G17}: PixelSize = motor displacement / ROI center {(isVertical ? "Y" : "X")} displacement = {deltaMotorAbsoluteValue:G17} / {deltaPixel:G17} = {pixelSize:G17}. The result must be finite and nonzero. Check both motor positions and ROI centers before recalibrating.");
-
-        return pixelSize;
-    }
-
     public void Review()
     {
         try
@@ -386,8 +366,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
             _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
             _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
-            RestoreFindItem(Step0FindItem, _step0BitmapImageDrawable);
-            RestoreFindItem(Step1FindItem, _step1BitmapImageDrawable);
+            RestoreFindItem(Step0ROI, _step0BitmapImageDrawable);
+            RestoreFindItem(Step1ROI, _step1BitmapImageDrawable);
         }
         finally
         {
@@ -396,10 +376,10 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
 
         return;
 
-        static void RestoreFindItem(FourierCenterChannelFlexibleApertureDTO.FindItem findItem, BitmapImageDrawable bitmapImageDrawable)
+        static void RestoreFindItem(FourierPupilCameraAlignmentDTO.ROI rod, BitmapImageDrawable bitmapImageDrawable)
         {
-            findItem.BitmapImageROIDrawable.IsFixed = true;
-            findItem.BitmapImageROIDrawable.Rect = bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(findItem.ImageROI);
+            rod.BitmapImageROIDrawable.IsFixed = true;
+            rod.BitmapImageROIDrawable.Rect = bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
         }
     }
 
@@ -429,17 +409,17 @@ public sealed partial class FourierCenterChannelFlexibleApertureMotionItem : Obs
         Step1MotorAbsoluteValue,
         Step0ChannelImageFilePath,
         Step1ChannelImageFilePath,
-        Step0ImageROI = Step0FindItem.ImageROI,
-        Step1ImageROI = Step1FindItem.ImageROI,
+        Step0ImageROI = Step0ROI.ImageROI,
+        Step1ImageROI = Step1ROI.ImageROI,
         Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(Step0FindItem.ImageROI),
-            new HtmlImageCrossOverlay(Step0FindItem.ImageROI.Center)
+            new HtmlImageRectangleOverlay(Step0ROI.ImageROI),
+            new HtmlImageCrossOverlay(Step0ROI.ImageROI.Center)
         ]),
         Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(Step1FindItem.ImageROI),
-            new HtmlImageCrossOverlay(Step1FindItem.ImageROI.Center)
+            new HtmlImageRectangleOverlay(Step1ROI.ImageROI),
+            new HtmlImageCrossOverlay(Step1ROI.ImageROI.Center)
         ]),
         PixelSize
     };

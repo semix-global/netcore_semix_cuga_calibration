@@ -27,13 +27,13 @@
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
                 <hc:Shield Subject="Kind: "
-                           Status="{Binding CalibratingItem.YLightHoleItem.CenterChannelMotionKindEnum}"
+                           Status="{Binding CalibratingItem.YApertureItem.CenterChannelMotionKindEnum}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Circle Center (px): "
-                           Status="{Binding CalibratingItem.YLightHoleItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
+                           Status="{Binding CalibratingItem.YApertureItem.Circle.Center, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Circle Radius (px): "
-                           Status="{Binding CalibratingItem.YLightHoleItem.Circle.Radius}"
+                           Status="{Binding CalibratingItem.YApertureItem.Circle.Radius}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Haze BF Machine Position(um): "
                            Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
@@ -64,7 +64,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="CH3 Y 60 Degree Light Hole">
             <Border Margin="5" Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YLightHoleItem.Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YApertureItem.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>

@@ -1,5 +1,6 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Models.Fourier.PupilCameraAlignment;
 using MathNet.Numerics;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
@@ -17,66 +18,68 @@ using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
-public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureLightHoleItem>, IDisposable
+public sealed partial class FourierCenterChannelFlexibleApertureDTOApertureItem : ObservableObject, ICloneable<FourierCenterChannelFlexibleApertureDTOApertureItem>, IDisposable
 {
-    private const int FindItemCount = 5;
+    private const int FindItemCount = 8;
     private readonly BitmapImageDrawable _bitmapImageDrawable = new();
-    private readonly CircleDrawable _circleDrawable = new();
 
     public CenterChannelMotionKindEnum CenterChannelMotionKindEnum { get; }
 
     [ObservableProperty]
     public partial string ChannelImageFilePath { get; set; } = string.Empty;
 
-    public FourierCenterChannelFlexibleApertureDTO.FindItem[] FindItems { get; }
+    public FourierPupilCameraAlignmentDTO.ROI[] FindItems { get; }
 
-    [ObservableProperty]
-    public partial Circle Circle { get; private set; }
+    public FourierCenterChannelFlexibleApertureDTO.Aperture Aperture { get; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
-    public FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKindEnum centerChannelMotionKindEnum)
+    public FourierCenterChannelFlexibleApertureDTOApertureItem(CenterChannelMotionKindEnum centerChannelMotionKindEnum)
     {
         CenterChannelMotionKindEnum = centerChannelMotionKindEnum;
 
         FindItems =
         [
-            .. Generate.Repeat(FindItemCount, 0d).Select(_ => new FourierCenterChannelFlexibleApertureDTO.FindItem(_bitmapImageDrawable)
+            .. Generate.Repeat(FindItemCount, 0d).Select(_ => new FourierPupilCameraAlignmentDTO.ROI(_bitmapImageDrawable)
             {
                 BitmapImageROIDrawable = { IsShowCrossLine = true, ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.All }
             })
         ];
+        Aperture = new FourierCenterChannelFlexibleApertureDTO.Aperture(_bitmapImageDrawable);
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.Add(_bitmapImageDrawable);
-            Document.CircleModel.Add(_circleDrawable);
             Document.ROIModel.AddRange([.. FindItems.Select(t => t.BitmapImageROIDrawable)]);
+            Document.CircleModel.Add(Aperture.BitmapImageCircleDrawable);
         });
 
         Document.Reset();
     }
 
     [Newtonsoft.Json.JsonConstructor]
-    private FourierCenterChannelFlexibleApertureLightHoleItem(
+    private FourierCenterChannelFlexibleApertureDTOApertureItem(
         CenterChannelMotionKindEnum centerChannelMotionKindEnum,
-        FourierCenterChannelFlexibleApertureDTO.FindItem[] findItems)
+        FourierPupilCameraAlignmentDTO.ROI[] findItems,
+        FourierCenterChannelFlexibleApertureDTO.Aperture aperture)
         : this(centerChannelMotionKindEnum)
     {
         foreach (var (index, target) in FindItems.Index()) target.AdaptIn(findItems[index]);
+
+        Aperture.AdaptIn(aperture);
     }
 
     #region Mapper
 
-    public FourierCenterChannelFlexibleApertureLightHoleItem Clone()
+    public FourierCenterChannelFlexibleApertureDTOApertureItem Clone()
     {
-        var item = new FourierCenterChannelFlexibleApertureLightHoleItem(CenterChannelMotionKindEnum)
+        var item = new FourierCenterChannelFlexibleApertureDTOApertureItem(CenterChannelMotionKindEnum)
         {
-            ChannelImageFilePath = ChannelImageFilePath,
-            Circle = Circle
+            ChannelImageFilePath = ChannelImageFilePath
         };
 
+        item.Aperture.AdaptIn(Aperture);
         foreach (var (index, target) in item.FindItems.Index()) target.AdaptIn(FindItems[index]);
 
         return item;
@@ -91,8 +94,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         ChannelImageFilePath = string.Empty;
 
         foreach (var findItem in FindItems) findItem.Reset();
-
-        Circle = Circle.Empty;
+        Aperture.Reset();
 
         Document.Reset();
     }
@@ -102,7 +104,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         try
         {
             Document.Reset();
-            Circle = Circle.Empty;
 
             Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
 
@@ -110,9 +111,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
         InnerLoop:
 
-            var rects = CreateSquareROIs(
-                new Rect(Point.Origin, _bitmapImageDrawable.BitmapImage.Size),
-                FindItems.Length);
+            var rects = CreateSquareROIs(new Rect(Point.Origin, _bitmapImageDrawable.BitmapImage.Size), FindItems.Length);
             for (var i = 0; i < rects.Length; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -147,18 +146,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
 
                                 Guard.IsTrue(findItem.BitmapImageROIDrawable.Rect is { Width: > 0d, Height: > 0d });
                             }
-
-                            var points = FindItems.Select(t => _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(t.BitmapImageROIDrawable.Rect).Center).ToArray();
-                            if (points.Distinct().Count() != points.Length)
-                                ThrowHelper.ThrowInvalidOperationException("ROI centers must be distinct points on the curved aperture edge.");
-                            var baseline = points[1] - points[0];
-                            if (points.Skip(2).All(point => Math.Abs(baseline.X * (point.Y - points[0].Y) - baseline.Y * (point.X - points[0].X)) < 1d))
-                                ThrowHelper.ThrowInvalidOperationException("ROI centers must not be collinear. Spread them along the curved aperture edge.");
-
-                            var (resultCenter, resultRadius) = fitCircle(points);
-                            if (!double.IsFinite(resultCenter.X) || !double.IsFinite(resultCenter.Y) || !double.IsFinite(resultRadius) || resultRadius <= 0d)
-                                ThrowHelper.ThrowInvalidOperationException("Circle fitting must return a finite center and a positive finite radius.");
-                            Circle = new Circle(resultCenter, resultRadius);
 
                             goto OuterLoop;
                         }
@@ -203,7 +190,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
                 findItem.BitmapImageROIDrawable.IsFixed = true;
             }
 
-            UpdateCircleDrawable();
+            var (resultCenter, resultRadius) = fitCircle([.. FindItems.Select(t => t.ImageROI.Center)]);
+
+            Aperture.BitmapImageCircleDrawable.Circle = new Circle(resultCenter, resultRadius);
+            Aperture.ImageCircle = _bitmapImageDrawable.CartesianCoordinateToImageCoordinate(Aperture.BitmapImageCircleDrawable.Circle);
+            Guard.IsEqualTo(_bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Aperture.ImageCircle), Aperture.BitmapImageCircleDrawable.Circle);
         }
         finally
         {
@@ -227,13 +218,59 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         }
     }
 
-    /// <summary>
-    /// 在边界中心的参考圆周上等分布置正方形ROI, 中心取最近整数坐标后统一计算最大可用偶数边长.
-    /// </summary>
-    /// <param name="bounds">布局边界, 坐标必须有限且宽高为正数, 支持非零原点.</param>
-    /// <param name="count">ROI数量, 必须大于零.</param>
-    /// <returns>与边界处于同一坐标系的矩形数组. 所有ROI尺寸相同且内部不重叠, 允许边缘接触. 整数中心仅近似圆周等分.</returns>
-    /// <exception cref="InvalidOperationException">取整后的中心无法容纳至少两个像素边长的ROI.</exception>
+    public void Review()
+    {
+        try
+        {
+            Document.Reset();
+
+            if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+
+            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+
+            foreach (var findItem in FindItems)
+            {
+                findItem.BitmapImageROIDrawable.IsFixed = true;
+                findItem.BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(findItem.ImageROI);
+            }
+
+            Aperture.BitmapImageCircleDrawable.Circle = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Aperture.ImageCircle);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
+        }
+    }
+
+    #endregion 校准
+
+    public object ToImageHtmlAnonymous() => new
+    {
+        FindItemCount,
+        CenterChannelMotionKindEnum,
+        ChannelImageFilePath,
+        Image = new HtmlImage(ChannelImageFilePath)
+    };
+
+    public object ToHtmlAnonymous() => new
+    {
+        FindItemCount,
+        CenterChannelMotionKindEnum,
+        ChannelImageFilePath,
+        FindItems = new HtmlTable([.. FindItems.Select(t => new { t.ImageROI })]),
+        Aperture.ImageCircle,
+        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        [
+            .. FindItems.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
+            .. FindItems.Select(t => new HtmlImageCrossOverlay(t.ImageROI.Center))
+        ])
+    };
+
+    public void Dispose()
+    {
+        _bitmapImageDrawable.Dispose();
+    }
+
     private static Rect[] CreateSquareROIs(Rect bounds, int count)
     {
         var center = new Point(bounds.XMin + bounds.Width / 2d, bounds.YMin + bounds.Height / 2d);
@@ -268,10 +305,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
             }
         }
 
-        // 使用偶数像素边长, 保持整数中心及四条边的位置, 并确保所有ROI尺寸一致.
         var halfLength = Math.Floor(rectLength / 2d);
-        if (halfLength < 1d)
-            throw new InvalidOperationException("The layout cannot accommodate non-overlapping ROIs with a minimum side length of two pixels.");
+        if (halfLength < 1d) ThrowHelper.ThrowInvalidOperationException("The layout cannot accommodate non-overlapping ROIs with a minimum side length of two pixels.");
 
         rectLength = halfLength * 2d;
         var rects = new Rect[points.Length];
@@ -285,67 +320,5 @@ public sealed partial class FourierCenterChannelFlexibleApertureLightHoleItem : 
         }
 
         return rects;
-    }
-
-    public void Review()
-    {
-        try
-        {
-            Document.Reset();
-
-            if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
-
-            _bitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
-
-            foreach (var findItem in FindItems)
-            {
-                findItem.BitmapImageROIDrawable.IsFixed = true;
-                findItem.BitmapImageROIDrawable.Rect = _bitmapImageDrawable.ImageCoordinateToCartesianCoordinate(findItem.ImageROI);
-            }
-
-            UpdateCircleDrawable();
-        }
-        finally
-        {
-            Document.View.ZoomToFit();
-        }
-    }
-
-    private void UpdateCircleDrawable()
-    {
-        if (_bitmapImageDrawable.BitmapImage is null || Circle.IsEmpty) return;
-
-        // 拟合圆保留亚像素精度, 仅翻转图片Y轴并加上图片在世界坐标中的偏移.
-        _circleDrawable.Circle = new Circle(new Point(
-            _bitmapImageDrawable.Point.X + Circle.Center.X,
-            _bitmapImageDrawable.Point.Y + _bitmapImageDrawable.BitmapImage.Height - Circle.Center.Y), Circle.Radius);
-    }
-
-    #endregion 校准
-
-    public object ToImageHtmlAnonymous() => new
-    {
-        FindItemCount,
-        CenterChannelMotionKindEnum,
-        ChannelImageFilePath,
-        Image = new HtmlImage(ChannelImageFilePath)
-    };
-
-    public object ToHtmlAnonymous() => new
-    {
-        FindItemCount,
-        CenterChannelMotionKindEnum,
-        ChannelImageFilePath,
-        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
-        [
-            .. FindItems.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
-            .. FindItems.Select(t => new HtmlImageCrossOverlay(t.ImageROI.Center))
-        ]),
-        Circle
-    };
-
-    public void Dispose()
-    {
-        _bitmapImageDrawable.Dispose();
     }
 }
