@@ -10,7 +10,6 @@ using Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using Net.Utilities.Helpers.Helpers;
 using Net.Utilities.Models.Geometries;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -92,7 +91,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
             actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
 
-            AssertChannelMatchesJson(actual.Channel3Item, expected[nameof(actual.Channel3Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertChannelMatchesJson(actual.Item, expected[nameof(actual.Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertChannelMatchesJson(V0FourierCenterChannelSpecularBlockerDTOItem actual, JToken expected)
@@ -113,8 +112,8 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.Step1CIBImageAverageValue.Should().Be(expected.Value<double>(nameof(actual.Step1CIBImageAverageValue)));
             actual.ExtinctionRatio.Should().Be(expected.Value<double>(nameof(actual.ExtinctionRatio)));
 
-            AssertRectMatchesJson(actual.YRodImageROI, expected[nameof(actual.YRodImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
-            AssertRectMatchesJson(actual.PushImageROI, expected[nameof(actual.PushImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertRectMatchesJson(actual.YRodROI, expected[nameof(actual.YRodROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertRectMatchesJson(actual.XPushROI, expected[nameof(actual.XPushROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertRectMatchesJson(Rect actual, JToken expected)
@@ -173,7 +172,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         cloned.Should().NotBeNull();
         cloned.Should().NotBeSameAs(expected);
         cloned.HasErrors.Should().BeFalse();
-        cloned.Channel3Item.Should().NotBeSameAs(expected.Channel3Item);
+        cloned.Item.Should().NotBeSameAs(expected.Item);
         AssertEquals(cloned, expected, useCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
@@ -211,12 +210,12 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
 
             dto.ProductivityInformation = productivityInformations[random.Next(productivityInformations.Count)].Clone();
 
-            var channel = dto.Channel3Item;
+            var channel = dto.Item;
             channel.YRodAngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
             channel.YRodMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
             channel.PushMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
-            channel.YRodImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
-            channel.PushImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
+            channel.YRodROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
+            channel.XPushROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
             channel.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step0Fourier_{random.Next(0, 99)}.jpg";
             channel.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step1Fourier_{random.Next(0, 99)}.jpg";
             channel.RawStep0CIBImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\RawStep0CIB_{random.Next(0, 99)}.jpg";
@@ -256,16 +255,16 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.ModifiedUserName.Should().Be(persistAudit ? expected.ModifiedUserName : string.Empty);
             actual.ModifiedTime.Should().Be(persistAudit ? expected.ModifiedTime : default);
 
-            AssertChannelEquals(actual.Channel3Item, expected.Channel3Item);
+            AssertChannelEquals(actual.Item, expected.Item);
         }
 
         static void AssertChannelEquals(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
         {
             actual.ChannelId.Should().Be(expected.ChannelId);
             actual.YRodAngleMotorAbsoluteValue.Should().Be(expected.YRodAngleMotorAbsoluteValue);
-            actual.YRodImageROI.Should().Be(expected.YRodImageROI);
+            actual.YRodROI.Should().Be(expected.YRodROI);
             actual.YRodMotorAbsoluteValue.Should().Be(expected.YRodMotorAbsoluteValue);
-            actual.PushImageROI.Should().Be(expected.PushImageROI);
+            actual.XPushROI.Should().Be(expected.XPushROI);
             actual.PushMotorAbsoluteValue.Should().Be(expected.PushMotorAbsoluteValue);
             actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
             actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);

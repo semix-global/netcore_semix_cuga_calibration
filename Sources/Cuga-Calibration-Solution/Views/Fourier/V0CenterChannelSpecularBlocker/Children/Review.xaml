@@ -11,8 +11,7 @@
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:v0CenterChannelSpecularBlocker="clr-namespace:Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:V0FourierCenterChannelSpecularBlockerViewModel}"
-             d:DesignWidth="1920"
-             d:DesignHeight="1080"
+             d:DesignWidth="1920" d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -127,12 +126,12 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodAngleMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Turn Y(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Push(mm)" DisplayMemberBinding="{Binding Channel3Item.PushMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Item.YRodAngleMotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Turn Y(mm)" DisplayMemberBinding="{Binding Item.YRodMotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Push(mm)" DisplayMemberBinding="{Binding Item.PushMotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Item.ExtinctionRatio, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -161,12 +160,12 @@
                                                 </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.Document, Mode=OneWay}" />
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Item.Document, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
                                                 <TabItem Header="CIB" IsSelected="True">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.CIBDocument, Mode=OneWay}" />
+                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
                                             </TabControl>

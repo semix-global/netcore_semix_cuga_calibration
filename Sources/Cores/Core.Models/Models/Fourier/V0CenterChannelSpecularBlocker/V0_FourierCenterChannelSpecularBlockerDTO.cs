@@ -6,7 +6,6 @@ using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Optics;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
-using Net.Utilities.WPF.MVVM;
 
 namespace Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
 
@@ -16,17 +15,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    public V0FourierCenterChannelSpecularBlockerDTOItem Channel3Item { get; private init; } = new(3);
-
-    [Newtonsoft.Json.JsonConstructor]
-    private V0FourierCenterChannelSpecularBlockerDTO(V0FourierCenterChannelSpecularBlockerDTOItem channel3Item)
-    {
-        Channel3Item = channel3Item;
-    }
-
-    public V0FourierCenterChannelSpecularBlockerDTO()
-    {
-    }
+    public V0FourierCenterChannelSpecularBlockerDTOItem Item { get; private init; } = new();
 
     #region Mapper
 
@@ -35,7 +24,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
     public override V0FourierCenterChannelSpecularBlockerDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        Channel3Item = Channel3Item.Clone(),
+        Item = Item.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -50,9 +39,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-        Ch3Angle = (float)Channel3Item.YRodAngleMotorAbsoluteValue,
-        Ch3TurnY = (float)Channel3Item.YRodMotorAbsoluteValue,
-        Ch3Push = (float)Channel3Item.PushMotorAbsoluteValue,
+        Ch3Angle = (float)Item.YRodAngleMotorAbsoluteValue,
+        Ch3TurnY = (float)Item.YRodMotorAbsoluteValue,
+        Ch3Push = (float)Item.PushMotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -62,6 +51,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
 
     public void Dispose()
     {
-        Channel3Item.Dispose();
+        Item.Dispose();
     }
 }

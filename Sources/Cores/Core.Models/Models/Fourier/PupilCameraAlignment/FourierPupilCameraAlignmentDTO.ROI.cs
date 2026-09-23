@@ -7,7 +7,7 @@ namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
 public sealed partial class FourierPupilCameraAlignmentDTO
 {
-    public sealed partial class ROI(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<ROI, ROI>
+    public partial class ROI(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<ROI, ROI>
     {
         [ObservableProperty]
         public partial Rect ImageROI { get; set; }
@@ -27,7 +27,7 @@ public sealed partial class FourierPupilCameraAlignmentDTO
             return this;
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             ImageROI = Rect.Empty;
         }

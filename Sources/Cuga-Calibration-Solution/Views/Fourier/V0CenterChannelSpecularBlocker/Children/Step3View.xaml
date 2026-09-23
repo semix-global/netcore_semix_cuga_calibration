@@ -47,7 +47,7 @@
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding YRodAngleMotorAbsoluteValues}"
-                                  SelectedItem="{Binding CalibratingItem.Channel3Item.YRodAngleMotorAbsoluteValue}" />
+                                  SelectedItem="{Binding CalibratingItem.Item.YRodAngleMotorAbsoluteValue}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -67,7 +67,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Channel 3 Image">
             <Border Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel3Item.Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Item.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>

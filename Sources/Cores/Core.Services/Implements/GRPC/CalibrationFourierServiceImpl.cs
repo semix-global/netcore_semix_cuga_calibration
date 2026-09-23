@@ -2,7 +2,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;

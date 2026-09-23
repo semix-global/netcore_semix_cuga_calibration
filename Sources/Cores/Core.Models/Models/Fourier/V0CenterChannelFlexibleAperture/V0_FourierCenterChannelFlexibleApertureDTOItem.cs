@@ -376,15 +376,6 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
             }
 
             PixelSize = deltaMotorAbsoluteValue / deltaPixel;
-            if (double.IsFinite(PixelSize) == false || PixelSize <= 0d)
-            {
-                ThrowHelper.ThrowInvalidOperationException($"""
-                                                            Center-channel {CenterChannelMotionKindEnum}, angle {AngleMotorAbsoluteValue:0.###}: PixelSize must be positive and finite.
-                                                            Motor: Step0={Step0MotorAbsoluteValue:0.###}, Step1={Step1MotorAbsoluteValue:0.###}, Step1-Step0={deltaMotorAbsoluteValue:0.###}.
-                                                            ROI centers (image px): Step0={Step0ROI.ImageROI.Center}, Step1={Step1ROI.ImageROI.Center}, displacement along the selected motion axis={deltaPixel:0.###}.
-                                                            PixelSize = motor displacement / ROI center displacement = {PixelSize:0.###} mm/px.
-                                                            """);
-            }
         }
 
         static DialogResultEnum ShouldContinue(Exception ex)

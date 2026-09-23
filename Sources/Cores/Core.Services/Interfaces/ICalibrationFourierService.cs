@@ -1,5 +1,4 @@
 using Core.Models.Models.Common.Pattern;
-using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;

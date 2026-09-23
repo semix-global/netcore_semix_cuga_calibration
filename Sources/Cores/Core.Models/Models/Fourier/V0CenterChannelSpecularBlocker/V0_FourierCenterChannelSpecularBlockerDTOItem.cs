@@ -11,6 +11,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
 
@@ -20,30 +21,15 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
 
     private readonly BitmapImageDrawable _step0FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1FourierBitmapImageDrawable = new();
-    private readonly BitmapImageROIDrawable _yRodBitmapImageROIDrawable;
-    private readonly BitmapImageROIDrawable _pushBitmapImageROIDrawable;
     private readonly BitmapImageROIDrawable _step1YRodBitmapImageROIDrawable;
-    private readonly BitmapImageROIDrawable _step1PushBitmapImageROIDrawable;
+    private readonly BitmapImageROIDrawable _step1XPushBitmapImageROIDrawable;
 
     private readonly BitmapImageDrawable _step0CIBBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
 
-    public int ChannelId { get; }
+    public V0FourierCenterChannelSpecularBlockerDTO.ROI YRodROI { get; }
 
-    [ObservableProperty]
-    public partial double YRodAngleMotorAbsoluteValue { get; set; }
-
-    [ObservableProperty]
-    public partial Rect YRodImageROI { get; set; }
-
-    [ObservableProperty]
-    public partial double YRodMotorAbsoluteValue { get; set; }
-
-    [ObservableProperty]
-    public partial Rect PushImageROI { get; set; }
-
-    [ObservableProperty]
-    public partial double PushMotorAbsoluteValue { get; set; }
+    public V0FourierCenterChannelSpecularBlockerDTO.ROI XPushROI { get; }
 
     [ObservableProperty]
     public partial string Step0FourierImageFilePath { get; set; } = string.Empty;
@@ -78,56 +64,64 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument CIBDocument { get; } = new();
 
-    public V0FourierCenterChannelSpecularBlockerDTOItem(int channelId)
+    public V0FourierCenterChannelSpecularBlockerDTOItem()
     {
-        ChannelId = channelId;
-
-        _yRodBitmapImageROIDrawable = new BitmapImageROIDrawable(_step0FourierBitmapImageDrawable)
+        YRodROI = new V0FourierCenterChannelSpecularBlockerDTO.ROI(_step0FourierBitmapImageDrawable)
         {
-            Text = "Y",
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None
+            BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
-        _pushBitmapImageROIDrawable = new BitmapImageROIDrawable(_step0FourierBitmapImageDrawable)
+        XPushROI = new V0FourierCenterChannelSpecularBlockerDTO.ROI(_step0FourierBitmapImageDrawable)
         {
-            Text = "Push",
-            ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None
+            BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
-        _step1YRodBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable) { Text = "Y" };
-        _step1PushBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable) { Text = "Push" };
+        _step1YRodBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable);
+        _step1XPushBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable);
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.AddRange([_step0FourierBitmapImageDrawable, _step1FourierBitmapImageDrawable]);
-            Document.ROIModel.AddRange([_yRodBitmapImageROIDrawable, _pushBitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, _step1PushBitmapImageROIDrawable]);
+            Document.ROIModel.AddRange([YRodROI.BitmapImageROIDrawable, XPushROI.BitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, _step1XPushBitmapImageROIDrawable]);
         });
 
         CIBDocument.RunDesign(() => CIBDocument.ImageModel.AddRange([_step0CIBBitmapImageDrawable, _step1CIBBitmapImageDrawable]));
 
-        ResetDocument();
-        ResetCIBDocument();
+        Document.Reset();
+        CIBDocument.Reset();
+    }
+
+    [Newtonsoft.Json.JsonConstructor]
+    private V0FourierCenterChannelSpecularBlockerDTOItem(
+        V0FourierCenterChannelSpecularBlockerDTO.ROI yRodROI,
+        V0FourierCenterChannelSpecularBlockerDTO.ROI xPushROI)
+        : this()
+    {
+        YRodROI.AdaptIn(yRodROI);
+        XPushROI.AdaptIn(xPushROI);
     }
 
     #region Mapper
 
 #pragma warning disable IDISP003
 
-    public V0FourierCenterChannelSpecularBlockerDTOItem Clone() => new(ChannelId)
+    public V0FourierCenterChannelSpecularBlockerDTOItem Clone()
     {
-        YRodAngleMotorAbsoluteValue = YRodAngleMotorAbsoluteValue,
-        YRodImageROI = YRodImageROI,
-        YRodMotorAbsoluteValue = YRodMotorAbsoluteValue,
-        PushImageROI = PushImageROI,
-        PushMotorAbsoluteValue = PushMotorAbsoluteValue,
-        Step0FourierImageFilePath = Step0FourierImageFilePath,
-        Step1FourierImageFilePath = Step1FourierImageFilePath,
-        RawStep0CIBImageFilePath = RawStep0CIBImageFilePath,
-        RawStep1CIBImageFilePath = RawStep1CIBImageFilePath,
-        Step0CIBImageFilePath = Step0CIBImageFilePath,
-        Step1CIBImageFilePath = Step1CIBImageFilePath,
-        Step0CIBImageAverageValue = Step0CIBImageAverageValue,
-        Step1CIBImageAverageValue = Step1CIBImageAverageValue,
-        ExtinctionRatio = ExtinctionRatio
-    };
+        var item = new V0FourierCenterChannelSpecularBlockerDTOItem
+        {
+            Step0FourierImageFilePath = Step0FourierImageFilePath,
+            Step1FourierImageFilePath = Step1FourierImageFilePath,
+            RawStep0CIBImageFilePath = RawStep0CIBImageFilePath,
+            RawStep1CIBImageFilePath = RawStep1CIBImageFilePath,
+            Step0CIBImageFilePath = Step0CIBImageFilePath,
+            Step1CIBImageFilePath = Step1CIBImageFilePath,
+            Step0CIBImageAverageValue = Step0CIBImageAverageValue,
+            Step1CIBImageAverageValue = Step1CIBImageAverageValue,
+            ExtinctionRatio = ExtinctionRatio
+        };
+        item.YRodROI.AdaptIn(YRodROI);
+        item.XPushROI.AdaptIn(XPushROI);
+
+        return item;
+    }
 
 #pragma warning restore IDISP003
 
@@ -139,12 +133,10 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     {
         Step0FourierImageFilePath = string.Empty;
         Step1FourierImageFilePath = string.Empty;
-        YRodImageROI = Rect.Empty;
-        YRodMotorAbsoluteValue = 0d;
-        PushImageROI = Rect.Empty;
-        PushMotorAbsoluteValue = 0d;
 
-        ResetDocument();
+        YRodROI.Reset();
+        XPushROI.Reset();
+
         ResetCIB();
     }
 
@@ -158,111 +150,53 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
         Step1CIBImageAverageValue = 0d;
         ExtinctionRatio = 0d;
 
-        ResetCIBDocument();
+        CIBDocument.Reset();
     }
 
     public async Task CalibratingAsync(
         V0FourierCenterChannelFlexibleApertureDTOItem? yRodItem,
-        V0FourierCenterChannelFlexibleApertureDTOItem pushItem,
+        V0FourierCenterChannelFlexibleApertureDTOItem xPushItem,
         (double Min, double Max) yMotorRange,
-        (double Min, double Max) pushMotorRange,
+        (double Min, double Max) xPushMotorRange,
         CancellationToken cancellationToken)
     {
         try
         {
-            ResetDocument();
+            Document.Reset();
 
             Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
-            Guard.IsTrue(pushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
-            Guard.IsTrue(double.IsFinite(pushItem.PixelSize) && pushItem.PixelSize > 0d);
-            Guard.IsTrue(pushItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-            Guard.IsLessThanOrEqualTo(pushMotorRange.Min, pushMotorRange.Max);
-
-            var showYRod = yRodItem is not null;
-            if (yRodItem is not null)
-            {
-                Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
-                Guard.IsEqualTo(yRodItem.DefaultAngleMotorAbsoluteValue, YRodAngleMotorAbsoluteValue);
-                Guard.IsTrue(double.IsFinite(yRodItem.PixelSize) && yRodItem.PixelSize > 0d);
-                Guard.IsTrue(yRodItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-                Guard.IsLessThanOrEqualTo(yMotorRange.Min, yMotorRange.Max);
-            }
+            if (yRodItem is not null) Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
+            Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
 
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
             Document.View.ZoomToFit();
 
-            Place(_pushBitmapImageROIDrawable, pushItem.Step0ROI.ImageROI, "Push");
-            if (showYRod) Place(_yRodBitmapImageROIDrawable, yRodItem!.Step0ROI.ImageROI, $"Y {YRodAngleMotorAbsoluteValue:0.###}");
+            if (yRodItem is not null) YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(yRodItem.Step0ROI.ImageROI);
+            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xPushItem.Step0ROI.ImageROI);
 
-            if (showYRod)
-            {
-                _pushBitmapImageROIDrawable.IsFixed = true;
-                await EditAsync(_yRodBitmapImageROIDrawable, BitmapImageROIDragMoveTypeEnum.Y, $"Move the {YRodAngleMotorAbsoluteValue:0.###} degree Y rod vertically.", cancellationToken);
-                _yRodBitmapImageROIDrawable.IsFixed = true;
-            }
-
-            _pushBitmapImageROIDrawable.IsFixed = false;
-            await EditAsync(_pushBitmapImageROIDrawable, BitmapImageROIDragMoveTypeEnum.X, "Move the X push horizontally.", cancellationToken);
-
-            PushImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(_pushBitmapImageROIDrawable.Rect);
-            _pushBitmapImageROIDrawable.IsFixed = true;
-            PushMotorAbsoluteValue = Math.Clamp(
-                pushItem.Step0MotorAbsoluteValue + (PushImageROI.Center.X - pushItem.Step0ROI.ImageROI.Center.X) * pushItem.PixelSize,
-                pushMotorRange.Min,
-                pushMotorRange.Max);
-
-            if (showYRod)
-            {
-                YRodImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(_yRodBitmapImageROIDrawable.Rect);
-                YRodMotorAbsoluteValue = Math.Clamp(
-                    yRodItem!.Step0MotorAbsoluteValue + (YRodImageROI.Center.Y - yRodItem.Step0ROI.ImageROI.Center.Y) * yRodItem.PixelSize,
-                    yMotorRange.Min,
-                    yMotorRange.Max);
-            }
-        }
-        finally
-        {
-            Document.View.ZoomToFit();
-        }
-
-        return;
-
-        void Place(BitmapImageROIDrawable drawable, Rect imageROI, string text)
-        {
-            drawable.Text = text;
-            drawable.ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None;
-            drawable.IsFixed = false;
-            drawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(imageROI);
-            drawable.IsVisible = drawable.Rect is { Width: > 0d, Height: > 0d };
-        }
-
-        async Task EditAsync(BitmapImageROIDrawable drawable, BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum, string title, CancellationToken token)
-        {
             while (true)
             {
-                token.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
                 {
-                    Title = title,
-                    BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
+                    Title = "Adjust rod height on the Channel3 Fourier image.",
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
                     IsDeleteEnabled = false,
-                    CancellationToken = token
+                    CancellationToken = cancellationToken
                 });
 
                 switch (outputResult)
                 {
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                        Guard.IsTrue(drawable.IsVisible);
-                        Guard.IsTrue(drawable.Rect is { Width: > 0d, Height: > 0d });
-
-                        return;
+                        goto OuterLoop;
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
                         continue;
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
-                        ThrowHelper.ThrowOperationCanceledException(token);
+                        ThrowHelper.ThrowOperationCanceledException(cancellationToken);
 
                         break;
 
@@ -272,6 +206,28 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                         break;
                 }
             }
+
+        OuterLoop:
+            if (yRodItem is not null)
+            {
+                YRodROI.BitmapImageROIDrawable.IsFixed = true;
+                YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
+                YRodROI.MotorAbsoluteValue = Math.Clamp(
+                    yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
+                    yMotorRange.Min,
+                    yMotorRange.Max);
+            }
+
+            XPushROI.BitmapImageROIDrawable.IsFixed = true;
+            XPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XPushROI.BitmapImageROIDrawable.Rect);
+            XPushROI.MotorAbsoluteValue = Math.Clamp(
+                xPushItem.Step0MotorAbsoluteValue + (XPushROI.ImageROI.Center - xPushItem.Step0ROI.ImageROI.Center).X * xPushItem.PixelSize,
+                xPushMotorRange.Min,
+                xPushMotorRange.Max);
+        }
+        finally
+        {
+            Document.View.ZoomToFit();
         }
     }
 
@@ -279,7 +235,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     {
         try
         {
-            ResetDocument();
+            Document.Reset();
 
             if (string.IsNullOrWhiteSpace(Step0FourierImageFilePath) || string.IsNullOrWhiteSpace(Step1FourierImageFilePath)) return;
 
@@ -288,23 +244,17 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             _step1FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
             _step1FourierBitmapImageDrawable.Point = _step0FourierBitmapImageDrawable.Point - new Vector(0d, _step0FourierBitmapImageDrawable.BitmapImage.Height + 10d);
 
-            ShowReviewROI(_pushBitmapImageROIDrawable, _step1PushBitmapImageROIDrawable, PushImageROI, "Push");
-            if (YRodAngleMotorAbsoluteValue != 0d) ShowReviewROI(_yRodBitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, YRodImageROI, $"Y {YRodAngleMotorAbsoluteValue:0.###}");
+            YRodROI.BitmapImageROIDrawable.IsFixed = _step1YRodBitmapImageROIDrawable.IsFixed = true;
+            YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
+            _step1YRodBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
+
+            XPushROI.BitmapImageROIDrawable.IsFixed = _step1XPushBitmapImageROIDrawable.IsFixed = true;
+            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
+            _step1XPushBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
         }
         finally
         {
             Document.View.ZoomToFit();
-        }
-
-        return;
-
-        void ShowReviewROI(BitmapImageROIDrawable step0Drawable, BitmapImageROIDrawable step1Drawable, Rect imageROI, string text)
-        {
-            step0Drawable.Text = step1Drawable.Text = text;
-            step0Drawable.IsFixed = step1Drawable.IsFixed = true;
-            step0Drawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(imageROI);
-            step1Drawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(imageROI);
-            step0Drawable.IsVisible = step1Drawable.IsVisible = step0Drawable.Rect is { Width: > 0d };
         }
     }
 
@@ -312,7 +262,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     {
         try
         {
-            ResetCIBDocument();
+            CIBDocument.Reset();
 
             if (string.IsNullOrWhiteSpace(Step0CIBImageFilePath)) return;
 
@@ -335,8 +285,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     public object ToImageHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        ChannelId,
-        YRodAngleMotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath)
     };
@@ -344,25 +292,27 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     public object ToHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        ChannelId,
-        YRodAngleMotorAbsoluteValue,
-        YRodImageROI,
-        YRodMotorAbsoluteValue,
-        PushImageROI,
-        PushMotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays: Overlays()),
-        Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays: Overlays())
+        Rods = new HtmlTable([
+            new { YRodROI.ImageROI, YRodROI.MotorAbsoluteValue },
+            new { XPushROI.ImageROI, XPushROI.MotorAbsoluteValue },
+        ]),
+        Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
+            new HtmlImageRectangleOverlay(XPushROI.ImageROI)
+        ]),
+        Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
+        [
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
+            new HtmlImageRectangleOverlay(XPushROI.ImageROI)
+        ])
     };
 
     public object ToCIBHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        ChannelId,
-        YRodAngleMotorAbsoluteValue,
-        YRodMotorAbsoluteValue,
-        PushMotorAbsoluteValue,
         RawStep0CIBImageFilePath,
         RawStep1CIBImageFilePath,
         Step0CIBImageFilePath,
@@ -373,41 +323,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
         Step0CIBImage = new HtmlImage(Step0CIBImageFilePath),
         Step1CIBImage = new HtmlImage(Step1CIBImageFilePath)
     };
-
-    private HtmlImageOverlay[] Overlays()
-    {
-        List<HtmlImageOverlay> overlays = [];
-
-        if (YRodAngleMotorAbsoluteValue != 0d && YRodImageROI is { Width: > 0d })
-        {
-            overlays.Add(new HtmlImageRectangleOverlay(YRodImageROI));
-            overlays.Add(new HtmlImageTextOverlay(YRodImageROI.Center, $"Y {YRodAngleMotorAbsoluteValue:0.###}"));
-        }
-
-        if (PushImageROI is { Width: > 0d })
-        {
-            overlays.Add(new HtmlImageRectangleOverlay(PushImageROI));
-            overlays.Add(new HtmlImageTextOverlay(PushImageROI.Center, "Push"));
-        }
-
-        return [.. overlays];
-    }
-
-    private void ResetDocument()
-    {
-        Document.Reset();
-
-        foreach (var drawable in new[] { _yRodBitmapImageROIDrawable, _pushBitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, _step1PushBitmapImageROIDrawable })
-        {
-            drawable.IsVisible = false;
-            drawable.IsFixed = false;
-        }
-    }
-
-    private void ResetCIBDocument()
-    {
-        CIBDocument.Reset();
-    }
 
     public void Dispose()
     {

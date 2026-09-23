@@ -126,8 +126,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         foreach (var review in Reviews)
         {
-            review.Channel3Item.Review();
-            review.Channel3Item.ReviewCIB();
+            review.Item.Review();
+            review.Item.ReviewCIB();
         }
 
         return Reviews.Count > 0;
@@ -296,7 +296,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -328,16 +328,15 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 {
                     await InvokeVerifyAsync(selectedReviewItem, cancellationToken);
 
-                    selectedReviewItem.IsVerified = Math.Abs(selectedReviewItem.Channel3Item.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold;
+                    selectedReviewItem.IsVerified = Math.Abs(selectedReviewItem.Item.ExtinctionRatio) <= Cache.ExtinctionRatioThreshold;
                 }
 
                 {
-                    var item = selectedReviewItem.Channel3Item;
-                    Logger.LogHtmlInformation($"Channel {item.ChannelId} ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    var item = selectedReviewItem.Item;
+                    Logger.LogHtmlInformation($"Channel3 ROI", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
                     var htmlQuote = new HtmlQuote(new
                     {
-                        item.ChannelId,
                         item.Step0CIBImageAverageValue,
                         item.Step1CIBImageAverageValue,
                         item.ExtinctionRatio
@@ -370,7 +369,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     private async Task<bool> InvokeCalibrateAsync(V0FourierCenterChannelSpecularBlockerDTOItem item, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
-        Guard.IsEqualTo(item.ChannelId, 3);
 
         var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
         var yRodItem = item.YRodAngleMotorAbsoluteValue == 0d
@@ -502,7 +500,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     private async Task InvokeVerifyAsync(V0FourierCenterChannelSpecularBlockerDTO dto, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
-        V0FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Channel3Item];
+        V0FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Item];
         CIBInformation[] cibInformations =
         [
             .. items.Select(item => ApplicationCookie.CIBInformations.Single(t =>
