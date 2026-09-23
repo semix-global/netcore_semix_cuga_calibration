@@ -728,13 +728,27 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 var width = modifiedRect.Width;
                 var height = modifiedRect.Height;
 
-                // 按较小的缩放比例收缩另一边, 不再取整以免破坏宽高比.
-                if (width > height * aspectRatio)
-                    width = height * aspectRatio;
-                else if (width < height * aspectRatio)
-                    height = width / aspectRatio;
+                height = _resizeJoystickStateEnum switch
+                {
+                    BitmapImageROIResizeJoystickStateEnum.XMinYCenter or BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => width / aspectRatio,
+                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin or BitmapImageROIResizeJoystickStateEnum.XCenterYMax => height,
+                    _ => (width * aspectRatio + height) / (aspectRatio * aspectRatio + 1d)
+                };
+                var maxWidth = _resizeJoystickStateEnum switch
+                {
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMinYCenter => modifiedRect.XMax - imageRect.XMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => imageRect.XMax - modifiedRect.XMin,
+                    _ => 2d * Math.Min((modifiedRect.XMin + modifiedRect.XMax) / 2d - imageRect.XMin, imageRect.XMax - (modifiedRect.XMin + modifiedRect.XMax) / 2d)
+                };
+                var maxHeight = _resizeJoystickStateEnum switch
+                {
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XCenterYMin => modifiedRect.YMax - imageRect.YMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XCenterYMax => imageRect.YMax - modifiedRect.YMin,
+                    _ => 2d * Math.Min((modifiedRect.YMin + modifiedRect.YMax) / 2d - imageRect.YMin, imageRect.YMax - (modifiedRect.YMin + modifiedRect.YMax) / 2d)
+                };
+                height = Math.Min(height, Math.Min(maxHeight, maxWidth / aspectRatio));
+                width = height * aspectRatio;
 
-                // 根据控制点保留对角或对侧边中点, 确定比例修正后的左下角.
                 var point = _resizeJoystickStateEnum switch
                 {
                     BitmapImageROIResizeJoystickStateEnum.None => modifiedRect.XMinYMin,
