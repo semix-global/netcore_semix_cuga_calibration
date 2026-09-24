@@ -38,7 +38,7 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     /// 仅支持四个角点(XMinYMax / XMaxYMax / XMinYMin / XMaxYMin), 默认右下角.
     /// </summary>
     [ObservableProperty]
-    public partial BitmapImageROIResizeJoystickStateEnum EditInformationCorner { get; set; } = BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
+    public partial BitmapImageROIResizeJoystickStateEnum EditInformationCornerEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.XMaxYMin;
 
     /// <summary>
     /// Alt + 方向键移动ROI的步距, 单位为像素, 必须为有限正数.

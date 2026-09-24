@@ -51,7 +51,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
     {
         var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
 
-        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierCenterChannelFlexibleAperture.json"));
+        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "V0FourierCenterChannelFlexibleAperture.json"));
         var expected = JObject.Parse(json);
 
         using var actual = JsonConvert.DeserializeObject<V0FourierCenterChannelFlexibleApertureDTO>(json, settings);

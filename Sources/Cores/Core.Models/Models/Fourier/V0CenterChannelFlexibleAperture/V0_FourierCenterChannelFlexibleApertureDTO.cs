@@ -18,7 +18,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBa
         new(CenterChannelMotionKindEnum.XRod, 300d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d }
     ];
 
-    public V0FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0) { Step0MotorAbsoluteValue = 42d, Step1MotorAbsoluteValue = 43d };
+    public V0FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0d) { Step0MotorAbsoluteValue = 42d, Step1MotorAbsoluteValue = 43d };
 
     public V0FourierCenterChannelFlexibleApertureDTOItem YApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.YAperture, 60d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 1d };
 

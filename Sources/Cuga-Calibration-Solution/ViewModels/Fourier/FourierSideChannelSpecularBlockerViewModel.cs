@@ -113,9 +113,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         Reviews =
         [
-            .. Calibrations
-                .Select(t => t)
-                .OrderBy(t => t.ProductivityInformation)
+            .. Calibrations.OrderBy(t => t.ProductivityInformation)
         ];
 
         foreach (var review in Reviews)
@@ -249,7 +247,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step1Async(CancellationToken cancellationToken)
+    private Task<bool> Step1Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -273,7 +271,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step2Async(CancellationToken cancellationToken)
+    private Task<bool> Step2Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(() =>
         {
@@ -297,13 +295,13 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step3Async(CancellationToken cancellationToken)
+    private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, cancellationToken));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task Step4Async(CancellationToken cancellationToken)
+    private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
         return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, cancellationToken));
     }

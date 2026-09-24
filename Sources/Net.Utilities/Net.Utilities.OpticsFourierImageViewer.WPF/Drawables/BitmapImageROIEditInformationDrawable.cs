@@ -74,13 +74,13 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
         var width = measuredLines.Max(line => line.Size.Width) + padding * 2d;
         var height = measuredLines.Sum(line => line.Size.Height) + gap * (lines.Count - 1) + padding * 2d;
 
-        var origin = options.EditInformationCorner switch
+        var origin = options.EditInformationCornerEnum switch
         {
             BitmapImageROIResizeJoystickStateEnum.XMinYMax => new Point(bounds.XMin + padding, bounds.YMax - padding - height),
             BitmapImageROIResizeJoystickStateEnum.XMaxYMax => new Point(bounds.XMax - padding - width, bounds.YMax - padding - height),
             BitmapImageROIResizeJoystickStateEnum.XMinYMin => new Point(bounds.XMin + padding, bounds.YMin + padding),
             BitmapImageROIResizeJoystickStateEnum.XMaxYMin => new Point(bounds.XMax - padding - width, bounds.YMin + padding),
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(options.EditInformationCorner))
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(options.EditInformationCornerEnum))
         };
 
         renderer.FillRectangle(BackgroundStyle, new Rect(origin, new Size(width, height)));

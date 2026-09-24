@@ -747,7 +747,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
                 modifiedRect = new Rect(point, new Size(width, height))
                     .ImageCoordinateRound()
-                    .ClampToBounds(imageRect);
+                    .ClampToBounds(imageRect); // 取整和夹取可能会有每边 ±1px
             }
 
             bitmapImageROIDrawable.Rect = modifiedRect;
