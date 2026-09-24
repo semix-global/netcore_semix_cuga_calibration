@@ -172,7 +172,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
 
             Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
 
-            XPushROI.AngleMotorAbsoluteValue = xPushItem.AngleMotorAbsoluteValue;
             XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xPushItem.Step0ROI.ImageROI);
 
             while (true)
@@ -212,6 +211,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
 
             XPushROI.BitmapImageROIDrawable.IsFixed = true;
             XPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XPushROI.BitmapImageROIDrawable.Rect);
+            XPushROI.AngleMotorAbsoluteValue = xPushItem.AngleMotorAbsoluteValue;
             XPushROI.MotorAbsoluteValue = Math.Clamp(
                 xPushItem.Step0MotorAbsoluteValue + (XPushROI.ImageROI.Center - xPushItem.Step0ROI.ImageROI.Center).X * xPushItem.PixelSize,
                 xPushMotorRange.Min,
@@ -222,7 +222,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             {
                 Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
 
-                YRodROI.AngleMotorAbsoluteValue = yRodItem.AngleMotorAbsoluteValue;
                 YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(yRodItem.Step0ROI.ImageROI);
 
                 while (true)
@@ -262,15 +261,18 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
 
                 YRodROI.BitmapImageROIDrawable.IsFixed = true;
                 YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
+                YRodROI.AngleMotorAbsoluteValue = yRodItem.AngleMotorAbsoluteValue;
                 YRodROI.MotorAbsoluteValue = Math.Clamp(
                     yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
                     yMotorRange.Min,
                     yMotorRange.Max);
+                YRodROI.IsSelected = true;
             }
             else
             {
                 YRodROI.BitmapImageROIDrawable.IsVisible = false;
                 YRodROI.ImageROI = Rect.Empty;
+                YRodROI.AngleMotorAbsoluteValue = 0d;
                 YRodROI.MotorAbsoluteValue = 0d;
                 YRodROI.IsSelected = false;
             }
@@ -302,7 +304,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             XPushROI.BitmapImageROIDrawable.IsFixed = _step1XPushBitmapImageROIDrawable.IsFixed = true;
             XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
             _step1XPushBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
-            XPushROI.BitmapImageROIDrawable.IsVisible = _step1XPushBitmapImageROIDrawable.IsVisible = YRodROI.IsSelected;
+            XPushROI.BitmapImageROIDrawable.IsVisible = _step1XPushBitmapImageROIDrawable.IsVisible = XPushROI.IsSelected;
         }
         finally
         {

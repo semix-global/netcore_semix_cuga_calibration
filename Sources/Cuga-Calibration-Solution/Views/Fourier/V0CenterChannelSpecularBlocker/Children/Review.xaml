@@ -126,9 +126,9 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodAngleMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Turn Y(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.MotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Push(mm)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.MotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.AngleMotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Rod Position(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.MotorAbsoluteValue, StringFormat='0.###'}" />
+                            <GridViewColumn Header="X Push Position(mm)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.MotorAbsoluteValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, StringFormat='0.###'}" />

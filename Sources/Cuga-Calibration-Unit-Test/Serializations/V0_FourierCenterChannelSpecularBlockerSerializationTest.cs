@@ -97,7 +97,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         {
             using var scope = new AssertionScope(expected.Path);
 
-            actual.YRodAngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.YRodAngleMotorAbsoluteValue)));
+            actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected[nameof(actual.YRodROI)]!.Value<double>(nameof(actual.YRodROI.AngleMotorAbsoluteValue)));
             actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
             actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
             actual.RawStep0CIBImageFilePath.Should().Be(expected.Value<string>(nameof(actual.RawStep0CIBImageFilePath)));
@@ -116,7 +116,9 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         {
             using var scope = new AssertionScope(expected.Path);
 
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
             actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
+            actual.IsSelected.Should().Be(expected.Value<bool>(nameof(actual.IsSelected)));
             AssertRectMatchesJson(actual.ImageROI, expected[nameof(actual.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
@@ -216,8 +218,11 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             dto.ProductivityInformation = productivityInformations[random.Next(productivityInformations.Count)].Clone();
 
             var channel = dto.Channel3Item;
-            channel.YRodAngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
+            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
+            channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
+            channel.XPushROI.AngleMotorAbsoluteValue = 0d;
+            channel.XPushROI.IsSelected = true;
             channel.XPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
             channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
             channel.XPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
@@ -265,9 +270,12 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
 
         static void AssertItemEquals(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
         {
-            actual.YRodAngleMotorAbsoluteValue.Should().Be(expected.YRodAngleMotorAbsoluteValue);
+            actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected.YRodROI.AngleMotorAbsoluteValue);
+            actual.YRodROI.IsSelected.Should().Be(expected.YRodROI.IsSelected);
             actual.YRodROI.ImageROI.Should().Be(expected.YRodROI.ImageROI);
             actual.YRodROI.MotorAbsoluteValue.Should().Be(expected.YRodROI.MotorAbsoluteValue);
+            actual.XPushROI.AngleMotorAbsoluteValue.Should().Be(expected.XPushROI.AngleMotorAbsoluteValue);
+            actual.XPushROI.IsSelected.Should().Be(expected.XPushROI.IsSelected);
             actual.XPushROI.ImageROI.Should().Be(expected.XPushROI.ImageROI);
             actual.XPushROI.MotorAbsoluteValue.Should().Be(expected.XPushROI.MotorAbsoluteValue);
             actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
@@ -299,7 +307,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
     public void AdaptTo_ShouldUseAngleAndROIMotorPositions(double angle, double yPosition, double pushPosition)
     {
         using var dto = new V0FourierCenterChannelSpecularBlockerDTO();
-        dto.Channel3Item.YRodAngleMotorAbsoluteValue = angle;
+        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = angle;
         dto.Channel3Item.YRodROI.MotorAbsoluteValue = yPosition;
         dto.Channel3Item.XPushROI.MotorAbsoluteValue = pushPosition;
 
