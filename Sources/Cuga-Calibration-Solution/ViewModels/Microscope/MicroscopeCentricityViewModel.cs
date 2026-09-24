@@ -91,7 +91,6 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             Guard.IsAssignableToTypeAndReturn<List<CalibrationItemStep>>(CalibrationSteps).AddRange([
                 new CalibrationItemStep { StepName = "Select a location" },
                 .. ApplicationCookie.MicroscopeLensInformations
-                    .Select(t => t)
                     .OrderByDescending(t => t.ObjectiveMagnification)
                     .ThenByDescending(t => t.LensCode)
                     .Select(info => new CalibrationItemStep { StepName = info.LensName })
@@ -142,7 +141,6 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
         Cache.MicroscopeLensInformation = CalibrationStepIndex switch
         {
             > 1 => ApplicationCookie.MicroscopeLensInformations
-                .Select(t => t)
                 .OrderByDescending(t => t.ObjectiveMagnification)
                 .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex - 2),
@@ -160,7 +158,6 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
         if (CalibrationStepIndex < CalibrationSteps.Count - 1)
         {
             Cache.MicroscopeLensInformation = ApplicationCookie.MicroscopeLensInformations
-                .Select(t => t)
                 .OrderByDescending(t => t.ObjectiveMagnification)
                 .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex);

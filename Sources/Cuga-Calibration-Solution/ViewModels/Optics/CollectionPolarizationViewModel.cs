@@ -30,7 +30,6 @@ using System.Text;
 using Constants = Net.Utilities.Models.Constants;
 using Point = Net.Utilities.Models.Geometries.Point;
 
-
 namespace CugaCalibration.ViewModels.Optics;
 
 [IOCAppService(ServiceType = typeof(CollectionPolarizationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
@@ -293,7 +292,7 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
 
                 foreach (var collectPolarizationGroup in collectPolarizationGroups)
                 {
-                    var dtos = collectPolarizationGroup.Select(t => t).ToList();
+                    var dtos = collectPolarizationGroup.ToList();
 
                     Cache.OpticsCollectorPolarizationMode = collectPolarizationGroup.Key;
                     Cache.OpticsPolarizationModeEnum = dtos[0].OpticsPolarizationModeEnum;
@@ -645,7 +644,6 @@ public sealed partial class CollectionPolarizationViewModel : CalibrationViewMod
         ApplicationCookieService.SetCalibrations(Calibrations, cancellationToken);
         ApplicationCookieService.SetCache(Cache, cancellationToken);
     });
-
 
     public override void UpdateEntryStatus(CalibrationDTOBase[] calibrations, CancellationToken cancellationToken)
     {

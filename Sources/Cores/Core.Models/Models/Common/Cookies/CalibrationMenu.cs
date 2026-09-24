@@ -15,7 +15,6 @@ public sealed partial class CalibrationMenu : ObservableObject
     [ObservableProperty]
     public partial IReadOnlyList<CalibrationMenu> Children { get; set; } = [];
 
-
     public IReadOnlyList<CalibrationMenu> GetAllChildren()
     {
         var result = new List<CalibrationMenu>();

@@ -2,7 +2,6 @@ using Core.Models.Helper;
 using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Optics;
 using Cuga.Interface.Diagnosis;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -46,48 +45,21 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
 
     public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
     {
-        var c2MFFRangeModel = new C2MFFRangeModel();
-
-        return SxExecuteRetHelper.CreateSuccess(c2MFFRangeModel);
-    }
-
-    public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<double> GetFFRACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFPACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
     {
-        return SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos)
     {
-        return SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos)
     {
-        return SxExecuteRetHelper.CreateSuccess(true);
+        throw new NotImplementedException();
     }
 }

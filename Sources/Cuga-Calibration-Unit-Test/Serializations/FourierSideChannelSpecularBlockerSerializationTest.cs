@@ -115,14 +115,14 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
             AssertRodsMatchJson(actual.Rods, expected[nameof(actual.Rods)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
         }
 
-        static void AssertRodsMatchJson(FourierSideChannelSpecularBlockerDTOItem.Rod[] actual, JArray expected)
+        static void AssertRodsMatchJson(FourierSideChannelSpecularBlockerDTO.Rod[] actual, JArray expected)
         {
             actual.Select(t => t.Index).Order().Should().BeEquivalentTo(expected.Select(t => t.Value<int>("Index")).Order(), options => options.WithStrictOrdering(), "{0} rod indexes", expected.Path);
 
             foreach (var token in expected) AssertRodMatchesJson(actual.Single(t => t.Index == token.Value<int>("Index")), token);
         }
 
-        static void AssertRodMatchesJson(FourierSideChannelSpecularBlockerDTOItem.Rod actual, JToken expected)
+        static void AssertRodMatchesJson(FourierSideChannelSpecularBlockerDTO.Rod actual, JToken expected)
         {
             using var scope = new AssertionScope(expected.Path);
 

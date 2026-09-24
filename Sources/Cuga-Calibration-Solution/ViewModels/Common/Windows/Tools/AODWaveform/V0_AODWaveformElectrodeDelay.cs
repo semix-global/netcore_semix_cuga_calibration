@@ -145,7 +145,6 @@ public sealed partial class V0AODWaveformElectrodeDelay<TItem> : ObservableObjec
             [
                 .. frequencyMaxima
                     .Where(t => t.Y > frequencyInterpolationY.Average())
-                    .Select(t => t)
             ];
         }
 

@@ -105,7 +105,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
         _messenger.RegisterAll(this);
     }
 
-
     [RelayCommand]
     private async Task LoadedAsync()
     {
@@ -258,7 +257,6 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
             _contextProvider.Send(() => IsLoading = false);
         }
     }
-
 
     [RelayCommand]
     private void Save()

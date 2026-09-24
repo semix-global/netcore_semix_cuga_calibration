@@ -266,7 +266,12 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
         await cancellationToken.WaitUntilCanceledAsync();
 
-        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec(sxExecuteRetStartTraceBufferExec.Anything));
+        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec([
+            CgAutofocusTraceBufferReg.Z_Sync,
+            CgAutofocusTraceBufferReg.ACS_X,
+            CgAutofocusTraceBufferReg.ECS,
+            CgAutofocusTraceBufferReg.NSC
+        ]));
 
         if (sxExecuteRetStopTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>(sxExecuteRetStopTraceBuffExec.Msg, []);
 

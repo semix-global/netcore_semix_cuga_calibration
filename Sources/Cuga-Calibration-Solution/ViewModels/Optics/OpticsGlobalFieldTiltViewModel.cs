@@ -518,7 +518,6 @@ public sealed partial class OpticsGlobalFieldTiltViewModel : CalibrationViewMode
             var yVector = Vector<double>.Build.DenseOfEnumerable([.. globalFieldTiltDTOItem.BestFocusChannelItems.Select(t => (t.XBestFocusEcs - globalFieldTiltDTOItem.BestFocusChannelItems[0].XBestFocusEcs) * Cache.UmPerEcs)]);
             var (slope, intercept, rSquared, yPredicted) = PolynomialCurve.Fit1(xVector, yVector);
 
-
             var doeReviseAngle = Cache.Item.ProductivityInformation.OpticsIlluminationModeEnum is OpticsIlluminationModeEnum.OI
                 ? Math.Atan(slope / Math.Sin(Cache.Item.ObliqueAngle * Math.PI / 180)) * 180 / Math.PI
                 : slope;

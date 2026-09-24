@@ -93,7 +93,6 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBIlluminationProfileCache>(cancellationToken);

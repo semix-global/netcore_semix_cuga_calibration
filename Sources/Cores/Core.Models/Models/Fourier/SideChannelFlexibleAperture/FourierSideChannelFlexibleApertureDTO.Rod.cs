@@ -5,7 +5,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Core.Models.Models.Fourier.SideChannelFlexibleAperture;
 
-public partial class FourierSideChannelFlexibleApertureDTOItem
+public sealed partial class FourierSideChannelFlexibleApertureDTO
 {
     public partial class Rod(BitmapImageDrawable bitmapImageDrawable) : ObservableObject, IAdaptIn<Rod, Rod>
     {

@@ -24,7 +24,6 @@ public class ImageProcTest
         algoScaleImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\algoScaleImage.jpg");
         halconScaledImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\ScaleImage.jpg");
 
-
         // Both results must share the same dimensions and bit depth.
         var halconSize = halconScaledImage.GetSize();
         algoScaleImage.Width.Should().Be(halconSize.Width);

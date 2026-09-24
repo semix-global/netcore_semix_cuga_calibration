@@ -25,26 +25,6 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(FourierSideChannelFlexibleApertureViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class FourierSideChannelFlexibleApertureViewModel : CalibrationViewModelBase<FourierSideChannelFlexibleApertureCache>
 {
-    #region 仿真器
-
-    private static readonly string[] SimulatorImageFilePaths =
-    [
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Even_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Even_Step1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Even_Step2.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Odd_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Odd_Step1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel1_Odd_Step2.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Even_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Even_Step1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Even_Step2.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Odd_Step0.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Odd_Step1.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\Fourier", nameof(FourierSideChannelFlexibleApertureViewModel), "Channel2_Odd_Step2.jpg")
-    ];
-
-    #endregion 仿真器
-
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -186,19 +166,15 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 return true;
 
             case 1:
-
                 return true;
 
             case 2:
-
                 return true;
 
             case 3:
-
                 return true;
 
             case 4:
-
                 return true;
 
             case 5:
@@ -219,7 +195,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Review.Dispose();
         Calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImages([]);
+        if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImage(null);
 
         return true;
     }
@@ -298,8 +274,6 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 Cache.Step2MotorAbsoluteValue,
                 Cache.HazeFindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
-
-            if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImages(SimulatorImageFilePaths);
 
             return true;
         });
@@ -382,12 +356,12 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             Cache.Step0AndStep1MotorAbsoluteValue,
             Cache.Step2MotorAbsoluteValue,
             Cache.HazeFindBFMachinePosition,
-            fourierPupilCameraAlignmentItem.ImageROI,
+            fourierPupilCameraAlignmentItem.ROI.ImageROI,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
-        Guard.IsTrue(fourierPupilCameraAlignmentItem.ImageROI is { Width: > 0d, Height: > 0d });
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         var itemData = isEven ? item.EvenItem : item.OddItem;
 
@@ -419,15 +393,33 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
-            await itemData.CalibratingAsync(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
+            var isSuccess = false;
+            try
+            {
+                await itemData.CalibratingAsync(Cache.Step0AndStep1MotorAbsoluteValue, Cache.Step2MotorAbsoluteValue, cancellationToken);
 
-            Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                isSuccess = true;
+            }
+            finally
+            {
+                if (isSuccess) Logger.LogHtmlInformation("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             if (isEven == false)
             {
-                item.Calibrating(Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue, cancellationToken);
+                isSuccess = false;
+                try
+                {
+                    item.Calibrating(Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue, cancellationToken);
 
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    isSuccess = true;
+                }
+                finally
+                {
+                    if (isSuccess) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                    else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                }
 
                 if (item.ChannelId == 2)
                 {
@@ -467,6 +459,15 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         void Grab(int stepIndex)
         {
+            if (HostEnvironment.IsDevelopment())
+            {
+                FourierViewModel.UseSimulatorImage(Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    @"Assets\Data\Fourier",
+                    nameof(FourierSideChannelFlexibleApertureViewModel),
+                    $"Channel{item.ChannelId}_{(isEven ? "Even" : "Odd")}_Step{stepIndex}.jpg"));
+            }
+
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
                 Cache.LaserLightInformation,
@@ -476,9 +477,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
-            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ImageROI);
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
 
             switch (stepIndex)

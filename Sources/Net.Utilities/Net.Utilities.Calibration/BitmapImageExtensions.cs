@@ -63,7 +63,6 @@ public static class BitmapImageExtensions
             return temp.ToBitmapImage(@this.ImageInfo.PixelFormatEnum.GetBitsPerPixel());
         }
 
-
         public BitmapImage ToROI(Rect rect)
         {
             using var hImage = @this.ToHImage();

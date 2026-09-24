@@ -289,7 +289,6 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 Cache.WaferRadius
             }), HtmlLogUniqueId.LoggingHtml());
 
-
             // 用BuildDie的方式BuildReticle，防止取到圆外
             var waferMapReticleBuilder = new WaferMapDieBuilder
             {

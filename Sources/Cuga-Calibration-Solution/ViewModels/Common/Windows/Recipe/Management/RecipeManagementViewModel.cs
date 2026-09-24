@@ -92,7 +92,6 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
 
     #endregion
 
-
     [RelayCommand]
     private async Task LoadedAsync()
     {

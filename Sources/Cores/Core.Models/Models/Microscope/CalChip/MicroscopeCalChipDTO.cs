@@ -97,7 +97,6 @@ public sealed partial class MicroscopeCalChipDTO : CalibrationDTOBase<Microscope
         Expiration = Expiration
     };
 
-
     public CalibrationMicroscopeCalChip AdaptTo()
     {
         var dswItemTemp = Results.TryGet(CalChipSiteModelEnum.DswModel, out var dswItem) ? dswItem : null;
