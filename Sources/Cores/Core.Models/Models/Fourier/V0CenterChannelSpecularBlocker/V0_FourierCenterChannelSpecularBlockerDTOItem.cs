@@ -28,17 +28,14 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
 
     [ObservableProperty]
-    public partial double YRodAngleMotorAbsoluteValue { get; set; }
-
-    public V0FourierCenterChannelSpecularBlockerDTO.ROI YRodROI { get; }
-
-    public V0FourierCenterChannelSpecularBlockerDTO.ROI XPushROI { get; }
-
-    [ObservableProperty]
     public partial string Step0FourierImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
+
+    public V0FourierCenterChannelSpecularBlockerDTO.ROI YRodROI { get; }
+
+    public V0FourierCenterChannelSpecularBlockerDTO.ROI XPushROI { get; }
 
     [ObservableProperty]
     public partial string RawStep0CIBImageFilePath { get; set; } = string.Empty;
@@ -110,7 +107,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     {
         var item = new V0FourierCenterChannelSpecularBlockerDTOItem
         {
-            YRodAngleMotorAbsoluteValue = YRodAngleMotorAbsoluteValue,
             Step0FourierImageFilePath = Step0FourierImageFilePath,
             Step1FourierImageFilePath = Step1FourierImageFilePath,
             RawStep0CIBImageFilePath = RawStep0CIBImageFilePath,
@@ -121,6 +117,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             Step1CIBImageAverageValue = Step1CIBImageAverageValue,
             ExtinctionRatio = ExtinctionRatio
         };
+
         item.YRodROI.AdaptIn(YRodROI);
         item.XPushROI.AdaptIn(XPushROI);
 
@@ -169,13 +166,13 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             Document.Reset();
 
             Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
-            if (yRodItem is not null) Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
-            Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
 
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
             Document.View.ZoomToFit();
 
-            if (yRodItem is not null) YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(yRodItem.Step0ROI.ImageROI);
+            Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
+
+            XPushROI.AngleMotorAbsoluteValue = xPushItem.AngleMotorAbsoluteValue;
             XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xPushItem.Step0ROI.ImageROI);
 
             while (true)
@@ -184,8 +181,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
                 {
-                    Title = "Adjust rod height on the Channel3 Fourier image.",
-                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.All,
+                    Title = "Adjust x-push on the Channel3 Fourier image.",
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -193,7 +190,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                 switch (outputResult)
                 {
                     case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                        goto OuterLoop;
+                        goto OuterLoop0;
 
                     case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
@@ -211,16 +208,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                 }
             }
 
-        OuterLoop:
-            if (yRodItem is not null)
-            {
-                YRodROI.BitmapImageROIDrawable.IsFixed = true;
-                YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
-                YRodROI.MotorAbsoluteValue = Math.Clamp(
-                    yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
-                    yMotorRange.Min,
-                    yMotorRange.Max);
-            }
+        OuterLoop0:
 
             XPushROI.BitmapImageROIDrawable.IsFixed = true;
             XPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XPushROI.BitmapImageROIDrawable.Rect);
@@ -228,6 +216,64 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                 xPushItem.Step0MotorAbsoluteValue + (XPushROI.ImageROI.Center - xPushItem.Step0ROI.ImageROI.Center).X * xPushItem.PixelSize,
                 xPushMotorRange.Min,
                 xPushMotorRange.Max);
+            XPushROI.IsSelected = true;
+
+            if (yRodItem is not null)
+            {
+                Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
+
+                YRodROI.AngleMotorAbsoluteValue = yRodItem.AngleMotorAbsoluteValue;
+                YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(yRodItem.Step0ROI.ImageROI);
+
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
+                    {
+                        Title = "Adjust y-rod on the Channel3 Fourier image.",
+                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.Y,
+                        IsDeleteEnabled = false,
+                        CancellationToken = cancellationToken
+                    });
+
+                    switch (outputResult)
+                    {
+                        case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                            goto OuterLoop1;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+
+                            continue;
+
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                            ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+
+                            break;
+
+                        default:
+                            ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                            break;
+                    }
+                }
+
+            OuterLoop1:
+
+                YRodROI.BitmapImageROIDrawable.IsFixed = true;
+                YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
+                YRodROI.MotorAbsoluteValue = Math.Clamp(
+                    yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
+                    yMotorRange.Min,
+                    yMotorRange.Max);
+            }
+            else
+            {
+                YRodROI.BitmapImageROIDrawable.IsVisible = false;
+                YRodROI.ImageROI = Rect.Empty;
+                YRodROI.MotorAbsoluteValue = 0d;
+                YRodROI.IsSelected = false;
+            }
         }
         finally
         {
@@ -251,10 +297,12 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             YRodROI.BitmapImageROIDrawable.IsFixed = _step1YRodBitmapImageROIDrawable.IsFixed = true;
             YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
             _step1YRodBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
+            YRodROI.BitmapImageROIDrawable.IsVisible = _step1YRodBitmapImageROIDrawable.IsVisible = YRodROI.IsSelected;
 
             XPushROI.BitmapImageROIDrawable.IsFixed = _step1XPushBitmapImageROIDrawable.IsFixed = true;
             XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
             _step1XPushBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
+            XPushROI.BitmapImageROIDrawable.IsVisible = _step1XPushBitmapImageROIDrawable.IsVisible = YRodROI.IsSelected;
         }
         finally
         {
@@ -298,7 +346,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
         Comment = new HtmlComment(StepsComment),
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        Rods = new HtmlTable([
+        ROIs = new HtmlTable([
             new { YRodROI.ImageROI, YRodROI.MotorAbsoluteValue },
             new { XPushROI.ImageROI, XPushROI.MotorAbsoluteValue },
         ]),

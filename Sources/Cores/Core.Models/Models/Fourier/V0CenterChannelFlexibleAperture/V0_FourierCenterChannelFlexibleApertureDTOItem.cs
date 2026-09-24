@@ -454,11 +454,13 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
         Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(Step0ROI.ImageROI),
+            .. Step0ROI.BitmapImageROIDrawable.IsShowEllipse ? [new HtmlImageEllipseOverlay(Step0ROI.ImageROI)] : (HtmlImageEllipseOverlay[])[],
             new HtmlImageCrossOverlay(Step0ROI.ImageROI.Center)
         ]),
         Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(Step1ROI.ImageROI),
+            .. Step0ROI.BitmapImageROIDrawable.IsShowEllipse ? [new HtmlImageEllipseOverlay(Step0ROI.ImageROI)] : (HtmlImageEllipseOverlay[])[],
             new HtmlImageCrossOverlay(Step1ROI.ImageROI.Center)
         ]),
         PixelSize

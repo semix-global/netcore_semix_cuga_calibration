@@ -15,8 +15,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [Newtonsoft.Json.JsonProperty(ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace)]
-    public V0FourierCenterChannelSpecularBlockerDTOItem Item { get; private init; } = new();
+    public V0FourierCenterChannelSpecularBlockerDTOItem Channel3Item { get; private init; } = new();
 
     #region Mapper
 
@@ -25,7 +24,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
     public override V0FourierCenterChannelSpecularBlockerDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        Item = Item.Clone(),
+        Channel3Item = Channel3Item.Clone(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -40,9 +39,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
         CgNIOITypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.OpticsIlluminationModeEnum.ToCgNIOITypeEnum() : CgNIOIType.ErrorCgNIOIType,
         CgMagTypeEnum = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Mag.ToCgMagTypeEnum() : CgMagTypeEnum.ErrorCgMagTypeEnum,
         Speed = ProductivityInformation != ProductivityInformation.Default ? ProductivityInformation.AdaptTo().Speed.ToCgSpeedLevelType() : CgSpeedLevelType.ErrorCgSpeedLevelType,
-        Ch3Angle = (float)Item.YRodAngleMotorAbsoluteValue,
-        Ch3TurnY = (float)Item.YRodROI.MotorAbsoluteValue,
-        Ch3Push = (float)Item.XPushROI.MotorAbsoluteValue,
+        Ch3Angle = (float)Channel3Item.YRodROI.AngleMotorAbsoluteValue,
+        Ch3TurnY = (float)Channel3Item.YRodROI.MotorAbsoluteValue,
+        Ch3Push = (float)Channel3Item.XPushROI.MotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -52,6 +51,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
 
     public void Dispose()
     {
-        Item.Dispose();
+        Channel3Item.Dispose();
     }
 }

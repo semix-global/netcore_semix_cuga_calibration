@@ -10,18 +10,21 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
     public sealed partial class ROI(BitmapImageDrawable bitmapImageDrawable) : FourierPupilCameraAlignmentDTO.ROI(bitmapImageDrawable), IAdaptIn<ROI, ROI>
     {
         [ObservableProperty]
+        public partial double AngleMotorAbsoluteValue { get; set; }
+
+        [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }
 
-        [Newtonsoft.Json.JsonConstructor]
-        private ROI() : this(new BitmapImageDrawable())
-        {
-        }
+        [ObservableProperty]
+        public partial bool IsSelected { get; set; }
 
         public ROI AdaptIn(ROI obj)
         {
             base.AdaptIn(obj);
 
             MotorAbsoluteValue = obj.MotorAbsoluteValue;
+            AngleMotorAbsoluteValue = obj.AngleMotorAbsoluteValue;
+            IsSelected = obj.IsSelected;
 
             return this;
         }
@@ -31,6 +34,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
             base.Reset();
 
             MotorAbsoluteValue = 0d;
+            AngleMotorAbsoluteValue = 0d;
+            IsSelected = false;
         }
     }
 }

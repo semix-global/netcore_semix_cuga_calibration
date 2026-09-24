@@ -90,7 +90,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
             actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
 
-            AssertItemMatchesJson(actual.Item, expected[nameof(actual.Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.Channel3Item, expected[nameof(actual.Channel3Item)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertItemMatchesJson(V0FourierCenterChannelSpecularBlockerDTOItem actual, JToken expected)
@@ -171,13 +171,13 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.HasErrors.Should().BeFalse();
 
         AssertEquals(actual, expected, useCacheSettings);
-        AssertIndependentItem(actual.Item, expected.Item);
+        AssertIndependentItem(actual.Channel3Item, expected.Channel3Item);
 
         using var cloned = expected.Clone();
         cloned.Should().NotBeNull();
         cloned.Should().NotBeSameAs(expected);
         cloned.HasErrors.Should().BeFalse();
-        AssertIndependentItem(cloned.Item, expected.Item);
+        AssertIndependentItem(cloned.Channel3Item, expected.Channel3Item);
         AssertEquals(cloned, expected, useCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
@@ -215,7 +215,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
 
             dto.ProductivityInformation = productivityInformations[random.Next(productivityInformations.Count)].Clone();
 
-            var channel = dto.Item;
+            var channel = dto.Channel3Item;
             channel.YRodAngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
             channel.XPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
@@ -260,7 +260,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.ModifiedUserName.Should().Be(persistAudit ? expected.ModifiedUserName : string.Empty);
             actual.ModifiedTime.Should().Be(persistAudit ? expected.ModifiedTime : default);
 
-            AssertItemEquals(actual.Item, expected.Item);
+            AssertItemEquals(actual.Channel3Item, expected.Channel3Item);
         }
 
         static void AssertItemEquals(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
@@ -299,9 +299,9 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
     public void AdaptTo_ShouldUseAngleAndROIMotorPositions(double angle, double yPosition, double pushPosition)
     {
         using var dto = new V0FourierCenterChannelSpecularBlockerDTO();
-        dto.Item.YRodAngleMotorAbsoluteValue = angle;
-        dto.Item.YRodROI.MotorAbsoluteValue = yPosition;
-        dto.Item.XPushROI.MotorAbsoluteValue = pushPosition;
+        dto.Channel3Item.YRodAngleMotorAbsoluteValue = angle;
+        dto.Channel3Item.YRodROI.MotorAbsoluteValue = yPosition;
+        dto.Channel3Item.XPushROI.MotorAbsoluteValue = pushPosition;
 
         var actual = dto.AdaptTo();
 

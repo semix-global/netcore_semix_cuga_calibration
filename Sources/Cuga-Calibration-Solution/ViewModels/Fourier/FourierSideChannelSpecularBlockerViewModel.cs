@@ -111,8 +111,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-        foreach (var review in Reviews) review.Dispose();
-
         Reviews =
         [
             .. Calibrations
@@ -316,6 +314,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         if (SelectedReviewItems.Count == 0)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
             return;
         }
 
