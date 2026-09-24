@@ -123,7 +123,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         AODDelays = ApplicationCookieService.GetCalibrations<AODDelayDTO>(cancellationToken);
         MicroscopeCalChipCache = ApplicationCookieService.GetCache<MicroscopeCalChipCache>(cancellationToken);
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
@@ -611,7 +610,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         }).ConfigureAwait(false);
     }
 
-
     private void ClearCalibrationTemp()
     {
         CalibratingItem = new AODBestFocusAndAstigmatismDTO
@@ -621,7 +619,6 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
         };
         SynchronizationContextProvider.Send(CalibratingItem.Items.Clear);
     }
-
 
     private bool Save(IReadOnlyList<AODBestFocusAndAstigmatismDTO> dtos, CancellationToken cancellationToken) =>
         InvokeSave(update =>

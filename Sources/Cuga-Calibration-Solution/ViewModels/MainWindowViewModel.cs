@@ -130,7 +130,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 #pragma warning restore IDE0079
     }
 
-
     [RelayCommand]
     private async Task ShowLogAsync()
     {

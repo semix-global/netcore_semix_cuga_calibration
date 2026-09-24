@@ -103,6 +103,5 @@ public sealed class PermissionGenerator : IIncrementalGenerator
                  """;
     }
 
-
     private sealed record ClassInfo(string Namespace, string ClassName);
 }

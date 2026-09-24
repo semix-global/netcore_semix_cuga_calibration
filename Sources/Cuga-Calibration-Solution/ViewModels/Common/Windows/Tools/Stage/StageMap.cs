@@ -185,7 +185,6 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
         using var pyTargetMask = ToPythonBooleanMatrix(targetMask);
         using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
 
-
         return ToVectorMatrix(result, yLength, xLength);
     }
 

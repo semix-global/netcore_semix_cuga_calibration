@@ -224,7 +224,6 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
 
     #endregion
 
-
     private void Initialize()
     {
         _cancellationTokenSource?.Cancel();
@@ -279,7 +278,6 @@ public sealed partial class RecipeWaferSettingUserControlViewModel : ViewModelBa
             }
         }, token);
     }
-
 
     #region Command
 

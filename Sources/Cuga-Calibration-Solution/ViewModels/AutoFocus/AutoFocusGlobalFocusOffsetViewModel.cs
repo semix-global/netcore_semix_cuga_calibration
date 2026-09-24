@@ -79,7 +79,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetViewModel : CalibrationVie
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<AutoFocusGlobalFocusOffsetCache>(cancellationToken);

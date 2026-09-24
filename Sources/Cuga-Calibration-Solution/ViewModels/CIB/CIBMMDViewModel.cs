@@ -251,7 +251,6 @@ public sealed partial class CIBMMDViewModel : CalibrationViewModelBase<CIBMMDCac
         }, cancellationToken);
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step0Async(CancellationToken cancellationToken)
     {

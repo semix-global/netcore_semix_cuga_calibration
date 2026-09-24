@@ -180,7 +180,6 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
         });
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step1Async(CancellationToken cancellationToken)
     {
@@ -403,7 +402,6 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             return result;
         }).ConfigureAwait(false);
     }
-
 
     private void GetQuality(MicroscopeFocusDTOItem microscopeFocusDTOItem)
     {

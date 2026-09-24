@@ -49,7 +49,6 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-
     public SxExecuteRet<bool> SetXSpeedValue(double speedValue)
     {
         var speedVel = speedValue * 1000;

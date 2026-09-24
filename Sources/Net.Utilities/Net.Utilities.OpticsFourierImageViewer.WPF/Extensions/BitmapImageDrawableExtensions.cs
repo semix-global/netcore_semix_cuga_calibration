@@ -1,8 +1,8 @@
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 

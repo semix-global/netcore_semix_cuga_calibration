@@ -95,7 +95,6 @@ public sealed partial class CIBLightMatchingViewModel : CalibrationViewModelBase
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBLightMatchingCache>(cancellationToken);

@@ -1,4 +1,4 @@
-﻿#if NET48
+#if NET48
 
 // ReSharper disable once CheckNamespace
 namespace System;
