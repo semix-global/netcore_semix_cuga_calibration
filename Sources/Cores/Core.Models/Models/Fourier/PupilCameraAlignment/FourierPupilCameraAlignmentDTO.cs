@@ -5,7 +5,7 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
-[CacheVersion("2.0.0")]
+[CacheVersion("2.0.1")]
 public sealed partial class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
     public FourierPupilCameraAlignmentDTOItem Channel1Item { get; private init; } = new(1);
