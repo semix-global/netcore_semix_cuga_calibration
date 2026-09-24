@@ -19,7 +19,7 @@ namespace Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
 
 public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : ObservableObject, ICloneable<V0FourierCenterChannelFlexibleApertureDTOItem>, IDisposable
 {
-    private const string StepsComment = "Step0: fit the ROI. Step1: move the locked ROI. PixelSize = motor displacement / ROI center displacement (mm/px); ± contain directions.";
+    private const string StepsComment = "Step0: fit the ROI. Step1: move the locked ROI. PixelSize = motor displacement / ROI center displacement (mm/px); The sign of PixelSize indicates direction.";
 
     private readonly BitmapImageDrawable _step0BitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1BitmapImageDrawable = new();

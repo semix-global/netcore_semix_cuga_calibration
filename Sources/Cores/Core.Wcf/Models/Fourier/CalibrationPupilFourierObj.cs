@@ -142,117 +142,117 @@ public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationB
 
     /// <summary>
     /// X方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
 
     /// <summary>
     /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// X方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// X方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
 
     /// <summary>
     /// X方向通光孔，记录下来每一个角度值,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
     /// X方向通光孔，记录下来每1像素宽度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRelationCh3 { get; set; }
 
     /// <summary>
     /// X方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnXLightHoleCirclePositionCh3 { get; set; }
 
     /// <summary>
     /// X方向通光孔，算出来的圆形圆心坐标值,**需要记录**
-    /// </summary> 
+    /// </summary>
     public CgPoint CgFFBoxTurnXLightHoleCircleCenterCh3 { get; set; }
 
     /// <summary>
     /// X方向通光孔，算出来的圆形半径,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
     /// Y方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
 
     /// <summary>
     /// Y方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
 
     /// <summary>
     /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// Y方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
-    /// </summary> 
+    /// </summary>
     public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
 
     /// <summary>
     /// Y方向通光孔，记录下来每一个角度值,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnYLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
     /// Y方向通光孔，记录下来每1像素高度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnYLightHoleCircleRelationCh3 { get; set; }
 
     /// <summary>
     /// Y方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnYLightHoleCirclePositionCh3 { get; set; }
 
     /// <summary>
     /// Y方向通光孔，算出来的圆形圆心坐标值,**需要记录**
-    /// </summary> 
+    /// </summary>
     public CgPoint CgFFBoxTurnYLightHoleCircleCenterCh3 { get; set; }
 
     /// <summary>
     /// Y方向通光孔，算出来的圆形半径,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxTurnYLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
     /// X方向单独的推杆像素宽度,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxPushXWidthCh3 { get; set; }
 
     /// <summary>
     /// X方向单独的推杆每1像素宽度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxPushXMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// X方向单独的推杆起始位置,**需要记录**
-    /// </summary> 
+    /// </summary>
     public double CgFFBoxPushXMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// X方向单独的推杆起始矩形区域坐标,**需要记录**
-    /// </summary> 
+    /// </summary>
     public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
 }
 
