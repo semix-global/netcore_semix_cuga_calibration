@@ -84,7 +84,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCalibrationViewModel : Cal
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<ChuckAlignmentDegreeOffsetCache>(cancellationToken);

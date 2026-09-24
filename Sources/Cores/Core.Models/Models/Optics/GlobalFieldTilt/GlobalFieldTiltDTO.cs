@@ -57,7 +57,6 @@ public sealed partial class GlobalFieldTiltDTO : CalibrationDTOBase<GlobalFieldT
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-
     public GlobalFieldTiltDTO()
     {
         PlotDataSource.Configure(new Columns());

@@ -156,7 +156,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                 var htmlBullet = new HtmlBullet(new
                 {
                     Cache.Noise,
-                    Step1Items = new HtmlTable(
+                    Step0Items = new HtmlTable(
                     [
                         .. Cache.Step0.Items
                             .Index()
@@ -175,8 +175,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
-                    Step1Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
-                    Step1StabilityPlot = new HtmlContainer([.. Cache.Step0.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+                    Step0Plot = new HtmlContainer([.. Cache.Step0.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                    Step0StabilityPlot = new HtmlContainer([.. Cache.Step0.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (isSuccess)
@@ -476,7 +476,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                             };
                         })
                     ]),
-                    Step2Items = new HtmlTable(
+                    Step1Items = new HtmlTable(
                     [
                         .. Cache.Step1.Items
                             .Index()
@@ -495,8 +495,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                                 FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
                             })
                     ]),
-                    Step2Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
-                    Step2StabilityPlot = new HtmlContainer([.. Cache.Step1.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+                    Step1Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                    Step1StabilityPlot = new HtmlContainer([.. Cache.Step1.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
                 });
 
                 if (isSuccess)

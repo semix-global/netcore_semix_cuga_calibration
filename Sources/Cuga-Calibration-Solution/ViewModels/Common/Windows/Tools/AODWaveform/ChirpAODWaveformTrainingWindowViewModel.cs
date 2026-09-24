@@ -296,7 +296,6 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
         }, isSilent).ConfigureAwait(false);
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {

@@ -150,9 +150,15 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type sideChannelSpecularBlocker:FourierSideChannelSpecularBlockerDTO}">
                                 <TabControl Margin="5">
+                                    <i:Interaction.Behaviors>
+                                        <behaviors:SelectorAutoSelectFirstBehavior />
+                                    </i:Interaction.Behaviors>
                                     <TabItem Header="Channel 1">
                                         <Border Margin="5" Style="{StaticResource BorderRegion}">
                                             <TabControl>
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:SelectorAutoSelectFirstBehavior />
+                                                </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.Document, Mode=OneWay}" />
@@ -169,6 +175,9 @@
                                     <TabItem Header="Channel 2">
                                         <Border Margin="5" Style="{StaticResource BorderRegion}">
                                             <TabControl>
+                                                <i:Interaction.Behaviors>
+                                                    <behaviors:SelectorAutoSelectFirstBehavior />
+                                                </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.Document, Mode=OneWay}" />

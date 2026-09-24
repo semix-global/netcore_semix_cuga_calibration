@@ -83,7 +83,6 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         LaserOpticalPowerMeters = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<LaserAttenuatorCache>(cancellationToken);
@@ -297,7 +296,6 @@ public sealed partial class LaserAttenuatorViewModel : CalibrationViewModelBase<
             return result;
         }).ConfigureAwait(false);
     }
-
 
     private async Task GetAttenuatorPointsAsync(LaserAttenuatorDTO laserAttenuatorDTO, CancellationToken cancellationToken)
     {

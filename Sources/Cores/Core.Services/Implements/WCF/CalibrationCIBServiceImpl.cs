@@ -335,7 +335,6 @@ public sealed class CalibrationCIBServiceImpl(
             if (m2CImgSysCollectImgDTOs.Length != 1) return SxExecuteRetHelper.CreateError($"Failed to missing or repeat for PMT Id:{cibInformation.PMTId} Channel Id:{cibInformation.ChannelId} Position:{index}", false);
             var m2CImgSysCollectImgDTO = m2CImgSysCollectImgDTOs[0];
 
-
             result[index] = new DarkFieldImageDTO().AdaptIn(m2CImgSysCollectImgDTO, cibInformation, isForward, getCIBProfileModeEnumRet.Anything[0], isKeepRawImageCIBProfileModeEnum);
 
             Guard.IsTrue(result[index].Size.Height == productivityInformation.YPixels);

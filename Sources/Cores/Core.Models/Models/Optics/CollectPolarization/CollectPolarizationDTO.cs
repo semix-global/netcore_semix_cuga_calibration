@@ -13,7 +13,6 @@ using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using System.ComponentModel;
 
-
 namespace Core.Models.Models.Optics.CollectPolarization;
 
 [CacheVersion("1.0.1")]
@@ -52,7 +51,6 @@ public sealed partial class CollectPolarizationDTO : CalibrationDTOBase<CollectP
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
-
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
@@ -179,7 +177,6 @@ public sealed partial class CollectPolarizationDTOItem : ObservableObject, IClon
 
     [ObservableProperty]
     public partial string ImageFilePath { get; set; } = string.Empty;
-
 
     public CollectPolarizationDTOItem Clone() => new()
     {

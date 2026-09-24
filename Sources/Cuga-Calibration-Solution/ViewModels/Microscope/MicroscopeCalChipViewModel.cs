@@ -126,7 +126,6 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.LeftTopMachinePosition);
         AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
-
         return true;
     }
 

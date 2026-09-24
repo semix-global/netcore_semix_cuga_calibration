@@ -89,7 +89,6 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<OpticsSCCache>(cancellationToken);

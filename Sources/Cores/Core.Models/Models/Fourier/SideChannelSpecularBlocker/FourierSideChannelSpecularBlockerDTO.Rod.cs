@@ -5,9 +5,9 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
-public partial class FourierSideChannelSpecularBlockerDTOItem
+public sealed partial class FourierSideChannelSpecularBlockerDTO
 {
-    public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : FourierSideChannelFlexibleApertureDTOItem.Rod(bitmapImageDrawable), IAdaptIn<Rod, Rod>
+    public sealed partial class Rod(BitmapImageDrawable bitmapImageDrawable) : FourierSideChannelFlexibleApertureDTO.Rod(bitmapImageDrawable), IAdaptIn<Rod, Rod>
     {
         [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }

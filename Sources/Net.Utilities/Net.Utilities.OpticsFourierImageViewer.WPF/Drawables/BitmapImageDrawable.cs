@@ -17,9 +17,15 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable, IDisposable
     private static readonly LineStyle CursorPointBlackStyle = new(SKColors.Black, ScreenRingGap);
     private static readonly LineStyle CursorPointWhiteStyle = new(SKColors.White, ScreenRingGap);
 
+    /// <summary>
+    /// 笛卡尔坐标系: 图片左下角原点在世界坐标系中的位置. 绘制图像以及图片坐标与笛卡尔坐标的转换均以该点为基准.
+    /// </summary>
     [ObservableProperty]
     public partial Point Point { get; set; } = Point.Origin;
 
+    /// <summary>
+    /// 当前绘制的图片. 赋值时会释放并替换旧图像.
+    /// </summary>
     public BitmapImage? BitmapImage
     {
         get;
@@ -32,9 +38,15 @@ public sealed partial class BitmapImageDrawable : AbstractDrawable, IDisposable
         }
     }
 
+    /// <summary>
+    /// 是否在图片中心绘制十字线.
+    /// </summary>
     [ObservableProperty]
     public partial bool IsShowCrossLine { get; set; }
 
+    /// <summary>
+    /// 图片坐标系: 当前光标所在像素点. 为空表示光标不在图像范围内.
+    /// </summary>
     [ObservableProperty]
     public partial Point? CursorPoint { get; set; }
 

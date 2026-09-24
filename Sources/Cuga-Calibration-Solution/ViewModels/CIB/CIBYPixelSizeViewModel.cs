@@ -450,7 +450,6 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                 DialogButtonsEnum.OK,
                 result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-
             var verifyItems = Calibrations.Where(t => t.ProductivityInformation == Cache.ProductivityInformation && t.IsOk).ToList();
             if (verifyItems.Count >= 3)
                 Logger.LogHtmlInformation("Details", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new

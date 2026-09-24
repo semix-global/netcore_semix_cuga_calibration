@@ -35,7 +35,6 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<Mic
     [ObservableProperty]
     public partial double ConcentricThreshold { get; set; }
 
-
     public override MicroscopeCentricityCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),

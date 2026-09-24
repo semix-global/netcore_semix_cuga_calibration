@@ -56,7 +56,6 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => OnPropertyChanged(nameof(UniformityConfigurations));
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task ImportUniformityConfigurationAsync(CancellationToken cancellationToken)
     {
@@ -135,7 +134,6 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
 
         UniformityConfigurations = [.. configurationList];
     }
-
 
     public GenerateAODWaveformElectrodeConfiguration WithAmplitude(double amplitude)
     {
