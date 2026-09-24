@@ -27,6 +27,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     private readonly BitmapImageDrawable _step0CIBBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
 
+    [ObservableProperty]
+    public partial double YRodAngleMotorAbsoluteValue { get; set; }
+
     public V0FourierCenterChannelSpecularBlockerDTO.ROI YRodROI { get; }
 
     public V0FourierCenterChannelSpecularBlockerDTO.ROI XPushROI { get; }
@@ -107,6 +110,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     {
         var item = new V0FourierCenterChannelSpecularBlockerDTOItem
         {
+            YRodAngleMotorAbsoluteValue = YRodAngleMotorAbsoluteValue,
             Step0FourierImageFilePath = Step0FourierImageFilePath,
             Step1FourierImageFilePath = Step1FourierImageFilePath,
             RawStep0CIBImageFilePath = RawStep0CIBImageFilePath,
@@ -165,7 +169,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             Document.Reset();
 
             Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
-            if (yRodItem is not null) Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
+            if (yRodItem is not null) Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
             Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
 
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);

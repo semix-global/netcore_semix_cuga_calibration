@@ -12,6 +12,11 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
         [ObservableProperty]
         public partial double MotorAbsoluteValue { get; set; }
 
+        [Newtonsoft.Json.JsonConstructor]
+        private ROI() : this(new BitmapImageDrawable())
+        {
+        }
+
         public ROI AdaptIn(ROI obj)
         {
             base.AdaptIn(obj);

@@ -32,6 +32,8 @@ namespace CugaCalibration.ViewModels.Fourier;
 [IOCAppService(ServiceType = typeof(V0FourierCenterChannelSpecularBlockerViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : CalibrationViewModelBase<V0FourierCenterChannelSpecularBlockerCache>
 {
+    private const int ChannelId = 3;
+
     #region 属性
 
     public override string CalibrateDirectoryName => Cache.ProductivityInformation.ToString();
@@ -411,7 +413,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         try
         {
-            FourierViewModel.Home(item.ChannelId);
+            FourierViewModel.Home(ChannelId);
 
             Grab(0);
 
@@ -460,7 +462,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"Assets\Data\Fourier",
                     nameof(V0FourierCenterChannelSpecularBlockerViewModel),
-                    $"Channel{item.ChannelId}_Step{stepIndex}.jpg"));
+                    $"Channel{ChannelId}_Step{stepIndex}.jpg"));
             }
 
             using var bitmapImage = FourierViewModel.GetImage(
@@ -468,8 +470,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 Cache.Item.LaserLightInformation,
                 shinyBFPosition,
                 Cache.Item.ScanLength,
-                item.ChannelId);
-            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                ChannelId);
+            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
             var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
@@ -503,8 +505,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
         V0FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Item];
         CIBInformation[] cibInformations =
         [
-            .. items.Select(item => ApplicationCookie.CIBInformations.Single(t =>
-                t.PMTId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && t.ChannelId == item.ChannelId))
+            ApplicationCookie.CIBInformations.Single(t =>
+                t.PMTId == CalibrationSetting.SettingCommonParam.MainCIBInformation.PMTId && t.ChannelId == ChannelId)
         ];
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
@@ -541,7 +543,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             {
                 item.ResetCIB();
 
-                FourierViewModel.Home(item.ChannelId);
+                FourierViewModel.Home(ChannelId);
             }
 
             await GrabAsync(0);
@@ -556,7 +558,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
                 item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
 
-                Logger.LogHtmlInformation($"Channel{item.ChannelId} Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation($"Channel{ChannelId} Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
             return;
@@ -569,11 +571,11 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 {
                     CIBViewModel.UseSimulatorImages(
                     [
-                        .. items.Select(item => Path.Combine(
+                        Path.Combine(
                             AppDomain.CurrentDomain.BaseDirectory,
                             @"Assets\Data\Fourier",
                             nameof(V0FourierCenterChannelSpecularBlockerViewModel),
-                            $"Channel{item.ChannelId}_Verify_Step{stepIndex}_CIB.raw"))
+                            $"Channel{ChannelId}_Verify_Step{stepIndex}_CIB.raw")
                     ]);
                 }
 
@@ -596,9 +598,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == item.ChannelId);
+                    using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == ChannelId);
 
-                    var cibImageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                    var cibImageFilePath = Path.Combine(detectImageDirectory, $"Channel{ChannelId}", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                     DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
                     darkFieldImage.Image.SaveImage(cibImageFilePath);
 
@@ -637,15 +639,15 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
     private void Move(V0FourierCenterChannelSpecularBlockerDTOItem item)
     {
-        FourierViewModel.Home(3);
+        FourierViewModel.Home(ChannelId);
 
         if (item.YRodAngleMotorAbsoluteValue != 0d)
         {
             FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.YRodAngleMotorAbsoluteValue);
-            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodMotorAbsoluteValue);
+            FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodROI.MotorAbsoluteValue);
         }
 
-        FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.PushMotorAbsoluteValue);
+        FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.XPushROI.MotorAbsoluteValue);
     }
 
     private bool Save(IReadOnlyList<V0FourierCenterChannelSpecularBlockerDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
