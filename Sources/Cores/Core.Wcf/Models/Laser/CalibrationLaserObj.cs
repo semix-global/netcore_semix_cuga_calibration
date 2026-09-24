@@ -113,7 +113,6 @@ public sealed class CalibrationLaserObj
     /// </summary>
     public CalibrationCollectionPolarizationItem[] CalibrationCollectionPolarizations { get; set; } = [];
 
-
     /// <summary>
     /// Optics ROOS 校准对象列表
     /// </summary>
@@ -206,7 +205,6 @@ public sealed class CalibrationLaserOpticalPower : CalibrationBase
     public CgMagTypeEnum CgMagTypeEnum { get; set; }
 
     public string CgMagType => CgMagTypeEnum.ToString();
-
 
     /// <summary>
     /// 测试的功率系数

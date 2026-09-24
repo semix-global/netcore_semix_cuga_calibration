@@ -157,7 +157,6 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     {
     }
 
-
     [RelayCommand]
     private void ChangeDirectoryPath()
     {

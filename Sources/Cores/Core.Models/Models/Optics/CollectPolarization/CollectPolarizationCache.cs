@@ -3,7 +3,6 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Models.Geometries;
 
-
 namespace Core.Models.Models.Optics.CollectPolarization;
 
 public sealed partial class CollectPolarizationCache : CalibrationCacheBase<CollectPolarizationCache>

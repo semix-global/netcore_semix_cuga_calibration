@@ -23,6 +23,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     TaskCompletionSource<OutputResult<Unit>> completion) : GetterEditor<ModifyBitmapImageROIDrawableInputOptions, Unit>(edit, options, completion)
 {
     private ImmutableDictionary<BitmapImageROIDrawable, ROIState> _originalDictionary = [];
+    private BitmapImageROIEditInformationDrawable? _editInformationDrawable;
+
     private ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState)> _edits = [];
     private ImmutableStack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)>> _undoStack = [];
     private ImmutableStack<ImmutableArray<(BitmapImageROIDrawable BitmapImageROIDrawable, ROIState OriginalState, ROIState ModifiedState)>> _redoStack = [];
@@ -46,8 +48,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         using var scope = Edit.Document.View.Sync.EnterScope();
 
         base.Init(args);
-
-        _lastCursorTypeEnum = null;
 
         Reset();
 
@@ -73,6 +73,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
 
         _originalDictionary = builder.ToImmutable();
+
+        _editInformationDrawable = new BitmapImageROIEditInformationDrawable(Options);
+        Edit.Document.Transients.Add(_editInformationDrawable);
 
         args.IsInputValid = true;
         args.IsContinueAsync = true;
@@ -215,6 +218,19 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.A && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
+        {
+            CommitToHistory();
+            ResetInteractionState();
+
+            SelectAllROIs();
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Z && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
             CommitToHistory();
@@ -232,6 +248,31 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         if (eventInputArgs.Event.KeyEnum == KeyEnum.Delete && Options.IsDeleteEnabled)
         {
             DeleteSelectedROIs();
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
+        if (eventInputArgs.Event.KeyEnum is KeyEnum.Up or KeyEnum.Down or KeyEnum.Left or KeyEnum.Right)
+        {
+            ModifySelectedROIs(eventInputArgs.Event.KeyEnum, eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Alt), eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Shift), eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
+
+            eventInputArgs.IsInputValid = true;
+            eventInputArgs.IsInputCompleted = false;
+
+            return;
+        }
+
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.Tab)
+        {
+            // Tab 切换显示 / 隐藏 ROI 编辑说明信息
+            if (_editInformationDrawable is not null)
+            {
+                if (Edit.Document.Transients.Contains(_editInformationDrawable)) Edit.Document.Transients.Remove(_editInformationDrawable);
+                else Edit.Document.Transients.Add(_editInformationDrawable);
+            }
 
             eventInputArgs.IsInputValid = true;
             eventInputArgs.IsInputCompleted = false;
@@ -260,12 +301,17 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     {
         using var scope = Edit.Document.View.Sync.EnterScope();
 
-        if (_isAccepted == false)
+        try
         {
-            foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
+            if (_isAccepted == false)
+            {
+                foreach (var (rectROIDrawable, originalState) in _originalDictionary) ApplyROIState(rectROIDrawable, originalState);
+            }
         }
-
-        Reset();
+        finally
+        {
+            Reset();
+        }
     }
 
     #endregion
@@ -274,6 +320,12 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void Reset()
     {
+        if (_editInformationDrawable is not null)
+        {
+            Edit.Document.Transients.Remove(_editInformationDrawable);
+            _editInformationDrawable = null;
+        }
+
         ClearSelection();
         _originalDictionary = [];
         _undoStack = [];
@@ -399,6 +451,19 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
     }
 
+    private void SelectAllROIs()
+    {
+        var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+
+        ClearSelection();
+
+        foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
+                     .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
+        {
+            Select(bitmapImageROIDrawable);
+        }
+    }
+
     private void ToggleSelection(BitmapImageROIDrawable bitmapImageROIDrawable)
     {
         if (bitmapImageROIDrawable.IsFixed) return;
@@ -468,7 +533,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     private void DeleteSelectedROIs()
     {
-        // 先提交当前拖拽, 使位置修改和批量隐藏分别作为一次历史操作.
+        // 先提交当前拖拽, 使位置修改和批量删除分别作为一次历史操作.
         CommitToHistory();
         ResetInteractionState();
 
@@ -477,6 +542,50 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             _edits = GetEdits(); // CursorDownInput 中的赋值只在开始拖拽或缩放时执行, 而且鼠标松开后, ResetInteractionState() 会清空 _edits.
 
             foreach (var (bitmapImageROIDrawable, originalState) in _edits) ApplyROIState(bitmapImageROIDrawable, originalState with { IsVisible = false });
+        }
+        finally
+        {
+            CommitToHistory();
+            ResetInteractionState();
+        }
+    }
+
+    private void ModifySelectedROIs(KeyEnum keyEnum, bool isMove, bool isMax, bool isLargeStepDistance)
+    {
+        CommitToHistory();
+        ResetInteractionState();
+
+        try
+        {
+            _edits = GetEdits();
+
+            var step = isMove ? Options.KeyboardMoveStep : Options.KeyboardResizeStep;
+            step = isLargeStepDistance ? step * 10d : step;
+
+            var (joystickStateEnum, delta) = (keyEnum, isMax) switch
+            {
+                (KeyEnum.Up, false) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, step)),
+                (KeyEnum.Down, false) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMin, new Vector(0d, -step)),
+
+                (KeyEnum.Up, true) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, step)),
+                (KeyEnum.Down, true) => (BitmapImageROIResizeJoystickStateEnum.XCenterYMax, new Vector(0d, -step)),
+
+                (KeyEnum.Left, false) => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(-step, 0d)),
+                (KeyEnum.Right, false) => (BitmapImageROIResizeJoystickStateEnum.XMinYCenter, new Vector(step, 0d)),
+
+                (KeyEnum.Left, true) => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(-step, 0d)),
+                (KeyEnum.Right, true) => (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, new Vector(step, 0d)),
+                _ => ThrowHelper.ThrowArgumentException<(BitmapImageROIResizeJoystickStateEnum JoystickStateEnum, Vector Delta)>(nameof(keyEnum))
+            };
+
+            if (isMove) _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Move;
+            else
+            {
+                _resizeJoystickStateEnum = joystickStateEnum;
+                _roiOperationModeEnum = BitmapImageROIDrawableROIOperationModeEnum.Resize;
+            }
+
+            ApplyModification(delta);
         }
         finally
         {
@@ -532,7 +641,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
-            bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta).ClampToBounds(imageRect);
+            bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta)
+                .ImageCoordinateRound()
+                .ClampToBounds(imageRect);
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
@@ -540,42 +651,106 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
     private void ApplyResize(Vector delta)
     {
         var imageRect = Options.GetImageRect();
+        var allowedXJoysticks = _resizeJoystickStateEnum switch
+        {
+            BitmapImageROIResizeJoystickStateEnum.XMinYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMinYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMin => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMax => BitmapImageROIResizeJoystickStateEnum.XMaxYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+            BitmapImageROIResizeJoystickStateEnum.XMinYCenter => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMinYMax,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+            _ => BitmapImageROIResizeJoystickStateEnum.None
+        };
+        var allowedYJoysticks = _resizeJoystickStateEnum switch
+        {
+            BitmapImageROIResizeJoystickStateEnum.XMinYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMin => BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin,
+            BitmapImageROIResizeJoystickStateEnum.XMinYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
+            BitmapImageROIResizeJoystickStateEnum.XMaxYMax => BitmapImageROIResizeJoystickStateEnum.XMaxYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMin => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMin,
+            BitmapImageROIResizeJoystickStateEnum.XCenterYMax => BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XCenterYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+            _ => BitmapImageROIResizeJoystickStateEnum.None
+        };
 
-        // 多选缩放使用相同锚点和拖动向量, 但每个 ROI 独立限制在图片内
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
+            var isCanResizeX = (bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedXJoysticks) != BitmapImageROIResizeJoystickStateEnum.None;
+            var isCanResizeY = (bitmapImageROIDrawable.ResizeJoystickStateEnum & allowedYJoysticks) != BitmapImageROIResizeJoystickStateEnum.None;
+
+            if (isCanResizeX == false && isCanResizeY == false) continue;
+
             var originalRect = originalState.Rect;
+            var constrainedDelta = new Vector(isCanResizeX ? delta.X : 0d, isCanResizeY ? delta.Y : 0d);
+
+            // 先限制移动边不能越过对侧边, 避免 Extents 交换边界后改变固定边. 允许收缩到零尺寸.
+            var xMin = Math.Min(originalRect.XMin + constrainedDelta.X, originalRect.XMax);
+            var xMax = Math.Max(originalRect.XMax + constrainedDelta.X, originalRect.XMin);
+            var yMin = Math.Min(originalRect.YMin + constrainedDelta.Y, originalRect.YMax);
+            var yMax = Math.Max(originalRect.YMax + constrainedDelta.Y, originalRect.YMin);
+
             var modifiedRect = _resizeJoystickStateEnum switch
             {
                 BitmapImageROIResizeJoystickStateEnum.None => originalRect,
                 BitmapImageROIResizeJoystickStateEnum.XMinYMax => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMax) + delta,
+                    new Point(xMin, yMax),
                     new Point(originalRect.XMax, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XCenterYMax => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMax, yMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYMax => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + delta,
+                    new Point(xMax, yMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMax) + new Vector(delta.X, 0),
+                    new Point(xMax, originalRect.YMax),
                     new Point(originalRect.XMin, originalRect.YMin)),
                 BitmapImageROIResizeJoystickStateEnum.XMaxYMin => (Rect)new Extents(
-                    new Point(originalRect.XMax, originalRect.YMin) + delta,
+                    new Point(xMax, yMin),
                     new Point(originalRect.XMin, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XCenterYMin => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(0, delta.Y),
+                    new Point(originalRect.XMin, yMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XMinYMin => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + delta,
+                    new Point(xMin, yMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 BitmapImageROIResizeJoystickStateEnum.XMinYCenter => (Rect)new Extents(
-                    new Point(originalRect.XMin, originalRect.YMin) + new Vector(delta.X, 0),
+                    new Point(xMin, originalRect.YMin),
                     new Point(originalRect.XMax, originalRect.YMax)),
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            bitmapImageROIDrawable.Rect = modifiedRect.ClampToBounds(imageRect);
+            modifiedRect = modifiedRect
+                .ImageCoordinateRound()
+                .ClampToBounds(imageRect);
+
+            if (Options.IsAspectRatioFixed && originalRect is { Width: > 0d, Height: > 0d })
+            {
+                var aspectRatio = originalRect.Width / originalRect.Height;
+                var width = modifiedRect.Width;
+                var height = modifiedRect.Height;
+
+                if (width > height * aspectRatio) width = height * aspectRatio;
+                else if (width < height * aspectRatio) height = width / aspectRatio; // height > width / aspectRatio
+
+                var point = _resizeJoystickStateEnum switch
+                {
+                    BitmapImageROIResizeJoystickStateEnum.None => modifiedRect.XMinYMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMax => new Point(modifiedRect.XMax - width, modifiedRect.YMin),
+                    BitmapImageROIResizeJoystickStateEnum.XCenterYMax => new Point((modifiedRect.XMin + modifiedRect.XMax - width) / 2d, modifiedRect.YMin),
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYMax => modifiedRect.XMinYMin,
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYCenter => new Point(modifiedRect.XMin, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
+                    BitmapImageROIResizeJoystickStateEnum.XMaxYMin => new Point(modifiedRect.XMin, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XCenterYMin => new Point((modifiedRect.XMin + modifiedRect.XMax - width) / 2d, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XMinYMin => new Point(modifiedRect.XMax - width, modifiedRect.YMax - height),
+                    BitmapImageROIResizeJoystickStateEnum.XMinYCenter => new Point(modifiedRect.XMax - width, (modifiedRect.YMin + modifiedRect.YMax - height) / 2d),
+                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
+                };
+
+                modifiedRect = new Rect(point, new Size(width, height))
+                    .ImageCoordinateRound()
+                    .ClampToBounds(imageRect); // 取整和夹取可能会有每边 ±1px
+            }
+
+            bitmapImageROIDrawable.Rect = modifiedRect;
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }

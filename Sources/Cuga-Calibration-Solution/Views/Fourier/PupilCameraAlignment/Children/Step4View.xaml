@@ -49,7 +49,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.Channel3Item.ImageROI, Mode=OneWay}"
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.ROI.ImageROI, Mode=OneWay}"
                                  hc:TitleElement.Title="Image ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"

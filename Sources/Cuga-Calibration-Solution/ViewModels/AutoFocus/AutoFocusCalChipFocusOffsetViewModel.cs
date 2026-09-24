@@ -183,7 +183,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
                         ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
                         : Cache.Item.FindBrightMachinePosition), Cache.CalChipSiteModelEnum);
 
-
                 return true;
 
             case 8:
@@ -426,7 +425,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
             CalibratingItem.CurrentItem.ECSValue = (ecsAboveZero + ecsBelowZero) / 2;
 
             #endregion
-
 
             Logger.LogHtmlInformation("Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {

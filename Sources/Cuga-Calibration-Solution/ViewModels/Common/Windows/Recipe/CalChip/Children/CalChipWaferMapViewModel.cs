@@ -54,7 +54,6 @@ public sealed partial class CalChipWaferMapViewModel : ViewModelBase, IRecipient
 
     #endregion
 
-
     public void Initialize(CalChipRecipeDTO calChipRecipeDTO)
     {
         _editDTO = calChipRecipeDTO;
@@ -79,7 +78,6 @@ public sealed partial class CalChipWaferMapViewModel : ViewModelBase, IRecipient
 
         _isLoaded = true;
     }
-
 
     #region 状态刷新
 

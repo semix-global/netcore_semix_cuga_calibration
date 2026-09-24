@@ -94,7 +94,6 @@ public sealed partial class MicroscopeFocusCacheItem : CalibrationCacheBase<Micr
     [Comparison(1d, NumberComparisonTypeEnum.GreaterThanOrEqual, ErrorMessage = "SetVoltageAfErrorThreshold: ")]
     public partial double SetVoltageAfErrorThreshold { get; set; }
 
-
     public (bool IsSuccess, string ErrorMessage) CacheItemVerify()
     {
         ClearErrors();

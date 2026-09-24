@@ -31,7 +31,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     [ObservableProperty]
     public partial double MaxMotorAbsoluteValue { get; set; }
 
-    public RodResult[] RodResults { get; }
+    public FourierSideChannelFlexibleApertureDTO.RodResult[] RodResults { get; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
@@ -51,7 +51,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 .Select(t => t.Index)
                 .Union(OddItem.Step2Rods.Select(t => t.Index))
                 .Order()
-                .Select(t => new RodResult(_resultBitmapImageDrawable) { Index = t })
+                .Select(t => new FourierSideChannelFlexibleApertureDTO.RodResult(_resultBitmapImageDrawable) { Index = t })
         ];
 
         Document.RunDesign(() =>
@@ -71,7 +71,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         string channelImageFilePath,
         Item evenItem,
         Item oddItem,
-        RodResult[] rodResults)
+        FourierSideChannelFlexibleApertureDTO.RodResult[] rodResults)
         : this(rodTotalCount, channelId, channelImageFilePath)
     {
         EvenItem.Dispose();
@@ -172,11 +172,29 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 rodResult.IsDeleted = step2Rod.IsDeleted;
 
                 var heightDelta = step2Rod.ImageROI.Height - step1Rod.ImageROI.Height;
-                var motorDelta = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
-                Guard.IsNotEqualTo(heightDelta, 0d);
+                var deltaMotorAbsoluteValue = item.Step2MotorAbsoluteValue - item.Step0AndStep1MotorAbsoluteValue;
+                if (heightDelta == 0d || deltaMotorAbsoluteValue == 0d)
+                {
+                    ThrowHelper.ThrowInvalidOperationException(
+                        $"""
+                         Channel {ChannelId}, rod {step2Rod.Index}: {(heightDelta == 0d ? "ROI height did not change" : "motor position did not change")}.
+                         Step1 height={step1Rod.ImageROI.Height:0.###} px, Step2 height={step2Rod.ImageROI.Height:0.###} px, Step2-Step1={heightDelta:0.###} px.
+                         Motor: Step1={item.Step0AndStep1MotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
+                         PixelSize cannot be calculated with a zero height change or a zero motor displacement. Check the image order and adjust the same rod's ROI boundaries in both images.
+                         """);
+                }
 
-                rodResult.PixelSize = motorDelta / heightDelta;
-                Guard.IsGreaterThan(rodResult.PixelSize, 0);
+                rodResult.PixelSize = deltaMotorAbsoluteValue / heightDelta;
+                if (double.IsFinite(rodResult.PixelSize) == false || rodResult.PixelSize <= 0d)
+                {
+                    ThrowHelper.ThrowInvalidOperationException($"""
+                                                                Channel {ChannelId}, rod {step2Rod.Index}: {(deltaMotorAbsoluteValue != 0d && ((deltaMotorAbsoluteValue < 0d && heightDelta > 0d) || (deltaMotorAbsoluteValue > 0d && heightDelta < 0d)) ? "motor displacement and ROI height change have opposite signs" : "motor displacement and ROI height change do not produce a positive PixelSize")}.
+                                                                Motor: Step1={item.Step0AndStep1MotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
+                                                                ROI height (px): Step1={step1Rod.ImageROI.Height:0.###}, Step2={step2Rod.ImageROI.Height:0.###}, Step2-Step1={heightDelta:0.###}.
+                                                                PixelSize = motor displacement / ROI height change = {rodResult.PixelSize:0.###} mm/px; a positive finite value is required.
+                                                                Expected: motor displacement and ROI height change must be nonzero and have the same sign. Check the recorded motor positions, Step1/Step2 image order, and the same rod's ROI boundaries before recalibrating.
+                                                                """);
+                }
 
                 rodResult.MinImageROI = new Rect(
                         step2Rod.ImageROI.Point,

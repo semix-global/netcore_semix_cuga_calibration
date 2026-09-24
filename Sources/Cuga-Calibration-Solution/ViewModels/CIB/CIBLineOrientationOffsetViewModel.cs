@@ -99,7 +99,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
-
         MicroscopePixelSizes = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<CIBLineOrientationOffsetCache>(cancellationToken);
@@ -291,7 +290,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
         });
     }
 
-
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step4Async(CancellationToken cancellationToken)
     {
@@ -351,7 +349,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             return true;
         });
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step5Async(CancellationToken cancellationToken)
@@ -415,7 +412,6 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             return true;
         });
     }
-
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -573,7 +569,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 lineOrientationOffsetDTO.StartPosition,
                 lineOrientationOffsetDTO.EndPosition,
                 lineOrientationOffsetDTO.XOffset,
-                Points = new HtmlTable([.. positions.Select(t => t)])
+                Points = new HtmlTable([.. positions.Select(t => new { t.X, t.Y })])
             }), HtmlLogUniqueId.LoggingHtml());
 
             var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(

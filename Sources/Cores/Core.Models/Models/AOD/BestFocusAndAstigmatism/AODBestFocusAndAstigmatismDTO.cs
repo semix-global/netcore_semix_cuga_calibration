@@ -93,7 +93,6 @@ public partial class AODBestFocusAndAstigmatismDTO : CalibrationDTOBase<AODBestF
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-
     private void RefreshPlot()
     {
         try

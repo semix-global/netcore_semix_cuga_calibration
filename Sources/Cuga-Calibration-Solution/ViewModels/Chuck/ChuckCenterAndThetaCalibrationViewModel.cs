@@ -279,7 +279,6 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 Cache.WaferRadius
             }), HtmlLogUniqueId.LoggingHtml());
 
-
             // 用BuildDie的方式BuildReticle，防止取到圆外
             var waferMapReticleBuilder = new WaferMapDieBuilder
             {

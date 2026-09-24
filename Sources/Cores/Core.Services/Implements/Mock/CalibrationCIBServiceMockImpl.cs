@@ -19,18 +19,7 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 {
-    private int _simulatorImagesIndex;
-
-    public string[][] SimulatorImagesFilePaths
-    {
-        get;
-        set
-        {
-            _simulatorImagesIndex = 0;
-
-            field = value;
-        }
-    } = [];
+    public string[]? SimulatorImageFilePaths { get; set; }
 
     private readonly string _mockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_raw.raw");
     private readonly string _xzSyncMockImageFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\test_xz_log.raw");
@@ -221,8 +210,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         CancellationToken cancellationToken)
     {
         var results = new DarkFieldImageDTO[cibInformations.Count];
-
-        var filePaths = SimulatorImagesFilePaths.ElementAtOrDefault(_simulatorImagesIndex++ % SimulatorImagesFilePaths.Length) ?? [];
+        var filePaths = SimulatorImageFilePaths ?? [];
 
         for (var i = 0; i < results.Length; i++)
         {

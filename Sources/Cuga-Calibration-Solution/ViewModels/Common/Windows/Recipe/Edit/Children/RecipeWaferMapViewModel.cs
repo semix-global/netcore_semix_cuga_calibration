@@ -73,7 +73,6 @@ public sealed partial class RecipeWaferMapViewModel : ViewModelBase, IRecipient<
         _messenger.Send(ToggleWaferMapEventFactory.UpdateIsRefreshWaferMap(true));
     }
 
-
     #region 状态刷新
 
     public void Receive(ValueChangedMessage<ToggleRecipeEvent> message)

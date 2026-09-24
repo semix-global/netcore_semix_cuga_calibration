@@ -625,7 +625,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         return bestFocus;
 
-
         IReadOnlyList<Point> GetStrehlRatioPoints(FocusMetricArrayInfo info, bool isX)
         {
             var cols = isX ? xStrehlCols : yStrehlCols;

@@ -25,26 +25,62 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
         (BitmapImageROIResizeJoystickStateEnum.XMaxYCenter, nameof(BitmapImageROIResizeJoystickStateEnum.XMaxYCenter), rect => rect.XMaxYCenter)
     ];
 
+    /// <summary>
+    /// 该ROI所依附的图片. 所有ROI坐标都会被限制在该图片范围内.
+    /// </summary>
     public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 
+    /// <summary>
+    /// 未锁定时ROI的填充样式.
+    /// </summary>
     [ObservableProperty]
     public partial FillStyle FillStyle { get; set; } = new(SKColors.Red.WithAlpha(64));
 
+    /// <summary>
+    /// 锁定时ROI的填充样式.
+    /// </summary>
     [ObservableProperty]
     public partial FillStyle FixedFillStyle { get; set; } = new(SKColors.Green.WithAlpha(64));
 
+    /// <summary>
+    /// 笛卡尔坐标系: 当前ROI矩形区域.
+    /// </summary>
     [ObservableProperty]
     public partial Rect Rect { get; set; }
 
+    /// <summary>
+    /// 是否锁定该ROI. 锁定后不可编辑, 并使用 FixedFillStyle 绘制.
+    /// </summary>
     [ObservableProperty]
     public partial bool IsFixed { get; set; } = false;
 
+    /// <summary>
+    /// 绘制在ROI中心的文本标签. 为空时不绘制.
+    /// </summary>
     [ObservableProperty]
     public partial string Text { get; set; } = string.Empty;
 
+    /// <summary>
+    /// 是否在ROI中心绘制贯穿矩形上下边和左右边的十字线.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsShowCrossLine { get; set; } = false;
+
+    /// <summary>
+    /// 是否绘制一个椭圆形, 用于表示ROI区域.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsShowEllipse { get; set; } = false;
+
+    /// <summary>
+    /// 笛卡尔坐标系: 表示当前编辑器用于调整ROI区域的手柄角状态. 该属性用于确定可调整的ROI顶点或边界, 从而控制用户在界面中的编辑行为.
+    /// </summary>
     [ObservableProperty]
     public partial BitmapImageROIResizeJoystickStateEnum ResizeJoystickStateEnum { get; set; } = BitmapImageROIResizeJoystickStateEnum.All;
 
+    /// <summary>
+    /// 编辑器是否已修改该 ROI. 仅由编辑器内部更新, 用于标识相对进入编辑前的原始状态是否发生变化.
+    /// </summary>
     [ObservableProperty]
     public partial bool IsEditorModified { get; internal set; } = false;
 
@@ -68,11 +104,19 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
                 Rect.Center,
                 Text,
                 AlignmentEnum.MiddleCenter,
-                new FillStyle(SKColors.Transparent),
-                new LineStyle(SKColors.Transparent),
+                FillStyles.Transparent,
+                LineStyles.Transparent,
                 new Vector(0d, 0d),
                 new Padding(0d));
         }
+
+        if (IsShowCrossLine)
+        {
+            renderer.DrawLine(lineStyle, Rect.XCenterYMax, Rect.XCenterYMin);
+            renderer.DrawLine(lineStyle, Rect.XMinYCenter, Rect.XMaxYCenter);
+        }
+
+        if (IsShowEllipse) renderer.DrawEllipse(lineStyle, (Ellipse)Rect);
     }
 
     public override Extents GetExtents() => (Extents)Rect;

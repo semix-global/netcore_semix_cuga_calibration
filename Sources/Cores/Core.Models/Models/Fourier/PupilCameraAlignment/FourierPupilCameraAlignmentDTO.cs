@@ -5,8 +5,8 @@ using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Fourier.PupilCameraAlignment;
 
-[CacheVersion("2.0.0")]
-public sealed class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
+[CacheVersion("2.0.1")]
+public sealed partial class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierPupilCameraAlignmentDTO>, IAdaptTo<CalibrationPupilCameraAlignment>, IDisposable
 {
     public FourierPupilCameraAlignmentDTOItem Channel1Item { get; private init; } = new(1);
 
@@ -34,9 +34,9 @@ public sealed class FourierPupilCameraAlignmentDTO : CalibrationDTOBase<FourierP
 
     public CalibrationPupilCameraAlignment AdaptTo() => new()
     {
-        RectCh1 = Channel1Item.ImageROI.ToRectD(),
-        RectCh2 = Channel2Item.ImageROI.ToRectD(),
-        RectCh3 = Channel3Item.ImageROI.ToRectD(),
+        RectCh1 = Channel1Item.ROI.ImageROI.ToRectD(),
+        RectCh2 = Channel2Item.ROI.ImageROI.ToRectD(),
+        RectCh3 = Channel3Item.ROI.ImageROI.ToRectD(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck

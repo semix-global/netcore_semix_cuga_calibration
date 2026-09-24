@@ -940,10 +940,10 @@ public sealed class CIBViewModel(
         return isSuccess;
     }
 
-    public void UseSimulatorImages(string[][] simulatorImagesFilePaths)
+    public void UseSimulatorImages(string[]? simulatorImageFilePaths)
     {
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationCIBServiceMockImpl>(calibrationCIBService);
 
-        mock.SimulatorImagesFilePaths = simulatorImagesFilePaths;
+        mock.SimulatorImageFilePaths = simulatorImageFilePaths;
     }
 }

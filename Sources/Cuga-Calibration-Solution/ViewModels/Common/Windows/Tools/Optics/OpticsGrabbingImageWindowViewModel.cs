@@ -481,7 +481,6 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     boolList.Add(InvokeDarkFieldImageDTO(darkFieldImage, traceBuffers));
                 }
 
-
                 Results = [.. Results, darkFieldImages];
             }
         }

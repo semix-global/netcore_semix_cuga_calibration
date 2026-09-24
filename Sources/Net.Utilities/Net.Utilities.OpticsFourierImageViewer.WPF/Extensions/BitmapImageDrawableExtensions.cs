@@ -1,8 +1,8 @@
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using System.Runtime;
 using System.Runtime.CompilerServices;
-using BitmapImageDrawable = Net.Utilities.OpticsFourierImageViewer.WPF.Drawables.BitmapImageDrawable;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 

@@ -44,6 +44,7 @@
                     <Button Content="All Anchors + Move" Command="{Binding EditAllAnchorROICommand}" />
                     <Button Content="Three Bottom Anchors + Move" Command="{Binding EditThreeBottomAnchorROICommand}" />
                     <Button Content="Bottom Anchor Only + No Move" Command="{Binding EditBottomAnchorROICommand}" />
+                    <Button Content="Fixed Aspect Ratio + Move" Command="{Binding EditFixedAspectRatioROICommand}" />
                     <Button Content="Cancel"
                             Command="{Binding CancelEditROICommand}"
                             Style="{StaticResource ButtonWarning}" />

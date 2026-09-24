@@ -113,7 +113,6 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
         return true;
     }
 
-
     protected override async Task<bool> ReviewingAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask.ConfigureAwait(false);
@@ -346,7 +345,6 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
 
                     CalibratingItem.Items = [.. CalibratingItem.Items, opticsROOSDTOItem];
                 }
-
 
                 var illegalPoints = CalibratingItem.Items.Where(t => t.StartImageYPixel == 0 || Math.Abs(t.EndImageYPixel - Cache.Item.ConfigImageYPixelHeight) < Constants.Tolerance).ToList();
                 CalibratingItem.IllegalPoints = [.. illegalPoints.Select(t => new Point(t.ROOSPos, t.CropImageYPixelHeight))];

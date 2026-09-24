@@ -1,7 +1,6 @@
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
-using Cuga.Data.DataStruct.Optics;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
@@ -18,35 +17,13 @@ namespace Core.Services.Implements.Mock;
 [IOCAppService(ServiceType = typeof(ICalibrationFourierService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierService
 {
-    private int _simulatorImageIndex;
+    public string? SimulatorImageFilePath { get; set; }
 
-    public string[] SimulatorImageFilePaths
-    {
-        get;
-        set
-        {
-            _simulatorImageIndex = 0;
+    public SxExecuteRet<bool> Connect() => SxExecuteRetHelper.CreateSuccess(true);
 
-            field = value;
-        }
-    } = [];
+    public SxExecuteRet<bool> Home(int channelId) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> Connect()
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> Home(int channelId)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions) => SxExecuteRetHelper.CreateSuccess(true);
 
     public SxExecuteRet<BitmapImage> GetImage(
         ProductivityInformation productivityInformation,
@@ -57,7 +34,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     {
         Thread.Sleep(100);
 
-        var filePath = SimulatorImageFilePaths.ElementAtOrDefault(_simulatorImageIndex++ % SimulatorImageFilePaths.Length) ?? string.Empty;
+        var filePath = SimulatorImageFilePath ?? string.Empty;
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP004
@@ -74,46 +51,18 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     {
         RodNum = 46,
         CH12MinPOS = 0,
-        CH12MaxPOS = 55
+        CH12MaxPOS = 55,
+        CH3_X_LPOSMin = -100,
+        CH3_X_LPOSMax = 100,
+        CH3_X_PPOSMin = 0,
+        CH3_X_PPOSMax = 100,
+        CH3_Y_LPOSMin = 0,
+        CH3_Y_LPOSMax = 100
     });
 
-    public SxExecuteRet<bool> FF_Move_CH3X(int rpos, double lpos, double ppos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> FF_Move_CH3Y(int rpos, double lpos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<double> GetFFRACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFLACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<double> GetFFPACT(CgFFCHEnum ch)
-    {
-        return SxExecuteRetHelper.CreateSuccess(1.0);
-    }
-
-    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos)
-    {
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
 }

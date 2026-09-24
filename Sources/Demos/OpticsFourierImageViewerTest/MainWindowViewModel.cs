@@ -89,13 +89,23 @@ public sealed partial class MainWindowViewModel : ObservableObject
         EditAllAnchorROICancelCommand.Execute(null);
         EditThreeBottomAnchorROICancelCommand.Execute(null);
         EditBottomAnchorROICancelCommand.Execute(null);
+        EditFixedAspectRatioROICancelCommand.Execute(null);
     }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task EditFixedAspectRatioROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIResizeJoystickStateEnum.All,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
+        true,
+        cancellationToken: cancellationToken,
+        isAspectRatioFixed: true);
 
     private async Task EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum resizeJoystickStateEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
         bool isDeleteEnabled,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool isAspectRatioFixed = false)
     {
         if (ROICount <= 0) return;
 
@@ -118,13 +128,23 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 for (var i = 0; i < ROICount; i++)
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
+                    var width = roiWidth;
+                    var height = roiHeight;
+                    if (isAspectRatioFixed)
+                    {
+                        var aspectRatio = (i % 3) switch { 0 => 1d, 1 => 2d, _ => 0.5d };
+                        height = Math.Min(roiHeight, roiWidth / aspectRatio);
+                        width = height * aspectRatio;
+                    }
 
                     Document.ROIModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
-                        Rect = new Rect(roiX, roiY, roiWidth, roiHeight),
-                        IsFixed = Random.Shared.NextDouble() > 0.5,
+                        Rect = new Rect(roiX, roiY, width, height),
+                        IsFixed = !isAspectRatioFixed && Random.Shared.NextDouble() > 0.5,
                         Text = $"{i + 1}",
-                        ResizeJoystickStateEnum = resizeJoystickStateEnum
+                        ResizeJoystickStateEnum = isAspectRatioFixed
+                            ? resizeJoystickStateEnum
+                            : resizeJoystickStateEnum & (BitmapImageROIResizeJoystickStateEnum)Random.Shared.Next((int)BitmapImageROIResizeJoystickStateEnum.All + 1)
                     });
                 }
             });
@@ -135,6 +155,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
             {
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 IsDeleteEnabled = isDeleteEnabled,
+                IsAspectRatioFixed = isAspectRatioFixed,
                 CancellationToken = cancellationToken
             };
 

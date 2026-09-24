@@ -252,7 +252,6 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
 
     partial void OnCurrentDomainChanged(Point value) => RefreshPlot();
 
-
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
 
@@ -289,7 +288,6 @@ public sealed partial class DarkAutoFocusCurrentDTO : ObservableObject, ICloneab
                     [.. CurrentItems.Select(t => new Point(t.Current, t.N))],
                     1,
                     new Range(0, CurrentItems.Count - 1));
-
 
             if (FitCurrentPointsF.Count > 0)
                 PlotDataSource.GetOrAddScatterLine(0,
@@ -454,7 +452,6 @@ public sealed partial class DarkAutoFocusNSCDTO : ObservableObject, ICloneable<D
 
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
-
 
     public DarkAutoFocusNSCDTO()
     {
