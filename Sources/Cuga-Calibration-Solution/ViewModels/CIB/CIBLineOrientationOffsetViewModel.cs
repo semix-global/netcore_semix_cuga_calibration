@@ -569,7 +569,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 lineOrientationOffsetDTO.StartPosition,
                 lineOrientationOffsetDTO.EndPosition,
                 lineOrientationOffsetDTO.XOffset,
-                Points = new HtmlTable([.. positions])
+                Points = new HtmlTable([.. positions.Select(t => new { t.X, t.Y })])
             }), HtmlLogUniqueId.LoggingHtml());
 
             var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
