@@ -180,7 +180,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
             switch (CenterChannelMotionKindEnum)
             {
                 case CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture:
-                    var diameter = Math.Min(_step0BitmapImageDrawable.BitmapImage.Width / 2d, _step0BitmapImageDrawable.BitmapImage.Height / 2d);
+                    var diameter = (int)Math.Round(Math.Min(_step0BitmapImageDrawable.BitmapImage.Width / 2d, _step0BitmapImageDrawable.BitmapImage.Height / 2d));
                     var size = new Size(diameter, diameter);
 
                     Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)size / 2d, size)).ImageCoordinateRound();

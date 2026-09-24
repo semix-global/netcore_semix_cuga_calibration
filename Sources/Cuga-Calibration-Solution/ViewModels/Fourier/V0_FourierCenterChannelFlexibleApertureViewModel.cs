@@ -242,7 +242,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
         Review.Dispose();
         Calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImage(null);
+        if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImage(null);
 
         return true;
     }

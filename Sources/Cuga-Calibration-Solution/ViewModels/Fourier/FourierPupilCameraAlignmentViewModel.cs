@@ -143,15 +143,12 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 return true;
 
             case 1:
-
                 return true;
 
             case 2:
-
                 return true;
 
             case 3:
-
                 return true;
 
             case 4:
@@ -172,7 +169,7 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
         Review.Dispose();
         Calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImage(null);
+        if (HostEnvironment.IsDevelopment()) FourierViewModel.UseSimulatorImage(null);
 
         return true;
     }

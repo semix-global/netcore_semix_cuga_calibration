@@ -181,7 +181,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 return true;
 
             case 2:
-
                 return true;
 
             case 3:
@@ -202,8 +201,11 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
         foreach (var review in Reviews) review.Dispose();
         foreach (var calibration in Calibrations) calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImage(null);
-        CIBViewModel.UseSimulatorImages(null);
+        if (HostEnvironment.IsDevelopment())
+        {
+            FourierViewModel.UseSimulatorImage(null);
+            CIBViewModel.UseSimulatorImages(null);
+        }
 
         return true;
     }

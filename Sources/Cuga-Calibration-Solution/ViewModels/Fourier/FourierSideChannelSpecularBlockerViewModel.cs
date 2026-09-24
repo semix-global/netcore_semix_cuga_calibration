@@ -179,11 +179,9 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 return true;
 
             case 2:
-
                 return true;
 
             case 3:
-
                 return true;
 
             case 4:
@@ -204,8 +202,11 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         foreach (var review in Reviews) review.Dispose();
         foreach (var calibration in Calibrations) calibration.Dispose();
 
-        FourierViewModel.UseSimulatorImage(null);
-        CIBViewModel.UseSimulatorImages(null);
+        if (HostEnvironment.IsDevelopment())
+        {
+            FourierViewModel.UseSimulatorImage(null);
+            CIBViewModel.UseSimulatorImages(null);
+        }
 
         return true;
     }
