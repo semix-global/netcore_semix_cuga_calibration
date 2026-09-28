@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,22 +21,26 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
+using Net.Utilities.ScottPlot;
+using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.IO;
+using System.ComponentModel;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class CollectionCrossTalkCache : ObservableCacheBase
+public sealed partial class OpticsCrossTalkCache : ObservableCacheBase
 {
     [ObservableProperty]
     public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
@@ -54,7 +59,8 @@ public sealed partial class CollectionCrossTalkCache : ObservableCacheBase
     {
         IsAutoGainControl = true,
         IsL0K = false,
-        CIBProfileMode = CIBProfileModeEnum.PMTLog
+        CIBProfileMode = CIBProfileModeEnum.PMTLog,
+        IsKeepRawImageCIBProfileModeEnum = false
     };
 
     [ObservableProperty]
@@ -70,7 +76,10 @@ public sealed partial class CollectionCrossTalkCache : ObservableCacheBase
     public partial Point ScribeFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    public partial Point SignalFindPosition { get; set; } = Point.Origin;
+    public partial Point TopSignalFindPosition { get; set; } = Point.Origin;
+
+    [ObservableProperty]
+    public partial Point BottomSignalFindPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
     public partial double Threshold { get; set; } = 1500d;
@@ -91,7 +100,7 @@ public sealed partial class CollectionCrossTalkCache : ObservableCacheBase
     public partial string CropQuietFilePath { get; set; } = string.Empty;
 }
 
-public sealed partial class CollectionCrossTalkDTO : ObservableObject
+public sealed partial class OpticsCrossTalkDTO : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsOk { get; set; } = false;
@@ -100,44 +109,90 @@ public sealed partial class CollectionCrossTalkDTO : ObservableObject
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Diff))]
-    [NotifyPropertyChangedFor(nameof(Radio))]
-    [NotifyPropertyChangedFor(nameof(Log10))]
-    public partial CollectionCrossTalkDTOItem ScribeResult { get; set; } = new();
+    [NotifyPropertyChangedFor(nameof(CrossTalk))]
+    public partial OpticsCrossTalkDTOItem ScribeResult { get; set; } = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Diff))]
-    [NotifyPropertyChangedFor(nameof(Radio))]
-    [NotifyPropertyChangedFor(nameof(Log10))]
-    public partial CollectionCrossTalkDTOItem SignalResult { get; set; } = new();
+    [NotifyPropertyChangedFor(nameof(AverageSignalGray))]
+    public partial OpticsCrossTalkDTOItem TopSignalResult { get; set; } = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Diff))]
-    [NotifyPropertyChangedFor(nameof(Radio))]
-    [NotifyPropertyChangedFor(nameof(Log10))]
-    public partial double BackgroundNoise { get; set; }
+    [NotifyPropertyChangedFor(nameof(AverageSignalGray))]
+    public partial OpticsCrossTalkDTOItem BottomSignalResult { get; set; } = new();
 
-    public double Diff => ScribeResult.SubGray - (SignalResult.SignalGray - BackgroundNoise);
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CrossTalk))]
+    public partial double QuietGray { get; set; }
 
-    public double Radio => Math.Pow(2, -Diff / 128);
+    [ObservableProperty]
+    public partial Point[] QuietDBPoints { get; set; } = [];
 
-    public double Log10 => Math.Log10(Math.Pow(2, Diff / 128));
+#pragma warning disable IDE0079
+#pragma warning disable CS0657
 
-    public object ToHtmlAnonymous() => new
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
+
+#pragma warning restore CS0657
+#pragma warning restore IDE0079
+
+    public double AverageSignalGray => (TopSignalResult.SignalGray + BottomSignalResult.SignalGray) / 2d;
+
+    public double CrossTalk => ScribeResult.SignalGray - QuietGray;
+
+    public double Radio => AverageSignalGray / CrossTalk;
+
+    public OpticsCrossTalkDTO()
+    {
+        PlotDataSource.SetTitle("Y Projection(Y: dB - X: pix)");
+    }
+
+    partial void OnScribeResultChanged(OpticsCrossTalkDTOItem? oldValue, OpticsCrossTalkDTOItem newValue) => RefreshPlot();
+
+    partial void OnTopSignalResultChanged(OpticsCrossTalkDTOItem? oldValue, OpticsCrossTalkDTOItem newValue) => RefreshPlot();
+
+    partial void OnBottomSignalResultChanged(OpticsCrossTalkDTOItem? oldValue, OpticsCrossTalkDTOItem newValue) => RefreshPlot();
+
+    partial void OnQuietDBPointsChanged(Point[] value) => RefreshPlot();
+
+    private void RefreshPlot()
+    {
+        try
+        {
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(4);
+
+            scatterLines[0].Update("Scribe Signal", ScribeResult.DBPoints, Net.Utilities.ScottPlot.Helper.Constants.Category10.GetColor(0));
+            scatterLines[1].Update("Scribe Quiet", QuietDBPoints, Net.Utilities.ScottPlot.Helper.Constants.Category10.GetColor(1));
+            scatterLines[2].Update("Top Signal", TopSignalResult.DBPoints, Net.Utilities.ScottPlot.Helper.Constants.Category10.GetColor(2));
+            scatterLines[3].Update("Bottom Signal", BottomSignalResult.DBPoints, Net.Utilities.ScottPlot.Helper.Constants.Category10.GetColor(3));
+        }
+        finally
+        {
+            PlotDataSource.AutoScaleRefresh();
+        }
+    }
+
+    public object ToHtmlAnonymous(Rect quietRoi, Rect signalRoi) => new
     {
         CIBInformation,
         IsOk,
-        ScribeResult = new HtmlBullet(ScribeResult.ToHtmlAnonymous()),
-        SignalResult = new HtmlBullet(SignalResult.ToHtmlAnonymous()),
-        BackgroundNoise,
-        Diff,
+        CrossTalk,
         Radio,
-        Log10
+        ScatterPlotControl = new HtmlContainer([.. PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+        ScribeResult = new HtmlBullet(ScribeResult.ToHtmlAnonymous(quietRoi, signalRoi)),
+        TopSignalResult = new HtmlBullet(TopSignalResult.ToHtmlAnonymous(signalRoi)),
+        BottomSignalResult = new HtmlBullet(BottomSignalResult.ToHtmlAnonymous(signalRoi)),
+        QuietGray,
+        SignalGrayAverage = AverageSignalGray,
     };
 }
 
-public sealed partial class CollectionCrossTalkDTOItem : ObservableObject
+public sealed partial class OpticsCrossTalkDTOItem : ObservableObject
 {
+    [ObservableProperty]
+    public partial double SignalGray { get; set; }
+
     [ObservableProperty]
     public partial string RawImageFilePath { get; set; } = string.Empty;
 
@@ -145,41 +200,22 @@ public sealed partial class CollectionCrossTalkDTOItem : ObservableObject
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string SubImageFilePath { get; set; } = string.Empty;
+    public partial Point[] DBPoints { get; set; } = [];
 
-    [ObservableProperty]
-    public partial double SubGray { get; set; }
-
-    [ObservableProperty]
-    public partial double QuietGray { get; set; }
-
-    [ObservableProperty]
-    public partial double SignalGray { get; set; }
-
-    [ObservableProperty]
-    public partial Rect QuietRoi { get; set; } = Rect.Empty;
-
-    [ObservableProperty]
-    public partial Rect SignalRoi { get; set; } = Rect.Empty;
-
-    public object ToHtmlAnonymous() => new
+    public object ToHtmlAnonymous(params Rect[] rois) => new
     {
-        QuietGray,
         SignalGray,
-        SubGray,
         RawImageFilePath,
-        SubImage = new HtmlImage(SubImageFilePath),
-        OriginImage = new HtmlImage(ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(QuietRoi), new HtmlImageRectangleOverlay(SignalRoi)])
+        OriginImage = new HtmlImage(ImageFilePath, htmlImageOverlays: [.. rois.Select(t => new HtmlImageRectangleOverlay(t))])
     };
 }
 
-[IOCAppService(ServiceType = typeof(CollectionCrossTalkWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionCrossTalkWindowViewModel(
+[IOCAppService(ServiceType = typeof(OpticsCrossTalkWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class OpticsCrossTalkWindowViewModel(
     MicroscopeViewModel microscopeViewModel,
     ICacheProvider cacheProvider,
     StageViewModel stageViewModel,
     CIBViewModel cibViewModel,
-    LaserViewModel laserViewModel,
     IOptions<ApplicationSetting> options,
     ApplicationCookie applicationCookie,
     CreateRoiWindowViewModel createRoiWindowViewModel,
@@ -187,7 +223,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     IHostEnvironment hostEnvironment,
     CalibrationSetting calibrationSetting,
-    ILogger<CollectionCrossTalkWindowViewModel> logger) : ViewModelBase
+    ILogger<OpticsCrossTalkWindowViewModel> logger) : ViewModelBase
 {
     public string Name => "Collection Cross Talk";
 
@@ -199,7 +235,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
         "Step 4 Cross Talk"
     ];
 
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionCrossTalkWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(OpticsCrossTalkWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
@@ -210,15 +246,15 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    public partial CollectionCrossTalkCache Cache { get; set; } = new();
+    public partial OpticsCrossTalkCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    public partial IReadOnlyList<CollectionCrossTalkDTO> Results { get; set; } = [];
+    public partial IReadOnlyList<OpticsCrossTalkDTO> Results { get; set; } = [];
 
     [RelayCommand]
     private void Loaded()
     {
-        Cache = cacheProvider.GetOrDefault<CollectionCrossTalkCache>();
+        Cache = cacheProvider.GetOrDefault<OpticsCrossTalkCache>();
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -287,7 +323,13 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
             ApplicationCookie.CIBInformations.Single(t => t == calibrationSetting.SettingCommonParam.MainCIBInformation),
             (false, Cache.CalChipSiteModelEnum),
             (false, Cache.OpticsConfiguration),
-            (false, Cache.CIBConfiguration),
+            (false, new CIBConfiguration
+            {
+                CIBProfileMode = CIBProfileModeEnum.PMTLog,
+                IsAutoGainControl = true,
+                IsL0K = false,
+                IsKeepRawImageCIBProfileModeEnum = true
+            }),
             (false, Cache.LaserLightInformation),
             false,
             cancellationToken);
@@ -338,7 +380,8 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 CIBInformations = string.Join(", ", Cache.CIBInformations),
                 Cache.ImageWidth,
                 Cache.ScribeFindPosition,
-                Cache.SignalFindPosition,
+                Cache.TopSignalFindPosition,
+                Cache.BottomSignalFindPosition,
                 Cache.LaserLightInformation,
                 Cache.QuietROI,
                 Cache.SignalROI,
@@ -346,21 +389,6 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 CibConfiguration = new HtmlQuote(Cache.CIBConfiguration.ToHtmlAnonymous()),
                 OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
-
-            laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, 0);
-            var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
-                Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                Cache.ScribeFindPosition,
-                Cache.ImageWidth,
-                [.. Cache.CIBInformations],
-                (false, Cache.CalChipSiteModelEnum),
-                (false, Cache.OpticsConfiguration),
-                (false, Cache.CIBConfiguration),
-                (true, null),
-                false,
-                cancellationToken);
-            var backgroundGrays = darkFieldImages.Select(t => (t.CIBInformation, t.Image.GetIntensity().Average)).ToArray();
 
             Results = [];
 
@@ -371,20 +399,44 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var scribeResults = await ActionAsync(Cache.ScribeFindPosition, cibInformations, cancellationToken, true).ConfigureAwait(false);
-                var signalResults = await ActionAsync(Cache.SignalFindPosition, cibInformations, cancellationToken, false).ConfigureAwait(false);
+                var topSignalResults = await ActionAsync(Cache.TopSignalFindPosition, cibInformations, cancellationToken, false).ConfigureAwait(false);
+                var bottomSignalResults = await ActionAsync(Cache.BottomSignalFindPosition, cibInformations, cancellationToken, false).ConfigureAwait(false);
 
-                CollectionCrossTalkDTO[] items =
+                OpticsCrossTalkDTO[] items =
                 [
                     .. cibInformations.Select((t, i) =>
                     {
-                        var dto = new CollectionCrossTalkDTO
+                        var (size, _, _) = RAWImageFactory.GetSize(scribeResults[i].RawImageFilePath);
+                        using var originImage = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO{CIBInformation = t,IsKeepRawImageCIBProfileModeEnum = false,RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,RawImageFilePath = scribeResults[i].RawImageFilePath,Size = size});
+                        using var quietImage = originImage.Image.ToROI(Cache.QuietROI);
+                        var (quietGrayValue, _) = quietImage.GetIntensity();
+                        var quietProjectPoints = GetYProjectPoints(quietImage);
+                        var maxGrayValue = new[]
+                            {
+                                scribeResults[i].DBPoints,
+                                topSignalResults[i].DBPoints,
+                                bottomSignalResults[i].DBPoints,
+                                quietProjectPoints
+                            }
+                            .SelectMany(o => o)
+                            .Select(o => o.Y)
+                            .DefaultIfEmpty(double.Epsilon)
+                            .Max();
+
+                        scribeResults[i].DBPoints = ToDBPoints(scribeResults[i].DBPoints, maxGrayValue);
+                        topSignalResults[i].DBPoints = ToDBPoints(topSignalResults[i].DBPoints, maxGrayValue);
+                        bottomSignalResults[i].DBPoints = ToDBPoints(bottomSignalResults[i].DBPoints, maxGrayValue);
+
+                        var dto = new OpticsCrossTalkDTO
                         {
                             CIBInformation = t,
-                            BackgroundNoise = backgroundGrays.Single(o => o.CIBInformation == t).Average,
+                            QuietGray = quietGrayValue,
+                            QuietDBPoints = ToDBPoints(quietProjectPoints, maxGrayValue),
                             ScribeResult = scribeResults[i],
-                            SignalResult = signalResults[i]
+                            TopSignalResult = topSignalResults[i],
+                            BottomSignalResult = bottomSignalResults[i]
                         };
-                        dto.IsOk = -dto.Diff < Cache.Threshold;
+                        dto.IsOk = dto.Radio >= Cache.Threshold;
                         return dto;
                     })
                 ];
@@ -397,7 +449,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                 logger.LogHtmlInformation($"PMT{cibInformations[0].PMTId}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Details = new HtmlContainer([.. items.Select(t => new HtmlTable([t.ToHtmlAnonymous()]))])
+                    Details = new HtmlContainer([.. items.Select(t => new HtmlTable([t.ToHtmlAnonymous(Cache.QuietROI, Cache.SignalROI)]))])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
@@ -405,6 +457,19 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
             var htmlBullet = new HtmlBullet(new
             {
+                Images = new HtmlContainer([
+                    new HtmlTable([
+                        .. Results
+                            .Select(o =>
+                                new
+                                {
+                                    o.CIBInformation,
+                                    ScribeImage = o.ScribeResult.RawImageFilePath,
+                                    TopSignalImage = o.TopSignalResult.RawImageFilePath,
+                                    BottomSignalImage = o.BottomSignalResult.RawImageFilePath
+                                })
+                    ])
+                ]),
                 Results = new HtmlContainer([
                     new HtmlTable([
                         .. Results
@@ -412,14 +477,12 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                                 new
                                 {
                                     o.CIBInformation,
-                                    ScribeQuietRegion = o.ScribeResult.QuietGray,
-                                    ScribeCrossTalkRegion = o.ScribeResult.SignalGray,
-                                    CrossTalk = o.ScribeResult.SubGray,
-                                    SignalQuietRegion = o.SignalResult.QuietGray,
-                                    SignalLightRegion = o.SignalResult.SignalGray,
-                                    BackgroundNoise = backgroundGrays.Single(t => t.CIBInformation == o.CIBInformation).Average,
-                                    o.Diff,
-                                    o.Log10,
+                                    o.QuietGray,
+                                    ScribeSignalGray = o.ScribeResult.SignalGray,
+                                    o.CrossTalk,
+                                    TopSignalGray = o.TopSignalResult.SignalGray,
+                                    BottomSignalGray = o.BottomSignalResult.SignalGray,
+                                    SignalGray = o.AverageSignalGray,
                                     o.Radio,
                                     o.IsOk
                                 })
@@ -435,7 +498,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
         });
     }
 
-    private async Task<IReadOnlyList<CollectionCrossTalkDTOItem>> ActionAsync(
+    private async Task<IReadOnlyList<OpticsCrossTalkDTOItem>> ActionAsync(
         Point position,
         CIBInformation[] cibInformations,
         CancellationToken cancellationToken,
@@ -443,7 +506,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
     {
         return await Task.Run(async () =>
         {
-            var crossTalkDTOItems = new List<CollectionCrossTalkDTOItem>();
+            var crossTalkDTOItems = new List<OpticsCrossTalkDTOItem>();
             var currentStartPosition = cibViewModel.GetCIBInformationPosition(
                 StageCoordinateSystemEnum.Dark,
                 Cache.ProductivityInformation,
@@ -464,14 +527,6 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
                 false,
                 cancellationToken);
 
-            logger.LogHtmlInformation("Images", HtmlHeaderLevelEnum.Header1, new HtmlTable([
-                .. darkFieldImages.Select(t => new
-                {
-                    t.RawImageFilePath,
-                    t.CIBInformation
-                })
-            ]), HtmlLogUniqueId.LoggingHtml());
-
             if (hostEnvironment.IsDevelopment()) darkFieldImages = GetMockImages([.. cibInformations], isScribe); // mock
 
             foreach (var dto in darkFieldImages)
@@ -480,37 +535,19 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
                 var imageFileName = $"{dto.CIBInformation}_GUID{Guid.NewGuid()}.png";
                 var filePath = Path.Combine(ImageDirectory, imageFileName);
-                var subFilePath = Path.Combine(ImageDirectory, "SubImages", imageFileName);
+                dto.Image.SaveImage(filePath);
 
-                using var signalDrawImage = dto.Image.ToROI(Cache.SignalROI);
-                // using var quietDrawImage = signalDrawImage.ToROI(Cache.QuietROI);
-                using var quietDrawImage = dto.Image.ToROI(Cache.QuietROI);
-                // quietDrawImage.Save(filePath);
-
-                var (signalRoi, quietRoi) = Cache.SignalROI.Intersection(Cache.QuietROI);
-
-                using var signalImage = dto.Image.ToROI(signalRoi);
-                using var quietImage = dto.Image.ToROI(quietRoi);
-
-                using var subImage = signalImage.SubImage(quietImage);
-                subImage.SaveImage(subFilePath);
-
-                var (grayValue, _) = subImage.GetIntensity();
+                using var signalImage = dto.Image.ToROI(Cache.SignalROI);
                 var (signalGrayValue, _) = signalImage.GetIntensity();
-                var (quietGrayValue, _) = quietImage.GetIntensity();
 
                 crossTalkDTOItems =
                 [
-                    .. crossTalkDTOItems, new CollectionCrossTalkDTOItem
+                    .. crossTalkDTOItems, new OpticsCrossTalkDTOItem
                     {
-                        QuietGray = quietGrayValue,
                         SignalGray = signalGrayValue,
-                        SubGray = grayValue,
                         RawImageFilePath = dto.RawImageFilePath,
                         ImageFilePath = filePath,
-                        SubImageFilePath = subFilePath,
-                        SignalRoi = signalRoi,
-                        QuietRoi = quietRoi
+                        DBPoints = GetYProjectPoints(signalImage)
                     }
                 ];
 
@@ -519,6 +556,23 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
             return crossTalkDTOItems;
         }, cancellationToken);
+    }
+
+    private static Point[] GetYProjectPoints(BitmapImage image)
+    {
+        var yProjects = image.GetHorizontalProjects();
+
+        return [.. yProjects.Select((t, i) => new Point(i, t))];
+    }
+
+    private static Point[] ToDBPoints(Point[] projectPoints, double maxGrayValue)
+    {
+        var reference = maxGrayValue <= 0d ? double.Epsilon : maxGrayValue;
+
+        return
+        [
+            .. projectPoints.Select(t => new Point(t.X, 10 * Math.Log10((t.Y <= 0d ? double.Epsilon : t.Y) / reference)))
+        ];
     }
 
     [RelayCommand]
@@ -609,7 +663,7 @@ public sealed partial class CollectionCrossTalkWindowViewModel(
 
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
 
-            results = [.. results, new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = true })];
+            results = [.. results, new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = false })];
         }
 
         return results;
