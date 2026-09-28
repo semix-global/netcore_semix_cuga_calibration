@@ -45,9 +45,9 @@ using Generate = MathNet.Numerics.Generate;
 using Point = Net.Utilities.Models.Geometries.Point;
 using Range = ScottPlot.Range;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Collection;
+namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class CollectionYGhostCache : ObservableCacheBase
+public sealed partial class OpticsYGhostCache : ObservableCacheBase
 {
     [ObservableProperty]
     public partial OpticsIlluminationModeEnum OpticsIlluminationModeEnum { get; set; } = OpticsIlluminationModeEnum.OI;
@@ -74,18 +74,18 @@ public sealed partial class CollectionYGhostCache : ObservableCacheBase
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(YStep))]
+    [NotifyPropertyChangedFor(nameof(GrabCount))]
     public partial Point StartPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(YStep))]
+    [NotifyPropertyChangedFor(nameof(GrabCount))]
     public partial Point StopPosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(YStep))]
-    public partial int GrabCount { get; set; } = 8;
+    [NotifyPropertyChangedFor(nameof(GrabCount))]
+    public partial double YStep { get; set; } = 23;
 
-    public double YStep => (StopPosition.Y - StartPosition.Y) / GrabCount;
+    public int GrabCount => Convert.ToInt32((StopPosition.Y - StartPosition.Y) / YStep);
 
     [ObservableProperty]
     public partial double AligndBValue { get; set; } = -1;
@@ -93,17 +93,16 @@ public sealed partial class CollectionYGhostCache : ObservableCacheBase
     [ObservableProperty]
     public partial double YUmStandard { get; set; } = 23;
 
-    [ObservableProperty]
-    public partial double Threshold { get; set; } = 5e-4;
+    public static double Threshold => 10 * Math.Log10(5e-4);
 }
 
-public sealed partial class CollectionYGhostResult : ObservableObject
+public sealed partial class OpticsYGhostResult : ObservableObject
 {
     [ObservableProperty]
     public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    public partial IReadOnlyList<CollectionYGhostResultItem> Items { get; set; } = [];
+    public partial IReadOnlyList<OpticsYGhostResultItem> Items { get; set; } = [];
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -115,7 +114,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
 #pragma warning restore CS0657
 #pragma warning restore IDE0079
 
-    partial void OnItemsChanged(IReadOnlyList<CollectionYGhostResultItem>? oldValue, IReadOnlyList<CollectionYGhostResultItem> newValue)
+    partial void OnItemsChanged(IReadOnlyList<OpticsYGhostResultItem>? oldValue, IReadOnlyList<OpticsYGhostResultItem> newValue)
     {
         foreach (var item in oldValue ?? []) item.PropertyChanged -= ItemOnPropertyChanged;
 
@@ -132,7 +131,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    public CollectionYGhostResult()
+    public OpticsYGhostResult()
     {
         PlotDataSource.Configure(new Rows(), 2);
         PlotDataSource.SetTitle(0, "Y Ghost(Y: dB - X: pix)");
@@ -197,7 +196,7 @@ public sealed partial class CollectionYGhostResult : ObservableObject
     };
 }
 
-public sealed partial class CollectionYGhostResultItem : ObservableObject
+public sealed partial class OpticsYGhostResultItem : ObservableObject
 {
     [ObservableProperty]
     public partial bool IsOk { get; set; }
@@ -236,8 +235,8 @@ public sealed partial class CollectionYGhostResultItem : ObservableObject
     };
 }
 
-[IOCAppService(ServiceType = typeof(CollectionYGhostWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class CollectionYGhostWindowViewModel(
+[IOCAppService(ServiceType = typeof(OpticsYGhostWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
+public sealed partial class OpticsYGhostWindowViewModel(
     StageViewModel stageViewModel,
     OpticsViewModel opticsViewModel,
     CIBViewModel cibViewModel,
@@ -246,7 +245,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     ICacheProvider cacheProvider,
     IHostEnvironment hostEnvironment,
     IDialogWindowProvider dialogWindowProvider,
-    ILogger<CollectionYGhostWindowViewModel> logger,
+    ILogger<OpticsYGhostWindowViewModel> logger,
     IApplicationCookieService applicationCookieService,
     CalibrationSetting calibrationSetting) : ViewModelBase
 {
@@ -258,7 +257,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
         "Step 2 Y Ghost"
     ];
 
-    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(CollectionYGhostWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(OpticsYGhostWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
@@ -266,14 +265,14 @@ public sealed partial class CollectionYGhostWindowViewModel(
 
     [DefaultCache]
     [ObservableProperty]
-    public partial CollectionYGhostCache Cache { get; set; } = new();
+    public partial OpticsYGhostCache Cache { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
-    public partial CIBYPixelSizeDTO YPixelSize { get; set; }
+    public partial CIBYPixelSizeDTO YPixelSize { get; set; } = new();
 
     [ObservableProperty]
-    public partial IReadOnlyList<CollectionYGhostResult> YGhostResults { get; set; } = [];
+    public partial IReadOnlyList<OpticsYGhostResult> YGhostResults { get; set; } = [];
 
     [ObservableProperty]
     public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
@@ -281,7 +280,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
     [RelayCommand]
     private void Loaded()
     {
-        Cache = applicationCookieService.GetOrDefault<CollectionYGhostCache>(false, CancellationToken.None);
+        Cache = applicationCookieService.GetOrDefault<OpticsYGhostCache>(false, CancellationToken.None);
         Cache.PMTId = calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId;
     }
 
@@ -324,8 +323,9 @@ public sealed partial class CollectionYGhostWindowViewModel(
     {
         await InvokeAsync(1, async () =>
         {
-            YPixelSize = GuardExtensions.IsNotNullAndReturn(applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>()
-                .SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.PMTId && t.IsOk), "Please calibrate CIB Y pixel size first!");
+            YPixelSize = GuardExtensions.IsNotNullAndReturn(
+                applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>().SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.PMTId && t.IsOk),
+                "Please calibrate CIB Y pixel size first!");
             YGhostResults = [];
 
             CIBConfiguration cibConfiguration = new()
@@ -333,7 +333,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 IsAutoGainControl = true,
                 IsL0K = false,
                 CIBProfileMode = CIBProfileModeEnum.PMTLog,
-                IsKeepRawImageCIBProfileModeEnum = true
+                IsKeepRawImageCIBProfileModeEnum = false
             };
 
             logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -345,7 +345,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 Cache.ImageWidth,
                 Cache.LaserLightInformation,
                 YPixelSize,
-                Cache.Threshold,
+                OpticsYGhostCache.Threshold,
                 Cache.YUmStandard,
                 Cache.StartPosition,
                 Cache.StopPosition,
@@ -361,7 +361,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PMTId).ToArray();
                 YGhostResults =
                 [
-                    .. cibInformations.Select(t => new CollectionYGhostResult
+                    .. cibInformations.Select(t => new OpticsYGhostResult
                     {
                         CIBInformation = t
                     })
@@ -405,6 +405,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                     positionIndex++;
                 }
 
+                // todo：滤掉没有下降沿的曲线
                 foreach (var yGhostResult in YGhostResults)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -416,7 +417,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                             var yGhostAlignPoints = t.YGhostPoints.Select(tt => new Point((tt.X - t.AlignPoint.X) * YPixelSize.YPixelSize, tt.Y)).ToArray();
                             var yGhostMinimumPoint = yGhostAlignPoints.Last(o => o.X < Cache.YUmStandard);
 
-                            var resultItem = new CollectionYGhostResultItem
+                            var resultItem = new OpticsYGhostResultItem
                             {
                                 FindPosition = t.FindPosition,
                                 ImageFilePath = t.ImageFilePath,
@@ -425,7 +426,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
                                 YGhostAlignPoints = [.. yGhostAlignPoints],
                                 YGhostMinimumPoint = yGhostMinimumPoint
                             };
-                            resultItem.IsOk = resultItem.YGhostResultValue <= Cache.Threshold;
+                            resultItem.IsOk = resultItem.YGhostResultValue <= OpticsYGhostCache.Threshold;
                             return resultItem;
                         })
                     ];
@@ -443,28 +444,33 @@ public sealed partial class CollectionYGhostWindowViewModel(
                 opticsViewModel.ToggleZoosClinder(Cache.OpticsIlluminationModeEnum, false);
             }
 
-            CollectionYGhostResultItem GetResultItem(BitmapImage bitmapImage)
+            OpticsYGhostResultItem GetResultItem(BitmapImage bitmapImage)
             {
                 var filePath = Path.Combine(ImageDirectory, $"GUID{Guid.NewGuid()}.png");
 
                 bitmapImage.SaveImage(filePath);
 
+                // 1. Y 方向投影
                 var yProjects = bitmapImage.GetHorizontalProjects();
-                var (maxGrayValue, _, _, _) = bitmapImage.GetMaxMinGrayValue(new Rect(0, 0, bitmapImage.Size.Width, bitmapImage.Size.Height));
-                var yGhostValues = yProjects.Select(t => 10 * Math.Log10(t / maxGrayValue)).ToArray();
+                var yProjectPoints = yProjects.Select((t, i) => new Point(i, t)).ToArray();
 
-                var yGhostPoints = yGhostValues.Select((t, i) => new Point(i, t)).ToArray();
-
-                var maxPoints = Extremumor.FindMaxima(yGhostPoints);
-                var alignPoint = maxPoints.Results.LastOrDefault(t => t.Y > Cache.AligndBValue);
+                // 2. 对齐点用投影值寻找：取相对最强投影 AligndBValue dB 以内的最后一个极大值
+                var maxPoints = Extremumor.FindMaxima(yProjectPoints);
+                var maxProjectValue = yProjects.Max();
+                var alignPoint = maxPoints.Results.LastOrDefault(t => t.Y > maxProjectValue * Math.Pow(10d, Cache.AligndBValue / 10d));
                 if (alignPoint == Point.Origin)
                     ThrowHelper.ThrowArgumentException("Can't find the falling edge in the image. " +
                                                        "Please set proper start and end coordinates so the image always includes the falling edge.");
 
-                return new CollectionYGhostResultItem
+                // 3. 各曲线以自己的对齐点独立归一化，对齐点处为 0 dB
+                var yGhostPoints = yProjects
+                    .Select((t, i) => new Point(i, 10 * Math.Log10(t / alignPoint.Y)))
+                    .ToArray();
+
+                return new OpticsYGhostResultItem
                 {
                     ImageFilePath = filePath,
-                    AlignPoint = alignPoint,
+                    AlignPoint = new Point(alignPoint.X, 0),
                     YGhostPoints = [.. yGhostPoints]
                 };
             }
@@ -482,7 +488,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "{@Name}: Failed to save cache", Name);
+            logger.LogError(ex, "{Name}: Failed to save cache", Name);
         }
 
         CloseView(true);
@@ -498,7 +504,7 @@ public sealed partial class CollectionYGhostWindowViewModel(
             var bytes = System.IO.File.ReadAllBytes(mockImagePath);
             var (size, _, _) = RAWImageFactory.GetSize(bytes);
 
-            using var hImage = RAWImageFactory.CreateImage(mockImagePath, false);
+            using var hImage = RAWImageFactory.CreateImage(mockImagePath, true);
             using var reduceImage = hImage.ToROI(new Rect(0, 4, size.Width, size.Height - 8));
 
             using var mirrorImage = reduceImage.VerticalFlip();
