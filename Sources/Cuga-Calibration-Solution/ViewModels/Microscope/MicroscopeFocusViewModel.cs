@@ -412,7 +412,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             $"{microscopeFocusDTOItem.FilePath}\\Index({microscopeFocusDTOItem.Index})_Ecs({microscopeFocusDTOItem.EcsValue:F3})_Quality({microscopeFocusDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
 
         image.SaveImage(microscopeFocusDTOItem.FilePath);
-        var quality = ReviewViewModel.GetQuality(image, HtmlLogUniqueId);
+        var quality = ReviewViewModel.GetQuality(image, HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum);
         microscopeFocusDTOItem.Quality = quality;
 
         var htmlBulletList = new HtmlBullet(new

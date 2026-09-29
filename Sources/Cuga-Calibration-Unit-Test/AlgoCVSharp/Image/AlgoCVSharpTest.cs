@@ -20,12 +20,11 @@ public class AlgoCVSharpTest(ITestOutputHelper output)
         using var algoImage = new algocv_sharp.Image(filePath);
         var (size, _, _) = RAWImageFactory.GetSize(rawBytes);
 
-        // Verify algocv_sharp.Image parses the same dimensions as HALCON.
-        algoImage.Width.Should().Be(size.Width);
-        algoImage.Height.Should().Be(size.Height);
+        // algocv_sharp 1.2.0 起 RAW 像素序改为行优先（1.0.13 为列优先），解析结果与 HALCON 互为转置：宽高互换。
+        algoImage.Width.Should().Be(size.Height);
+        algoImage.Height.Should().Be(size.Width);
         algoImage.Channels.Should().Be(1);
         algoImage.DataType.Should().Be(ImageDataType.UInt16);
-        // algoImage.IsEmpty.Should().BeFalse();
         algoImage.DataPtr.Should().NotBe(IntPtr.Zero);
 
         // Sanity check: all pixel values fit in the 16-bit range and the buffer length matches.
@@ -43,9 +42,21 @@ public class AlgoCVSharpTest(ITestOutputHelper output)
         using var halconImage = RAWImageFactory.CreateImage(rawBytes, false);
         using var algoImage = new algocv_sharp.Image(filePath);
         algoImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\algo.raw");
-        // Sanity check: all pixel values fit in the 16-bit range and the buffer length matches.
-        var algoImageSpans = algoImage.ToSpan<ushort>();
-        var halconImageSpans = Array.ConvertAll(halconImage.GetGrayValuesL(), item => (ushort)item).AsSpan();
-        algoImageSpans.SequenceEqual(halconImageSpans).Should().BeTrue();
+
+        // algocv_sharp 1.2.0 起 RAW 像素序与 1.0.13（列优先）互为转置：algo(r, c) == halcon(c, r)。
+        var algoImageSpans = algoImage.ToSpan<ushort>().ToArray();
+        var halconImageSpans = Array.ConvertAll(halconImage.GetGrayValuesL(), item => (ushort)item);
+        var (size, _, _) = RAWImageFactory.GetSize(rawBytes);
+
+        var isTranspose = true;
+        for (var r = 0; r < algoImage.Height && isTranspose; r++)
+        {
+            for (var c = 0; c < algoImage.Width && isTranspose; c++)
+            {
+                isTranspose = algoImageSpans[(r * algoImage.Width) + c] == halconImageSpans[(c * size.Width) + r];
+            }
+        }
+
+        isTranspose.Should().BeTrue();
     }
 }

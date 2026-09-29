@@ -43,12 +43,6 @@ public sealed partial class RecipeDarkFieldTemplateDTO : RecipeTemplateDTOBase, 
 
     public RecipeDarkFieldTemplateDTO AdaptIn(RecipeDarkFieldTemplateDTO obj)
     {
-        ProductivityInformation = ProductivityInformation.AdaptIn(obj.ProductivityInformation);
-        MicroscopeLensInformation = MicroscopeLensInformation.AdaptIn(obj.MicroscopeLensInformation);
-        LaserLightInformation = LaserLightInformation.AdaptIn(obj.LaserLightInformation);
-        CIBConfiguration = CIBConfiguration.AdaptIn(obj.CIBConfiguration);
-        CIBInformation = CIBInformation.AdaptIn(obj.CIBInformation);
-        OpticsConfiguration = OpticsConfiguration.AdaptIn(obj.OpticsConfiguration);
         TemplateId = obj.TemplateId;
         Remark = obj.Remark;
         MaskReticlePosition = obj.MaskReticlePosition;

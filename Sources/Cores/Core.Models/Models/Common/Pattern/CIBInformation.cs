@@ -17,8 +17,6 @@ public sealed partial class CIBInformation :
     IComparable,
     IEquatable<CIBInformation>,
     IFormattable,
-    IAdaptIn<(int id, int chl, bool used), CIBInformation>,
-    IAdaptIn<CIBInformation, CIBInformation>,
     ICloneable<CIBInformation>
 {
     public static readonly CIBInformation Default = new();
@@ -97,20 +95,12 @@ public sealed partial class CIBInformation :
 
     #region Mapper
 
-    public CIBInformation AdaptIn((int id, int chl, bool used) obj)
+    internal CIBInformation AdaptIn((int id, int chl, bool used) obj)
     {
         Guard.IsTrue(obj.used);
 
         PMTId = obj.id;
         ChannelId = obj.chl;
-
-        return this;
-    }
-
-    public CIBInformation AdaptIn(CIBInformation obj)
-    {
-        PMTId = obj.PMTId;
-        ChannelId = obj.ChannelId;
 
         return this;
     }
