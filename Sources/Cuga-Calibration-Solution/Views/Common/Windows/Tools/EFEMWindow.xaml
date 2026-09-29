@@ -30,6 +30,10 @@
                                                FalseValue="{x:Static Brushes.White}"
                                                TrueValue="{x:Static Brushes.Red}" />
         <valueconverters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <!--  FOUP 已装载时 Load Foup 按钮用主色样式区分  -->
+        <valueconverters:BoolToObjectConverter x:Key="BoolToLoadFoupStyleConverter"
+                                               FalseValue="{StaticResource ButtonDefault.Small}"
+                                               TrueValue="{StaticResource ButtonPrimary.Loading}" />
     </Window.Resources>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -103,7 +107,7 @@
                                 Command="{Binding LoadFoupCommand}"
                                 CommandParameter="{x:Static enums:EFEMStationEnum.P1}"
                                 Margin="10,0"
-                                Style="{StaticResource ButtonDefault.Small}" />
+                                Style="{Binding IsFoupLoadPort1Loaded, Converter={StaticResource BoolToLoadFoupStyleConverter}}" />
                         <Button Content="UnLoad Foup"
                                 Command="{Binding UnLoadFoupCommand}"
                                 CommandParameter="{x:Static enums:EFEMStationEnum.P1}"
@@ -190,7 +194,7 @@
                                 Command="{Binding LoadFoupCommand}"
                                 CommandParameter="{x:Static enums:EFEMStationEnum.P2}"
                                 Margin="10,0"
-                                Style="{StaticResource ButtonDefault.Small}" />
+                                Style="{Binding IsFoupLoadPort2Loaded, Converter={StaticResource BoolToLoadFoupStyleConverter}}" />
                         <Button Content="UnLoad Foup"
                                 Command="{Binding UnLoadFoupCommand}"
                                 CommandParameter="{x:Static enums:EFEMStationEnum.P2}"
@@ -284,8 +288,13 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <Button Content="Load Wafer" Command="{Binding LoadWaferCommand}" />
-                            <Button Content="UnLoad Wafer" Command="{Binding UnLoadWaferCommand}" />
+                            <!--  选中槽位的晶圆在 Chuck 上时只允许下料, 否则只允许上料  -->
+                            <Button Content="Load Wafer"
+                                    Command="{Binding LoadWaferCommand}"
+                                    IsEnabled="{Binding SelectedFoupItem.IsLoadWafer, Converter={StaticResource BoolNegationConverter}}" />
+                            <Button Content="UnLoad Wafer"
+                                    Command="{Binding UnLoadWaferCommand}"
+                                    IsEnabled="{Binding SelectedFoupItem.IsLoadWafer}" />
                         </hc:UniformSpacingPanel>
                     </GroupBox>
                 </hc:UniformSpacingPanel>

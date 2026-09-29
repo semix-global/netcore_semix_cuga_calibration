@@ -103,7 +103,11 @@ public static class BitmapImageExtensions
             return hImage.GetMaxMinGrayValue(rect);
         }
 
-        public Image ToAlgoCVImage()
+        /// <summary>
+        /// TODO: algocv_sharp 提供方向 flag 后，由 flag 统一驱动方向语义。
+        /// </summary>
+        /// <param name="isRawSource">是否 raw 链路来源：true 转置为竖图），false保持正向。</param>
+        public Image ToAlgoCVImage(bool isRawSource = false)
         {
             Guard.IsFalse(@this.IsDisposed);
             Guard.IsFalse(@this.IsEmpty);
@@ -125,7 +129,18 @@ public static class BitmapImageExtensions
                 return ThrowHelper.ThrowNotSupportedException<Image>(Constants.ImageFileExtensionsFilter);
             }
 
-            return image;
+#pragma warning disable IDISP011 
+            if (isRawSource == false)
+            {
+                return image;
+            }
+
+            // raw 来源：转置回竖图（列优先协议形态）。BitmapImage 已是物理正向，Transpose 后与 raw 直读竖图等构。
+            using (image)
+            {
+                return ImageProc.Transpose(image);
+            }
+#pragma warning restore IDISP011
         }
     }
 }

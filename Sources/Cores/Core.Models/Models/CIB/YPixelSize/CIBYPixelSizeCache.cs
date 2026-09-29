@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
@@ -10,6 +11,9 @@ namespace Core.Models.Models.CIB.YPixelSize;
 
 public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelSizeCache>
 {
+    [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -36,6 +40,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
         PmtInterval = PmtInterval,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

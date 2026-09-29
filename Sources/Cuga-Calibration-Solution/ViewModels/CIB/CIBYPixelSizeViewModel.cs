@@ -480,7 +480,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             false,
             cancellationToken);
 
-        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, HtmlLogUniqueId, out var drawImageObj, out var yProjects, out var algoIndexes);
+        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum, out var drawImageObj, out var yProjects, out var algoIndexes);
         cibYPixelSizeDTO.YPixelSize = yPixelSize;
         cibYPixelSizeDTO.YProjects = yProjects;
         cibYPixelSizeDTO.AlgorithmIndexes = algoIndexes;

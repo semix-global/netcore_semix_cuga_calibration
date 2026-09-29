@@ -132,10 +132,9 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
                 if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel) StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
 
-                StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(
-                    Cache.Item.FindPosition == Point.Origin
-                        ? MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)
-                        : Cache.Item.FindPosition), Cache.CalChipSiteModelEnum);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition == Point.Origin
+                ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum))
+                        : Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -317,7 +316,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
             using var image = ReviewViewModel.GetBrightFieldImage();
 
-            var pixelSize = CalibrationAlgorithmService.GetPixelSize(image, Cache.Item.AlgorithmStandardMaskSquareSizeEnum.ToSize(), HtmlLogUniqueId, out var drawingImage, out var angle);
+            var pixelSize = CalibrationAlgorithmService.GetPixelSize(image, Cache.Item.AlgorithmStandardMaskSquareSizeEnum.ToSize(), HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum, out var drawingImage, out var angle);
             if (Math.Abs(angle) > Cache.AngleThreshold)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment($"The current horizontal angle exceeds the limit! Angle:{angle}"), HtmlLogUniqueId.LoggingHtml());

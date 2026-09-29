@@ -25,8 +25,6 @@ public sealed partial class ProductivityInformation :
     IEquatable<ProductivityInformation>,
     IFormattable,
     IAdaptTo<C2MProductivityInfo>,
-    IAdaptIn<ProductivityInformation, ProductivityInformation>,
-    /*IAdaptIn<C2MProductivityInfo, ProductivityInformation>,*/
     ICloneable<ProductivityInformation>
 {
     public static readonly ProductivityInformation Default = new();
@@ -191,7 +189,7 @@ public sealed partial class ProductivityInformation :
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxSpeedEnum>(nameof(StageSpeedType))
     };
 
-    public ProductivityInformation AdaptIn(
+    internal ProductivityInformation AdaptIn(
         C2MProductivityInfo obj,
 #if NET
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
@@ -242,23 +240,6 @@ public sealed partial class ProductivityInformation :
         XSpeedValue = xSpeedValue;
         XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
-        return this;
-    }
-
-    public ProductivityInformation AdaptIn(ProductivityInformation obj)
-    {
-        Name = obj.Name;
-        OpticsIlluminationModeEnum = obj.OpticsIlluminationModeEnum;
-        OpticsMagType = obj.OpticsMagType;
-        StageSpeedType = obj.StageSpeedType;
-        XPixelSize = obj.XPixelSize;
-        YPixelSize = obj.YPixelSize;
-        YPixels = obj.YPixels;
-        OriginYPixels = obj.OriginYPixels;
-        OriginYPixelsStartIndex = obj.OriginYPixelsStartIndex;
-        OriginYPixelsEndIndex = obj.OriginYPixelsEndIndex;
-        SampleRate = obj.SampleRate;
-        XSpeedValue = obj.XSpeedValue;
         return this;
     }
 

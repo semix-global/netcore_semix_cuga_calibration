@@ -25,13 +25,15 @@ public class ImageProcTest
         halconScaledImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\ScaleImage.jpg");
 
         // Both results must share the same dimensions and bit depth.
+        // algocv_sharp 1.2.0 起 raw 按列优先协议解析（竖图），与 HALCON 互为转置：宽高互换。
         var halconSize = halconScaledImage.GetSize();
-        algoScaleImage.Width.Should().Be(halconSize.Width);
-        algoScaleImage.Height.Should().Be(halconSize.Height);
+        algoScaleImage.Width.Should().Be(halconSize.Height);
+        algoScaleImage.Height.Should().Be(halconSize.Width);
         algoScaleImage.DataType.Should().Be(ImageDataType.UInt8);
 
         // Compare pixel-by-pixel after converting both buffers to byte.
-        var algoPixels = algoScaleImage.ToSpan<byte>().ToArray();
+        // 像素按转置关系重排后逐点对比：halcon(r, c) == algo(c, r)。
+        var algoPixels = TransposePixels(algoScaleImage.ToSpan<byte>().ToArray(), algoScaleImage.Width, algoScaleImage.Height);
         var halconPixels = Array.ConvertAll(halconScaledImage.GetGrayValuesL(), v => (byte)v);
 
         algoPixels.Should().BeEquivalentTo(halconPixels, options => options
@@ -53,12 +55,14 @@ public class ImageProcTest
         using var halconImage = RAWImageFactory.CreateImage(rawBytes, true);
 
         // Both results must share the same dimensions.
+        // algocv_sharp 1.2.0 起 raw 按列优先协议解析（竖图），与 HALCON 互为转置：宽高互换。
         var halconSize = halconImage.GetSize();
-        algoLinearImage.Width.Should().Be(halconSize.Width);
-        algoLinearImage.Height.Should().Be(halconSize.Height);
+        algoLinearImage.Width.Should().Be(halconSize.Height);
+        algoLinearImage.Height.Should().Be(halconSize.Width);
 
         // Compare pixel-by-pixel after converting both buffers to the same numeric type.
-        var algoPixels = algoLinearImage.ToSpan<ushort>().ToArray();
+        // 像素按转置关系重排后逐点对比：halcon(r, c) == algo(c, r)。
+        var algoPixels = TransposePixels(algoLinearImage.ToSpan<ushort>().ToArray(), algoLinearImage.Width, algoLinearImage.Height);
         var halconPixels = Array.ConvertAll(halconImage.GetGrayValuesL(), v => (ushort)v);
 
         algoLinearImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\algoLinearImage.raw");
@@ -86,8 +90,9 @@ public class ImageProcTest
         var algoBodyStart = algoInfo.body_bytes_start_index;
         var algoBodyLength = algoInfo.body_bytes_length;
 
-        algoWidth.Should().Be(halconSize.Width);
-        algoHeight.Should().Be(halconSize.Height);
+        // algocv_sharp 1.2.0 起 raw 按列优先协议解析（竖图），与 HALCON 互为转置：宽高互换。
+        algoWidth.Should().Be(halconSize.Height);
+        algoHeight.Should().Be(halconSize.Width);
         algoBodyStart.Should().Be(halconBodyStart);
         algoBodyLength.Should().Be(halconBodyLength);
     }
@@ -136,5 +141,20 @@ public class ImageProcTest
         // PS：协议已更新，数据头第23位修改，数据尾已取消使用
         // algoHead.Should().BeEquivalentTo(halconHead, options => options.WithStrictOrdering());
         // algoRawBytes.Should().BeEquivalentTo(halconRawBytes, options => options.WithStrictOrdering());
+    }
+
+    /// <summary>按转置关系重排像素：返回数组视为宽 = height 的行优先布局，其 (r, c) 处为原数组 (c, r) 处的值。</summary>
+    private static T[] TransposePixels<T>(T[] pixels, int width, int height)
+    {
+        var transposed = new T[pixels.Length];
+        for (var r = 0; r < height; r++)
+        {
+            for (var c = 0; c < width; c++)
+            {
+                transposed[(c * height) + r] = pixels[(r * width) + c];
+            }
+        }
+
+        return transposed;
     }
 }

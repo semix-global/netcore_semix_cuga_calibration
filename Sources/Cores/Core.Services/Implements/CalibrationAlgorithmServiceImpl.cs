@@ -55,14 +55,16 @@ public sealed class CalibrationAlgorithmServiceImpl(
         _isAlgorithmEngineInitialized = true;
     }
 
-    public double GetQuality(BitmapImage image, Guid guid)
+    public double GetQuality(BitmapImage image, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum)
     {
         try
         {
-            using var hImage = image.ToHImage();
-            _algorithm.LaplaceDefinition(hImage, out var meanTuple);
-            using var _ = meanTuple;
-            return meanTuple.D;
+            return algorithmEngineTypeEnum switch
+            {
+                AlgorithmEngineTypeEnum.HAlgorithm => GetHAlgorithemQuality(image),
+                AlgorithmEngineTypeEnum.AlgoCSharp => GetAlgoCVSharpQuality(image),
+                _ => ThrowHelper.ThrowNotSupportedException<double>()
+            };
         }
         catch (Exception ex)
         {
@@ -70,6 +72,21 @@ public sealed class CalibrationAlgorithmServiceImpl(
             LogAlgorithmError(ex, nameof(GetQuality), guid, errorImagePath);
             throw;
         }
+    }
+
+    private double GetHAlgorithemQuality(BitmapImage image)
+    {
+        using var hImage = image.ToHImage();
+        _algorithm.LaplaceDefinition(hImage, out var meanTuple);
+        using var _ = meanTuple;
+        return meanTuple.D;
+    }
+
+    private double GetAlgoCVSharpQuality(BitmapImage image)
+    {
+        // Focus 评价默认 tenengrad 模式；BF 图为常规格式
+        using var algoImage = image.ToAlgoCVImage();
+        return FocusEngine.EvaluateFocus(algoImage, "tenengrad");
     }
 
     public double GetDarkFieldQuality(BitmapImage image, Guid guid)
@@ -262,7 +279,10 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     private BestFocus GetAlgoCVSharpBestFocus(BitmapImage image, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum)
     {
-        using var algoImage = image.ToAlgoCVImage();
+        // BestFocus 输入为 raw 链路图（PMT raw 转正的物理正向图），桥按 raw 规则转置竖图喂入
+        // （1.2.0 引擎假定 raw 列优先竖图输入，正向图直搬会被拒绝，见 BestFocusTransposeArbitrationTest 仲裁）。
+        // TODO: algocv_sharp 提供方向 flag 后，由 flag 统一驱动方向语义。
+        using var algoImage = image.ToAlgoCVImage(isRawSource: true);
         BestFocusEngineResult algoResult;
 
         switch (algorithmBestFocusTypeEnum)
@@ -288,74 +308,165 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return bestfocus;
     }
 
-    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out double angle)
     {
         try
         {
-            using var hImage = image.ToHImage();
-            _algorithm.CalculatePixSize(hImage, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
-            using var _1 = xTuple;
-            using var _2 = yTuple;
-            using var _3 = angleX;
-            angle = angleX.D;
+            switch (algorithmEngineTypeEnum)
+            {
+                case AlgorithmEngineTypeEnum.HAlgorithm:
+                    return GetHAlgorithemPixelSize(image, standardMaskSquareSize, out drawingImage, out angle);
 
-            using var drawingHImage = new HImage(drawingImageObj);
-            drawingImage = drawingHImage.ToBitmapImage();
-            return new Size(xTuple.D, yTuple.D);
+                case AlgorithmEngineTypeEnum.AlgoCSharp:
+                    return GetAlgoCVSharpPixelSize(image, standardMaskSquareSize, out drawingImage, out angle);
+
+                default:
+                    throw new NotSupportedException($"Algorithm Type {algorithmEngineTypeEnum} is not supported.");
+
+            }
         }
         catch (Exception ex)
         {
             var errorImagePath = SaveErrorImage(image, guid, nameof(GetPixelSize));
-            drawingImage = BitmapImage.Random(1, 1, 0);
-            angle = 0;
             LogAlgorithmError(ex, nameof(GetPixelSize), guid, errorImagePath);
             throw;
         }
     }
 
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
+    private Size GetHAlgorithemPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
+    {
+        using var hImage = image.ToHImage();
+        _algorithm.CalculatePixSize(hImage, out var drawingImageObj, standardMaskSquareSize.Height, standardMaskSquareSize.Width, out var yTuple, out var xTuple, out var angleX);
+        using var _1 = xTuple;
+        using var _2 = yTuple;
+        using var _3 = angleX;
+        angle = angleX.D;
+
+        using var drawingHImage = new HImage(drawingImageObj);
+        drawingImage = drawingHImage.ToBitmapImage();
+        return new Size(xTuple.D, yTuple.D);
+    }
+
+    /// <summary>
+    /// AlgoCSharp 引擎（BfPixelSize 明场网格拟合）：显微 BF 图为常规格式（8bit 灰/彩色，jpg 直读），
+    /// 桥直搬保持物理正向（isRawSource: false，协议：其余格式同方向）。
+    /// </summary>
+    private Size GetAlgoCVSharpPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
+    {
+        using var algoImage = image.ToAlgoCVImage();
+
+        // 按标准掩膜网格尺寸预估周期扫描窗（period_half/n_max 同值放宽；有效上限还受 2·half 铺 2 窗限制）：
+        // Size100(5x，实测格距 146px)/Size50(10x，73px) 用默认 400；Size25(50x，365px) 贴默认上限，放宽到 500；Size10(100x/150x，289/431px) 放宽到 600。
+        // period_n_max 不宜过大：超实际格距约 2 倍后周期估计可能锁到倍频（10x 帧 half=500+ 实测错锁 5 倍格距 364px）。
+        var scanMax = standardMaskSquareSize.Width switch
+        {
+            >= 50 => 400,
+            >= 25 => 500,
+            _ => 600
+        };
+
+        var config = new BfPixelSizeConfig { period_half = scanMax, period_n_max = scanMax };
+        using var engine = new BfPixelSizeEngine(config);
+        using var result = engine.Process(algoImage);
+
+        // hvc 为拟合格基矢：tx/ty = x/y 向格距(像素/格)；col_vec = j 向单格位移 (drow, dcol)。
+        // pixel size = 物理格尺寸 / 格距；angle = 格向量相对 x 轴倾角(度)。
+        angle = Math.Atan2(result.hvc.col_vec[0], result.hvc.col_vec[1]) * 180.0 / Math.PI;
+        drawingImage = image.Copy();// todo：实现绘制
+
+        return new Size(standardMaskSquareSize.Width / result.hvc.tx, standardMaskSquareSize.Height / result.hvc.ty);
+    }
+
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
     {
         try
         {
-            using var hImage = image.ToHImage();
-            var data = hImage.RAW16BitsPerPixelToMatrix();
-            var matrix = Matrix<double>.Build.DenseOfArray(data);
-            var projectionYs = matrix.RowSums() / matrix.ColumnCount;
+            switch (algorithmEngineTypeEnum)
+            {
+                case AlgorithmEngineTypeEnum.HAlgorithm:
+                    return GetHAlgorithemYPixelSize(image, standardMaskSquareYSize, out drawingImage, out yProjects, out resultIndexs);
 
-            // 使用AMPD算法找出波峰
-            var signal = Vector<double>.Build.DenseOfEnumerable(projectionYs.Select(t => -t));
-            var peaks = AutomaticMPeakDetection.Ampd(signal);
+                case AlgorithmEngineTypeEnum.AlgoCSharp:
+                    return GetAlgoCVSharpYPixelSize(image, standardMaskSquareYSize, out drawingImage, out yProjects, out resultIndexs);
 
-            var xDifferences = peaks
-                .Zip(peaks.Skip(1), (prev, next) => (double)next - prev)
-                .ToArray();
-            var (indexes, filterXDifferences) = Filter.MAD(xDifferences);
+                default:
+                    throw new NotSupportedException($"Algorithm Type {algorithmEngineTypeEnum} is not supported.");
 
-            // 所有后一个减去前一个，得到差值, 然后取得均值
-            var mean = filterXDifferences.Average();
-
-            using var drawHImage = hImage.DrawLines(
-                [
-                    .. indexes
-                        .SelectMany(t => (int[])[t, t + 1])
-                        .Distinct()
-                        .OrderBy(t => t)
-                        .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
-                ],
-                5);
-            drawingImage = drawHImage.ToBitmapImage();
-
-            yProjects = [.. projectionYs.Select((t, i) => new Point(i, t))];
-            resultIndexs = [.. peaks];
-            return standardMaskSquareYSize / mean;
+            }
         }
         catch (Exception ex)
         {
             var errorImagePath = SaveErrorImage(image, guid, nameof(GetYPixelSize));
-            drawingImage = BitmapImage.Random(1, 1, 0);
             LogAlgorithmError(ex, nameof(GetYPixelSize), guid, errorImagePath);
             throw;
         }
+    }
+
+    private double GetHAlgorithemYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes)
+    {
+        using var hImage = image.ToHImage();
+        var data = hImage.RAW16BitsPerPixelToMatrix();
+        var matrix = Matrix<double>.Build.DenseOfArray(data);
+        var projectionYs = matrix.RowSums() / matrix.ColumnCount;
+
+        // 使用AMPD算法找出波峰
+        var signal = Vector<double>.Build.DenseOfEnumerable(projectionYs.Select(t => -t));
+        var peaks = AutomaticMPeakDetection.Ampd(signal);
+
+        var xDifferences = peaks
+            .Zip(peaks.Skip(1), (prev, next) => (double)next - prev)
+            .ToArray();
+        var (indexes, filterXDifferences) = Filter.MAD(xDifferences);
+
+        // 所有后一个减去前一个，得到差值, 然后取得均值
+        var mean = filterXDifferences.Average();
+
+        using var drawHImage = hImage.DrawLines(
+            [
+                .. indexes
+                    .SelectMany(t => (int[])[t, t + 1])
+                    .Distinct()
+                    .OrderBy(t => t)
+                    .Select(index => (new Point(0, peaks[index]), new Point(image.Width, peaks[index])))
+            ],
+            5);
+        drawingImage = drawHImage.ToBitmapImage();
+
+        yProjects = [.. projectionYs.Select((t, i) => new Point(i, t))];
+        resultIndexes = [.. peaks];
+        return standardMaskSquareYSize / mean;
+    }
+
+    /// <summary>
+    /// AlgoCSharp 引擎（DfPixelSize 暗场首末列配对）：DF 为 raw 图，终态应经桥转置竖图喂入（API 内部用竖图出横向结果）。
+    /// TODO: 当前 API 未支持竖图输入（实测报“内缩后区间过短”），先直搬（isRawSource: false），待 algocv_sharp 提供方向 flag 后改为 true。
+    /// </summary>
+    private double GetAlgoCVSharpYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes)
+    {
+        using var algoImage = image.ToAlgoCVImage();
+        using var engine = new DfPixelSizeEngine(new DfPixelSizeConfig());
+        using var result = engine.Process(algoImage);
+
+        // pairs.step_mean_c = 列向步长均值(像素/格)；Y pixel size = 物理格高 / 列向步长。
+        // Y 投影曲线 = 每行灰度均值（与 HAlgorithm 版 projectionYs 同信号）；配对行位置 r0 对应 AMPD 峰位语义（竖线标记）。
+        // 当前直搬为正向图：行号即物理 Y；待改竖图（isRawSource: true）后投影与索引须随竖图坐标系同步换算（竖图 c 轴=物理 Y）。
+        var rowMean = new double[algoImage.Height];
+        var pixels = algoImage.ToSpan<ushort>();
+        for (var row = 0; row < algoImage.Height; row++)
+        {
+            long sum = 0;
+            var offset = row * algoImage.Width;
+            for (var col = 0; col < algoImage.Width; col++)
+                sum += pixels[offset + col];
+
+            rowMean[row] = (double)sum / algoImage.Width;
+        }
+
+        drawingImage = image.Copy();
+        yProjects = [.. rowMean.Select((t, i) => new Point(i, t))];
+        resultIndexes = [.. result.pairs.pairs.Select(t => (int)Math.Round(t.r0))];
+
+        return standardMaskSquareYSize / result.pairs.step_mean_c;
     }
 
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, Guid guid, out BitmapImage templateImage)
