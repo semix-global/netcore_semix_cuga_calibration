@@ -12,6 +12,9 @@ namespace Core.Models.Models.Microscope.PixelSize;
 public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<MicroscopePixelSizeCache>
 {
     [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+
+    [ObservableProperty]
     public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; } = CalChipSiteModelEnum.DswModel;
 
     [ObservableProperty]
@@ -40,6 +43,7 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<Micr
         AngleThreshold = AngleThreshold,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(Items.Select(t => new KeyValuePair<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,

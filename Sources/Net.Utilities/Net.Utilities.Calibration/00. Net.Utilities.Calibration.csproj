@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="algocv_sharp" VersionOverride="1.0.13" />
+        <PackageReference Include="algocv_sharp" VersionOverride="1.2.0" />
 
         <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.6-preview9-xuan" />
         <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.6-preview9-xuan" />

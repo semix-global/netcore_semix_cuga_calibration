@@ -59,6 +59,17 @@
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
+                            <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="220"
+                                         hc:TitleElement.Title="Algorithm Engine Type: "
+                                         SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmEngineTypeEnum}}}">
+                                <hc:ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                    </DataTemplate>
+                                </hc:ComboBox.ItemTemplate>
+                            </hc:ComboBox>
                             <hc:ComboBox HorizontalAlignment="Left"
                                          hc:TitleElement.TitleWidth="220"
                                          hc:TitleElement.TitlePlacement="Left"

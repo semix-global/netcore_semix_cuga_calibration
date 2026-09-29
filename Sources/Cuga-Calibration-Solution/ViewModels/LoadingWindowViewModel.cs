@@ -168,7 +168,7 @@ public sealed partial class LoadingWindowViewModel(
             }
 
             if (calibrationRelationService.RefreshRelationConfigCookies(out var message) == false)
-                dialogWindowProvider.ShowDialog($"Refresh Relation Config Cookies Failed: {message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                logger.LogError("Refresh Relation Config Cookies Failed: {Message}", message);
         }
 
         void InitialEngines()

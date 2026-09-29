@@ -15,6 +15,8 @@
            xmlns:darkField="clr-namespace:Core.Models.Models.Common.DarkField;assembly=Core.Models"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
+           xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:ChirpAODWaveformTrainingWindowViewModel}"
@@ -226,6 +228,17 @@
                                                                   Minimum="0"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding Cache.RangeECS}" />
+                                                <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                                             hc:TitleElement.TitleWidth="160"
+                                                             hc:TitleElement.Title="Algorithm Engine Type: "
+                                                             SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
+                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}">
+                                                    <hc:ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                        </DataTemplate>
+                                                    </hc:ComboBox.ItemTemplate>
+                                                </hc:ComboBox>
                                                 <Border Style="{StaticResource BorderRegion}">
                                                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                         <StackPanel>

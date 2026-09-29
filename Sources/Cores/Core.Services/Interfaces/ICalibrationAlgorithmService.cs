@@ -18,8 +18,9 @@ public interface ICalibrationAlgorithmService
     /// </summary>
     /// <param name="image">图片</param>
     /// <param name="guid">日志Id</param>
+    /// <param name="algorithmEngineTypeEnum">算法库</param>
     /// <returns>清晰度</returns>
-    double GetQuality(BitmapImage image, Guid guid);
+    double GetQuality(BitmapImage image, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum);
 
     /// <summary>
     /// 获取图片清晰度, 适应彩色和灰度图像, 方差越大, 说明图像越清晰
@@ -71,7 +72,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="drawingImage">绘图图片</param>
     /// <param name="angle">网格水平夹角</param>
     /// <returns>像素尺寸um</returns>
-    Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle);
+    Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out double angle);
 
     /// <summary>
     /// 传入暗场图片获取Y像素尺寸um
@@ -83,7 +84,7 @@ public interface ICalibrationAlgorithmService
     /// <param name="yProjects"></param>
     /// <param name="resultIndexes"></param>
     /// <returns>Y像素尺寸um</returns>
-    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes);
+    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes);
 
     #endregion 尺寸
 

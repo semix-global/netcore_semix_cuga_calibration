@@ -36,7 +36,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         _calibrationAlgorithmServiceImpl.InitialAlgorithmEngine();
     }
 
-    public double GetQuality(BitmapImage image, Guid guid)
+    public double GetQuality(BitmapImage image, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum)
     {
         return Random.Shared.Next(100, 1000);
     }
@@ -115,7 +115,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS, algorithmEngineTypeEnum, algorithmBestFocusTypeEnum, guid);
     }
 
-    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, out BitmapImage drawingImage, out double angle)
+    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out double angle)
     {
         var pixelSize = new Size(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
         drawingImage = image.Copy();
@@ -124,7 +124,7 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return pixelSize;
     }
 
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
+    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
     {
         drawingImage = image.Copy();
 

@@ -34,7 +34,25 @@ public sealed partial class EFEMWindowViewModel(
     public partial EFEMAngleEnum AngleEnum { get; set; } = EFEMAngleEnum.Down;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(LoadWaferCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UnLoadWaferCommand))]
     public partial EFEMFoupItem? SelectedFoupItem { get; set; }
+
+    /// <summary>
+    /// FOUP1 是否处于 Load 状态
+    /// </summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(LoadWaferCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UnLoadWaferCommand))]
+    public partial bool IsFoupLoadPort1Loaded { get; set; }
+
+    /// <summary>
+    /// FOUP2 是否处于 Load 状态
+    /// </summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(LoadWaferCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UnLoadWaferCommand))]
+    public partial bool IsFoupLoadPort2Loaded { get; set; }
 
     [ObservableProperty]
     public partial bool IsPrealigner { get; set; }
@@ -47,6 +65,11 @@ public sealed partial class EFEMWindowViewModel(
 
     [ObservableProperty]
     public partial double OffsetAngle { get; set; }
+
+    /// <summary>
+    /// 卸盒残片槽位记录: 卸盒时若 Chuck 上有该盒晶圆, 必须重新装盒后将残片卸回, 已上料标记跨装盒周期保留
+    /// </summary>
+    private EFEMFoupItem? _residualWaferItem;
 
     /// <summary>
     /// 花篮载具1
@@ -63,9 +86,11 @@ public sealed partial class EFEMWindowViewModel(
     {
         return InvokeAsync(() =>
         {
+            SyncFoupLoadedStatus();
+
             foreach (var efemStationEnum in EnumHelper.Enums<EFEMStationEnum>())
             {
-                GetMapData(efemStationEnum);
+                RefreshFoupMapData(efemStationEnum);
             }
         });
     }
@@ -85,10 +110,12 @@ public sealed partial class EFEMWindowViewModel(
     {
         return InvokeAsync(() =>
         {
-            efemViewModel.UnLoadFoup(stationEnum);
+            // 卸盒时若 Chuck 上有该盒晶圆, 记录残片槽位: 重新装盒后必须先卸回残片才能继续操作
+            var residualItem = (stationEnum == EFEMStationEnum.P1 ? EFEMFoupLoadPort1 : EFEMFoupLoadPort2).FirstOrDefault(t => t.IsLoadWafer);
+            if (residualItem is not null) _residualWaferItem = residualItem;
 
-            foreach (var item in stationEnum == EFEMStationEnum.P1 ? EFEMFoupLoadPort1 : EFEMFoupLoadPort2)
-                item.IsHasWafer = false;
+            efemViewModel.UnLoadFoup(stationEnum);
+            GetMapData(stationEnum);
         });
     }
 
@@ -98,7 +125,20 @@ public sealed partial class EFEMWindowViewModel(
         return InvokeAsync(() => { GetMapData(efemStationEnum); });
     }
 
-    [RelayCommand]
+    /// <summary>
+    /// 防呆: 选中的槽位所在的 FOUP 处于 Load 状态时才允许晶圆上下料
+    /// </summary>
+    private bool CanWafer => SelectedFoupItem is not null
+                             && (SelectedFoupItem.StationEnum == EFEMStationEnum.P1 ? IsFoupLoadPort1Loaded : IsFoupLoadPort2Loaded);
+
+    /// <summary>
+    /// 防呆: 两个 FOUP 中任一槽位晶圆在 Chuck 上 (含残片) 时禁止上料 (单片系统)
+    /// </summary>
+    private bool CanLoadWafer => CanWafer
+                                 && EFEMFoupLoadPort1.Any(t => t.IsLoadWafer) == false
+                                 && EFEMFoupLoadPort2.Any(t => t.IsLoadWafer) == false;
+
+    [RelayCommand(CanExecute = nameof(CanLoadWafer))]
     private Task LoadWaferAsync()
     {
         return InvokeAsync(() =>
@@ -131,7 +171,7 @@ public sealed partial class EFEMWindowViewModel(
         });
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanWafer))]
     private Task UnLoadWaferAsync()
     {
         return InvokeAsync(() =>
@@ -143,6 +183,9 @@ public sealed partial class EFEMWindowViewModel(
             }
 
             efemViewModel.UnLoadWafer(SelectedFoupItem);
+
+            // 残片已卸回, 解除保护
+            if (ReferenceEquals(_residualWaferItem, SelectedFoupItem)) _residualWaferItem = null;
 
             SelectedFoupItem.IsLoadWafer = false;
             GetMapData(SelectedFoupItem.StationEnum);
@@ -157,6 +200,31 @@ public sealed partial class EFEMWindowViewModel(
 
     private void GetMapData(EFEMStationEnum efemStationEnum)
     {
+        SyncFoupLoadedStatus();
+        RefreshFoupMapData(efemStationEnum);
+    }
+
+    /// <summary>
+    /// 同步两个 FOUP 站位的装载状态 (两个 FOUP 同时存在, 一并同步避免单侧状态过时)
+    /// </summary>
+    private void SyncFoupLoadedStatus()
+    {
+        var isPort1Loaded = efemViewModel.SyncFoupStatus(EFEMStationEnum.P1);
+        var isPort2Loaded = efemViewModel.SyncFoupStatus(EFEMStationEnum.P2);
+
+        // CanExecuteChanged 必须在 UI 线程触发, 否则上下料按钮的启停状态不生效 (与 IsEnable 同模式)
+        contextProvider.Send(() =>
+        {
+            IsFoupLoadPort1Loaded = isPort1Loaded;
+            IsFoupLoadPort2Loaded = isPort2Loaded;
+        });
+    }
+
+    /// <summary>
+    /// 刷新指定站位 FOUP 的槽位映射数据
+    /// </summary>
+    private void RefreshFoupMapData(EFEMStationEnum efemStationEnum)
+    {
         var result = efemViewModel.GetMapData(efemStationEnum);
         var port = efemStationEnum == EFEMStationEnum.P1 ? EFEMFoupLoadPort1 : EFEMFoupLoadPort2;
 
@@ -167,17 +235,24 @@ public sealed partial class EFEMWindowViewModel(
                 item.IsHasWafer = false;
                 item.IsLoadWafer = false;
             }
-
-            return;
         }
-
-        foreach (var efemFoupItem in result)
+        else
         {
-            var foupItem = port.SingleOrDefault(t => t.SlotId == efemFoupItem.SlotId && t.StationEnum == efemFoupItem.StationEnum);
-            if (foupItem is null) continue;
-            foupItem.IsHasWafer = efemFoupItem.IsHasWafer;
-            foupItem.IsLoadWafer = efemFoupItem.IsLoadWafer;
+            foreach (var efemFoupItem in result)
+            {
+                var foupItem = port.SingleOrDefault(t => t.SlotId == efemFoupItem.SlotId && t.StationEnum == efemFoupItem.StationEnum);
+                if (foupItem is null) continue;
+                foupItem.IsHasWafer = efemFoupItem.IsHasWafer;
+                foupItem.IsLoadWafer = efemFoupItem.IsLoadWafer;
+            }
         }
+
+        // 卸盒残片保护: 残片槽位的已上料标记跨装盒周期保留, 直到残片卸回 (重新装盒后才能卸片)
+        if (_residualWaferItem is not null && _residualWaferItem.StationEnum == efemStationEnum)
+            _residualWaferItem.IsLoadWafer = true;
+
+        // 槽位状态已刷新 (含残片保护): 通知 Load 命令重估 Chuck 占用 (任一 FOUP 槽位在片即占用); CanExecuteChanged 须在 UI 线程触发
+        contextProvider.Send(() => LoadWaferCommand.NotifyCanExecuteChanged());
     }
 
     private Task InvokeAsync(Action action)

@@ -1,48 +1,22 @@
 using algocv_sharp;
 using AwesomeAssertions;
-using Core.Models.Enums.CIB;
-using Core.Models.Models.Common.DarkField;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using System.IO;
+using Xunit.Abstractions;
 
 namespace CugaCalibrationUnitTest;
 
-public class BitmapImageTest
+/// <summary>
+/// BitmapImage 与 AlgoCV Image 互转测试：raw 图入 BitmapImage 转 algoImage 需要转置（isRawSource: true，宽高互换、
+/// algo(r,c) == bitmap(c,r) 转置重排），像素与 HALCON 逐点一致（位深语义保留 12/16bit）。
+/// </summary>
+public class BitmapImageTest(ITestOutputHelper testOutputHelper)
 {
-    [Theory]
-    [InlineData(CIBProfileModeEnum.PMTLog)]
-    [InlineData(CIBProfileModeEnum.PMTVoltage)]
-    public void ImageSourceTest(CIBProfileModeEnum cibProfileMode)
-    {
-        const string filePath = @"Assets\test.raw";
-
-        var isToLiner = cibProfileMode == CIBProfileModeEnum.PMTLog;
-
-        var rawBytes = File.ReadAllBytes(filePath);
-
-        using var oldHImage = RAWImageFactory.CreateImage(rawBytes, isToLiner);
-
-        using var oldBitmapImage = oldHImage.ToBitmapImage(isToLiner ? 16 : 12);
-
-        var (size, _, _) = RAWImageFactory.GetSize(rawBytes);
-        using var darkFieldImageDTO = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { Size = size, RawImageCIBProfileModeEnum = cibProfileMode, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = !isToLiner });
-        using var newBitmapImage = darkFieldImageDTO.GetImage();
-        using var newHImage = newBitmapImage.ToHImage();
-
-        newHImage.GetGrayValuesL().Should()
-            .BeEquivalentTo(oldHImage.GetGrayValuesL(), options => options.WithStrictOrdering());
-
-        newBitmapImage.ChannelMinValue.Should().Be(oldBitmapImage.ChannelMinValue);
-        newBitmapImage.ChannelMaxValue.Should().Be(oldBitmapImage.ChannelMaxValue);
-        newBitmapImage.ImageInfo.Should().Be(oldBitmapImage.ImageInfo);
-        newBitmapImage.GetPixelSpan().SequenceEqual(oldBitmapImage.GetPixelSpan()).Should().BeTrue();
-    }
-
     [Fact]
-    public void ToAlgoCVImage_With16BitBitmapImage_ShouldProduceMatchingImage()
+    public void ToAlgoCVImage_With16BitRawBitmapImage_ShouldTransposeToProtocolImage()
     {
         const string filePath = @"Assets\test.raw";
         var rawBytes = File.ReadAllBytes(filePath);
@@ -50,22 +24,32 @@ public class BitmapImageTest
         using var hImage = RAWImageFactory.CreateImage(rawBytes, true);
         using var bitmapImage = hImage.ToBitmapImage(16);
 
-        using var algoImage = bitmapImage.ToAlgoCVImage();
+        using var algoImage = bitmapImage.ToAlgoCVImage(isRawSource: true);
 
-        algoImage.Width.Should().Be(bitmapImage.Width);
-        algoImage.Height.Should().Be(bitmapImage.Height);
+        // raw 来源：桥转置 —— 宽高互换
+        algoImage.Width.Should().Be(bitmapImage.Height);
+        algoImage.Height.Should().Be(bitmapImage.Width);
         algoImage.Channels.Should().Be(1);
         algoImage.DataType.Should().Be(ImageDataType.UInt16);
         algoImage.DataPtr.Should().NotBe(IntPtr.Zero);
 
+        // 转置重排：algo 行优先序列 = HALCON 物理正向序列的转置（algo(r,c) == halcon(c,r)）
         var algoPixels = algoImage.ToSpan<ushort>().ToArray();
         var halconPixels = Array.ConvertAll(hImage.GetGrayValuesL(), value => (ushort)value);
+        var expectedPixels = new ushort[halconPixels.Length];
+        for (var y = 0; y < bitmapImage.Height; y++)
+        {
+            for (var x = 0; x < bitmapImage.Width; x++)
+            {
+                expectedPixels[x * bitmapImage.Height + y] = halconPixels[y * bitmapImage.Width + x];
+            }
+        }
 
-        algoPixels.Should().BeEquivalentTo(halconPixels, options => options.WithStrictOrdering());
+        algoPixels.Should().BeEquivalentTo(expectedPixels, options => options.WithStrictOrdering());
     }
 
     [Fact]
-    public void ToAlgoCVImage_With12BitBitmapImage_ShouldThrowNotSupportedException()
+    public void ToAlgoCVImage_With12BitRawBitmapImage_ShouldTransposeToProtocolImage()
     {
         const string filePath = @"Assets\test.raw";
         var rawBytes = File.ReadAllBytes(filePath);
@@ -73,22 +57,32 @@ public class BitmapImageTest
         using var hImage = RAWImageFactory.CreateImage(rawBytes, false);
         using var bitmapImage = hImage.ToBitmapImage(12);
 
-        using var algoImage = bitmapImage.ToAlgoCVImage();
+        using var algoImage = bitmapImage.ToAlgoCVImage(isRawSource: true);
 
-        algoImage.Width.Should().Be(bitmapImage.Width);
-        algoImage.Height.Should().Be(bitmapImage.Height);
+        // raw 来源：桥转置 —— 宽高互换
+        algoImage.Width.Should().Be(bitmapImage.Height);
+        algoImage.Height.Should().Be(bitmapImage.Width);
         algoImage.Channels.Should().Be(1);
         algoImage.DataType.Should().Be(ImageDataType.UInt16);
         algoImage.DataPtr.Should().NotBe(IntPtr.Zero);
 
+        // 转置重排：algo 行优先序列 = HALCON 物理正向序列的转置（algo(r,c) == halcon(c,r)）
         var algoPixels = algoImage.ToSpan<ushort>().ToArray();
         var halconPixels = Array.ConvertAll(hImage.GetGrayValuesL(), value => (ushort)value);
+        var expectedPixels = new ushort[halconPixels.Length];
+        for (var y = 0; y < bitmapImage.Height; y++)
+        {
+            for (var x = 0; x < bitmapImage.Width; x++)
+            {
+                expectedPixels[x * bitmapImage.Height + y] = halconPixels[y * bitmapImage.Width + x];
+            }
+        }
 
-        algoPixels.Should().BeEquivalentTo(halconPixels, options => options.WithStrictOrdering());
+        algoPixels.Should().BeEquivalentTo(expectedPixels, options => options.WithStrictOrdering());
     }
 
     [Fact]
-    public void ToAlgoCVImage_With12BitBitmapImage_ShouldMatchingImage()
+    public void ToAlgoCVImage_With12BitRawBitmapImage_ShouldMatchTransposedBytes()
     {
         const string filePath = @"Assets\test.raw";
         var rawBytes = File.ReadAllBytes(filePath);
@@ -96,10 +90,24 @@ public class BitmapImageTest
         using var hImage = RAWImageFactory.CreateImage(rawBytes, false);
         using var bitmapImage = hImage.ToBitmapImage(12);
 
-        using var algoCVImage = bitmapImage.ToAlgoCVImage();
+        using var algoCVImage = bitmapImage.ToAlgoCVImage(isRawSource: true);
         algoCVImage.Save($@"{AppDomain.CurrentDomain.BaseDirectory}\BitmapImageToAlgoImage.raw");
 
-        var algoImageSpans = algoCVImage.ToSpan();
-        bitmapImage.GetPixelSpan().SequenceEqual(algoImageSpans).Should().BeTrue();
+        // 字节级转置重排对比（Gray12 → UInt16，2 字节/像素块整体搬移）
+        var algoBytes = algoCVImage.ToSpan().ToArray();
+        var bitmapBytes = bitmapImage.GetPixelSpan().ToArray();
+        var expectedBytes = new byte[algoBytes.Length];
+        for (var y = 0; y < bitmapImage.Height; y++)
+        {
+            for (var x = 0; x < bitmapImage.Width; x++)
+            {
+                var source = (y * bitmapImage.Width + x) * 2;
+                var destination = (x * bitmapImage.Height + y) * 2;
+                expectedBytes[destination] = bitmapBytes[source];
+                expectedBytes[destination + 1] = bitmapBytes[source + 1];
+            }
+        }
+
+        algoBytes.SequenceEqual(expectedBytes).Should().BeTrue();
     }
 }

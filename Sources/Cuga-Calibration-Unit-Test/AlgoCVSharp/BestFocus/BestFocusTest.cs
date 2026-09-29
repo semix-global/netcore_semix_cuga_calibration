@@ -1,4 +1,4 @@
-// #define BestFocusTest
+#define BestFocusTest
 
 using AwesomeAssertions;
 using Core.Models.Enums.Algorithm;

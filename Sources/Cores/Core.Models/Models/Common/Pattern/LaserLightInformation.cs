@@ -18,8 +18,6 @@ public sealed partial class LaserLightInformation :
     IEquatable<LaserLightInformation>,
     IFormattable,
     IAdaptTo<CgLightConfig>,
-    IAdaptIn<CgLightConfig, LaserLightInformation>,
-    IAdaptIn<LaserLightInformation, LaserLightInformation>,
     ICloneable<LaserLightInformation>
 {
     public static readonly LaserLightInformation Default = new();
@@ -103,7 +101,7 @@ public sealed partial class LaserLightInformation :
         LightCoeff = Coefficient
     };
 
-    public LaserLightInformation AdaptIn(CgLightConfig obj)
+    internal LaserLightInformation AdaptIn(CgLightConfig obj)
     {
         Level = obj.LightProp;
         Coefficient = obj.LightCoeff;
@@ -116,14 +114,6 @@ public sealed partial class LaserLightInformation :
         Level = Level,
         Coefficient = Coefficient
     };
-
-    public LaserLightInformation AdaptIn(LaserLightInformation obj)
-    {
-        Level = obj.Level;
-        Coefficient = obj.Coefficient;
-
-        return this;
-    }
 
     #endregion Mapper
 

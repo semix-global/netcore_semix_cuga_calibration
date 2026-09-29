@@ -82,9 +82,9 @@ public sealed partial class ReviewViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public double GetQuality(BitmapImage image, Guid guid)
+    public double GetQuality(BitmapImage image, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum = AlgorithmEngineTypeEnum.HAlgorithm)
     {
-        var quality = calibrationAlgorithmService.GetQuality(image, guid);
+        var quality = calibrationAlgorithmService.GetQuality(image, guid, algorithmEngineTypeEnum);
         return quality;
     }
 

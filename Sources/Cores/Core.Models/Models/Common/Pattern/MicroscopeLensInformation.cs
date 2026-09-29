@@ -18,8 +18,6 @@ public sealed partial class MicroscopeLensInformation :
     IEquatable<MicroscopeLensInformation>,
     IFormattable,
     IAdaptTo<CgMicroscopeInfo>,
-    IAdaptIn<CgMicroscopeInfo, MicroscopeLensInformation>,
-    IAdaptIn<MicroscopeLensInformation, MicroscopeLensInformation>,
     ICloneable<MicroscopeLensInformation>
 {
     public static readonly MicroscopeLensInformation Default = new();
@@ -105,20 +103,11 @@ public sealed partial class MicroscopeLensInformation :
         Lens = Convert.ToInt32(ObjectiveMagnification)
     };
 
-    public MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
+    internal MicroscopeLensInformation AdaptIn(CgMicroscopeInfo obj)
     {
         LensName = Guard.IsNotNullAndReturn(obj.LensName);
         LensCode = (int)obj.LensCode;
         ObjectiveMagnification = obj.Lens;
-
-        return this;
-    }
-
-    public MicroscopeLensInformation AdaptIn(MicroscopeLensInformation obj)
-    {
-        LensName = obj.LensName;
-        LensCode = obj.LensCode;
-        ObjectiveMagnification = obj.ObjectiveMagnification;
 
         return this;
     }
