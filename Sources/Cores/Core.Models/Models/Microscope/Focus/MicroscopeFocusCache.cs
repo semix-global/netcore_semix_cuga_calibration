@@ -58,8 +58,6 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase<Microsco
         ParfocalThreshold = ParfocalThreshold,
         AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
         Items = new ConcurrentDictionary<MicroscopeLensInformation, MicroscopeFocusCacheItem>(Items.Select(t => new KeyValuePair<MicroscopeLensInformation, MicroscopeFocusCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -117,8 +115,6 @@ public sealed partial class MicroscopeFocusCacheItem : CalibrationCacheBase<Micr
         StopECS = StopECS,
         StepECS = StepECS,
         SetVoltageAfErrorThreshold = SetVoltageAfErrorThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

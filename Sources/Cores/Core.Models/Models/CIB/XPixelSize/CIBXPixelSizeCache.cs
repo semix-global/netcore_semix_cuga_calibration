@@ -3,6 +3,7 @@ using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -21,6 +22,8 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
     [ObservableProperty]
     public partial double Threshold { get; set; } = 15;
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBXPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem> Items { get; init; } = [];
 
@@ -33,8 +36,7 @@ public sealed partial class CIBXPixelSizeCache : CalibrationCacheBase<CIBXPixelS
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBXPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBXPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -87,6 +89,8 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPi
     [ObservableProperty]
     public partial int ReticleDieCountX { get; set; } = 3;
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public override CIBXPixelSizeCacheItem Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
@@ -104,8 +108,7 @@ public sealed partial class CIBXPixelSizeCacheItem : CalibrationCacheBase<CIBXPi
         WaferRadius = WaferRadius,
         DiePitchWidth = DiePitchWidth,
         ReticleDieCountX = ReticleDieCountX,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

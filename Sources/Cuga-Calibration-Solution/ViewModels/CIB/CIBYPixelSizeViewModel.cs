@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
@@ -304,8 +305,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                 OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
-                Cache.AlgorithmTemplateTypeEnum,
-                Cache.AlgorithmTemplateSizeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindBFMachinePosition,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -400,8 +400,7 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.CIBChannelId,
                     Cache.Item.ImageWidth,
-                    Cache.AlgorithmTemplateTypeEnum,
-                    Cache.AlgorithmTemplateSizeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.Item.FindBFMachinePosition,
                     detectImageDirectory,
                     Cache.Threshold

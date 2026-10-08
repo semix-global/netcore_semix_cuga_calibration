@@ -1,7 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Helper;
+using Core.Models.Models.Setting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -26,10 +28,7 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; }
-
-    [ObservableProperty]
-    public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; }
+    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
     public partial string TemplateFilePath { get; set; } = string.Empty;
@@ -37,9 +36,16 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
     [ObservableProperty]
     public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
-    partial void OnAlgorithmTemplateSizeEnumChanged(AlgorithmTemplateSizeEnum value)
+    public AlgorithmTemplateTypeEnum HalconTemplateType
     {
-        Rect = new Rect(Rect.X, Rect.Y, Convert.ToInt32(value), Convert.ToInt32(value));
+        get => TemplateMatchSetting.ToHalconTemplateType();
+        set => TemplateMatchSetting.Halcon.TemplateType = value;
+    }
+
+    partial void OnTemplateMatchSettingChanged(TemplateMatchSetting value)
+    {
+        Rect = new Rect(Rect.X, Rect.Y, Convert.ToInt32(value.TemplateSize), Convert.ToInt32(value.TemplateSize));
+        OnPropertyChanged(nameof(HalconTemplateType));
     }
 
     [RelayCommand]
@@ -68,7 +74,7 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
                     return;
                 }
 
-                if (reviewViewModel.TryGenerateTemplate(image, AlgorithmTemplateTypeEnum, TemplateFilePath, Rect, Guid.NewGuid()) == false)
+                if (reviewViewModel.TryGenerateTemplate(image, TemplateMatchSetting.ToHalconTemplateType(), TemplateFilePath, Rect, Guid.NewGuid()) == false)
                 {
                     dialogWindowProvider.ShowDialog("Error: Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Error);
                     return;

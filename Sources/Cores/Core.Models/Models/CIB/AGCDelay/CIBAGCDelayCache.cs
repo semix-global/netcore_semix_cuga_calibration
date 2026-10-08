@@ -34,8 +34,6 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
         CalibratingThreshold = CalibratingThreshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBAGCDelayCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -89,8 +87,6 @@ public sealed partial class CIBAGCDelayCacheItem : CalibrationCacheBase<CIBAGCDe
         TargetPMTValue = TargetPMTValue,
         PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
         MarkerLengthPixel = MarkerLengthPixel,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

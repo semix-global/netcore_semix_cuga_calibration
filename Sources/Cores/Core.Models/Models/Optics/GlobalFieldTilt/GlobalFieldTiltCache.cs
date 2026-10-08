@@ -66,8 +66,6 @@ public sealed partial class GlobalFieldTiltCache : CalibrationCacheBase<GlobalFi
         Threshold = Threshold,
         VerifyQualityThreshold = VerifyQualityThreshold,
         P5Angle = P5Angle,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -156,8 +154,6 @@ public partial class GlobalFieldTiltCacheItem : CalibrationCacheBase<GlobalField
         RangeRefinedECS = RangeRefinedECS,
         StepRefinedECS = StepRefinedECS,
         AlignmentResult = AlignmentResult.Clone(),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

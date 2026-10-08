@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -196,6 +197,8 @@ public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<Chuc
 
     #endregion Verify
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public override ChuckCenterAndThetaCache Clone() => new()
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
@@ -224,8 +227,7 @@ public sealed partial class ChuckCenterAndThetaCache : CalibrationCacheBase<Chuc
         LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
         HighBaseTemplateFilePath = HighBaseTemplateFilePath,
         HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

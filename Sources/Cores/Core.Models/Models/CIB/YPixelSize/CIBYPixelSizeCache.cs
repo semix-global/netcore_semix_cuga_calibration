@@ -3,6 +3,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -27,6 +28,8 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
     [ObservableProperty]
     public partial double Threshold { get; set; }
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
@@ -40,9 +43,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
         PmtInterval = PmtInterval,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -88,8 +89,6 @@ public sealed partial class CIBYPixelSizeCacheItem : CalibrationCacheBase<CIBYPi
         FindBFMachinePosition = FindBFMachinePosition,
         ImageWidth = ImageWidth,
         IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

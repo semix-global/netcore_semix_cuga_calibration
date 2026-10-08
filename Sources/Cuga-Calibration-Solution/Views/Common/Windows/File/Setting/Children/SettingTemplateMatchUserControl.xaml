@@ -1,7 +1,9 @@
 ﻿<UserControl x:Class="CugaCalibration.Views.Common.Windows.File.Setting.Children.SettingTemplateMatchUserControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.File.Setting"
@@ -31,6 +33,22 @@
                                       Minimum="0.001"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding CalibrationSetting.SettingTemplateMatchParam.NccTypeTemplateMatchScoreThreshold}" />
+                </hc:UniformSpacingPanel>
+            </GroupBox>
+            <GroupBox Header="Engine">
+                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                    <ComboBox hc:TitleElement.Title="Template Match Engine: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="200"
+                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}"
+                              SelectedItem="{Binding CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum}"
+                              Style="{StaticResource ComboBoxExtend}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </hc:UniformSpacingPanel>
             </GroupBox>
         </UniformGrid>

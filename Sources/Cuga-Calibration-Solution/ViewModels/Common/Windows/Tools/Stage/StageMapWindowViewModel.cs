@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models;
 using Core.Models.Enums.Stage;
 using Core.Models.Extensions;
@@ -63,6 +64,8 @@ public sealed partial class StageMapWindowViewModel(
     private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
 
     public string Name { get; } = "StageMap";
+
+    public CalibrationSetting CalibrationSetting { get; } = calibrationSetting;
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
@@ -148,8 +151,7 @@ public sealed partial class StageMapWindowViewModel(
 
                     createDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
                     createDarkImageTemplateWindowViewModel.TemplateFilePath = stageMapTemplatePoint.TemplateFilePath;
-                    createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
+                    createDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.TemplateMatchSetting.Clone();
 
                     Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
 
@@ -626,13 +628,13 @@ public sealed partial class StageMapWindowViewModel(
                 .. Cache.StageMapTemplates
                     .Select(t =>
                     {
-                        calibrationAlgorithmService.TryReadTemplate(Cache.AlgorithmTemplateTypeEnum, t.TemplateFilePath, out var templateId);
+                        calibrationAlgorithmService.TryReadTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), t.TemplateFilePath, out var templateId);
 
                         return templateId;
                     })
             ];
 
-            var templateMatchScoreThreshold = Cache.AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+            var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, CalibrationSetting);
 
             Point[][] stageMapIdealMatrix =
             [
@@ -712,7 +714,7 @@ public sealed partial class StageMapWindowViewModel(
                         using var roiImage = image.ToROI(searchROI);
 
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
-                            Cache.AlgorithmTemplateTypeEnum,
+                            Cache.TemplateMatchSetting.ToHalconTemplateType(),
                             roiImage,
                             templateIds[templateIdIndex],
                             htmlLogUniqueId,
@@ -788,7 +790,7 @@ public sealed partial class StageMapWindowViewModel(
         }
         finally
         {
-            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.AlgorithmTemplateTypeEnum, templateId);
+            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), templateId);
             stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }
     }

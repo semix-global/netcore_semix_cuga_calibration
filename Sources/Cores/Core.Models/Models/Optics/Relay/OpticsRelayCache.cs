@@ -37,8 +37,6 @@ public sealed partial class OpticsRelayCache : CalibrationCacheBase<OpticsRelayC
         AlgorithmBestFocusTypeEnum = AlgorithmBestFocusTypeEnum,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsRelayCacheItem>(t.Key, t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -156,8 +154,6 @@ public sealed partial class OpticsRelayCacheItem : CalibrationCacheBase<OpticsRe
         XZCenterECS = XZCenterECS,
         XZRangeECS = XZRangeECS,
         OpticsStrehlRatioQualityTypeEnum = OpticsStrehlRatioQualityTypeEnum,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

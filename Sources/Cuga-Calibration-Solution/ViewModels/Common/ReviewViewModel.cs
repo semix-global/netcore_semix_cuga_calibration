@@ -1,9 +1,12 @@
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
 using Core.Models.Helper;
+using Core.Models.Models.Common.Algorithm.TemplateMatch;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
@@ -35,6 +38,7 @@ public sealed partial class ReviewViewModel(
     IDialogWindowProvider dialogWindowProvider,
     IApplicationCookieService applicationCookieCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
+    IAlgorithmEngines algorithmEngines,
     CalibrationSetting calibrationSetting)
     : ViewModelBase
 {
@@ -96,7 +100,9 @@ public sealed partial class ReviewViewModel(
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="algorithmTemplateSizeEnum">模板尺寸</param>
+    /// <param name="guid"></param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, Guid guid)
     {
         using var image = GetBrightFieldImage();
@@ -113,7 +119,9 @@ public sealed partial class ReviewViewModel(
     /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
     /// <param name="templateFilePath">模板路径</param>
     /// <param name="rect">ROI尺寸</param>
+    /// <param name="guid"></param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     public bool TryGenerateTemplate(BitmapImage image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect, Guid guid)
     {
         var size = new Size(image.Width, image.Height);
@@ -128,6 +136,35 @@ public sealed partial class ReviewViewModel(
         if (isSuccess == false) throw new AlgorithmException("Generate Template Error");
 
         roiImage.SaveImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
+        return true;
+    }
+
+    public bool TryGenerateTemplate(GenerateTemplateParam param, Guid guid)
+    {
+        using var image = GetBrightFieldImage();
+
+        return TryGenerateTemplate(image, param, guid);
+    }
+
+    public bool TryGenerateTemplate(BitmapImage image, GenerateTemplateParam param, Guid guid)
+    {
+        var size = new Size(image.Width, image.Height);
+        if (new Rect(Point.Origin, size).Contains(param.Roi) == false)
+        {
+            logger.LogError("{@Name}: Out of Image Area", nameof(ReviewViewModel));
+            return false;
+        }
+
+        var generateRet = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum).Generate(image, param, guid);
+#pragma warning disable IDISP007
+        generateRet.Data?.Dispose();
+#pragma warning restore IDISP007
+        if (generateRet.Success == false)
+        {
+            logger.LogError("{@Name}: Generate Template Failed. {@ErrorMsg}", nameof(ReviewViewModel), generateRet.ErrorMsg);
+            return false;
+        }
+
         return true;
     }
 
@@ -150,6 +187,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="originImageFilePath">匹配前原图[保存的原图图片的路径]</param>
     /// <param name="calChipSiteModelEnum"></param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
@@ -288,6 +326,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="templateFilePath">匹配的模板</param>
     /// <param name="resultPosition">匹配后成功的[位置]</param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
@@ -314,6 +353,7 @@ public sealed partial class ReviewViewModel(
     /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
     /// <param name="originImageFilePath">匹配前原图[保存的原图图片的路径]</param>
     /// <returns>是否成功</returns>
+    [Obsolete]
     public bool TryGetMatchPosition(
         AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
         IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
@@ -328,6 +368,169 @@ public sealed partial class ReviewViewModel(
     {
         return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeLensInformation, templateFilePath, null, null, null, null,
             out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, out originImageFilePath);
+    }
+
+
+    public bool TryGetMatchPosition(
+        ReadTemplateParam readParam,
+        IEnumerable<MicroscopePixelSizeDTO> pixelSizes,
+        Point position,
+        MicroscopeLensInformation lens,
+        string? saveResultImageDirectory,
+        Guid? logGuid,
+        string? logName,
+        string? logResultTitle,
+        out TemplateMatchSnapshot matchSnapshot,
+        out Point resultPosition,
+        out string originImageFilePath,
+        CalChipSiteModelEnum site = CalChipSiteModelEnum.ChuckModel)
+    {
+        matchSnapshot = new TemplateMatchSnapshot();
+        resultPosition = Point.Origin;
+        originImageFilePath = string.Empty;
+
+        var templateFilePath = readParam.TemplateFilePath;
+        var scoreThreshold = readParam.EngineParams switch
+        {
+            HalconTemplateMatchParams halcon => halcon.TemplateType.ToTemplateMatchScoreThreshold(calibrationSetting),
+            _ => calibrationSetting.SettingTemplateMatchParam.NccTypeTemplateMatchScoreThreshold
+        };
+
+        var size = pixelSizes.SingleOrDefault(t => t.MicroscopeLensInformation == lens);
+
+        Size pixelSize;
+        if (size is null || size.IsOk == false)
+        {
+            if (logGuid is not null && logName is not null)
+                logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
+            else logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+
+            var defaultPixelSize = GetDefaultPixelSize();
+            pixelSize = new Size(defaultPixelSize.Width / lens.ObjectiveMagnification, defaultPixelSize.Height / lens.ObjectiveMagnification);
+        }
+        else pixelSize = size.Result.PixelSize;
+
+        var logId = logGuid ?? Guid.NewGuid();
+        var engine = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+        var readResultRet = engine.Read(readParam, logId);
+        if (readResultRet.Success == false || readResultRet.Data is null)
+        {
+            readResultRet.Data?.Dispose();
+
+            if (logGuid is not null && logName is not null)
+                logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Read Template Failed!{readResultRet.ErrorMsg}"), logGuid.Value.LoggingHtml());
+            else logger.LogError("{Name}: Read Template Failed!{ErrorMessage}", nameof(ReviewViewModel), readResultRet.ErrorMsg);
+
+            return false;
+        }
+
+        bool result;
+        var model = readResultRet.Data;
+        try
+        {
+            var currentMag = microscopeViewModel.GetCurrentMicroscopeLensInformation();
+            if (lens != currentMag)
+                microscopeViewModel.SwitchMicroscopeLensInformationAsync(lens, isMoveToMicroscopeCenter: false).GetAwaiter().GetResult();
+            stageViewModel.SetBrightFieldAbsoluteStageXy(position, site);
+            Thread.Sleep(500);
+
+            using var image = GetBrightFieldImage();
+
+            var matchResultRet = engine.Match(image, new MatchTemplateParam
+            {
+                Model = model,
+                ScoreThreshold = scoreThreshold
+            }, logId);
+
+            var matchResult = matchResultRet.Data ?? new MatchTemplateResult();
+            matchSnapshot.AdaptIn(matchResult.AdaptTo());
+            matchSnapshot.IsOk = matchResultRet.Success;
+            var resultPoint = matchResult.MarkPoint;
+            var offset = matchResult.Offset;
+            var isSuccess = matchResultRet.Success;
+
+            if (isSuccess == false)
+            {
+                originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({matchResult.Score:f3},{scoreThreshold})_Angle{matchResult.Angle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
+                image.SaveImage(originImageFilePath);
+                if (logGuid is not null && logName is not null)
+                    logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed,{matchResultRet.ErrorMsg}.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                    {
+                        lens.LensName,
+                        OriginPosition = position,
+                        Match = new HtmlQuote(matchResult.ToHtmlAnonymous()),
+                        TemplateMatchScoreThreshold = scoreThreshold,
+                        HtmlTab = new HtmlTab(new
+                        {
+                            TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                            OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                        })
+                    }), logGuid.Value.LoggingHtml());
+                else logger.LogError("{Name}: Error: Try Math Template To Offset Failed,{ErrorMsg}", matchResultRet.ErrorMsg, nameof(ReviewViewModel));
+
+                return false;
+            }
+
+            var actualOffset = new Point(offset.X * pixelSize.Width, offset.Y * pixelSize.Height);
+            stageViewModel.MoveRelativeStageXy(actualOffset);
+            Thread.Sleep(500);
+            resultPosition = stageViewModel.GetBrightFieldStagePosition();
+
+            if (saveResultImageDirectory is not null)
+            {
+                originImageFilePath = $"{saveResultImageDirectory}_Score({matchResult.Score:f3})_Angle{matchResult.Angle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
+                image.SaveImage(originImageFilePath);
+
+                matchSnapshot.ResultImageFilePath = $"{saveResultImageDirectory}_Score({matchResult.Score:f3})_Angle{matchResult.Angle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
+                SaveCurrentBrightFieldImage(matchSnapshot.ResultImageFilePath);
+            }
+
+            if (logGuid is not null && logName is not null && logResultTitle is not null)
+                logger.LogHtmlInformation($"Match Template {logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                {
+                    lens.LensName,
+                    OriginPosition = position,
+                    ResultPosition = resultPosition,
+                    ResultOffset = actualOffset,
+                    Match = new HtmlQuote(matchResult.ToHtmlAnonymous()),
+                    HtmlTab = new HtmlTab(new
+                    {
+                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(resultPoint)]),
+                        TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
+                }), logGuid.Value.LoggingHtml());
+            result = true;
+        }
+        finally
+        {
+            try
+            {
+                model.Dispose();
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                if (logGuid is not null && logName is not null)
+                    logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Clean Template Failed.{ex}"), logGuid.Value.LoggingHtml());
+                else logger.LogError("{Name}: Clean Template Failed.{ex}", nameof(ReviewViewModel), ex);
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 匹配模板（仅需结果位置）
+    /// </summary>
+    public bool TryGetMatchPosition(
+        ReadTemplateParam readParam,
+        IEnumerable<MicroscopePixelSizeDTO> pixelSizes,
+        Point position,
+        MicroscopeLensInformation lens,
+        out Point resultPosition,
+        CalChipSiteModelEnum site = CalChipSiteModelEnum.ChuckModel)
+    {
+        return TryGetMatchPosition(readParam, pixelSizes, position, lens, null, null, null, null, out _, out resultPosition, out _, site);
     }
 
     #endregion 模板匹配

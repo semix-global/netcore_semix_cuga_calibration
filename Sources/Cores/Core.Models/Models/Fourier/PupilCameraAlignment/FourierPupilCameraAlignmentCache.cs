@@ -34,8 +34,6 @@ public sealed partial class FourierPupilCameraAlignmentCache : CalibrationCacheB
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

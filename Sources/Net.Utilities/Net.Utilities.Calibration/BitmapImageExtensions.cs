@@ -143,4 +143,60 @@ public static class BitmapImageExtensions
 #pragma warning restore IDISP011
         }
     }
+
+    extension(Image @this)
+    {
+        public BitmapImage ToBitmapImage()
+        {
+            Guard.IsFalse(@this.IsEmpty);
+            Guard.IsFalse(@this.DataPtr == IntPtr.Zero);
+
+            var (channels, bitsPerPixel) = (@this.Channels, @this.DataType) switch
+            {
+                (1, ImageDataType.UInt8) => (1, 8),
+                (1, ImageDataType.UInt16) => (1, 16),
+                (3, ImageDataType.UInt8) => (3, 24),
+                (4, ImageDataType.UInt8) => (4, 32),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<(int Channels, int BitsPerPixel)>(nameof(@this.DataType), Constants.UnsupportedImageFormat)
+            };
+
+            var imageInfo = ImageInfoFactory.Create(@this.Width, @this.Height, channels, bitsPerPixel);
+            if (channels is 1 or 4)
+            {
+                return new BitmapImage(imageInfo, @this.DataPtr, @this.Stride);
+            }
+
+            return CopyBgrToBgra(@this, imageInfo);
+        }
+    }
+
+    private static BitmapImage CopyBgrToBgra(Image source, ImageInfo imageInfo)
+    {
+        var destRowBytes = imageInfo.RowBytes;
+        var srcStride = source.Stride;
+        var srcPtr = source.DataPtr;
+        var buffer = new byte[checked(source.Height * destRowBytes)];
+        unsafe
+        {
+            for (var y = 0; y < source.Height; y++)
+            {
+                var src = new Span<byte>((byte*)srcPtr + y * srcStride, srcStride);
+                var dstOffset = y * destRowBytes;
+                for (var x = 0; x < source.Width; x++)
+                {
+                    var si = x * 3;
+                    var di = dstOffset + x * 4;
+                    buffer[di] = src[si];
+                    buffer[di + 1] = src[si + 1];
+                    buffer[di + 2] = src[si + 2];
+                    buffer[di + 3] = byte.MaxValue;
+                }
+            }
+
+            fixed (byte* ptr = buffer)
+            {
+                return new BitmapImage(imageInfo, (IntPtr)ptr, destRowBytes);
+            }
+        }
+    }
 }

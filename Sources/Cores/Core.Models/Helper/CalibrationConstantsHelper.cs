@@ -75,15 +75,9 @@ public static class CalibrationConstantsHelper
 
     #region 规则
 
-    /// <summary>
-    /// 根据模板文件路径获取模板图片路径
-    /// </summary>
-    /// <param name="templateFilePath">模板文件</param>
-    /// <returns>模板图片路径</returns>
-    public static string TemplatePathToTemplateImagePath(string templateFilePath)
-    {
-        return $"{templateFilePath}.jpg";
-    }
+    public static string TemplatePathToTemplateImagePath(string templateFilePath) => $"{templateFilePath}.jpg";
+
+    public static string TemplatePathToOriginImagePath(string templateFilePath) => $"{templateFilePath}_Origin.jpg";
 
     #endregion 规则
 

@@ -65,8 +65,6 @@ public sealed partial class CollectPolarizationCache : CalibrationCacheBase<Coll
         LaserLightInformation = LaserLightInformation.Clone(),
         PMTId = PMTId,
         CIBConfiguration = CIBConfiguration.Clone(),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

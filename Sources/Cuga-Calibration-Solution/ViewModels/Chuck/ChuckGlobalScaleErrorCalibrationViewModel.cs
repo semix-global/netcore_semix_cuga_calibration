@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.GlobalScaleError;
@@ -181,7 +181,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
             case 1:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowBaseTemplateFilePath))
+                return File.Exists(Cache.TemplateMatchSetting.ToTemplateMatchModelFilePath(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath))
                        && File.Exists(Cache.LowBaseTemplateImageFilePath);
 
             case 2:
@@ -278,7 +278,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.WaferMaskTypeEnum,
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
@@ -317,7 +317,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.RightLowSitePosition = currentRowReticles[^1].Rect.Point;
 
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowBaseTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
@@ -350,7 +351,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.BaseHighSiteFindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighBaseTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
@@ -374,7 +376,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
 
             Cache.SetPosition(lowPosition);
 
@@ -502,7 +504,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             {
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.BaseLowSiteFindPosition,
                 Cache.BaseHighSiteFindPosition,
                 Cache.LowToHighMagnificationOffset,
@@ -641,23 +643,23 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             var stageDirection = chuckGlobalScaleErrorDto.SiteDirection;
             var ideaLowSitePosition = chuckGlobalScaleErrorDto.GetPosition(stageDirection);
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, ideaLowSitePosition, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, ImageFileDirectory,
-                    null, Name,
-                    $"Low Magnification {stageDirection} Site", out var lowResultPosition, out _, out _, out var lowResultImageFilePath, out _) == false)
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, ideaLowSitePosition, Cache.LowMicroscopeLensInformation, ImageFileDirectory,
+                    HtmlLogUniqueId, Name,
+                    $"Low Magnification {stageDirection} Site", out var lowSnapshot, out var lowResultPosition, out _) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
             }
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, ImageFileDirectory,
-                    null, Name,
-                    $"High Magnification {stageDirection} Site", out var highResultPosition, out _, out _, out var highResultImageFilePath, out _) == false)
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, ImageFileDirectory,
+                    HtmlLogUniqueId, Name,
+                    $"High Magnification {stageDirection} Site", out var highSnapshot, out var highResultPosition, out _) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
             }
 
-            chuckGlobalScaleErrorDto.SetMatchResultInfo(highResultPosition, highResultImageFilePath);
+            chuckGlobalScaleErrorDto.SetMatchResultInfo(highResultPosition, highSnapshot.ResultImageFilePath);
 
             Logger.LogHtmlInformation($"{stageDirection} site Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
@@ -666,8 +668,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 FindHighSiteResultPosition = highResultPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    LowMatchImage = new HtmlImage(lowResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighMatchImage = new HtmlImage(highResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    LowMatchImage = new HtmlImage(lowSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    HighMatchImage = new HtmlImage(highSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 

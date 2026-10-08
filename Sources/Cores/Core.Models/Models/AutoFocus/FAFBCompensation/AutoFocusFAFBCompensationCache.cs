@@ -35,8 +35,6 @@ public sealed partial class AutoFocusFAFBCompensationCache : CalibrationCacheBas
         SpeedECSPerSecond = SpeedECSPerSecond,
         ThresholdECS = ThresholdECS,
         Items = [.. Items.Select(t => t.Clone())],
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

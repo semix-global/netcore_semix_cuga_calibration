@@ -62,8 +62,6 @@ public partial class AODBestFocusAndAstigmatismCache : CalibrationCacheBase<AODB
         XQualityThreshold = XQualityThreshold,
         YQualityThreshold = YQualityThreshold,
         XYBestFocusEcsOffsetThreshold = XYBestFocusEcsOffsetThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -153,8 +151,6 @@ public partial class AODBestFocusAndAstigmatismCacheItem : CalibrationCacheBase<
         StartSpectralDensity = StartSpectralDensity,
         StepSpectralDensity = StepSpectralDensity,
         DefaultGenerateChirpAODWaveformParam = DefaultGenerateChirpAODWaveformParam.Clone(),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

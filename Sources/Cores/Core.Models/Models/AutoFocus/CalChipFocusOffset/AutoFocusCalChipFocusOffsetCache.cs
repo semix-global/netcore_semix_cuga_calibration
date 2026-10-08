@@ -39,8 +39,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetCache : CalibrationCacheB
         EcsRange = EcsRange,
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         Items = new ConcurrentDictionary<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>(Items.Select(x => new KeyValuePair<CalChipSiteModelEnum, AutoFocusCalChipFocusOffsetCacheItem>(x.Key, x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -54,8 +52,6 @@ public sealed partial class AutoFocusCalChipFocusOffsetCacheItem : CalibrationCa
     public override AutoFocusCalChipFocusOffsetCacheItem Clone() => new()
     {
         FindBrightMachinePosition = FindBrightMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

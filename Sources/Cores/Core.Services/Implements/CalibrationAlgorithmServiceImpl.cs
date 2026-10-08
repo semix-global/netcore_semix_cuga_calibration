@@ -8,7 +8,6 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
-using HAlgorithm;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
@@ -42,7 +41,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
 {
     private bool _isAlgorithmEngineInitialized = false;
-    private readonly Algorithm _algorithm = new();
+    private readonly HAlgorithm.Algorithm _algorithm = new();
 
     public static readonly string ErrorImageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ErrorImages");
 

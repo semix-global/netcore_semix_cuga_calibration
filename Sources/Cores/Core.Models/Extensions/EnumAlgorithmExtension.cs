@@ -49,7 +49,8 @@ public static class EnumAlgorithmExtension
         _ => throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null)
     };
 
-    public static string ToFullFilePath(this AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath) => $"{templateFilePath}{algorithmTemplateTypeEnum.ToFileExtension()}";
+    public static string ToFullFilePath(this AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath) =>
+        $"{templateFilePath}{algorithmTemplateTypeEnum.ToFileExtension()}";
 
     public static double ToTemplateMatchScoreThreshold(this AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, CalibrationSetting calibrationSetting) => algorithmTemplateTypeEnum switch
     {

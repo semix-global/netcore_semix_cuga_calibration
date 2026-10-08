@@ -26,8 +26,6 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
         ProductivityInformation = ProductivityInformation.Clone(),
         SmoothWindowSize = SmoothWindowSize,
         Items = new ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODDelayCacheItem>(x.Key.Clone(), x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -89,8 +87,6 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
         StopRoughAODDelay = StopRoughAODDelay,
         RangeRefinedAODDelay = RangeRefinedAODDelay,
         StepRefinedAODDelay = StepRefinedAODDelay,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

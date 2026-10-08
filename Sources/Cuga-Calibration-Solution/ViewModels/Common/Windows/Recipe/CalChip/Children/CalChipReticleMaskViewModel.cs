@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -281,8 +282,8 @@ public sealed partial class CalChipReticleMaskViewModel(
                 return;
             }
 
-            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum;
-            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum;
+            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.TemplateMatchSetting.ToHalconTemplateType();
+            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.TemplateMatchSetting.TemplateSize;
             maskDto.RecipeDarkFieldTemplateDTO.TemplateFilePath = createDarkImageTemplateWindowViewModel.TemplateFilePath;
             maskDto.RecipeDarkFieldTemplateDTO.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
         }

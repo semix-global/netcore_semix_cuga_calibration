@@ -29,8 +29,6 @@ public sealed partial class LaserAttenuatorCache : CalibrationCacheBase<LaserAtt
         Threshold = Threshold,
         RateThreshold = RateThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, LaserAttenuatorCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, LaserAttenuatorCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -56,8 +54,6 @@ public sealed partial class LaserAttenuatorCacheItem : CalibrationCacheBase<Lase
         StartCoefficient = StartCoefficient,
         StepCoefficient = StepCoefficient,
         StopCoefficient = StopCoefficient,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

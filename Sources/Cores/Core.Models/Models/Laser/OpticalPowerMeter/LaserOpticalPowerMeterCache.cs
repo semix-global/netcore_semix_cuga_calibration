@@ -30,8 +30,6 @@ public sealed partial class LaserOpticalPowerMeterCache : CalibrationCacheBase<L
         CalibratingRetryTimes = CalibratingRetryTimes,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, LaserOpticalPowerMeterCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, LaserOpticalPowerMeterCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -65,8 +63,6 @@ public sealed partial class LaserOpticalPowerMeterCacheItem : CalibrationCacheBa
         ColumnCount = ColumnCount,
         ColumnWidth = ColumnWidth,
         RowHeight = RowHeight,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
