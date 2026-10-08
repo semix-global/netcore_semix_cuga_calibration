@@ -26,8 +26,6 @@ public sealed partial class OpticsINCCache : CalibrationCacheBase<OpticsINCCache
         ProductivityInformation = ProductivityInformation.Clone(),
         SmoothWindowSize = SmoothWindowSize,
         Items = new ConcurrentDictionary<ProductivityInformation, OpticsINCCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, OpticsINCCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -85,8 +83,6 @@ public sealed partial class OpticsINCCacheItem : CalibrationCacheBase<OpticsINCC
         StopRoughINCMotorAbsoluteValue = StopRoughINCMotorAbsoluteValue,
         RangeRefinedINCMotorAbsoluteValue = RangeRefinedINCMotorAbsoluteValue,
         StepRefinedINCMotorAbsoluteValue = StepRefinedINCMotorAbsoluteValue,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

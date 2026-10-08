@@ -3,6 +3,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -190,6 +191,8 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     [ObservableProperty]
     public partial bool IsDarkFieldAlignment { get; set; }
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     #region Method
 
     public void GetParam()
@@ -329,8 +332,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
         VerifyScaleThreshold = VerifyScaleThreshold,
         Threshold = Threshold,
         IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

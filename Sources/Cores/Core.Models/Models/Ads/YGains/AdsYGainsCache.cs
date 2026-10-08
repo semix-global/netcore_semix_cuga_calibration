@@ -39,8 +39,6 @@ public sealed partial class AdsYGainsCache : CalibrationCacheBase<AdsYGainsCache
         Threshold = Threshold,
         VerifyThreshold = VerifyThreshold,
         WaitTime = WaitTime,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

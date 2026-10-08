@@ -54,8 +54,6 @@ public sealed partial class FourierSideChannelFlexibleApertureCache : Calibratio
         Step0AndStep1MotorAbsoluteValue = Step0AndStep1MotorAbsoluteValue,
         Step2MotorAbsoluteValue = Step2MotorAbsoluteValue,
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

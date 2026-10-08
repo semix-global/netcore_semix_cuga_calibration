@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.IO;
+using Core.Models.Models.Setting;
 
 namespace CugaCalibrationUnitTest.Serializations;
 
@@ -338,8 +339,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 510.5d,
             ShinyWaferFindBFMachinePosition = new Point(3.5, 4.5),
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size32,
+            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size32 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Sharpe}} ,
             Id = 51,
             Expiration = 52,
             IsDeleted = false,
@@ -363,8 +363,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 720.25d,
             ShinyWaferFindBFMachinePosition = new Point(13.5, 14.5),
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size256,
+            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size256 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Ncc}},
             Id = 53,
             Expiration = 54,
             IsDeleted = true,
@@ -390,8 +389,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             VerifyImageWidth = 2048,
             ExtinctionRatioThreshold = 0.35d,
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size512,
+            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size512 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Sharpe}},
             Id = 61,
             Expiration = 62,
             IsDeleted = true,
@@ -423,8 +421,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
         actual.VerifyImageWidth.Should().Be(expected.VerifyImageWidth);
         actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
-        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
-        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+        actual.TemplateMatchSetting.Should().Be(expected.TemplateMatchSetting);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
@@ -454,8 +451,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
             actualItem.ScanLength.Should().Be(expectedItem.ScanLength);
             actualItem.ShinyWaferFindBFMachinePosition.Should().Be(expectedItem.ShinyWaferFindBFMachinePosition);
-            actualItem.AlgorithmTemplateTypeEnum.Should().Be(expectedItem.AlgorithmTemplateTypeEnum);
-            actualItem.AlgorithmTemplateSizeEnum.Should().Be(expectedItem.AlgorithmTemplateSizeEnum);
+            actualItem.TemplateMatchSetting.Should().Be(expectedItem.TemplateMatchSetting);
 
             actualItem.Id.Should().Be(useCacheSettings ? 0L : expectedItem.Id);
             actualItem.Expiration.Should().Be(useCacheSettings ? 0L : expectedItem.Expiration);

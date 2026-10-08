@@ -33,8 +33,6 @@ public sealed partial class OpticsSCCache : CalibrationCacheBase<OpticsSCCache>
         AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
         AlgorithmBestFocusTypeEnum = AlgorithmBestFocusTypeEnum,
         Items = new ConcurrentDictionary<OpticsIlluminationModeEnum, OpticsSCCacheItem>(Items.Select(t => new KeyValuePair<OpticsIlluminationModeEnum, OpticsSCCacheItem>(t.Key, t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -124,8 +122,6 @@ public sealed partial class OpticsSCCacheItem : CalibrationCacheBase<OpticsSCCac
         IsL2ToL3Direction = IsL2ToL3Direction,
         CenterECS = CenterECS,
         RangeECS = RangeECS,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

@@ -142,8 +142,6 @@ public sealed partial class DarkAutoFocusCache : CalibrationCacheBase<DarkAutoFo
         AFMotorRange = AFMotorRange,
         StepAFMotorAbsoluteValue = StepAFMotorAbsoluteValue,
         RSquaredThreshold = RSquaredThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

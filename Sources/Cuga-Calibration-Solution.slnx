@@ -51,8 +51,9 @@
         <Project Path="Cores/Core.Utilities.WPF/00. Core.Utilities.WPF.csproj" />
         <Project Path="Cores/Core.Wcf/01. Core.Wcf.csproj" />
         <Project Path="Cores/Core.Models/02. Core.Models.csproj" />
-        <Project Path="Cores/Core.Services/03. Core.Services.csproj" />
-        <Project Path="Cores/Core.Recipe/04. Core.Recipe.csproj" />
+        <Project Path="Cores/Core.Algorithm/03. Core.Algorithm.csproj" />
+        <Project Path="Cores/Core.Services/04. Core.Services.csproj" />
+        <Project Path="Cores/Core.Recipe/05. Core.Recipe.csproj" />
     </Folder>
 
     <Project Path="Cuga-Calibration-Solution/Cuga-Calibration-Solution.csproj">

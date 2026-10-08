@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -72,6 +73,8 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase<ChuckGantryC
     [ObservableProperty]
     public partial double P5Angle { get; set; }
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public Point LowToHighPoint => BaseHighFindPosition - (Vector)BaseLowFindPosition;
 
     public override ChuckGantryCache Clone() => new()
@@ -93,8 +96,7 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase<ChuckGantryC
         HighBaseTemplateFilePath = HighBaseTemplateFilePath,
         HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
         P5Angle = P5Angle,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

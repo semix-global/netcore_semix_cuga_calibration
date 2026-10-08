@@ -48,8 +48,6 @@ public sealed partial class CIBIlluminationProfileCache : CalibrationCacheBase<C
         CalibrateThreshold = CalibrateThreshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBIlluminationProfileCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBIlluminationProfileCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -75,8 +73,6 @@ public sealed partial class CIBIlluminationProfileCacheItem : CalibrationCacheBa
         LaserLightInformation = LaserLightInformation.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

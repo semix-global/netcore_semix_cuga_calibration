@@ -54,8 +54,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetCache : CalibrationCacheBa
         OriginAFMotor = OriginAFMotor,
         OriginRelayMotor = OriginRelayMotor,
         QualityThreshold = QualityThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -93,8 +91,6 @@ public sealed partial class AutoFocusGlobalFocusOffsetCacheItem : CalibrationCac
         CIBConfiguration = CIBConfiguration.Clone(),
         RTFCBrightFieldMachinePosition = RTFCBrightFieldMachinePosition,
         ImageWidth = ImageWidth,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

@@ -14,17 +14,17 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.WPF.MVVM;
 using System.IO;
 
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationAlgorithmServiceMockImpl(
-    ILogger<CalibrationAlgorithmServiceImpl> logger,
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
 {
-    private readonly CalibrationAlgorithmServiceImpl _calibrationAlgorithmServiceImpl = new(logger, calibrationSetting, affineTransformation);
+    private readonly CalibrationAlgorithmServiceImpl _calibrationAlgorithmServiceImpl = new(HostApplication.GetRequiredService<ILogger<CalibrationAlgorithmServiceImpl>>(), calibrationSetting, affineTransformation);
 
     private readonly string _hazeImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3HazeTestImg.jpg");
     private readonly string _shinyImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3ShinyTestImg.jpg");

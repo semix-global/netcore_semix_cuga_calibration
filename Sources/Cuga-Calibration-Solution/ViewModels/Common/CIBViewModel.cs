@@ -1,4 +1,6 @@
 using CommunityToolkit.Diagnostics;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
@@ -8,6 +10,7 @@ using Core.Models.Helper;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.Algorithm.TemplateMatch;
 using Core.Models.Models.Common.AutoFocus;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
@@ -35,6 +38,7 @@ namespace CugaCalibration.ViewModels.Common;
 public sealed class CIBViewModel(
     ICalibrationCIBService calibrationCIBService,
     ICalibrationAlgorithmService calibrationAlgorithmService,
+    IAlgorithmEngines algorithmEngines,
     ILogger<CIBViewModel> logger,
     IApplicationCookieService applicationCookieCacheProvider,
     MicroscopeViewModel microscopeViewModel,
@@ -813,6 +817,7 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
     }
 
+    [Obsolete]
     public bool TryGetMatchPosition(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
@@ -945,5 +950,144 @@ public sealed class CIBViewModel(
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationCIBServiceMockImpl>(calibrationCIBService);
 
         mock.SimulatorImageFilePaths = simulatorImageFilePaths;
+    }
+
+    public bool TryGetMatchPosition(
+        ReadTemplateParam readParam,
+        ProductivityInformation productivity,
+        StageCoordinateSystemEnum stageCoordinateSystem,
+        Point centerPosition,
+        CIBInformation cib,
+        DarkFieldImageDTO darkFieldImage,
+        string saveResultImageDirectory,
+        Guid logGuid,
+        out TemplateMatchSnapshot matchSnapshot,
+        out Point resultPosition)
+    {
+        matchSnapshot = new TemplateMatchSnapshot();
+        resultPosition = Point.Origin;
+
+        var templateFilePath = readParam.TemplateFilePath;
+        var scoreThreshold = readParam.EngineParams switch
+        {
+            HalconTemplateMatchParams halcon => halcon.TemplateType.ToTemplateMatchScoreThreshold(calibrationSetting),
+            _ => calibrationSetting.SettingTemplateMatchParam.NccTypeTemplateMatchScoreThreshold
+        };
+
+        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
+
+        logger.LogHtmlInformation("Template Match", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+        {
+            productivityInformation = productivity,
+            stageCoordinateSystemEnum = stageCoordinateSystem,
+            centerPosition,
+            cibInformation = cib,
+            scoreThreshold,
+            ReadTemplateParam = new HtmlQuote(readParam.ToHtmlAnonymous()),
+            DarkFieldImage = new HtmlQuote(darkFieldImage.ToHtmlAnonymous()),
+            saveResultImageDirectory,
+            xDirection,
+            yDirection
+        }), logGuid.LoggingHtml());
+
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation == productivity);
+        if (xSize?.IsOk != true)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser X Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>()
+            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == productivity.OpticsIlluminationModeEnum
+                                  && t.ProductivityInformation.OpticsMagType == productivity.OpticsMagType
+                                  && t.PmtId == cib.PMTId);
+        if (ySize?.IsOk != true)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
+
+            return false;
+        }
+
+        var engine = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+        var readResultRet = engine.Read(readParam, logGuid);
+
+        if (readResultRet.Success == false || readResultRet.Data is null)
+        {
+            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"Read Template Failed!{readResultRet.ErrorMsg}"), logGuid.LoggingHtml());
+
+            readResultRet.Data?.Dispose();
+
+            return false;
+        }
+
+        bool isSuccess;
+        var model = readResultRet.Data;
+        try
+        {
+            using var hImage = darkFieldImage.Image.ToHImage();
+            using var horizontalFlipHImage = hImage.HorizontalFlip();
+
+            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : horizontalFlipHImage.ToBitmapImage();
+            var matchResultRet = engine.Match(image, new MatchTemplateParam
+            {
+                Model = model,
+                ScoreThreshold = scoreThreshold
+            }, logGuid);
+            var matchResult = matchResultRet.Data ?? new MatchTemplateResult();
+            matchSnapshot.AdaptIn(matchResult.AdaptTo());
+            matchSnapshot.IsOk = matchResultRet.Success;
+            var matchPoint = matchResult.MarkPoint;
+            var matchOffset = matchResult.Offset;
+            var matchScore = matchResult.Score;
+            var matchAngle = matchResult.Angle;
+            isSuccess = matchResultRet.Success;
+
+            matchSnapshot.ResultImageFilePath = Path.Combine(isSuccess ? saveResultImageDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{scoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
+            using var temp = hImage.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
+            temp.Save(matchSnapshot.ResultImageFilePath);
+
+            var stageCoordinateSystemMatchOffset = stageCoordinateSystem switch
+            {
+                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => (Vector)matchOffset,
+                StageCoordinateSystemEnum.Machine => new Vector(xDirection * matchOffset.X, yDirection * matchOffset.Y),
+                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector>(nameof(stageCoordinateSystem))
+            };
+
+            var positionOffset = new Vector(stageCoordinateSystemMatchOffset.X * xSize.XPixelSize, stageCoordinateSystemMatchOffset.Y * ySize.YPixelSize);
+            resultPosition = centerPosition + positionOffset;
+
+            var htmlBullet = new HtmlBullet(new
+            {
+                MatchResult = new HtmlQuote(matchResult.ToHtmlAnonymous()),
+                scoreThreshold,
+                stageCoordinateSystemMatchOffset,
+                positionOffset,
+                resultPosition,
+                HtmlTab = new HtmlTab(new
+                {
+                    ResultImage = new HtmlImage(matchSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
+            });
+
+            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
+            else logger.LogHtmlError($"Match Failed!{matchResultRet.ErrorMsg}", HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
+        }
+        finally
+        {
+            try
+            {
+                model.Dispose();
+            }
+            catch (Exception ex)
+            {
+                logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"Clean Template Failed!{ex}"), logGuid.LoggingHtml());
+                isSuccess = false;
+            }
+        }
+
+        return isSuccess;
     }
 }

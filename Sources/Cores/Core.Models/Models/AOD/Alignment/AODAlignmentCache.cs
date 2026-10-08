@@ -28,8 +28,6 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
         ProductivityInformation = ProductivityInformation.Clone(),
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>(x.Key.Clone(), x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -87,8 +85,6 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlig
         StepPrescanFrequency = StepPrescanFrequency,
         StopPrescanFrequency = StopPrescanFrequency,
         RangeSkipFitCount = RangeSkipFitCount,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

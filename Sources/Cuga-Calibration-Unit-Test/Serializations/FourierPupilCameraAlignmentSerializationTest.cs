@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -258,8 +257,6 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
             },
             ScanLength = 1234.5d,
             HazeFindBFMachinePosition = new Point(10.5, 20.5),
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Sharpe,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size64,
             Id = 11,
             Expiration = 22,
             IsDeleted = true,
@@ -284,8 +281,6 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
         actual.ScanLength.Should().Be(expected.ScanLength);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
-        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
-        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);

@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -106,6 +107,8 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase<Ch
     [ObservableProperty]
     public partial int Times { get; set; } = 3;
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public void SetPosition(Point position, StageDirectionTypeEnum? stageDirection = null)
     {
         switch (stageDirection ?? SiteDirection)
@@ -167,8 +170,7 @@ public sealed partial class ChuckGlobalScaleErrorCache : CalibrationCacheBase<Ch
         HighBaseTemplateFilePath = HighBaseTemplateFilePath,
         HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
         Times = Times,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

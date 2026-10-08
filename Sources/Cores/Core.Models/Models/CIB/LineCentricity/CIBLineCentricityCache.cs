@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -22,6 +23,8 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
     [ObservableProperty]
     public partial Point Threshold { get; set; }
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
 
@@ -35,8 +38,7 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
         PmtInterval = PmtInterval,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -94,8 +96,6 @@ public sealed partial class CIBLineCentricityCacheItem : CalibrationCacheBase<CI
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath,
         IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

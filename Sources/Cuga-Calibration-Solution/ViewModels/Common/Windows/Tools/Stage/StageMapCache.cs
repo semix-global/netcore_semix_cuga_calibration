@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Newtonsoft.Json;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -63,6 +64,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     [ObservableProperty]
     public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     #endregion
 
     #region Step3
@@ -110,8 +113,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         CIBInformation,
         OpticsConfiguration,
         CIBConfiguration,
-        AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting,
         IsROIMatchEnabled,
         ROIMatchWidthScale,
         ROIMatchHeightScale,

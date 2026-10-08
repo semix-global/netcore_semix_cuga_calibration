@@ -52,8 +52,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Net.Utilities\Net.Utilities.SourceGenerators.Calibration\Net.Utilities.SourceGenerators.Calibration.csproj" PrivateAssets="all" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-        <ProjectReference Include="..\Cores\Core.Services\03. Core.Services.csproj" />
-        <ProjectReference Include="..\Cores\Core.Recipe\04. Core.Recipe.csproj" />
+        <ProjectReference Include="..\Cores\Core.Algorithm\03. Core.Algorithm.csproj" />
+        <ProjectReference Include="..\Cores\Core.Services\04. Core.Services.csproj" />
+        <ProjectReference Include="..\Cores\Core.Recipe\05. Core.Recipe.csproj" />
     </ItemGroup>
 
     <ItemGroup>

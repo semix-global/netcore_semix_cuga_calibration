@@ -43,8 +43,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCache : CalibrationCacheBa
         NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
         TeachingThreshold = TeachingThreshold,
         VerifyThreshold = VerifyThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -58,8 +56,6 @@ public sealed partial class ChuckAlignmentDegreeOffsetCacheItem : CalibrationCac
     public override ChuckAlignmentDegreeOffsetCacheItem Clone() => new()
     {
         XWidthPixel = XWidthPixel,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
