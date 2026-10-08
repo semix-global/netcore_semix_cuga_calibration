@@ -35,8 +35,6 @@ public sealed partial class LaserBeamStabilizerCache : CalibrationCacheBase<Lase
         Interval = Interval,
         Threshold = Threshold,
         RepeatNumber = RepeatNumber,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

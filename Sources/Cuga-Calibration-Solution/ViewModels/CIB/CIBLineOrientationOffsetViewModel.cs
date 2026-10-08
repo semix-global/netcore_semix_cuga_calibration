@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -247,7 +248,10 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             Cache.Item.FindPosition = result;
 
             Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.Item.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.Item.AlgorithmTemplateTypeEnum, Cache.Item.BrightTemplateFilePath, Cache.Item.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var brightImageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(
+                Cache.Item.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, brightImageSize, Cache.Item.BrightTemplateFilePath),
+                HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
 
@@ -270,7 +274,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
-                Cache.Item.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.Item.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.MicroscopeLensInformation.LensName,
                 Cache.Item.WaferRadius,
                 Cache.Item.DiePitchWidth,
@@ -322,8 +326,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
             darkFieldImageDto.Image.SaveImage(filePath);
 
-            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-            CreateDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
+            CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.TemplateMatchSetting.Clone();
             CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
@@ -370,8 +373,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.XWidthPixel,
                 Cache.PmtInterval,
-                Cache.AlgorithmTemplateTypeEnum,
-                Cache.AlgorithmTemplateSizeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindPosition,
                 Cache.Item.StartPosition,
                 Cache.Item.EndPosition,
@@ -472,8 +474,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                     Cache.Item.IsDarkFieldAlignment,
                     AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                     Cache.Item.XWidthPixel,
-                    Cache.AlgorithmTemplateTypeEnum,
-                    Cache.AlgorithmTemplateSizeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.Item.FindPosition,
                     Cache.Item.StartPosition,
                     Cache.Item.EndPosition,
@@ -591,19 +592,16 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             var imageDto = isForward ? darkFieldImages[findPosition.Index] : darkFieldImages[^findPosition.Index];
 
             if (CIBViewModel.TryGetMatchPosition(
+                    Cache.Item.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
                     lineOrientationOffsetDto.ProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     findPosition.Point,
                     ApplicationCookie.CIBInformations.Single(t => t.PMTId == lineOrientationOffsetDto.PmtId && t.ChannelId == Cache.Item.CIBInformation.ChannelId),
-                    Cache.Item.AlgorithmTemplateTypeEnum,
                     imageDto,
-                    Cache.Item.TemplateFilePath,
                     isForward ? lineOrientationOffsetDto.ForwardFilePath : lineOrientationOffsetDto.ReverseFilePath,
                     HtmlLogUniqueId,
-                    out var position,
-                    out _,
-                    out _,
-                    out var resultImageFilePath) == false)
+                    out var matchSnapshot,
+                    out var position) == false)
             {
                 Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                 ThrowHelper.ThrowArgumentException($"Get Match Position Failed! PMT ID: {lineOrientationOffsetDto.PmtId}, IsForward: {isForward}");
@@ -612,12 +610,12 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             var resultMachinePosition = StageViewModel.DarkFieldToMachinePosition(position);
             if (isForward)
             {
-                lineOrientationOffsetDto.ForwardFilePath = resultImageFilePath;
+                lineOrientationOffsetDto.ForwardFilePath = matchSnapshot.ResultImageFilePath;
                 lineOrientationOffsetDto.ForwardFindDarkMachinePosition = resultMachinePosition;
             }
             else
             {
-                lineOrientationOffsetDto.ReverseFilePath = resultImageFilePath;
+                lineOrientationOffsetDto.ReverseFilePath = matchSnapshot.ResultImageFilePath;
                 lineOrientationOffsetDto.ReverseFindDarkMachinePosition = resultMachinePosition;
             }
 

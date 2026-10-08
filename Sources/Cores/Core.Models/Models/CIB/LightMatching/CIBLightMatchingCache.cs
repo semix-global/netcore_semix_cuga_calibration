@@ -60,8 +60,6 @@ public sealed partial class CIBLightMatchingCache : CalibrationCacheBase<CIBLigh
         CalibratingThresholdRangeRatio = CalibratingThresholdRangeRatio,
         ReviewThresholdRangeRatio = ReviewThresholdRangeRatio,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBLightMatchingCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLightMatchingCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -91,8 +89,6 @@ public sealed partial class CIBLightMatchingCacheItem : CalibrationCacheBase<CIB
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         SilicaSphereFindBFMachinePosition = SilicaSphereFindBFMachinePosition,
         ImageWidth = ImageWidth,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

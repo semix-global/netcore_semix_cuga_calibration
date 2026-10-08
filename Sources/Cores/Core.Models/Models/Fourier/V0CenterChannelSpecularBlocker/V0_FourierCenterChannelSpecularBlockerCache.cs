@@ -4,6 +4,7 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
+using Core.Models.Models.Setting;
 
 namespace Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
 
@@ -25,6 +26,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
 
     [ObservableProperty]
     public partial double ExtinctionRatioThreshold { get; set; } = 0.2;
+    
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem> Items { get; init; } = [];
@@ -40,8 +43,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
         VerifyImageWidth = VerifyImageWidth,
         ExtinctionRatioThreshold = ExtinctionRatioThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -63,6 +65,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCacheItem : Cal
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }
+    
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     public override V0FourierCenterChannelSpecularBlockerCacheItem Clone() => new()
     {
@@ -71,8 +75,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCacheItem : Cal
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         ShinyWaferFindBFMachinePosition = ShinyWaferFindBFMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

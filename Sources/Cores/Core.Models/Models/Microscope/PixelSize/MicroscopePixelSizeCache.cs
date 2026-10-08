@@ -43,9 +43,6 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<Micr
         AngleThreshold = AngleThreshold,
         Threshold = Threshold,
         Items = new ConcurrentDictionary<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(Items.Select(t => new KeyValuePair<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -67,8 +64,6 @@ public sealed partial class MicroscopePixelSizeCacheItem : CalibrationCacheBase<
         WaferMaskTypeEnum = WaferMaskTypeEnum,
         AlgorithmStandardMaskSquareSizeEnum = AlgorithmStandardMaskSquareSizeEnum,
         FindPosition = FindPosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

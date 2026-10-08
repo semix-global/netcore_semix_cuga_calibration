@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -14,6 +15,8 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
 {
     [ObservableProperty]
     public partial double PmtInterval { get; set; } = 320;
+
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -30,8 +33,7 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
         PmtInterval = PmtInterval,
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = new ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -117,6 +119,8 @@ public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCache
     [ObservableProperty]
     public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public override CIBLineOrientationOffsetCacheItem Clone() => new()
     {
         DiePitchWidth = DiePitchWidth,
@@ -140,8 +144,7 @@ public sealed partial class CIBLineOrientationOffsetCacheItem : CalibrationCache
         BrightTemplateImageFilePath = BrightTemplateImageFilePath,
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

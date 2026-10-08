@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -24,6 +25,8 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
 
     [ObservableProperty]
     public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
+
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     /// <summary>
     /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
@@ -200,8 +203,7 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
         WaferCenterThumb7 = [.. WaferCenterThumb7],
         WaferCenterThumb8 = [.. WaferCenterThumb8],
         Times = Times,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

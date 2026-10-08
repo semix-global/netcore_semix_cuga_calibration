@@ -7,6 +7,7 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Microscope"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:controls="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
              xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:MicroscopeCentricityViewModel}"
              d:DesignHeight="1080"
@@ -54,18 +55,7 @@
                                 </DataTemplate>
                             </hc:ComboBox.ItemTemplate>
                         </hc:ComboBox>
-                        <hc:ComboBox x:Name="TemplateTypeComboBox"
-                                     hc:TitleElement.TitleWidth="160"
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.Title="Template Type: "
-                                     SelectedItem="{Binding Cache.AlgorithmTemplateTypeEnum}"
-                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateTypeEnum}}}">
-                            <hc:ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTemplate>
-                            </hc:ComboBox.ItemTemplate>
-                        </hc:ComboBox>
+                        <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
                         <StackPanel>
                             <TextBlock Text="2. Find Position"
                                        HorizontalAlignment="Center"

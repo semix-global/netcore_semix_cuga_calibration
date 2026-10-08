@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Algorithm;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Setting;
@@ -20,12 +21,19 @@ public sealed partial class SettingTemplateMatchParam : ObservableObject, IAdapt
     [ObservableProperty]
     public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
 
+    /// <summary>
+    /// 当前模板匹配算法库
+    /// </summary>
+    [ObservableProperty]
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.AlgoCSharp;
+
     #region Mapper
 
     public SettingTemplateMatchParam AdaptIn(SettingTemplateMatchParam obj)
     {
         SharpeTypeTemplateMatchScoreThreshold = obj.SharpeTypeTemplateMatchScoreThreshold;
         NccTypeTemplateMatchScoreThreshold = obj.NccTypeTemplateMatchScoreThreshold;
+        AlgorithmEngineTypeEnum = obj.AlgorithmEngineTypeEnum;
 
         return obj;
     }

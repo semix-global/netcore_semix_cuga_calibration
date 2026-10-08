@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -197,7 +198,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.CalChipSiteModelEnum,
                 Cache.Item.WaferMaskTypeEnum,
                 Cache.Item.FindPosition
@@ -214,10 +215,14 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             Cache.Item.FindPosition = StageViewModel.GetBrightFieldStagePosition();
             Cache.Item.TemplateFilePath = $"{TemplateFileDirectory}\\{Cache.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
 
-            var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.Item.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateLow1 = ReviewViewModel.TryGenerateTemplate(
+                Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.Item.TemplateFilePath),
+                HtmlLogUniqueId);
+            if (generateTemplateLow1)
+                Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
 
             if (generateTemplateLow1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
 
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
@@ -366,7 +371,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
         {
             Cache.MicroscopeLensInformation.LensName,
-            Cache.AlgorithmTemplateTypeEnum,
+            TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
             originalPosition,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
@@ -377,19 +382,16 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             Logger.LogHtmlInformation($"Repeat Time:{times}", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
 
             if (ReviewViewModel.TryGetMatchPosition(
-                    Cache.AlgorithmTemplateTypeEnum,
+                    Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
                     MicroscopePixelSizes,
                     originalPosition,
                     Cache.MicroscopeLensInformation,
-                    Cache.Item.TemplateFilePath,
                     detectImageDirectory,
                     HtmlLogUniqueId,
                     Name,
                     string.Empty,
+                    out var matchSnapshot,
                     out var resultPosition,
-                    out var score,
-                    out var angle,
-                    out var resultImageFilePath,
                     out _,
                     Cache.CalChipSiteModelEnum) == false) return false;
 
@@ -397,7 +399,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             {
                 Index = times - 1,
                 CentricityPosition = resultPosition,
-                FilePath = resultImageFilePath,
+                FilePath = matchSnapshot.ResultImageFilePath,
                 Offset = resultPosition - (Vector)originalPosition
             };
 

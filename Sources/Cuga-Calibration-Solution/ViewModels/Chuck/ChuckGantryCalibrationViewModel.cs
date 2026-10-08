@@ -1,8 +1,8 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Gantry;
@@ -152,13 +152,13 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
             case 1:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.LowBaseTemplateFilePath))
+                return File.Exists(Cache.TemplateMatchSetting.ToTemplateMatchModelFilePath(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath))
                        && File.Exists(Cache.LowBaseTemplateImageFilePath);
 
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowTopPosition, CalChipSiteModelEnum.ChuckModel);
-                return File.Exists(Cache.AlgorithmTemplateTypeEnum.ToFullFilePath(Cache.HighBaseTemplateFilePath))
+                return File.Exists(Cache.TemplateMatchSetting.ToTemplateMatchModelFilePath(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath))
                        && File.Exists(Cache.HighBaseTemplateImageFilePath);
 
             case 3:
@@ -237,13 +237,14 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             Cache.LowBottomPosition = currentColReticles[0].Rect.Point;
 
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowBaseTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.WaferMaskTypeEnum,
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
@@ -271,7 +272,8 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             Cache.BaseHighFindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighBaseTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighBaseTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
@@ -295,7 +297,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
 
             Cache.LowTopPosition = lowPosition;
 
@@ -314,7 +316,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
 
             Cache.LowBottomPosition = lowPosition;
 
@@ -439,7 +441,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 cibTemperature,
                 LowMagnification = Cache.LowMicroscopeLensInformation.LensName,
                 HighMagnification = Cache.HighMicroscopeLensInformation.LensName,
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.LowTopPosition,
                 Cache.LowBottomPosition,
                 Cache.WaferRadius,
@@ -525,26 +527,26 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     {
         Logger.LogHtmlInformation("Match Template", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowTopPosition, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
-                "Low Magnification 1", out var lowPosition1, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath1, HtmlLogUniqueId,
+        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowTopPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+                "Low Magnification 1", out _, out var lowPosition1, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId,
                 Name,
-                "High Magnification 1", out var highPosition1, out var highScore1, out var highAngle1, out var highImageFilePath1, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, Cache.LowBottomPosition, Cache.LowMicroscopeLensInformation, Cache.LowBaseTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
-                "Low Magnification 2", out var lowPosition2, out _, out _, out _, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, Cache.HighBaseTemplateFilePath, chuckGantryDto.FilePath2, HtmlLogUniqueId,
+                "High Magnification 1", out var highSnapshot1, out var highPosition1, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowBottomPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+                "Low Magnification 2", out _, out var lowPosition2, out _) == false) return false;
+        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId,
                 Name,
-                "High Magnification 2", out var highPosition2, out var highScore2, out var highAngle2, out var highImageFilePath2, out _) == false) return false;
+                "High Magnification 2", out var highSnapshot2, out var highPosition2, out _) == false) return false;
 
         chuckGantryDto.Position1 = highPosition1;
-        chuckGantryDto.TemplateScore1 = highScore1;
-        chuckGantryDto.TemplateAngle1 = highAngle1;
-        chuckGantryDto.FilePath1 = highImageFilePath1;
+        chuckGantryDto.TemplateScore1 = highSnapshot1.Score;
+        chuckGantryDto.TemplateAngle1 = highSnapshot1.Angle;
+        chuckGantryDto.FilePath1 = highSnapshot1.ResultImageFilePath;
 
         chuckGantryDto.Position2 = highPosition2;
-        chuckGantryDto.TemplateScore2 = highScore2;
-        chuckGantryDto.TemplateAngle2 = highAngle2;
-        chuckGantryDto.FilePath2 = highImageFilePath2;
+        chuckGantryDto.TemplateScore2 = highSnapshot2.Score;
+        chuckGantryDto.TemplateAngle2 = highSnapshot2.Angle;
+        chuckGantryDto.FilePath2 = highSnapshot2.ResultImageFilePath;
 
         chuckGantryDto.Offset = -chuckGantryDto.H * Math.Tan(chuckGantryDto.Slope); // 由于坐标系(机械坐标系和笛卡尔坐标系相同)不同，需要取反
 

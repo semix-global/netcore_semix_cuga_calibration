@@ -25,6 +25,27 @@
             </hc:UniformSpacingPanel>
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                    <StackPanel>
+                        <TextBlock Text="Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                    </StackPanel>
+                    <hc:ComboBox x:Name="LowMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Low Magnification: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="High Magnification: "
+                                 hc:TitleElement.TitleWidth="200"
+                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <tools:AlignmentUserControl DataContext="{Binding .AlignmentUserControlViewModel}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"

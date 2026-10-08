@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -35,6 +36,8 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<Mic
     [ObservableProperty]
     public partial double ConcentricThreshold { get; set; }
 
+    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
     public override MicroscopeCentricityCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
@@ -44,8 +47,7 @@ public sealed partial class MicroscopeCentricityCache : CalibrationCacheBase<Mic
         VerifyResultError = VerifyResultError,
         Threshold = Threshold,
         ConcentricThreshold = ConcentricThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -75,8 +77,6 @@ public sealed partial class MicroscopeCentricityCacheItem : CalibrationCacheBase
         FindPosition = FindPosition,
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

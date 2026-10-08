@@ -1,7 +1,6 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
@@ -397,8 +396,6 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             Step0AndStep1MotorAbsoluteValue = 40.5d,
             Step2MotorAbsoluteValue = 30.75d,
             HazeFindBFMachinePosition = new Point(11.5, 21.5),
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size128,
             Id = 31,
             Expiration = 32,
             IsDeleted = true,
@@ -428,8 +425,6 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
         actual.Step0AndStep1MotorAbsoluteValue.Should().Be(expected.Step0AndStep1MotorAbsoluteValue);
         actual.Step2MotorAbsoluteValue.Should().Be(expected.Step2MotorAbsoluteValue);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
-        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
-        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);

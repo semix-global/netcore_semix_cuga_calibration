@@ -1,3 +1,4 @@
+using Core.Algorithm;
 using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +11,7 @@ public static class CoreServiceProvider
 {
     public static IServiceCollection AddCoreService(this IServiceCollection services, IHostEnvironment hostEnvironment)
     {
+        services.AddCoreAlgorithm(hostEnvironment);
         services.AddCoreServicesInjectHostDI(hostEnvironment);
 
         services.AddSingleton(sp =>

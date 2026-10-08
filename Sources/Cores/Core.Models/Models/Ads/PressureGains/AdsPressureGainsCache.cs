@@ -15,8 +15,6 @@ public sealed partial class AdsPressureGainsCache : CalibrationCacheBase<AdsPres
     {
         FindPosition = FindPosition,
         Threshold = Threshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

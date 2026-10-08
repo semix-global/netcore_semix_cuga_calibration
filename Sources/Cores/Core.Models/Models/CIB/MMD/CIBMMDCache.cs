@@ -276,8 +276,6 @@ public sealed partial class CIBMMDCache : CalibrationCacheBase<CIBMMDCache>
         ODFilterRatio = ODFilterRatio,
         NotUseODFilterMeasurePowerPoints = [.. NotUseODFilterMeasurePowerPoints],
         UseODFilterMeasurePowerPoints = [.. UseODFilterMeasurePowerPoints],
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using System.Reflection;
+using Core.Models.Models.Setting;
 
 namespace CugaCalibrationUnitTest.Serializations;
 
@@ -301,8 +302,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
             },
             ScanLength = 500.25d,
             HazeFindBFMachinePosition = new Point(11.5, 21.5),
-            AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc,
-            AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size128,
+            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size128 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Ncc}} ,
             Id = 31,
             Expiration = 32,
             IsDeleted = true,
@@ -333,8 +333,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
         actual.ScanLength.Should().Be(expected.ScanLength);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
-        actual.AlgorithmTemplateTypeEnum.Should().Be(expected.AlgorithmTemplateTypeEnum);
-        actual.AlgorithmTemplateSizeEnum.Should().Be(expected.AlgorithmTemplateSizeEnum);
+        actual.TemplateMatchSetting.Should().Be(expected.TemplateMatchSetting);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);

@@ -1,12 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Prealigner;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using Net.Utilities.Algorithms.Modules;
@@ -71,9 +71,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
     [ObservableProperty]
     public partial MicroscopePixelSizeDTO[] MicroscopePixelSizeItems { get; set; } = [];
 
-    [ObservableProperty]
-    public partial AlignmentCacheBrightField AlignmentCacheBrightField { get; set; } = new();
-
     #endregion 缓存
 
     #endregion 属性
@@ -85,8 +82,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         await Task.CompletedTask.ConfigureAwait(false);
 
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
-
-        AlignmentCacheBrightField = ApplicationCookieService.GetArrayOrDefault<AlignmentCacheBrightField>(true, cancellationToken).SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel, new AlignmentCacheBrightField());
 
         Cache = ApplicationCookieService.GetCache<ChuckPrealignerCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckPrealignerDTO>(cancellationToken);
@@ -288,7 +283,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             var lowTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             Cache.LowSiteTemplateFilePath = lowTemplateFilePath;
 
-            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.LowSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowSiteTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplate == false)
             {
                 DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -297,7 +293,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             var lowTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(lowTemplateFilePath);
 
-            var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum);
+            var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.TemplateMatchSetting);
             if (resultLowSite1.Template is null)
             {
                 return false;
@@ -305,7 +301,6 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultLowSite1.Template.Thumb), lowTemplateImageFilePath);
             Cache.LowSite1 = resultLowSite1;
-            Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.LowSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -313,7 +308,7 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
                 Cache.DiePitchWidth,
                 Cache.ReticleDieCountX,
                 Cache.WaferRadius,
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowSite1.Location,
                 HtmlTab = new HtmlTab(new
@@ -331,17 +326,21 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return await InvokeCalibrateAsync(() =>
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.LowMicroscopeLensInformation, Cache.LowSiteTemplateFilePath, out var lowPositionResult) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(
+                    Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowSiteTemplateFilePath),
+                    MicroscopePixelSizeItems,
+                    position,
+                    Cache.LowMicroscopeLensInformation,
+                    out var lowPositionResult) == false) return false;
 
             Cache.LowSite2.Location = lowPositionResult;
             var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
             Cache.LowSite2 = resultLowSite2;
-            Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.LowSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.LowMicroscopeLensInformation.LensName,
                 Cache.LowSite2.Location
             }), HtmlLogUniqueId.LoggingHtml());
@@ -366,7 +365,8 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
             var highTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             Cache.HighSiteTemplateFilePath = highTemplateFilePath;
 
-            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.HighSiteTemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+            var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+            var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighSiteTemplateFilePath), HtmlLogUniqueId);
             if (generateTemplate == false)
             {
                 DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -375,12 +375,11 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
 
             var highTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(highTemplateFilePath);
 
-            var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum);
+            var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.TemplateMatchSetting);
             if (resultHighSite1.Template is null) return false;
 
             BitmapSourceHelper.Save(BitmapSourceHelper.BitmapMemoryByteArrayToBitmapSource(resultHighSite1.Template.Thumb), highTemplateImageFilePath);
             Cache.HighSite1 = resultHighSite1;
-            Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.HighSite1.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -401,12 +400,16 @@ public sealed partial class ChuckPrealignerCalibrationViewModel(EFEMWindowViewMo
         return await InvokeCalibrateAsync(() =>
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
-            if (ReviewViewModel.TryGetMatchPosition(Cache.AlgorithmTemplateTypeEnum, MicroscopePixelSizeItems, position, Cache.HighMicroscopeLensInformation, Cache.HighSiteTemplateFilePath, out var highPositionResult) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(
+                    Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighSiteTemplateFilePath),
+                    MicroscopePixelSizeItems,
+                    position,
+                    Cache.HighMicroscopeLensInformation,
+                    out var highPositionResult) == false) return false;
 
             Cache.HighSite2.Location = highPositionResult;
             var resultHighSite2 = StageViewModel.MarkAlignSite2(Cache.HighSite1);
             Cache.HighSite2 = resultHighSite2;
-            Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
             Cache.HighSite2.TemplateMatchScoreThreshold = Cache.NccTypeTemplateMatchScoreThreshold;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new

@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
@@ -320,7 +321,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.FirstStageMapPosition,
                 HtmlTab = new HtmlTab(new
                 {
@@ -334,7 +335,8 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
     private bool BrightFieldStep1Action()
     {
         Cache.TemplateFilePath = Cache.BrightFieldTemplateFilePath = $"{TemplateFileDirectory}\\1_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
-        var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.AlgorithmTemplateTypeEnum, Cache.TemplateFilePath, Cache.AlgorithmTemplateSizeEnum, HtmlLogUniqueId);
+        var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
+        var generateTemplate = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.TemplateFilePath), HtmlLogUniqueId);
         if (generateTemplate == false)
         {
             DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -381,8 +383,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
         var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
         darkFieldImageDto.Image.SaveImage(filePath);
 
-        createDarkImageTemplateWindowViewModel.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-        createDarkImageTemplateWindowViewModel.AlgorithmTemplateSizeEnum = Cache.AlgorithmTemplateSizeEnum;
+        createDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.TemplateMatchSetting.Clone();
         createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
         createDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.TemplateFilePath;
 
@@ -428,7 +429,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.RowNumber,
                 Cache.ColumnNumber,
                 Cache.ColumnCellWidth,
@@ -578,7 +579,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     LensName = Cache.HighMicroscopeLensInformation.LensName,
-                    Cache.AlgorithmTemplateTypeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     calibrationStageMap.IdealCsvFilePath,
                     calibrationStageMap.RealCsvFilePath,
                     calibrationStageMap.RealIsMatchOkCsvFilePath,
@@ -601,7 +602,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 cibTemperature,
                 opticsMode,
                 LensName = Cache.HighMicroscopeLensInformation.LensName,
-                Cache.AlgorithmTemplateTypeEnum,
+                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 calibrationStageMap.IdealCsvFilePath,
                 calibrationStageMap.RealCsvFilePath,
                 calibrationStageMap.RealIsMatchOkCsvFilePath,
@@ -712,7 +713,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     cibTemperature,
                     Cache.P5Angle,
                     LensName = Cache.HighMicroscopeLensInformation.LensName,
-                    Cache.AlgorithmTemplateTypeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.CalculateContainRowMinCount,
                     Cache.CalculateContainColumnMinCount,
                     Cache.VerifyAlignmentThreshold,
@@ -770,7 +771,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     LensName = Cache.HighMicroscopeLensInformation.LensName,
-                    Cache.AlgorithmTemplateTypeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     ReviewDto.VerifyDarkFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyDarkFieldStageMap.RealCsvFilePath,
                     ReviewDto.VerifyDarkFieldStageMap.RealIsInWaferOkCsvFilePath,
@@ -839,7 +840,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     reviewCamTemperature,
                     cibTemperature,
                     LensName = Cache.HighMicroscopeLensInformation.LensName,
-                    Cache.AlgorithmTemplateTypeEnum,
+                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     ReviewDto.VerifyBrightFieldStageMap.IdealCsvFilePath,
                     ReviewDto.VerifyBrightFieldStageMap.RealCsvFilePath,
                     ReviewDto.VerifyBrightFieldStageMap.RealIsInWaferOkCsvFilePath,
@@ -961,19 +962,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                 Thread.Sleep(500);
                 var tempPosition = StageViewModel.GetBrightFieldStagePosition();
                 if (ReviewViewModel.TryGetMatchPosition(
-                        Cache.AlgorithmTemplateTypeEnum,
+                        Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.BrightFieldTemplateFilePath),
                         MicroscopePixelSizes,
                         tempPosition,
                         Cache.HighMicroscopeLensInformation,
-                        Cache.BrightFieldTemplateFilePath,
                         $"{detectImageDirectory}\\row({row})_column({column})",
                         HtmlLogUniqueId,
                         Name,
                         $"High Magnification row({row}) column({column})",
+                        out var resultSnapshot,
                         out var resultPosition,
-                        out var resultScore,
-                        out var resultAngle,
-                        out var resultImageFilePath, out _))
+                        out _))
                 {
                     var result = StageViewModel.BrightFieldToMachinePosition(resultPosition);
 
@@ -983,17 +982,17 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                     errorItemList[row][column] = result - (Vector)stageMapItem.Point;
                 }
 
-                stageMapItem.TemplateScore = resultScore;
-                stageMapItem.TemplateAngle = resultAngle;
-                stageMapItem.FilePath = resultImageFilePath;
+                stageMapItem.TemplateScore = resultSnapshot.Score;
+                stageMapItem.TemplateAngle = resultSnapshot.Angle;
+                stageMapItem.FilePath = resultSnapshot.ResultImageFilePath;
 
                 Logger.LogHtmlInformation($"({row},{column}),{(stageMapItem.IsMatchOk ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
                     OriginPosition = stageMapItem.Point,
                     ResultPosition = realMatrix[row][column],
                     Error = errorItemList[row][column],
-                    resultScore,
-                    resultAngle
+                    resultSnapshot.Score,
+                    resultSnapshot.Angle
                 }), HtmlLogUniqueId.LoggingHtml());
             }
             finally
@@ -1117,19 +1116,16 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
                         using var darkFieldImageDto = rowDarkFieldImageDtoList.ElementAt(column - isInWaferRowList[0].Index);
 
                         if (CIBViewModel.TryGetMatchPosition(
+                                Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.DarkFieldTemplateFilePath),
                                 Cache.ProductivityInformation,
                                 StageCoordinateSystemEnum.Machine,
                                 stageMapItem.Point,
                                 CalibrationSetting.SettingCommonParam.MainCIBInformation,
-                                Cache.AlgorithmTemplateTypeEnum,
                                 darkFieldImageDto,
-                                Cache.DarkFieldTemplateFilePath,
                                 FileHelper.GetFileFullName(Cache.DarkFieldTemplateFilePath),
                                 HtmlLogUniqueId,
-                                out var position,
-                                out _,
-                                out _,
-                                out var resultImageFilePath) == false)
+                                out var matchSnapshot,
+                                out var position) == false)
                         {
                             Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Match Position Failed!"), HtmlLogUniqueId.LoggingHtml());
                             continue;
@@ -1139,7 +1135,7 @@ public sealed partial class ChuckStageMapCalibrationViewModel(
 
                         plotDic.Add((index, column), actualOffset);
 
-                        stageMapItem.FilePath = resultImageFilePath;
+                        stageMapItem.FilePath = matchSnapshot.ResultImageFilePath;
                     }
 
                     var actualOffsetList = plotDic

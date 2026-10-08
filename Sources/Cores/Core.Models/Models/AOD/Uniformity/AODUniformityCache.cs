@@ -53,8 +53,6 @@ public sealed partial class AODUniformityCache : CalibrationCacheBase<AODUniform
         CalibrateThreshold = CalibrateThreshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>(Items.Select(x => new KeyValuePair<(ProductivityInformation ProductivityInformation, LaserLightInformation LaserLightInformation), AODUniformityCacheItem>((x.Key.ProductivityInformation.Clone(), x.Key.LaserLightInformation.Clone()), x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -124,8 +122,6 @@ public sealed partial class AODUniformityCacheItem : CalibrationCacheBase<AODUni
         WindowLimitRate = WindowLimitRate,
         WindowInterval = WindowInterval,
         WaitTime = WaitTime,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

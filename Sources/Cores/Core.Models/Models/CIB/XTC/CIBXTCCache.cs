@@ -34,8 +34,6 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
         CalibratingThreshold = CalibratingThreshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBXTCCacheItem>(t.Key.Clone(), t.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -77,8 +75,6 @@ public sealed partial class CIBXTCCacheItem : CalibrationCacheBase<CIBXTCCacheIt
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
         PrescanAODWaveformProfileSegmentCount = PrescanAODWaveformProfileSegmentCount,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

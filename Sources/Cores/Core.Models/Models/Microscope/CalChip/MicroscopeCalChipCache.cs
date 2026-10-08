@@ -56,8 +56,6 @@ public sealed partial class MicroscopeCalChipCache : CalibrationCacheBase<Micros
         SpeedEcsPerSecond = SpeedEcsPerSecond,
         HalfEcsLength = HalfEcsLength,
         QualityThreshold = QualityThreshold,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -83,8 +81,6 @@ public sealed partial class MicroscopeCalChipCacheItem : CalibrationCacheBase<Mi
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         LeftTopMachinePosition = LeftTopMachinePosition,
         RightBottomMachinePosition = RightBottomMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
