@@ -176,6 +176,19 @@
                                     <Button Content="Refresh Measure Machine Position"
                                             Command="{Binding RefreshMeasureMachinePositionCommand}"
                                             Style="{StaticResource ButtonDefault}" />
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="2">
+                                        <Button Content="Enable Laser"
+                                                Command="{Binding ToggleLaserEnableCommand}"
+                                                CommandParameter="{x:Static models:Constants.True}"
+                                                Style="{StaticResource ButtonDefault}" />
+                                        <Button Content="Disable Laser"
+                                                Command="{Binding ToggleLaserEnableCommand}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                Style="{StaticResource ButtonDefault}" />
+                                    </hc:UniformSpacingPanel>
+                                    <CheckBox Content="Automatically Disable Laser After Step 1"
+                                              IsChecked="{Binding Cache.IsSupportAutoCloseLaser, Mode=TwoWay}"
+                                              ToolTip="When unchecked, ask whether to disable the laser after Step 1 succeeds." />
                                     <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="200"

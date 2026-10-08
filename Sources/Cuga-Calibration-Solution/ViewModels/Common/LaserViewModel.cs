@@ -23,6 +23,13 @@ public sealed class LaserViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
+    public void ToggleLaserEnable(bool isEnable)
+    {
+        var ret = calibrationLaserService.ToggleLaserEnable(isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public (Point PD1Point, Point PD2Point) GetLaserBeamPoint()
     {
         var ret = calibrationLaserService.GetLaserBeamPoint();

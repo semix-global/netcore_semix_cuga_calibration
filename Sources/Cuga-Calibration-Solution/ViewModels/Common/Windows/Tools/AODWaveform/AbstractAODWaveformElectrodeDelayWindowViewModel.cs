@@ -525,6 +525,8 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
+            if (isSuccess) CloseLaserAfterStep1();
+
             return isSuccess;
 
             void Maxima()

@@ -26,6 +26,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<(Point PD1Point, Point PD2Point)> GetLaserBeamPoint()
     {
         Thread.Sleep(100);

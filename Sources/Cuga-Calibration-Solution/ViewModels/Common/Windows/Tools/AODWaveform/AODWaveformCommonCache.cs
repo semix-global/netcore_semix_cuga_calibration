@@ -36,6 +36,9 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     [ObservableProperty]
     public partial int MeasurePowerTimes { get; set; } = 20;
 
+    [ObservableProperty]
+    public partial bool IsSupportAutoCloseLaser { get; set; }
+
     #region Result
 
     [ObservableProperty]
@@ -65,6 +68,7 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
         MeasureMaxPowerMachinePosition,
         WaitTime,
         TotalMeasurePower,
-        MeasurePowerTimes
+        MeasurePowerTimes,
+        IsSupportAutoCloseLaser
     };
 }

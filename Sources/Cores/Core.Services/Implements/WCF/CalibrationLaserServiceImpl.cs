@@ -35,6 +35,11 @@ public sealed class CalibrationLaserServiceImpl(
         }, false);
     }
 
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<(Point PD1Point, Point PD2Point)> GetLaserBeamPoint()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadLaserBeamPos());
