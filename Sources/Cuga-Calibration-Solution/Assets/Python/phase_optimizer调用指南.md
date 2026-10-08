@@ -106,7 +106,7 @@ Chirp 和 Prescan 共用 `AbstractAODWaveformElectrodeDelayWindowViewModel` 的�
 - 当前点读取 `x_normal`, 调用 `single_sigmoid_amplitude_curve()` 生成幅值. `done` 为真时仍完成同样的参数读取和幅值生成, 再由外层循环结束.
 - NumPy 返回值通过 `tolist()` 转换后读取. 测量更新函数在原有幅值计算位置, 将归一化曲线值乘对应频点的 `Amplitude` 作为外部 scale.
 - 测量流程按频率索引直接下发缩放后的幅值. 噪声测量仍使用配置的频点幅值.
-- `x_phase` 先乘 `AlgorithmMaxDelay`, 再按现有电极顺序累加并叠加板卡延时. 基准电极延时为 `0`, 延时单位为 ns.
+- `x_phase` 从第二个电极开始, 按对应 `AODWaveformElectrodeDelayParam` 的 `MinDelay` 和 `MaxDelay`, 使用 `MinDelay + value * (MaxDelay - MinDelay)` 将 `[0, 1]` 映射到各电极的延时范围, 再按现有电极顺序累加并叠加板卡延时. 默认范围为 `[0, 10]`, 基准电极延时固定为 `0`, 延时单位为 ns. 范围端点必须是有限数值, 且 `MaxDelay >= MinDelay`.
 - 每轮测量的 `finally` 从本地有效测量记录中选取最高 Score 项, 将该项的延时和已下发幅值写入电极结果配置. 优化完成后保留该结果, 供后续波形生成使用.
 
 Python 文件作为嵌入资源读取, 资源名为 `CugaCalibration.Assets.Python.phase_optimizer.py`. 当前源码已经包含新曲线函数, 部署时需要使用包含该资源及新 C# 调用逻辑的程序版本.

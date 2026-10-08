@@ -362,6 +362,8 @@
                                                                             Header="AOD Electrode"
                                                                             Binding="{Binding OpticsAODElectrodeEnum, Converter={StaticResource EnumDescriptionConverter}}" />
                                                         <DataGridTextColumn Header="Board Delay(ns)" Binding="{Binding BoardCardDelay, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Min Delay(ns)" Binding="{Binding MinDelay, StringFormat='0.###'}" />
+                                                        <DataGridTextColumn Header="Max Delay(ns)" Binding="{Binding MaxDelay, StringFormat='0.###'}" />
                                                     </DataGrid.Columns>
                                                 </DataGrid>
                                             </hc:UniformSpacingPanel>
@@ -377,12 +379,6 @@
                                                                HorizontalAlignment="Center"
                                                                Style="{StaticResource TextBlockDefaultInfo}" />
                                                 </StackPanel>
-                                                <hc:NumericUpDown hc:TitleElement.Title="Max Delay(ns): "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="0"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.AlgorithmMaxDelay}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Initial Points: "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

@@ -266,7 +266,13 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
-            Guard.IsGreaterThan(Cache.AlgorithmMaxDelay, 0d);
+            foreach (var param in Cache.ElectrodeDelayParams.Skip(1))
+            {
+                Guard.IsTrue(double.IsNaN(param.MinDelay) == false && double.IsInfinity(param.MinDelay) == false, "Minimum delay must be finite.");
+                Guard.IsTrue(double.IsNaN(param.MaxDelay) == false && double.IsInfinity(param.MaxDelay) == false, "Maximum delay must be finite.");
+                Guard.IsGreaterThanOrEqualTo(param.MaxDelay, param.MinDelay);
+            }
+
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
             Guard.IsGreaterThan(Cache.AlgorithmRetryTimes, 0);
@@ -756,9 +762,19 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             using var pyAmplitudeArray = amplitudeCurve.Invoke(pyNormalParameters, pyFrequencies);
             using var pyAmplitudes = pyAmplitudeArray.InvokeMethod("tolist");
 
-            double[] delays = [.. ToDoubles(pyDelays).Select(t => t * Cache.AlgorithmMaxDelay)];
+            var normalizedDelays = ToDoubles(pyDelays);
+            Guard.IsEqualTo(normalizedDelays.Length, delayCount);
+
+            double[] delays =
+            [
+                .. normalizedDelays.Select((value, index) =>
+                {
+                    var param = Cache.ElectrodeDelayParams[index + 1];
+
+                    return param.MinDelay + value * (param.MaxDelay - param.MinDelay);
+                })
+            ];
             var amplitudes = ToDoubles(pyAmplitudes);
-            Guard.IsEqualTo(delays.Length, delayCount);
             Guard.IsEqualTo(amplitudes.Length, Cache.AODWaveformElectrodeDelayFrequencies.Length);
 
             return (pyDone.As<bool>(), delays, amplitudes);

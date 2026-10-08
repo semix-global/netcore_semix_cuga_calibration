@@ -11,9 +11,17 @@ public sealed partial class AODWaveformElectrodeDelayParam : ObservableObject
     [ObservableProperty]
     public partial double BoardCardDelay { get; set; }
 
+    [ObservableProperty]
+    public partial double MinDelay { get; set; } = 0d;
+
+    [ObservableProperty]
+    public partial double MaxDelay { get; set; } = 10d;
+
     public object ToHtmlAnonymous() => new
     {
         OpticsAODElectrodeEnum,
-        BoardCardDelay
+        BoardCardDelay,
+        MinDelay,
+        MaxDelay
     };
 }

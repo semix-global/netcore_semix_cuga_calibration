@@ -52,9 +52,6 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     #region Step1 Param
 
     [ObservableProperty]
-    public partial double AlgorithmMaxDelay { get; set; } = 10d;
-
-    [ObservableProperty]
     public partial int AlgorithmInitialPoints { get; set; } = 10;
 
     [ObservableProperty]
@@ -209,7 +206,6 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         BandWidthScoreThreshold,
         BandWidthScoreEpsilon,
         ElectrodeDelayParams = new HtmlTable([.. ElectrodeDelayParams.Select(t => t.ToHtmlAnonymous())]),
-        AlgorithmMaxDelay,
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
         AlgorithmAcquisitionFunctionEnum,
