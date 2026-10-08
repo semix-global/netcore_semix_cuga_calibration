@@ -14,13 +14,6 @@ public interface ICalibrationLaserService
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> Connect();
 
-    /// <summary>
-    /// 切换激光开关状态
-    /// </summary>
-    /// <param name="isEnable">是否开启激光</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> ToggleLaserEnable(bool isEnable);
-
     #region 光路同心校准
 
     /// <summary>
@@ -44,6 +37,13 @@ public interface ICalibrationLaserService
     #endregion 光路同心校准
 
     #region 激光功率
+
+    /// <summary>
+    /// 切换激光开关状态
+    /// </summary>
+    /// <param name="isEnable">是否开启激光</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> ToggleLaserEnable(bool isEnable);
 
     /// <summary>
     /// 读取台面功率计的光强值

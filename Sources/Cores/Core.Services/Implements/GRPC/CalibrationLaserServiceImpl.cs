@@ -30,11 +30,6 @@ public sealed class CalibrationLaserServiceImpl : BaseService<ICgCalibLaserServi
         });
     }
 
-    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
-    {
-        throw new NotImplementedException();
-    }
-
     public SxExecuteRet<(Point PD1Point, Point PD2Point)> GetLaserBeamPoint()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadLaserBeamPos());
@@ -59,6 +54,11 @@ public sealed class CalibrationLaserServiceImpl : BaseService<ICgCalibLaserServi
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<double> GetOpticalMeasurePower()
