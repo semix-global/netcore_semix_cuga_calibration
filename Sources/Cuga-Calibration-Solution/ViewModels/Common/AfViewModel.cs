@@ -186,33 +186,33 @@ public sealed class AfViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<double> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<double>> GetSensorAfErrorTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetSensorAfErrorTraceBufferList(timeSpan);
+        var ret = await calibrationAfService.GetSensorAfErrorTraceBufferListAsync(cancellationToken);
 
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<double> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    public async Task<List<double>> GetSensorNscTraceBufferListAsync(CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetSensorNscTraceBufferList(timeSpan);
+        var ret = await calibrationAfService.GetSensorNscTraceBufferListAsync(cancellationToken);
 
         logger.LogInformation("End TraceBuffer");
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public async Task<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferListAsync(double startEcs, double endEcs, double speedEcs, CancellationToken cancellationToken)
     {
         logger.LogInformation("Start TraceBuffer");
 
-        var ret = calibrationAfService.GetSensorNscTraceBufferList(startEcs, endEcs, speedEcs, timeSpan);
+        var ret = await calibrationAfService.GetSensorNscTraceBufferListAsync(startEcs, endEcs, speedEcs, cancellationToken);
 
         logger.LogInformation("End TraceBuffer");
 

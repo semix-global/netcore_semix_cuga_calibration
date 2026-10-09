@@ -315,7 +315,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             InvokeAdsService(() => AdsViewModel.SetSensorYSpeedFeedForwardValue(item.IsPositive, (item.Y1OrY4, item.Y2OrY5, item.Y3OrY6)), cancellationToken);
             StageViewModel.SetYSpeedValue(item.SpeedYValue);
 
-            using var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationTokenSource.Token);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);

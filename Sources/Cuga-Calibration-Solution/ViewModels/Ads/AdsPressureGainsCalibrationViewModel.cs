@@ -167,7 +167,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             cancellationToken.ThrowIfCancellationRequested();
 
             Logger.LogHtmlInformation($"{Name} Start", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Get Sensor All Pressure Trans Buffer Value Start! "), HtmlLogUniqueId.LoggingHtml());
-            using var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var task = AdsViewModel.GetSensorAllPressureTraceBufferListAsync(cancellationTokenSource.Token);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(3));
             var transBuffer = await task.ConfigureAwait(false);
@@ -249,7 +249,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation($"{Name} Start", HtmlHeaderLevelEnum.Header3, new HtmlComment($"{Name} Get Sensor Height, Roll, Pitch Trans Buffer Value Start! "), HtmlLogUniqueId.LoggingHtml());
-            using var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var task = AdsViewModel.GetSensorHeightRollPitchTraceBufferListAsync(cancellationTokenSource.Token);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(HostEnvironment.IsDevelopment() ? 1 : 5));
 

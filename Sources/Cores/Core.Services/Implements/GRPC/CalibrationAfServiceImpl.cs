@@ -183,27 +183,17 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibAutofocusServ
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<double>>> GetSensorAfErrorTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service?.GetAuotofocusTraceBufferData(new SxParamObj<TimeSpan>(timeSpan)));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.AFERROR.Select(Convert.ToDouble).ToList());
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<double>>> GetSensorNscTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service?.GetAuotofocusTraceBufferData(new SxParamObj<TimeSpan>(timeSpan)));
-
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Nsc.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc trace buffer is empty", []);
-
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
+        throw new NotImplementedException();
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public Task<SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>> GetSensorNscTraceBufferListAsync(double startEcs, double endEcs, double speedEcs, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

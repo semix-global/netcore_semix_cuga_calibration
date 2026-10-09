@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Bases;
@@ -45,7 +44,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureCache : Calibr
 
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }
-    
+
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     public override V0FourierCenterChannelFlexibleApertureCache Clone() => new()

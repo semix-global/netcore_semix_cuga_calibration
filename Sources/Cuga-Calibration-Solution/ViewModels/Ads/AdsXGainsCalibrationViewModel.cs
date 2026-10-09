@@ -318,7 +318,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             InvokeAdsService(() => AdsViewModel.SetSensorXSpeedFeedForwardValue(item.IsPositive, (item.X1OrX3, item.X2OrX4)), cancellationToken);
             StageViewModel.SetXSpeedValue(item.SpeedXValue);
 
-            using var cancellationTokenSource = new CancellationTokenSource();
+            using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 30000, cancellationToken);
             var task = AdsViewModel.GetSensorSpeedZ1Z2Z3TraceBufferListAsync(cancellationTokenSource.Token);
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);

@@ -6,6 +6,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
+using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using System.Reflection;
-using Core.Models.Models.Setting;
 
 namespace CugaCalibrationUnitTest.Serializations;
 
@@ -302,7 +302,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
             },
             ScanLength = 500.25d,
             HazeFindBFMachinePosition = new Point(11.5, 21.5),
-            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size128 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Ncc}} ,
+            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size128, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Ncc } },
             Id = 31,
             Expiration = 32,
             IsDeleted = true,
