@@ -25,6 +25,9 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     public partial GenerateChirpAODWaveformParam FlatnessGenerateChirpAODWaveformParam { get; set; } = new() { FunctionMonotonicTypeEnum = FunctionMonotonicTypeEnum.Flatness };
 
     [ObservableProperty]
+    public partial bool IsSupportAutoCloseLaser { get; set; }
+
+    [ObservableProperty]
     public partial Point MeasureMaxPowerMachinePosition { get; set; } = Point.Origin;
 
     [ObservableProperty]
@@ -35,9 +38,6 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
 
     [ObservableProperty]
     public partial int MeasurePowerTimes { get; set; } = 20;
-
-    [ObservableProperty]
-    public partial bool IsSupportAutoCloseLaser { get; set; }
 
     #region Result
 
@@ -65,10 +65,10 @@ public partial class AODWaveformCommonCache<TResult> : ObservableCacheBase
     {
         ProductivityInformation,
         DefaultAmplitude,
+        IsSupportAutoCloseLaser,
         MeasureMaxPowerMachinePosition,
         WaitTime,
         TotalMeasurePower,
-        MeasurePowerTimes,
-        IsSupportAutoCloseLaser
+        MeasurePowerTimes
     };
 }
