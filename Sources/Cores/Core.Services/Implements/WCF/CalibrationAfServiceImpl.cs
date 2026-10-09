@@ -216,62 +216,100 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<double>>> GetSensorAfErrorTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        {
+            CgAutofocusTraceBufferReg.USCOPE
+        };
+        var sxExecuteRetStartAfTraceBuffExec = Invoke(() => Service!.StartTraceBufferExec(calibrationRegList));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.AFERROR.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
+        if (sxExecuteRetStartAfTraceBuffExec.IsSuccess == false)
+            return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRetStartAfTraceBuffExec.Msg, []);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.AFERROR.Select(Convert.ToDouble).ToList());
+        await cancellationToken.WaitUntilCanceledAsync();
+        var sxExecuteRetStopAfTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec(calibrationRegList));
+
+        if (sxExecuteRetStopAfTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRetStopAfTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopAfTraceBuffExec.Anything.Count == 0 || sxExecuteRetStopAfTraceBuffExec.Anything[0].Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Af error trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRetStopAfTraceBuffExec.Anything[0].Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<double>>> GetSensorNscTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetAFTraceBuff(Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        {
+            CgAutofocusTraceBufferReg.NSC
+        };
+        var sxExecuteRetStartAfTraceBuffExec = Invoke(() => Service!.StartTraceBufferExec(calibrationRegList));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Nsc.Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc Trace buffer is empty", []);
+        if (sxExecuteRetStartAfTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRetStartAfTraceBuffExec.Msg, []);
 
-        return SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.Nsc.Select(Convert.ToDouble).ToList());
+        await cancellationToken.WaitUntilCanceledAsync();
+        var sxExecuteRetStopAfTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec(calibrationRegList));
+
+        if (sxExecuteRetStopAfTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<double>>(sxExecuteRetStopAfTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopAfTraceBuffExec.Anything.Count == 0 || sxExecuteRetStopAfTraceBuffExec.Anything[0].Count == 0) return SxExecuteRetHelper.CreateError<List<double>>("Nsc Trace buffer is empty", []);
+
+        return SxExecuteRetHelper.CreateSuccess(sxExecuteRetStopAfTraceBuffExec.Anything[0].Select(Convert.ToDouble).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>> GetSensorNscTraceBufferListAsync(double startEcs, double endEcs, double speedEcs, CancellationToken cancellationToken)
     {
-        var sxExecuteRet = Invoke(() => Service!.GetUniformAFDiagnosisData(Convert.ToInt32(startEcs), Convert.ToInt32(endEcs), Convert.ToInt32(speedEcs), Convert.ToInt32(timeSpan.TotalMilliseconds)));
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        {
+            CgAutofocusTraceBufferReg.ECS,
+            CgAutofocusTraceBufferReg.NSC,
+            CgAutofocusTraceBufferReg.USCOPE,
+            CgAutofocusTraceBufferReg.LVDT,
+            CgAutofocusTraceBufferReg.FA,
+            CgAutofocusTraceBufferReg.NA,
+            CgAutofocusTraceBufferReg.FB,
+            CgAutofocusTraceBufferReg.NB
+        };
+        var sxExecuteRetStartAfTraceBuffExec = Invoke(() => Service!.StartAFUniformTracebuffer(calibrationRegList, Convert.ToInt32(startEcs), Convert.ToInt32(endEcs), Convert.ToInt32(speedEcs)));
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>(sxExecuteRet.Msg, []);
-        if (sxExecuteRet.Anything.Ecs.Count == 0 ||
-            sxExecuteRet.Anything.Nsc.Count == 0 ||
-            sxExecuteRet.Anything.AFERROR.Count == 0 ||
-            sxExecuteRet.Anything.Lvdt.Count == 0 ||
-            sxExecuteRet.Anything.Ecs.Count != sxExecuteRet.Anything.Nsc.Count ||
-            sxExecuteRet.Anything.Nsc.Count != sxExecuteRet.Anything.Lvdt.Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>("Nsc Trace buffer is empty", []);
+        if (sxExecuteRetStartAfTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>(sxExecuteRetStartAfTraceBuffExec.Msg, []);
+
+        await cancellationToken.WaitUntilCanceledAsync();
+        var sxExecuteRetStopAfTraceBuffExec = Invoke(() => Service!.StopAFUniformTracebuffer(calibrationRegList));
+
+        if (sxExecuteRetStopAfTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>(sxExecuteRetStopAfTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopAfTraceBuffExec.Anything.Count != 8 ||
+            sxExecuteRetStopAfTraceBuffExec.Anything.Any(t => t.Count == 0) ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[0].Count != sxExecuteRetStopAfTraceBuffExec.Anything[1].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[1].Count != sxExecuteRetStopAfTraceBuffExec.Anything[2].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[2].Count != sxExecuteRetStopAfTraceBuffExec.Anything[3].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[3].Count != sxExecuteRetStopAfTraceBuffExec.Anything[4].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[4].Count != sxExecuteRetStopAfTraceBuffExec.Anything[5].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[5].Count != sxExecuteRetStopAfTraceBuffExec.Anything[6].Count ||
+            sxExecuteRetStopAfTraceBuffExec.Anything[6].Count != sxExecuteRetStopAfTraceBuffExec.Anything[7].Count) return SxExecuteRetHelper.CreateError<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>("Nsc Trace buffer is empty", []);
 
         return SxExecuteRetHelper.CreateSuccess<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>([
-            .. sxExecuteRet.Anything.Ecs.Select((t, i) => (t, sxExecuteRet.Anything.Nsc[i], sxExecuteRet.Anything.AFERROR[i], sxExecuteRet.Anything.Lvdt[i], sxExecuteRet.Anything.FA[i], sxExecuteRet.Anything.NA[i], sxExecuteRet.Anything.FB[i], sxExecuteRet.Anything.NB[i]))
+            .. sxExecuteRetStopAfTraceBuffExec.Anything[0].Select((t, i) => (t, sxExecuteRetStopAfTraceBuffExec.Anything[1][i], sxExecuteRetStopAfTraceBuffExec.Anything[2][i], sxExecuteRetStopAfTraceBuffExec.Anything[3][i], sxExecuteRetStopAfTraceBuffExec.Anything[4][i], sxExecuteRetStopAfTraceBuffExec.Anything[5][i], sxExecuteRetStopAfTraceBuffExec.Anything[6][i], sxExecuteRetStopAfTraceBuffExec.Anything[7][i]))
         ]);
     }
 
     public async Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        var sxExecuteRetStartTraceBufferExec = Invoke(() => Service!.StartTraceBufferExec([
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        {
             CgAutofocusTraceBufferReg.Z_Sync,
             CgAutofocusTraceBufferReg.ACS_X,
             CgAutofocusTraceBufferReg.ECS,
             CgAutofocusTraceBufferReg.NSC
-        ]));
+        };
+        var sxExecuteRetStartTraceBufferExec = Invoke(() => Service!.StartTraceBufferExec(calibrationRegList));
 
         if (sxExecuteRetStartTraceBufferExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>(sxExecuteRetStartTraceBufferExec.Msg, []);
 
         await cancellationToken.WaitUntilCanceledAsync();
 
-        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec([
-            CgAutofocusTraceBufferReg.Z_Sync,
-            CgAutofocusTraceBufferReg.ACS_X,
-            CgAutofocusTraceBufferReg.ECS,
-            CgAutofocusTraceBufferReg.NSC
-        ]));
+        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExec(calibrationRegList));
 
         if (sxExecuteRetStopTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double Trigger, double X, double Ecs, double NSC)>>(sxExecuteRetStopTraceBuffExec.Msg, []);
 

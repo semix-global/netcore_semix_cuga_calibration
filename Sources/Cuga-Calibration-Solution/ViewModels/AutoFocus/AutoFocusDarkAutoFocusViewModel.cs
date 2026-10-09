@@ -454,8 +454,12 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 AfViewModel.SetSensorEcsValue(startEcs);
                 await Task.Delay(100, cancellationToken);
-                var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond,
-                    TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+
+                using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                var task = AfViewModel.GetSensorNscTraceBufferListAsync(startEcs, endEcs, Cache.SpeedEcsPerSecond, cancellationTokenSource.Token);
+                cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var traceBufferList = await task.ConfigureAwait(false);
+
                 var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -702,9 +706,11 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
                     AfViewModel.SetSensorEcsValue(startEcs);
                     await Task.Delay(100, cancellationToken);
 
-                    var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs,
-                        Cache.SpeedEcsPerSecond,
-                        TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                    using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    var task = AfViewModel.GetSensorNscTraceBufferListAsync(startEcs, endEcs, Cache.SpeedEcsPerSecond, cancellationTokenSource.Token);
+                    cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                    var traceBufferList = await task.ConfigureAwait(false);
+
                     var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
                     var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
                     var lvdt = traceBufferList.Select(t => t.Lvdt).ToArray();
@@ -1047,8 +1053,11 @@ public sealed partial class AutoFocusDarkAutoFocusViewModel : CalibrationViewMod
 
                 var startEcs = averageEcs - Cache.EcsRange;
                 var endEcs = averageEcs + Cache.EcsRange;
-                var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs, Cache.SpeedEcsPerSecond,
-                    TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                var task = AfViewModel.GetSensorNscTraceBufferListAsync(startEcs, endEcs, Cache.SpeedEcsPerSecond, cancellationTokenSource.Token);
+                cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+                var traceBufferList = await task.ConfigureAwait(false);
+
                 var ecsBuffer = traceBufferList.Select(t => t.Ecs).ToArray();
                 var nscBuffer = traceBufferList.Select(t => t.Nsc).ToArray();
                 var lvdtBuffer = traceBufferList.Select(t => t.Lvdt).ToArray();

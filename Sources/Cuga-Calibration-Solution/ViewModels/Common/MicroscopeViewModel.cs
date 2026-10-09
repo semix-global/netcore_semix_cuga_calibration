@@ -203,7 +203,7 @@ public sealed class MicroscopeViewModel(
     /// <param name="logName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>是否成功</returns>
-    public (bool isSuccess, double Voltage, double AfErrorAverage) SetVoltageToAfErrorZeroFast(double setVoltageAfErrorThreshold,
+    public async Task<(bool isSuccess, double Voltage, double AfErrorAverage)> SetVoltageToAfErrorZeroFastAsync(double setVoltageAfErrorThreshold,
         int maxIterations, Guid? logGuid, string? logName, CancellationToken cancellationToken)
     {
         var buffersAverageList = new List<double>();
@@ -242,7 +242,10 @@ public sealed class MicroscopeViewModel(
                 {
                     try
                     {
-                        currentTraceBuffer = afViewModel.GetSensorAfErrorTraceBufferList(TimeSpan.FromSeconds(1));
+                        using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        var task = afViewModel.GetSensorAfErrorTraceBufferListAsync(cancellationTokenSource.Token);
+                        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
+                        currentTraceBuffer = await task.ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {

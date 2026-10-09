@@ -145,16 +145,16 @@ public interface ICalibrationAfService
     /// <summary>
     /// 获取传感器: TracesBuffer error的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TraceBuffer error当前值</returns>
-    SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<List<double>>> GetSensorAfErrorTraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 获取传感器: TraceBuffer Nsc的Buffer值
     /// </summary>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TraceBuffer error当前值</returns>
-    SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan);
+    Task<SxExecuteRet<List<double>>> GetSensorNscTraceBufferListAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// 获取传感器: TracesBuffer ECS NSC Lvdt 的Buffer值
@@ -162,9 +162,9 @@ public interface ICalibrationAfService
     /// <param name="startEcs">起始Ecs</param>
     /// <param name="endEcs">结束Ecs</param>
     /// <param name="speedEcs">速度Ecs</param>
-    /// <param name="timeSpan">多长时间Buffer</param>
+    /// <param name="cancellationToken">取消令牌</param>
     /// <returns>TraceBuffer ECS NSC Lvdt当前值</returns>
-    SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan);
+    Task<SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>> GetSensorNscTraceBufferListAsync(double startEcs, double endEcs, double speedEcs, CancellationToken cancellationToken);
 
     /// <summary>
     ///  获取传感器: TracesBuffer XZ同步模式下的 触发信号、X机械位置、ECS的Buffer值

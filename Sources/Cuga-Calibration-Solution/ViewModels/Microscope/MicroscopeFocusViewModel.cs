@@ -270,7 +270,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             Logger.LogHtmlInformation("Set Voltage To AfError Zero", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             AfViewModel.SetSensorEcsValue(SelectedItem.EcsValue);
-            var (isSuccess, voltage, afErrorAverage) = MicroscopeViewModel.SetVoltageToAfErrorZeroFast(
+            var (isSuccess, voltage, afErrorAverage) = await MicroscopeViewModel.SetVoltageToAfErrorZeroFastAsync(
                 Cache.Item.SetVoltageAfErrorThreshold,
                 20,
                 HtmlLogUniqueId,

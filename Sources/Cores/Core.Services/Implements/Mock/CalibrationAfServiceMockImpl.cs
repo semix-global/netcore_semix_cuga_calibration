@@ -181,27 +181,27 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<List<double>> GetSensorAfErrorTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<double>>> GetSensorAfErrorTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<double>> GetSensorNscTraceBufferList(TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<double>>> GetSensorNscTraceBufferListAsync(CancellationToken cancellationToken)
     {
-        Thread.Sleep(100);
+        await cancellationToken.WaitUntilCanceledAsync();
 
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => Random.Shared.NextDouble()).ToList());
     }
 
-    public SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>> GetSensorNscTraceBufferList(double startEcs, double endEcs, double speedEcs, TimeSpan timeSpan)
+    public async Task<SxExecuteRet<List<(double Ecs, double Nsc, double AFError, double Lvdt, double Fa, double Na, double Fb, double Nb)>>> GetSensorNscTraceBufferListAsync(double startEcs, double endEcs, double speedEcs, CancellationToken cancellationToken)
     {
         Interlocked.Increment(ref _nextNSCCurveFilePathIndex);
 
         var path = NSCCuveFilePaths[_nextNSCCurveFilePathIndex % NSCCuveFilePaths.Length];
 
-        var rows = MiniExcel.Query(path, true).Cast<IDictionary<string, object>>();
+        var rows = (await MiniExcel.QueryAsync(path, useHeaderRow: true, cancellationToken: cancellationToken).ConfigureAwait(false)).Cast<IDictionary<string, object>>();
         var dataList = rows.Select(t =>
             (Convert.ToDouble(t["ECS"]),
                 Convert.ToDouble(t["NSC"]),

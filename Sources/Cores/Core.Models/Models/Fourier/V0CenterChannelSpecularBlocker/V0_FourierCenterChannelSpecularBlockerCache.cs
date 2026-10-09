@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
-using Core.Models.Models.Setting;
 
 namespace Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
 
@@ -26,7 +26,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
 
     [ObservableProperty]
     public partial double ExtinctionRatioThreshold { get; set; } = 0.2;
-    
+
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>))]
@@ -65,7 +65,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCacheItem : Cal
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }
-    
+
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     public override V0FourierCenterChannelSpecularBlockerCacheItem Clone() => new()
