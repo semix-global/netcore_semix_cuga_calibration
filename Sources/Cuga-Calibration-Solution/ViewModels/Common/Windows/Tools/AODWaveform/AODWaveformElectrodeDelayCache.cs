@@ -30,19 +30,16 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
     public partial int NoiseMeasureTimes { get; set; } = 20;
 
     [ObservableProperty]
-    public partial AODWaveformScoreMethodEnum AODWaveformScoreMethodEnum { get; set; } = AODWaveformScoreMethodEnum.Legacy;
+    public partial AODWaveformScoreMethodEnum AODWaveformScoreMethodEnum { get; set; } = AODWaveformScoreMethodEnum.Linear;
 
     [ObservableProperty]
-    public partial double LegacyScoreLambda { get; set; } = 0d;
+    public partial double ScoreLambda { get; set; } = 1d;
 
     [ObservableProperty]
-    public partial double LegacyScoreGamma { get; set; } = 0d;
+    public partial double ScoreGamma { get; set; } = 0.5;
 
     [ObservableProperty]
-    public partial double BandWidthScoreThreshold { get; set; } = 0.5;
-
-    [ObservableProperty]
-    public partial double BandWidthScoreEpsilon { get; set; } = 0.1;
+    public partial double SoftMinScoreS { get; set; } = 0.1;
 
     [ObservableProperty]
     public partial AODWaveformElectrodeDelayParam[] ElectrodeDelayParams { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
@@ -201,10 +198,9 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
         DetailLogInterval,
         NoiseMeasureTimes,
         AODWaveformScoreMethodEnum,
-        LegacyScoreLambda,
-        LegacyScoreGamma,
-        BandWidthScoreThreshold,
-        BandWidthScoreEpsilon,
+        ScoreLambda,
+        ScoreGamma,
+        SoftMinScoreS,
         ElectrodeDelayParams = new HtmlTable([.. ElectrodeDelayParams.Select(t => t.ToHtmlAnonymous())]),
         AlgorithmInitialPoints,
         AlgorithmEarlyStop,
@@ -220,11 +216,14 @@ public partial class AODWaveformElectrodeDelayCache<TItem, TResult> : AODWavefor
 // ReSharper disable InconsistentNaming
 public enum AODWaveformScoreMethodEnum
 {
-    [Description("legacy")]
-    Legacy,
+    [Description("linear")]
+    Linear,
 
-    [Description("bandwidth")]
-    BandWidth
+    [Description("log")]
+    Log,
+
+    [Description("softmin")]
+    SoftMin
 }
 
 public enum AlgorithmAcquisitionFunctionEnum

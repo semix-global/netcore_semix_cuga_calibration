@@ -70,15 +70,16 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
             Guard.IsGreaterThan(Cache.NoiseMeasureTimes, 1);
 
-            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth)
+            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.SoftMin)
             {
-                Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
-                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
-                Guard.IsGreaterThanOrEqualTo(Cache.BandWidthScoreEpsilon, 0);
-                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
+                Guard.IsGreaterThan(Cache.SoftMinScoreS, 0d);
             }
 
             Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
+            foreach (var param in Cache.ElectrodeDelayParams.Skip(1))
+            {
+                Guard.IsGreaterThanOrEqualTo(param.MaxDelay, param.MinDelay);
+            }
 
             StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.MeasureMaxPowerMachinePosition);
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
@@ -254,24 +255,18 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             Guard.IsGreaterThanOrEqualTo(Cache.AODWaveformElectrodeDelayFrequencies.Length, 2);
             Guard.IsGreaterThan(Cache.DetailLogInterval, 0);
 
-            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth)
+            if (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.SoftMin)
             {
-                Guard.IsGreaterThan(Cache.BandWidthScoreThreshold, 0);
-                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreThreshold, 1);
-                Guard.IsGreaterThanOrEqualTo(Cache.BandWidthScoreEpsilon, 0);
-                Guard.IsLessThanOrEqualTo(Cache.BandWidthScoreEpsilon, 1);
+                Guard.IsGreaterThan(Cache.SoftMinScoreS, 0d);
             }
 
             Guard.IsNotEmpty(Cache.ElectrodeDelayParams);
-
-            Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
-
             foreach (var param in Cache.ElectrodeDelayParams.Skip(1))
             {
-                Guard.IsTrue(double.IsNaN(param.MinDelay) == false && double.IsInfinity(param.MinDelay) == false, "Minimum delay must be finite.");
-                Guard.IsTrue(double.IsNaN(param.MaxDelay) == false && double.IsInfinity(param.MaxDelay) == false, "Maximum delay must be finite.");
                 Guard.IsGreaterThanOrEqualTo(param.MaxDelay, param.MinDelay);
             }
+
+            Guard.IsGreaterThanOrEqualTo(Cache.Noise, 0d);
 
             Guard.IsGreaterThan(Cache.AlgorithmInitialPoints, 0);
             Guard.IsGreaterThan(Cache.AlgorithmEarlyStop, 0);
@@ -690,35 +685,6 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
         delayItem.Score = CalculateScore(delayItem);
     }
 
-    private double CalculateScore(AODWaveformElectrodeDelayItem<TItem> delayItem)
-    {
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeDelayWindowViewModelShared.PhaseOptimizerPythonScript);
-        using var calculateScore = module.GetAttr("calculate_score");
-        using var pyFrequencies = new PyList();
-        using var pyEfficiencies = new PyList();
-
-        foreach (var item in delayItem.FrequencyItems)
-        {
-            using var pyFrequency = item.Frequency.ToPython();
-            using var pyEfficiency = (item.MeasurePower / Cache.TotalMeasurePower).ToPython();
-
-            pyFrequencies.Append(pyFrequency);
-            pyEfficiencies.Append(pyEfficiency);
-        }
-
-        using var pyMethod = EnumHelper.ToDescriptionString(Cache.AODWaveformScoreMethodEnum).ToPython();
-        using var pyThreshold = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth ? (double?)Cache.BandWidthScoreThreshold : null).ToPython();
-        using var pyEpsilon = (Cache.AODWaveformScoreMethodEnum == AODWaveformScoreMethodEnum.BandWidth ? (double?)Cache.BandWidthScoreEpsilon : null).ToPython();
-        using var pyLambda = Cache.LegacyScoreLambda.ToPython();
-        using var pyGamma = Cache.LegacyScoreGamma.ToPython();
-        using var result = calculateScore.Invoke(pyFrequencies, pyEfficiencies, pyMethod, pyThreshold, pyEpsilon, pyLambda, pyGamma);
-
-        var score = result.As<double>();
-
-        return score;
-    }
-
     private (bool IsSuccess, double[] Delays, double[] Amplitudes) AlgorithmSuggest(double? previousCost, int delayCount)
     {
         var timestamp = Stopwatch.GetTimestamp();
@@ -783,6 +749,34 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
         {
             Logger.LogTrace("Algorithm Suggest Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
+    }
+
+    private double CalculateScore(AODWaveformElectrodeDelayItem<TItem> delayItem)
+    {
+        using var _ = Py.GIL();
+        using var module = PyModule.FromString("phase_optimizer", AODWaveformElectrodeDelayWindowViewModelShared.PhaseOptimizerPythonScript);
+        using var calculateScore = module.GetAttr("calculate_score");
+        using var pyFrequencies = new PyList();
+        using var pyEfficiencies = new PyList();
+
+        foreach (var item in delayItem.FrequencyItems)
+        {
+            using var pyFrequency = item.Frequency.ToPython();
+            using var pyEfficiency = (item.MeasurePower / Cache.TotalMeasurePower).ToPython();
+
+            pyFrequencies.Append(pyFrequency);
+            pyEfficiencies.Append(pyEfficiency);
+        }
+
+        using var pyMethod = EnumHelper.ToDescriptionString(Cache.AODWaveformScoreMethodEnum).ToPython();
+        using var pyLambda = Cache.ScoreLambda.ToPython();
+        using var pyGamma = Cache.ScoreGamma.ToPython();
+        using var pyS = Cache.SoftMinScoreS.ToPython();
+        using var result = calculateScore.Invoke(pyFrequencies, pyEfficiencies, pyMethod, pyLambda, pyGamma, pyS);
+
+        var score = result.As<double>();
+
+        return score;
     }
 
     private static double[] ToDoubles(PyObject pyValues)

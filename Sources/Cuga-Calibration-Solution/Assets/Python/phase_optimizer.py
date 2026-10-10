@@ -31,7 +31,7 @@
         physical_parameters = decode(delay_parameters, amplitude)
         efficiencies = hardware(physical_parameters)
         score = po.calculate_score(
-            measured_frequencies, efficiencies, "bandwidth", threshold, epsilon
+            measured_frequencies, efficiencies, "softmin", 1.0, 0.5, 0.10
         )
         cost = -score
 """
@@ -424,33 +424,36 @@ def _check_model_stopping(state, model):
 def calculate_score(
     frequencies: Iterable[float],
     efficiencies: Iterable[float],
-    method: str = "legacy",
-    threshold: float | None = None,
-    epsilon: float | None = None,
+    method: str = "linear",
     lam: float = 1.0,
     gamma: float = 0.5,
+    s: float = 0.10,
     /,
 ) -> float:
     """从频率及对应效率计算标量 score；越大越好，suggest() 接收 -score。
 
-    固定位置参数顺序：frequencies, efficiencies, method, threshold,
-    epsilon, lam, gamma。两数组必须一维、等长、至少两个点且全部有限。
+    固定位置参数顺序：frequencies, efficiencies, method, lam, gamma, s。
+    两数组必须一维、等长、至少两个点且全部有限，所有模式均按频点等权。
     效率使用比值（60% 传 0.6），不自动转换百分数或功率。与旧评分一致，
     拒绝负效率，但不自动截断大于 1 的观测值。输入数组不会被修改。
 
-    method="legacy"（默认）：原有线性效率评分
+    method="linear"（默认，线性均衡）：原有线性效率评分
     mean(eta) - lam*std(eta) - gamma*(max(eta)-min(eta))。
     std 为总体标准差，频点等权；lam/gamma 为有限非负数，默认 1/0.5。
-    threshold/epsilon 在本模式不使用。原 scoring.py 的接口继续保留。
+    原 scoring.score_efficiency() 接口继续保留。
 
-    method="bandwidth"：必须显式传 threshold∈(0,1]、epsilon∈[0,1]。
-    按频率配对排序，重复频率拒绝（重复测量应由调用方先汇总）。在相邻
-    点间将效率作线性插值，F=max(f)-min(f)，B 是 eta>=threshold 的
-    最长连续区间宽度，中间不达标的低谷会切断区间，不累加分离的频带。
-    C = integral(min(eta(f)/threshold, 1), df)/F；先插值效率，再封顶积分，
-    阈值交点处拆段，支持不等间隔频率。返回 (1-epsilon)*B/F+epsilon*C，
-    范围 [0,1]。epsilon=0 只看带宽，epsilon=1 只看达标进度。
-    lam/gamma 在本模式不使用。带宽仅在已测频域内估计，不向带外外推。
+    method="log"（对数均衡）：先取 y=10*log10(max(eta,1e-12))，再计算
+    mean(y)-lam*std(y)-gamma*(max(y)-min(y))，返回 dB 分数。下限只用于
+    避免 log(0)，不裁剪高效率。linear/log 将 lam=gamma=0 即为纯均值。
+
+    method="softmin"（平滑最低）：-s*log(mean(exp(-eta/s)))。
+    s 必须有限且为正，单位与效率相同，默认 0.10（10 个百分点）。
+    s 越小越侧重最低效率，越大越接近平均效率；使用稳定等价式避免
+    指数下溢及大 s 时的相消。softmin 不使用 lam/gamma；linear/log 不使用 s。
+
+    仅支持这三种方法；旧 legacy 名称改用 linear，bandwidth 评分已移除。
+    不再接受旧 threshold/epsilon 参数。频率间距不影响评分；重复频率
+    仍按独立输入点计入，重复测量需要等权汇总时应由调用方先平均效率。
 
     本函数无优化状态副作用。一次优化中保持方法、参数和测量频段固定；
     更改评分应新开优化状态，noise 也应按新 score 的重复测量方差设置。
@@ -475,64 +478,37 @@ def calculate_score(
     if not np.all(np.isfinite(efficiency_array)) or np.any(efficiency_array < 0.0):
         raise ValueError("efficiencies 必须是有限非负数，使用效率比值而非百分数")
 
-    if method == "legacy":
-        lam, gamma = float(lam), float(gamma)
+    if method in ("linear", "log"):
+        try:
+            lam, gamma = float(lam), float(gamma)
+        except (TypeError, ValueError, OverflowError):
+            raise ValueError("lam 和 gamma 必须是有限非负数") from None
         if not np.isfinite(lam) or lam < 0.0:
             raise ValueError("lam 必须是有限非负数")
         if not np.isfinite(gamma) or gamma < 0.0:
             raise ValueError("gamma 必须是有限非负数")
+        values = (efficiency_array if method == "linear"
+                  else 10.0 * np.log10(np.maximum(efficiency_array, 1e-12)))
         return float(
-            np.mean(efficiency_array)
-            - lam * np.std(efficiency_array)
-            - gamma * (np.max(efficiency_array) - np.min(efficiency_array))
+            np.mean(values)
+            - lam * np.std(values)
+            - gamma * (np.max(values) - np.min(values))
         )
-    if method != "bandwidth":
-        raise ValueError("method 必须是 'legacy' 或 'bandwidth'")
-    if threshold is None or epsilon is None:
-        raise ValueError("bandwidth 模式必须显式提供 threshold 和 epsilon")
-    threshold, epsilon = float(threshold), float(epsilon)
-    if not np.isfinite(threshold) or not 0.0 < threshold <= 1.0:
-        raise ValueError("threshold 必须是 (0,1] 内的有限效率比值")
-    if not np.isfinite(epsilon) or not 0.0 <= epsilon <= 1.0:
-        raise ValueError("epsilon 必须是 [0,1] 内的有限数值")
-
-    order = np.argsort(frequency_array)
-    frequencies_sorted = frequency_array[order]
-    efficiencies_sorted = efficiency_array[order]
-    if np.any(frequencies_sorted[1:] == frequencies_sorted[:-1]):
-        raise ValueError("bandwidth 模式不接受重复频率，请先汇总重复测量")
-    frequency_min = float(frequencies_sorted[0])
-    span = float(frequencies_sorted[-1]) - frequency_min
-    if not np.isfinite(span) or span <= 0.0:
-        raise ValueError("频段跨度必须是有限正数")
-
-    # 在 [0,1] 频率坐标上累积 B/F 和 C，避免 MHz/Hz 单位改变分数。
-    positions = (frequencies_sorted - frequency_min) / span
-    longest_width = current_width = progress = 0.0
-    for left, right, y_left, y_right in zip(
-        positions[:-1], positions[1:], efficiencies_sorted[:-1], efficiencies_sorted[1:]
-    ):
-        width = float(right - left)
-        left_passes, right_passes = y_left >= threshold, y_right >= threshold
-        if left_passes and right_passes:
-            current_width += width
-            progress += width
-        elif not left_passes and not right_passes:
-            current_width = 0.0
-            progress += width * (y_left / threshold + y_right / threshold) / 2.0
-        elif not left_passes:
-            below_width = width * (threshold - y_left) / (y_right - y_left)
-            current_width = width - below_width
-            progress += below_width * (y_left / threshold + 1.0) / 2.0 + current_width
-        else:
-            above_width = width * (y_left - threshold) / (y_left - y_right)
-            current_width += above_width
-            progress += above_width + (width - above_width) * (1.0 + y_right / threshold) / 2.0
-        longest_width = max(longest_width, current_width)
-        if not right_passes:
-            current_width = 0.0
-    score = (1.0 - epsilon) * longest_width + epsilon * progress
-    return float(np.clip(score, 0.0, 1.0))
+    if method != "softmin":
+        raise ValueError("method 必须是 'linear'、'log' 或 'softmin'；legacy 已更名为 linear，bandwidth 已移除")
+    try:
+        s = float(s)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError("s 必须是有限正数") from None
+    if not np.isfinite(s) or s <= 0.0:
+        raise ValueError("s 必须是有限正数")
+    minimum = float(np.min(efficiency_array))
+    # 最小值平移使指数不为正；expm1/log1p 保留大 s 时很小的差值。
+    with np.errstate(over="ignore"):
+        offsets = -(efficiency_array - minimum) / s
+    # 极小 s 的次正规数结果可以下溢到零；不影响有限的最低值极限。
+    with np.errstate(under="ignore"):
+        return float(minimum - s * np.log1p(np.mean(np.expm1(offsets))))
 
 
 def single_sigmoid_amplitude_curve(
