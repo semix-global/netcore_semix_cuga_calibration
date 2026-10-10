@@ -453,7 +453,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                using var cancellationTokenSource = new CancellationTokenSource();
+                using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 var task = AFViewModel.GetZAndXSyncModeTraceBufferListAsync(cancellationTokenSource.Token);
                 var darkFieldImages = await CIBViewModel.GetPMTImagesAsync(
                     Cache.ProductivityInformation,

@@ -7,6 +7,7 @@ using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
+using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
 using System.IO;
-using Core.Models.Models.Setting;
 
 namespace CugaCalibrationUnitTest.Serializations;
 
@@ -339,7 +339,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 510.5d,
             ShinyWaferFindBFMachinePosition = new Point(3.5, 4.5),
-            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size32 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Sharpe}} ,
+            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size32, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
             Id = 51,
             Expiration = 52,
             IsDeleted = false,
@@ -363,7 +363,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 720.25d,
             ShinyWaferFindBFMachinePosition = new Point(13.5, 14.5),
-            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size256 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Ncc}},
+            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size256, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Ncc } },
             Id = 53,
             Expiration = 54,
             IsDeleted = true,
@@ -389,7 +389,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             VerifyImageWidth = 2048,
             ExtinctionRatioThreshold = 0.35d,
-            TemplateMatchSetting=new TemplateMatchSetting{TemplateSize =AlgorithmTemplateSizeEnum.Size512 ,Halcon = new HalconTemplateMatchSetting{TemplateType = AlgorithmTemplateTypeEnum.Sharpe}},
+            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size512, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
             Id = 61,
             Expiration = 62,
             IsDeleted = true,

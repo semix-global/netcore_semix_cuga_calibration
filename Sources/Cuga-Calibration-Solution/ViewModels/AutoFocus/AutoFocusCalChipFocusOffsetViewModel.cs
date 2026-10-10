@@ -331,9 +331,11 @@ public sealed partial class AutoFocusCalChipFocusOffsetViewModel : CalibrationVi
         AfViewModel.SetSensorEcsValue(startEcs);
         await Task.Delay(100, cancellationToken);
 
-        var traceBufferList = AfViewModel.GetSensorNscTraceBufferList(startEcs, endEcs,
-            Cache.SpeedEcsPerSecond,
-            TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+        using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var task = AfViewModel.GetSensorNscTraceBufferListAsync(startEcs, endEcs, Cache.SpeedEcsPerSecond, cancellationTokenSource.Token);
+        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Abs(endEcs - startEcs) / Cache.SpeedEcsPerSecond + 2));
+        var traceBufferList = await task.ConfigureAwait(false);
+
         var ecs = traceBufferList.Select(t => t.Ecs).ToArray();
         var nsc = traceBufferList.Select(t => t.Nsc).ToArray();
 
