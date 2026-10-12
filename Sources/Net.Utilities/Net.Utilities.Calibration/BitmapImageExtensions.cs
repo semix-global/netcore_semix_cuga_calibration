@@ -129,7 +129,7 @@ public static class BitmapImageExtensions
                 return ThrowHelper.ThrowNotSupportedException<Image>(Constants.ImageFileExtensionsFilter);
             }
 
-#pragma warning disable IDISP011 
+#pragma warning disable IDISP011
             if (isRawSource == false)
             {
                 return image;

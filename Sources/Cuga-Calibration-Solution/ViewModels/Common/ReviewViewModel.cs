@@ -370,7 +370,6 @@ public sealed partial class ReviewViewModel(
             out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, out originImageFilePath);
     }
 
-
     public bool TryGetMatchPosition(
         ReadTemplateParam readParam,
         IEnumerable<MicroscopePixelSizeDTO> pixelSizes,

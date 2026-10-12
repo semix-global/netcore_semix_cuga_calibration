@@ -678,7 +678,6 @@ public sealed class AlgoCVSharpTemplateMatchTest(ITestOutputHelper output) : IDi
 
     #endregion
 
-
 #if TemplateMatchInteractive
 
     #region Display
@@ -1108,5 +1107,4 @@ public sealed class AlgoCVSharpTemplateMatchTest(ITestOutputHelper output) : IDi
         }
 #endif
     }
-
 }

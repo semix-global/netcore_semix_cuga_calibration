@@ -406,7 +406,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                     .. cibInformations.Select((t, i) =>
                     {
                         var (size, _, _) = RAWImageFactory.GetSize(scribeResults[i].RawImageFilePath);
-                        using var originImage = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO{CIBInformation = t,IsKeepRawImageCIBProfileModeEnum = false,RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,RawImageFilePath = scribeResults[i].RawImageFilePath,Size = size});
+                        using var originImage = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = t, IsKeepRawImageCIBProfileModeEnum = false, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = scribeResults[i].RawImageFilePath, Size = size });
                         using var quietImage = originImage.Image.ToROI(Cache.QuietROI);
                         var (quietGrayValue, _) = quietImage.GetIntensity();
                         var quietProjectPoints = GetYProjectPoints(quietImage);
