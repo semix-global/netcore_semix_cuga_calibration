@@ -79,6 +79,35 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
     protected async Task LoadedAsync() => await Task.Run(() => Cache = CacheProvider.GetOrDefault<TCache>());
 
     [RelayCommand]
+    private async Task ToggleLaserEnableAsync(bool isEnable)
+    {
+        await Task.Run(() =>
+        {
+            try
+            {
+                LaserViewModel.ToggleLaserEnable(isEnable);
+            }
+            catch (Exception ex)
+            {
+                DialogWindowProvider.ShowDialog($"{Name}: {(isEnable ? "Enable" : "Disable")} Laser Failed\n{ex.Message}", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                Logger.LogError(ex, "Toggle Laser Enable: {IsEnable}", isEnable);
+            }
+        }).ConfigureAwait(false);
+    }
+
+    protected void CloseLaserAfterStep1()
+    {
+        if (Cache.IsSupportAutoCloseLaser || (DialogWindowProvider.TryShowDialog(
+                $"{Name}: {Steps[1]} Success. Do you want to disable the laser?",
+                out var dialogResult,
+                DialogButtonsEnum.YesNo,
+                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
+        {
+            LaserViewModel.ToggleLaserEnable(false);
+        }
+    }
+
+    [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
         var laserOpticalPowerDtos = ApplicationCookieService.GetCalibrations<LaserOpticalPowerMeterDTO>();

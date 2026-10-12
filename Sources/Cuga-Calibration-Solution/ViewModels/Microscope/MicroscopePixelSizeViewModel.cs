@@ -133,8 +133,8 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 if (Cache.CalChipSiteModelEnum is CalChipSiteModelEnum.DswModel) StageViewModel.SetAbsoluteStageTheta(MicroscopeCalChip.DSWAlignmentDegree);
 
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition == Point.Origin
-                ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum))
-                        : Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+                    ? StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum))
+                    : Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
 
                 return true;
 

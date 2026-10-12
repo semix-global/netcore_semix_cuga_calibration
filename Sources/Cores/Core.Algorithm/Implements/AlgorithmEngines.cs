@@ -12,4 +12,3 @@ public sealed class AlgorithmEngines(IServiceProvider serviceProvider) : IAlgori
 {
     public ITemplateMatchEngine TemplateMatch(AlgorithmEngineTypeEnum engine) => serviceProvider.GetRequiredKeyedService<ITemplateMatchEngine>(engine);
 }
-

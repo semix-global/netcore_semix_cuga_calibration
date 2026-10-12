@@ -51,6 +51,11 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         Thread.Sleep(100);

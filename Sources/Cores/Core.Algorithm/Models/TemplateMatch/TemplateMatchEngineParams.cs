@@ -55,4 +55,3 @@ public sealed class HalconTemplateMatchParams : TemplateMatchEngineParams
         TemplateType
     };
 }
-
