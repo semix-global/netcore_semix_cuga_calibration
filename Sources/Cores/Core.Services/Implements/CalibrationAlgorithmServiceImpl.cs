@@ -321,7 +321,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
                 default:
                     throw new NotSupportedException($"Algorithm Type {algorithmEngineTypeEnum} is not supported.");
-
             }
         }
         catch (Exception ex)
@@ -371,7 +370,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         // hvc 为拟合格基矢：tx/ty = x/y 向格距(像素/格)；col_vec = j 向单格位移 (drow, dcol)。
         // pixel size = 物理格尺寸 / 格距；angle = 格向量相对 x 轴倾角(度)。
         angle = Math.Atan2(result.hvc.col_vec[0], result.hvc.col_vec[1]) * 180.0 / Math.PI;
-        drawingImage = image.Copy();// todo：实现绘制
+        drawingImage = image.Copy(); // todo：实现绘制
 
         return new Size(standardMaskSquareSize.Width / result.hvc.tx, standardMaskSquareSize.Height / result.hvc.ty);
     }
@@ -390,7 +389,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
                 default:
                     throw new NotSupportedException($"Algorithm Type {algorithmEngineTypeEnum} is not supported.");
-
             }
         }
         catch (Exception ex)

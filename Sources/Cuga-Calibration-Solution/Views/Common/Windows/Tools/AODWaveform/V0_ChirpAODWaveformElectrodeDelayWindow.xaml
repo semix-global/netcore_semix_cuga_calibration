@@ -168,6 +168,30 @@
                         <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Step2 Auto Disable Laser: "
+                                                   Width="200"
+                                                   TextWrapping="Wrap"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <ToggleButton IsChecked="{Binding Cache.IsSupportAutoCloseLaser, Mode=TwoWay}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Background="{StaticResource DangerBrush}"
+                                                      Style="{StaticResource ToggleButtonSwitch}"
+                                                      ToolTip="When unchecked, ask whether to disable the laser after Step 2 succeeds." />
+                                    </StackPanel>
+                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="2">
+                                        <Button Content="Enable Laser"
+                                                Command="{Binding ToggleLaserEnableCommand}"
+                                                CommandParameter="{x:Static models:Constants.True}"
+                                                Style="{StaticResource ButtonDefault}" />
+                                        <Button Content="Disable Laser"
+                                                Command="{Binding ToggleLaserEnableCommand}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                Style="{StaticResource ButtonDanger}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Margin="0" />
                                     <TextBox Text="{Binding Cache.MeasureMaxPowerMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                              hc:TitleElement.Title="Measure Machine Position(um):"
                                              hc:TitleElement.TitlePlacement="Left"

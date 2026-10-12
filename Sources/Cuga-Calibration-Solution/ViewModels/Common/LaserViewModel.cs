@@ -46,6 +46,13 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void ToggleLaserEnable(bool isEnable)
+    {
+        var ret = calibrationLaserService.ToggleLaserEnable(isEnable);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public double GetOpticalMeasurePower()
     {
         var ret = calibrationLaserService.GetOpticalMeasurePower();
