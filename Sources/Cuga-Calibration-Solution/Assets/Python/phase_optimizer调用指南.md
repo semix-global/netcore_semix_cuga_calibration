@@ -21,6 +21,24 @@ single_sigmoid_amplitude_curve(normal_parameters, frequencies)
 
 后续调用可以从末尾省略不变的配置. 如需传靠后的参数, 前面的可省略参数用 `None` 占位. 显式传入的参数数量, noise 和早停配置必须与首次调用一致.
 
+## 1.1. 评分接口
+
+`calculate_score()` 只接受位置参数, 顺序如下:
+
+```python
+score = calculate_score(frequencies, efficiencies, method, lam, gamma, s)
+```
+
+- `frequencies` 和 `efficiencies`: 一维等长数组, 至少包含 2 个点, 全部为有限数值. 效率使用非负比值, 当前 C# 传入 `MeasurePower / Cache.TotalMeasurePower`.
+- `method`: 只支持 `linear`, `log` 和 `softmin`, 默认 `linear`. 原 `legacy` 改为 `linear`, 原 `threshold` 和 `epsilon` 参数已删除.
+- `lam` 和 `gamma`: 用于 `linear` 和 `log`, 默认分别为 `1.0` 和 `0.5`, 必须是有限的非负数. 同时设为 `0` 时, 使用相应数据的纯均值.
+- `s`: 用于 `softmin`, 默认 `0.10`, 必须是有限的正数. `softmin` 不使用 `lam` 和 `gamma`.
+
+```python
+score = calculate_score(frequencies, efficiencies, "linear", 1.0, 0.5, 0.10)
+cost = -score
+```
+
 ## 2. 返回值
 
 | 字段 | 含义 |
@@ -101,12 +119,15 @@ apply_best_parameters(best_delays, measured_frequencies, best_amplitudes)
 
 Chirp 和 Prescan 共用 `AbstractAODWaveformElectrodeDelayWindowViewModel` 的调用逻辑:
 
+- `calculate_score()` 按 `frequencies`, `efficiencies`, `method`, `lam`, `gamma`, `s` 的顺序传入 6 个位置参数. `ScoreLambda`, `ScoreGamma` 和 `SoftMinScoreS` 对应后三项, 新缓存默认值分别为 `1d`, `0.5` 和 `0.1`.
+- 界面在 `linear` 和 `log` 下显示 lambda/gamma, 在 `softmin` 下显示 s. Step0 和 Step1 在测量前校验当前方法使用的评分参数.
+- 评分参数按 `ScoreLambda`, `ScoreGamma` 和 `SoftMinScoreS` 字段保存和读取.
 - `suggest()` 的幅值参数数量直接写死为 `4`. 界面和缓存中的 `AlgorithmUniformityAnchorCount` 保持原样, 不再参与此调用.
 - 完整频率数组来自 `Cache.AODWaveformElectrodeDelayFrequencies`, 单位为 MHz.
 - 当前点读取 `x_normal`, 调用 `single_sigmoid_amplitude_curve()` 生成幅值. `done` 为真时仍完成同样的参数读取和幅值生成, 再由外层循环结束.
 - NumPy 返回值通过 `tolist()` 转换后读取. 测量更新函数在原有幅值计算位置, 将归一化曲线值乘对应频点的 `Amplitude` 作为外部 scale.
 - 测量流程按频率索引直接下发缩放后的幅值. 噪声测量仍使用配置的频点幅值.
-- `x_phase` 先乘 `AlgorithmMaxDelay`, 再按现有电极顺序累加并叠加板卡延时. 基准电极延时为 `0`, 延时单位为 ns.
+- `x_phase` 从第二个电极开始, 按对应 `AODWaveformElectrodeDelayParam` 的 `MinDelay` 和 `MaxDelay`, 使用 `MinDelay + value * (MaxDelay - MinDelay)` 将 `[0, 1]` 映射到各电极的延时范围, 再按现有电极顺序累加并叠加板卡延时. 默认范围为 `[0, 10]`, 基准电极延时固定为 `0`, 延时单位为 ns. 范围端点必须是有限数值, 且 `MaxDelay >= MinDelay`.
 - 每轮测量的 `finally` 从本地有效测量记录中选取最高 Score 项, 将该项的延时和已下发幅值写入电极结果配置. 优化完成后保留该结果, 供后续波形生成使用.
 
 Python 文件作为嵌入资源读取, 资源名为 `CugaCalibration.Assets.Python.phase_optimizer.py`. 当前源码已经包含新曲线函数, 部署时需要使用包含该资源及新 C# 调用逻辑的程序版本.

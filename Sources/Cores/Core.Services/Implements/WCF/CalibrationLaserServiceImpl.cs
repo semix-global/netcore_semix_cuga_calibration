@@ -62,6 +62,15 @@ public sealed class CalibrationLaserServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        var sxExecuteRet = Invoke(() => isEnable ? Service?.OpenLaser_Oxide() : Service?.CloseLaser_Oxide());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         var timestamp = Stopwatch.GetTimestamp();

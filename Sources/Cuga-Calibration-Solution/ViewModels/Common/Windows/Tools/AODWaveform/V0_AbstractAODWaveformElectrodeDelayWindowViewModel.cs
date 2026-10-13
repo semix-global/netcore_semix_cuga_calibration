@@ -510,6 +510,8 @@ public abstract partial class V0AbstractAODWaveformElectrodeDelayWindowViewModel
                     Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             }
 
+            if (isSuccess) CloseLaserAfterStep1();
+
             return isSuccess;
         }, isSilent).ConfigureAwait(false);
     }

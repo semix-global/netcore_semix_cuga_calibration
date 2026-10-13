@@ -56,6 +56,11 @@ public sealed class CalibrationLaserServiceImpl : BaseService<ICgCalibLaserServi
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> ToggleLaserEnable(bool isEnable)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<double> GetOpticalMeasurePower()
     {
         var sxExecuteRet = Invoke(() => Service?.ReadDynamometer());
