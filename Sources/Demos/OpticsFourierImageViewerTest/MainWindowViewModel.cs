@@ -107,7 +107,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
         CancellationToken cancellationToken,
         bool isAspectRatioFixed = false)
     {
-        if (ROICount <= 0) return;
+        var roiCount = isAspectRatioFixed ? 3 : ROICount;
+        if (roiCount <= 0) return;
 
         await Task.Run(async () =>
         {
@@ -116,7 +117,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             var imageWidth = (double)bitmapImage.Width;
             var imageHeight = (double)bitmapImage.Height;
-            var roiWidth = imageWidth / (ROICount * 2d - 1d);
+            var roiWidth = imageWidth / (roiCount * 2d - 1d);
             var roiHeight = imageHeight / 2d;
 
             var roiY = BitmapImageDrawable.Point.Y + imageHeight - roiHeight;
@@ -125,14 +126,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
             {
                 Document.ROIModel.Clear();
 
-                for (var i = 0; i < ROICount; i++)
+                for (var i = 0; i < roiCount; i++)
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
                     var width = roiWidth;
                     var height = roiHeight;
                     if (isAspectRatioFixed)
                     {
-                        var aspectRatio = (i % 3) switch { 0 => 1d, 1 => 2d, _ => 0.5d };
+                        var aspectRatio = i switch { 0 => 1d, 1 => 2d, _ => 0.5d };
                         height = Math.Min(roiHeight, roiWidth / aspectRatio);
                         width = height * aspectRatio;
                     }
