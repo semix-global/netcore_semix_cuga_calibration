@@ -570,11 +570,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     var height = nearestVisibleRod.ImageROI.Height;
                     Guard.IsGreaterThan(height, 0d);
 
-                    var imageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
+                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
                         .ImageCoordinateRound()
                         .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
-
-                    invisibleRod.ImageROI = imageROI;
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
