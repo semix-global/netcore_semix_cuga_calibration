@@ -139,11 +139,9 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 return true;
 
             case 1:
-
                 return true;
 
             case 2:
-
                 return true;
 
             default:
@@ -174,6 +172,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 Cache.MicroscopeLensInformation,
                 Cache.CalChipSiteModelEnum
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -186,8 +185,9 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-                DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure(errorMessage, HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+                DialogWindowProvider.ShowDialog(errorMessage, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
@@ -198,6 +198,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 Cache.MicroscopeLensInformation.LensName,
                 Cache.Item.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -219,6 +220,8 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 Cache.MicroscopeLensInformation,
                 Cache.Item.FindPosition,
                 Cache.AngleThreshold,
+                Threshold = Format(Cache.Threshold),
+                Cache.Item.AlgorithmStandardMaskSquareSizeEnum,
                 ImageFileDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -237,7 +240,9 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 CalibratingItem.MicroscopeLensInformation,
-                CalibratingItem.Result.PixelSize,
+                ResultPixelSize = Format(CalibratingItem.Result.PixelSize),
+                Cache.AngleThreshold,
+                Cache.Item.AlgorithmStandardMaskSquareSizeEnum,
                 HtmlTab = new HtmlTab(new
                 {
                     OriginImage = new HtmlImage(CalibratingItem.Result.OriginFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -258,7 +263,9 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             CalibratingItem.Items = [];
             if (SelectedReviewItem is null)
             {
-                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure("Please select a review item!", HtmlHeaderLevelEnum.Header3, nameof(SelectedReviewItem) + "is null");
+                DialogWindowProvider.ShowDialog("Please select a review item!", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
@@ -267,6 +274,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
             SelectedReviewItem.IsVerified = false;
             Cache.MicroscopeLensInformation = SelectedReviewItem.MicroscopeLensInformation;
+            VerifyFileName = EnumHelper.ToDescriptionString(SelectedReviewItem.MicroscopeLensInformation.LensName);
 
             await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
             Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -274,30 +282,36 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             {
                 Cache.MicroscopeLensInformation,
                 Cache.Item.FindPosition,
-                Cache.Threshold,
+                Cache.AngleThreshold,
+                Threshold = Format(Cache.Threshold),
+                Cache.Item.AlgorithmStandardMaskSquareSizeEnum,
                 ImageFileDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
-            if (await GetPixelSizeAsync(cancellationToken, 1).ConfigureAwait(false) == false) return false;
+            if (await GetPixelSizeAsync(cancellationToken, repeatCount: 1).ConfigureAwait(false) == false) return false;
 
             var verifyPixelSize = CalibratingItem.Items[0].PixelSize;
             var error = (Size)((Vector)verifyPixelSize - (Vector)SelectedReviewItem.Result.PixelSize);
             ReviewResultList.Add((Cache.MicroscopeLensInformation.LensName, SelectedReviewItem.Result.PixelSize, verifyPixelSize, error));
             var result = error.DiagonalLength < Cache.Threshold.DiagonalLength;
 
+            if (result == false) LogFailure($"Verify Failed: Error ({error.Width}, {error.Height}) DiagonalLength ({error.DiagonalLength}) >= Threshold DiagonalLength ({Cache.Threshold.DiagonalLength})", HtmlHeaderLevelEnum.Header4, "Verify");
+
             Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
-                CalibrationPixelSize = SelectedReviewItem.Result.PixelSize,
-                VerifyPixelSize = verifyPixelSize,
-                Error = error
+                Cache.AngleThreshold,
+                Threshold = Format(Cache.Threshold),
+                CalibrationPixelSize = Format(SelectedReviewItem.Result.PixelSize),
+                VerifyPixelSize = Format(verifyPixelSize),
+                Error = Format(error)
             }), HtmlLogUniqueId.LoggingHtml());
 
             SelectedReviewItem.IsVerified = result;
 
             Guard.IsTrue(Save([SelectedReviewItem], cancellationToken));
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, verify PixelSize: ({verifyPixelSize}) Calibration PixelSize: ({SelectedReviewItem.Result.PixelSize}) Error: ({error})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, verify PixelSize: ({verifyPixelSize}) Calibration PixelSize: ({SelectedReviewItem.Result.PixelSize}) Error: ({error})", dialogButtonsEnum: DialogButtonsEnum.OK,
+                dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return result;
         }).ConfigureAwait(false);
@@ -319,7 +333,8 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
             var pixelSize = CalibrationAlgorithmService.GetPixelSize(image, Cache.Item.AlgorithmStandardMaskSquareSizeEnum.ToSize(), HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum, out var drawingImage, out var angle);
             if (Math.Abs(angle) > Cache.AngleThreshold)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment($"The current horizontal angle exceeds the limit! Angle:{angle}"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure($"The current horizontal angle exceeds the limit! Angle: {angle}, AngleThreshold: {Cache.AngleThreshold},Repeat Time: {times}/{repeatCount}", HtmlHeaderLevelEnum.Header5, nameof(CalibrationAlgorithmService.GetPixelSize));
+
                 return false;
             }
 
@@ -340,7 +355,7 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
                 Cache.MicroscopeLensInformation,
                 HorizontalAngle = angle,
                 Cache.Item.AlgorithmStandardMaskSquareSizeEnum,
-                microscopePixelSizeItem.PixelSize,
+                PixelSize = Format(microscopePixelSizeItem.PixelSize),
                 HtmlTab = new HtmlTab(new
                 {
                     OriginImage = new HtmlImage(microscopePixelSizeItem.OriginFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
@@ -353,6 +368,8 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
         return true;
     }
+
+    private static string Format(Size size) => size.ToString("0.#####");
 
     private bool Save(IReadOnlyList<MicroscopePixelSizeDTO> dtos, CancellationToken cancellationToken) => InvokeSave(update =>
     {

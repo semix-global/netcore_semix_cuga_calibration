@@ -116,11 +116,11 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 .ThenBy(t => t.LensInformation.LensCode)
         ];
 
-        if (Reviews.Count == 0)
-            return false;
+        if (Reviews.Count == 0) return false;
 
         AfViewModel.ToggleBrightFieldEnable(false);
         AfViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
+
         return true;
     }
 
@@ -136,10 +136,12 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                     LensInformation = Cache.MicroscopeLensInformation
                 };
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+
                 return true;
 
             case 1:
                 StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Cache.Item.FindFocusPosition, CalChipSiteModelEnum.ChuckModel);
+
                 return true;
 
             case 2:
@@ -159,6 +161,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
         await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false).ConfigureAwait(false);
 
         StageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+
         return true;
     }
 
@@ -205,13 +208,12 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
             CalibratingItem.IsCalibrated = false;
             CalibratingItem.Items = [];
 
-            var detectImageDirectory = ImageFileDirectory;
-
             var (isSuccessVerify, errorMessage) = Cache.CalibrationVerify();
-            if (!isSuccessVerify)
+            if (isSuccessVerify == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-                DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, nameof(Cache.CalibrationVerify));
+                DialogWindowProvider.ShowDialog(errorMessage, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
@@ -229,7 +231,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 Cache.Item.StepECS,
                 Cache.Threshold,
                 Cache.Item.SetVoltageAfErrorThreshold,
-                ImageFileDirectory = detectImageDirectory
+                ImageFileDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("Get Quality", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
@@ -243,7 +245,8 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 var focusDTOItem = new MicroscopeFocusDTOItem
                 {
                     Index = index,
-                    EcsValue = ecs
+                    EcsValue = ecs,
+                    FilePath = ImageFileDirectory
                 };
 
                 AfViewModel.SetSensorEcsValue(ecs);
@@ -278,7 +281,8 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 cancellationToken);
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Set Voltage To AfError Zero Failed!"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure("Set Voltage To AfError Zero Failed!", HtmlHeaderLevelEnum.Header4, nameof(MicroscopeViewModel.SetVoltageToAfErrorZeroFastAsync));
+
                 return false;
             }
 
@@ -310,14 +314,15 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
         {
             if (SelectedReviewItem is null)
             {
-                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure("Please select a review item!", HtmlHeaderLevelEnum.Header3, nameof(SelectedReviewItem) + "is null");
+                DialogWindowProvider.ShowDialog("Please select a review item!", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
-            var detectImageDirectory = ImageFileDirectory;
-
             SelectedReviewItem.IsVerified = false;
             Cache.MicroscopeLensInformation = SelectedReviewItem.LensInformation;
+            VerifyFileName = EnumHelper.ToDescriptionString(SelectedReviewItem.LensInformation.LensName);
 
             Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
@@ -328,7 +333,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 Cache.Item.FindFocusPosition,
                 Cache.Threshold,
                 Cache.ParfocalThreshold,
-                ImageFileDirectory = detectImageDirectory
+                ImageFileDirectory
             }), HtmlLogUniqueId.LoggingHtml());
 
             AfViewModel.ToggleBrightFieldEnable(false);
@@ -347,7 +352,7 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 Quality = 0,
                 EcsValue = currentEcs,
                 MicroscopeVoltage = SelectedReviewItem.Result.MicroscopeVoltage,
-                FilePath = detectImageDirectory
+                FilePath = ImageFileDirectory
             };
             GetQuality(verifyItem);
 
@@ -372,10 +377,15 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
 
             DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, " +
                                             $"Verify Quality: ({verifyItem.Quality:f3}) Calibration Quality: ({SelectedReviewItem.Result.Quality:f3}) " +
-                                            $"Error: ({Cache.VerifyResultError:f3})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                                            $"Error: ({Cache.VerifyResultError:f3})", dialogButtonsEnum: DialogButtonsEnum.OK,
+                dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-            if (result == false) return false;
+            if (result == false)
+            {
+                LogFailure($"Verify Failed: |Quality Error ({Cache.VerifyResultError})| >= Threshold ({Cache.Threshold})", HtmlHeaderLevelEnum.Header4, "Verify");
+
+                return false;
+            }
 
             // 同焦验证
             var varifiedList = Calibrations.Where(t => t.IsOk).Select(t => t.Result).ToList();
@@ -385,7 +395,8 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
                 result = Math.Abs(parfocalOffset) <= Cache.ParfocalThreshold;
                 if (result == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Parfocal {(result ? "OK" : "Failed")}, Offset: {parfocalOffset}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                    LogFailure($"Parfocal Failed: |Offset ({parfocalOffset})| > ParfocalThreshold ({Cache.ParfocalThreshold})", HtmlHeaderLevelEnum.Header4, "Parfocal Verify");
+                    DialogWindowProvider.ShowDialog($"Parfocal {(result ? "OK" : "Failed")}, Offset: {parfocalOffset}", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
                     SelectedReviewItem.IsVerified = false;
 
                     Guard.IsTrue(Save([SelectedReviewItem], cancellationToken));
@@ -408,12 +419,12 @@ public sealed partial class MicroscopeFocusViewModel : CalibrationViewModelBase<
         if (microscopeFocusDTOItem.Index == 0) Thread.Sleep(3000);
         using var image = ReviewViewModel.GetBrightFieldImage();
 
-        microscopeFocusDTOItem.FilePath =
-            $"{microscopeFocusDTOItem.FilePath}\\Index({microscopeFocusDTOItem.Index})_Ecs({microscopeFocusDTOItem.EcsValue:F3})_Quality({microscopeFocusDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
-
-        image.SaveImage(microscopeFocusDTOItem.FilePath);
         var quality = ReviewViewModel.GetQuality(image, HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum);
         microscopeFocusDTOItem.Quality = quality;
+
+        microscopeFocusDTOItem.FilePath =
+            $"{microscopeFocusDTOItem.FilePath}\\Index({microscopeFocusDTOItem.Index})_Ecs({microscopeFocusDTOItem.EcsValue:F3})_Quality({microscopeFocusDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).png";
+        image.SaveImage(microscopeFocusDTOItem.FilePath);
 
         var htmlBulletList = new HtmlBullet(new
         {

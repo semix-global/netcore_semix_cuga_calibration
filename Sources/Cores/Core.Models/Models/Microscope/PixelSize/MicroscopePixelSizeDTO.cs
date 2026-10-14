@@ -23,7 +23,11 @@ public sealed partial class MicroscopePixelSizeDTO : CalibrationDTOBase<Microsco
     [ObservableProperty]
     public partial MicroscopePixelSizeDTOItem Result { get; set; } = new();
 
+    // ReSharper disable UnusedParameterInPartialMethod
+
     partial void OnResultChanged(MicroscopePixelSizeDTOItem oldValue, MicroscopePixelSizeDTOItem newValue) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
 
     [ObservableProperty]
     public partial IReadOnlyList<MicroscopePixelSizeDTOItem> Items { get; set; } = [];

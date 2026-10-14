@@ -183,8 +183,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 Cache.CalChipSiteModelEnum = CalibratingItem.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
-                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
                 StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                AfViewModel.ToggleCalChipSiteModelEnum(Cache.CalChipSiteModelEnum);
 
                 return true;
 
@@ -270,6 +270,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             case 2:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.CenterMachinePosition, Cache.CalChipSiteModelEnum);
+
                 return true;
 
             case 3:
@@ -353,8 +354,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         try
         {
-            if (calChipSiteModelEnum is null)
-                return;
+            if (calChipSiteModelEnum is null) return;
 
             await Task.Run(() =>
             {
@@ -384,7 +384,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
                 break;
 
             default:
-                throw new NotSupportedException(nameof(name));
+                ThrowHelper.ThrowNotSupportedException(nameof(name));
+                break;
         }
 
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -507,6 +508,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.UpLeft);
+
             return true;
         });
     }
@@ -517,6 +519,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.DownRight);
+
             return true;
         });
     }
@@ -529,7 +532,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+
                 return false;
             }
 
@@ -544,26 +548,33 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
     {
         return await InvokeCalibrateAsync(async () =>
         {
-            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
-            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
-
-            var degree = StageViewModel.GetMachineStageTheta();
-
-            var originBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(CalibratingItem.DswItem.BrightFieldMachinePosition);
-            CalibratingItem.DSWBrightFieldMachineAffinePosition = StageViewModel.BrightFieldToMachinePosition(originBrightFieldPosition.DegreeAngleByXy(degree));
-            CalibratingItem.DSWAlignmentDegree = degree;
-
-            AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, CalibratingItem.DSWBrightFieldMachineAffinePosition);
-
-            Logger.LogHtmlInformation("Alignment OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            var result = false;
+            try
             {
-                CalibratingItem.DSWAlignmentDegree,
-                CalibratingItem.DswItem.BrightFieldMachinePosition,
-                CalibratingItem.DSWBrightFieldMachineAffinePosition
-            }), HtmlLogUniqueId.LoggingHtml());
+                AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+                AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.DswModel;
+                await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
-            return true;
+                var degree = StageViewModel.GetMachineStageTheta();
+
+                var originBrightFieldPosition = StageViewModel.MachineToBrightFieldPosition(CalibratingItem.DswItem.BrightFieldMachinePosition);
+                CalibratingItem.DSWBrightFieldMachineAffinePosition = StageViewModel.BrightFieldToMachinePosition(originBrightFieldPosition.DegreeAngleByXy(degree));
+                CalibratingItem.DSWAlignmentDegree = degree;
+
+                AfViewModel.SetSensorBrightFieldCalChipCenterMachinePositionValue(Cache.CalChipSiteModelEnum, CalibratingItem.DSWBrightFieldMachineAffinePosition);
+                result = true;
+            }
+            finally
+            {
+                Logger.LogHtmlInformation(result ? "Alignment OK" : "Alignment Failed", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    CalibratingItem.DSWAlignmentDegree,
+                    CalibratingItem.DswItem.BrightFieldMachinePosition,
+                    CalibratingItem.DSWBrightFieldMachineAffinePosition
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+
+            return result;
         });
     }
 
@@ -573,6 +584,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.UpLeft);
+
             return true;
         });
     }
@@ -583,6 +595,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.DownRight);
+
             return true;
         });
     }
@@ -595,7 +608,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+
                 return false;
             }
 
@@ -611,6 +625,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.UpLeft);
+
             return true;
         });
     }
@@ -621,6 +636,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.DownRight);
+
             return true;
         });
     }
@@ -633,7 +649,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+
                 return false;
             }
 
@@ -649,6 +666,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.UpLeft);
+
             return true;
         });
     }
@@ -659,6 +677,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         return InvokeCalibrateAsync(() =>
         {
             Step0Common(StageDirectionTypeEnum.DownRight);
+
             return true;
         });
     }
@@ -671,7 +690,8 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Validate Failed:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+
                 return false;
             }
 
@@ -689,104 +709,122 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
         {
             await InvokeVerifyAsync(async () =>
             {
-                var detectImageDirectory = ImageFileDirectory;
-                SelectReviewItem = Review.Clone();
-
-                Cache.VerifyQualityError = string.Empty;
-
-                var dswAlignmentDegree = SelectReviewItem.DSWAlignmentDegree;
-                StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
-
-                var alignmentCache = ApplicationCookieService
-                    .GetArrayOrDefault<AlignmentCacheBrightField>(false, cancellationToken)
-                    .Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.DswModel);
-
-                var alignmentResultDto = StageViewModel.AlignmentVerify(
-                    alignmentCache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),
-                    alignmentCache.LowSite2.DegreeAngleByXy(dswAlignmentDegree),
-                    alignmentCache.HighSite1.DegreeAngleByXy(dswAlignmentDegree),
-                    alignmentCache.HighSite2.DegreeAngleByXy(dswAlignmentDegree),
-                    alignmentCache.LowMag,
-                    alignmentCache.HighMag,
-                    CalChipSiteModelEnum.DswModel);
-
-                SelectReviewItem.DSWAlignmentDegree = alignmentResultDto.Degrees;
-
-                StageViewModel.SetAbsoluteStageTheta(0d);
-                foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
+                var result = false;
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    var detectImageDirectory = ImageFileDirectory;
+                    SelectReviewItem = Review.Clone();
 
-                    SelectReviewItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
-                    SelectReviewItem.CurrentItem.FilePath = detectImageDirectory;
+                    Cache.VerifyQualityError = string.Empty;
+                    VerifyFileName = EnumHelper.ToDescriptionString(Cache.LowMicroscopeLensInformation.LensName);
 
-                    Logger.LogHtmlInformation($"{Cache.CalChipSiteModelEnum}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
-                    Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                    var dswAlignmentDegree = SelectReviewItem.DSWAlignmentDegree;
+                    StageViewModel.SetAbsoluteStageTheta(dswAlignmentDegree);
+
+                    var alignmentCache = ApplicationCookieService
+                        .GetArrayOrDefault<AlignmentCacheBrightField>(false, cancellationToken)
+                        .Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.DswModel);
+
+                    var alignmentResultDto = StageViewModel.AlignmentVerify(
+                        alignmentCache.LowSite1.DegreeAngleByXy(dswAlignmentDegree),
+                        alignmentCache.LowSite2.DegreeAngleByXy(dswAlignmentDegree),
+                        alignmentCache.HighSite1.DegreeAngleByXy(dswAlignmentDegree),
+                        alignmentCache.HighSite2.DegreeAngleByXy(dswAlignmentDegree),
+                        alignmentCache.LowMag,
+                        alignmentCache.HighMag,
+                        CalChipSiteModelEnum.DswModel);
+
+                    SelectReviewItem.DSWAlignmentDegree = alignmentResultDto.Degrees;
+
+                    StageViewModel.SetAbsoluteStageTheta(0d);
+                    foreach (var calChipSiteModelEnum in EnumHelper.Enums<CalChipSiteModelEnum>().Where(t => t != CalChipSiteModelEnum.ChuckModel))
                     {
-                        Cache.CalChipSiteModelEnum,
-                        Cache.HighMicroscopeLensInformation,
-                        FindFocusPosition = Cache.Item.CenterMachinePosition,
-                        ImageFileDirectory = detectImageDirectory
-                    }), HtmlLogUniqueId.LoggingHtml());
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                    StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
-                    await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.HighMicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
+                        SelectReviewItem.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum = calChipSiteModelEnum;
+                        SelectReviewItem.CurrentItem.FilePath = detectImageDirectory;
 
-                    AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, SelectReviewItem.CurrentItem.EcsValue);
-                    AfViewModel.ToggleBrightFieldEnable(true);
+                        Logger.LogHtmlInformation($"{Cache.CalChipSiteModelEnum}", HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+                        Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+                        {
+                            Cache.CalChipSiteModelEnum,
+                            Cache.HighMicroscopeLensInformation,
+                            FindFocusPosition = Cache.Item.CenterMachinePosition,
+                            ImageFileDirectory = detectImageDirectory
+                        }), HtmlLogUniqueId.LoggingHtml());
 
-                    GetQuality(SelectReviewItem.CurrentItem);
+                        StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(Cache.Item.CenterMachinePosition);
+                        await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.HighMicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-                    AfViewModel.ToggleBrightFieldEnable(false);
+                        AfViewModel.SetSensorBrightFieldCalChipStandardEcsValue(Cache.CalChipSiteModelEnum, SelectReviewItem.CurrentItem.EcsValue);
+                        AfViewModel.ToggleBrightFieldEnable(true);
 
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-                    {
-                        Result = new HtmlQuote(SelectReviewItem.CurrentItem.ToFlatnessHtmlAnonymous())
-                    }), HtmlLogUniqueId.LoggingHtml());
+                        GetQuality(SelectReviewItem.CurrentItem);
+
+                        AfViewModel.ToggleBrightFieldEnable(false);
+
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            Result = new HtmlQuote(SelectReviewItem.CurrentItem.ToFlatnessHtmlAnonymous())
+                        }), HtmlLogUniqueId.LoggingHtml());
+                    }
+
+                    var calibrationQualitys = Review.Results.OrderBy(t => t.Key)
+                        .Select(t => (t.Key, BrightFieldQuality: t.Value.Quality))
+                        .ToArray();
+                    var qualitys = SelectReviewItem.Results.OrderBy(t => t.Key)
+                        .Select(t => (t.Key, BrightFieldQuality: t.Value.Quality))
+                        .ToArray();
+
+                    var brightFieldQualityErrors = qualitys
+                        .Select((t, i) => (t.Key, Value: t.BrightFieldQuality - calibrationQualitys[i].BrightFieldQuality))
+                        .ToArray();
+
+                    Cache.VerifyQualityError = string.Join("; ", brightFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
+
+                    result = brightFieldQualityErrors.All(t => Math.Abs(t.Value) < Cache.QualityThreshold);
+
+                    if (result == false) LogFailure($"Verify Failed: Quality Error ({Cache.VerifyQualityError}) exceeds QualityThreshold ({Cache.QualityThreshold})", HtmlHeaderLevelEnum.Header2, "Verify");
+
+                    DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
+                                                    $"Quality Error: ({Cache.VerifyQualityError}){Environment.NewLine}", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+                    Review.IsVerified = result;
+                    Guard.IsTrue(Save(Review, cancellationToken));
+
+                    return result;
                 }
-
-                var calibrationQualitys = Review.Results.OrderBy(t => t.Key)
-                    .Select(t => (t.Key, BrightFieldQuality: t.Value.Quality))
-                    .ToArray();
-                var qualitys = SelectReviewItem.Results.OrderBy(t => t.Key)
-                    .Select(t => (t.Key, BrightFieldQuality: t.Value.Quality))
-                    .ToArray();
-
-                var brightFieldQualityErrors = qualitys
-                    .Select((t, i) => (t.Key, Value: t.BrightFieldQuality - calibrationQualitys[i].BrightFieldQuality))
-                    .ToArray();
-
-                Cache.VerifyQualityError = string.Join("; ", brightFieldQualityErrors.Select(t => $"{t.Key.ToDescriptionOrString()}: {t.Value}"));
-
-                var result = brightFieldQualityErrors.All(t => Math.Abs(t.Value) < Cache.QualityThreshold);
-
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}{Environment.NewLine}" +
-                                                $"Quality Error: ({Cache.VerifyQualityError}){Environment.NewLine}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
-                Logger.LogHtmlInformation(result ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+                finally
                 {
-                    Cache.QualityThreshold,
-                    VerifyDSWAlignmentDegree = dswAlignmentDegree,
-                    VerifyBrightFieldResultError = Cache.VerifyQualityError,
-                    CalibrationResult = new HtmlTable([
-                        .. Review.Results.OrderBy(t => t.Key)
-                            .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, BrightFieldQuality = t.Value.Quality })
-                    ]),
-                    VerifyResult = new HtmlTable([
-                        .. SelectReviewItem.Results.OrderBy(t => t.Key)
-                            .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, BrightFieldQuality = t.Value.Quality })
-                    ])
-                }), HtmlLogUniqueId.LoggingHtml());
-
-                Review.IsVerified = result;
-                Guard.IsTrue(Save(Review, cancellationToken));
-
-                return result;
+                    LogResult(result);
+                }
             }).ConfigureAwait(false);
         }
         finally
         {
             SynchronizationContextProvider.Send(() => { IsWindowEnable = true; });
+        }
+
+        void LogResult(bool isSuccess)
+        {
+            Logger.LogHtmlInformation(isSuccess ? "OK" : "Failed", HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
+            {
+                Cache.QualityThreshold,
+                CalibrationMicroscopeLens = Cache.LowMicroscopeLensInformation,
+                VerifyMicroscopeLens = Cache.HighMicroscopeLensInformation,
+                VerifyDSWAlignmentDegree = SelectReviewItem?.DSWAlignmentDegree,
+                VerifyBrightFieldResultError = Cache.VerifyQualityError,
+                CalibrationResult = new HtmlTable([
+                    .. Review.Results.OrderBy(t => t.Key)
+                        .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, BrightFieldQuality = t.Value.Quality })
+                ]),
+                VerifyResult = SelectReviewItem is null
+                    ? null
+                    : new HtmlTable([
+                        .. SelectReviewItem.Results.OrderBy(t => t.Key)
+                            .Select(t => new { t.Key, t.Value.BrightFieldMachinePosition, t.Value.EcsValue, BrightFieldQuality = t.Value.Quality })
+                    ])
+            }), HtmlLogUniqueId.LoggingHtml());
         }
     }
 
@@ -798,7 +836,7 @@ public sealed partial class MicroscopeCalChipViewModel : CalibrationViewModelBas
 
         var quality = ReviewViewModel.GetQuality(image, HtmlLogUniqueId);
         microscopeCalChipDTOItem.Quality = quality;
-        var filePath = $"{microscopeCalChipDTOItem.FilePath}\\Ecs({microscopeCalChipDTOItem.EcsValue:F3})_Quality({microscopeCalChipDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).jpg";
+        var filePath = $"{microscopeCalChipDTOItem.FilePath}\\Ecs({microscopeCalChipDTOItem.EcsValue:F3})_Quality({microscopeCalChipDTOItem.Quality:F3})_Guid({HtmlLogUniqueId}).png";
 
         image.SaveImage(filePath);
         microscopeCalChipDTOItem.FilePath = filePath;
