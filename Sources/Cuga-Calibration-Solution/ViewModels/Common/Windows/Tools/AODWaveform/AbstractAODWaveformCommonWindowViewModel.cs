@@ -95,18 +95,6 @@ public abstract partial class AbstractAODWaveformCommonWindowViewModel<TCache, T
         }).ConfigureAwait(false);
     }
 
-    protected void CloseLaserAfterStep1()
-    {
-        if (Cache.IsSupportAutoCloseLaser || (DialogWindowProvider.TryShowDialog(
-                $"{Name}: {Steps[1]} Success. Do you want to disable the laser?",
-                out var dialogResult,
-                DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes))
-        {
-            LaserViewModel.ToggleLaserEnable(false);
-        }
-    }
-
     [RelayCommand]
     private void RefreshMeasureMachinePosition()
     {
