@@ -58,8 +58,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureCache : Calibrat
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };

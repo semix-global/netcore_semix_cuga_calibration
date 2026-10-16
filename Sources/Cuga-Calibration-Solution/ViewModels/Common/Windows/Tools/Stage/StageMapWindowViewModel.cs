@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;

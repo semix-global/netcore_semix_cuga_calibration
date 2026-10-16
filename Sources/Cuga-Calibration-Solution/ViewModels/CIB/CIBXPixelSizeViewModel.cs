@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;

@@ -40,8 +40,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerCache : Calibrati
         VerifyImageWidth = VerifyImageWidth,
         ExtinctionRatioThreshold = ExtinctionRatioThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, FourierCenterChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, FourierCenterChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
@@ -71,8 +69,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerCacheItem : Calib
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         ShinyWaferFindBFMachinePosition = ShinyWaferFindBFMachinePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
-        AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum,
         Id = Id,
         Expiration = Expiration
     };
