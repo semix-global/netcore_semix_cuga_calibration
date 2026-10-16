@@ -234,7 +234,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
                 Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
-                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.01);
 
                 while (true)
                 {
@@ -327,7 +328,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     [.. Step1Rods.Except([step1LeftRod, step1RightRod])],
                     false);
 
-                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.01);
 
                 while (true)
                 {
@@ -470,7 +472,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod is { IsDeleted: false, BitmapImageROIDrawable.Rect.Width: > 0 };
                 }
 
-                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.01);
 
                 while (true)
                 {
