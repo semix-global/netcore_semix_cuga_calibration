@@ -11,7 +11,7 @@ namespace Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOptions<Unit>
 {
     /// <summary>
-    /// 编辑器操作所依据的图片. 所有ROI坐标都会被限制在该图片范围内.
+    /// 编辑器操作所依据的图片. 默认将ROI限制在图片内, 允许越界时仍须与图片相交或接触.
     /// </summary>
     public BitmapImageDrawable BitmapImageDrawable { get; }
 
@@ -58,6 +58,12 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     [ObservableProperty]
     public partial bool IsAspectRatioFixed { get; set; } = false;
 
+    /// <summary>
+    /// 是否允许ROI移动和缩放到图片外部, 默认关闭. 开启后仍须与图片相交, 允许仅接触边或角.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsOutsideImageAllowed { get; set; } = false;
+
     partial void OnKeyboardMoveStepChanging(double value)
     {
         Guard.IsTrue(double.IsFinite(value));
@@ -81,7 +87,7 @@ public sealed partial class ModifyBitmapImageROIDrawableInputOptions : InputOpti
     }
 
     /// <summary>
-    /// 笛卡尔坐标系: 返回所依据图片的外接矩形, 用于将ROI限制在图片范围内.
+    /// 笛卡尔坐标系: 返回所依据图片的外接矩形, 用于限制ROI的编辑边界.
     /// </summary>
     public Rect GetImageRect()
     {

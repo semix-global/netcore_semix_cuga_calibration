@@ -28,6 +28,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     public partial int ROICount { get; set; } = 8;
 
+    [ObservableProperty]
+    public partial bool IsOutsideImageAllowed { get; set; }
+
     public MainWindowViewModel()
     {
         BitmapImageDrawable = new BitmapImageDrawable();
@@ -83,6 +86,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
         false,
         cancellationToken: cancellationToken);
 
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task EditFixedAspectRatioROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIResizeJoystickStateEnum.All,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
+        true,
+        cancellationToken: cancellationToken,
+        isAspectRatioFixed: true);
+
     [RelayCommand]
     private void CancelEditROI()
     {
@@ -91,14 +102,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
         EditBottomAnchorROICancelCommand.Execute(null);
         EditFixedAspectRatioROICancelCommand.Execute(null);
     }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task EditFixedAspectRatioROIAsync(CancellationToken cancellationToken) => EditROIAsync(
-        BitmapImageROIResizeJoystickStateEnum.All,
-        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
-        true,
-        cancellationToken: cancellationToken,
-        isAspectRatioFixed: true);
 
     private async Task EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum resizeJoystickStateEnum,
@@ -109,6 +112,8 @@ public sealed partial class MainWindowViewModel : ObservableObject
     {
         var roiCount = isAspectRatioFixed ? 3 : ROICount;
         if (roiCount <= 0) return;
+
+        var isOutsideImageAllowed = IsOutsideImageAllowed;
 
         await Task.Run(async () =>
         {
@@ -133,7 +138,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     var height = roiHeight;
                     if (isAspectRatioFixed)
                     {
-                        var aspectRatio = i switch { 0 => 1d, 1 => 2d, _ => 0.5d };
+                        var aspectRatio = i switch { 0 => 1d, 1 => 2d, _ => 0.5 };
                         height = Math.Min(roiHeight, roiWidth / aspectRatio);
                         width = height * aspectRatio;
                     }
@@ -141,7 +146,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     Document.ROIModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, width, height),
-                        IsFixed = !isAspectRatioFixed && Random.Shared.NextDouble() > 0.5,
+                        IsFixed = isAspectRatioFixed == false && Random.Shared.NextDouble() > 0.5,
                         Text = $"{i + 1}",
                         ResizeJoystickStateEnum = isAspectRatioFixed
                             ? resizeJoystickStateEnum
@@ -157,6 +162,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 IsDeleteEnabled = isDeleteEnabled,
                 IsAspectRatioFixed = isAspectRatioFixed,
+                IsOutsideImageAllowed = isOutsideImageAllowed,
                 CancellationToken = cancellationToken
             };
 
