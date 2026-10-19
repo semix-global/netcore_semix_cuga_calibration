@@ -333,7 +333,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
         actual.ScanLength.Should().Be(expected.ScanLength);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
-        actual.TemplateMatchSetting.Should().Be(expected.TemplateMatchSetting);
+        AssertTemplateMatchSetting(actual.TemplateMatchSetting, expected.TemplateMatchSetting);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
@@ -346,6 +346,16 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
 
         JsonConvert.SerializeObject(actual, settings).Should().Be(json);
+
+        return;
+
+        static void AssertTemplateMatchSetting(TemplateMatchSetting actual, TemplateMatchSetting expected)
+        {
+            actual.TemplateSize.Should().Be(expected.TemplateSize);
+            actual.Halcon.TemplateType.Should().Be(expected.Halcon.TemplateType);
+            actual.AlgoCSharp.Method.Should().Be(expected.AlgoCSharp.Method);
+            actual.AlgoCSharp.PyramidLevels.Should().Be(expected.AlgoCSharp.PyramidLevels);
+        }
     }
 
     private class PrivateSetterContractResolver : DefaultContractResolver

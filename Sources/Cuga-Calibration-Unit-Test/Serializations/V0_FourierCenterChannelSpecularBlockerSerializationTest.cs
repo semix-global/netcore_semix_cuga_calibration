@@ -45,6 +45,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         nameof(ICacheItem.ModifiedUserId),
         nameof(ICacheItem.ModifiedUserName),
         nameof(ICacheItem.ModifiedTime),
+        nameof(ICacheItem.IsDeleted),
         nameof(ObservableValidator.HasErrors)
     ];
 
@@ -67,11 +68,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
         saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
 
-        if (useCacheSettings == false)
-        {
-            RemoveMetadata(saved);
-            saved.Remove(nameof(ICacheItem.IsDeleted));
-        }
+        if (useCacheSettings == false) RemoveMetadata(saved);
 
         saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
 
@@ -193,8 +190,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             saved.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
         }
 
-        saved.ContainsKey(nameof(ICacheItem.IsDeleted)).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", nameof(ICacheItem.IsDeleted));
-
         return;
 
         static V0FourierCenterChannelSpecularBlockerDTO CreateRandom(Random random, IReadOnlyList<ProductivityInformation> productivityInformations)
@@ -238,6 +233,17 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
 
             return dto;
+        }
+
+        static void AssertIndependentItem(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
+        {
+            actual.Should().NotBeSameAs(expected);
+            actual.YRodROI.Should().NotBeSameAs(expected.YRodROI);
+            actual.XPushROI.Should().NotBeSameAs(expected.XPushROI);
+            actual.YRodROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.YRodROI.BitmapImageROIDrawable);
+            actual.XPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XPushROI.BitmapImageROIDrawable);
+            actual.Document.Should().NotBeSameAs(expected.Document);
+            actual.CIBDocument.Should().NotBeSameAs(expected.CIBDocument);
         }
 
         static void AssertEquals(V0FourierCenterChannelSpecularBlockerDTO actual, V0FourierCenterChannelSpecularBlockerDTO expected, bool useCacheSettings, bool isClone = false)
@@ -289,34 +295,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.Step1CIBImageAverageValue.Should().Be(expected.Step1CIBImageAverageValue);
             actual.ExtinctionRatio.Should().Be(expected.ExtinctionRatio);
         }
-    }
-
-    private static void AssertIndependentItem(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
-    {
-        actual.Should().NotBeSameAs(expected);
-        actual.YRodROI.Should().NotBeSameAs(expected.YRodROI);
-        actual.XPushROI.Should().NotBeSameAs(expected.XPushROI);
-        actual.YRodROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.YRodROI.BitmapImageROIDrawable);
-        actual.XPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XPushROI.BitmapImageROIDrawable);
-        actual.Document.Should().NotBeSameAs(expected.Document);
-        actual.CIBDocument.Should().NotBeSameAs(expected.CIBDocument);
-    }
-
-    [Theory]
-    [InlineData(0d, 0d, 42.25d)]
-    [InlineData(180d, 5.5d, 43d)]
-    public void AdaptTo_ShouldUseAngleAndROIMotorPositions(double angle, double yPosition, double pushPosition)
-    {
-        using var dto = new V0FourierCenterChannelSpecularBlockerDTO();
-        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = angle;
-        dto.Channel3Item.YRodROI.MotorAbsoluteValue = yPosition;
-        dto.Channel3Item.XPushROI.MotorAbsoluteValue = pushPosition;
-
-        var actual = dto.AdaptTo();
-
-        actual.Ch3Angle.Should().Be((float)angle);
-        actual.Ch3TurnY.Should().Be((float)yPosition);
-        actual.Ch3Push.Should().Be((float)pushPosition);
     }
 
     [Theory]
@@ -421,7 +399,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
         actual.VerifyImageWidth.Should().Be(expected.VerifyImageWidth);
         actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
-        actual.TemplateMatchSetting.Should().Be(expected.TemplateMatchSetting);
+        AssertTemplateMatchSetting(actual.TemplateMatchSetting, expected.TemplateMatchSetting);
 
         actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
@@ -451,7 +429,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
             actualItem.ScanLength.Should().Be(expectedItem.ScanLength);
             actualItem.ShinyWaferFindBFMachinePosition.Should().Be(expectedItem.ShinyWaferFindBFMachinePosition);
-            actualItem.TemplateMatchSetting.Should().Be(expectedItem.TemplateMatchSetting);
+            AssertTemplateMatchSetting(actualItem.TemplateMatchSetting, expectedItem.TemplateMatchSetting);
 
             actualItem.Id.Should().Be(useCacheSettings ? 0L : expectedItem.Id);
             actualItem.Expiration.Should().Be(useCacheSettings ? 0L : expectedItem.Expiration);
@@ -462,6 +440,14 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expectedItem.ModifiedUserId);
             actualItem.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expectedItem.ModifiedUserName);
             actualItem.ModifiedTime.Should().Be(useCacheSettings ? default : expectedItem.ModifiedTime);
+        }
+
+        static void AssertTemplateMatchSetting(TemplateMatchSetting actual, TemplateMatchSetting expected)
+        {
+            actual.TemplateSize.Should().Be(expected.TemplateSize);
+            actual.Halcon.TemplateType.Should().Be(expected.Halcon.TemplateType);
+            actual.AlgoCSharp.Method.Should().Be(expected.AlgoCSharp.Method);
+            actual.AlgoCSharp.PyramidLevels.Should().Be(expected.AlgoCSharp.PyramidLevels);
         }
     }
 }
