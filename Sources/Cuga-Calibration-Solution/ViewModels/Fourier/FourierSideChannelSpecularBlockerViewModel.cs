@@ -243,7 +243,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
-            return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
+            return ApplicationCookie.OIOpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
 
@@ -682,13 +682,13 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         CalibratingStatuses =
         [
-            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
+            .. ApplicationCookie.OIOpticsMagTypeProductivityInformations.Select(t => new ProductivityInformationStatus { SelectedItem = t, IsCalibrated = false })
         ];
 
         Calibrations =
         [
             .. temps
-                .Where(t => ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
+                .Where(t => ApplicationCookie.OIOpticsMagTypeProductivityInformations.Contains(t.ProductivityInformation))
                 .DistinctBy(t => t.ProductivityInformation)
                 .Select(t =>
                 {
@@ -698,12 +698,12 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 })
         ];
 
-        status.TotalCalibrationCount = ApplicationCookie.OpticsMagTypeProductivityInformations.Count;
+        status.TotalCalibrationCount = ApplicationCookie.OIOpticsMagTypeProductivityInformations.Count;
         status.CalibratedCount = Calibrations.Count(t => t.IsCalibrated);
         status.VerifiedCount = Calibrations.Count(t => t.IsVerified);
         status.Details =
         [
-            .. ApplicationCookie.OpticsMagTypeProductivityInformations.Select(productivityInformation =>
+            .. ApplicationCookie.OIOpticsMagTypeProductivityInformations.Select(productivityInformation =>
             {
                 var item = Calibrations.SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
 
