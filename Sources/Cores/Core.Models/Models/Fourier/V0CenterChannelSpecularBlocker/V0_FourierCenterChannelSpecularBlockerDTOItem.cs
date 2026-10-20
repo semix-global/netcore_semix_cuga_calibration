@@ -171,6 +171,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
             Document.View.ZoomToFit();
 
             Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
+            Guard.IsTrue(double.IsFinite(xPushItem.PixelSize) && xPushItem.PixelSize != 0d);
 
             XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xPushItem.Step0ROI.ImageROI);
 
@@ -182,6 +183,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                 {
                     Title = "Adjust x-push on the Channel3 Fourier image.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
+                    IsOutsideImageAllowed = true,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -216,11 +218,17 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                 xPushItem.Step0MotorAbsoluteValue + (XPushROI.ImageROI.Center - xPushItem.Step0ROI.ImageROI.Center).X * xPushItem.PixelSize,
                 xPushMotorRange.Min,
                 xPushMotorRange.Max);
+
+            // 根据限位后的电机位置反算图像中心, 保持 ROI 尺寸并同步显示.
+            var xPushCenterX = xPushItem.Step0ROI.ImageROI.Center.X + (XPushROI.MotorAbsoluteValue - xPushItem.Step0MotorAbsoluteValue) / xPushItem.PixelSize;
+            XPushROI.ImageROI += new Vector(xPushCenterX - XPushROI.ImageROI.Center.X, 0d);
+            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
             XPushROI.IsSelected = true;
 
             if (yRodItem is not null)
             {
                 Guard.IsTrue(yRodItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod);
+                Guard.IsTrue(double.IsFinite(yRodItem.PixelSize) && yRodItem.PixelSize != 0d);
 
                 YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(yRodItem.Step0ROI.ImageROI);
 
@@ -232,6 +240,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                     {
                         Title = "Adjust y-rod on the Channel3 Fourier image.",
                         BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.Y,
+                        IsOutsideImageAllowed = true,
                         IsDeleteEnabled = false,
                         CancellationToken = cancellationToken
                     });
@@ -266,6 +275,11 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
                     yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
                     yMotorRange.Min,
                     yMotorRange.Max);
+
+                // Y 方向同样使用带符号的像素尺寸反算, 避免显示位置超出电机限位.
+                var yRodCenterY = yRodItem.Step0ROI.ImageROI.Center.Y + (YRodROI.MotorAbsoluteValue - yRodItem.Step0MotorAbsoluteValue) / yRodItem.PixelSize;
+                YRodROI.ImageROI += new Vector(0d, yRodCenterY - YRodROI.ImageROI.Center.Y);
+                YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
                 YRodROI.IsSelected = true;
             }
             else

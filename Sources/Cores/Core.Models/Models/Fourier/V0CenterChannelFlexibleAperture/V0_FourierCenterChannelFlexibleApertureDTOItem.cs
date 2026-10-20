@@ -222,6 +222,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
                     },
                     IsDeleteEnabled = false,
                     IsAspectRatioFixed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
+                    IsOutsideImageAllowed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
                     CancellationToken = cancellationToken
                 });
 
@@ -306,6 +307,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
                     },
                     IsDeleteEnabled = false,
                     IsAspectRatioFixed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
+                    IsOutsideImageAllowed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
                     CancellationToken = cancellationToken
                 });
 

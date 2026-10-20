@@ -208,6 +208,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 {
                     Title = $"Adjust rod height on the Channel{ChannelId} Fourier image.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
+                    IsOutsideImageAllowed = true,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -241,12 +242,19 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
                 var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
 
+                Guard.IsTrue(double.IsFinite(rodResult.PixelSize) && rodResult.PixelSize != 0d);
+
                 rod.BitmapImageROIDrawable.IsFixed = true;
                 rod.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(rod.BitmapImageROIDrawable.Rect);
                 rod.MotorAbsoluteValue = Math.Clamp(
                     fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue + (rod.ImageROI.Height - rodResult.MinImageROI.Height) * rodResult.PixelSize,
                     fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue,
                     fourierSideChannelFlexibleApertureItem.MaxMotorAbsoluteValue);
+
+                // 侧通道由固定顶边的高度变化标定电机位移, 限位后反算高度并同步显示.
+                var height = rodResult.MinImageROI.Height + (rod.MotorAbsoluteValue - fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue) / rodResult.PixelSize;
+                rod.ImageROI = new Rect(rod.ImageROI.Point, new Size(rod.ImageROI.Width, height));
+                rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
             }
         }
         finally
