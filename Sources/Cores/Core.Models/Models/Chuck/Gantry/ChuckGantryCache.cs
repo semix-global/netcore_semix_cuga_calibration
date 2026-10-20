@@ -73,6 +73,9 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase<ChuckGantryC
     [ObservableProperty]
     public partial double P5Angle { get; set; }
 
+    [ObservableProperty]
+    public partial double InitialGantryOffset { get; set; }
+
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     public Point LowToHighPoint => BaseHighFindPosition - (Vector)BaseLowFindPosition;
@@ -95,6 +98,7 @@ public sealed partial class ChuckGantryCache : CalibrationCacheBase<ChuckGantryC
         LowBaseTemplateImageFilePath = LowBaseTemplateImageFilePath,
         HighBaseTemplateFilePath = HighBaseTemplateFilePath,
         HighBaseTemplateImageFilePath = HighBaseTemplateImageFilePath,
+        InitialGantryOffset = InitialGantryOffset,
         P5Angle = P5Angle,
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,

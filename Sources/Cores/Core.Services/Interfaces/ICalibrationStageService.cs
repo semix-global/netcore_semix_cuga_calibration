@@ -335,12 +335,22 @@ public interface ICalibrationStageService
 
     #region 设置校准
 
+    #region Gantry
+
     /// <summary>
     /// 设置gantry
     /// </summary>
     /// <param name="gantryOffset">gantry offset</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetGantryOffset(double gantryOffset);
+
+    /// <summary>
+    /// 读取cuga当前 gantry offset
+    /// </summary>
+    /// <returns>gantry offset</returns>
+    SxExecuteRet<double> GetGantryOffset();
+
+    #endregion
 
     /// <summary>
     /// 补偿矩阵开关
@@ -386,11 +396,23 @@ public interface ICalibrationStageService
     SxExecuteRet<bool> SetXYGlobalScale(double xScale, double yScale);
 
     /// <summary>
+    /// 读取 X、Y轴比例系数
+    /// </summary>
+    /// <returns>X、Y轴比例系数</returns>
+    SxExecuteRet<(double X, double Y)> GetXYGlobalScale();
+
+    /// <summary>
     /// 设置旋转比例误差系数
     /// </summary>
     /// <param name="tScale">T轴比例系数</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetTScale(double tScale);
+
+    /// <summary>
+    /// 读取旋转轴比例系数
+    /// </summary>
+    /// <returns>T 轴比例系数</returns>
+    SxExecuteRet<double> GetTScale();
 
     #region Stage物理坐标
 

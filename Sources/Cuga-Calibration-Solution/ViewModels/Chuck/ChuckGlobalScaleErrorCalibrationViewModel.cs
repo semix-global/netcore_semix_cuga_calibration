@@ -7,9 +7,10 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.Core.Services.Implements;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -26,8 +27,12 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckGlobalScaleErrorCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvironment hostEnvironment) : CalibrationViewModelBase<ChuckGlobalScaleErrorCache>
+public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel : CalibrationViewModelBase<ChuckGlobalScaleErrorCache>
 {
+    private readonly ControllerGuard<(double X, double Y)> _xyScaleGuard;
+    private readonly StageDirectionTypeEnum[] _stageDirectionTypeEnums = [StageDirectionTypeEnum.Up, StageDirectionTypeEnum.Down, StageDirectionTypeEnum.Left, StageDirectionTypeEnum.Right];
+    private readonly IHostEnvironment _hostEnvironment;
+
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -86,7 +91,17 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     #endregion 属性
 
-    private readonly StageDirectionTypeEnum[] _stageDirectionTypeEnums = [StageDirectionTypeEnum.Up, StageDirectionTypeEnum.Down, StageDirectionTypeEnum.Left, StageDirectionTypeEnum.Right];
+    /// <inheritdoc/>
+    public ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvironment hostEnvironment)
+    {
+        _hostEnvironment = hostEnvironment;
+        _xyScaleGuard = new ControllerGuard<(double X, double Y)>(
+            "XYGlobalScale",
+            () => StageViewModel.GetXYGlobalScale(),
+            value => StageViewModel.SetXYGlobalScale(value.X, value.Y, HtmlLogUniqueId),
+            Logger,
+            message => DialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Warning));
+    }
 
     #region 控制校准业务
 
@@ -101,20 +116,14 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
-        return true;
-    }
-
-    protected override async Task<bool> CalibratingAsync(CancellationToken cancellationToken)
-    {
-        await Task.CompletedTask.ConfigureAwait(false);
+        _xyScaleGuard.RestoreControllerIfNotClean();
 
         return true;
     }
 
     protected override async Task<bool> CancelingAsync()
     {
-        if (ApplicationCookieService.GetCalibration<ChuckGlobalScaleErrorDto>(CancellationToken.None).IsOk == false)
-            StageViewModel.ResetXYGlobalScale();
+        _xyScaleGuard.RestoreControllerIfNotClean();
 
         return await base.CancelingAsync().ConfigureAwait(false);
     }
@@ -161,6 +170,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 break;
 
             case 7:
+                _xyScaleGuard.WriteController();
+
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.RightLowSitePosition, CalChipSiteModelEnum.ChuckModel);
@@ -223,10 +234,10 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-
-        await InvokeCalibrateAsync(async () =>
+        return await InvokeCalibrateAsync(async () =>
         {
+            _xyScaleGuard.WriteController((1d, 1d));
+
             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
@@ -241,10 +252,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            result = true;
-            return result;
+            return true;
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -264,8 +273,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             return false;
         }
 
-        var result = false;
-        await InvokeCalibrateAsync(() =>
+        return await InvokeCalibrateAsync(() =>
         {
             var position = StageViewModel.GetBrightFieldStagePosition();
             var baseBrightFieldPosition = Cache.BaseLowSiteFindPosition = position;
@@ -319,8 +327,14 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Idea Bright Field Positions", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -337,10 +351,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
-            result = true;
-            return result;
+            return true;
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -353,8 +365,14 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -365,6 +383,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                     HighTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -376,7 +395,8 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                    $"Teaching {Cache.SiteDirection}", out _, out var lowPosition, out _) == false) return false;
 
             Cache.SetPosition(lowPosition);
 
@@ -392,112 +412,103 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
+        return await InvokeCalibrateAsync(async () =>
         {
-            ClearCalibrationTemp();
-            StageViewModel.SetXYGlobalScale(1, 1);
+            _xyScaleGuard.WriteController();
 
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            return await ControllerGuardScope.RunAsync([_xyScaleGuard], async _ =>
             {
-                Cache.Threshold,
-                Cache.LowToHighMagnificationOffset
-            }), HtmlLogUniqueId.LoggingHtml());
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            StageViewModel.ResetXYGlobalScale();
+                ClearCalibrationTemp();
 
-            // 初始化
-            var calibrationItemDto = new ChuckGlobalScaleErrorDto
-            {
-                LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
-                HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
-                HighSiteMatchResult = new ChuckGlobalTemplateMatchDtoItem
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    LensInformation = Cache.HighMicroscopeLensInformation,
-                    TopPosition = Cache.TopLowSitePosition,
-                    BottomPosition = Cache.BottomLowSitePosition,
-                    LeftPosition = Cache.LeftLowSitePosition,
-                    RightPosition = Cache.RightLowSitePosition
-                }
-            };
+                    Cache.Threshold,
+                    Cache.LowToHighMagnificationOffset
+                }), HtmlLogUniqueId.LoggingHtml());
 
-            var calibrationResult = false;
-            foreach (var time in Enumerable.Range(1, Cache.Times))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                Logger.LogHtmlInformation($"Calibration Times: {time}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                var selectGlobalScaleErrorDto = SelectGlobalScaleErrorDto = calibrationItemDto.Clone();
-                SynchronizationContextProvider.Send(() => GlobalScaleErrorDtoItemDtoList.Add(selectGlobalScaleErrorDto));
-                // 校准
-                if (GetChuckGlobalScaleResult(selectGlobalScaleErrorDto, cancellationToken) == false)
+                // 初始化
+                var calibrationItemDto = new ChuckGlobalScaleErrorDto
                 {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Calibration Result Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    return false;
-                }
+                    LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
+                    HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
+                    HighSiteMatchResult = new ChuckGlobalTemplateMatchDtoItem
+                    {
+                        LensInformation = Cache.HighMicroscopeLensInformation,
+                        TopPosition = Cache.TopLowSitePosition,
+                        BottomPosition = Cache.BottomLowSitePosition,
+                        LeftPosition = Cache.LeftLowSitePosition,
+                        RightPosition = Cache.RightLowSitePosition
+                    }
+                };
 
-                if (Math.Abs(selectGlobalScaleErrorDto.ScaleErrorValue.X) < Cache.Threshold.X
-                    && Math.Abs(selectGlobalScaleErrorDto.ScaleErrorValue.Y) < Cache.Threshold.Y)
+                var calibrationResult = false;
+                foreach (var time in Enumerable.Range(1, Cache.Times))
                 {
-                    calibrationResult = true;
-                    break;
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Logger.LogHtmlInformation($"Calibration Times: {time}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    var selectGlobalScaleErrorDto = SelectGlobalScaleErrorDto = calibrationItemDto.Clone();
+                    SynchronizationContextProvider.Send(() => GlobalScaleErrorDtoItemDtoList.Add(selectGlobalScaleErrorDto));
+                    // 校准
+                    GetChuckGlobalScaleResult(selectGlobalScaleErrorDto, cancellationToken);
+
+                    if (Math.Abs(selectGlobalScaleErrorDto.ScaleErrorValue.X) < Cache.Threshold.X && Math.Abs(selectGlobalScaleErrorDto.ScaleErrorValue.Y) < Cache.Threshold.Y)
+                    {
+                        calibrationResult = true;
+                        break;
+                    }
+
+                    calibrationItemDto.AppliedScaleXY = new Point
+                    (
+                        calibrationItemDto.AppliedScaleXY.X * selectGlobalScaleErrorDto.ResultScaleXY.X,
+                        calibrationItemDto.AppliedScaleXY.Y * selectGlobalScaleErrorDto.ResultScaleXY.Y
+                    );
                 }
 
-                calibrationItemDto.AppliedScaleXY = new System.Windows.Point
-                (
-                    calibrationItemDto.AppliedScaleXY.X * selectGlobalScaleErrorDto.ResultScaleXY.X,
-                    calibrationItemDto.AppliedScaleXY.Y * selectGlobalScaleErrorDto.ResultScaleXY.Y
-                );
-            }
+                ResultGlobalScaleErrorDto = GlobalScaleErrorDtoItemDtoList.Last().Clone();
 
-            ResultGlobalScaleErrorDto = GlobalScaleErrorDtoItemDtoList.Last().Clone();
+                Logger.LogHtmlInformation($"Calibration {(calibrationResult ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    Cache.Threshold,
+                    ResultGlobalScaleErrorDto.AppliedScaleXY,
+                    ResultGlobalScaleErrorDto.ResultScaleXY,
+                    ResultGlobalScaleErrorDto.ScaleErrorValue,
+                    ScaleXYErrorUmCurve = new HtmlPlot2DLinesChart([
+                        ("Times-AxisXScaleError(Um)", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.X).ToList().ToPoints()),
+                        ("Times-AxisYScaleError(Um)", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.Y).ToList().ToPoints())
+                    ], "ScaleXYErrorUmCurve"),
+                    AppliedScaleXYCurve = new HtmlPlot2DLinesChart([
+                        ("Times-AxisXAppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.AppliedScaleXY.X).ToList().ToPoints()),
+                        ("Times-AxisYAppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.AppliedScaleXY.Y).ToList().ToPoints())
+                    ], "AppliedScaleXYCurve"),
+                    ResultScaleXYCurve = new HtmlPlot2DLinesChart([
+                        ("Times-AxisXResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.X).ToList().ToPoints()),
+                        ("Times-AxisYResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.Y).ToList().ToPoints())
+                    ], "AppliedScaleXYCurve")
+                }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlInformation($"Calibration {(calibrationResult ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                ResultGlobalScaleErrorDto.AppliedScaleXY,
-                ResultGlobalScaleErrorDto.ResultScaleXY,
-                ResultGlobalScaleErrorDto.ScaleErrorValue,
-                ScaleXYErrorUmCurve = new HtmlPlot2DLinesChart([
-                    ("Times-AxisXScaleError(Um)", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.X).ToList().ToPoints()),
-                    ("Times-AxisYScaleError(Um)", GlobalScaleErrorDtoItemDtoList.Select(t => t.ScaleErrorValue.Y).ToList().ToPoints())
-                ], "ScaleXYErrorUmCurve"),
-                AppliedScaleXYCurve = new HtmlPlot2DLinesChart([
-                    ("Times-AxisXAppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.AppliedScaleXY.X).ToList().ToPoints()),
-                    ("Times-AxisYAppliedScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.AppliedScaleXY.Y).ToList().ToPoints())
-                ], "AppliedScaleXYCurve"),
-                ResultScaleXYCurve = new HtmlPlot2DLinesChart([
-                    ("Times-AxisXResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.X).ToList().ToPoints()),
-                    ("Times-AxisYResultScale", GlobalScaleErrorDtoItemDtoList.Select(t => t.ResultScaleXY.Y).ToList().ToPoints())
-                ], "AppliedScaleXYCurve")
-            }), HtmlLogUniqueId.LoggingHtml());
+                ResultGlobalScaleErrorDto.IsCalibrated = calibrationResult;
+                Guard.IsTrue(Save(ResultGlobalScaleErrorDto, cancellationToken));
 
-            result = calibrationResult;
-
-            ResultGlobalScaleErrorDto.IsCalibrated = result;
-            Guard.IsTrue(Save(ResultGlobalScaleErrorDto, cancellationToken));
-
-            return calibrationResult;
+                return calibrationResult;
+            }, ControllerGuardMode.AlwaysRestore, recordCache: false);
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
-
-        await InvokeVerifyAsync(async () =>
-        {
-            if (await VerifyCalibrationAsync(cancellationToken) == false) result = false;
-            return result;
-        }).ConfigureAwait(false);
+        await InvokeVerifyAsync(async () => await VerifyCalibrationAsync(cancellationToken)).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyCalibrationAsync(CancellationToken cancellationToken)
+    private Task<bool> VerifyCalibrationAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await Task.Run(() =>
+        return ControllerGuardScope.RunAsync([_xyScaleGuard], async context =>
         {
+            await Task.CompletedTask.ConfigureAwait(false);
+
             ReviewDto.IsVerified = false;
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -519,12 +530,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
             SelectGlobalScaleErrorDto = ReviewDto.Clone();
 
-            if (GetChuckGlobalScaleResult(SelectGlobalScaleErrorDto, cancellationToken) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Calibration Result Failed!"), HtmlLogUniqueId.LoggingHtml());
-                result = false;
-                return false;
-            }
+            GetChuckGlobalScaleResult(SelectGlobalScaleErrorDto, cancellationToken);
 
             var verifyResult = Math.Abs(SelectGlobalScaleErrorDto.ScaleErrorValue.X) < Cache.Threshold.X
                                && Math.Abs(SelectGlobalScaleErrorDto.ScaleErrorValue.Y) < Cache.Threshold.Y;
@@ -533,6 +539,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
             Logger.LogHtmlInformation($"Verify {(verifyResult ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
+                Cache.Threshold,
                 VerifyAppliedScaleXY = SelectGlobalScaleErrorDto.AppliedScaleXY,
                 VerifyResultScaleXY = SelectGlobalScaleErrorDto.ResultScaleXY,
                 VerifyScaleXYUmErrorResult = SelectGlobalScaleErrorDto.ScaleErrorValue
@@ -540,13 +547,12 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
             Guard.IsTrue(Save(ReviewDto, cancellationToken));
 
-            result = ReviewDto.IsVerified;
+            var result = ReviewDto.IsVerified;
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            context.Defer(() => DialogWindowProvider.ShowDialog($"Verify {(result ? "Success" : "Failed")}!", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning));
 
             return result;
-        });
-        return result;
+        }, ControllerGuardMode.RestoreOnFailure);
     }
 
     private bool Save(ChuckGlobalScaleErrorDto dto, CancellationToken cancellationToken) => InvokeSave(update =>
@@ -583,100 +589,84 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
 
     #region 算法
 
-    private bool GetChuckGlobalScaleResult(ChuckGlobalScaleErrorDto chuckGlobalScaleErrorDto, CancellationToken cancellationToken)
+    private void GetChuckGlobalScaleResult(ChuckGlobalScaleErrorDto chuckGlobalScaleErrorDto, CancellationToken cancellationToken)
     {
-        try
+        StageViewModel.SetXYGlobalScale(chuckGlobalScaleErrorDto.AppliedScaleXY.X, chuckGlobalScaleErrorDto.AppliedScaleXY.Y, HtmlLogUniqueId);
+        foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
         {
-            StageViewModel.SetXYGlobalScale(chuckGlobalScaleErrorDto.AppliedScaleXY.X, chuckGlobalScaleErrorDto.AppliedScaleXY.Y);
-            foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            chuckGlobalScaleErrorDto.SiteDirection = siteDirectionTypeEnum;
+            MatchTemplate();
+        }
+
+        #region Scale
+
+        GetAverageScaleResult();
+
+        if (_hostEnvironment.IsProduction()) // 防止下发异常值
+        {
+            Guard.IsBetween(chuckGlobalScaleErrorDto.ResultScaleXY.X, 0, 2, $"Result scale {chuckGlobalScaleErrorDto.ResultScaleXY.X} is illegal!");
+            Guard.IsBetween(chuckGlobalScaleErrorDto.ResultScaleXY.Y, 0, 2, $"Result scale {chuckGlobalScaleErrorDto.ResultScaleXY.Y} is illegal!");
+        }
+
+        #endregion Scale
+
+        Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        {
+            TopHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.TopPosition,
+            BottomHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.BottomPosition,
+            LeftHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.LeftPosition,
+            RightHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.RightPosition,
+            chuckGlobalScaleErrorDto.AppliedScaleXY,
+            chuckGlobalScaleErrorDto.ResultScaleXY,
+            chuckGlobalScaleErrorDto.ScaleErrorValue,
+            HighSiteMatchResultTab = new HtmlTab(new
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                TopHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                BottomHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                LeftHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                RightHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+            })
+        }), HtmlLogUniqueId.LoggingHtml());
 
-                chuckGlobalScaleErrorDto.SiteDirection = siteDirectionTypeEnum;
-                if (MatchTemplate() == false) return false;
-            }
-
-            #region Scale
-
-            if (GetAverageScaleResult() == false) return false;
-
-            if (hostEnvironment.IsProduction() &&
-                (chuckGlobalScaleErrorDto.ResultScaleXY.X == 0
-                 || chuckGlobalScaleErrorDto.ResultScaleXY.X >= 2
-                 || chuckGlobalScaleErrorDto.ResultScaleXY.Y == 0
-                 || chuckGlobalScaleErrorDto.ResultScaleXY.Y >= 2)) // 防止下发异常值
+        void MatchTemplate()
+        {
+            try
             {
-                DialogWindowProvider.ShowDialog("Result scale is illegal !", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
+                var stageDirection = chuckGlobalScaleErrorDto.SiteDirection;
+                var ideaLowSitePosition = chuckGlobalScaleErrorDto.GetPosition(stageDirection);
 
-            #endregion Scale
+                if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, ideaLowSitePosition, Cache.LowMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                        $"Low Magnification {stageDirection} Site", out var lowSnapshot, out var lowResultPosition, out _) == false)
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
 
-            Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-            {
-                TopHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.TopPosition,
-                BottomHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.BottomPosition,
-                LeftHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.LeftPosition,
-                RightHighSiteFindPosition = chuckGlobalScaleErrorDto.HighSiteMatchResult.RightPosition,
-                chuckGlobalScaleErrorDto.AppliedScaleXY,
-                chuckGlobalScaleErrorDto.ResultScaleXY,
-                chuckGlobalScaleErrorDto.ScaleErrorValue,
-                HighSiteMatchResultTab = new HtmlTab(new
+                if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                        $"High Magnification {stageDirection} Site", out var highSnapshot, out var highResultPosition, out _) == false)
+                    ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
+
+                chuckGlobalScaleErrorDto.SetMatchResultInfo(highResultPosition, highSnapshot.ResultImageFilePath);
+
+                Logger.LogHtmlInformation($"{stageDirection} site Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
-                    TopHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    BottomHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    LeftHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckGlobalScaleErrorDto.HighSiteMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Result Failed", Name);
-            return false;
-        }
-
-        bool MatchTemplate()
-        {
-            var stageDirection = chuckGlobalScaleErrorDto.SiteDirection;
-            var ideaLowSitePosition = chuckGlobalScaleErrorDto.GetPosition(stageDirection);
-
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, ideaLowSitePosition, Cache.LowMicroscopeLensInformation, ImageFileDirectory,
-                    HtmlLogUniqueId, Name,
-                    $"Low Magnification {stageDirection} Site", out var lowSnapshot, out var lowResultPosition, out _) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
+                    ideaLowSitePosition,
+                    FindLowSiteResultPosition = lowResultPosition,
+                    FindHighSiteResultPosition = highResultPosition,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        LowMatchImage = new HtmlImage(lowSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        HighMatchImage = new HtmlImage(highSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
+                }), HtmlLogUniqueId.LoggingHtml());
             }
-
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, ImageFileDirectory,
-                    HtmlLogUniqueId, Name,
-                    $"High Magnification {stageDirection} Site", out var highSnapshot, out var highResultPosition, out _) == false)
+            catch
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Match Template Failed!"), HtmlLogUniqueId.LoggingHtml());
+                throw;
             }
-
-            chuckGlobalScaleErrorDto.SetMatchResultInfo(highResultPosition, highSnapshot.ResultImageFilePath);
-
-            Logger.LogHtmlInformation($"{stageDirection} site Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                ideaLowSitePosition,
-                FindLowSiteResultPosition = lowResultPosition,
-                FindHighSiteResultPosition = highResultPosition,
-                HtmlTab = new HtmlTab(new
-                {
-                    LowMatchImage = new HtmlImage(lowSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighMatchImage = new HtmlImage(highSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
         }
 
-        bool GetAverageScaleResult()
+        void GetAverageScaleResult()
         {
             try
             {
@@ -692,7 +682,7 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                     Math.Abs(Cache.WaferRadius * 2 * (1 - resultScaleY))
                 );
 
-                chuckGlobalScaleErrorDto.ResultScaleXY = new System.Windows.Point(resultScaleX, resultScaleY);
+                chuckGlobalScaleErrorDto.ResultScaleXY = new Point(resultScaleX, resultScaleY);
 
                 Logger.LogHtmlInformation("XY Scale Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
@@ -700,13 +690,11 @@ public sealed partial class ChuckGlobalScaleErrorCalibrationViewModel(IHostEnvir
                     chuckGlobalScaleErrorDto.ResultScaleXY,
                     chuckGlobalScaleErrorDto.ScaleErrorValue
                 }), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
             }
-            catch (Exception ex)
+            catch
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Get Scale Result Failed!{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment($"Error: Get Average Scale Result Failed!"), HtmlLogUniqueId.LoggingHtml());
+                throw;
             }
         }
     }

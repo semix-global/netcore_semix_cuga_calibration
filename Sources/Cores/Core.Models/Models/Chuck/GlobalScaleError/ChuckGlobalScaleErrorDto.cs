@@ -9,7 +9,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Chuck.GlobalScaleError;
 
-[CacheVersion("1.0.0")]
+[CacheVersion("1.0.1")]
 public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDTOBase<ChuckGlobalScaleErrorDto>, IAdaptTo<CalibrationChuckGlobalScaleError>
 {
     [ObservableProperty]
@@ -25,13 +25,13 @@ public sealed partial class ChuckGlobalScaleErrorDto : CalibrationDTOBase<ChuckG
     /// 当前应用的X/Y轴比例误差系数
     /// </summary>
     [ObservableProperty]
-    public partial System.Windows.Point AppliedScaleXY { get; set; } = new(1.0, 1.0);
+    public partial Point AppliedScaleXY { get; set; } = new Point(1d, 1d);
 
     /// <summary>
     /// 应用X/Y轴比例误差系数的结果比例
     /// </summary>
     [ObservableProperty]
-    public partial System.Windows.Point ResultScaleXY { get; set; }
+    public partial Point ResultScaleXY { get; set; }
 
     /// <summary>
     /// 误差值um（x轴，Y轴）

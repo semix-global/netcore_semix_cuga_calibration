@@ -26,20 +26,6 @@
             <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                     <StackPanel>
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <hc:ComboBox x:Name="HighMagCombobox"
-                                 HorizontalAlignment="Left"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.Title="High Magnification: "
-                                 hc:TitleElement.TitleWidth="150"
-                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
-                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
-                    <StackPanel>
                         <TextBlock Text="Result: Find High Position1"
                                    HorizontalAlignment="Center"
                                    FontSize="13"

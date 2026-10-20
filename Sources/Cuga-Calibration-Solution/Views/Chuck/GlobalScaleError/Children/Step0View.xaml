@@ -47,7 +47,7 @@
                                  hc:TitleElement.TitleWidth="200"
                                  SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
-                    <tools:AlignmentUserControl DataContext="{Binding .AlignmentUserControlViewModel}" />
+                    <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
                     <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                             VerticalAlignment="Top"
                                             Spacing="10">
