@@ -389,7 +389,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         item.Reset();
@@ -408,11 +408,16 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         try
         {
-            FourierViewModel.Home(3);
+            try
+            {
+                FourierViewModel.Home(3);
 
-            Grab(0);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Grab(0);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
@@ -479,20 +484,20 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    item.Step0FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    item.Step1FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
@@ -544,36 +549,44 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         try
         {
-            foreach (var item in items)
+            try
             {
-                item.ResetCIB();
+                foreach (var item in items) item.ResetCIB();
 
-                FourierViewModel.Home(3);
-            }
-
-            await GrabAsync(0);
-
-            foreach (var item in items)
-            {
-                if (item.YRodROI.IsSelected)
+                foreach (var item in items)
                 {
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.YRodROI.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodROI.MotorAbsoluteValue);
+                    FourierViewModel.Home(3);
                 }
 
-                Guard.IsTrue(item.XPushROI.IsSelected);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.XPushROI.MotorAbsoluteValue);
+                await GrabAsync(0);
+
+                foreach (var item in items)
+                {
+                    if (item.YRodROI.IsSelected)
+                    {
+                        FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.YRodROI.AngleMotorAbsoluteValue);
+                        FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodROI.MotorAbsoluteValue);
+                    }
+
+                    Guard.IsTrue(item.XPushROI.IsSelected);
+                    FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.XPushROI.MotorAbsoluteValue);
+                }
+
+                await GrabAsync(1);
+
+                foreach (var item in items)
+                {
+                    Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
+
+                    item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
+                }
             }
-
-            await GrabAsync(1);
-
-            foreach (var item in items)
+            finally
             {
-                Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
-
-                item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
-
-                Logger.LogHtmlInformation("Channel3 Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                foreach (var item in items)
+                {
+                    Logger.LogHtmlInformation("Channel3 Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             return;

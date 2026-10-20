@@ -422,7 +422,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         Guard.IsBetweenOrEqualTo(item.AngleMotorAbsoluteValue, item.DefaultAngleMotorAbsoluteValue - 10d, item.DefaultAngleMotorAbsoluteValue + 10d);
@@ -446,13 +446,18 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
         try
         {
-            SetRods(item.Step0MotorAbsoluteValue);
-            Grab(0);
+            try
+            {
+                SetRods(item.Step0MotorAbsoluteValue);
+                Grab(0);
 
-            SetRods(item.Step1MotorAbsoluteValue);
-            Grab(1);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                SetRods(item.Step1MotorAbsoluteValue);
+                Grab(1);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
@@ -543,20 +548,20 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    item.Step0ChannelImageFilePath = roiChannelImageFilePath;
+                    item.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    item.Step1ChannelImageFilePath = roiChannelImageFilePath;
+                    item.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 

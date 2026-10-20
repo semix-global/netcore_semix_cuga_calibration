@@ -407,7 +407,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
         Guard.IsEqualTo(flexibleApertureItem.RodResults.Length, item.Rods.Length);
 
@@ -427,11 +427,16 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         try
         {
-            FourierViewModel.Home(item.ChannelId);
+            try
+            {
+                FourierViewModel.Home(item.ChannelId);
 
-            Grab(0);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Grab(0);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
@@ -489,20 +494,20 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    item.Step0FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    item.Step1FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
@@ -554,31 +559,39 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
         try
         {
-            foreach (var item in items)
+            try
             {
-                item.ResetCIB();
+                foreach (var item in items) item.ResetCIB();
 
-                FourierViewModel.Home(item.ChannelId);
+                foreach (var item in items)
+                {
+                    FourierViewModel.Home(item.ChannelId);
+                }
+
+                await GrabAsync(0);
+
+                foreach (var item in items)
+                {
+                    FourierViewModel.SetRods(
+                        item.ChannelId,
+                        [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
+                }
+
+                await GrabAsync(1);
+
+                foreach (var item in items)
+                {
+                    Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
+
+                    item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
+                }
             }
-
-            await GrabAsync(0);
-
-            foreach (var item in items)
+            finally
             {
-                FourierViewModel.SetRods(
-                    item.ChannelId,
-                    [.. item.Rods.OrderBy(t => t.Index).Select(t => t.MotorAbsoluteValue)]);
-            }
-
-            await GrabAsync(1);
-
-            foreach (var item in items)
-            {
-                Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
-
-                item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
-
-                Logger.LogHtmlInformation($"Channel{item.ChannelId} Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                foreach (var item in items)
+                {
+                    Logger.LogHtmlInformation($"Channel{item.ChannelId} Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             return;

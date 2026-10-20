@@ -84,8 +84,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
             using var scope = new AssertionScope(expected.Path);
 
             actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
-            actual.ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ChannelImageFilePath)));
-            actual.ROIChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIChannelImageFilePath)));
+            actual.FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.FourierImageFilePath)));
+            actual.ROIFourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIFourierImageFilePath)));
 
             var expectedROI = expected[nameof(actual.ROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
             AssertRectMatchesJson(actual.ROI.ImageROI, expectedROI[nameof(actual.ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
@@ -186,8 +186,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
 
             foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item, dto.Channel3Item })
             {
-                channel.ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Channel_{random.Next(0, 99)}.jpg";
-                channel.ROIChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\ROI_{random.Next(0, 99)}.jpg";
+                channel.FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Channel_{random.Next(0, 99)}.jpg";
+                channel.ROIFourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\ROI_{random.Next(0, 99)}.jpg";
                 channel.ROI.ImageROI = random.Next(6) switch
                 {
                     0 => Rect.Empty,
@@ -230,8 +230,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         static void AssertChannelEquals(FourierPupilCameraAlignmentDTOItem actual, FourierPupilCameraAlignmentDTOItem expected)
         {
             actual.ChannelId.Should().Be(expected.ChannelId);
-            actual.ChannelImageFilePath.Should().Be(expected.ChannelImageFilePath);
-            actual.ROIChannelImageFilePath.Should().Be(expected.ROIChannelImageFilePath);
+            actual.FourierImageFilePath.Should().Be(expected.FourierImageFilePath);
+            actual.ROIFourierImageFilePath.Should().Be(expected.ROIFourierImageFilePath);
             actual.ROI.ImageROI.Should().Be(expected.ROI.ImageROI);
         }
     }

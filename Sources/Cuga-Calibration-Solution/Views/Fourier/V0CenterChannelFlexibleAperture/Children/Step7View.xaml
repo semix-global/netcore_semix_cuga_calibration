@@ -67,6 +67,20 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.XPushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.XPushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Step 1 Rect(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.XPushItem.PixelSize, Mode=OneWay}"
                                  hc:TitleElement.Title="Pixel Size(mm/px): "
                                  hc:TitleElement.TitlePlacement="Left"

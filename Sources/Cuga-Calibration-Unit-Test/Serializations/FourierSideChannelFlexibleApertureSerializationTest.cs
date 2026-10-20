@@ -91,7 +91,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
 
             ObjectHelper.GetFieldValue(actual, "_rodTotalCount").Should().Be(expected.Value<int>("_rodTotalCount"));
             actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
-            actual.ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ChannelImageFilePath)));
+            actual.FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.FourierImageFilePath)));
             actual.MinMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MinMotorAbsoluteValue)));
             actual.MaxMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MaxMotorAbsoluteValue)));
 
@@ -108,9 +108,9 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             ObjectHelper.GetFieldValue(actual, "_isEven").Should().Be(expected.Value<bool>("_isEven"));
             actual.Step0AndStep1MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step0AndStep1MotorAbsoluteValue)));
             actual.Step2MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step2MotorAbsoluteValue)));
-            actual.Step0ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0ChannelImageFilePath)));
-            actual.Step1ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1ChannelImageFilePath)));
-            actual.Step2ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step2ChannelImageFilePath)));
+            actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+            actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+            actual.Step2FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step2FourierImageFilePath)));
 
             AssertRodMatchesJson(actual.Step0LeftRod, expected[nameof(actual.Step0LeftRod)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertRodMatchesJson(actual.Step0RightRod, expected[nameof(actual.Step0RightRod)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
@@ -136,10 +136,10 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
                 using var rodScope = new AssertionScope(token.Path);
 
                 AssertRodMatchesJson(rod, token);
-                rod.PixelSize.Should().Be(token.Value<double>(nameof(rod.PixelSize)));
 
                 AssertRectMatchesJson(rod.MinImageROI, token[nameof(rod.MinImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
                 AssertRectMatchesJson(rod.MaxImageROI, token[nameof(rod.MaxImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+                rod.PixelSize.Should().Be(token.Value<double>(nameof(rod.PixelSize)));
             }
         }
 
@@ -259,9 +259,9 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
                 {
                     item.Step0AndStep1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                     item.Step2MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
-                    item.Step0ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
-                    item.Step1ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
-                    item.Step2ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
+                    item.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
+                    item.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
+                    item.Step2FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}_{random.Next(0, 99)}.jpg";
 
                     foreach (var rod in new[] { item.Step0LeftRod, item.Step0RightRod }.Concat(item.Step1Rods).Concat(item.Step2Rods))
                     {
@@ -274,9 +274,9 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
                 {
                     rod.IsDeleted = random.Next(2) == 1;
                     rod.ImageROI = CreateRandomRect(random);
-                    rod.PixelSize = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                     rod.MinImageROI = CreateRandomRect(random);
                     rod.MaxImageROI = CreateRandomRect(random);
+                    rod.PixelSize = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                 }
             }
 
@@ -322,7 +322,7 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
         {
             ObjectHelper.GetFieldValue(actual, "_rodTotalCount").Should().Be(ObjectHelper.GetFieldValue(expected, "_rodTotalCount"));
             actual.ChannelId.Should().Be(expected.ChannelId);
-            actual.ChannelImageFilePath.Should().Be(expected.ChannelImageFilePath);
+            actual.FourierImageFilePath.Should().Be(expected.FourierImageFilePath);
             actual.MinMotorAbsoluteValue.Should().Be(expected.MinMotorAbsoluteValue);
             actual.MaxMotorAbsoluteValue.Should().Be(expected.MaxMotorAbsoluteValue);
 
@@ -337,9 +337,9 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
                 rod.Index.Should().Be(source.Index);
                 rod.IsDeleted.Should().Be(source.IsDeleted);
                 rod.ImageROI.Should().Be(source.ImageROI);
-                rod.PixelSize.Should().Be(source.PixelSize);
                 rod.MinImageROI.Should().Be(source.MinImageROI);
                 rod.MaxImageROI.Should().Be(source.MaxImageROI);
+                rod.PixelSize.Should().Be(source.PixelSize);
             }
         }
 
@@ -349,9 +349,9 @@ public sealed class FourierSideChannelFlexibleApertureSerializationTest(HostFixt
             ObjectHelper.GetFieldValue(actual, "_isEven").Should().Be(ObjectHelper.GetFieldValue(expected, "_isEven"));
             actual.Step0AndStep1MotorAbsoluteValue.Should().Be(expected.Step0AndStep1MotorAbsoluteValue);
             actual.Step2MotorAbsoluteValue.Should().Be(expected.Step2MotorAbsoluteValue);
-            actual.Step0ChannelImageFilePath.Should().Be(expected.Step0ChannelImageFilePath);
-            actual.Step1ChannelImageFilePath.Should().Be(expected.Step1ChannelImageFilePath);
-            actual.Step2ChannelImageFilePath.Should().Be(expected.Step2ChannelImageFilePath);
+            actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+            actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+            actual.Step2FourierImageFilePath.Should().Be(expected.Step2FourierImageFilePath);
 
             AssertRodEquals(actual.Step0LeftRod, expected.Step0LeftRod);
             AssertRodEquals(actual.Step0RightRod, expected.Step0RightRod);

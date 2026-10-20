@@ -1,0 +1,88 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+                    xmlns:sideChannelFlexibleAperture="clr-namespace:Core.Models.Models.Fourier.SideChannelFlexibleAperture;assembly=Core.Models"
+                    mc:Ignorable="d">
+    <Style x:Key="RodListViewItemStyle"
+           d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTO+Rod}"
+           BasedOn="{StaticResource ListViewItemBaseStyle.Small}"
+           TargetType="ListViewItem">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+            </Trigger>
+            <DataTrigger Binding="{Binding IsDeleted}" Value="True">
+                <Setter Property="Foreground" Value="{StaticResource DarkDangerBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="RodColumnHeaderStyle"
+           BasedOn="{StaticResource {x:Type GridViewColumnHeader}}"
+           TargetType="{x:Type GridViewColumnHeader}">
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <DataTemplate x:Key="RodListTemplate">
+        <ListView d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTO+Rod,
+                                                   CreateList=True}"
+                  Style="{StaticResource ListView.Small}"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ItemsSource="{Binding Mode=OneWay}"
+                  ItemContainerStyle="{StaticResource RodListViewItemStyle}">
+            <i:Interaction.Behaviors>
+                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+            </i:Interaction.Behaviors>
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource RodColumnHeaderStyle}">
+                    <GridViewColumn Width="50"
+                                    Header="Rod"
+                                    DisplayMemberBinding="{Binding Index, Converter={StaticResource OrdinalIndexConverter}}" />
+                    <GridViewColumn Width="70"
+                                    Header="Deleted"
+                                    DisplayMemberBinding="{Binding IsDeleted}" />
+                    <GridViewColumn Width="360"
+                                    Header="ROI(px)"
+                                    DisplayMemberBinding="{Binding ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DataTemplate>
+    <DataTemplate x:Key="RodResultListTemplate">
+        <ListView d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTO+RodResult,
+                                                   CreateList=True}"
+                  Style="{StaticResource ListView.Small}"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  ItemsSource="{Binding Mode=OneWay}"
+                  ItemContainerStyle="{StaticResource RodListViewItemStyle}">
+            <i:Interaction.Behaviors>
+                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+            </i:Interaction.Behaviors>
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource RodColumnHeaderStyle}">
+                    <GridViewColumn Width="50"
+                                    Header="Rod"
+                                    DisplayMemberBinding="{Binding Index, Converter={StaticResource OrdinalIndexConverter}}" />
+                    <GridViewColumn Width="70"
+                                    Header="Deleted"
+                                    DisplayMemberBinding="{Binding IsDeleted}" />
+                    <GridViewColumn Width="360"
+                                    Header="Min ROI(px)"
+                                    DisplayMemberBinding="{Binding MinImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                    <GridViewColumn Width="360"
+                                    Header="Max ROI(px)"
+                                    DisplayMemberBinding="{Binding MaxImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                    <GridViewColumn Width="130"
+                                    Header="Pixel Size"
+                                    DisplayMemberBinding="{Binding PixelSize, StringFormat='0.###'}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DataTemplate>
+</ResourceDictionary>

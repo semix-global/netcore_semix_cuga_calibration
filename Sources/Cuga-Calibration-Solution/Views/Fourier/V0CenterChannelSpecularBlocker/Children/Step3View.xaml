@@ -93,8 +93,22 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Y Rod ROI(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.MotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="X Push Position(mm): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="X Push ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"

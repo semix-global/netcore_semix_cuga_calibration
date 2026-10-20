@@ -298,30 +298,34 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
         try
         {
-            FourierViewModel.Home(item.ChannelId);
-
-            if (HostEnvironment.IsDevelopment())
+            try
             {
-                FourierViewModel.UseSimulatorImage(Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    @"Assets\Data\Fourier",
-                    nameof(FourierPupilCameraAlignmentViewModel),
-                    $"Channel{item.ChannelId}.jpg"));
+                FourierViewModel.Home(item.ChannelId);
+
+                if (HostEnvironment.IsDevelopment())
+                {
+                    FourierViewModel.UseSimulatorImage(Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory,
+                        @"Assets\Data\Fourier",
+                        nameof(FourierPupilCameraAlignmentViewModel),
+                        $"Channel{item.ChannelId}.jpg"));
+                }
+
+                using var bitmapImage = FourierViewModel.GetImage(
+                    Cache.ProductivityInformation,
+                    Cache.LaserLightInformation,
+                    hazeBFPosition,
+                    Cache.ScanLength,
+                    item.ChannelId);
+                var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
+                bitmapImage.SaveImage(imageFilePath);
+                item.FourierImageFilePath = imageFilePath;
             }
-
-            using var bitmapImage = FourierViewModel.GetImage(
-                Cache.ProductivityInformation,
-                Cache.LaserLightInformation,
-                hazeBFPosition,
-                Cache.ScanLength,
-                item.ChannelId,
-                true);
-            var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
-            bitmapImage.SaveImage(imageFilePath);
-            item.ChannelImageFilePath = imageFilePath;
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try

@@ -20,11 +20,11 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
     public FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; private init; }
 
-    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath)
+    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1FourierImageFilePath, string channel2FourierImageFilePath)
     {
         _rodTotalCount = rodTotalCount;
-        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 1, channel1ImageFilePath);
-        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 2, channel2ImageFilePath);
+        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 1, channel1FourierImageFilePath);
+        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 2, channel2FourierImageFilePath);
     }
 
     public FourierSideChannelFlexibleApertureDTO() : this(DefaultRodTotalCount, string.Empty, string.Empty)
@@ -47,7 +47,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
 #pragma warning disable IDISP003
 
-    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, Channel1Item.ChannelImageFilePath, Channel2Item.ChannelImageFilePath)
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, Channel1Item.FourierImageFilePath, Channel2Item.FourierImageFilePath)
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),

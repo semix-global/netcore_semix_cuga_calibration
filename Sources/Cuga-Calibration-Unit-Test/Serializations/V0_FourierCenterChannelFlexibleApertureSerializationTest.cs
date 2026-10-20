@@ -102,8 +102,8 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
             actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
             actual.Step0MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step0MotorAbsoluteValue)));
             actual.Step1MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step1MotorAbsoluteValue)));
-            actual.Step0ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0ChannelImageFilePath)));
-            actual.Step1ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1ChannelImageFilePath)));
+            actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+            actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
             actual.PixelSize.Should().Be(expected.Value<double>(nameof(actual.PixelSize)));
 
             AssertRectMatchesJson(actual.Step0ROI.ImageROI, expected[nameof(actual.Step0ROI)]![nameof(actual.Step0ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
@@ -210,8 +210,8 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
                 item.AngleMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                 item.Step0MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
                 item.Step1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
-                item.Step0ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
-                item.Step1ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
+                item.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
+                item.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
                 item.Step0ROI.ImageROI = CreateRandomRect(random);
                 item.Step1ROI.ImageROI = CreateRandomRect(random);
                 ObjectHelper.SetPropertyValue(item, nameof(V0FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3));
@@ -267,8 +267,8 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
             actual.AngleMotorAbsoluteValue.Should().Be(expected.AngleMotorAbsoluteValue);
             actual.Step0MotorAbsoluteValue.Should().Be(expected.Step0MotorAbsoluteValue);
             actual.Step1MotorAbsoluteValue.Should().Be(expected.Step1MotorAbsoluteValue);
-            actual.Step0ChannelImageFilePath.Should().Be(expected.Step0ChannelImageFilePath);
-            actual.Step1ChannelImageFilePath.Should().Be(expected.Step1ChannelImageFilePath);
+            actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+            actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
             actual.PixelSize.Should().Be(expected.PixelSize);
             actual.Step0ROI.ImageROI.Should().Be(expected.Step0ROI.ImageROI);
             actual.Step1ROI.ImageROI.Should().Be(expected.Step1ROI.ImageROI);
