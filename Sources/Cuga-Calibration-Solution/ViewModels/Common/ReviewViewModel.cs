@@ -127,7 +127,7 @@ public sealed partial class ReviewViewModel(
         var size = new Size(image.Width, image.Height);
         if (new Rect(Point.Origin, size).Contains(rect) == false)
         {
-            logger.LogError("{@Name}: Out of Image Area", nameof(ReviewViewModel));
+            logger.LogError("{Name}: Out of Image Area", nameof(ReviewViewModel));
             return false;
         }
 
@@ -151,7 +151,12 @@ public sealed partial class ReviewViewModel(
         var size = new Size(image.Width, image.Height);
         if (new Rect(Point.Origin, size).Contains(param.Roi) == false)
         {
-            logger.LogError("{@Name}: Out of Image Area", nameof(ReviewViewModel));
+            logger.LogHtmlError("Generate Template Failed", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                ErrorMessage = "Out of Image Area",
+                param.Roi
+            }), guid.LoggingHtml());
+
             return false;
         }
 
@@ -161,7 +166,11 @@ public sealed partial class ReviewViewModel(
 #pragma warning restore IDISP007
         if (generateRet.Success == false)
         {
-            logger.LogError("{@Name}: Generate Template Failed. {@ErrorMsg}", nameof(ReviewViewModel), generateRet.ErrorMsg);
+            logger.LogHtmlError("Generate Template Failed", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
+            {
+                generateRet.ErrorMsg
+            }), guid.LoggingHtml());
+
             return false;
         }
 
@@ -218,7 +227,7 @@ public sealed partial class ReviewViewModel(
         {
             if (logGuid is not null && logName is not null)
                 logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
-            else logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+            else logger.LogWarning("{Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
 
             var defaultPixelSize = GetDefaultPixelSize();
             pixelSize = new Size(defaultPixelSize.Width / microscopeLensInformation.ObjectiveMagnification, defaultPixelSize.Height / microscopeLensInformation.ObjectiveMagnification);
@@ -231,7 +240,7 @@ public sealed partial class ReviewViewModel(
         {
             if (logGuid is not null && logName is not null)
                 logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Read Template Failed!"), logGuid.Value.LoggingHtml());
-            else logger.LogError("{@Name}: Read Template Failed!", nameof(ReviewViewModel));
+            else logger.LogError("{Name}: Read Template Failed!", nameof(ReviewViewModel));
 
             return false;
         }
@@ -265,7 +274,7 @@ public sealed partial class ReviewViewModel(
                             OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     }), logGuid.Value.LoggingHtml());
-                else logger.LogError("{@Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
+                else logger.LogError("{Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
 
                 return false;
             }
@@ -311,7 +320,7 @@ public sealed partial class ReviewViewModel(
             {
                 if (logGuid is not null && logName is not null)
                     logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
-                else logger.LogError("{@Name}: Clean Template Failed", nameof(ReviewViewModel));
+                else logger.LogError("{Name}: Clean Template Failed", nameof(ReviewViewModel));
             }
         }
     }
@@ -402,7 +411,7 @@ public sealed partial class ReviewViewModel(
         {
             if (logGuid is not null && logName is not null)
                 logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
-            else logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+            else logger.LogWarning("{Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
 
             var defaultPixelSize = GetDefaultPixelSize();
             pixelSize = new Size(defaultPixelSize.Width / lens.ObjectiveMagnification, defaultPixelSize.Height / lens.ObjectiveMagnification);
@@ -491,6 +500,7 @@ public sealed partial class ReviewViewModel(
                     OriginPosition = position,
                     ResultPosition = resultPosition,
                     ResultOffset = actualOffset,
+                    TemplateMatchScoreThreshold = scoreThreshold,
                     Match = new HtmlQuote(matchResult.ToHtmlAnonymous()),
                     HtmlTab = new HtmlTab(new
                     {
@@ -546,14 +556,13 @@ public sealed partial class ReviewViewModel(
             if (File.Exists(filePath) == false)
             {
                 dialogWindowProvider.ShowDialog("The file does not exist.", DialogButtonsEnum.OK, DialogIconEnum.Error);
-                return;
             }
 
             // dialogWindowProvider.ShowImage([(filePath, "")]);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "{@Name}: Review failed", nameof(ReviewViewModel));
+            logger.LogError(ex, "{Name}: Review failed", nameof(ReviewViewModel));
         }
     }
 
@@ -571,7 +580,7 @@ public sealed partial class ReviewViewModel(
             Size pixelSize;
             if (size is null || size.IsOk == false)
             {
-                logger.LogWarning("{@Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
+                logger.LogWarning("{Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
 
                 var defaultPixelSize = GetDefaultPixelSize();
 

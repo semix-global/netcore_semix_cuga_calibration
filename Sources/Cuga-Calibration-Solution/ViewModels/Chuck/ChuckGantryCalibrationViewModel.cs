@@ -7,6 +7,8 @@ using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.Core.Services.Implements;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -25,6 +27,18 @@ namespace CugaCalibration.ViewModels.Chuck;
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase<ChuckGantryCache>
 {
+    private readonly ControllerGuard<double> _gantryGuard;
+
+    public ChuckGantryCalibrationViewModel()
+    {
+        _gantryGuard = new ControllerGuard<double>(
+            "GantryOffset",
+            () => StageViewModel.GetGantryOffset(),
+            value => StageViewModel.SetGantryOffset(value, HtmlLogUniqueId),
+            Logger,
+            message => DialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Warning));
+    }
+
     #region 属性
 
     public override string CalibrateDirectoryName => EnumHelper.ToDescriptionString(Cache.HighMicroscopeLensInformation.LensName);
@@ -85,6 +99,8 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     {
         await Task.CompletedTask.ConfigureAwait(false);
 
+        _gantryGuard.RestoreControllerIfNotClean();
+
         MicroscopePixelSizeItems = ApplicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken);
 
         Cache = ApplicationCookieService.GetCache<ChuckGantryCache>(cancellationToken);
@@ -111,6 +127,13 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
         return ReviewDto.IsCalibrated;
     }
 
+    protected override async Task<bool> CancelingAsync()
+    {
+        _gantryGuard.RestoreControllerIfNotClean();
+
+        return await base.CancelingAsync().ConfigureAwait(false);
+    }
+
     protected override async Task<bool> PreviousingAsync(CancellationToken cancellationToken)
     {
         switch (CalibrationStepIndex)
@@ -131,6 +154,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 return true;
 
             case 5:
+                _gantryGuard.WriteController();
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowBottomPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
@@ -146,7 +170,6 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
         {
             case 0:
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-                StageViewModel.SetGantryOffset(0);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.BaseLowFindPosition, CalChipSiteModelEnum.ChuckModel);
                 return true;
 
@@ -184,6 +207,8 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     {
         return InvokeCalibrateAsync(async () =>
         {
+            _gantryGuard.WriteController(0d);
+
             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
@@ -207,11 +232,12 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             if (Cache.HighMicroscopeLensInformation.LensCode <= Cache.LowMicroscopeLensInformation.LensCode)
             {
                 DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
                 return false;
             }
 
@@ -239,8 +265,14 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -260,6 +292,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                     LowBaseTemplateImage = new HtmlImage(Cache.LowBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -267,15 +300,21 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step2CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             Cache.BaseHighFindPosition = StageViewModel.GetBrightFieldStagePosition();
 
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -286,6 +325,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                     HighTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -293,11 +333,12 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step3CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                    "Teaching Low Top", out _, out var lowPosition, out _) == false) return false;
 
             Cache.LowTopPosition = lowPosition;
 
@@ -305,6 +346,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             {
                 Cache.LowTopPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -312,11 +354,12 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
     [RelayCommand(IncludeCancelCommand = true)]
     private Task Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
             var result = StageViewModel.GetBrightFieldStagePosition();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, out var lowPosition) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, result, Cache.LowMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                    "Teaching Low Bottom", out _, out var lowPosition, out _) == false) return false;
 
             Cache.LowBottomPosition = lowPosition;
 
@@ -324,114 +367,103 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             {
                 Cache.LowBottomPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
+    private Task<bool> Step5CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = false;
-        await InvokeCalibrateAsync(() =>
+        return InvokeCalibrateAsync(async () =>
         {
-            var detectImageDirectory = ImageFileDirectory;
+            _gantryGuard.WriteController();
 
-            var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            return await ControllerGuardScope.RunAsync([_gantryGuard], async _ =>
             {
-                xAxisTemperature,
-                yAxisTemperature,
-                reviewCamTemperature,
-                cibTemperature,
-                HtmlTab = new HtmlTab(new
+                var detectImageDirectory = ImageFileDirectory;
+
+                var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    LowBaseTemplateImage = new HtmlImage(Cache.LowBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighBaseTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                }),
-                ImageFileDirectory = detectImageDirectory
-            }), HtmlLogUniqueId.LoggingHtml());
+                    xAxisTemperature,
+                    yAxisTemperature,
+                    reviewCamTemperature,
+                    cibTemperature,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        LowBaseTemplateImage = new HtmlImage(Cache.LowBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        HighBaseTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    }),
+                    ImageFileDirectory = detectImageDirectory
+                }), HtmlLogUniqueId.LoggingHtml());
 
-            var chuckGantryObjDto = new ChuckGantryDto
-            {
-                FilePath1 = detectImageDirectory,
-                FilePath2 = detectImageDirectory,
-                H = CalibrationConstantsHelper.CalibrationGantryHLength
-            };
-
-            if (MatchTemplate(chuckGantryObjDto) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Match Template Failed."), HtmlLogUniqueId.LoggingHtml());
-                result = false;
-                return false;
-            }
-
-            ResultChuckGantryDto = chuckGantryObjDto.Clone();
-
-            (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
-
-            Logger.LogHtmlInformation("OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                xAxisTemperature,
-                yAxisTemperature,
-                reviewCamTemperature,
-                cibTemperature,
-                Cache.HighMicroscopeLensInformation.LensName,
-                ResultChuckGantryDto.Position1,
-                ResultChuckGantryDto.Position2,
-                Score1 = ResultChuckGantryDto.TemplateScore1,
-                Score2 = ResultChuckGantryDto.TemplateScore2,
-                Angle1 = ResultChuckGantryDto.TemplateAngle1,
-                Angle2 = ResultChuckGantryDto.TemplateAngle2,
-                ResultChuckGantryDto.Offset,
-                ResultChuckGantryDto.H,
-                HtmlTab = new HtmlTab(new
+                var chuckGantryObjDto = new ChuckGantryDto
                 {
-                    ResultImage1 = new HtmlImage(ResultChuckGantryDto.FilePath1,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    ResultImage2 = new HtmlImage(ResultChuckGantryDto.FilePath2,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-            result = true;
+                    FilePath1 = detectImageDirectory,
+                    FilePath2 = detectImageDirectory,
+                    H = CalibrationConstantsHelper.CalibrationGantryHLength
+                };
 
-            ResultChuckGantryDto.IsCalibrated = true;
-            Guard.IsTrue(Save(ResultChuckGantryDto, cancellationToken));
+                MatchTemplate(chuckGantryObjDto);
 
-            return result;
+                ResultChuckGantryDto = chuckGantryObjDto.Clone();
+
+                (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    xAxisTemperature,
+                    yAxisTemperature,
+                    reviewCamTemperature,
+                    cibTemperature,
+                    Cache.HighMicroscopeLensInformation.LensName,
+                    ResultChuckGantryDto.Position1,
+                    ResultChuckGantryDto.Position2,
+                    Score1 = ResultChuckGantryDto.TemplateScore1,
+                    Score2 = ResultChuckGantryDto.TemplateScore2,
+                    Angle1 = ResultChuckGantryDto.TemplateAngle1,
+                    Angle2 = ResultChuckGantryDto.TemplateAngle2,
+                    ResultChuckGantryDto.Offset,
+                    ResultChuckGantryDto.H,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        ResultImage1 = new HtmlImage(ResultChuckGantryDto.FilePath1, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        ResultImage2 = new HtmlImage(ResultChuckGantryDto.FilePath2, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                ResultChuckGantryDto.IsCalibrated = true;
+
+                Guard.IsTrue(Save(ResultChuckGantryDto, cancellationToken));
+
+                return true;
+            }, ControllerGuardMode.AlwaysRestore, recordCache: false);
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
         if (ReviewDto is null)
         {
-            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK,
-                DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
 
-        await InvokeVerifyAsync(async () =>
-        {
-            if (await VerifyCalibrationAsync(ReviewDto, cancellationToken) == false) result = false;
-            return result;
-        }).ConfigureAwait(false);
+        await InvokeVerifyAsync(async () => await VerifyCalibrationAsync(ReviewDto, cancellationToken)).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyCalibrationAsync(ChuckGantryDto selectReviewItemDto,
-        CancellationToken cancellationToken)
+    private Task<bool> VerifyCalibrationAsync(ChuckGantryDto selectReviewItemDto, CancellationToken cancellationToken)
     {
-        var result = true;
-        await Task.Run(async () =>
+        return ControllerGuardScope.RunAsync([_gantryGuard], async context =>
         {
             var detectImageDirectory = ImageFileDirectory;
-            var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) =
-                MonitorViewModel.GetHardwareTemperature();
+            var (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
+
             selectReviewItemDto.IsVerified = false;
 
-            StageViewModel.SetGantryOffset(selectReviewItemDto.Offset);
+            StageViewModel.SetGantryOffset(selectReviewItemDto.Offset, HtmlLogUniqueId);
 
             Logger.LogHtmlInformation("P5 Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -476,15 +508,10 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 H = CalibrationConstantsHelper.CalibrationGantryHLength
             };
 
-            if (MatchTemplate(chuckGantryObjDto) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Match Template Failed!"), HtmlLogUniqueId.LoggingHtml());
-                result = false;
-                return;
-            }
+            MatchTemplate(chuckGantryObjDto);
 
             Cache.VerifyResultOffset = chuckGantryObjDto.Offset;
-            result = Math.Abs(chuckGantryObjDto.Offset) < Cache.Threshold;
+            var result = Math.Abs(chuckGantryObjDto.Offset) < Cache.Threshold;
             (reviewCamTemperature, cibTemperature, xAxisTemperature, yAxisTemperature) = MonitorViewModel.GetHardwareTemperature();
 
             Logger.LogHtmlInformation($"Verify {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -506,10 +533,8 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 chuckGantryObjDto.H,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage1 = new HtmlImage(chuckGantryObjDto.FilePath1,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    ResultImage2 = new HtmlImage(chuckGantryObjDto.FilePath2,
-                        htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    ResultImage1 = new HtmlImage(chuckGantryObjDto.FilePath1, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    ResultImage2 = new HtmlImage(chuckGantryObjDto.FilePath2, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -517,40 +542,45 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
 
             Guard.IsTrue(Save(selectReviewItemDto, cancellationToken));
 
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({chuckGantryObjDto.Offset:f3}) Old Offset: ({selectReviewItemDto.Offset:f3})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-        }, cancellationToken);
-        return result;
+            context.Defer(() => DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({chuckGantryObjDto.Offset:f3}) Old Offset: ({selectReviewItemDto.Offset:f3})", DialogButtonsEnum.OK,
+                result ? DialogIconEnum.Information : DialogIconEnum.Warning));
+
+            return result;
+        }, ControllerGuardMode.RestoreOnFailure);
     }
 
-    private bool MatchTemplate(ChuckGantryDto chuckGantryDto)
+    private void MatchTemplate(ChuckGantryDto chuckGantryDto)
     {
-        Logger.LogHtmlInformation("Match Template", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+        try
+        {
+            Logger.LogHtmlInformation("Match Template", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowTopPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
-                "Low Magnification 1", out _, out var lowPosition1, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId,
-                Name,
-                "High Magnification 1", out var highSnapshot1, out var highPosition1, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowBottomPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
-                "Low Magnification 2", out _, out var lowPosition2, out _) == false) return false;
-        if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId,
-                Name,
-                "High Magnification 2", out var highSnapshot2, out var highPosition2, out _) == false) return false;
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowTopPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+                    "Low Magnification 1", out _, out var lowPosition1, out _) == false) ThrowHelper.ThrowArgumentException("Low Magnification 1 Match Failed!");
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition1 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath1, HtmlLogUniqueId, Name,
+                    "High Magnification 1", out var highSnapshot1, out var highPosition1, out _) == false) ThrowHelper.ThrowArgumentException("High Magnification 1 Match Failed!");
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, Cache.LowBottomPosition, Cache.LowMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+                    "Low Magnification 2", out _, out var lowPosition2, out _) == false) ThrowHelper.ThrowArgumentException("Low Magnification 2 Match Failed!");
+            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowPosition2 + (Vector)Cache.LowToHighPoint, Cache.HighMicroscopeLensInformation, chuckGantryDto.FilePath2, HtmlLogUniqueId, Name,
+                    "High Magnification 2", out var highSnapshot2, out var highPosition2, out _) == false) ThrowHelper.ThrowArgumentException("High Magnification 2 Match Failed!");
 
-        chuckGantryDto.Position1 = highPosition1;
-        chuckGantryDto.TemplateScore1 = highSnapshot1.Score;
-        chuckGantryDto.TemplateAngle1 = highSnapshot1.Angle;
-        chuckGantryDto.FilePath1 = highSnapshot1.ResultImageFilePath;
+            chuckGantryDto.Position1 = highPosition1;
+            chuckGantryDto.TemplateScore1 = highSnapshot1.Score;
+            chuckGantryDto.TemplateAngle1 = highSnapshot1.Angle;
+            chuckGantryDto.FilePath1 = highSnapshot1.ResultImageFilePath;
 
-        chuckGantryDto.Position2 = highPosition2;
-        chuckGantryDto.TemplateScore2 = highSnapshot2.Score;
-        chuckGantryDto.TemplateAngle2 = highSnapshot2.Angle;
-        chuckGantryDto.FilePath2 = highSnapshot2.ResultImageFilePath;
+            chuckGantryDto.Position2 = highPosition2;
+            chuckGantryDto.TemplateScore2 = highSnapshot2.Score;
+            chuckGantryDto.TemplateAngle2 = highSnapshot2.Angle;
+            chuckGantryDto.FilePath2 = highSnapshot2.ResultImageFilePath;
 
-        chuckGantryDto.Offset = -chuckGantryDto.H * Math.Tan(chuckGantryDto.Slope); // 由于坐标系(机械坐标系和笛卡尔坐标系相同)不同，需要取反
-
-        return true;
+            chuckGantryDto.Offset = -chuckGantryDto.H * Math.Tan(chuckGantryDto.Slope); // 由于坐标系(机械坐标系和笛卡尔坐标系相同)不同，需要取反
+        }
+        catch
+        {
+            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment("Error: Match Template Failed!"), HtmlLogUniqueId.LoggingHtml());
+            throw;
+        }
     }
 
     private bool Save(ChuckGantryDto dto, CancellationToken cancellationToken) => InvokeSave(update =>

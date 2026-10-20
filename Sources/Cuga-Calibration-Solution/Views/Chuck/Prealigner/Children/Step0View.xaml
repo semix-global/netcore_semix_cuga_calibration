@@ -34,6 +34,20 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
+                    <hc:ComboBox x:Name="LowMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Low Magnification: "
+                                 SelectedItem="{Binding Cache.LowMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
+                    <hc:ComboBox x:Name="HighMagCombobox"
+                                 HorizontalAlignment="Left"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="High Magnification: "
+                                 hc:TitleElement.TitleWidth="190"
+                                 SelectedItem="{Binding Cache.HighMicroscopeLensInformation, UpdateSourceTrigger=PropertyChanged}"
+                                 ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
                     <hc:NumericUpDown x:Name="PositionThresholdNumeric"
                                       hc:TitleElement.TitleWidth="190"
                                       hc:TitleElement.Title="Teaching Offset Threshold(um):"
