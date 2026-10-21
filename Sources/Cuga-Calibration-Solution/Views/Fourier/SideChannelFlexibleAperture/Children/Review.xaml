@@ -82,7 +82,7 @@
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabItem Header="Result">
-                            <TabControl DataContext="{Binding Review.Channel1Item, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel1Item, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -99,7 +99,7 @@
                             </TabControl>
                         </TabItem>
                         <TabItem Header="Even">
-                            <TabControl DataContext="{Binding Review.Channel1Item.EvenItem, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel1Item.EvenItem, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -141,7 +141,7 @@
                             </TabControl>
                         </TabItem>
                         <TabItem Header="Odd">
-                            <TabControl DataContext="{Binding Review.Channel1Item.OddItem, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel1Item.OddItem, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -190,7 +190,7 @@
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
                         <TabItem Header="Result">
-                            <TabControl DataContext="{Binding Review.Channel2Item, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel2Item, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -207,7 +207,7 @@
                             </TabControl>
                         </TabItem>
                         <TabItem Header="Even">
-                            <TabControl DataContext="{Binding Review.Channel2Item.EvenItem, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel2Item.EvenItem, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>
@@ -249,7 +249,7 @@
                             </TabControl>
                         </TabItem>
                         <TabItem Header="Odd">
-                            <TabControl DataContext="{Binding Review.Channel2Item.OddItem, Mode=OneWay}">
+                            <TabControl Margin="5" DataContext="{Binding Review.Channel2Item.OddItem, Mode=OneWay}">
                                 <i:Interaction.Behaviors>
                                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                                 </i:Interaction.Behaviors>

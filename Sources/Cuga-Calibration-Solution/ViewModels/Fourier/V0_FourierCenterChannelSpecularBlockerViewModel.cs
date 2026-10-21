@@ -553,10 +553,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             {
                 foreach (var item in items) item.ResetCIB();
 
-                foreach (var item in items)
-                {
-                    FourierViewModel.Home(3);
-                }
+                FourierViewModel.Home(3);
 
                 await GrabAsync(0);
 

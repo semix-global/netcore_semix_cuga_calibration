@@ -167,7 +167,7 @@
                                                     <behaviors:SelectorAutoSelectFirstBehavior />
                                                 </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
-                                                    <TabControl DataContext="{Binding Channel1Item, Mode=OneWay}">
+                                                    <TabControl Margin="5" DataContext="{Binding Channel1Item, Mode=OneWay}">
                                                         <i:Interaction.Behaviors>
                                                             <behaviors:SelectorAutoSelectFirstBehavior />
                                                         </i:Interaction.Behaviors>
@@ -198,7 +198,7 @@
                                                     <behaviors:SelectorAutoSelectFirstBehavior />
                                                 </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
-                                                    <TabControl DataContext="{Binding Channel2Item, Mode=OneWay}">
+                                                    <TabControl Margin="5" DataContext="{Binding Channel2Item, Mode=OneWay}">
                                                         <i:Interaction.Behaviors>
                                                             <behaviors:SelectorAutoSelectFirstBehavior />
                                                         </i:Interaction.Behaviors>

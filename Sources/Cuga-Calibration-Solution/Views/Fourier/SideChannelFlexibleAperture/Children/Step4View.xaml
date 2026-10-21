@@ -89,7 +89,7 @@
                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                 </i:Interaction.Behaviors>
                 <TabItem Header="Edit Even">
-                    <TabControl DataContext="{Binding CalibratingItem.Channel2Item.EvenItem, Mode=OneWay}">
+                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel2Item.EvenItem, Mode=OneWay}">
                         <i:Interaction.Behaviors>
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
