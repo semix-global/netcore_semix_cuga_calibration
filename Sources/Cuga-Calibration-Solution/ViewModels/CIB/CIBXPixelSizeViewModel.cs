@@ -495,14 +495,17 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                        tasks[index] = ResolveCIBXPixelSizeSlideItemAsync(
-                            itemItem,
-                            templateId,
-                            templateImageSize,
-                            templateMatchScoreThreshold,
-                            detectImageDirectory,
-                            semaphore,
-                            cancellationToken);
+                        tasks[index] = Task.Run(async () =>
+                        {
+                            await ResolveCIBXPixelSizeSlideItemAsync(
+                                itemItem,
+                                templateId,
+                                templateImageSize,
+                                templateMatchScoreThreshold,
+                                detectImageDirectory,
+                                semaphore,
+                                cancellationToken).ConfigureAwait(false);
+                        }, cancellationToken);
 
                         index++;
                     }
