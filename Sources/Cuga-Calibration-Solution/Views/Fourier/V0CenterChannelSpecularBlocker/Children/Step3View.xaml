@@ -46,32 +46,10 @@
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding YRodItems}"
-                                  SelectedItem="{Binding SelectedYRodItem}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text">
-                                                    <Setter.Value>
-                                                        <MultiBinding StringFormat="{}{0:0.###}° {1:0.###}px">
-                                                            <Binding Path="AngleMotorAbsoluteValue" />
-                                                            <Binding Path="Step0ROI.ImageROI" Converter="{StaticResource RectHeightConverter}" />
-                                                        </MultiBinding>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
-                                                        <Setter Property="Text" Value="None" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  ItemsSource="{Binding YRodItems, Mode=OneWay}"
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding SelectedYRodItem, Mode=TwoWay}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

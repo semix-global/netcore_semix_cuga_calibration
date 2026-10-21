@@ -57,7 +57,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     [ObservableProperty]
-    public partial V0FourierCenterChannelFlexibleApertureDTOItem?[] YRodItems { get; set; } = [];
+    public partial KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>[] YRodItems { get; set; } = [];
 
     [ObservableProperty]
     public partial V0FourierCenterChannelFlexibleApertureDTOItem? SelectedYRodItem { get; set; } = null;
@@ -104,7 +104,14 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
         FourierPupilCameraAlignment = ApplicationCookieService.GetCalibration<FourierPupilCameraAlignmentDTO>(cancellationToken);
         FourierCenterChannelFlexibleAperture = ApplicationCookieService.GetCalibration<V0FourierCenterChannelFlexibleApertureDTO>(cancellationToken);
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
-        YRodItems = [null, .. FourierCenterChannelFlexibleAperture.YRodItems];
+        YRodItems =
+        [
+            new("None", null),
+            .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t =>
+                new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>(
+                    $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px",
+                    t))
+        ];
 
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelSpecularBlockerCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<V0FourierCenterChannelSpecularBlockerDTO>(cancellationToken);

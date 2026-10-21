@@ -118,7 +118,10 @@
 ### TabControl 样式
 
 - TabControl 通过 `i:Interaction.Behaviors` 配置 `SelectorAutoSelectFirstBehavior`.
-- 每个 TabItem 的内容使用 `Border Margin="5" Style="{StaticResource BorderRegion}"` 包裹.
+- TabItem 直接包含 TabControl 时, 该 TabControl 必须显式设置 `Margin="5"`.
+- 页签中的普通页面内容使用 `Border Margin="5" Style="{StaticResource BorderRegion}"` 包裹.
+- 嵌套 TabControl 的外边距与其内部页签内容 Border 的外边距均须保留, 两层都显式设置 `Margin="5"`, 不得因其中一层已有外边距而省略另一层.
+- 以上外边距约定针对 TabItem 的内容, 不要求其他位置的 TabControl 或 Border 统一添加外边距.
 - 页签名称, 内容, 数量, 顺序和页面布局按实际需求确定.
 
 ```xml
@@ -130,6 +133,18 @@
         <Border Margin="5" Style="{StaticResource BorderRegion}">
             <Grid />
         </Border>
+    </TabItem>
+    <TabItem Header="Nested">
+        <TabControl Margin="5">
+            <i:Interaction.Behaviors>
+                <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+            </i:Interaction.Behaviors>
+            <TabItem Header="Content">
+                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                    <Grid />
+                </Border>
+            </TabItem>
+        </TabControl>
     </TabItem>
 </TabControl>
 ```
