@@ -106,11 +106,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         YRodItems =
         [
-            new("None", null),
-            .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t =>
-                new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>(
-                    $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px",
-                    t))
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
+            .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t => new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>(
+                $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px", t))
         ];
 
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelSpecularBlockerCache>(cancellationToken);
