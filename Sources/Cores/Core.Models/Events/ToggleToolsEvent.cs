@@ -5,6 +5,8 @@ namespace Core.Models.Events;
 public sealed class ToggleToolsEvent
 {
     public bool? IsToolsWindowEnable { get; set; } = false;
+
+    public bool? IsProductivityEnable { get; set; } = false;
 }
 
 public static class ToggleToolsEventFactory
@@ -13,7 +15,17 @@ public static class ToggleToolsEventFactory
     {
         return new ValueChangedMessage<ToggleToolsEvent>(new ToggleToolsEvent
         {
-            IsToolsWindowEnable = value
+            IsToolsWindowEnable = value,
+            IsProductivityEnable = null
+        });
+    }
+
+    public static ValueChangedMessage<ToggleToolsEvent> RefreshProductivityEnableStatus(bool value)
+    {
+        return new ValueChangedMessage<ToggleToolsEvent>(new ToggleToolsEvent
+        {
+            IsToolsWindowEnable = null,
+            IsProductivityEnable = value
         });
     }
 }

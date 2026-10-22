@@ -295,25 +295,27 @@ public sealed class StageViewModel(
     public AlignmentSiteDto MarkAlignSite1DarkField(
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         LaserLightInformation? laserLightInformation = null)
     {
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.MarkAlignSite1DarkField(productivityInformation, algorithmTemplateSizeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, calChipSiteModelEnum);
 
         return ret.Anything;
     }
 
     public AlignmentSiteDto MarkAlignSite2DarkField(
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site)
+        AlignmentSiteDto site,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         var ret = calibrationStageService.MarkAlignSite2DarkField(productivityInformation, site);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, calChipSiteModelEnum);
 
         return ret.Anything;
     }
@@ -325,8 +327,12 @@ public sealed class StageViewModel(
         AlignmentSiteDto darkFieldHighSite2,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         LaserLightInformation? laserLightInformation = null)
     {
+        SetAbsoluteStageTheta(0);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
@@ -340,7 +346,7 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
-        SetBrightFieldAbsoluteStageXy(result.MarkPoint2, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2, calChipSiteModelEnum);
 
         result.MarkPoint1 = DarkFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = DarkFieldToMachinePosition(result.MarkPoint2);

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Core.Models.Events;
 using Core.Models.Helper;
 using CugaCalibration.ViewModels.Common.Windows.File.Save;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
@@ -78,6 +79,13 @@ public sealed partial class MainWindowViewModel : IRecipient<PopupWindowEvent>
                     case AlignmentWindowBrightFieldViewModel alignmentWindowViewModel:
                         alignmentWindowViewModel.IsShowAlign = true;
                         _windowManagerService.ShowDialog(alignmentWindowViewModel);
+                        break;
+
+                    case AlignmentWindowDarkFieldViewModel alignmentWindowDarkFieldViewModel:
+                        alignmentWindowDarkFieldViewModel.IsShowAlign = true;
+                        _messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(true));
+                        _messenger.Send(ToggleToolsEventFactory.RefreshProductivityEnableStatus(true));
+                        _windowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel);
                         break;
 
                     case CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel:

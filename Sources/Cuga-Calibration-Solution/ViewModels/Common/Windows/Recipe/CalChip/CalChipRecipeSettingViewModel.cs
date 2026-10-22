@@ -261,6 +261,7 @@ public sealed partial class CalChipRecipeSettingViewModel : ViewModelBase, IReci
     [RelayCommand]
     private void Save()
     {
+        CalChipAlignmentViewModel.Save();
         _cacheProvider.Set(EditDTO, CancellationToken.None);
         _dialogWindowProvider.TryShowDialog("Do you want to apply this recipe? ", out DialogResultEnum dialogResultEnum, DialogButtonsEnum.YesNo, DialogIconEnum.Question);
         if (dialogResultEnum == DialogResultEnum.Yes) _recipeCookie.CalChipRecipeDTO.AdaptIn(EditDTO);

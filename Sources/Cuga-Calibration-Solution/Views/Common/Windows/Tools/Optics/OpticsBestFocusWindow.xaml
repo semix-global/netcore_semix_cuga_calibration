@@ -7,6 +7,7 @@
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
            xmlns:wpfImageViewer="clr-namespace:Net.Utilities.ImageViewer.WPF;assembly=Net.Utilities.ImageViewer.WPF"
            xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
@@ -117,6 +118,18 @@
                                                 </i:Interaction.Behaviors>
                                             </ListBox>
                                         </Grid>
+                                        <ComboBox hc:TitleElement.Title="Cal Chip: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="160"
+                                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
+                                                  SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                                  Style="{StaticResource ComboBoxExtend}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         <Expander Header="Optics Configuration"
                                                   IsExpanded="False"
                                                   ExpandDirection="Down">
@@ -333,7 +346,7 @@
                                                             <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                                                         </i:Interaction.Behaviors>
                                                     </ComboBox>
-                                                    <TextBox Text="{Binding Cache.DSWFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                                    <TextBox Text="{Binding Cache.FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                                                              hc:TitleElement.Title="Position(um): "
                                                              hc:TitleElement.TitlePlacement="Left"
                                                              hc:TitleElement.TitleWidth="160"

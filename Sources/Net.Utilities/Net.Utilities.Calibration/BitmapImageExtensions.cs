@@ -104,10 +104,9 @@ public static class BitmapImageExtensions
         }
 
         /// <summary>
-        /// TODO: algocv_sharp 提供方向 flag 后，由 flag 统一驱动方向语义。
+        /// 转为 algocv 图像，不做转置，图像方向由算法接口的 XAxis 参数决定.
         /// </summary>
-        /// <param name="isRawSource">是否 raw 链路来源：true 转置为竖图），false保持正向。</param>
-        public Image ToAlgoCVImage(bool isRawSource = false)
+        public Image ToAlgoCVImage()
         {
             Guard.IsFalse(@this.IsDisposed);
             Guard.IsFalse(@this.IsEmpty);
@@ -129,18 +128,7 @@ public static class BitmapImageExtensions
                 return ThrowHelper.ThrowNotSupportedException<Image>(Constants.ImageFileExtensionsFilter);
             }
 
-#pragma warning disable IDISP011
-            if (isRawSource == false)
-            {
-                return image;
-            }
-
-            // raw 来源：转置回竖图（列优先协议形态）。BitmapImage 已是物理正向，Transpose 后与 raw 直读竖图等构。
-            using (image)
-            {
-                return ImageProc.Transpose(image);
-            }
-#pragma warning restore IDISP011
+            return image;
         }
     }
 
