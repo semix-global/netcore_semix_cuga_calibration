@@ -253,7 +253,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
                 // 侧通道由固定顶边的高度变化标定电机位移, 限位后反算高度并同步显示.
                 var height = rodResult.MinImageROI.Height + (rod.MotorAbsoluteValue - fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue) / rodResult.PixelSize;
-                rod.ImageROI = new Rect(rod.ImageROI.Point, new Size(rod.ImageROI.Width, height));
+                rod.ImageROI = new Rect(rod.ImageROI.Point, new Size(rod.ImageROI.Width, height)).ImageCoordinateRound();
                 rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
             }
         }
