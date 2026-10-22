@@ -50,6 +50,24 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
         }
 
+        if (channelId == 3) // ch3有回零缓存, 如果回零过, 所以就直接ok, 所以需要手动移动. 但是ch1 2没有回零缓存
+        {
+            var sxExecuteRet = SetFFRPOS_CH3(FFCH.Ch3_X, 0d);
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+            sxExecuteRet = SetFFLPOS_CH3(FFCH.Ch3_X, 0d);
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+            sxExecuteRet = SetFFRPOS_CH3(FFCH.Ch3_Y, 0d);
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+            sxExecuteRet = SetFFLPOS_CH3(FFCH.Ch3_Y, 0d);
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+            sxExecuteRet = SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
+            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        }
+
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
