@@ -30,6 +30,9 @@ public sealed partial class AlignmentParamWindowDarkFieldViewModel(ApplicationCo
     [ObservableProperty]
     public partial bool IsToolsEnable { get; set; } = true;
 
+    [ObservableProperty]
+    public partial bool IsProductivityEnable { get; set; } = true;
+
     [RelayCommand]
     private void Close()
     {

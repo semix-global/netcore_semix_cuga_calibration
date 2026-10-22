@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
 
@@ -7,6 +8,9 @@ namespace Core.Models.Models.Common.Alignment;
 
 public partial class AlignmentCacheBase : ObservableCacheBase
 {
+    [ObservableProperty]
+    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
+
     /// <summary>
     /// 算法匹配类型
     /// </summary>

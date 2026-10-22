@@ -32,6 +32,7 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
     [ObservableProperty]
     public partial AlignmentCacheDarkField AlignmentCacheDarkField { get; set; } = new();
 
+    [DefaultCache]
     [RecipeCache]
     [ObservableProperty]
     public partial AlignmentCacheDarkField[] AlignmentCacheDarkFields { get; set; } = [];
@@ -86,16 +87,22 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
             try
             {
                 _messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(false));
+                _messenger.Send(ToggleToolsEventFactory.RefreshProductivityEnableStatus(false));
 
                 AlignmentResultDto alignmentResult;
                 if (IsDarkFieldAlignment)
                 {
-                    AlignmentCacheDarkFields = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
+                    AlignmentCacheDarkFields =
+                    [
+                        .. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(cancellationToken),
+                        .. _cacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(cancellationToken)
+                    ];
 
                     AlignmentCacheDarkField = AlignmentCacheDarkFields.SingleOrDefault(t =>
-                            t.ProductivityInformation == ProductivityInformation
+                            t.ProductivityInformation == ProductivityInformation && t.CalChipSiteModelEnum == CalChipSiteModelEnum
                         , new AlignmentCacheDarkField
                         {
+                            CalChipSiteModelEnum = CalChipSiteModelEnum,
                             ProductivityInformation = ProductivityInformation
                         });
 
@@ -108,9 +115,12 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
 
                         Guard.IsTrue(_windowManagerService.ShowDialog(_alignmentWindowDarkFieldViewModel) == true, nameof(_alignmentWindowDarkFieldViewModel));
 
-                        AlignmentCacheDarkFields = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-                        AlignmentCacheDarkField = AlignmentCacheDarkFields.Single(t =>
-                            t.ProductivityInformation == ProductivityInformation);
+                        AlignmentCacheDarkFields =
+                        [
+                            .. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(cancellationToken),
+                            .. _cacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(cancellationToken)
+                        ];
+                        AlignmentCacheDarkField = AlignmentCacheDarkFields.Single(t => t.ProductivityInformation == ProductivityInformation && t.CalChipSiteModelEnum == CalChipSiteModelEnum);
                     }
 
                     alignmentResult = _stageViewModel.AlignmentDarkField(
@@ -119,11 +129,12 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                         AlignmentCacheDarkField.HighSite1,
                         AlignmentCacheDarkField.HighSite2,
                         ProductivityInformation,
-                        AlignmentCacheDarkField.LowMag);
+                        AlignmentCacheDarkField.LowMag,
+                        CalChipSiteModelEnum);
                 }
                 else
                 {
-                    AlignmentCacheBrightFields = [.. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(), .. _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>()];
+                    AlignmentCacheBrightFields = [.. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken), .. _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken)];
                     AlignmentCacheBrightField = AlignmentCacheBrightFields
                         .SingleOrDefault(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum
                             , new AlignmentCacheBrightField
@@ -137,10 +148,9 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
                         _messenger.Send(PopupWindowEventFactory.EnableIsPopupWindowEnable());
 
                         _alignmentWindowBrightFieldViewModel.Cache = AlignmentCacheBrightField;
-                        Guard.IsTrue(_windowManagerService.ShowDialog(_alignmentWindowBrightFieldViewModel) == true,
-                            nameof(_alignmentWindowBrightFieldViewModel));
+                        Guard.IsTrue(_windowManagerService.ShowDialog(_alignmentWindowBrightFieldViewModel) == true, nameof(_alignmentWindowBrightFieldViewModel));
 
-                        AlignmentCacheBrightFields = [.. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(), .. _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>()];
+                        AlignmentCacheBrightFields = [.. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken), .. _cacheProvider.GetOrDefaultArray<AlignmentCacheBrightField>(cancellationToken)];
                         AlignmentCacheBrightField = AlignmentCacheBrightFields.Single(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum);
                     }
 
@@ -159,6 +169,7 @@ public sealed partial class AlignmentUserControlViewModel : ViewModelBase
             finally
             {
                 _messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(true));
+                _messenger.Send(ToggleToolsEventFactory.RefreshProductivityEnableStatus(true));
             }
         }, cancellationToken);
     }

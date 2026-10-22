@@ -15,6 +15,7 @@ public sealed partial class AlignmentCacheDarkField : AlignmentCacheBase, IClone
     public AlignmentCacheDarkField Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
+        CalChipSiteModelEnum = CalChipSiteModelEnum,
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
         LowMag = LowMag.Clone(),
         LowSizeEnum = LowSizeEnum,

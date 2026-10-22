@@ -22,7 +22,7 @@ public sealed partial class OpticsBestFocusCache : OpticsGrabbingImageCache
     public partial AlgorithmBestFocusTypeEnum AlgorithmBestFocusTypeEnum { get; set; } = AlgorithmBestFocusTypeEnum.DSW065;
 
     [ObservableProperty]
-    public partial Point DSWFindBFMachinePosition { get; set; }
+    public partial Point FindBFMachinePosition { get; set; }
 
     public OpticsBestFocusCache()
     {

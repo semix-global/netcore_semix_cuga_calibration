@@ -74,4 +74,9 @@ public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfigur
     /// 算法日志根目录路径
     /// </summary>
     public string AlgorithmLogDirectory { get; init; } = string.Empty;
+
+    /// <summary>
+    /// AlgoCv 日志等级（0=Trace, 1=Debug, 2=Info, 3=Warn, 4=Error, 5=Fatal）
+    /// </summary>
+    public int AlgorithmLogLevel { get; init; } = 2;
 }

@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
 using Core.Models.Enums.CIB;
-using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
@@ -191,7 +190,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 AlignmentResult = new HtmlQuote(alignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d), CalChipSiteModelEnum.DswModel);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition((alignmentResult.MarkPoint1 + (Vector)alignmentResult.MarkPoint2) / 2d), Cache.CalChipSiteModelEnum);
 
             Cache.AlignmentResult = alignmentResult;
 
@@ -210,12 +209,13 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         return await InvokeAsync(1, () =>
         {
             Cache.MicroscopeLensInformation = MicroscopeViewModel.GetCurrentMicroscopeLensInformation();
-            Cache.DSWFindBFMachinePosition = StageViewModel.GetMachineStagePosition();
+            Cache.FindBFMachinePosition = StageViewModel.GetMachineStagePosition();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
-                Cache.DSWFindBFMachinePosition
+                Cache.CalChipSiteModelEnum,
+                Cache.FindBFMachinePosition
             }), HtmlLogUniqueId.LoggingHtml());
 
             return Task.FromResult(true);
@@ -232,16 +232,18 @@ public sealed partial class OpticsBestFocusWindowViewModel(
             TempXs = [];
             TempYs = [];
 
-            await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
-            var dswBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.DSWFindBFMachinePosition);
-            StageViewModel.SetBrightFieldAbsoluteStageXy(dswBFPosition, CalChipSiteModelEnum.DswModel);
+            await MicroscopeViewModel.SwitchMicroscopeLensInformationNotAutoFocusAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            var bfPosition = StageViewModel.MachineToBrightFieldPosition(Cache.FindBFMachinePosition);
+            StageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition, Cache.CalChipSiteModelEnum);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 AlignmentResult = new HtmlQuote(Cache.AlignmentResult.ToHtmlAnonymous()),
+                Cache.CalChipSiteModelEnum,
                 Cache.MicroscopeLensInformation,
-                Cache.DSWFindBFMachinePosition,
-                dswBFPosition
+                Cache.FindBFMachinePosition,
+                FindBFPosition = bfPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
 #if NET
@@ -311,14 +313,14 @@ public sealed partial class OpticsBestFocusWindowViewModel(
         var newMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
 
         var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
-        var oldDSWFindBFMachinePosition = Cache.DSWFindBFMachinePosition;
-        Cache.DSWFindBFMachinePosition += offset;
+        var oldFindBFMachinePosition = Cache.FindBFMachinePosition;
+        Cache.FindBFMachinePosition += offset;
 
         Logger.LogHtmlInformation(Steps[1], HtmlHeaderLevelEnum.Header2, new HtmlBullet(new
         {
             offset,
-            oldDSWFindBFMachinePosition,
-            Cache.DSWFindBFMachinePosition
+            oldFindBFMachinePosition,
+            Cache.FindBFMachinePosition
         }), HtmlLogUniqueId.LoggingHtml());
 
         await Step2Command.ExecuteAsync(true).ConfigureAwait(false);
