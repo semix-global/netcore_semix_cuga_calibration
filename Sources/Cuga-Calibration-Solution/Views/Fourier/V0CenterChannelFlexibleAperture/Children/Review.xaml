@@ -78,13 +78,6 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <StackPanel>
-                                    <TextBlock Text="Result"
-                                               HorizontalAlignment="Center"
-                                               FontSize="13"
-                                               FontWeight="Bold"
-                                               Style="{StaticResource TextBlockDefaultSuccess}" />
-                                </StackPanel>
                                 <TextBox Text="{Binding Review.XApertureItem.AngleMotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Angle(°): "
                                          hc:TitleElement.TitlePlacement="Left"
@@ -157,13 +150,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -217,13 +203,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -277,13 +256,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -337,13 +309,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -397,13 +362,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XPushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 0 Position(mm): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -452,13 +410,6 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <StackPanel>
-                                    <TextBlock Text="Result"
-                                               HorizontalAlignment="Center"
-                                               FontSize="13"
-                                               FontWeight="Bold"
-                                               Style="{StaticResource TextBlockDefaultSuccess}" />
-                                </StackPanel>
                                 <TextBox Text="{Binding Review.YApertureItem.AngleMotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Angle(°): "
                                          hc:TitleElement.TitlePlacement="Left"
@@ -531,13 +482,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -591,13 +535,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -651,13 +588,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -711,13 +641,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"

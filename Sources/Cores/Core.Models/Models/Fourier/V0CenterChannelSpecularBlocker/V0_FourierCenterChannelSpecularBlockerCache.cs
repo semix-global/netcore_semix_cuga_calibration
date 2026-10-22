@@ -42,8 +42,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
         VerifyCIBConfiguration = VerifyCIBConfiguration.Clone(),
         VerifyImageWidth = VerifyImageWidth,
         ExtinctionRatioThreshold = ExtinctionRatioThreshold,
-        Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
+        Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         Id = Id,
         Expiration = Expiration
     };

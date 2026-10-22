@@ -57,6 +57,13 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Y Rod ROI(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.AngleMotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="Y Rod Angle(°): "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -71,8 +78,15 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
-                                 hc:TitleElement.Title="Y Rod ROI(px): "
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.IsSelected, Mode=OneWay}"
+                                 hc:TitleElement.Title="Y Rod Selected: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="X Push ROI(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
@@ -85,8 +99,8 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
-                                 hc:TitleElement.Title="X Push ROI(px): "
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.IsSelected, Mode=OneWay}"
+                                 hc:TitleElement.Title="X Push Selected: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"

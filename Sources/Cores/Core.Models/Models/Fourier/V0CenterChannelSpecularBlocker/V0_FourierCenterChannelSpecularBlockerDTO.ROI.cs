@@ -22,8 +22,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
         {
             base.AdaptIn(obj);
 
-            MotorAbsoluteValue = obj.MotorAbsoluteValue;
             AngleMotorAbsoluteValue = obj.AngleMotorAbsoluteValue;
+            MotorAbsoluteValue = obj.MotorAbsoluteValue;
             IsSelected = obj.IsSelected;
 
             return this;
@@ -33,8 +33,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
         {
             base.Reset();
 
-            MotorAbsoluteValue = 0d;
             AngleMotorAbsoluteValue = 0d;
+            MotorAbsoluteValue = 0d;
             IsSelected = false;
         }
     }

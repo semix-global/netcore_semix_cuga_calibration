@@ -535,12 +535,12 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             Cache.VerifyLaserLightInformation,
             VerifyCIBConfiguration = new HtmlQuote(Cache.VerifyCIBConfiguration.ToHtmlAnonymous()),
             Cache.VerifyImageWidth,
+            Cache.ExtinctionRatioThreshold,
             Cache.Item.MicroscopeLensInformation,
             Cache.Item.LaserLightInformation,
             OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
-            Cache.ExtinctionRatioThreshold,
             CIBInformations = new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
 
