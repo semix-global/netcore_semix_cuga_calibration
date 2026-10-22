@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
@@ -91,13 +90,13 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelFlexibleApertureCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<V0FourierCenterChannelFlexibleApertureDTO>(cancellationToken);
 
-        var config = FourierViewModel.GetFourierConfig();
-        Cache.XMinMotorAbsoluteValue = config.CH3_X_LPOSMin;
-        Cache.XMaxMotorAbsoluteValue = config.CH3_X_LPOSMax;
-        Cache.PushMinMotorAbsoluteValue = config.CH3_X_PPOSMin;
-        Cache.PushMaxMotorAbsoluteValue = config.CH3_X_PPOSMax;
-        Cache.YMinMotorAbsoluteValue = config.CH3_Y_LPOSMin;
-        Cache.YMaxMotorAbsoluteValue = config.CH3_Y_LPOSMax;
+        var configuration = FourierViewModel.GetMotorConfiguration();
+        Cache.XMinMotorAbsoluteValue = configuration.CenterXMinMotorAbsoluteValue;
+        Cache.XMaxMotorAbsoluteValue = configuration.CenterXMaxMotorAbsoluteValue;
+        Cache.PushMinMotorAbsoluteValue = configuration.CenterPushMinMotorAbsoluteValue;
+        Cache.PushMaxMotorAbsoluteValue = configuration.CenterPushMaxMotorAbsoluteValue;
+        Cache.YMinMotorAbsoluteValue = configuration.CenterYMinMotorAbsoluteValue;
+        Cache.YMaxMotorAbsoluteValue = configuration.CenterYMaxMotorAbsoluteValue;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -503,20 +502,18 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
             {
                 case CenterChannelMotionKindEnum.XAperture:
                 case CenterChannelMotionKindEnum.XRod:
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, item.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XPush:
-                    FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XPush(motorAbsoluteValue);
 
                     break;
 
                 case CenterChannelMotionKindEnum.YAperture:
                 case CenterChannelMotionKindEnum.YRod:
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3YTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
 
                     break;
 

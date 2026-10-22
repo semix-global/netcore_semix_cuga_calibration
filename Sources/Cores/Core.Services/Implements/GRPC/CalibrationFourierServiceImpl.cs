@@ -1,5 +1,4 @@
 using Core.Models.Helper;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using Cuga.Interface.Diagnosis;
@@ -8,7 +7,6 @@ using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
 namespace Core.Services.Implements.GRPC;
 
@@ -43,22 +41,22 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
+    public SxExecuteRet<ICalibrationFourierService.FourierMotorConfiguration> GetMotorConfiguration()
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
+    public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos)
+    public SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue)
     {
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos)
+    public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
         throw new NotImplementedException();
     }

@@ -9,8 +9,6 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
-using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
-using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
 namespace Core.Services.Implements.Mock;
 
@@ -48,22 +46,20 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 #pragma warning restore IDE0079
     }
 
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig() => SxExecuteRetHelper.CreateSuccess(new C2MFFRangeModel
-    {
-        RodNum = 46,
-        CH12MinPOS = 0,
-        CH12MaxPOS = 55,
-        CH3_X_LPOSMin = -100,
-        CH3_X_LPOSMax = 100,
-        CH3_X_PPOSMin = 0,
-        CH3_X_PPOSMax = 100,
-        CH3_Y_LPOSMin = 0,
-        CH3_Y_LPOSMax = 100
-    });
+    public SxExecuteRet<ICalibrationFourierService.FourierMotorConfiguration> GetMotorConfiguration() => SxExecuteRetHelper.CreateSuccess(new ICalibrationFourierService.FourierMotorConfiguration(
+        SideRodTotalCount: 46,
+        SideMinMotorAbsoluteValue: 0d,
+        SideMaxMotorAbsoluteValue: 55d,
+        CenterXMinMotorAbsoluteValue: -100d,
+        CenterXMaxMotorAbsoluteValue: 100d,
+        CenterPushMinMotorAbsoluteValue: 0d,
+        CenterPushMaxMotorAbsoluteValue: 100d,
+        CenterYMinMotorAbsoluteValue: 0d,
+        CenterYMaxMotorAbsoluteValue: 100d));
 
-    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
+    public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
+    public SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue) => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos) => SxExecuteRetHelper.CreateSuccess(true);
+    public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => SxExecuteRetHelper.CreateSuccess(true);
 }

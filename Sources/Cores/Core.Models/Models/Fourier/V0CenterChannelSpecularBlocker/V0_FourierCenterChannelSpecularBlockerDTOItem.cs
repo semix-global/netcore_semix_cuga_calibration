@@ -155,10 +155,10 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
     }
 
     public async Task CalibratingAsync(
-        V0FourierCenterChannelFlexibleApertureDTOItem? yRodItem,
         V0FourierCenterChannelFlexibleApertureDTOItem xPushItem,
-        (double Min, double Max) yMotorRange,
+        V0FourierCenterChannelFlexibleApertureDTOItem? yRodItem,
         (double Min, double Max) xPushMotorRange,
+        (double Min, double Max) yMotorRange,
         CancellationToken cancellationToken)
     {
         try

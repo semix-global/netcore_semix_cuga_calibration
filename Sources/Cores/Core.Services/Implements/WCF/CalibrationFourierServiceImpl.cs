@@ -11,8 +11,7 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
-using FFCH = Core.Models.Models.Common.Fourier.FFCH;
+using Semix.WcfTransfer.DTO;
 
 namespace Core.Services.Implements.WCF;
 
@@ -37,10 +36,10 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
     {
         var channels = channelId switch
         {
-            1 => [Semix.WcfTransfer.DTO.FFCH.Ch1],
-            2 => [Semix.WcfTransfer.DTO.FFCH.Ch2],
-            3 => [Semix.WcfTransfer.DTO.FFCH.Ch3_X, Semix.WcfTransfer.DTO.FFCH.Ch3_Y],
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Semix.WcfTransfer.DTO.FFCH[]>(nameof(channelId))
+            1 => [FFCH.Ch1],
+            2 => [FFCH.Ch2],
+            3 => [FFCH.Ch3_X, FFCH.Ch3_Y],
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH[]>(nameof(channelId))
         };
 
         foreach (var channel in channels)
@@ -50,21 +49,15 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
         }
 
-        if (channelId == 3) // ch3有回零缓存, 如果回零过, 所以就直接ok, 所以需要手动移动. 但是ch1 2没有回零缓存
+        if (channelId == 3) // Cuga配置规定: 通道3有回零缓存, 需要显式将转盘和推杆移动到零位
         {
-            var sxExecuteRet = SetFFRPOS_CH3(FFCH.Ch3_X, 0d);
+            var sxExecuteRet = SetChannel3XTurntable(0d, 0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
-            sxExecuteRet = SetFFLPOS_CH3(FFCH.Ch3_X, 0d);
+            sxExecuteRet = SetChannel3YTurntable(0d, 0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
-            sxExecuteRet = SetFFRPOS_CH3(FFCH.Ch3_Y, 0d);
-            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
-
-            sxExecuteRet = SetFFLPOS_CH3(FFCH.Ch3_Y, 0d);
-            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
-
-            sxExecuteRet = SetFFPPOS_CH3(FFCH.Ch3_X, 0d);
+            sxExecuteRet = SetChannel3XPush(0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
         }
 
@@ -75,9 +68,9 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
     {
         var wcfChannelId = channelId switch
         {
-            1 => Semix.WcfTransfer.DTO.FFCH.Ch1,
-            2 => Semix.WcfTransfer.DTO.FFCH.Ch2,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Semix.WcfTransfer.DTO.FFCH>(nameof(channelId))
+            1 => FFCH.Ch1,
+            2 => FFCH.Ch2,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH>(nameof(channelId))
         };
 
         var sxExecuteRet = Invoke(() => Service!.FF_Move_CH12_Pos(wcfChannelId,
@@ -100,7 +93,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         int channelId,
         bool isCustomWaveform)
     {
-        var wcfParam = new Semix.WcfTransfer.DTO.SxOpticsParam
+        var wcfParam = new SxOpticsParam
         {
             Magnification = productivityInformation.AdaptTo().Mag,
             Speed = productivityInformation.AdaptTo().Speed,
@@ -135,45 +128,47 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
 #pragma warning restore IDE0079
     }
 
-    public SxExecuteRet<C2MFFRangeModel> GetFourierConfig()
+    public SxExecuteRet<ICalibrationFourierService.FourierMotorConfiguration> GetMotorConfiguration()
     {
         var sxExecuteRet = Invoke(() => Service!.FF_GetConfig());
-        var c2MFFRangeModel = new C2MFFRangeModel();
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<C2MFFRangeModel>(sxExecuteRet.ErrorMsg, c2MFFRangeModel);
-        var dto = sxExecuteRet.Anything;
-        var model = new C2MFFRangeModel
-        {
-            CH12MaxPOS = dto.CH12MaxPOS,
-            CH12MinPOS = dto.CH12MinPOS,
-            CH3_X_LPOSMax = dto.CH3_X_LPOSMax,
-            CH3_X_LPOSMin = dto.CH3_X_LPOSMin,
-            CH3_X_PPOSMax = dto.CH3_X_PPOSMax,
-            CH3_X_PPOSMin = dto.CH3_X_PPOSMin,
-            CH3_Y_LPOSMax = dto.CH3_Y_LPOSMax,
-            CH3_Y_LPOSMin = dto.CH3_Y_LPOSMin,
-            RodNum = dto.RodNum
-        };
-        return SxExecuteRetHelper.CreateSuccess(model);
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<ICalibrationFourierService.FourierMotorConfiguration>(sxExecuteRet.ErrorMsg);
+
+        return SxExecuteRetHelper.CreateSuccess(new ICalibrationFourierService.FourierMotorConfiguration(
+            SideRodTotalCount: sxExecuteRet.Anything.RodNum,
+            SideMinMotorAbsoluteValue: sxExecuteRet.Anything.CH12MinPOS,
+            SideMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH12MaxPOS,
+            CenterXMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_LPOSMin,
+            CenterXMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_LPOSMax,
+            CenterPushMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMin,
+            CenterPushMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMax,
+            CenterYMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMin,
+            CenterYMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMax));
     }
 
-    public SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos)
+    public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_X, angleMotorAbsoluteValue, motorAbsoluteValue);
+
+    public SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3((Semix.WcfTransfer.DTO.FFCH)ch, pos));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_PPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue));
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
     }
 
-    public SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos)
-    {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3((Semix.WcfTransfer.DTO.FFCH)ch, pos));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
+    public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_Y, angleMotorAbsoluteValue, motorAbsoluteValue);
 
-    public SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos)
+    private SxExecuteRet<bool> MoveChannel3Turntable(FFCH channel, double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_PPOS_CH3((Semix.WcfTransfer.DTO.FFCH)ch, pos));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<bool>(sxExecuteRet.ErrorMsg, false);
-        return SxExecuteRetHelper.CreateSuccess(true);
+        var sxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3(channel, angleMotorAbsoluteValue));
+
+        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+
+        sxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
+
+        return sxExecuteRet.IsSuccess
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
     }
 }

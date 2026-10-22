@@ -83,12 +83,12 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Cache = ApplicationCookieService.GetCache<FourierSideChannelFlexibleApertureCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<FourierSideChannelFlexibleApertureDTO>(cancellationToken);
 
-        var config = FourierViewModel.GetFourierConfig();
-        Cache.RodTotalCount = config.RodNum;
-        Cache.MinMotorAbsoluteValue = config.CH12MinPOS;
-        Cache.MaxMotorAbsoluteValue = config.CH12MaxPOS;
-        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = config.CH12MaxPOS * 0.8;
-        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = config.CH12MaxPOS * 0.5;
+        var configuration = FourierViewModel.GetMotorConfiguration();
+        Cache.RodTotalCount = configuration.SideRodTotalCount;
+        Cache.MinMotorAbsoluteValue = configuration.SideMinMotorAbsoluteValue;
+        Cache.MaxMotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue;
+        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue * 0.8;
+        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue * 0.5;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 

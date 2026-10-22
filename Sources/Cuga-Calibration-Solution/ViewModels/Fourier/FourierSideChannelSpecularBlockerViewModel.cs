@@ -161,7 +161,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
         {
             case 0:
                 CalibratingItem.Dispose();
-                CalibratingItem = new FourierSideChannelSpecularBlockerDTO(FourierViewModel.GetFourierConfig().RodNum)
+                CalibratingItem = new FourierSideChannelSpecularBlockerDTO(FourierViewModel.GetMotorConfiguration().SideRodTotalCount)
                 {
                     ProductivityInformation = Cache.ProductivityInformation
                 };
