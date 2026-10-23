@@ -39,7 +39,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureCache : Calibr
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 20d;
+    public partial double ScanLength { get; set; } = 3d;
 
     [ObservableProperty]
     public partial Point HazeFindBFMachinePosition { get; set; }

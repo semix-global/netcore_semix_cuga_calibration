@@ -8,26 +8,26 @@ namespace Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
 [CacheVersion("2.0.0")]
 public sealed class V0FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<V0FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleAperture>, IDisposable
 {
-    public V0FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, 60d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 1d };
+    public V0FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, 60d) { Step0MotorAbsoluteValue = 10d, Step1MotorAbsoluteValue = 15d };
 
     public V0FourierCenterChannelFlexibleApertureDTOItem[] XRodItems { get; private init; } =
     [
-        new(CenterChannelMotionKindEnum.XRod, 120d) { Step0MotorAbsoluteValue = -6d, Step1MotorAbsoluteValue = -8d },
-        new(CenterChannelMotionKindEnum.XRod, 180d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d },
-        new(CenterChannelMotionKindEnum.XRod, 240d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d },
-        new(CenterChannelMotionKindEnum.XRod, 300d) { Step0MotorAbsoluteValue = -8d, Step1MotorAbsoluteValue = -10d }
+        new(CenterChannelMotionKindEnum.XRod, 120d) { Step0MotorAbsoluteValue = -2d, Step1MotorAbsoluteValue = -7d },
+        new(CenterChannelMotionKindEnum.XRod, 180d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = -5d },
+        new(CenterChannelMotionKindEnum.XRod, 240d) { Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.XRod, 300d) { Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
     ];
 
-    public V0FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0d) { Step0MotorAbsoluteValue = 42d, Step1MotorAbsoluteValue = 43d };
+    public V0FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0d) { Step0MotorAbsoluteValue = 34d, Step1MotorAbsoluteValue = 39d };
 
-    public V0FourierCenterChannelFlexibleApertureDTOItem YApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.YAperture, 60d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 1d };
+    public V0FourierCenterChannelFlexibleApertureDTOItem YApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.YAperture, 60d) { Step0MotorAbsoluteValue = 10d, Step1MotorAbsoluteValue = 15d };
 
     public V0FourierCenterChannelFlexibleApertureDTOItem[] YRodItems { get; private init; } =
     [
-        new(CenterChannelMotionKindEnum.YRod, 120d) { Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = 4d },
-        new(CenterChannelMotionKindEnum.YRod, 180d) { Step0MotorAbsoluteValue = 4d, Step1MotorAbsoluteValue = 6d },
-        new(CenterChannelMotionKindEnum.YRod, 240d) { Step0MotorAbsoluteValue = 6d, Step1MotorAbsoluteValue = 8d },
-        new(CenterChannelMotionKindEnum.YRod, 300d) { Step0MotorAbsoluteValue = 8d, Step1MotorAbsoluteValue = 10d }
+        new(CenterChannelMotionKindEnum.YRod, 120d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 5d },
+        new(CenterChannelMotionKindEnum.YRod, 180d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 5d },
+        new(CenterChannelMotionKindEnum.YRod, 240d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 5d },
+        new(CenterChannelMotionKindEnum.YRod, 300d) { Step0MotorAbsoluteValue = 0d, Step1MotorAbsoluteValue = 5d }
     ];
 
 #pragma warning disable IDISP003
