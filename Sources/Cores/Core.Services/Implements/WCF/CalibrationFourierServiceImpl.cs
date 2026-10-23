@@ -156,7 +156,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.FF_GetPACT(FFCH.Ch3_X));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if (getSxExecuteRet.Anything - motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
+        if ((int)getSxExecuteRet.Anything - (int)motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -171,14 +171,14 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.FF_GetRACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if (getSxExecuteRet.Anything - angleMotorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - angleMotorAbsoluteValue({angleMotorAbsoluteValue}) != 0", false);
+        if ((int)getSxExecuteRet.Anything - (int)angleMotorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - angleMotorAbsoluteValue({angleMotorAbsoluteValue}) != 0", false);
 
         setSxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
 
         getSxExecuteRet = Invoke(() => Service!.FF_GetLACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if (getSxExecuteRet.Anything - motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
+        if ((int)getSxExecuteRet.Anything - (int)motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
 
         return setSxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(true)
