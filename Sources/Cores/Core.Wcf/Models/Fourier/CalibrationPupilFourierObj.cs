@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace Core.Wcf.Models.Fourier;
 
 /// <summary>
-/// 傅里叶5个校准对象
+/// 傅里叶7个校准对象
 /// </summary>
 [Serializable]
 public sealed class CalibrationPupilFourierObj
@@ -37,6 +37,16 @@ public sealed class CalibrationPupilFourierObj
     /// 傅里叶校准, PupilCenterChannelSpecularBlocker对象数据
     /// </summary>
     public CalibrationPupilCenterChannelSpecularBlocker[] CalibrationPupilCenterChannelSpecularBlockerItems { get; set; } = [];
+
+    /// <summary>
+    /// 傅里叶校准, PupilCenterChannelFlexibleApertureV1对象数据
+    /// </summary>
+    public CalibrationPupilCenterChannelFlexibleApertureV1 CalibrationPupilCenterChannelFlexibleApertureV1 { get; set; } = new CalibrationPupilCenterChannelFlexibleApertureV1();
+
+    /// <summary>
+    /// 傅里叶校准, PupilCenterChannelSpecularBlockerV1对象数据
+    /// </summary>
+    public CalibrationPupilCenterChannelSpecularBlockerV1[] CalibrationPupilCenterChannelSpecularBlockerV1Items { get; set; } = [];
 }
 
 /// <summary>
@@ -290,6 +300,175 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
 /// </summary>
 [Serializable]
 public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBase
+{
+    /// <summary>
+    /// 入射方式
+    /// </summary>
+    public CgNIOIType CgNIOITypeEnum { get; set; }
+
+    /// <summary>
+    /// Mag类型
+    /// </summary>
+    public CgMagTypeEnum CgMagTypeEnum { get; set; }
+
+    /// <summary>
+    /// 速度
+    /// </summary>
+    public CgSpeedLevelType Speed { get; set; }
+
+    /// <summary>
+    /// 是否选择Y方向挡杆, **NI下才需要记录**
+    /// </summary>
+    public bool IsSelectedY { get; set; }
+
+    /// <summary>
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
+    /// </summary> 
+    public float Ch3Angle { get; set; }
+
+    /// <summary>
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
+    /// </summary> 
+    public float Ch3TurnY { get; set; }
+
+    /// <summary>
+    /// 傅里叶CH3通道反射光校准，X方向推杆位置, **OI、NI下都需要记录**
+    /// </summary> 
+    public float Ch3Push { get; set; }
+}
+
+/// <summary>
+/// 傅里叶CalibrationPupilCenterChannelFlexibleApertureV1校准下发Cuga参数
+/// </summary>
+[Serializable]
+public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : CalibrationBase
+{
+    /// <summary>
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// </summary> 
+    public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
+
+    /// <summary>
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// </summary>
+    public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X方向通光孔，记录下来每一个角度值,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
+
+    /// <summary>
+    /// X方向通光孔，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnXLightHoleCircleRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnXLightHoleCirclePositionCh3 { get; set; }
+
+    /// <summary>
+    /// X方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// </summary>
+    public CgPoint CgFFBoxTurnXLightHoleCircleCenterCh3 { get; set; }
+
+    /// <summary>
+    /// X方向通光孔，算出来的圆形半径,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// </summary>
+    public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// </summary>
+    public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向通光孔，记录下来每一个角度值,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnYLightHoleCircleAngleCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向通光孔，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnYLightHoleCircleRelationCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnYLightHoleCirclePositionCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// </summary>
+    public CgPoint CgFFBoxTurnYLightHoleCircleCenterCh3 { get; set; }
+
+    /// <summary>
+    /// Y方向通光孔，算出来的圆形半径,**需要记录**
+    /// </summary>
+    public double CgFFBoxTurnYLightHoleCircleRadiusCh3 { get; set; }
+
+    /// <summary>
+    /// X方向单独的推杆像素宽度,**需要记录**
+    /// </summary>
+    public double CgFFBoxPushXWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X方向单独的推杆每1像素宽度相当于多少毫米,**需要记录**
+    /// </summary>
+    public double CgFFBoxPushXMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X方向单独的推杆起始位置,**需要记录**
+    /// </summary>
+    public double CgFFBoxPushXMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X方向单独的推杆起始矩形区域坐标,**需要记录**
+    /// </summary>
+    public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
+}
+
+/// <summary>
+/// 傅里叶PupilCenterChannelSpecularBlockerV1校准下发Cuga参数
+/// </summary>
+[Serializable]
+public sealed class CalibrationPupilCenterChannelSpecularBlockerV1 : CalibrationBase
 {
     /// <summary>
     /// 入射方式
