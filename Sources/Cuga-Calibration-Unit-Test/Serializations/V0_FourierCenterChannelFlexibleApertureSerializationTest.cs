@@ -361,7 +361,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         }
     }
 
-    private class PrivateSetterContractResolver : DefaultContractResolver
+    private sealed class PrivateSetterContractResolver : DefaultContractResolver // V0FourierCenterChannelFlexibleApertureDTOItem.PixelSize private需要添加这个
     {
         public static readonly JsonSerializerSettings Settings = new()
         {

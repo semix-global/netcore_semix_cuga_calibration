@@ -87,8 +87,9 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Cache.RodTotalCount = configuration.SideRodTotalCount;
         Cache.MinMotorAbsoluteValue = configuration.SideMinMotorAbsoluteValue;
         Cache.MaxMotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue;
-        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue * 0.8;
-        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue * 0.5;
+        Guard.IsGreaterThan(Cache.MaxMotorAbsoluteValue, Cache.MinMotorAbsoluteValue);
+        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = Cache.MinMotorAbsoluteValue + (Cache.MaxMotorAbsoluteValue - Cache.MinMotorAbsoluteValue) * 0.8;
+        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = Cache.MinMotorAbsoluteValue + (Cache.MaxMotorAbsoluteValue - Cache.MinMotorAbsoluteValue) * 0.5;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 

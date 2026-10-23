@@ -53,14 +53,14 @@
                 <hc:Shield Subject="Laser Light: "
                            Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Haze BF Machine Position(um): "
-                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step0/Step1 Motor: "
                            Status="{Binding Cache.Step0AndStep1MotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step2 Motor: "
                            Status="{Binding Cache.Step2MotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
