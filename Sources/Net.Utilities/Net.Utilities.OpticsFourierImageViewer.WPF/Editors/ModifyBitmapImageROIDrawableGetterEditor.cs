@@ -94,8 +94,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorChanged(Point point)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         DoPrompt(point.ToString(Edit.Document.Settings.NumberFormat));
 
         if (_isCursorDown == false) return;
@@ -116,8 +114,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
 
         _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
@@ -208,8 +204,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorUpInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Released) == false) return;
 
         if (_selectionWindow is not null)
@@ -227,8 +221,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.Event.KeyEnum == KeyEnum.A && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
             CommitToHistory();
@@ -276,9 +268,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        if (eventInputArgs.Event.KeyEnum == KeyEnum.Tab)
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.H)
         {
-            // Tab 切换显示 / 隐藏 ROI 编辑说明信息
+            // H(Help) 切换显示 / 隐藏 ROI 编辑说明信息
             if (_editInformationDrawable is not null)
             {
                 if (Edit.Document.Transients.Contains(_editInformationDrawable)) Edit.Document.Transients.Remove(_editInformationDrawable);

@@ -235,7 +235,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
                 Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
-                Document.View.Zoom(1.01);
+                Document.View.Zoom(9.99);
 
                 while (true)
                 {
@@ -329,7 +329,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     false);
 
                 Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents());
-                Document.View.Zoom(1.01);
+                Document.View.Zoom(9.99);
 
                 while (true)
                 {
@@ -473,7 +473,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 }
 
                 Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
-                Document.View.Zoom(1.01);
+                Document.View.Zoom(9.99);
 
                 while (true)
                 {

@@ -39,7 +39,7 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
             ("ROI editing: Only visible and unlocked ROIs can be edited.", SubTitleTextStyle, SubTitleForegroundStyle),
             ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit.", BodyTextStyle, ShortcutForegroundStyle),
             ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo.", BodyTextStyle, ShortcutForegroundStyle),
-            ("Tab: Show / hide this help panel.", BodyTextStyle, ShortcutForegroundStyle),
+            ("H(Help): Show / hide this help panel.", BodyTextStyle, ShortcutForegroundStyle),
             ("Select ROIs(Mouse): Left-Click a ROI or drag a selection box; Ctrl + Left-Click / drag box: toggle; Ctrl + A: select all.", BodyTextStyle, BodyForegroundStyle),
             ($"Move ROIs(Mouse): {options.BitmapImageROIDragMoveTypeEnum switch
             {
