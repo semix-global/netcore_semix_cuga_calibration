@@ -500,24 +500,30 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
         void SetRods(double motorAbsoluteValue)
         {
-            FourierViewModel.Home(3);
+            FourierViewModel.Home(3, false);
 
             switch (item.CenterChannelMotionKindEnum)
             {
                 case CenterChannelMotionKindEnum.XAperture:
                 case CenterChannelMotionKindEnum.XRod:
                     FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XPush(0d);
+                    FourierViewModel.SetChannel3YTurntable(0d, 0d);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XPush:
                     FourierViewModel.SetChannel3XPush(motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
+                    FourierViewModel.SetChannel3YTurntable(0d, 0d);
 
                     break;
 
                 case CenterChannelMotionKindEnum.YAperture:
                 case CenterChannelMotionKindEnum.YRod:
                     FourierViewModel.SetChannel3YTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
+                    FourierViewModel.SetChannel3XPush(0d);
 
                     break;
 

@@ -22,9 +22,9 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void Home(int channelId)
+    public void Home(int channelId, bool isGoToZero = true)
     {
-        var ret = calibrationFourierService.Home(channelId);
+        var ret = calibrationFourierService.Home(channelId, isGoToZero);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

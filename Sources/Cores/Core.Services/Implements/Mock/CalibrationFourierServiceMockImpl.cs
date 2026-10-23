@@ -19,7 +19,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
     public SxExecuteRet<bool> Connect() => SxExecuteRetHelper.CreateSuccess(true);
 
-    public SxExecuteRet<bool> Home(int channelId) => SxExecuteRetHelper.CreateSuccess(true);
+    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero) => SxExecuteRetHelper.CreateSuccess(true);
 
     public SxExecuteRet<bool> SetRods(int channelId, double[] rodPositions) => SxExecuteRetHelper.CreateSuccess(true);
 

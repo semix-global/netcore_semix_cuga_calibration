@@ -17,7 +17,8 @@ public interface ICalibrationFourierService
     /// 通道回零
     /// </summary>
     /// <param name="channelId">1(channel 1), 2(channel 2), 3(channel 3)</param>
-    SxExecuteRet<bool> Home(int channelId);
+    /// <param name="isGoToZero">是否去零点</param>
+    SxExecuteRet<bool> Home(int channelId, bool isGoToZero = true);
 
     /// <summary>
     /// 设置通道1或2挡杆位置

@@ -32,7 +32,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         }, false);
     }
 
-    public SxExecuteRet<bool> Home(int channelId)
+    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero)
     {
         var channels = channelId switch
         {
@@ -49,7 +49,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
         }
 
-        if (channelId == 3) // Cuga配置规定: 通道3有回零缓存, 需要显式将转盘和推杆移动到零位
+        if (isGoToZero && channelId == 3) // Cuga配置规定: ch3有回零缓存, 需要显式将转盘和推杆移动到零位; ch1 2回零就会去零点, 没有缓存.
         {
             var sxExecuteRet = SetChannel3XTurntable(0d, 0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
@@ -150,25 +150,38 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
 
     public SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_PPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue));
+        var setSxExecuteRet = Invoke(() => Service!.FF_Move_PPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue));
+        if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        return sxExecuteRet.IsSuccess
-            ? SxExecuteRetHelper.CreateSuccess(true)
-            : SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        var getSxExecuteRet = Invoke(() => Service!.FF_GetPACT(FFCH.Ch3_X));
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+
+        if (getSxExecuteRet.Anything - motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_Y, angleMotorAbsoluteValue, motorAbsoluteValue);
 
     private SxExecuteRet<bool> MoveChannel3Turntable(FFCH channel, double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3(channel, angleMotorAbsoluteValue));
+        var setSxExecuteRet = Invoke(() => Service!.FF_Move_RPOS_CH3(channel, angleMotorAbsoluteValue));
+        if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+        var getSxExecuteRet = Invoke(() => Service!.FF_GetRACT(channel));
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        sxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
+        if (getSxExecuteRet.Anything - angleMotorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - angleMotorAbsoluteValue({angleMotorAbsoluteValue}) != 0", false);
 
-        return sxExecuteRet.IsSuccess
+        setSxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
+
+        getSxExecuteRet = Invoke(() => Service!.FF_GetLACT(channel));
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+
+        if (getSxExecuteRet.Anything - motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
+
+        return setSxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(true)
-            : SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+            : SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
     }
 }
