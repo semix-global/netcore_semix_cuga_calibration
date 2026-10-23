@@ -49,7 +49,7 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
     public SxExecuteRet<ICalibrationFourierService.FourierMotorConfiguration> GetMotorConfiguration() => SxExecuteRetHelper.CreateSuccess(new ICalibrationFourierService.FourierMotorConfiguration(
         SideRodTotalCount: 46,
         SideMinMotorAbsoluteValue: 0d,
-        SideMaxMotorAbsoluteValue: 55d,
+        SideMaxMotorAbsoluteValue: 54d,
         CenterXMinMotorAbsoluteValue: -21d,
         CenterXMaxMotorAbsoluteValue: 21d,
         CenterPushMinMotorAbsoluteValue: 0d,
