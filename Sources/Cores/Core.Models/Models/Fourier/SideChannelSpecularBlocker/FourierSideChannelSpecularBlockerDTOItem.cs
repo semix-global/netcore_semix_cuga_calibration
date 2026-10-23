@@ -112,13 +112,12 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Document.Reset();
 
         foreach (var rod in Rods) rod.BitmapImageROIDrawable.Text = $"{rod.Index + 1}";
+        foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
 
     private void ResetCIBDocument()
     {
         CIBDocument.Reset();
-
-        foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
 
     #region Mapper

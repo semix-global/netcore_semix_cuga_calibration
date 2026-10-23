@@ -139,6 +139,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
         YRodROI.Reset();
         XPushROI.Reset();
 
+        Document.Reset();
+
         ResetCIB();
     }
 
