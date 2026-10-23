@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Fourier.SideChannelFlexibleAperture;
@@ -304,11 +305,11 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
             if (string.IsNullOrWhiteSpace(Step0CIBImageFilePath)) return;
 
             _step0CIBBitmapImageDrawable.Point = Point.Origin;
-            _step0CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep0CIBImageFilePath);
+            _step0CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(File.Exists(RawStep0CIBImageFilePath) ? RawStep0CIBImageFilePath : Step0CIBImageFilePath);
 
             if (string.IsNullOrWhiteSpace(Step1CIBImageFilePath)) return;
 
-            _step1CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep1CIBImageFilePath);
+            _step1CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(File.Exists(RawStep1CIBImageFilePath) ? RawStep1CIBImageFilePath : Step1CIBImageFilePath);
             _step1CIBBitmapImageDrawable.Point = _step0CIBBitmapImageDrawable.Point - new Vector(0d, _step0CIBBitmapImageDrawable.BitmapImage.Height + 10d);
         }
         finally

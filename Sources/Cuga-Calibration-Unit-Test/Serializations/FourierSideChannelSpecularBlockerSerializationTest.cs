@@ -169,7 +169,7 @@ public sealed class FourierSideChannelSpecularBlockerSerializationTest(HostFixtu
     [InlineData(9, 33, false)]
     [InlineData(23, 44, true)]
     [InlineData(46, 55, false)]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int rodTotalCount, int seed, bool isUseCacheSettings)
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int rodTotalCount, int seed, bool isUseCacheSettings)
     {
         var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 

@@ -613,41 +613,51 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                     false,
                     cancellationToken);
 
-                Guard.IsEqualTo(darkFieldImages.Count, items.Length);
-
-                foreach (var item in items)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    Guard.IsEqualTo(darkFieldImages.Count, items.Length);
 
-                    using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == 3);
-
-                    var cibImageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
-                    darkFieldImage.Image.SaveImage(cibImageFilePath);
-
-                    switch (stepIndex)
+                    foreach (var item in items)
                     {
-                        case 0:
-                            item.RawStep0CIBImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step0CIBImageFilePath = cibImageFilePath;
-                            item.Step0CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                            break;
+                        using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == 3);
 
-                        case 1:
-                            item.RawStep1CIBImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step1CIBImageFilePath = cibImageFilePath;
-                            item.Step1CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                        var cibImageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
+                        darkFieldImage.Image.SaveImage(cibImageFilePath);
 
-                            break;
+                        switch (stepIndex)
+                        {
+                            case 0:
+                                item.RawStep0CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                                item.Step0CIBImageFilePath = cibImageFilePath;
+                                item.Step0CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
-                        default:
-                            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+                                break;
 
-                            break;
+                            case 1:
+                                item.RawStep1CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                                item.Step1CIBImageFilePath = cibImageFilePath;
+                                item.Step1CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+
+                                break;
+
+                            default:
+                                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+
+                                break;
+                        }
+
+                        item.ReviewCIB();
                     }
-
-                    item.ReviewCIB();
+                }
+                finally
+                {
+                    foreach (var darkFieldImage in darkFieldImages)
+                    {
+                        using var _ = darkFieldImage;
+                    }
                 }
             }
         }

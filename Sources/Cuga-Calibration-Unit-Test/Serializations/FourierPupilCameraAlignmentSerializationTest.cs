@@ -128,7 +128,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     [InlineData(33, false)]
     [InlineData(44, true)]
     [InlineData(55, false)]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
     {
         var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 

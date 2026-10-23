@@ -149,7 +149,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
     [InlineData(33, false)]
     [InlineData(44, true)]
     [InlineData(55, false)]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
     {
         var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
 
