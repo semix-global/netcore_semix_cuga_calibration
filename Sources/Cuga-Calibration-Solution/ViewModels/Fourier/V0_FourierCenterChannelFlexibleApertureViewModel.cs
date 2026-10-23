@@ -98,6 +98,10 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
         Cache.YMinMotorAbsoluteValue = configuration.CenterYMinMotorAbsoluteValue;
         Cache.YMaxMotorAbsoluteValue = configuration.CenterYMaxMotorAbsoluteValue;
 
+        Guard.IsGreaterThan(Cache.XMaxMotorAbsoluteValue, Cache.XMinMotorAbsoluteValue);
+        Guard.IsGreaterThan(Cache.PushMaxMotorAbsoluteValue, Cache.PushMinMotorAbsoluteValue);
+        Guard.IsGreaterThan(Cache.YMaxMotorAbsoluteValue, Cache.YMinMotorAbsoluteValue);
+
         UpdateEntryStatus(Calibration, cancellationToken);
 
         return true;
