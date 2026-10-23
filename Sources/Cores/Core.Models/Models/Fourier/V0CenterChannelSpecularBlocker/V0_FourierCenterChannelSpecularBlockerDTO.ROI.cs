@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
