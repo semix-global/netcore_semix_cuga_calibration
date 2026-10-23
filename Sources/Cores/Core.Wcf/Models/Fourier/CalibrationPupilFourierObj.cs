@@ -307,6 +307,11 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
     public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
+    /// 是否选择Y方向挡杆, **NI下才需要记录**
+    /// </summary>
+    public bool IsSelectedY { get; set; }
+
+    /// <summary>
     /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
     /// </summary> 
     public float Ch3Angle { get; set; }
