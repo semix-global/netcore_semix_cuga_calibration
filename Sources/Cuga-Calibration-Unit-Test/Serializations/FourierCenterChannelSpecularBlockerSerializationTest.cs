@@ -222,7 +222,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
 
             channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
-            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
+            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 360d / 11d * 5d, 360d / 11d * 6d, 360d / 11d * 7d, 360d / 11d * 10d }[random.Next(5)];
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
             channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
             channel.XPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
@@ -294,6 +294,24 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             actual.XPushROI.MotorAbsoluteValue.Should().Be(expected.XPushROI.MotorAbsoluteValue);
             actual.XPushROI.IsSelected.Should().Be(expected.XPushROI.IsSelected);
         }
+    }
+
+    [Fact]
+    public void AdaptTo_ShouldPreserveXTurntableYRodAndNormalXPush()
+    {
+        using var dto = new FourierCenterChannelSpecularBlockerDTO();
+        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = 360d / 11d * 6d;
+        dto.Channel3Item.YRodROI.MotorAbsoluteValue = -3.5;
+        dto.Channel3Item.YRodROI.IsSelected = true;
+        dto.Channel3Item.XPushROI.MotorAbsoluteValue = 42.25;
+        dto.Channel3Item.XPushROI.IsSelected = true;
+
+        var actual = dto.AdaptTo();
+
+        actual.IsSelectedY.Should().BeTrue();
+        actual.Ch3Angle.Should().Be((float)dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue);
+        actual.Ch3TurnY.Should().Be((float)dto.Channel3Item.YRodROI.MotorAbsoluteValue);
+        actual.Ch3Push.Should().Be((float)dto.Channel3Item.XPushROI.MotorAbsoluteValue);
     }
 
     [Theory]

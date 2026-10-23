@@ -344,27 +344,27 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
 public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : CalibrationBase
 {
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
-    /// </summary> 
+    /// X转盘上4个X方向挡杆的角度.
+    /// </summary>
     public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
+    /// X转盘上4个X方向挡杆的像素宽度.
     /// </summary>
     public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// X转盘上4个X方向挡杆的每像素对应的电机位移.
     /// </summary>
     public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X转盘上4个X方向挡杆的起始电机位置.
     /// </summary>
     public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// X转盘上4个X方向挡杆的矩形区域坐标.
     /// </summary>
     public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
 
@@ -394,54 +394,54 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// X转盘上4个Y方向挡杆的角度.
     /// </summary>
     public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
+    /// X转盘上4个Y方向挡杆的像素高度.
     /// </summary>
     public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// X转盘上4个Y方向挡杆的每像素对应的电机位移.
     /// </summary>
     public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X转盘上4个Y方向挡杆的起始电机位置.
     /// </summary>
     public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// X转盘上4个Y方向挡杆的矩形区域坐标.
     /// </summary>
     public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来每一个角度值,**需要记录**
+    /// X转盘校准图案的角度.
     /// </summary>
-    public double CgFFBoxTurnYLightHoleCircleAngleCh3 { get; set; }
+    public double CgFFBoxTurnXCalibrationPatternCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// X转盘校准图案的每像素对应的电机位移.
     /// </summary>
-    public double CgFFBoxTurnYLightHoleCircleRelationCh3 { get; set; }
+    public double CgFFBoxTurnXCalibrationPatternCircleRelationCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X转盘校准图案的起始电机位置.
     /// </summary>
-    public double CgFFBoxTurnYLightHoleCirclePositionCh3 { get; set; }
+    public double CgFFBoxTurnXCalibrationPatternCirclePositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// X转盘校准图案的圆心坐标.
     /// </summary>
-    public CgPoint CgFFBoxTurnYLightHoleCircleCenterCh3 { get; set; }
+    public CgPoint CgFFBoxTurnXCalibrationPatternCircleCenterCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，算出来的圆形半径,**需要记录**
+    /// X转盘校准图案的半径.
     /// </summary>
-    public double CgFFBoxTurnYLightHoleCircleRadiusCh3 { get; set; }
+    public double CgFFBoxTurnXCalibrationPatternCircleRadiusCh3 { get; set; }
 
     /// <summary>
     /// X方向单独的推杆像素宽度,**需要记录**
@@ -462,6 +462,46 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     /// X方向单独的推杆起始矩形区域坐标,**需要记录**
     /// </summary>
     public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆粗侧的像素宽度.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionCoarseWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆粗侧的每像素对应的电机位移.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionCoarseMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆粗侧的起始电机位置.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionCoarseMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆粗侧的起始矩形区域坐标.
+    /// </summary>
+    public RectD CgFFBoxPushXDiffractionCoarseRectPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆细侧的像素宽度.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionFineWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆细侧的每像素对应的电机位移.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionFineMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆细侧的起始电机位置.
+    /// </summary>
+    public double CgFFBoxPushXDiffractionFineMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X衍射推杆细侧的起始矩形区域坐标.
+    /// </summary>
+    public RectD CgFFBoxPushXDiffractionFineRectPositionCh3 { get; set; }
 }
 
 /// <summary>
@@ -491,13 +531,13 @@ public sealed class CalibrationPupilCenterChannelSpecularBlockerV1 : Calibration
     public bool IsSelectedY { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
-    /// </summary> 
+    /// X转盘上Y方向挡杆的角度.
+    /// </summary>
     public float Ch3Angle { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
-    /// </summary> 
+    /// X转盘上Y方向挡杆的电机位置.
+    /// </summary>
     public float Ch3TurnY { get; set; }
 
     /// <summary>

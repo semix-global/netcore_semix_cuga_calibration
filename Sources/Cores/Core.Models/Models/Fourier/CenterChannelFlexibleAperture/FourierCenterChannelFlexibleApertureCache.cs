@@ -21,10 +21,10 @@ public sealed partial class FourierCenterChannelFlexibleApertureCache : Calibrat
     public partial double PushMaxMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial double YMinMotorAbsoluteValue { get; set; }
+    public partial double DiffractionPushMinMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial double YMaxMotorAbsoluteValue { get; set; }
+    public partial double DiffractionPushMaxMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
@@ -50,8 +50,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureCache : Calibrat
         XMaxMotorAbsoluteValue = XMaxMotorAbsoluteValue,
         PushMinMotorAbsoluteValue = PushMinMotorAbsoluteValue,
         PushMaxMotorAbsoluteValue = PushMaxMotorAbsoluteValue,
-        YMinMotorAbsoluteValue = YMinMotorAbsoluteValue,
-        YMaxMotorAbsoluteValue = YMaxMotorAbsoluteValue,
+        DiffractionPushMinMotorAbsoluteValue = DiffractionPushMinMotorAbsoluteValue,
+        DiffractionPushMaxMotorAbsoluteValue = DiffractionPushMaxMotorAbsoluteValue,
         ProductivityInformation = ProductivityInformation.Clone(),
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),

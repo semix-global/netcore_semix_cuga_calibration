@@ -56,6 +56,11 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue)
+    {
+        throw new NotImplementedException("当前 SDK 尚未提供通道3的X衍射推杆控制接口.");
+    }
+
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
         throw new NotImplementedException();

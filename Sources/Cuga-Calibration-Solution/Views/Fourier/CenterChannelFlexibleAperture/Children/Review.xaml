@@ -40,11 +40,11 @@
                 <hc:Shield Subject="X Push Max Motor: "
                            Status="{Binding Cache.PushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Min Motor: "
-                           Status="{Binding Cache.YMinMotorAbsoluteValue}"
+                <hc:Shield Subject="X Diffraction Push Min Motor: "
+                           Status="{Binding Cache.DiffractionPushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Max Motor: "
-                           Status="{Binding Cache.YMaxMotorAbsoluteValue}"
+                <hc:Shield Subject="X Diffraction Push Max Motor: "
+                           Status="{Binding Cache.DiffractionPushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -139,12 +139,12 @@
                         </DockPanel>
                     </Border>
                 </TabItem>
-                <TabItem Header="X Motion">
+                <TabItem Header="X Turntable X Rod">
                     <TabControl Margin="5">
                         <i:Interaction.Behaviors>
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
-                        <TabItem Header="120">
+                        <TabItem Header="{Binding Review.XRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -197,7 +197,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="180">
+                        <TabItem Header="{Binding Review.XRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -250,7 +250,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="240">
+                        <TabItem Header="{Binding Review.XRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -303,7 +303,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="300">
+                        <TabItem Header="{Binding Review.XRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -404,62 +404,62 @@
                         </TabItem>
                     </TabControl>
                 </TabItem>
-                <TabItem Header="Y Aperture">
+                <TabItem Header="X Calibration Pattern">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                         <DockPanel>
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <TextBox Text="{Binding Review.YApertureItem.AngleMotorAbsoluteValue, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.AngleMotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Angle(°): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step0MotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Step 0 Position(mm): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step1MotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Step 1 Position(mm): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                          hc:TitleElement.Title="Step 0 Rect(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
                                          hc:TitleElement.Title="Step 0 Ellipse(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                          hc:TitleElement.Title="Step 1 Rect(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
                                          hc:TitleElement.Title="Step 1 Ellipse(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.YApertureItem.PixelSize, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XCalibrationPatternItem.PixelSize, Mode=OneWay}"
                                          hc:TitleElement.Title="Pixel Size(mm/px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
@@ -467,16 +467,16 @@
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
                             </hc:UniformSpacingPanel>
-                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.YApertureItem.Document, Mode=OneWay}" />
+                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XCalibrationPatternItem.Document, Mode=OneWay}" />
                         </DockPanel>
                     </Border>
                 </TabItem>
-                <TabItem Header="Y Motion">
+                <TabItem Header="X Turntable Y Rod">
                     <TabControl Margin="5">
                         <i:Interaction.Behaviors>
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
-                        <TabItem Header="120">
+                        <TabItem Header="{Binding Review.YRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -529,7 +529,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="180">
+                        <TabItem Header="{Binding Review.YRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -582,7 +582,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="240">
+                        <TabItem Header="{Binding Review.YRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -635,7 +635,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="300">
+                        <TabItem Header="{Binding Review.YRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -689,6 +689,98 @@
                             </Border>
                         </TabItem>
                     </TabControl>
+                </TabItem>
+                <TabItem Header="X Diffraction Coarse Push">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <DockPanel>
+                            <hc:UniformSpacingPanel DockPanel.Dock="Top"
+                                                    Orientation="Vertical"
+                                                    Spacing="2">
+                                <TextBox Text="{Binding Review.XDiffractionCoarsePushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 0 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionCoarsePushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionCoarsePushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 0 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionCoarsePushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 1 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionCoarsePushItem.PixelSize, Mode=OneWay}"
+                                         hc:TitleElement.Title="Pixel Size(mm/px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                            </hc:UniformSpacingPanel>
+                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XDiffractionCoarsePushItem.Document, Mode=OneWay}" />
+                        </DockPanel>
+                    </Border>
+                </TabItem>
+                <TabItem Header="X Diffraction Fine Push">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <DockPanel>
+                            <hc:UniformSpacingPanel DockPanel.Dock="Top"
+                                                    Orientation="Vertical"
+                                                    Spacing="2">
+                                <TextBox Text="{Binding Review.XDiffractionFinePushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 0 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionFinePushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                         hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionFinePushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 0 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionFinePushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 1 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XDiffractionFinePushItem.PixelSize, Mode=OneWay}"
+                                         hc:TitleElement.Title="Pixel Size(mm/px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                            </hc:UniformSpacingPanel>
+                            <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XDiffractionFinePushItem.Document, Mode=OneWay}" />
+                        </DockPanel>
+                    </Border>
                 </TabItem>
             </TabControl>
         </GroupBox>

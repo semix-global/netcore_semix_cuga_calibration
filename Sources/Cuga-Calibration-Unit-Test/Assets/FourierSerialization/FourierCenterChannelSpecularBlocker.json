@@ -8,7 +8,7 @@
     "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step0Fourier.jpg",
     "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierCenterChannelSpecularBlockerViewModel\\20260923\\Channel3\\Step1Fourier.jpg",
     "YRodROI": {
-      "AngleMotorAbsoluteValue": 180.0,
+      "AngleMotorAbsoluteValue": 196.36363636363637,
       "MotorAbsoluteValue": 5.5,
       "IsSelected": true,
       "ImageROI": {

@@ -37,11 +37,11 @@
                 <hc:Shield Subject="X Push Max Motor: "
                            Status="{Binding Cache.PushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Min Motor: "
-                           Status="{Binding Cache.YMinMotorAbsoluteValue}"
+                <hc:Shield Subject="X Diffraction Push Min Motor: "
+                           Status="{Binding Cache.DiffractionPushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Max Motor: "
-                           Status="{Binding Cache.YMaxMotorAbsoluteValue}"
+                <hc:Shield Subject="X Diffraction Push Max Motor: "
+                           Status="{Binding Cache.DiffractionPushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"

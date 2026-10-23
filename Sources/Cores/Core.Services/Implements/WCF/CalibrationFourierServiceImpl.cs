@@ -143,7 +143,10 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             CenterPushMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMin,
             CenterPushMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMax,
             CenterYMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMin,
-            CenterYMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMax));
+            CenterYMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMax,
+            // 当前 SDK 未提供衍射推杆范围, 使用无效范围表示尚未接入.
+            CenterDiffractionPushMinMotorAbsoluteValue: 0d,
+            CenterDiffractionPushMaxMotorAbsoluteValue: 0d));
     }
 
     public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_X, angleMotorAbsoluteValue, motorAbsoluteValue);
@@ -159,6 +162,11 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         if ((int)getSxExecuteRet.Anything - (int)motorAbsoluteValue != 0) return SxExecuteRetHelper.CreateError($"getSxExecuteRet.Anything({getSxExecuteRet.Anything}) - motorAbsoluteValue({motorAbsoluteValue}) != 0", false);
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue)
+    {
+        throw new NotImplementedException("当前 SDK 尚未提供通道3的X衍射推杆控制接口.");
     }
 
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_Y, angleMotorAbsoluteValue, motorAbsoluteValue);

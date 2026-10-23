@@ -26,11 +26,11 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="Y Min Motor: "
-                           Status="{Binding Cache.YMinMotorAbsoluteValue}"
+                <hc:Shield Subject="X Min Motor: "
+                           Status="{Binding Cache.XMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Y Max Motor: "
-                           Status="{Binding Cache.YMaxMotorAbsoluteValue}"
+                <hc:Shield Subject="X Max Motor: "
+                           Status="{Binding Cache.XMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
@@ -111,7 +111,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="CH3 Y 300 Degree Rod">
+        <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YRodItems[3].Document, Mode=OneWay}" />
             </Border>

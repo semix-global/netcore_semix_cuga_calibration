@@ -5,6 +5,8 @@ public enum CenterChannelMotionKindEnum
     XAperture,
     XRod,
     XPush,
-    YAperture,
-    YRod
+    XCalibrationPattern,
+    YRod,
+    XDiffractionCoarsePush,
+    XDiffractionFinePush
 }
