@@ -1,13 +1,11 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
-using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -318,7 +316,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 510.5,
             ShinyWaferFindBFMachinePosition = new Point(3.5, 4.5),
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size32, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
             Id = 51,
             Expiration = 52,
             IsDeleted = false,
@@ -342,7 +339,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             ScanLength = 720.25,
             ShinyWaferFindBFMachinePosition = new Point(13.5, 14.5),
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size256, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Ncc } },
             Id = 53,
             Expiration = 54,
             IsDeleted = true,
@@ -368,7 +364,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             },
             VerifyImageWidth = 2048,
             ExtinctionRatioThreshold = 0.35,
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size512, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
             Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>
             {
                 [cookie.OIProductivityInformations[0]] = oiItem,
@@ -400,7 +395,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
         actual.VerifyImageWidth.Should().Be(expected.VerifyImageWidth);
         actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
-        AssertTemplateMatchSetting(actual.TemplateMatchSetting, expected.TemplateMatchSetting);
 
         actual.Items.Should().HaveCount(2);
         AssertItemEquals(actual.Items.Single(i => i.Key == cookie.OIProductivityInformations[0]).Value, oiItem);
@@ -430,7 +424,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
             actualItem.ScanLength.Should().Be(expectedItem.ScanLength);
             actualItem.ShinyWaferFindBFMachinePosition.Should().Be(expectedItem.ShinyWaferFindBFMachinePosition);
-            AssertTemplateMatchSetting(actualItem.TemplateMatchSetting, expectedItem.TemplateMatchSetting);
 
             actualItem.Id.Should().Be(isUseCacheSettings ? 0L : expectedItem.Id);
             actualItem.Expiration.Should().Be(isUseCacheSettings ? 0L : expectedItem.Expiration);
@@ -441,14 +434,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.ModifiedUserId.Should().Be(isUseCacheSettings ? 0L : expectedItem.ModifiedUserId);
             actualItem.ModifiedUserName.Should().Be(isUseCacheSettings ? string.Empty : expectedItem.ModifiedUserName);
             actualItem.ModifiedTime.Should().Be(isUseCacheSettings ? default : expectedItem.ModifiedTime);
-        }
-
-        static void AssertTemplateMatchSetting(TemplateMatchSetting actual, TemplateMatchSetting expected)
-        {
-            actual.TemplateSize.Should().Be(expected.TemplateSize);
-            actual.Halcon.TemplateType.Should().Be(expected.Halcon.TemplateType);
-            actual.AlgoCSharp.Method.Should().Be(expected.AlgoCSharp.Method);
-            actual.AlgoCSharp.PyramidLevels.Should().Be(expected.AlgoCSharp.PyramidLevels);
         }
     }
 }

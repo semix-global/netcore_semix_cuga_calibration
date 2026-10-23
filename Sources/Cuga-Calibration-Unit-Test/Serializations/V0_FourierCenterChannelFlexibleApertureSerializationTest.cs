@@ -1,12 +1,10 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
-using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -305,7 +303,6 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
             },
             ScanLength = 500.25,
             HazeFindBFMachinePosition = new Point(11.5, 21.5),
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size128, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Ncc } },
             Id = 31,
             Expiration = 32,
             IsDeleted = true,
@@ -336,7 +333,6 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
         actual.ScanLength.Should().Be(expected.ScanLength);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
-        AssertTemplateMatchSetting(actual.TemplateMatchSetting, expected.TemplateMatchSetting);
 
         actual.Id.Should().Be(isUseCacheSettings ? 0L : expected.Id);
         actual.Expiration.Should().Be(isUseCacheSettings ? 0L : expected.Expiration);
@@ -349,16 +345,6 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         actual.ModifiedTime.Should().Be(isUseCacheSettings ? default : expected.ModifiedTime);
 
         JsonConvert.SerializeObject(actual, settings).Should().Be(json);
-
-        return;
-
-        static void AssertTemplateMatchSetting(TemplateMatchSetting actual, TemplateMatchSetting expected)
-        {
-            actual.TemplateSize.Should().Be(expected.TemplateSize);
-            actual.Halcon.TemplateType.Should().Be(expected.Halcon.TemplateType);
-            actual.AlgoCSharp.Method.Should().Be(expected.AlgoCSharp.Method);
-            actual.AlgoCSharp.PyramidLevels.Should().Be(expected.AlgoCSharp.PyramidLevels);
-        }
     }
 
     private sealed class PrivateSetterContractResolver : DefaultContractResolver // V0FourierCenterChannelFlexibleApertureDTOItem.PixelSize private需要添加这个
