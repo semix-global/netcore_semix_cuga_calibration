@@ -183,7 +183,7 @@
                                                         </TabItem>
                                                     </TabControl>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
@@ -214,7 +214,7 @@
                                                         </TabItem>
                                                     </TabControl>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>

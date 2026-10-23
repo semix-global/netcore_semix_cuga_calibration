@@ -445,6 +445,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         void SetRods(int stepIndex, double motorAbsoluteValue)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var indexes = stepIndex switch
             {
                 0 => [itemData.Step0LeftRod.Index, itemData.Step0RightRod.Index],

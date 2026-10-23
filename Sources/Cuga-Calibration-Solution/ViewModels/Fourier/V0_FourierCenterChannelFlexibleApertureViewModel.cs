@@ -451,9 +451,10 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
         {
             try
             {
+                FourierViewModel.Home(3, false);
+
                 SetRods(item.Step0MotorAbsoluteValue);
                 Grab(0);
-
                 SetRods(item.Step1MotorAbsoluteValue);
                 Grab(1);
             }
@@ -500,7 +501,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
         void SetRods(double motorAbsoluteValue)
         {
-            FourierViewModel.Home(3, false);
+            cancellationToken.ThrowIfCancellationRequested();
 
             switch (item.CenterChannelMotionKindEnum)
             {

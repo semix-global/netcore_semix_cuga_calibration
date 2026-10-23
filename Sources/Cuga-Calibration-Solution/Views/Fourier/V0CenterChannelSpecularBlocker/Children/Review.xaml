@@ -167,7 +167,7 @@
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.Document, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
