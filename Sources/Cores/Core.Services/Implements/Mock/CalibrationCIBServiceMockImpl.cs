@@ -17,7 +17,7 @@ using System.IO;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationCIBService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
+public sealed class CalibrationCIBServiceMockImpl(ICalibrationStageService calibrationStageService) : ICalibrationCIBService
 {
     public string[]? SimulatorImageFilePaths { get; set; }
 
@@ -264,17 +264,38 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
-        using var fileSteam = File.OpenRead(_mockImageFilePath);
-        using var binaryReader = new BinaryReader(fileSteam);
+        cancellationToken.ThrowIfCancellationRequested();
+        var directionRet = calibrationStageService.GetMachineDirection();
+
+        if (directionRet.IsSuccess == false) return Task.FromResult(SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldRawScanImageDTO>>(directionRet.Msg, []));
+
+        var isImageForward = stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => isForward,
+            StageCoordinateSystemEnum.Machine => directionRet.Anything.XDirection > 0 ? isForward : isForward == false,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<bool>(nameof(stageCoordinateSystemEnum))
+        };
 
         var results = new DarkFieldRawScanImageDTO[cibInformations.Count];
+        var filePaths = SimulatorImageFilePaths ?? [];
 
         for (var i = 0; i < results.Length; i++)
         {
-            var cibInformation = cibInformations[i];
-            var (size, _, _) = RAWImageFactory.GetSize(binaryReader);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            results[i] = new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum };
+            var cibInformation = cibInformations[i];
+            var filePath = filePaths.ElementAtOrDefault(i) ?? _mockImageFilePath;
+            var (size, _, _) = RAWImageFactory.GetSize(filePath);
+
+            results[i] = new DarkFieldRawScanImageDTO
+            {
+                CIBInformation = cibInformation.Clone(),
+                Size = size,
+                IsForward = isImageForward,
+                RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
+                RawImageFilePath = filePath,
+                IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum
+            };
         }
 
         return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));

@@ -215,6 +215,23 @@ public interface ICalibrationAlgorithmService
 
     #endregion Chuck
 
+    #region RTA
+
+    /// <summary>
+    /// 分析行扫原图, 按阵列中的全部有效列汇总匹配位置均值. 返回的 X 像素统一按物理位置从左到右排列.
+    /// </summary>
+    /// <param name="rawScanImage">包含扫描方向和原图路径的行扫图.</param>
+    /// <returns>保留原格行号的位置均值, 不包含误差计算或统计过滤.</returns>
+    RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage);
+
+    public readonly record struct RTAScanSample(
+        int GridRowIndex,
+        double XPixel,
+        double YPixel,
+        int ValidColumnCount);
+
+    #endregion
+
     #region 工具
 
     double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid);
