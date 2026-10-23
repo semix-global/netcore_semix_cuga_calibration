@@ -38,8 +38,8 @@
       }
     }
   },
-  "IsVerified": true,
   "IsCalibrated": true,
+  "IsVerified": true,
   "IsRequiredSelfCheck": false,
   "IsOk": true
 }

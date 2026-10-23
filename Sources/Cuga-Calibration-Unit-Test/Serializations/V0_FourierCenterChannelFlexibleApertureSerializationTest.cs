@@ -371,6 +371,7 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
+
             if (property.Writable || member is not PropertyInfo propertyInfo) return property;
 
             var isPrivateSetterAvailable = propertyInfo.GetSetMethod(true) is not null;
