@@ -26,7 +26,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero = true)
+    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero)
     {
         throw new NotImplementedException();
     }

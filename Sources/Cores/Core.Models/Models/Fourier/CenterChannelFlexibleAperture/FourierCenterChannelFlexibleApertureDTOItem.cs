@@ -66,9 +66,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 IsShowEllipse = centerChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern,
                 ResizeJoystickStateEnum = centerChannelMotionKindEnum switch
                 {
-                    CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+                    CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.YRod => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
                     CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
-                    CenterChannelMotionKindEnum.YRod => BitmapImageROIResizeJoystickStateEnum.XCenterYMin | BitmapImageROIResizeJoystickStateEnum.XCenterYMax,
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIResizeJoystickStateEnum>(nameof(centerChannelMotionKindEnum))
                 }
             }
@@ -175,7 +174,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
         async Task Step0Async()
         {
-        InnerLoop:
+            InnerLoop:
 
             switch (CenterChannelMotionKindEnum)
             {
@@ -215,9 +214,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     Title = $"Step 0: Fit the {CenterChannelMotionKindEnum} ROI.",
                     BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
                     {
-                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => BitmapImageROIDragMoveTypeEnum.All,
+                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.All,
                         CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => BitmapImageROIDragMoveTypeEnum.X,
-                        CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.Y,
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
                     },
                     IsDeleteEnabled = false,
@@ -268,7 +266,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 }
             }
 
-        OuterLoop:
+            OuterLoop:
 
             Step0ROI.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0ROI.BitmapImageROIDrawable.Rect);
             Step0ROI.BitmapImageROIDrawable.IsFixed = true;
@@ -285,7 +283,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
         async Task Step1Async()
         {
-        InnerLoop:
+            InnerLoop:
 
             Step1ROI.ImageROI = Step0ROI.ImageROI;
             Step1ROI.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Step1ROI.ImageROI);
@@ -299,12 +297,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step1BitmapImageDrawable)
                 {
                     Title = $"Step 1: Move the {CenterChannelMotionKindEnum} ROI.",
-                    BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
-                    {
-                        CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => BitmapImageROIDragMoveTypeEnum.X,
-                        CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.Y,
-                        _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
-                    },
+                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                     IsDeleteEnabled = false,
                     IsAspectRatioFixed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern,
                     IsOutsideImageAllowed = true,
@@ -353,18 +346,13 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 }
             }
 
-        OuterLoop:
+            OuterLoop:
 
             Step1ROI.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1ROI.BitmapImageROIDrawable.Rect);
             Step1ROI.BitmapImageROIDrawable.IsFixed = true;
 
             var deltaCenter = Step1ROI.ImageROI.Center - Step0ROI.ImageROI.Center;
-            var deltaPixel = CenterChannelMotionKindEnum switch
-            {
-                CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => deltaCenter.X,
-                CenterChannelMotionKindEnum.YRod => deltaCenter.Y,
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<double>(nameof(CenterChannelMotionKindEnum))
-            };
+            var deltaPixel = deltaCenter.X;
 
             var deltaMotorAbsoluteValue = Step1MotorAbsoluteValue - Step0MotorAbsoluteValue;
             if (deltaPixel == 0d || deltaMotorAbsoluteValue == 0d)

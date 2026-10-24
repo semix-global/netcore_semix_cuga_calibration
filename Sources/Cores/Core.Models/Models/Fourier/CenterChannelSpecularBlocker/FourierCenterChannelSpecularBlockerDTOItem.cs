@@ -212,7 +212,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
                 }
             }
 
-        OuterLoop0:
+            OuterLoop0:
 
             XReflectionPushROI.BitmapImageROIDrawable.IsFixed = true;
             XReflectionPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XReflectionPushROI.BitmapImageROIDrawable.Rect);
@@ -242,7 +242,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
                     var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
                     {
                         Title = "Adjust y-rod on the Channel3 Fourier image.",
-                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.Y,
+                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                         IsOutsideImageAllowed = true,
                         IsDeleteEnabled = false,
                         CancellationToken = cancellationToken
@@ -269,19 +269,19 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
                     }
                 }
 
-            OuterLoop1:
+                OuterLoop1:
 
                 YRodROI.BitmapImageROIDrawable.IsFixed = true;
                 YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
                 YRodROI.AngleMotorAbsoluteValue = yRodItem.AngleMotorAbsoluteValue;
                 YRodROI.MotorAbsoluteValue = Math.Clamp(
-                    yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).Y * yRodItem.PixelSize,
+                    yRodItem.Step0MotorAbsoluteValue + (YRodROI.ImageROI.Center - yRodItem.Step0ROI.ImageROI.Center).X * yRodItem.PixelSize,
                     yMotorRange.Min,
                     yMotorRange.Max);
 
                 // Y 方向同样使用带符号的像素尺寸反算, 避免显示位置超出电机限位.
-                var yRodCenterY = yRodItem.Step0ROI.ImageROI.Center.Y + (YRodROI.MotorAbsoluteValue - yRodItem.Step0MotorAbsoluteValue) / yRodItem.PixelSize;
-                YRodROI.ImageROI = (YRodROI.ImageROI + new Vector(0d, yRodCenterY - YRodROI.ImageROI.Center.Y)).ImageCoordinateRound();
+                var yRodCenterX = yRodItem.Step0ROI.ImageROI.Center.X + (YRodROI.MotorAbsoluteValue - yRodItem.Step0MotorAbsoluteValue) / yRodItem.PixelSize;
+                YRodROI.ImageROI = (YRodROI.ImageROI + new Vector(yRodCenterX - YRodROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
                 YRodROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
                 YRodROI.IsSelected = true;
             }
