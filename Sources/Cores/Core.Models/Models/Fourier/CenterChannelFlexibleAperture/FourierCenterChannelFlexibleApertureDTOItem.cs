@@ -66,8 +66,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 IsShowEllipse = centerChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern,
                 ResizeJoystickStateEnum = centerChannelMotionKindEnum switch
                 {
-                    CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.YRod => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
+                    CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
                     CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+                    CenterChannelMotionKindEnum.YRod => BitmapImageROIResizeJoystickStateEnum.All,
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIResizeJoystickStateEnum>(nameof(centerChannelMotionKindEnum))
                 }
             }
@@ -193,8 +194,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     break;
 
                 case CenterChannelMotionKindEnum.YRod:
-                    var height = _step0BitmapImageDrawable.BitmapImage.Height / 4;
-                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(0d, _step0BitmapImageDrawable.BitmapImage.Height / 2d - height / 2d, _step0BitmapImageDrawable.BitmapImage.Width, height)).ImageCoordinateRound();
+                    var yRodSize = new Size(_step0BitmapImageDrawable.BitmapImage.Width / 4d, _step0BitmapImageDrawable.BitmapImage.Height / 4d);
+                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)yRodSize / 2d, yRodSize)).ImageCoordinateRound();
 
                     break;
 
