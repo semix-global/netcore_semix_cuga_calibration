@@ -219,21 +219,6 @@
                                                           ItemsSource="{Binding Cache.StageMapTemplates}">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
-                                                        <DataGridTemplateColumn Header="Images">
-                                                            <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate DataType="{x:Type viewModels:StageMapTemplate}">
-                                                                    <view:CanvasView Width="100"
-                                                                                     Height="100"
-                                                                                     BackgroundColor="#0A0A0A"
-                                                                                     AxisColor="Red"
-                                                                                     Interactive="True"
-                                                                                     ShowAxes="True"
-                                                                                     ShowCursor="False"
-                                                                                     ShowGrid="False"
-                                                                                     BackgroundImage="{Binding TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                                                </DataTemplate>
-                                                            </DataGridTemplateColumn.CellTemplate>
-                                                        </DataGridTemplateColumn>
                                                     </DataGrid.Columns>
                                                 </DataGrid>
                                             </hc:UniformSpacingPanel>
