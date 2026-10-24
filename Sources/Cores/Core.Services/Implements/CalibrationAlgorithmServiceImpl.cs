@@ -745,8 +745,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
             .SelectMany(pixels => pixels.Index().Select(t => new Point(t.Index, t.Item)))
             .Where(point => double.IsFinite(point.Y))
             .ToArray();
-        var yPoints = yMatrix
-            .SelectMany((pixels, row) => pixels.Select(pixel => new Point(row, pixel)))
+        var yPoints = Enumerable.Range(0, xCount)
+            .SelectMany(column => yMatrix.Select((pixels, row) => new Point(row, pixels[column])))
             .Where(point => double.IsFinite(point.Y))
             .ToArray();
 
