@@ -231,5 +231,10 @@ public interface ICalibrationAlgorithmService
     /// <exception cref="ArgumentException">任一方向缺少两个索引不同的有效格点, 坐标恒定, 或拟合间距为零或非有限值.</exception>
     RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage);
 
-    public readonly record struct RTAScanSample(double XPixel, Vector Error);
+    /// <summary>
+    /// RTAScanSample 结构体, 包含标准 X 像素坐标, 扫描时间和居中误差向量.
+    /// </summary>
+    /// <param name="X">标准位置px</param>
+    /// <param name="Error">误差px</param>
+    public readonly record struct RTAScanSample(double X, Vector Error);
 }

@@ -387,9 +387,14 @@
                             </graphicsWPF:WPFCanvasControl>
                         </Border>
                     </TabItem>
-                    <TabItem Header="{Binding Steps[2]}">
+                    <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} - Time Domain">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <v2:PlotControl DataSource="{Binding Cache.StageMap.PlotDataSource}" />
+                            <v2:PlotControl DataSource="{Binding Cache.RTAScanResult.TimeDomainPlotDataSource}" />
+                        </Border>
+                    </TabItem>
+                    <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} - Frequency Domain">
+                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                            <v2:PlotControl DataSource="{Binding Cache.RTAScanResult.FrequencyDomainPlotDataSource}" />
                         </Border>
                     </TabItem>
                 </TabControl>

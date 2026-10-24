@@ -59,6 +59,9 @@ public sealed partial class RTACache : CalibrationCacheBase
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 
+    [ObservableProperty]
+    public partial RTAScanResult RTAScanResult { get; set; } = new();
+
     #endregion
 
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)

@@ -714,39 +714,40 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         Guard.IsNotNull(result.arr.hit);
 
-        var rowCount = result.arr.hit.Width;
-        var columnCount = result.arr.hit.Height;
-        var xMatrix = new double[rowCount][];
-        var yMatrix = new double[rowCount][];
+        var yCount = result.arr.hit.Width;
+        var xCount = result.arr.hit.Height;
 
-        for (var row = 0; row < rowCount; row++)
+        Guard.IsGreaterThan(xCount, yCount);
+
+        var xMatrix = new double[yCount][];
+        var yMatrix = new double[yCount][];
+
+        for (var y = 0; y < yCount; y++)
         {
-            xMatrix[row] = new double[columnCount];
-            yMatrix[row] = new double[columnCount];
+            xMatrix[y] = new double[xCount];
+            yMatrix[y] = new double[xCount];
         }
 
-        // 格点矩阵转置时同步交换像素坐标, 无效坐标统一保留为 NaN.
-        for (var y = 0; y < columnCount; y++)
+        for (var x = 0; x < xCount; x++)
         {
-            var hitRow = result.arr.hit.GetRow<double>(y);
-            for (var x = 0; x < rowCount; x++)
+            var hitRow = result.arr.hit.GetRow<double>(x);
+            for (var y = 0; y < yCount; y++)
             {
-                var xPixel = hitRow[x * 2];
-                var yPixel = hitRow[x * 2 + 1];
+                var xPixel = hitRow[y * 2];
+                var yPixel = hitRow[y * 2 + 1];
 
-                xMatrix[x][y] = IsFinite(yPixel) ? yPixel : double.NaN;
-                yMatrix[x][y] = IsFinite(xPixel) ? xPixel : double.NaN;
+                xMatrix[y][x] = double.IsFinite(yPixel) ? yPixel : double.NaN;
+                yMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
             }
         }
-
-        // 每个方向的全部有效格点只进行一次整体拟合, 缺点不改变原始格点索引.
+        
         var xPoints = xMatrix
-            .SelectMany(pixels => pixels.Select((pixel, column) => new Point(column, pixel)))
-            .Where(point => IsFinite(point.Y))
+            .SelectMany(pixels => pixels.Index().Select(t => new Point(t.Index, t.Item)))
+            .Where(point => double.IsFinite(point.Y))
             .ToArray();
         var yPoints = yMatrix
             .SelectMany((pixels, row) => pixels.Select(pixel => new Point(row, pixel)))
-            .Where(point => IsFinite(point.Y))
+            .Where(point => double.IsFinite(point.Y))
             .ToArray();
 
         Guard.IsTrue(xPoints.Length >= 2 && xPoints.Any(point => point.X != xPoints[0].X), "X 方向至少需要两个列索引不同的有效格点.");
@@ -759,29 +760,29 @@ public sealed class CalibrationAlgorithmServiceImpl(
             Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.X)),
             Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.Y)));
 
-        Guard.IsTrue(IsFinite(xSpacing) && xSpacing != 0d && xPoints.Any(point => point.Y != xPoints[0].Y), "X 方向拟合格点间距必须为非零有限值.");
-        Guard.IsTrue(IsFinite(ySpacing) && ySpacing != 0d && yPoints.Any(point => point.Y != yPoints[0].Y), "Y 方向拟合格点间距必须为非零有限值.");
+        Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing != 0d && xPoints.Any(point => point.Y != xPoints[0].Y), "X 方向拟合格点间距必须为非零有限值.");
+        Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing != 0d && yPoints.Any(point => point.Y != yPoints[0].Y), "Y 方向拟合格点间距必须为非零有限值.");
 
         // 首个有效行和列只作为锚点, 标准矩阵保留跳过的空行和空列对应的索引偏移.
-        var yAnchorRow = Array.FindIndex(yMatrix, pixels => pixels.Any(IsFinite));
-        var yAnchor = yMatrix[yAnchorRow].Where(IsFinite).Average();
-        var xAnchorColumn = Enumerable.Range(0, columnCount)
-            .First(column => xMatrix.Any(pixels => IsFinite(pixels[column])));
-        var xAnchor = xMatrix.Select(pixels => pixels[xAnchorColumn]).Where(IsFinite).Average();
-        var idealXMatrix = Matrix<double>.Build.Dense(rowCount, columnCount, (_, column) => xAnchor + (column - xAnchorColumn) * xSpacing);
-        var idealYMatrix = Matrix<double>.Build.Dense(rowCount, columnCount, (row, _) => yAnchor + (row - yAnchorRow) * ySpacing);
+        var yAnchorRow = Array.FindIndex(yMatrix, pixels => pixels.Any(double.IsFinite));
+        var yAnchor = yMatrix[yAnchorRow].Where(double.IsFinite).Average();
+        var xAnchorColumn = Enumerable.Range(0, xCount)
+            .First(column => xMatrix.Any(pixels => double.IsFinite(pixels[column])));
+        var xAnchor = xMatrix.Select(pixels => pixels[xAnchorColumn]).Where(double.IsFinite).Average();
+        var idealXMatrix = Matrix<double>.Build.Dense(yCount, xCount, (_, column) => xAnchor + (column - xAnchorColumn) * xSpacing);
+        var idealYMatrix = Matrix<double>.Build.Dense(yCount, xCount, (row, _) => yAnchor + (row - yAnchorRow) * ySpacing);
 
         var errorXMatrix = Matrix<double>.Build.DenseOfRowArrays(xMatrix) - idealXMatrix;
         var errorYMatrix = Matrix<double>.Build.DenseOfRowArrays(yMatrix) - idealYMatrix;
-        var meanErrorX = errorXMatrix.Enumerate().Where(IsFinite).Average();
-        var meanErrorY = errorYMatrix.Enumerate().Where(IsFinite).Average();
+        var meanErrorX = errorXMatrix.Enumerate().Where(double.IsFinite).Average();
+        var meanErrorY = errorYMatrix.Enumerate().Where(double.IsFinite).Average();
 
         // 先按全部有效误差去除整体平移, 再将缺点补零, 列均值包含补入的零值.
-        errorXMatrix = errorXMatrix.Map(value => IsFinite(value) ? value - meanErrorX : 0d, Zeros.Include);
-        errorYMatrix = errorYMatrix.Map(value => IsFinite(value) ? value - meanErrorY : 0d, Zeros.Include);
+        errorXMatrix = errorXMatrix.Map(value => double.IsFinite(value) ? value - meanErrorX : 0d, Zeros.Include);
+        errorYMatrix = errorYMatrix.Map(value => double.IsFinite(value) ? value - meanErrorY : 0d, Zeros.Include);
 
-        var samples = new ICalibrationAlgorithmService.RTAScanSample[columnCount];
-        for (var column = 0; column < columnCount; column++)
+        var samples = new ICalibrationAlgorithmService.RTAScanSample[xCount];
+        for (var column = 0; column < xCount; column++)
         {
             samples[column] = new ICalibrationAlgorithmService.RTAScanSample(
                 idealXMatrix[0, column],
@@ -789,8 +790,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         }
 
         return samples;
-
-        static bool IsFinite(double value) => double.IsNaN(value) == false && double.IsInfinity(value) == false;
     }
 
     #region BestFocus Algo

@@ -21,6 +21,10 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
+using Core.Models.Models.CIB.XPixelSize;
+using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.DarkField;
+using Net.Utilities.ScottPlot.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -291,6 +295,23 @@ public sealed partial class RTAWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(2, async () =>
     {
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
+        Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+
+        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                                                             && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
+                                                                                                                             && t.PmtId == Cache.CIBInformation.PMTId);
+        Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        {
+            Cache.ProductivityInformation,
+            xSize.XPixelSize,
+            ySize.YPixelSize
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        Cache.RTAScanResult = new RTAScanResult(Cache.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
+
         StageMapDie[] stageMapDies;
         using (Cache.StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. Cache.StageMapDocument.DieModel];
 
@@ -321,20 +342,60 @@ public sealed partial class RTAWindowViewModel(
         var startPosition = selectStageMapDies[0].Rect.Center;
         var endPosition = selectStageMapDies[^1].Rect.Center;
 
-        var darkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Bright,
-            startPosition,
-            endPosition,
-            Cache.CIBInformation,
-            (false, Cache.CalChipSiteModelEnum),
-            (false, Cache.OpticsConfiguration),
-            (false, Cache.CIBConfiguration),
-            (false, Cache.LaserLightInformation),
-            false,
-            cancellationToken);
+        var isSuccess = false;
+        var forwardDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
+        var reverseDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
+        try
+        {
+            forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Bright,
+                startPosition,
+                endPosition,
+                Cache.CIBInformation,
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.OpticsConfiguration),
+                (false, Cache.CIBConfiguration),
+                (false, Cache.LaserLightInformation),
+                false,
+                cancellationToken);
 
-        return true;
+            var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(forwardDarkFieldRawScanImage);
+            Cache.RTAScanResult.ForwardRTAScanSamples = forwardRTAScanSamples;
+
+            reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Bright,
+                startPosition,
+                endPosition,
+                Cache.CIBInformation,
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.OpticsConfiguration),
+                (false, Cache.CIBConfiguration),
+                (false, Cache.LaserLightInformation),
+                false,
+                cancellationToken,
+                isForward: false);
+
+            var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(reverseDarkFieldRawScanImage);
+            Cache.RTAScanResult.ReverseRTAScanSamples = reverseRTAScanSamples;
+
+            isSuccess = true;
+        }
+        finally
+        {
+            var htmlBullet = new HtmlBullet(new
+            {
+                ForwardRawImageFilePath = forwardDarkFieldRawScanImage.RawImageFilePath,
+                ReverseRawImageFilePath = reverseDarkFieldRawScanImage.RawImageFilePath,
+                TimeDomainPlotDataSource = Cache.RTAScanResult.TimeDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts(),
+                FrequencyDomainPlotDataSource = Cache.RTAScanResult.FrequencyDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts()
+            });
+            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+        }
+
+        return isSuccess;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]
