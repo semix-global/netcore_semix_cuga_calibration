@@ -7,7 +7,6 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Stage"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:controls="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
-           xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
@@ -16,7 +15,6 @@
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
-           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            Width="1500"
            Height="1000"
@@ -139,7 +137,13 @@
                                             <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
                                         </Border>
                                     </Expander>
-                                    <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                                    <Expander Header="Template Match Setting"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                                        </Border>
+                                    </Expander>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Enable ROI Match: "
                                                    Width="200"

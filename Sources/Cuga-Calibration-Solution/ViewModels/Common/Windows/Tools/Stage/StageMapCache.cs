@@ -30,6 +30,9 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
+    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
+    [ObservableProperty]
     public partial bool IsROIMatchEnabled { get; set; }
 
     [ObservableProperty]
@@ -63,8 +66,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
-
-    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     #endregion
 
