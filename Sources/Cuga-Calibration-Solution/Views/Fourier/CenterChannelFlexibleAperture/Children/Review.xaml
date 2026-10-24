@@ -34,11 +34,11 @@
                 <hc:Shield Subject="X Max Motor: "
                            Status="{Binding Cache.XMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="X Push Min Motor: "
-                           Status="{Binding Cache.PushMinMotorAbsoluteValue}"
+                <hc:Shield Subject="X Reflection Push Min Motor: "
+                           Status="{Binding Cache.ReflectionPushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="X Push Max Motor: "
-                           Status="{Binding Cache.PushMaxMotorAbsoluteValue}"
+                <hc:Shield Subject="X Reflection Push Max Motor: "
+                           Status="{Binding Cache.ReflectionPushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="X Diffraction Push Min Motor: "
                            Status="{Binding Cache.DiffractionPushMinMotorAbsoluteValue}"
@@ -356,41 +356,41 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="X Push">
+                        <TabItem Header="X Reflection Push">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <TextBox Text="{Binding Review.XPushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
+                                        <TextBox Text="{Binding Review.XReflectionPushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 0 Position(mm): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding Review.XPushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
+                                        <TextBox Text="{Binding Review.XReflectionPushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding Review.XPushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                        <TextBox Text="{Binding Review.XReflectionPushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                                  hc:TitleElement.Title="Step 0 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding Review.XPushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                        <TextBox Text="{Binding Review.XReflectionPushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                                  hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding Review.XPushItem.PixelSize, Mode=OneWay}"
+                                        <TextBox Text="{Binding Review.XReflectionPushItem.PixelSize, Mode=OneWay}"
                                                  hc:TitleElement.Title="Pixel Size(mm/px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
@@ -398,7 +398,7 @@
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
                                     </hc:UniformSpacingPanel>
-                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XPushItem.Document, Mode=OneWay}" />
+                                    <wpf:OpticsFourierImageCanvasControl Document="{Binding Review.XReflectionPushItem.Document, Mode=OneWay}" />
                                 </DockPanel>
                             </Border>
                         </TabItem>

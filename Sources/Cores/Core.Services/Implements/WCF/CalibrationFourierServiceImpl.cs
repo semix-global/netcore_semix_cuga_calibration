@@ -130,23 +130,38 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
 
     public SxExecuteRet<ICalibrationFourierService.FourierMotorConfiguration> GetMotorConfiguration()
     {
-        var sxExecuteRet = Invoke(() => Service!.FF_GetConfig());
+        var service = Service;
+
+        if (service is null) return SxExecuteRetHelper.CreateError<ICalibrationFourierService.FourierMotorConfiguration>("傅里叶服务尚未连接.");
+
+        var sxExecuteRet = Invoke(() => service.GetFFTConfig());
 
         if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<ICalibrationFourierService.FourierMotorConfiguration>(sxExecuteRet.ErrorMsg);
 
+        if (sxExecuteRet.Anything is not
+            {
+                FFCH12_Range: { } sideRange,
+                FFCH3_XRange: { } xRange,
+                FFCH3_YRange: { } yRange
+            } configuration)
+        {
+            return SxExecuteRetHelper.CreateError<ICalibrationFourierService.FourierMotorConfiguration>("傅里叶电机范围配置为空或不完整.");
+        }
+
         return SxExecuteRetHelper.CreateSuccess(new ICalibrationFourierService.FourierMotorConfiguration(
-            SideRodTotalCount: sxExecuteRet.Anything.RodNum,
-            SideMinMotorAbsoluteValue: sxExecuteRet.Anything.CH12MinPOS,
-            SideMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH12MaxPOS,
-            CenterXMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_LPOSMin,
-            CenterXMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_LPOSMax,
-            CenterPushMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMin,
-            CenterPushMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_X_PPOSMax,
-            CenterYMinMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMin,
-            CenterYMaxMotorAbsoluteValue: sxExecuteRet.Anything.CH3_Y_LPOSMax,
-            // 当前 SDK 未提供衍射推杆范围, 使用无效范围表示尚未接入.
-            CenterDiffractionPushMinMotorAbsoluteValue: 0d,
-            CenterDiffractionPushMaxMotorAbsoluteValue: 0d));
+            SideRodTotalCount: configuration.FF_CH1_2RodNum,
+            SideMinMotorAbsoluteValue: sideRange.MinPos,
+            SideMaxMotorAbsoluteValue: sideRange.MaxPos,
+            CenterXMinMotorAbsoluteValue: xRange.LPOSMin,
+            CenterXMaxMotorAbsoluteValue: xRange.LPOSMax,
+            CenterPushMinMotorAbsoluteValue: xRange.PPOSMin,
+            CenterPushMaxMotorAbsoluteValue: xRange.PPOSMax,
+            CenterYMinMotorAbsoluteValue: yRange.LPOSMin,
+            CenterYMaxMotorAbsoluteValue: yRange.LPOSMax,
+            CenterReflectionPushMinMotorAbsoluteValue: xRange.RFPOSMin,
+            CenterReflectionPushMaxMotorAbsoluteValue: xRange.RFPOSMax,
+            CenterDiffractionPushMinMotorAbsoluteValue: xRange.DFPOSMin,
+            CenterDiffractionPushMaxMotorAbsoluteValue: xRange.DFPOSMax));
     }
 
     public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_X, angleMotorAbsoluteValue, motorAbsoluteValue);
@@ -164,9 +179,52 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue)
+    {
+        if (double.IsFinite(motorAbsoluteValue) == false) return SxExecuteRetHelper.CreateError("X反射推杆目标位置必须为有限值.", false);
+
+        var service = Service;
+
+        if (service is null) return SxExecuteRetHelper.CreateError("傅里叶服务尚未连接.", false);
+
+        var setSxExecuteRet = Invoke(() => service.FF_Move_RFPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue));
+
+        if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+
+        var getSxExecuteRet = Invoke(() => service.GetRFPOS());
+
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
+
+        if (double.IsFinite(getSxExecuteRet.Anything) == false || Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) > 0.001)
+        {
+            return SxExecuteRetHelper.CreateError($"X反射推杆位置回读不一致: 实际 {getSxExecuteRet.Anything:0.######}, 目标 {motorAbsoluteValue:0.######}.", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
     public SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue)
     {
-        throw new NotImplementedException("当前 SDK 尚未提供通道3的X衍射推杆控制接口.");
+        if (double.IsFinite(motorAbsoluteValue) == false) return SxExecuteRetHelper.CreateError("X衍射推杆目标位置必须为有限值.", false);
+
+        var service = Service;
+
+        if (service is null) return SxExecuteRetHelper.CreateError("傅里叶服务尚未连接.", false);
+
+        var setSxExecuteRet = Invoke(() => service.FF_Move_DFPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue));
+
+        if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+
+        var getSxExecuteRet = Invoke(() => service.GetDFPOS());
+
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
+
+        if (double.IsFinite(getSxExecuteRet.Anything) == false || Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) > 0.001)
+        {
+            return SxExecuteRetHelper.CreateError($"X衍射推杆位置回读不一致: 实际 {getSxExecuteRet.Anything:0.######}, 目标 {motorAbsoluteValue:0.######}.", false);
+        }
+
+        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_Y, angleMotorAbsoluteValue, motorAbsoluteValue);

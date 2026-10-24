@@ -36,7 +36,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         new() { StepName = $"CH3 X {360d / 11d * 2d:0.###} Degree X Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 3d:0.###} Degree X Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 4d:0.###} Degree X Rod" },
-        new() { StepName = "CH3 X Push" },
+        new() { StepName = "CH3 X Reflection Push" },
         new() { StepName = $"CH3 X {360d / 11d * 8d:0.###} Degree Calibration Pattern" },
         new() { StepName = $"CH3 X {360d / 11d * 5d:0.###} Degree Y Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 6d:0.###} Degree Y Rod" },
@@ -95,18 +95,23 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         var configuration = FourierViewModel.GetMotorConfiguration();
         Cache.XMinMotorAbsoluteValue = configuration.CenterXMinMotorAbsoluteValue;
         Cache.XMaxMotorAbsoluteValue = configuration.CenterXMaxMotorAbsoluteValue;
-        Cache.PushMinMotorAbsoluteValue = configuration.CenterPushMinMotorAbsoluteValue;
-        Cache.PushMaxMotorAbsoluteValue = configuration.CenterPushMaxMotorAbsoluteValue;
+        Cache.ReflectionPushMinMotorAbsoluteValue = configuration.CenterReflectionPushMinMotorAbsoluteValue;
+        Cache.ReflectionPushMaxMotorAbsoluteValue = configuration.CenterReflectionPushMaxMotorAbsoluteValue;
         Cache.DiffractionPushMinMotorAbsoluteValue = configuration.CenterDiffractionPushMinMotorAbsoluteValue;
         Cache.DiffractionPushMaxMotorAbsoluteValue = configuration.CenterDiffractionPushMaxMotorAbsoluteValue;
 
         Guard.IsGreaterThan(Cache.XMaxMotorAbsoluteValue, Cache.XMinMotorAbsoluteValue);
-        Guard.IsGreaterThan(Cache.PushMaxMotorAbsoluteValue, Cache.PushMinMotorAbsoluteValue);
+        if (double.IsFinite(Cache.ReflectionPushMinMotorAbsoluteValue) == false
+            || double.IsFinite(Cache.ReflectionPushMaxMotorAbsoluteValue) == false
+            || Cache.ReflectionPushMaxMotorAbsoluteValue <= Cache.ReflectionPushMinMotorAbsoluteValue)
+        {
+            ThrowHelper.ThrowInvalidOperationException("反射推杆行程范围无效, 请检查 RFPOSMin/RFPOSMax 配置.");
+        }
         if (double.IsFinite(Cache.DiffractionPushMinMotorAbsoluteValue) == false
             || double.IsFinite(Cache.DiffractionPushMaxMotorAbsoluteValue) == false
             || Cache.DiffractionPushMaxMotorAbsoluteValue <= Cache.DiffractionPushMinMotorAbsoluteValue)
         {
-            ThrowHelper.ThrowNotSupportedException("衍射推杆行程范围不可用, 当前 SDK 尚未提供有效配置.");
+            ThrowHelper.ThrowInvalidOperationException("衍射推杆行程范围无效, 请检查 DFPOSMin/DFPOSMax 配置.");
         }
 
         UpdateEntryStatus(Calibration, cancellationToken);
@@ -121,7 +126,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         Review = Calibration;
         Review.XApertureItem.Review();
         foreach (var item in Review.XRodItems) item.Review();
-        Review.XPushItem.Review();
+        Review.XReflectionPushItem.Review();
         Review.XCalibrationPatternItem.Review();
         foreach (var item in Review.YRodItems) item.Review();
         Review.XDiffractionCoarsePushItem.Review();
@@ -294,8 +299,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             {
                 Cache.XMinMotorAbsoluteValue,
                 Cache.XMaxMotorAbsoluteValue,
-                Cache.PushMinMotorAbsoluteValue,
-                Cache.PushMaxMotorAbsoluteValue,
+                Cache.ReflectionPushMinMotorAbsoluteValue,
+                Cache.ReflectionPushMaxMotorAbsoluteValue,
                 Cache.DiffractionPushMinMotorAbsoluteValue,
                 Cache.DiffractionPushMaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
@@ -330,8 +335,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             {
                 Cache.XMinMotorAbsoluteValue,
                 Cache.XMaxMotorAbsoluteValue,
-                Cache.PushMinMotorAbsoluteValue,
-                Cache.PushMaxMotorAbsoluteValue,
+                Cache.ReflectionPushMinMotorAbsoluteValue,
+                Cache.ReflectionPushMaxMotorAbsoluteValue,
                 Cache.DiffractionPushMinMotorAbsoluteValue,
                 Cache.DiffractionPushMaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
@@ -362,7 +367,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XPushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionPushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XCalibrationPatternItem, cancellationToken).ConfigureAwait(false));
@@ -394,8 +399,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             {
                 Cache.XMinMotorAbsoluteValue,
                 Cache.XMaxMotorAbsoluteValue,
-                Cache.PushMinMotorAbsoluteValue,
-                Cache.PushMaxMotorAbsoluteValue,
+                Cache.ReflectionPushMinMotorAbsoluteValue,
+                Cache.ReflectionPushMaxMotorAbsoluteValue,
                 Cache.DiffractionPushMinMotorAbsoluteValue,
                 Cache.DiffractionPushMaxMotorAbsoluteValue,
                 Cache.ProductivityInformation,
@@ -408,7 +413,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
             Logger.LogHtmlInformation("X Aperture", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             foreach (var item in Review.XRodItems) Logger.LogHtmlInformation($"X Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("X Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Reflection Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Calibration Pattern", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XCalibrationPatternItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Diffraction Coarse Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XDiffractionCoarsePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
@@ -433,8 +438,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             Cache.XMinMotorAbsoluteValue,
             Cache.XMaxMotorAbsoluteValue,
-            Cache.PushMinMotorAbsoluteValue,
-            Cache.PushMaxMotorAbsoluteValue,
+            Cache.ReflectionPushMinMotorAbsoluteValue,
+            Cache.ReflectionPushMaxMotorAbsoluteValue,
             Cache.DiffractionPushMinMotorAbsoluteValue,
             Cache.DiffractionPushMaxMotorAbsoluteValue,
             Cache.ProductivityInformation,
@@ -523,7 +528,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         (double Min, double Max) GetMotorRange(CenterChannelMotionKindEnum centerChannelMotionKindEnum) => centerChannelMotionKindEnum switch
         {
             CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.YRod or CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue),
-            CenterChannelMotionKindEnum.XPush => (Cache.PushMinMotorAbsoluteValue, Cache.PushMaxMotorAbsoluteValue),
+            CenterChannelMotionKindEnum.XReflectionPush => (Cache.ReflectionPushMinMotorAbsoluteValue, Cache.ReflectionPushMaxMotorAbsoluteValue),
             CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => (Cache.DiffractionPushMinMotorAbsoluteValue, Cache.DiffractionPushMaxMotorAbsoluteValue),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<(double Min, double Max)>(nameof(centerChannelMotionKindEnum))
         };
@@ -538,23 +543,23 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 case CenterChannelMotionKindEnum.XCalibrationPattern:
                 case CenterChannelMotionKindEnum.XRod:
                 case CenterChannelMotionKindEnum.YRod:
-                    FourierViewModel.SetChannel3XPush(0d);
+                    FourierViewModel.SetChannel3XReflectionPush(0d);
                     FourierViewModel.SetChannel3XDiffractionPush(0d);
                     FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
 
                     break;
 
-                case CenterChannelMotionKindEnum.XPush:
+                case CenterChannelMotionKindEnum.XReflectionPush:
                     FourierViewModel.SetChannel3XTurntable(0d, 0d);
                     FourierViewModel.SetChannel3XDiffractionPush(0d);
-                    FourierViewModel.SetChannel3XPush(motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XReflectionPush(motorAbsoluteValue);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XDiffractionCoarsePush:
                 case CenterChannelMotionKindEnum.XDiffractionFinePush:
                     FourierViewModel.SetChannel3XTurntable(0d, 0d);
-                    FourierViewModel.SetChannel3XPush(0d);
+                    FourierViewModel.SetChannel3XReflectionPush(0d);
                     FourierViewModel.SetChannel3XDiffractionPush(motorAbsoluteValue);
 
                     break;
@@ -576,7 +581,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                     CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => "XAperture_60",
                     CenterChannelMotionKindEnum.XRod => $"XRod_{120 + Array.IndexOf(CalibratingItem.XRodItems, item) * 60}",
                     CenterChannelMotionKindEnum.YRod => $"YRod_{120 + Array.IndexOf(CalibratingItem.YRodItems, item) * 60}",
-                    CenterChannelMotionKindEnum.XPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => "XPush_0",
+                    CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => "XPush_0",
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(item.CenterChannelMotionKindEnum))
                 };
                 FourierViewModel.UseSimulatorImage(Path.Combine(

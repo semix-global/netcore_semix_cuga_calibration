@@ -76,6 +76,13 @@ public sealed class FourierViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public void SetChannel3XReflectionPush(double motorAbsoluteValue)
+    {
+        var ret = calibrationFourierService.SetChannel3XReflectionPush(motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
     public void SetChannel3XDiffractionPush(double motorAbsoluteValue)
     {
         var ret = calibrationFourierService.SetChannel3XDiffractionPush(motorAbsoluteValue);

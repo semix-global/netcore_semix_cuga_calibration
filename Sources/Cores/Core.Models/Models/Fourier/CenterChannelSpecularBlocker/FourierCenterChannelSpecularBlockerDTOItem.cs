@@ -18,12 +18,12 @@ namespace Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 
 public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : ObservableObject, ICloneable<FourierCenterChannelSpecularBlockerDTOItem>, IDisposable
 {
-    private const string StepsComment = "Step0: Move Y rod and X push home; Step1: move them to the calibrated positions. Grab Fourier images during calibration and CIB images during verification";
+    private const string StepsComment = "Step0: Move Y rod and X reflection push home; Step1: move them to the calibrated positions. Grab Fourier images during calibration and CIB images during verification";
 
     private readonly BitmapImageDrawable _step0FourierBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1FourierBitmapImageDrawable = new();
     private readonly BitmapImageROIDrawable _step1YRodBitmapImageROIDrawable;
-    private readonly BitmapImageROIDrawable _step1XPushBitmapImageROIDrawable;
+    private readonly BitmapImageROIDrawable _step1XReflectionPushBitmapImageROIDrawable;
 
     private readonly BitmapImageDrawable _step0CIBBitmapImageDrawable = new();
     private readonly BitmapImageDrawable _step1CIBBitmapImageDrawable = new();
@@ -36,7 +36,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
 
     public FourierCenterChannelSpecularBlockerDTO.ROI YRodROI { get; }
 
-    public FourierCenterChannelSpecularBlockerDTO.ROI XPushROI { get; }
+    public FourierCenterChannelSpecularBlockerDTO.ROI XReflectionPushROI { get; }
 
     [ObservableProperty]
     public partial string RawStep0CIBImageFilePath { get; set; } = string.Empty;
@@ -71,17 +71,17 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         {
             BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
-        XPushROI = new FourierCenterChannelSpecularBlockerDTO.ROI(_step0FourierBitmapImageDrawable)
+        XReflectionPushROI = new FourierCenterChannelSpecularBlockerDTO.ROI(_step0FourierBitmapImageDrawable)
         {
             BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
         _step1YRodBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable);
-        _step1XPushBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable);
+        _step1XReflectionPushBitmapImageROIDrawable = new BitmapImageROIDrawable(_step1FourierBitmapImageDrawable);
 
         Document.RunDesign(() =>
         {
             Document.ImageModel.AddRange([_step0FourierBitmapImageDrawable, _step1FourierBitmapImageDrawable]);
-            Document.ROIModel.AddRange([YRodROI.BitmapImageROIDrawable, XPushROI.BitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, _step1XPushBitmapImageROIDrawable]);
+            Document.ROIModel.AddRange([YRodROI.BitmapImageROIDrawable, XReflectionPushROI.BitmapImageROIDrawable, _step1YRodBitmapImageROIDrawable, _step1XReflectionPushBitmapImageROIDrawable]);
         });
 
         CIBDocument.RunDesign(() => CIBDocument.ImageModel.AddRange([_step0CIBBitmapImageDrawable, _step1CIBBitmapImageDrawable]));
@@ -93,11 +93,11 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
     [Newtonsoft.Json.JsonConstructor]
     private FourierCenterChannelSpecularBlockerDTOItem(
         FourierCenterChannelSpecularBlockerDTO.ROI yRodROI,
-        FourierCenterChannelSpecularBlockerDTO.ROI xPushROI)
+        FourierCenterChannelSpecularBlockerDTO.ROI xReflectionPushROI)
         : this()
     {
         YRodROI.AdaptIn(yRodROI);
-        XPushROI.AdaptIn(xPushROI);
+        XReflectionPushROI.AdaptIn(xReflectionPushROI);
     }
 
     #region Mapper
@@ -120,7 +120,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         };
 
         item.YRodROI.AdaptIn(YRodROI);
-        item.XPushROI.AdaptIn(XPushROI);
+        item.XReflectionPushROI.AdaptIn(XReflectionPushROI);
 
         return item;
     }
@@ -137,7 +137,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         Step1FourierImageFilePath = string.Empty;
 
         YRodROI.Reset();
-        XPushROI.Reset();
+        XReflectionPushROI.Reset();
 
         Document.Reset();
 
@@ -158,9 +158,9 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
     }
 
     public async Task CalibratingAsync(
-        FourierCenterChannelFlexibleApertureDTOItem xPushItem,
+        FourierCenterChannelFlexibleApertureDTOItem xReflectionPushItem,
         FourierCenterChannelFlexibleApertureDTOItem? yRodItem,
-        (double Min, double Max) xPushMotorRange,
+        (double Min, double Max) xReflectionPushMotorRange,
         (double Min, double Max) yMotorRange,
         CancellationToken cancellationToken)
     {
@@ -173,10 +173,10 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
             Document.View.ZoomToFit();
 
-            Guard.IsTrue(xPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XPush);
-            Guard.IsTrue(double.IsFinite(xPushItem.PixelSize) && xPushItem.PixelSize != 0d);
+            Guard.IsTrue(xReflectionPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XReflectionPush);
+            Guard.IsTrue(double.IsFinite(xReflectionPushItem.PixelSize) && xReflectionPushItem.PixelSize != 0d);
 
-            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xPushItem.Step0ROI.ImageROI);
+            XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xReflectionPushItem.Step0ROI.ImageROI);
 
             while (true)
             {
@@ -184,7 +184,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
 
                 var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
                 {
-                    Title = "Adjust x-push on the Channel3 Fourier image.",
+                    Title = "Adjust x-reflection-push on the Channel3 Fourier image.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
                     IsOutsideImageAllowed = true,
                     IsDeleteEnabled = false,
@@ -214,19 +214,19 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
 
         OuterLoop0:
 
-            XPushROI.BitmapImageROIDrawable.IsFixed = true;
-            XPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XPushROI.BitmapImageROIDrawable.Rect);
-            XPushROI.AngleMotorAbsoluteValue = xPushItem.AngleMotorAbsoluteValue;
-            XPushROI.MotorAbsoluteValue = Math.Clamp(
-                xPushItem.Step0MotorAbsoluteValue + (XPushROI.ImageROI.Center - xPushItem.Step0ROI.ImageROI.Center).X * xPushItem.PixelSize,
-                xPushMotorRange.Min,
-                xPushMotorRange.Max);
+            XReflectionPushROI.BitmapImageROIDrawable.IsFixed = true;
+            XReflectionPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XReflectionPushROI.BitmapImageROIDrawable.Rect);
+            XReflectionPushROI.AngleMotorAbsoluteValue = xReflectionPushItem.AngleMotorAbsoluteValue;
+            XReflectionPushROI.MotorAbsoluteValue = Math.Clamp(
+                xReflectionPushItem.Step0MotorAbsoluteValue + (XReflectionPushROI.ImageROI.Center - xReflectionPushItem.Step0ROI.ImageROI.Center).X * xReflectionPushItem.PixelSize,
+                xReflectionPushMotorRange.Min,
+                xReflectionPushMotorRange.Max);
 
             // 根据限位后的电机位置反算图像中心, 保持 ROI 尺寸并同步显示.
-            var xPushCenterX = xPushItem.Step0ROI.ImageROI.Center.X + (XPushROI.MotorAbsoluteValue - xPushItem.Step0MotorAbsoluteValue) / xPushItem.PixelSize;
-            XPushROI.ImageROI = (XPushROI.ImageROI + new Vector(xPushCenterX - XPushROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
-            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
-            XPushROI.IsSelected = true;
+            var xReflectionPushCenterX = xReflectionPushItem.Step0ROI.ImageROI.Center.X + (XReflectionPushROI.MotorAbsoluteValue - xReflectionPushItem.Step0MotorAbsoluteValue) / xReflectionPushItem.PixelSize;
+            XReflectionPushROI.ImageROI = (XReflectionPushROI.ImageROI + new Vector(xReflectionPushCenterX - XReflectionPushROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
+            XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XReflectionPushROI.ImageROI);
+            XReflectionPushROI.IsSelected = true;
 
             if (yRodItem is not null)
             {
@@ -318,10 +318,10 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
             _step1YRodBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(YRodROI.ImageROI);
             YRodROI.BitmapImageROIDrawable.IsVisible = _step1YRodBitmapImageROIDrawable.IsVisible = YRodROI.IsSelected;
 
-            XPushROI.BitmapImageROIDrawable.IsFixed = _step1XPushBitmapImageROIDrawable.IsFixed = true;
-            XPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
-            _step1XPushBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XPushROI.ImageROI);
-            XPushROI.BitmapImageROIDrawable.IsVisible = _step1XPushBitmapImageROIDrawable.IsVisible = XPushROI.IsSelected;
+            XReflectionPushROI.BitmapImageROIDrawable.IsFixed = _step1XReflectionPushBitmapImageROIDrawable.IsFixed = true;
+            XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XReflectionPushROI.ImageROI);
+            _step1XReflectionPushBitmapImageROIDrawable.Rect = _step1FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XReflectionPushROI.ImageROI);
+            XReflectionPushROI.BitmapImageROIDrawable.IsVisible = _step1XReflectionPushBitmapImageROIDrawable.IsVisible = XReflectionPushROI.IsSelected;
         }
         finally
         {
@@ -367,17 +367,17 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         Step1FourierImageFilePath,
         ROIs = new HtmlTable([
             new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected },
-            new { Name = "X Push", XPushROI.ImageROI, XPushROI.AngleMotorAbsoluteValue, XPushROI.MotorAbsoluteValue, XPushROI.IsSelected },
+            new { Name = "X Reflection Push", XReflectionPushROI.ImageROI, XReflectionPushROI.AngleMotorAbsoluteValue, XReflectionPushROI.MotorAbsoluteValue, XReflectionPushROI.IsSelected },
         ]),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(YRodROI.ImageROI),
-            new HtmlImageRectangleOverlay(XPushROI.ImageROI)
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
         ]),
         Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(YRodROI.ImageROI),
-            new HtmlImageRectangleOverlay(XPushROI.ImageROI)
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
         ])
     };
 

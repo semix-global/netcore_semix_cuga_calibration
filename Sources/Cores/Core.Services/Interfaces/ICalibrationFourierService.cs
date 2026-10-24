@@ -67,6 +67,13 @@ public interface ICalibrationFourierService
     SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue);
 
     /// <summary>
+    /// 设置通道3的X反射推杆位置.
+    /// </summary>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue);
+
+    /// <summary>
     /// 设置通道3的X衍射推杆位置, 粗侧与细侧共用同一根推杆.
     /// </summary>
     /// <param name="motorAbsoluteValue">位置电机绝对值</param>
@@ -93,6 +100,8 @@ public interface ICalibrationFourierService
     /// <param name="CenterPushMaxMotorAbsoluteValue">中心通道X推杆最大位置电机绝对值</param>
     /// <param name="CenterYMinMotorAbsoluteValue">中心通道Y转盘最小位置电机绝对值</param>
     /// <param name="CenterYMaxMotorAbsoluteValue">中心通道Y转盘最大位置电机绝对值</param>
+    /// <param name="CenterReflectionPushMinMotorAbsoluteValue">中心通道X反射推杆最小位置电机绝对值</param>
+    /// <param name="CenterReflectionPushMaxMotorAbsoluteValue">中心通道X反射推杆最大位置电机绝对值</param>
     /// <param name="CenterDiffractionPushMinMotorAbsoluteValue">中心通道X衍射推杆最小位置电机绝对值</param>
     /// <param name="CenterDiffractionPushMaxMotorAbsoluteValue">中心通道X衍射推杆最大位置电机绝对值</param>
     public readonly record struct FourierMotorConfiguration(
@@ -105,6 +114,8 @@ public interface ICalibrationFourierService
         double CenterPushMaxMotorAbsoluteValue,
         double CenterYMinMotorAbsoluteValue,
         double CenterYMaxMotorAbsoluteValue,
+        double CenterReflectionPushMinMotorAbsoluteValue,
+        double CenterReflectionPushMaxMotorAbsoluteValue,
         double CenterDiffractionPushMinMotorAbsoluteValue,
         double CenterDiffractionPushMaxMotorAbsoluteValue);
 }

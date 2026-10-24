@@ -444,64 +444,64 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     public double CgFFBoxTurnXCalibrationPatternCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆像素宽度,**需要记录**
+    /// X反射推杆的像素宽度.
     /// </summary>
-    public double CgFFBoxPushXWidthCh3 { get; set; }
+    public double CgFFBoxReflectionPushXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆每1像素宽度相当于多少毫米,**需要记录**
+    /// X反射推杆的每像素对应的电机位移.
     /// </summary>
-    public double CgFFBoxPushXMotorRelationCh3 { get; set; }
+    public double CgFFBoxReflectionPushXMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆起始位置,**需要记录**
+    /// X反射推杆的起始电机位置.
     /// </summary>
-    public double CgFFBoxPushXMotorPositionCh3 { get; set; }
+    public double CgFFBoxReflectionPushXMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆起始矩形区域坐标,**需要记录**
+    /// X反射推杆的起始矩形区域坐标.
     /// </summary>
-    public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
+    public RectD CgFFBoxReflectionPushXRectPositionCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆粗侧的像素宽度.
     /// </summary>
-    public double CgFFBoxPushXDiffractionCoarseWidthCh3 { get; set; }
+    public double CgFFBoxDiffractionCoarsePushXWidthCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆粗侧的每像素对应的电机位移.
     /// </summary>
-    public double CgFFBoxPushXDiffractionCoarseMotorRelationCh3 { get; set; }
+    public double CgFFBoxDiffractionCoarsePushXMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆粗侧的起始电机位置.
     /// </summary>
-    public double CgFFBoxPushXDiffractionCoarseMotorPositionCh3 { get; set; }
+    public double CgFFBoxDiffractionCoarsePushXMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆粗侧的起始矩形区域坐标.
     /// </summary>
-    public RectD CgFFBoxPushXDiffractionCoarseRectPositionCh3 { get; set; }
+    public RectD CgFFBoxDiffractionCoarsePushXRectPositionCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆细侧的像素宽度.
     /// </summary>
-    public double CgFFBoxPushXDiffractionFineWidthCh3 { get; set; }
+    public double CgFFBoxDiffractionFinePushXWidthCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆细侧的每像素对应的电机位移.
     /// </summary>
-    public double CgFFBoxPushXDiffractionFineMotorRelationCh3 { get; set; }
+    public double CgFFBoxDiffractionFinePushXMotorRelationCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆细侧的起始电机位置.
     /// </summary>
-    public double CgFFBoxPushXDiffractionFineMotorPositionCh3 { get; set; }
+    public double CgFFBoxDiffractionFinePushXMotorPositionCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆细侧的起始矩形区域坐标.
     /// </summary>
-    public RectD CgFFBoxPushXDiffractionFineRectPositionCh3 { get; set; }
+    public RectD CgFFBoxDiffractionFinePushXRectPositionCh3 { get; set; }
 }
 
 /// <summary>

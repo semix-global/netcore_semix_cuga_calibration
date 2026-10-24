@@ -20,7 +20,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
         new(CenterChannelMotionKindEnum.XRod, AngleStep * 4d) { Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
     ];
 
-    public FourierCenterChannelFlexibleApertureDTOItem XPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XPush, 0d) { Step0MotorAbsoluteValue = 34d, Step1MotorAbsoluteValue = 39d };
+    public FourierCenterChannelFlexibleApertureDTOItem XReflectionPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XReflectionPush, 0d) { Step0MotorAbsoluteValue = 34d, Step1MotorAbsoluteValue = 39d };
 
     public FourierCenterChannelFlexibleApertureDTOItem XCalibrationPatternItem { get; private init; } = new(CenterChannelMotionKindEnum.XCalibrationPattern, AngleStep * 8d) { Step0MotorAbsoluteValue = 10d, Step1MotorAbsoluteValue = 15d };
 
@@ -42,7 +42,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
     {
         XApertureItem = XApertureItem.Clone(),
         XRodItems = [.. XRodItems.Select(t => t.Clone())],
-        XPushItem = XPushItem.Clone(),
+        XReflectionPushItem = XReflectionPushItem.Clone(),
         XCalibrationPatternItem = XCalibrationPatternItem.Clone(),
         YRodItems = [.. YRodItems.Select(t => t.Clone())],
         XDiffractionCoarsePushItem = XDiffractionCoarsePushItem.Clone(),
@@ -78,18 +78,18 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
         CgFFBoxTurnXCalibrationPatternCirclePositionCh3 = XCalibrationPatternItem.Step0MotorAbsoluteValue,
         CgFFBoxTurnXCalibrationPatternCircleCenterCh3 = XCalibrationPatternItem.Step0ROI.ImageROI.Center.ToCgPoint(),
         CgFFBoxTurnXCalibrationPatternCircleRadiusCh3 = XCalibrationPatternItem.Step0ROI.ImageROI.Width / 2d,
-        CgFFBoxPushXWidthCh3 = XPushItem.Step0ROI.ImageROI.Width,
-        CgFFBoxPushXMotorRelationCh3 = XPushItem.PixelSize,
-        CgFFBoxPushXMotorPositionCh3 = XPushItem.Step0MotorAbsoluteValue,
-        CgFFBoxPushXRectPositionCh3 = XPushItem.Step0ROI.ImageROI.ToRectD(),
-        CgFFBoxPushXDiffractionCoarseWidthCh3 = XDiffractionCoarsePushItem.Step0ROI.ImageROI.Width,
-        CgFFBoxPushXDiffractionCoarseMotorRelationCh3 = XDiffractionCoarsePushItem.PixelSize,
-        CgFFBoxPushXDiffractionCoarseMotorPositionCh3 = XDiffractionCoarsePushItem.Step0MotorAbsoluteValue,
-        CgFFBoxPushXDiffractionCoarseRectPositionCh3 = XDiffractionCoarsePushItem.Step0ROI.ImageROI.ToRectD(),
-        CgFFBoxPushXDiffractionFineWidthCh3 = XDiffractionFinePushItem.Step0ROI.ImageROI.Width,
-        CgFFBoxPushXDiffractionFineMotorRelationCh3 = XDiffractionFinePushItem.PixelSize,
-        CgFFBoxPushXDiffractionFineMotorPositionCh3 = XDiffractionFinePushItem.Step0MotorAbsoluteValue,
-        CgFFBoxPushXDiffractionFineRectPositionCh3 = XDiffractionFinePushItem.Step0ROI.ImageROI.ToRectD(),
+        CgFFBoxReflectionPushXWidthCh3 = XReflectionPushItem.Step0ROI.ImageROI.Width,
+        CgFFBoxReflectionPushXMotorRelationCh3 = XReflectionPushItem.PixelSize,
+        CgFFBoxReflectionPushXMotorPositionCh3 = XReflectionPushItem.Step0MotorAbsoluteValue,
+        CgFFBoxReflectionPushXRectPositionCh3 = XReflectionPushItem.Step0ROI.ImageROI.ToRectD(),
+        CgFFBoxDiffractionCoarsePushXWidthCh3 = XDiffractionCoarsePushItem.Step0ROI.ImageROI.Width,
+        CgFFBoxDiffractionCoarsePushXMotorRelationCh3 = XDiffractionCoarsePushItem.PixelSize,
+        CgFFBoxDiffractionCoarsePushXMotorPositionCh3 = XDiffractionCoarsePushItem.Step0MotorAbsoluteValue,
+        CgFFBoxDiffractionCoarsePushXRectPositionCh3 = XDiffractionCoarsePushItem.Step0ROI.ImageROI.ToRectD(),
+        CgFFBoxDiffractionFinePushXWidthCh3 = XDiffractionFinePushItem.Step0ROI.ImageROI.Width,
+        CgFFBoxDiffractionFinePushXMotorRelationCh3 = XDiffractionFinePushItem.PixelSize,
+        CgFFBoxDiffractionFinePushXMotorPositionCh3 = XDiffractionFinePushItem.Step0MotorAbsoluteValue,
+        CgFFBoxDiffractionFinePushXRectPositionCh3 = XDiffractionFinePushItem.Step0ROI.ImageROI.ToRectD(),
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredCalibrate = IsRequiredSelfCheck
@@ -99,7 +99,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
     {
         XApertureItem.Dispose();
         foreach (var xItem in XRodItems) xItem.Dispose();
-        XPushItem.Dispose();
+        XReflectionPushItem.Dispose();
 
         XCalibrationPatternItem.Dispose();
         foreach (var yItem in YRodItems) yItem.Dispose();

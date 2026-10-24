@@ -25,7 +25,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
         "_step0FourierBitmapImageDrawable",
         "_step1FourierBitmapImageDrawable",
         "_step1YRodBitmapImageROIDrawable",
-        "_step1XPushBitmapImageROIDrawable",
+        "_step1XReflectionPushBitmapImageROIDrawable",
         "_step0CIBBitmapImageDrawable",
         "_step1CIBBitmapImageDrawable",
         "BitmapImageROIDrawable",
@@ -104,7 +104,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             actual.ExtinctionRatio.Should().Be(expected.Value<double>(nameof(actual.ExtinctionRatio)));
 
             AssertROIMatchesJson(actual.YRodROI, expected[nameof(actual.YRodROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
-            AssertROIMatchesJson(actual.XPushROI, expected[nameof(actual.XPushROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertROIMatchesJson(actual.XReflectionPushROI, expected[nameof(actual.XReflectionPushROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertROIMatchesJson(FourierCenterChannelSpecularBlockerDTO.ROI actual, JToken expected)
@@ -225,10 +225,10 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 360d / 11d * 5d, 360d / 11d * 6d, 360d / 11d * 7d, 360d / 11d * 10d }[random.Next(5)];
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
             channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
-            channel.XPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
-            channel.XPushROI.AngleMotorAbsoluteValue = 0d;
-            channel.XPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
-            channel.XPushROI.IsSelected = true;
+            channel.XReflectionPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
+            channel.XReflectionPushROI.AngleMotorAbsoluteValue = 0d;
+            channel.XReflectionPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
+            channel.XReflectionPushROI.IsSelected = true;
 
             return dto;
         }
@@ -238,8 +238,8 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             actual.Should().NotBeSameAs(expected);
             actual.YRodROI.Should().NotBeSameAs(expected.YRodROI);
             actual.YRodROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.YRodROI.BitmapImageROIDrawable);
-            actual.XPushROI.Should().NotBeSameAs(expected.XPushROI);
-            actual.XPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XPushROI.BitmapImageROIDrawable);
+            actual.XReflectionPushROI.Should().NotBeSameAs(expected.XReflectionPushROI);
+            actual.XReflectionPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XReflectionPushROI.BitmapImageROIDrawable);
             actual.Document.Should().NotBeSameAs(expected.Document);
             actual.CIBDocument.Should().NotBeSameAs(expected.CIBDocument);
         }
@@ -289,29 +289,29 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected.YRodROI.AngleMotorAbsoluteValue);
             actual.YRodROI.MotorAbsoluteValue.Should().Be(expected.YRodROI.MotorAbsoluteValue);
             actual.YRodROI.IsSelected.Should().Be(expected.YRodROI.IsSelected);
-            actual.XPushROI.ImageROI.Should().Be(expected.XPushROI.ImageROI);
-            actual.XPushROI.AngleMotorAbsoluteValue.Should().Be(expected.XPushROI.AngleMotorAbsoluteValue);
-            actual.XPushROI.MotorAbsoluteValue.Should().Be(expected.XPushROI.MotorAbsoluteValue);
-            actual.XPushROI.IsSelected.Should().Be(expected.XPushROI.IsSelected);
+            actual.XReflectionPushROI.ImageROI.Should().Be(expected.XReflectionPushROI.ImageROI);
+            actual.XReflectionPushROI.AngleMotorAbsoluteValue.Should().Be(expected.XReflectionPushROI.AngleMotorAbsoluteValue);
+            actual.XReflectionPushROI.MotorAbsoluteValue.Should().Be(expected.XReflectionPushROI.MotorAbsoluteValue);
+            actual.XReflectionPushROI.IsSelected.Should().Be(expected.XReflectionPushROI.IsSelected);
         }
     }
 
     [Fact]
-    public void AdaptTo_ShouldPreserveXTurntableYRodAndNormalXPush()
+    public void AdaptTo_ShouldPreserveXTurntableYRodAndNormalXReflectionPush()
     {
         using var dto = new FourierCenterChannelSpecularBlockerDTO();
         dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = 360d / 11d * 6d;
         dto.Channel3Item.YRodROI.MotorAbsoluteValue = -3.5;
         dto.Channel3Item.YRodROI.IsSelected = true;
-        dto.Channel3Item.XPushROI.MotorAbsoluteValue = 42.25;
-        dto.Channel3Item.XPushROI.IsSelected = true;
+        dto.Channel3Item.XReflectionPushROI.MotorAbsoluteValue = 42.25;
+        dto.Channel3Item.XReflectionPushROI.IsSelected = true;
 
         var actual = dto.AdaptTo();
 
         actual.IsSelectedY.Should().BeTrue();
         actual.Ch3Angle.Should().Be((float)dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue);
         actual.Ch3TurnY.Should().Be((float)dto.Channel3Item.YRodROI.MotorAbsoluteValue);
-        actual.Ch3Push.Should().Be((float)dto.Channel3Item.XPushROI.MotorAbsoluteValue);
+        actual.Ch3Push.Should().Be((float)dto.Channel3Item.XReflectionPushROI.MotorAbsoluteValue);
     }
 
     [Theory]

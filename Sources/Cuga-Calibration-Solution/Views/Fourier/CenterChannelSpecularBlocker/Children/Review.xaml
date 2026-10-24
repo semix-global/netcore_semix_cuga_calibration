@@ -11,7 +11,8 @@
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:centerChannelSpecularBlocker="clr-namespace:Core.Models.Models.Fourier.CenterChannelSpecularBlocker;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:FourierCenterChannelSpecularBlockerViewModel}"
-             d:DesignWidth="1920" d:DesignHeight="1080"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -130,9 +131,9 @@
                             <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.AngleMotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
                             <GridViewColumn Header="Y Rod Position(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.MotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
                             <GridViewColumn Header="Y Rod Selected" DisplayMemberBinding="{Binding Channel3Item.YRodROI.IsSelected, Mode=OneWay}" />
-                            <GridViewColumn Header="X Push ROI(px)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
-                            <GridViewColumn Header="X Push Position(mm)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.MotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="X Push Selected" DisplayMemberBinding="{Binding Channel3Item.XPushROI.IsSelected, Mode=OneWay}" />
+                            <GridViewColumn Header="X Reflection Push ROI(px)" DisplayMemberBinding="{Binding Channel3Item.XReflectionPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                            <GridViewColumn Header="X Reflection Push Position(mm)" DisplayMemberBinding="{Binding Channel3Item.XReflectionPushROI.MotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="X Reflection Push Selected" DisplayMemberBinding="{Binding Channel3Item.XReflectionPushROI.IsSelected, Mode=OneWay}" />
                             <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, Mode=OneWay, StringFormat='0.###'}" />
