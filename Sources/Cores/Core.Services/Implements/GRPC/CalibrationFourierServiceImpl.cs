@@ -26,7 +26,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         });
     }
 
-    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero)
+    public SxExecuteRet<bool> Home(int channelId, bool isGoToZero = true)
     {
         throw new NotImplementedException();
     }
@@ -58,12 +58,12 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
 
     public SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue)
     {
-        throw new NotImplementedException("当前 GRPC SDK 尚未提供通道3的X反射推杆控制接口.");
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue)
     {
-        throw new NotImplementedException("当前 GRPC SDK 尚未提供通道3的X衍射推杆控制接口.");
+        throw new NotImplementedException();
     }
 
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
