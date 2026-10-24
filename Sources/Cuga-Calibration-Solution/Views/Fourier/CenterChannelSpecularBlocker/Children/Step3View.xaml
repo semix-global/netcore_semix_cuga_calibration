@@ -50,6 +50,14 @@
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
                                   SelectedValue="{Binding SelectedYRodItem, Mode=TwoWay}" />
+                        <ComboBox hc:TitleElement.Title="X Reflection Push: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding XReflectionPushItems, Mode=OneWay}"
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding SelectedXReflectionPushKind, Mode=TwoWay}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

@@ -80,11 +80,11 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
             AssertItemMatchesJson(actual.XApertureItem, expected[nameof(actual.XApertureItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemsMatchJson(actual.XRodItems, expected[nameof(actual.XRodItems)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
-            AssertItemMatchesJson(actual.XReflectionPushItem, expected[nameof(actual.XReflectionPushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XDiffractionPushItem, expected[nameof(actual.XDiffractionPushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemMatchesJson(actual.XCalibrationPatternItem, expected[nameof(actual.XCalibrationPatternItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemsMatchJson(actual.YRodItems, expected[nameof(actual.YRodItems)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
-            AssertItemMatchesJson(actual.XDiffractionCoarsePushItem, expected[nameof(actual.XDiffractionCoarsePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
-            AssertItemMatchesJson(actual.XDiffractionFinePushItem, expected[nameof(actual.XDiffractionFinePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XReflectionCoarsePushItem, expected[nameof(actual.XReflectionCoarsePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XReflectionFinePushItem, expected[nameof(actual.XReflectionFinePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertItemsMatchJson(FourierCenterChannelFlexibleApertureDTOItem[] actual, JArray expected)
@@ -172,11 +172,11 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         cloned.HasErrors.Should().BeFalse();
         cloned.XApertureItem.Should().NotBeSameAs(expected.XApertureItem);
         cloned.XRodItems.Should().NotBeSameAs(expected.XRodItems);
-        cloned.XReflectionPushItem.Should().NotBeSameAs(expected.XReflectionPushItem);
+        cloned.XDiffractionPushItem.Should().NotBeSameAs(expected.XDiffractionPushItem);
         cloned.XCalibrationPatternItem.Should().NotBeSameAs(expected.XCalibrationPatternItem);
         cloned.YRodItems.Should().NotBeSameAs(expected.YRodItems);
-        cloned.XDiffractionCoarsePushItem.Should().NotBeSameAs(expected.XDiffractionCoarsePushItem);
-        cloned.XDiffractionFinePushItem.Should().NotBeSameAs(expected.XDiffractionFinePushItem);
+        cloned.XReflectionCoarsePushItem.Should().NotBeSameAs(expected.XReflectionCoarsePushItem);
+        cloned.XReflectionFinePushItem.Should().NotBeSameAs(expected.XReflectionFinePushItem);
         AssertEquals(cloned, expected, isUseCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
@@ -210,7 +210,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
             dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
 
-            foreach (var item in new[] { dto.XApertureItem }.Concat(dto.XRodItems).Concat([dto.XReflectionPushItem, dto.XCalibrationPatternItem]).Concat(dto.YRodItems).Concat([dto.XDiffractionCoarsePushItem, dto.XDiffractionFinePushItem]))
+            foreach (var item in new[] { dto.XApertureItem }.Concat(dto.XRodItems).Concat([dto.XDiffractionPushItem, dto.XCalibrationPatternItem]).Concat(dto.YRodItems).Concat([dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem]))
             {
                 item.AngleMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
                 item.Step0MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
@@ -259,12 +259,12 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             AssertItemEquals(actual.XApertureItem, expected.XApertureItem);
             actual.XRodItems.Should().HaveCount(expected.XRodItems.Length);
             for (var i = 0; i < expected.XRodItems.Length; i++) AssertItemEquals(actual.XRodItems[i], expected.XRodItems[i]);
-            AssertItemEquals(actual.XReflectionPushItem, expected.XReflectionPushItem);
+            AssertItemEquals(actual.XDiffractionPushItem, expected.XDiffractionPushItem);
             AssertItemEquals(actual.XCalibrationPatternItem, expected.XCalibrationPatternItem);
             actual.YRodItems.Should().HaveCount(expected.YRodItems.Length);
             for (var i = 0; i < expected.YRodItems.Length; i++) AssertItemEquals(actual.YRodItems[i], expected.YRodItems[i]);
-            AssertItemEquals(actual.XDiffractionCoarsePushItem, expected.XDiffractionCoarsePushItem);
-            AssertItemEquals(actual.XDiffractionFinePushItem, expected.XDiffractionFinePushItem);
+            AssertItemEquals(actual.XReflectionCoarsePushItem, expected.XReflectionCoarsePushItem);
+            AssertItemEquals(actual.XReflectionFinePushItem, expected.XReflectionFinePushItem);
         }
 
         static void AssertItemEquals(FourierCenterChannelFlexibleApertureDTOItem actual, FourierCenterChannelFlexibleApertureDTOItem expected)
@@ -293,14 +293,15 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         dto.YRodItems.Select(t => t.DefaultAngleMotorAbsoluteValue).Should().Equal(new[] { 5d, 6d, 7d, 10d }.Select(t => angleStep * t));
         dto.XApertureItem.DefaultAngleMotorAbsoluteValue.Should().Be(angleStep * 9d);
         dto.XCalibrationPatternItem.DefaultAngleMotorAbsoluteValue.Should().Be(angleStep * 8d);
-        dto.XReflectionPushItem.Step0MotorAbsoluteValue.Should().Be(34d);
-        dto.XReflectionPushItem.Step1MotorAbsoluteValue.Should().Be(39d);
-        dto.XDiffractionCoarsePushItem.CenterChannelMotionKindEnum.Should().Be(CenterChannelMotionKindEnum.XDiffractionCoarsePush);
-        dto.XDiffractionFinePushItem.CenterChannelMotionKindEnum.Should().Be(CenterChannelMotionKindEnum.XDiffractionFinePush);
+        dto.XDiffractionPushItem.CenterChannelMotionKindEnum.Should().Be(CenterChannelMotionKindEnum.XDiffractionPush);
+        dto.XDiffractionPushItem.Step0MotorAbsoluteValue.Should().Be(34d);
+        dto.XDiffractionPushItem.Step1MotorAbsoluteValue.Should().Be(39d);
+        dto.XReflectionCoarsePushItem.CenterChannelMotionKindEnum.Should().Be(CenterChannelMotionKindEnum.XReflectionCoarsePush);
+        dto.XReflectionFinePushItem.CenterChannelMotionKindEnum.Should().Be(CenterChannelMotionKindEnum.XReflectionFinePush);
 
         using var cloned = dto.Clone();
-        FourierCenterChannelFlexibleApertureDTOItem[] expectedPushItems = [dto.XReflectionPushItem, dto.XDiffractionCoarsePushItem, dto.XDiffractionFinePushItem];
-        FourierCenterChannelFlexibleApertureDTOItem[] clonedPushItems = [cloned.XReflectionPushItem, cloned.XDiffractionCoarsePushItem, cloned.XDiffractionFinePushItem];
+        FourierCenterChannelFlexibleApertureDTOItem[] expectedPushItems = [dto.XDiffractionPushItem, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem];
+        FourierCenterChannelFlexibleApertureDTOItem[] clonedPushItems = [cloned.XDiffractionPushItem, cloned.XReflectionCoarsePushItem, cloned.XReflectionFinePushItem];
         for (var i = 0; i < expectedPushItems.Length; i++)
         {
             var expected = expectedPushItems[i];
@@ -313,12 +314,12 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             actual.Document.Should().NotBeSameAs(expected.Document);
         }
 
-        var expectedCoarseROI = dto.XDiffractionCoarsePushItem.Step0ROI.ImageROI;
-        cloned.XDiffractionCoarsePushItem.Step0MotorAbsoluteValue = 12d;
-        cloned.XDiffractionCoarsePushItem.Step0ROI.ImageROI = new Rect(10d, 20d, 30d, 40d);
-        cloned.XDiffractionFinePushItem.Step0MotorAbsoluteValue.Should().Be(dto.XDiffractionFinePushItem.Step0MotorAbsoluteValue);
-        dto.XDiffractionCoarsePushItem.Step0MotorAbsoluteValue.Should().Be(0d);
-        dto.XDiffractionCoarsePushItem.Step0ROI.ImageROI.Should().Be(expectedCoarseROI);
+        var expectedCoarseROI = dto.XReflectionCoarsePushItem.Step0ROI.ImageROI;
+        cloned.XReflectionCoarsePushItem.Step0MotorAbsoluteValue = 12d;
+        cloned.XReflectionCoarsePushItem.Step0ROI.ImageROI = new Rect(10d, 20d, 30d, 40d);
+        cloned.XReflectionFinePushItem.Step0MotorAbsoluteValue.Should().Be(dto.XReflectionFinePushItem.Step0MotorAbsoluteValue);
+        dto.XReflectionCoarsePushItem.Step0MotorAbsoluteValue.Should().Be(0d);
+        dto.XReflectionCoarsePushItem.Step0ROI.ImageROI.Should().Be(expectedCoarseROI);
     }
 
     [Fact]
@@ -330,7 +331,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             IsVerified = true,
             IsRequiredSelfCheck = true
         };
-        FourierCenterChannelFlexibleApertureDTOItem[] items = [dto.XApertureItem, .. dto.XRodItems, dto.XReflectionPushItem, dto.XCalibrationPatternItem, .. dto.YRodItems, dto.XDiffractionCoarsePushItem, dto.XDiffractionFinePushItem];
+        FourierCenterChannelFlexibleApertureDTOItem[] items = [dto.XApertureItem, .. dto.XRodItems, dto.XDiffractionPushItem, dto.XCalibrationPatternItem, .. dto.YRodItems, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem];
         for (var i = 0; i < items.Length; i++)
         {
             var item = items[i];
@@ -366,18 +367,18 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         actual.CgFFBoxTurnXCalibrationPatternCirclePositionCh3.Should().Be(dto.XCalibrationPatternItem.Step0MotorAbsoluteValue);
         actual.CgFFBoxTurnXCalibrationPatternCircleCenterCh3.Should().BeEquivalentTo(dto.XCalibrationPatternItem.Step0ROI.ImageROI.Center.ToCgPoint());
         actual.CgFFBoxTurnXCalibrationPatternCircleRadiusCh3.Should().Be(dto.XCalibrationPatternItem.Step0ROI.ImageROI.Width / 2d);
-        actual.CgFFBoxReflectionPushXWidthCh3.Should().Be(dto.XReflectionPushItem.Step0ROI.ImageROI.Width);
-        actual.CgFFBoxReflectionPushXMotorRelationCh3.Should().Be(dto.XReflectionPushItem.PixelSize);
-        actual.CgFFBoxReflectionPushXMotorPositionCh3.Should().Be(dto.XReflectionPushItem.Step0MotorAbsoluteValue);
-        actual.CgFFBoxReflectionPushXRectPositionCh3.Should().BeEquivalentTo(dto.XReflectionPushItem.Step0ROI.ImageROI.ToRectD());
-        actual.CgFFBoxDiffractionCoarsePushXWidthCh3.Should().Be(dto.XDiffractionCoarsePushItem.Step0ROI.ImageROI.Width);
-        actual.CgFFBoxDiffractionCoarsePushXMotorRelationCh3.Should().Be(dto.XDiffractionCoarsePushItem.PixelSize);
-        actual.CgFFBoxDiffractionCoarsePushXMotorPositionCh3.Should().Be(dto.XDiffractionCoarsePushItem.Step0MotorAbsoluteValue);
-        actual.CgFFBoxDiffractionCoarsePushXRectPositionCh3.Should().BeEquivalentTo(dto.XDiffractionCoarsePushItem.Step0ROI.ImageROI.ToRectD());
-        actual.CgFFBoxDiffractionFinePushXWidthCh3.Should().Be(dto.XDiffractionFinePushItem.Step0ROI.ImageROI.Width);
-        actual.CgFFBoxDiffractionFinePushXMotorRelationCh3.Should().Be(dto.XDiffractionFinePushItem.PixelSize);
-        actual.CgFFBoxDiffractionFinePushXMotorPositionCh3.Should().Be(dto.XDiffractionFinePushItem.Step0MotorAbsoluteValue);
-        actual.CgFFBoxDiffractionFinePushXRectPositionCh3.Should().BeEquivalentTo(dto.XDiffractionFinePushItem.Step0ROI.ImageROI.ToRectD());
+        actual.CgFFBoxDiffractionPushXWidthCh3.Should().Be(dto.XDiffractionPushItem.Step0ROI.ImageROI.Width);
+        actual.CgFFBoxDiffractionPushXMotorRelationCh3.Should().Be(dto.XDiffractionPushItem.PixelSize);
+        actual.CgFFBoxDiffractionPushXMotorPositionCh3.Should().Be(dto.XDiffractionPushItem.Step0MotorAbsoluteValue);
+        actual.CgFFBoxDiffractionPushXRectPositionCh3.Should().BeEquivalentTo(dto.XDiffractionPushItem.Step0ROI.ImageROI.ToRectD());
+        actual.CgFFBoxReflectionCoarsePushXWidthCh3.Should().Be(dto.XReflectionCoarsePushItem.Step0ROI.ImageROI.Width);
+        actual.CgFFBoxReflectionCoarsePushXMotorRelationCh3.Should().Be(dto.XReflectionCoarsePushItem.PixelSize);
+        actual.CgFFBoxReflectionCoarsePushXMotorPositionCh3.Should().Be(dto.XReflectionCoarsePushItem.Step0MotorAbsoluteValue);
+        actual.CgFFBoxReflectionCoarsePushXRectPositionCh3.Should().BeEquivalentTo(dto.XReflectionCoarsePushItem.Step0ROI.ImageROI.ToRectD());
+        actual.CgFFBoxReflectionFinePushXWidthCh3.Should().Be(dto.XReflectionFinePushItem.Step0ROI.ImageROI.Width);
+        actual.CgFFBoxReflectionFinePushXMotorRelationCh3.Should().Be(dto.XReflectionFinePushItem.PixelSize);
+        actual.CgFFBoxReflectionFinePushXMotorPositionCh3.Should().Be(dto.XReflectionFinePushItem.Step0MotorAbsoluteValue);
+        actual.CgFFBoxReflectionFinePushXRectPositionCh3.Should().BeEquivalentTo(dto.XReflectionFinePushItem.Step0ROI.ImageROI.ToRectD());
         actual.IsCalibrated.Should().BeTrue();
         actual.IsVerified.Should().BeTrue();
         actual.IsRequiredCalibrate.Should().BeTrue();

@@ -131,14 +131,14 @@
       "PixelSize": 0.024
     }
   ],
-  "XReflectionPushItem": {
+  "XDiffractionPushItem": {
     "CenterChannelMotionKindEnum": 2,
     "DefaultAngleMotorAbsoluteValue": 0.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 42.5,
     "Step1MotorAbsoluteValue": 43.5,
-    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionPush_Step0.jpg",
-    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionPush_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionPush_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionPush_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 20.0,
@@ -289,14 +289,14 @@
       "PixelSize": 0.044
     }
   ],
-  "XDiffractionCoarsePushItem": {
+  "XReflectionCoarsePushItem": {
     "CenterChannelMotionKindEnum": 5,
     "DefaultAngleMotorAbsoluteValue": 0.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 10.0,
     "Step1MotorAbsoluteValue": 12.0,
-    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionCoarsePush_Step0.jpg",
-    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionCoarsePush_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionCoarsePush_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionCoarsePush_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 40.0,
@@ -315,14 +315,14 @@
     },
     "PixelSize": 0.04
   },
-  "XDiffractionFinePushItem": {
+  "XReflectionFinePushItem": {
     "CenterChannelMotionKindEnum": 6,
     "DefaultAngleMotorAbsoluteValue": 0.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 10.0,
     "Step1MotorAbsoluteValue": 12.0,
-    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionFinePush_Step0.jpg",
-    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XDiffractionFinePush_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionFinePush_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XReflectionFinePush_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 150.0,

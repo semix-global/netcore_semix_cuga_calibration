@@ -67,7 +67,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 ResizeJoystickStateEnum = centerChannelMotionKindEnum switch
                 {
                     CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.YRod => BitmapImageROIResizeJoystickStateEnum.XMinYMin | BitmapImageROIResizeJoystickStateEnum.XMinYMax | BitmapImageROIResizeJoystickStateEnum.XMaxYMin | BitmapImageROIResizeJoystickStateEnum.XMaxYMax,
-                    CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
+                    CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => BitmapImageROIResizeJoystickStateEnum.XMinYCenter | BitmapImageROIResizeJoystickStateEnum.XMaxYCenter,
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIResizeJoystickStateEnum>(nameof(centerChannelMotionKindEnum))
                 }
             }
@@ -186,7 +186,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
                     break;
 
-                case CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush:
+                case CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush:
                     var width = _step0BitmapImageDrawable.BitmapImage.Width / 4;
                     Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
@@ -215,7 +215,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     BitmapImageROIDragMoveTypeEnum = CenterChannelMotionKindEnum switch
                     {
                         CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern or CenterChannelMotionKindEnum.YRod => BitmapImageROIDragMoveTypeEnum.All,
-                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => BitmapImageROIDragMoveTypeEnum.X,
+                        CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => BitmapImageROIDragMoveTypeEnum.X,
                         _ => ThrowHelper.ThrowArgumentOutOfRangeException<BitmapImageROIDragMoveTypeEnum>(nameof(CenterChannelMotionKindEnum))
                     },
                     IsDeleteEnabled = false,

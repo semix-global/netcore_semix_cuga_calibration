@@ -61,6 +61,15 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
     [ObservableProperty]
     public partial FourierCenterChannelFlexibleApertureDTOItem? SelectedYRodItem { get; set; } = null;
 
+    public IReadOnlyList<KeyValuePair<string, CenterChannelMotionKindEnum>> XReflectionPushItems { get; } =
+    [
+        new("Coarse", CenterChannelMotionKindEnum.XReflectionCoarsePush),
+        new("Fine", CenterChannelMotionKindEnum.XReflectionFinePush)
+    ];
+
+    [ObservableProperty]
+    public partial CenterChannelMotionKindEnum SelectedXReflectionPushKind { get; set; } = CenterChannelMotionKindEnum.XReflectionCoarsePush;
+
     #endregion Calibrate
 
     [ObservableProperty]
@@ -376,6 +385,12 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
 
         var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
         var configuration = FourierViewModel.GetMotorConfiguration();
+        var xReflectionPushItem = SelectedXReflectionPushKind switch
+        {
+            CenterChannelMotionKindEnum.XReflectionCoarsePush => FourierCenterChannelFlexibleAperture.XReflectionCoarsePushItem,
+            CenterChannelMotionKindEnum.XReflectionFinePush => FourierCenterChannelFlexibleAperture.XReflectionFinePushItem,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierCenterChannelFlexibleApertureDTOItem>(nameof(SelectedXReflectionPushKind))
+        };
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
@@ -390,6 +405,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             configuration.CenterReflectionPushMaxMotorAbsoluteValue,
             configuration.CenterXMinMotorAbsoluteValue,
             configuration.CenterXMaxMotorAbsoluteValue,
+            xReflectionPushItem.CenterChannelMotionKindEnum,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -432,7 +448,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             try
             {
                 await item.CalibratingAsync(
-                    FourierCenterChannelFlexibleAperture.XReflectionPushItem,
+                    xReflectionPushItem,
                     SelectedYRodItem,
                     (configuration.CenterReflectionPushMinMotorAbsoluteValue, configuration.CenterReflectionPushMaxMotorAbsoluteValue),
                     (configuration.CenterXMinMotorAbsoluteValue, configuration.CenterXMaxMotorAbsoluteValue),

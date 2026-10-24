@@ -67,14 +67,14 @@ public interface ICalibrationFourierService
     SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue);
 
     /// <summary>
-    /// 设置通道3的X反射推杆位置.
+    /// 设置通道3的X反射推杆位置, 粗侧与细侧共用同一根推杆.
     /// </summary>
     /// <param name="motorAbsoluteValue">位置电机绝对值</param>
     /// <returns>是否成功</returns>
     SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue);
 
     /// <summary>
-    /// 设置通道3的X衍射推杆位置, 粗侧与细侧共用同一根推杆.
+    /// 设置通道3的X衍射推杆位置.
     /// </summary>
     /// <param name="motorAbsoluteValue">位置电机绝对值</param>
     /// <returns>是否成功</returns>

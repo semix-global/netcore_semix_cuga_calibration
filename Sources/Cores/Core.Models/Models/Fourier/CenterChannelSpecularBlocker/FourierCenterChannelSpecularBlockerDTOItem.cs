@@ -173,7 +173,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
             Document.View.ZoomToFit();
 
-            Guard.IsTrue(xReflectionPushItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XReflectionPush);
+            Guard.IsTrue(xReflectionPushItem.CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush);
             Guard.IsTrue(double.IsFinite(xReflectionPushItem.PixelSize) && xReflectionPushItem.PixelSize != 0d);
 
             XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xReflectionPushItem.Step0ROI.ImageROI);

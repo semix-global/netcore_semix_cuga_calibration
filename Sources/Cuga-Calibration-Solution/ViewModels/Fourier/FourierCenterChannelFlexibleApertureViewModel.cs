@@ -36,14 +36,14 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         new() { StepName = $"CH3 X {360d / 11d * 2d:0.###} Degree X Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 3d:0.###} Degree X Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 4d:0.###} Degree X Rod" },
-        new() { StepName = "CH3 X Reflection Push" },
+        new() { StepName = "CH3 X Diffraction Push" },
         new() { StepName = $"CH3 X {360d / 11d * 8d:0.###} Degree Calibration Pattern" },
         new() { StepName = $"CH3 X {360d / 11d * 5d:0.###} Degree Y Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 6d:0.###} Degree Y Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 7d:0.###} Degree Y Rod" },
         new() { StepName = $"CH3 X {360d / 11d * 10d:0.###} Degree Y Rod" },
-        new() { StepName = "CH3 X Diffraction Coarse Push" },
-        new() { StepName = "CH3 X Diffraction Fine Push" }
+        new() { StepName = "CH3 X Reflection Coarse Push" },
+        new() { StepName = "CH3 X Reflection Fine Push" }
     ];
 
     #region 界面相关
@@ -126,11 +126,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         Review = Calibration;
         Review.XApertureItem.Review();
         foreach (var item in Review.XRodItems) item.Review();
-        Review.XReflectionPushItem.Review();
+        Review.XDiffractionPushItem.Review();
         Review.XCalibrationPatternItem.Review();
         foreach (var item in Review.YRodItems) item.Review();
-        Review.XDiffractionCoarsePushItem.Review();
-        Review.XDiffractionFinePushItem.Review();
+        Review.XReflectionCoarsePushItem.Review();
+        Review.XReflectionFinePushItem.Review();
 
         return Review.IsCalibrated;
     }
@@ -367,7 +367,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionPushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XDiffractionPushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XCalibrationPatternItem, cancellationToken).ConfigureAwait(false));
@@ -385,10 +385,10 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     private Task<bool> Step12Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step13Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XDiffractionCoarsePushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step13Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionCoarsePushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step14Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XDiffractionFinePushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step14Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionFinePushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -413,11 +413,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
             Logger.LogHtmlInformation("X Aperture", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             foreach (var item in Review.XRodItems) Logger.LogHtmlInformation($"X Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("X Reflection Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Diffraction Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XDiffractionPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Calibration Pattern", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XCalibrationPatternItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("X Diffraction Coarse Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XDiffractionCoarsePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("X Diffraction Fine Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XDiffractionFinePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Reflection Coarse Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionCoarsePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Reflection Fine Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionFinePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = true;
             Guard.IsTrue(Save(Review, cancellationToken));
@@ -510,7 +510,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
-            if (ReferenceEquals(item, CalibratingItem.XDiffractionFinePushItem))
+            if (ReferenceEquals(item, CalibratingItem.XReflectionFinePushItem))
             {
                 CalibratingItem.IsCalibrated = true;
 
@@ -528,8 +528,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         (double Min, double Max) GetMotorRange(CenterChannelMotionKindEnum centerChannelMotionKindEnum) => centerChannelMotionKindEnum switch
         {
             CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.YRod or CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue),
-            CenterChannelMotionKindEnum.XReflectionPush => (Cache.ReflectionPushMinMotorAbsoluteValue, Cache.ReflectionPushMaxMotorAbsoluteValue),
-            CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => (Cache.DiffractionPushMinMotorAbsoluteValue, Cache.DiffractionPushMaxMotorAbsoluteValue),
+            CenterChannelMotionKindEnum.XDiffractionPush => (Cache.DiffractionPushMinMotorAbsoluteValue, Cache.DiffractionPushMaxMotorAbsoluteValue),
+            CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => (Cache.ReflectionPushMinMotorAbsoluteValue, Cache.ReflectionPushMaxMotorAbsoluteValue),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<(double Min, double Max)>(nameof(centerChannelMotionKindEnum))
         };
 
@@ -549,18 +549,18 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
                     break;
 
-                case CenterChannelMotionKindEnum.XReflectionPush:
-                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
-                    FourierViewModel.SetChannel3XDiffractionPush(0d);
-                    FourierViewModel.SetChannel3XReflectionPush(motorAbsoluteValue);
-
-                    break;
-
-                case CenterChannelMotionKindEnum.XDiffractionCoarsePush:
-                case CenterChannelMotionKindEnum.XDiffractionFinePush:
+                case CenterChannelMotionKindEnum.XDiffractionPush:
                     FourierViewModel.SetChannel3XTurntable(0d, 0d);
                     FourierViewModel.SetChannel3XReflectionPush(0d);
                     FourierViewModel.SetChannel3XDiffractionPush(motorAbsoluteValue);
+
+                    break;
+
+                case CenterChannelMotionKindEnum.XReflectionCoarsePush:
+                case CenterChannelMotionKindEnum.XReflectionFinePush:
+                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
+                    FourierViewModel.SetChannel3XDiffractionPush(0d);
+                    FourierViewModel.SetChannel3XReflectionPush(motorAbsoluteValue);
 
                     break;
 
@@ -581,7 +581,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                     CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => "XAperture_60",
                     CenterChannelMotionKindEnum.XRod => $"XRod_{120 + Array.IndexOf(CalibratingItem.XRodItems, item) * 60}",
                     CenterChannelMotionKindEnum.YRod => $"YRod_{120 + Array.IndexOf(CalibratingItem.YRodItems, item) * 60}",
-                    CenterChannelMotionKindEnum.XReflectionPush or CenterChannelMotionKindEnum.XDiffractionCoarsePush or CenterChannelMotionKindEnum.XDiffractionFinePush => "XPush_0",
+                    CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => "XPush_0",
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(item.CenterChannelMotionKindEnum))
                 };
                 FourierViewModel.UseSimulatorImage(Path.Combine(
