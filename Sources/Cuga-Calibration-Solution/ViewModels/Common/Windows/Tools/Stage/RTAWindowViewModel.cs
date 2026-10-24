@@ -304,7 +304,7 @@ public sealed partial class RTAWindowViewModel(
                                                                                                                              && t.PmtId == Cache.CIBInformation.PMTId);
         Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
 
-        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.ProductivityInformation,
             xSize.XPixelSize,
@@ -324,12 +324,12 @@ public sealed partial class RTAWindowViewModel(
                 IsMultipleSelection = true,
                 CancellationToken = cancellationToken
             });
-
         Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
         StageMapDie[] selectStageMapDies = [.. inputResult.Output.OrderBy(t => t.Index.Y).ThenBy(t => t.Index.X)];
+        Guard.IsNotEmpty(selectStageMapDies);
 
-        if (selectStageMapDies.DistinctBy(t => t.Row).Any())
+        if (selectStageMapDies.DistinctBy(t => t.Row).Count() > 1)
         {
             dialogWindowProvider.ShowDialog("Step 2 Generate Wafer Map Warning: Only One Row Can Be Selected!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
@@ -337,8 +337,6 @@ public sealed partial class RTAWindowViewModel(
         }
 
         foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
-
-        Guard.IsNotEmpty(selectStageMapDies);
 
         var startPosition = selectStageMapDies[0].Rect.Point;
         var endPosition = selectStageMapDies[^1].Rect.Point;
@@ -392,8 +390,8 @@ public sealed partial class RTAWindowViewModel(
                 TimeDomainPlotDataSource = Cache.RTAScanResult.TimeDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts(),
                 FrequencyDomainPlotDataSource = Cache.RTAScanResult.FrequencyDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts()
             });
-            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
 
             stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }
