@@ -249,6 +249,7 @@ public sealed partial class StageMapWindowViewModel(
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 

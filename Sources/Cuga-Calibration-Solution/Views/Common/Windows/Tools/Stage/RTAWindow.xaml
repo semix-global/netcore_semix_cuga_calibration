@@ -126,7 +126,7 @@
                                     </ComboBox>
                                     <ComboBox hc:TitleElement.Title="Cal Chip: "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="160"
+                                              hc:TitleElement.TitleWidth="200"
                                               ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage1:CalChipSiteModelEnum}}}"
                                               SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
                                               Style="{StaticResource ComboBoxExtend}">

@@ -174,6 +174,7 @@ public sealed partial class RTAWindowViewModel(
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
@@ -197,7 +198,7 @@ public sealed partial class RTAWindowViewModel(
             }
         }
 
-        Cache.AlignmentResult = newAlignmentResult;
+        Cache.AlignmentResult = newAlignmentResult; // todo: 只能保存一次，后面再也不能保存了，只有重新构建document才能赋值
 
         stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
@@ -339,8 +340,8 @@ public sealed partial class RTAWindowViewModel(
 
         Guard.IsNotEmpty(selectStageMapDies);
 
-        var startPosition = selectStageMapDies[0].Rect.Center;
-        var endPosition = selectStageMapDies[^1].Rect.Center;
+        var startPosition = selectStageMapDies[0].Rect.Point;
+        var endPosition = selectStageMapDies[^1].Rect.Point;
 
         var isSuccess = false;
         var forwardDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
@@ -349,7 +350,7 @@ public sealed partial class RTAWindowViewModel(
         {
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Bright,
+                StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
                 Cache.CIBInformation,
@@ -365,7 +366,7 @@ public sealed partial class RTAWindowViewModel(
 
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Bright,
+                StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
                 Cache.CIBInformation,
@@ -393,6 +394,8 @@ public sealed partial class RTAWindowViewModel(
             });
             if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }
 
         return isSuccess;

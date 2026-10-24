@@ -132,7 +132,7 @@ public sealed partial class RTAScanResult : ObservableObject
 
         void FrequencyDomain(int plotIndex, Point[] points)
         {
-            var scatterLines = TimeDomainPlotDataSource.GetOrAddScatterLines(plotIndex, points.Length > 0 ? 1 : 0);
+            var scatterLines = FrequencyDomainPlotDataSource.GetOrAddScatterLines(plotIndex, points.Length > 0 ? 1 : 0);
 
             if (scatterLines.Count <= 0) return;
 
