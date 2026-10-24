@@ -31,19 +31,19 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     [
         new() { StepName = "Param" },
         new() { StepName = "Find Haze Position" },
-        new() { StepName = $"CH3 X {360d / 11d * 9d:0.###} Degree Aperture" },
-        new() { StepName = $"CH3 X {360d / 11d * 1d:0.###} Degree X Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 2d:0.###} Degree X Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 3d:0.###} Degree X Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 4d:0.###} Degree X Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 9d:0.###} Degree Aperture" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 8d:0.###} Degree Calibration Pattern" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 1d:0.###} Degree X Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 2d:0.###} Degree X Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 3d:0.###} Degree X Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 4d:0.###} Degree X Rod" },
         new() { StepName = "CH3 X Diffraction Push" },
-        new() { StepName = $"CH3 X {360d / 11d * 8d:0.###} Degree Calibration Pattern" },
-        new() { StepName = $"CH3 X {360d / 11d * 5d:0.###} Degree Y Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 6d:0.###} Degree Y Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 7d:0.###} Degree Y Rod" },
-        new() { StepName = $"CH3 X {360d / 11d * 10d:0.###} Degree Y Rod" },
         new() { StepName = "CH3 X Reflection Coarse Push" },
-        new() { StepName = "CH3 X Reflection Fine Push" }
+        new() { StepName = "CH3 X Reflection Fine Push" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 5d:0.###} Degree Y Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d:0.###} Degree Y Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 7d:0.###} Degree Y Rod" },
+        new() { StepName = $"CH3 X {FourierCenterChannelFlexibleApertureDTO.AngleStep * 10d:0.###} Degree Y Rod" }
     ];
 
     #region 界面相关
@@ -125,12 +125,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
 
         Review = Calibration;
         Review.XApertureItem.Review();
+        Review.XCalibrationPatternItem.Review();
         foreach (var item in Review.XRodItems) item.Review();
         Review.XDiffractionPushItem.Review();
-        Review.XCalibrationPatternItem.Review();
-        foreach (var item in Review.YRodItems) item.Review();
         Review.XReflectionCoarsePushItem.Review();
         Review.XReflectionFinePushItem.Review();
+        foreach (var item in Review.YRodItems) item.Review();
 
         return Review.IsCalibrated;
     }
@@ -355,40 +355,40 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XApertureItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[0], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XCalibrationPatternItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[1], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[0], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[2], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[1], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[3], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step6Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[2], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XDiffractionPushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XCalibrationPatternItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XDiffractionPushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step9Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[0], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step9Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionCoarsePushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step10Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[1], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step10Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionFinePushItem, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step11Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[2], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step11Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[0], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step12Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[3], cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step12Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[1], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step13Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionCoarsePushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step13Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[2], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step14Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.XReflectionFinePushItem, cancellationToken).ConfigureAwait(false));
+    private Task<bool> Step14Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.YRodItems[3], cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -412,12 +412,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             }), HtmlLogUniqueId.LoggingHtml());
 
             Logger.LogHtmlInformation("X Aperture", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XApertureItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("X Calibration Pattern", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XCalibrationPatternItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             foreach (var item in Review.XRodItems) Logger.LogHtmlInformation($"X Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Diffraction Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XDiffractionPushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("X Calibration Pattern", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XCalibrationPatternItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-            foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Reflection Coarse Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionCoarsePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation("X Reflection Fine Push", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Review.XReflectionFinePushItem.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            foreach (var item in Review.YRodItems) Logger.LogHtmlInformation($"Y Rod {item.DefaultAngleMotorAbsoluteValue:0.###}", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = true;
             Guard.IsTrue(Save(Review, cancellationToken));
@@ -510,7 +510,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
-            if (ReferenceEquals(item, CalibratingItem.XReflectionFinePushItem))
+            if (ReferenceEquals(item, CalibratingItem.YRodItems[3]))
             {
                 CalibratingItem.IsCalibrated = true;
 

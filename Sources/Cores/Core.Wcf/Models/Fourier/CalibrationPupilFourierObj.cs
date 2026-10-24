@@ -344,31 +344,6 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
 public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : CalibrationBase
 {
     /// <summary>
-    /// X转盘上4个X方向挡杆的角度.
-    /// </summary>
-    public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个X方向挡杆的像素宽度.
-    /// </summary>
-    public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个X方向挡杆的每像素对应的电机位移.
-    /// </summary>
-    public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个X方向挡杆的起始电机位置.
-    /// </summary>
-    public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个X方向挡杆的矩形区域坐标.
-    /// </summary>
-    public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
-
-    /// <summary>
     /// X方向通光孔，记录下来每一个角度值,**需要记录**
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
@@ -394,31 +369,6 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// X转盘上4个Y方向挡杆的角度.
-    /// </summary>
-    public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个Y方向挡杆的像素高度.
-    /// </summary>
-    public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个Y方向挡杆的每像素对应的电机位移.
-    /// </summary>
-    public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个Y方向挡杆的起始电机位置.
-    /// </summary>
-    public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
-
-    /// <summary>
-    /// X转盘上4个Y方向挡杆的矩形区域坐标.
-    /// </summary>
-    public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
-
-    /// <summary>
     /// X转盘校准图案的角度.
     /// </summary>
     public double CgFFBoxTurnXCalibrationPatternCircleAngleCh3 { get; set; }
@@ -442,6 +392,31 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     /// X转盘校准图案的半径.
     /// </summary>
     public double CgFFBoxTurnXCalibrationPatternCircleRadiusCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个X方向挡杆的角度.
+    /// </summary>
+    public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个X方向挡杆的像素宽度.
+    /// </summary>
+    public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个X方向挡杆的每像素对应的电机位移.
+    /// </summary>
+    public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个X方向挡杆的起始电机位置.
+    /// </summary>
+    public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个X方向挡杆的矩形区域坐标.
+    /// </summary>
+    public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
 
     /// <summary>
     /// X衍射推杆的像素宽度.
@@ -502,6 +477,31 @@ public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : Calibratio
     /// X反射推杆细侧的起始矩形区域坐标.
     /// </summary>
     public RectD CgFFBoxReflectionFinePushXRectPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个Y方向挡杆的角度.
+    /// </summary>
+    public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个Y方向挡杆的像素高度.
+    /// </summary>
+    public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个Y方向挡杆的每像素对应的电机位移.
+    /// </summary>
+    public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个Y方向挡杆的起始电机位置.
+    /// </summary>
+    public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
+
+    /// <summary>
+    /// X转盘上4个Y方向挡杆的矩形区域坐标.
+    /// </summary>
+    public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
 }
 
 /// <summary>

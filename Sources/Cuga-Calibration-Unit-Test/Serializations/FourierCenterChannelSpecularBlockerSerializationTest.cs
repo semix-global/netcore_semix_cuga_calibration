@@ -5,6 +5,7 @@ using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 using Core.Models.Models.Fourier.CenterChannelSpecularBlocker;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
@@ -222,7 +223,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
 
             channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
-            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 360d / 11d * 5d, 360d / 11d * 6d, 360d / 11d * 7d, 360d / 11d * 10d }[random.Next(5)];
+            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 5d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 7d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 10d }[random.Next(5)];
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
             channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
             channel.XReflectionPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
@@ -300,7 +301,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
     public void AdaptTo_ShouldPreserveXTurntableYRodAndNormalXReflectionPush()
     {
         using var dto = new FourierCenterChannelSpecularBlockerDTO();
-        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = 360d / 11d * 6d;
+        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d;
         dto.Channel3Item.YRodROI.MotorAbsoluteValue = -3.5;
         dto.Channel3Item.YRodROI.IsSelected = true;
         dto.Channel3Item.XReflectionPushROI.MotorAbsoluteValue = 42.25;
