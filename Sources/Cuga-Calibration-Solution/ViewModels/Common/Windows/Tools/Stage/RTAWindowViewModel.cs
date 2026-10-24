@@ -23,6 +23,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
 using Net.Utilities.ScottPlot.Extensions;
 
@@ -46,6 +47,9 @@ public sealed partial class RTAWindowViewModel(
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
+
+    [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     public string[] Steps { get; } =
     [
@@ -179,7 +183,9 @@ public sealed partial class RTAWindowViewModel(
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-        if (dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
+        if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
+            && Cache.AlignmentResult.MarkPoint2 != Point.Origin
+            && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
                 out dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
@@ -198,7 +204,7 @@ public sealed partial class RTAWindowViewModel(
             }
         }
 
-        Cache.AlignmentResult = newAlignmentResult; // todo: 只能保存一次，后面再也不能保存了，只有重新构建document才能赋值
+        AlignmentResult = newAlignmentResult;
 
         stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
@@ -206,7 +212,7 @@ public sealed partial class RTAWindowViewModel(
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum,
             AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(Cache.AlignmentResult)
+            AlignmentResult = new HtmlQuote(AlignmentResult)
         }), HtmlLogUniqueId.LoggingHtml());
 
         return true;
@@ -289,6 +295,8 @@ public sealed partial class RTAWindowViewModel(
                 };
             }));
         }, true);
+
+        Cache.AlignmentResult = AlignmentResult;
 
         return Task.FromResult(true);
     }, isSilent, cancellationToken).ConfigureAwait(false);
