@@ -238,11 +238,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage)
-    {
-        return _calibrationAlgorithmServiceImpl.GetRTAScanSamples(rawScanImage);
-    }
-
     public double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid)
     {
         return _calibrationAlgorithmServiceImpl.GetImageGrayYProjectionsPixels(image, guid);
@@ -252,4 +247,6 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     {
         return _calibrationAlgorithmServiceImpl.FitCircle(points);
     }
+
+    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage) => _calibrationAlgorithmServiceImpl.GetRTAScanSamples(rawScanImage);
 }

@@ -679,69 +679,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
-    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage)
-    {
-        using var rawImage = new Image(rawScanImage.RawImageFilePath);
-        Guard.IsEqualTo(rawImage.Width, rawScanImage.Size.Height);
-        Guard.IsEqualTo(rawImage.Height, rawScanImage.Size.Width);
-
-        using var linearImage = rawScanImage.IsToLiner ? ImageProc.LogToLinear(rawImage) : null;
-        using var engine = new StageMapEngine(new StageMapConfig());
-        using var result = engine.Process(linearImage ?? rawImage);
-
-        return BuildRTAScanSamples(result.arr, rawImage.Height, rawScanImage.IsForward);
-    }
-
-    internal static ICalibrationAlgorithmService.RTAScanSample[] BuildRTAScanSamples(StageMapArray array, int imageWidth, bool isForward)
-    {
-        if (array.rows == 0 || array.cols == 0) return [];
-
-        Guard.IsGreaterThan(imageWidth, 0);
-        var hits = Guard.IsNotNullAndReturn(array.hit);
-        var scores = Guard.IsNotNullAndReturn(array.score);
-        Guard.IsEqualTo(hits.Height, array.rows);
-        Guard.IsEqualTo(hits.Width, array.cols);
-        Guard.IsEqualTo(hits.Channels, 2);
-        Guard.IsEqualTo(scores.Height, array.rows);
-        Guard.IsEqualTo(scores.Width, array.cols);
-
-        var samples = new List<ICalibrationAlgorithmService.RTAScanSample>(array.rows);
-
-        for (var rowIndex = 0; rowIndex < array.rows; rowIndex++)
-        {
-            var hitRow = hits.GetRow<double>(rowIndex);
-            var scoreRow = scores.GetRow<double>(rowIndex);
-            var xSum = 0d;
-            var ySum = 0d;
-            var validColumnCount = 0;
-
-            for (var columnIndex = 0; columnIndex < array.cols; columnIndex++)
-            {
-                // raw 图按扫描 X 方向存为行, 每格的两个通道依次是 row 和 col.
-                var xPixel = hitRow[columnIndex * 2];
-                var yPixel = hitRow[columnIndex * 2 + 1];
-                if ((xPixel is >= double.MinValue and <= double.MaxValue) == false
-                    || (yPixel is >= double.MinValue and <= double.MaxValue) == false
-                    || (scoreRow[columnIndex] is >= double.MinValue and <= double.MaxValue) == false) continue;
-
-                xSum += xPixel;
-                ySum += yPixel;
-                validColumnCount++;
-            }
-
-            if (validColumnCount == 0) continue;
-
-            var meanXPixel = xSum / validColumnCount;
-            samples.Add(new ICalibrationAlgorithmService.RTAScanSample(
-                array.i0 + rowIndex,
-                isForward ? meanXPixel : imageWidth - 1d - meanXPixel,
-                ySum / validColumnCount,
-                validColumnCount));
-        }
-
-        return [.. samples.OrderBy(t => t.XPixel)];
-    }
-
     public double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid)
     {
         try
@@ -764,6 +701,36 @@ public sealed class CalibrationAlgorithmServiceImpl(
         _algorithm.FindCircle(points.Select(t => t.X).ToList(), points.Select(t => t.Y).ToList(), out var yValue, out var xValue, out var radius);
 
         return (new Point(xValue.D, yValue.D), radius.D);
+    }
+
+    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage)
+    {
+        using var rawImage = new Image(rawScanImage.RawImageFilePath);
+        Guard.IsEqualTo(rawImage.Width, rawScanImage.Size.Height);
+        Guard.IsEqualTo(rawImage.Height, rawScanImage.Size.Width);
+
+        using var engine = new StageMapEngine(new StageMapConfig());
+        using var result = engine.Process(rawImage);
+
+        Guard.IsNotNull(result.arr.hit);
+
+        var xMatrix = new double[result.arr.hit.Height][];
+        var yMatrix = new double[result.arr.hit.Height][];
+
+        for (var y = 0; y < result.arr.hit.Height; y++)
+        {
+            var hitRow = result.arr.hit.GetRow<double>(y);
+            xMatrix[y] = new double[result.arr.hit.Width];
+            yMatrix[y] = new double[result.arr.hit.Width];
+            for (var x = 0; x < result.arr.hit.Width; x++)
+            {
+                var xPixel = hitRow[x * 2];
+                var yPixel = hitRow[x * 2 + 1];
+
+                xMatrix[y][x] = xPixel;
+                yMatrix[y][x] = yPixel;
+            }
+        }
     }
 
     #region BestFocus Algo

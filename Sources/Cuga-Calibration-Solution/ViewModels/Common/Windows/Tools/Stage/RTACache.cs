@@ -4,15 +4,11 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Newtonsoft.Json;
-using System.ComponentModel;
-using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 public sealed partial class RTACache : CalibrationCacheBase
 {
-    private WaferMapState? _waferMapState;
-
     #region Common
 
     [ObservableProperty]
@@ -35,13 +31,6 @@ public sealed partial class RTACache : CalibrationCacheBase
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
-
-    #endregion
-
-    #region Step0
-
-    [ObservableProperty]
-    public partial bool IsDarkFieldAlignment { get; set; }
 
     #endregion
 
@@ -70,75 +59,12 @@ public sealed partial class RTACache : CalibrationCacheBase
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 
-    [ObservableProperty]
-    public partial RTAScanResult ScanResult { get; set; } = new();
-
-    [JsonIgnore]
-    public bool IsWaferMapCurrent => _waferMapState is { } state && StageMapTemplates.Length == 1 && state == GetWaferMapState();
-
     #endregion
 
-    public RTACache()
+    partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
-        AlignmentResult.PropertyChanged += OnAlignmentPropertyChanged;
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
     }
-
-    partial void OnAlignmentResultChanged(AlignmentResultDto oldValue, AlignmentResultDto newValue)
-    {
-        oldValue.PropertyChanged -= OnAlignmentPropertyChanged;
-        newValue.PropertyChanged += OnAlignmentPropertyChanged;
-    }
-
-    partial void OnStageMapTemplatesChanged(StageMapTemplate[] oldValue, StageMapTemplate[] newValue)
-    {
-        foreach (var item in oldValue) item.PropertyChanged -= OnMarkerPropertyChanged;
-        foreach (var (index, item) in newValue.Index())
-        {
-            item.DisplayIndex = index + 1;
-            item.PropertyChanged += OnMarkerPropertyChanged;
-        }
-    }
-
-    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-    {
-        base.OnPropertyChanged(e);
-
-        if (e.PropertyName is nameof(ProductivityInformation) or nameof(MicroscopeLensInformation) or nameof(CIBInformation)
-            or nameof(CalChipSiteModelEnum) or nameof(WaferRadius) or nameof(DiePitchWidth) or nameof(DiePitchHeight)
-            or nameof(StageMapTemplates) or nameof(AlignmentResult)) InvalidateWaferMap();
-    }
-
-    private void OnMarkerPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(StageMapTemplate.FindBFMachinePosition)) InvalidateWaferMap();
-    }
-
-    private void OnAlignmentPropertyChanged(object? sender, PropertyChangedEventArgs e) => InvalidateWaferMap();
-
-    public void InvalidateWaferMap()
-    {
-        _waferMapState = null;
-        OnPropertyChanged(nameof(IsWaferMapCurrent));
-    }
-
-    public void MarkWaferMapCurrent()
-    {
-        _waferMapState = GetWaferMapState();
-        OnPropertyChanged(nameof(IsWaferMapCurrent));
-    }
-
-    private WaferMapState GetWaferMapState() => new(
-        ProductivityInformation.Clone(),
-        MicroscopeLensInformation.Clone(),
-        CIBInformation.Clone(),
-        CalChipSiteModelEnum,
-        WaferRadius,
-        DiePitchWidth,
-        DiePitchHeight,
-        StageMapTemplates[0].FindBFMachinePosition,
-        AlignmentResult.Degrees,
-        AlignmentResult.MarkPoint1,
-        AlignmentResult.MarkPoint2);
 
     public object ToHtmlAnonymous() => new
     {
@@ -149,23 +75,8 @@ public sealed partial class RTACache : CalibrationCacheBase
         CalChipSiteModelEnum,
         OpticsConfiguration,
         CIBConfiguration,
-        IsDarkFieldAlignment,
         WaferRadius,
         DiePitchWidth,
-        DiePitchHeight,
-        IsWaferMapCurrent
+        DiePitchHeight
     };
-
-    private readonly record struct WaferMapState(
-        ProductivityInformation ProductivityInformation,
-        MicroscopeLensInformation MicroscopeLensInformation,
-        CIBInformation CIBInformation,
-        CalChipSiteModelEnum CalChipSiteModelEnum,
-        double WaferRadius,
-        double DiePitchWidth,
-        double DiePitchHeight,
-        Point MarkerPosition,
-        double AlignmentDegrees,
-        Point AlignmentMarkPoint1,
-        Point AlignmentMarkPoint2);
 }

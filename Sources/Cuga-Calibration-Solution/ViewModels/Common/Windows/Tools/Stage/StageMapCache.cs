@@ -43,13 +43,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     #endregion
 
-    #region Step0
-
-    [ObservableProperty]
-    public partial bool IsDarkFieldAlignment { get; set; }
-
-    #endregion
-
     #region Step1
 
     [ObservableProperty]
@@ -118,7 +111,6 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         IsROIMatchEnabled,
         ROIMatchWidthScale,
         ROIMatchHeightScale,
-        IsDarkFieldAlignment,
         ImageWidth,
         WaferRadius,
         DiePitchWidth,

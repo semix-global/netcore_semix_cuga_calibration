@@ -215,7 +215,13 @@ public interface ICalibrationAlgorithmService
 
     #endregion Chuck
 
-    #region RTA
+    #region 工具
+
+    double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid);
+
+    (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points);
+
+    #endregion
 
     /// <summary>
     /// 分析行扫原图, 按阵列中的全部有效列汇总匹配位置均值. 返回的 X 像素统一按物理位置从左到右排列.
@@ -224,19 +230,5 @@ public interface ICalibrationAlgorithmService
     /// <returns>保留原格行号的位置均值, 不包含误差计算或统计过滤.</returns>
     RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage);
 
-    public readonly record struct RTAScanSample(
-        int GridRowIndex,
-        double XPixel,
-        double YPixel,
-        int ValidColumnCount);
-
-    #endregion
-
-    #region 工具
-
-    double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid);
-
-    (Point CenterPosition, double Radius) FitCircle(IReadOnlyList<Point> points);
-
-    #endregion
+    public readonly record struct RTAScanSample(double XPixel, Vector Error);
 }
