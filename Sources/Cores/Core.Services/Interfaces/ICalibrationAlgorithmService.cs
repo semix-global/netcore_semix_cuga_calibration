@@ -224,10 +224,11 @@ public interface ICalibrationAlgorithmService
     #endregion
 
     /// <summary>
-    /// 分析行扫原图, 按阵列中的全部有效列汇总匹配位置均值. 返回的 X 像素统一按物理位置从左到右排列.
+    /// 分析行扫原图, 转置格点矩阵并交换像素坐标, 使用各方向全部有效格点整体拟合标准格点间距.
     /// </summary>
-    /// <param name="rawScanImage">包含扫描方向和原图路径的行扫图.</param>
-    /// <returns>保留原格行号的位置均值, 不包含误差计算或统计过滤.</returns>
+    /// <param name="rawScanImage">包含原图路径和尺寸的行扫图.</param>
+    /// <returns>按矩阵列顺序返回的标准 X 像素坐标与居中误差向量. 各方向仅使用有限值拟合和计算整体误差均值, 居中后将缺失误差补零并计算列均值.</returns>
+    /// <exception cref="ArgumentException">任一方向缺少两个索引不同的有效格点, 坐标恒定, 或拟合间距为零或非有限值.</exception>
     RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage);
 
     public readonly record struct RTAScanSample(double XPixel, Vector Error);

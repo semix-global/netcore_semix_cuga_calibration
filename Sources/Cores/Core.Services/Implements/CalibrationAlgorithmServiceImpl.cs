@@ -714,23 +714,83 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
         Guard.IsNotNull(result.arr.hit);
 
-        var xMatrix = new double[result.arr.hit.Height][];
-        var yMatrix = new double[result.arr.hit.Height][];
+        var rowCount = result.arr.hit.Width;
+        var columnCount = result.arr.hit.Height;
+        var xMatrix = new double[rowCount][];
+        var yMatrix = new double[rowCount][];
 
-        for (var y = 0; y < result.arr.hit.Height; y++)
+        for (var row = 0; row < rowCount; row++)
+        {
+            xMatrix[row] = new double[columnCount];
+            yMatrix[row] = new double[columnCount];
+        }
+
+        // 格点矩阵转置时同步交换像素坐标, 无效坐标统一保留为 NaN.
+        for (var y = 0; y < columnCount; y++)
         {
             var hitRow = result.arr.hit.GetRow<double>(y);
-            xMatrix[y] = new double[result.arr.hit.Width];
-            yMatrix[y] = new double[result.arr.hit.Width];
-            for (var x = 0; x < result.arr.hit.Width; x++)
+            for (var x = 0; x < rowCount; x++)
             {
                 var xPixel = hitRow[x * 2];
                 var yPixel = hitRow[x * 2 + 1];
 
-                xMatrix[y][x] = xPixel;
-                yMatrix[y][x] = yPixel;
+                xMatrix[x][y] = IsFinite(yPixel) ? yPixel : double.NaN;
+                yMatrix[x][y] = IsFinite(xPixel) ? xPixel : double.NaN;
             }
         }
+
+        // 每个方向的全部有效格点只进行一次整体拟合, 缺点不改变原始格点索引.
+        var xPoints = xMatrix
+            .SelectMany(pixels => pixels.Select((pixel, column) => new Point(column, pixel)))
+            .Where(point => IsFinite(point.Y))
+            .ToArray();
+        var yPoints = yMatrix
+            .SelectMany((pixels, row) => pixels.Select(pixel => new Point(row, pixel)))
+            .Where(point => IsFinite(point.Y))
+            .ToArray();
+
+        Guard.IsTrue(xPoints.Length >= 2 && xPoints.Any(point => point.X != xPoints[0].X), "X 方向至少需要两个列索引不同的有效格点.");
+        Guard.IsTrue(yPoints.Length >= 2 && yPoints.Any(point => point.X != yPoints[0].X), "Y 方向至少需要两个行索引不同的有效格点.");
+
+        var (xSpacing, _, _, _) = PolynomialCurve.Fit1(
+            Vector<double>.Build.DenseOfEnumerable(xPoints.Select(point => point.X)),
+            Vector<double>.Build.DenseOfEnumerable(xPoints.Select(point => point.Y)));
+        var (ySpacing, _, _, _) = PolynomialCurve.Fit1(
+            Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.X)),
+            Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.Y)));
+
+        Guard.IsTrue(IsFinite(xSpacing) && xSpacing != 0d && xPoints.Any(point => point.Y != xPoints[0].Y), "X 方向拟合格点间距必须为非零有限值.");
+        Guard.IsTrue(IsFinite(ySpacing) && ySpacing != 0d && yPoints.Any(point => point.Y != yPoints[0].Y), "Y 方向拟合格点间距必须为非零有限值.");
+
+        // 首个有效行和列只作为锚点, 标准矩阵保留跳过的空行和空列对应的索引偏移.
+        var yAnchorRow = Array.FindIndex(yMatrix, pixels => pixels.Any(IsFinite));
+        var yAnchor = yMatrix[yAnchorRow].Where(IsFinite).Average();
+        var xAnchorColumn = Enumerable.Range(0, columnCount)
+            .First(column => xMatrix.Any(pixels => IsFinite(pixels[column])));
+        var xAnchor = xMatrix.Select(pixels => pixels[xAnchorColumn]).Where(IsFinite).Average();
+        var idealXMatrix = Matrix<double>.Build.Dense(rowCount, columnCount, (_, column) => xAnchor + (column - xAnchorColumn) * xSpacing);
+        var idealYMatrix = Matrix<double>.Build.Dense(rowCount, columnCount, (row, _) => yAnchor + (row - yAnchorRow) * ySpacing);
+
+        var errorXMatrix = Matrix<double>.Build.DenseOfRowArrays(xMatrix) - idealXMatrix;
+        var errorYMatrix = Matrix<double>.Build.DenseOfRowArrays(yMatrix) - idealYMatrix;
+        var meanErrorX = errorXMatrix.Enumerate().Where(IsFinite).Average();
+        var meanErrorY = errorYMatrix.Enumerate().Where(IsFinite).Average();
+
+        // 先按全部有效误差去除整体平移, 再将缺点补零, 列均值包含补入的零值.
+        errorXMatrix = errorXMatrix.Map(value => IsFinite(value) ? value - meanErrorX : 0d, Zeros.Include);
+        errorYMatrix = errorYMatrix.Map(value => IsFinite(value) ? value - meanErrorY : 0d, Zeros.Include);
+
+        var samples = new ICalibrationAlgorithmService.RTAScanSample[columnCount];
+        for (var column = 0; column < columnCount; column++)
+        {
+            samples[column] = new ICalibrationAlgorithmService.RTAScanSample(
+                idealXMatrix[0, column],
+                new Vector(errorXMatrix.Column(column).Average(), errorYMatrix.Column(column).Average()));
+        }
+
+        return samples;
+
+        static bool IsFinite(double value) => double.IsNaN(value) == false && double.IsInfinity(value) == false;
     }
 
     #region BestFocus Algo
