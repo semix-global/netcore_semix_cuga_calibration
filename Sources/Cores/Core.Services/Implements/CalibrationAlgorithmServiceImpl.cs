@@ -740,18 +740,18 @@ public sealed class CalibrationAlgorithmServiceImpl(
                 yMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
             }
         }
-        
-        var xPoints = xMatrix
-            .SelectMany(pixels => pixels.Index().Select(t => new Point(t.Index, t.Item)))
+
+        var xPoints = Generate.LinearRangeInt32(0, yCount - 1)
+            .SelectMany(y => xMatrix[y].Index().Select(xTuple => new Point(xTuple.Index, xTuple.Item)))
             .Where(point => double.IsFinite(point.Y))
             .ToArray();
-        var yPoints = Enumerable.Range(0, xCount)
-            .SelectMany(column => yMatrix.Select((pixels, row) => new Point(row, pixels[column])))
+        var yPoints = Generate.LinearRangeInt32(0, xCount - 1)
+            .SelectMany(x => yMatrix.Index().Select(yTuple => new Point(yTuple.Index, yTuple.Item[x])))
             .Where(point => double.IsFinite(point.Y))
             .ToArray();
 
-        Guard.IsTrue(xPoints.Length >= 2 && xPoints.Any(point => point.X != xPoints[0].X), "X 方向至少需要两个列索引不同的有效格点.");
-        Guard.IsTrue(yPoints.Length >= 2 && yPoints.Any(point => point.X != yPoints[0].X), "Y 方向至少需要两个行索引不同的有效格点.");
+        Guard.IsTrue(xPoints.Length >= 2);
+        Guard.IsTrue(yPoints.Length >= 2);
 
         var (xSpacing, _, _, _) = PolynomialCurve.Fit1(
             Vector<double>.Build.DenseOfEnumerable(xPoints.Select(point => point.X)),
@@ -760,33 +760,35 @@ public sealed class CalibrationAlgorithmServiceImpl(
             Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.X)),
             Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.Y)));
 
-        Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing != 0d && xPoints.Any(point => point.Y != xPoints[0].Y), "X 方向拟合格点间距必须为非零有限值.");
-        Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing != 0d && yPoints.Any(point => point.Y != yPoints[0].Y), "Y 方向拟合格点间距必须为非零有限值.");
+        Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing > 0d);
+        Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing > 0d);
 
         // 首个有效行和列只作为锚点, 标准矩阵保留跳过的空行和空列对应的索引偏移.
         var yAnchorRow = Array.FindIndex(yMatrix, pixels => pixels.Any(double.IsFinite));
         var yAnchor = yMatrix[yAnchorRow].Where(double.IsFinite).Average();
-        var xAnchorColumn = Enumerable.Range(0, xCount)
-            .First(column => xMatrix.Any(pixels => double.IsFinite(pixels[column])));
+
+        var xAnchorColumn = Generate.LinearRangeInt32(0, xCount - 1).First(x => xMatrix.Any(pixels => double.IsFinite(pixels[x])));
         var xAnchor = xMatrix.Select(pixels => pixels[xAnchorColumn]).Where(double.IsFinite).Average();
+
         var idealXMatrix = Matrix<double>.Build.Dense(yCount, xCount, (_, column) => xAnchor + (column - xAnchorColumn) * xSpacing);
         var idealYMatrix = Matrix<double>.Build.Dense(yCount, xCount, (row, _) => yAnchor + (row - yAnchorRow) * ySpacing);
 
         var errorXMatrix = Matrix<double>.Build.DenseOfRowArrays(xMatrix) - idealXMatrix;
         var errorYMatrix = Matrix<double>.Build.DenseOfRowArrays(yMatrix) - idealYMatrix;
+
         var meanErrorX = errorXMatrix.Enumerate().Where(double.IsFinite).Average();
         var meanErrorY = errorYMatrix.Enumerate().Where(double.IsFinite).Average();
 
-        // 先按全部有效误差去除整体平移, 再将缺点补零, 列均值包含补入的零值.
-        errorXMatrix = errorXMatrix.Map(value => double.IsFinite(value) ? value - meanErrorX : 0d, Zeros.Include);
-        errorYMatrix = errorYMatrix.Map(value => double.IsFinite(value) ? value - meanErrorY : 0d, Zeros.Include);
+        errorXMatrix = errorXMatrix.Map(value => double.IsFinite(value) ? value - meanErrorX : 0d);
+        errorYMatrix = errorYMatrix.Map(value => double.IsFinite(value) ? value - meanErrorY : 0d);
 
         var samples = new ICalibrationAlgorithmService.RTAScanSample[xCount];
-        for (var column = 0; column < xCount; column++)
+
+        for (var x = 0; x < xCount; x++)
         {
-            samples[column] = new ICalibrationAlgorithmService.RTAScanSample(
-                idealXMatrix[0, column],
-                new Vector(errorXMatrix.Column(column).Average(), errorYMatrix.Column(column).Average()));
+            samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
+                idealXMatrix[0, x],
+                new Vector(errorXMatrix.Column(x).Average(), errorYMatrix.Column(x).Average()));
         }
 
         return samples;

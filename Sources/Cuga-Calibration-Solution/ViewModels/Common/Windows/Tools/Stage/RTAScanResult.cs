@@ -83,10 +83,10 @@ public sealed partial class RTAScanResult : ObservableObject
                 customFrequencyDomainPlotDataSource.Set(plots[3], new GridCell(1, 1, 2, 2));
             });
 
-        FrequencyDomainPlotDataSource.SetTitle(0, "Spectrum FFT Analysis Forward X(Y: Amp - X: KHz)");
-        FrequencyDomainPlotDataSource.SetTitle(1, "Spectrum FFT Analysis Forward Y(Y: Amp - X: KHz)");
-        FrequencyDomainPlotDataSource.SetTitle(2, "Spectrum FFT Analysis Reverse X(Y: Amp - X: KHz)");
-        FrequencyDomainPlotDataSource.SetTitle(3, "Spectrum FFT Analysis Reverse Y(Y: Amp - X: KHz)");
+        FrequencyDomainPlotDataSource.SetTitle(0, "Spectrum FFT Analysis Forward X(Y: Modulus - X: Hz)");
+        FrequencyDomainPlotDataSource.SetTitle(1, "Spectrum FFT Analysis Forward Y(Y: Modulus - X: Hz)");
+        FrequencyDomainPlotDataSource.SetTitle(2, "Spectrum FFT Analysis Reverse X(Y: Modulus - X: Hz)");
+        FrequencyDomainPlotDataSource.SetTitle(3, "Spectrum FFT Analysis Reverse Y(Y: Modulus - X: Hz)");
     }
 
     public RTAScanResult() : this(ProductivityInformation.Default, 0d, 0d)
@@ -136,10 +136,12 @@ public sealed partial class RTAScanResult : ObservableObject
 
             if (scatterLines.Count <= 0) return;
 
+            var timeStep = Math.Abs(points[1].X - points[0].X);
+
             var signals = Vector<double>.Build.Dense([.. points.Select(t => t.Y)]);
 
             var fftResult = signals.ToComplex().FastFourierTransform();
-            var (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(_productivityInformation.SampleRate);
+            var (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(1d / timeStep * 1000d);
 
             scatterLines[0].Update(string.Empty, [.. fftFrequencies.Index().Select(t => new Point(t.Item, fftMagnitudes[t.Index]))]);
         }
