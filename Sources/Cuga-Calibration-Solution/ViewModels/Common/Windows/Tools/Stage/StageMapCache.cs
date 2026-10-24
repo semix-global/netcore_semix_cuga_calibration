@@ -49,13 +49,13 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double WaferRadius { get; set; }
+    public partial double WaferRadius { get; set; } = 140_000d;
 
     [ObservableProperty]
-    public partial double DiePitchWidth { get; set; }
+    public partial double DiePitchWidth { get; set; } = 5100d;
 
     [ObservableProperty]
-    public partial double DiePitchHeight { get; set; }
+    public partial double DiePitchHeight { get; set; } = 16600d;
 
     [ObservableProperty]
     public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];

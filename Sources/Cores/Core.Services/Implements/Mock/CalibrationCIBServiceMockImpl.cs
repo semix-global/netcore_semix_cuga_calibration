@@ -252,7 +252,7 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldImageDTO>>(results);
     }
 
-    public Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
+    public async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
         ProductivityInformation productivityInformation,
         StageCoordinateSystemEnum stageCoordinateSystemEnum,
         Point startPosition,
@@ -264,20 +264,22 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         bool isCustomAFParam,
         CancellationToken cancellationToken)
     {
-        using var fileSteam = File.OpenRead(_mockImageFilePath);
-        using var binaryReader = new BinaryReader(fileSteam);
-
         var results = new DarkFieldRawScanImageDTO[cibInformations.Count];
+        var filePaths = SimulatorImageFilePaths ?? [];
 
         for (var i = 0; i < results.Length; i++)
         {
             var cibInformation = cibInformations[i];
-            var (size, _, _) = RAWImageFactory.GetSize(binaryReader);
 
-            results[i] = new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = _mockImageFilePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum };
+            var filePath = filePaths.ElementAtOrDefault(i) ?? _mockImageFilePath;
+
+            var bytes = await File.ReadAllBytesAsync(filePath, cancellationToken);
+            var (size, _, _) = RAWImageFactory.GetSize(bytes);
+
+            results[i] = new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = isForward, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = isKeepRawImageCIBProfileModeEnum };
         }
 
-        return Task.FromResult(SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results));
+        return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<DarkFieldRawScanImageDTO>>(results);
     }
 
     public async Task<SxExecuteRet<IReadOnlyList<DarkFieldImageDTO>>> GetPMTImagesAsync(

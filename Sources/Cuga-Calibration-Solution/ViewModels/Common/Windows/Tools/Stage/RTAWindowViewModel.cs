@@ -25,6 +25,7 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.ScottPlot.Extensions;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -40,6 +41,7 @@ public sealed partial class RTAWindowViewModel(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
+    IHostEnvironment hostEnvironment,
     ILogger<RTAWindowViewModel> logger) : ViewModelBase
 {
     public string Name { get; } = "RTA";
@@ -354,6 +356,14 @@ public sealed partial class RTAWindowViewModel(
         var reverseDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
         try
         {
+            if (hostEnvironment.IsDevelopment())
+            {
+                cibViewModel.UseSimulatorImages(
+                [
+                    @"C:\Users\DELL\Desktop\20261024_655_0_0_1_short_034006_PMT08-CH3_8.raw"
+                ]);
+            }
+            
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
