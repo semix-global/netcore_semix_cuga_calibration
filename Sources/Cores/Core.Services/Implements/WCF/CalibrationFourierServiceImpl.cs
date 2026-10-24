@@ -38,13 +38,17 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         {
             1 => [FFCH.Ch1],
             2 => [FFCH.Ch2],
+#if B3
             3 => [FFCH.Ch3_X, FFCH.Ch3_Y],
+#elif B4
+            3 => [FFCH.Ch3_X],
+#endif
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<FFCH[]>(nameof(channelId))
         };
 
         foreach (var channel in channels)
         {
-            var sxExecuteRet = Invoke(() => Service!.SetFFHome(channel));
+            var sxExecuteRet = Invoke(() => Guard.IsNotNullAndReturn(Service).SetFFHome(channel));
 
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
         }
@@ -54,17 +58,19 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             var sxExecuteRet = SetChannel3XTurntable(0d, 0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
+#if B3
             sxExecuteRet = SetChannel3YTurntable(0d, 0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
             sxExecuteRet = SetChannel3XPush(0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
-
+#elif B4
             sxExecuteRet = SetChannel3XReflectionPush(0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
 
             sxExecuteRet = SetChannel3XDiffractionPush(0d);
             if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.ErrorMsg, false);
+#endif
         }
 
         return SxExecuteRetHelper.CreateSuccess(true);

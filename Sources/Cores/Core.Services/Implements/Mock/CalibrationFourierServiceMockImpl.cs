@@ -56,10 +56,10 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         CenterPushMaxMotorAbsoluteValue: 60d,
         CenterYMinMotorAbsoluteValue: -21d,
         CenterYMaxMotorAbsoluteValue: 21d,
-        CenterReflectionPushMinMotorAbsoluteValue: 0d,
-        CenterReflectionPushMaxMotorAbsoluteValue: 60d,
-        CenterDiffractionPushMinMotorAbsoluteValue: -60d,
-        CenterDiffractionPushMaxMotorAbsoluteValue: 60d));
+        CenterReflectionPushMinMotorAbsoluteValue: -24d,
+        CenterReflectionPushMaxMotorAbsoluteValue: 24d,
+        CenterDiffractionPushMinMotorAbsoluteValue: 0d,
+        CenterDiffractionPushMaxMotorAbsoluteValue: 50d));
 
     public SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => SxExecuteRetHelper.CreateSuccess(true);
 

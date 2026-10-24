@@ -2,4 +2,17 @@
 
     <Import Project="$(BuildToolsDirectory)\Common.Build.targets" />
 
+    <Target Name="ValidateFourierHardwareConfiguration" BeforeTargets="CoreCompile" Condition="'$(RootNamespace)' == 'Core.Services' And '$(DesignTimeBuild)' != 'true'">
+        <PropertyGroup>
+            <_IsB3>$([System.Text.RegularExpressions.Regex]::IsMatch('$(DefineConstants)', '(^|[;,\s])B3($|[;,\s])'))</_IsB3>
+            <_IsB4>$([System.Text.RegularExpressions.Regex]::IsMatch('$(DefineConstants)', '(^|[;,\s])B4($|[;,\s])'))</_IsB4>
+        </PropertyGroup>
+        <Error Condition="'$(_IsB3)' == 'true' And '$(_IsB4)' == 'true'"
+               Code="FOURIER001"
+               Text="B3 and B4 cannot both be defined. Select exactly one hardware configuration." />
+        <Error Condition="'$(_IsB3)' != 'true' And '$(_IsB4)' != 'true'"
+               Code="FOURIER002"
+               Text="No hardware is selected. Select Debug-B3, Debug-B4, Release-B3 or Release-B4." />
+    </Target>
+
 </Project>

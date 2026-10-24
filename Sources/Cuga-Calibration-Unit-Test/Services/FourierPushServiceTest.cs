@@ -13,6 +13,79 @@ namespace CugaCalibrationUnitTest.Services;
 [Collection(HostCollection.Name)]
 public sealed class FourierPushServiceTest
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Home_ShouldUseHardwareSpecificChannel3Motors(bool isGoToZero)
+    {
+        using var scope = new ServiceScope();
+
+        var result = scope.Service.Home(3, isGoToZero);
+
+        result.IsSuccess.Should().BeTrue();
+#if B3
+        scope.Native.HomedChannels.Should().Equal(FFCH.Ch3_X, FFCH.Ch3_Y);
+#elif B4
+        scope.Native.HomedChannels.Should().Equal(FFCH.Ch3_X);
+#endif
+        if (isGoToZero == false)
+        {
+            scope.Native.Calls.Should().OnlyContain(t => t == "SetFFHome");
+            scope.Native.Moves.Should().BeEmpty();
+
+            return;
+        }
+
+#if B3
+        scope.Native.Moves.Should().Equal(
+            ("FF_Move_RPOS_CH3", FFCH.Ch3_X, 0d),
+            ("FF_Move_LPOS_CH3", FFCH.Ch3_X, 0d),
+            ("FF_Move_RPOS_CH3", FFCH.Ch3_Y, 0d),
+            ("FF_Move_LPOS_CH3", FFCH.Ch3_Y, 0d),
+            ("FF_Move_PPOS_CH3", FFCH.Ch3_X, 0d));
+#elif B4
+        scope.Native.Moves.Should().Equal(
+            ("FF_Move_RPOS_CH3", FFCH.Ch3_X, 0d),
+            ("FF_Move_LPOS_CH3", FFCH.Ch3_X, 0d),
+            ("FF_Move_RFPOS_CH3", FFCH.Ch3_X, 0d),
+            ("FF_Move_DFPOS_CH3", FFCH.Ch3_X, 0d));
+#endif
+    }
+
+    [Theory]
+    [InlineData(1, false)]
+    [InlineData(1, true)]
+    [InlineData(2, false)]
+    [InlineData(2, true)]
+    public void Home_ShouldKeepSideChannelHoming(int channelId, bool isGoToZero)
+    {
+        using var scope = new ServiceScope();
+
+        var result = scope.Service.Home(channelId, isGoToZero);
+
+        result.IsSuccess.Should().BeTrue();
+        scope.Native.HomedChannels.Should().Equal(channelId == 1 ? FFCH.Ch1 : FFCH.Ch2);
+        scope.Native.Calls.Should().Equal("SetFFHome");
+        scope.Native.Moves.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void Home_ShouldReturnHomingErrorWithoutMoving(int channelId)
+    {
+        using var scope = new ServiceScope();
+        scope.Native.HomeErrorMessage = "回零失败";
+
+        var result = scope.Service.Home(channelId, true);
+
+        result.IsSuccess.Should().BeFalse();
+        result.ErrorMsg.Should().Be(scope.Native.HomeErrorMessage);
+        scope.Native.Calls.Should().Equal("SetFFHome");
+        scope.Native.Moves.Should().BeEmpty();
+    }
+
     [Fact]
     public void Configuration_ShouldMapLegacyReflectionAndDiffractionRanges()
     {
@@ -221,11 +294,17 @@ public sealed class FourierPushServiceTest
     {
         public List<string> Calls { get; } = [];
 
+        public List<FFCH> HomedChannels { get; } = [];
+
+        public List<(string MethodName, FFCH Channel, double Position)> Moves { get; } = [];
+
         public object? Channel { get; private set; }
 
         public double RequestedPosition { get; private set; }
 
         public double ActualPosition { get; set; }
+
+        public string HomeErrorMessage { get; set; } = string.Empty;
 
         public string MoveErrorMessage { get; set; } = string.Empty;
 
@@ -242,11 +321,21 @@ public sealed class FourierPushServiceTest
             object result;
             switch (call.MethodName)
             {
+                case "SetFFHome":
+                    HomedChannels.Add(call.Args[0] is FFCH homeChannel ? homeChannel : throw new InvalidOperationException("回零通道参数类型无效."));
+                    result = new SxExecuteRet { Success = string.IsNullOrEmpty(HomeErrorMessage), Msg = HomeErrorMessage };
+
+                    break;
+
+                case "FF_Move_RPOS_CH3":
+                case "FF_Move_LPOS_CH3":
                 case "FF_Move_RFPOS_CH3":
                 case "FF_Move_DFPOS_CH3":
                 case "FF_Move_PPOS_CH3":
                     Channel = call.Args[0];
                     RequestedPosition = call.Args[1] is double position ? position : throw new InvalidOperationException("推杆位置参数类型无效.");
+                    var moveChannel = call.Args[0] is FFCH channel ? channel : throw new InvalidOperationException("移动通道参数类型无效.");
+                    Moves.Add((call.MethodName, moveChannel, RequestedPosition));
                     result = new SxExecuteRet { Success = string.IsNullOrEmpty(MoveErrorMessage), Msg = MoveErrorMessage };
 
                     break;
@@ -254,6 +343,8 @@ public sealed class FourierPushServiceTest
                 case "GetRFPOS":
                 case "GetDFPOS":
                 case "FF_GetPACT":
+                case "FF_GetRACT":
+                case "FF_GetLACT":
                     result = new SxExecuteRet<double> { Success = string.IsNullOrEmpty(ReadErrorMessage), Msg = ReadErrorMessage, Anything = ActualPosition };
 
                     break;

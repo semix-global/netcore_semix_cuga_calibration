@@ -575,13 +575,16 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             if (HostEnvironment.IsDevelopment())
             {
-                // 复用既有示例图片, 避免新角度或图案名称找不到文件后退回随机图像.
+                // 每个校准项分别使用日志对应的实测完整原图.
                 var simulatorImageName = item.CenterChannelMotionKindEnum switch
                 {
-                    CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern => "XAperture_60",
-                    CenterChannelMotionKindEnum.XRod => $"XRod_{120 + Array.IndexOf(CalibratingItem.XRodItems, item) * 60}",
-                    CenterChannelMotionKindEnum.YRod => $"YRod_{120 + Array.IndexOf(CalibratingItem.YRodItems, item) * 60}",
-                    CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush => "XPush_0",
+                    CenterChannelMotionKindEnum.XAperture => nameof(CenterChannelMotionKindEnum.XAperture),
+                    CenterChannelMotionKindEnum.XCalibrationPattern => nameof(CenterChannelMotionKindEnum.XCalibrationPattern),
+                    CenterChannelMotionKindEnum.XRod => $"XRod_{Array.IndexOf(CalibratingItem.XRodItems, item)}",
+                    CenterChannelMotionKindEnum.XDiffractionPush => nameof(CenterChannelMotionKindEnum.XDiffractionPush),
+                    CenterChannelMotionKindEnum.XReflectionCoarsePush => nameof(CenterChannelMotionKindEnum.XReflectionCoarsePush),
+                    CenterChannelMotionKindEnum.XReflectionFinePush => nameof(CenterChannelMotionKindEnum.XReflectionFinePush),
+                    CenterChannelMotionKindEnum.YRod => $"YRod_{Array.IndexOf(CalibratingItem.YRodItems, item)}",
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(item.CenterChannelMotionKindEnum))
                 };
                 FourierViewModel.UseSimulatorImage(Path.Combine(
