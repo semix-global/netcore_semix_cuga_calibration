@@ -31,11 +31,7 @@ public sealed partial class RTAScanResult : ObservableObject
 
     [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
-    public partial IPlotDataSource TimeDomainPlotDataSource { get; set; } = new PlotDataSource();
-
-    [Newtonsoft.Json.JsonIgnore]
-    [ObservableProperty]
-    public partial IPlotDataSource FrequencyDomainPlotDataSource { get; set; } = new PlotDataSource();
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
     // ReSharper disable UnusedParameterInPartialMethod
 
@@ -58,35 +54,20 @@ public sealed partial class RTAScanResult : ObservableObject
         _xPixelSize = xPixelSize;
         _yPixelSize = yPixelSize;
 
-        var customTimeDomainPlotDataSource = new CustomGrid();
-        TimeDomainPlotDataSource.Configure(customTimeDomainPlotDataSource, 4,
+        var customGrid = new CustomGrid();
+        PlotDataSource.Configure(customGrid, 4,
             plots =>
             {
-                customTimeDomainPlotDataSource.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customTimeDomainPlotDataSource.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customTimeDomainPlotDataSource.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customTimeDomainPlotDataSource.Set(plots[3], new GridCell(1, 1, 2, 2));
+                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
+                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
+                customGrid.Set(plots[2], new GridCell(1, 0, 2, 2));
+                customGrid.Set(plots[3], new GridCell(1, 1, 2, 2));
             });
 
-        TimeDomainPlotDataSource.SetTitle(0, "Time Domain Signal Forward X(Y: um - X: ms)");
-        TimeDomainPlotDataSource.SetTitle(1, "Time Domain Signal Forward Y(Y: um - X: ms)");
-        TimeDomainPlotDataSource.SetTitle(2, "Time Domain Signal Reverse X(Y: um - X: ms)");
-        TimeDomainPlotDataSource.SetTitle(3, "Time Domain Signal Reverse Y(Y: um - X: ms)");
-
-        var customFrequencyDomainPlotDataSource = new CustomGrid();
-        FrequencyDomainPlotDataSource.Configure(customFrequencyDomainPlotDataSource, 4,
-            plots =>
-            {
-                customFrequencyDomainPlotDataSource.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customFrequencyDomainPlotDataSource.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customFrequencyDomainPlotDataSource.Set(plots[2], new GridCell(1, 0, 2, 2));
-                customFrequencyDomainPlotDataSource.Set(plots[3], new GridCell(1, 1, 2, 2));
-            });
-
-        FrequencyDomainPlotDataSource.SetTitle(0, "Spectrum FFT Analysis Forward X(Y: Modulus - X: Hz)");
-        FrequencyDomainPlotDataSource.SetTitle(1, "Spectrum FFT Analysis Forward Y(Y: Modulus - X: Hz)");
-        FrequencyDomainPlotDataSource.SetTitle(2, "Spectrum FFT Analysis Reverse X(Y: Modulus - X: Hz)");
-        FrequencyDomainPlotDataSource.SetTitle(3, "Spectrum FFT Analysis Reverse Y(Y: Modulus - X: Hz)");
+        PlotDataSource.SetTitle(0, "Time Domain Signal X(Y: um - X: ms)");
+        PlotDataSource.SetTitle(1, "Time Domain Signal Y(Y: um - X: ms)");
+        PlotDataSource.SetTitle(2, "Spectrum FFT Analysis X(Y: Modulus - X: Hz)");
+        PlotDataSource.SetTitle(3, "Spectrum FFT Analysis Y(Y: Modulus - X: Hz)");
     }
 
     public RTAScanResult() : this(ProductivityInformation.Default, 0d, 0d)
@@ -99,42 +80,38 @@ public sealed partial class RTAScanResult : ObservableObject
         {
             Point[] forwardXes = [.. ForwardRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.X * _xPixelSize))];
             Point[] forwardYes = [.. ForwardRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.Y * _yPixelSize))];
-
-            TimeDomain(0, forwardXes);
-            TimeDomain(1, forwardYes);
-            FrequencyDomain(0, forwardXes);
-            FrequencyDomain(1, forwardYes);
-
             Point[] reverseXes = [.. ReverseRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.X * _xPixelSize))];
             Point[] reverseYes = [.. ReverseRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.Y * _yPixelSize))];
 
-            TimeDomain(2, reverseXes);
-            TimeDomain(3, reverseYes);
-            FrequencyDomain(2, reverseXes);
-            FrequencyDomain(3, reverseYes);
+            var plotCount = forwardXes.Length > 0 ? 1 : 0 + reverseXes.Length > 0 ? 1 : 0;
+
+            var xTimeDomainScatterLines = PlotDataSource.GetOrAddScatterLines(0, plotCount);
+            var yTimeDomainScatterLines = PlotDataSource.GetOrAddScatterLines(1, plotCount);
+            var xFrequencyDomainScatterLines = PlotDataSource.GetOrAddScatterLines(2, plotCount);
+            var yFrequencyDomainScatterLines = PlotDataSource.GetOrAddScatterLines(3, plotCount);
+
+            xTimeDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", forwardXes, color: Colors.Blue);
+            yTimeDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", forwardYes, color: Colors.Blue);
+
+            xTimeDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", reverseXes, color: Colors.Red);
+            yTimeDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", reverseYes, color: Colors.Red);
+
+            xFrequencyDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", FrequencyDomain(forwardXes), color: Colors.Blue);
+            yFrequencyDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", FrequencyDomain(forwardYes), color: Colors.Blue);
+
+            yFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseXes), color: Colors.Red);
+            xFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseYes), color: Colors.Red);
         }
         finally
         {
-            TimeDomainPlotDataSource.AutoScaleRefresh();
-            FrequencyDomainPlotDataSource.AutoScaleRefresh();
+            PlotDataSource.AutoScaleRefresh();
         }
 
         return;
 
-        void TimeDomain(int plotIndex, Point[] points)
+        Point[] FrequencyDomain(Point[] points)
         {
-            var scatterLines = TimeDomainPlotDataSource.GetOrAddScatterLines(plotIndex, points.Length > 0 ? 1 : 0);
-
-            if (scatterLines.Count <= 0) return;
-
-            scatterLines[0].Update(string.Empty, points);
-        }
-
-        void FrequencyDomain(int plotIndex, Point[] points)
-        {
-            var scatterLines = FrequencyDomainPlotDataSource.GetOrAddScatterLines(plotIndex, points.Length > 0 ? 1 : 0);
-
-            if (scatterLines.Count <= 0) return;
+            if (points.Length <= 0) return [];
 
             var timeStep = Math.Abs(points[1].X - points[0].X);
 
@@ -143,7 +120,7 @@ public sealed partial class RTAScanResult : ObservableObject
             var fftResult = signals.ToComplex().FastFourierTransform();
             var (fftFrequencies, fftMagnitudes) = fftResult.GetPositiveFrequencies(1d / timeStep * 1000d);
 
-            scatterLines[0].Update(string.Empty, [.. fftFrequencies.Index().Select(t => new Point(t.Item, fftMagnitudes[t.Index]))]);
+            return [.. fftFrequencies.Index().Select(t => new Point(t.Item, fftMagnitudes[t.Index]))];
         }
     }
 }

@@ -363,7 +363,7 @@ public sealed partial class RTAWindowViewModel(
                     @"C:\Users\DELL\Desktop\20261024_655_0_0_1_short_034006_PMT08-CH3_8.raw"
                 ]);
             }
-            
+
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
@@ -405,8 +405,7 @@ public sealed partial class RTAWindowViewModel(
             {
                 ForwardRawImageFilePath = forwardDarkFieldRawScanImage.RawImageFilePath,
                 ReverseRawImageFilePath = reverseDarkFieldRawScanImage.RawImageFilePath,
-                TimeDomainPlotDataSource = Cache.RTAScanResult.TimeDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts(),
-                FrequencyDomainPlotDataSource = Cache.RTAScanResult.FrequencyDomainPlotDataSource.GetAllHtmlPlot2DLinesCharts()
+                PlotDataSource = Cache.RTAScanResult.PlotDataSource.GetAllHtmlPlot2DLinesCharts()
             });
             if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
