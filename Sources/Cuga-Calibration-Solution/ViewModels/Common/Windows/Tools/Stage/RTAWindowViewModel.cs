@@ -46,6 +46,8 @@ public sealed partial class RTAWindowViewModel(
 {
     public string Name { get; } = "RTA";
 
+    public bool IsDevelopment { get; } = hostEnvironment.IsDevelopment();
+
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
@@ -323,6 +325,8 @@ public sealed partial class RTAWindowViewModel(
 
         Cache.RTAScanResult = new RTAScanResult(Cache.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
 
+        dialogWindowProvider.ShowDialog("Please Select Dies to Scan");
+
         StageMapDie[] stageMapDies;
         using (Cache.StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. Cache.StageMapDocument.DieModel];
 
@@ -341,7 +345,7 @@ public sealed partial class RTAWindowViewModel(
 
         if (selectStageMapDies.DistinctBy(t => t.Row).Count() > 1)
         {
-            dialogWindowProvider.ShowDialog("Step 2 Generate Wafer Map Warning: Only One Row Can Be Selected!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            dialogWindowProvider.ShowDialog("Only One Row Can Be Selected!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
             return false;
         }
@@ -356,13 +360,7 @@ public sealed partial class RTAWindowViewModel(
         var reverseDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
         try
         {
-            if (hostEnvironment.IsDevelopment())
-            {
-                cibViewModel.UseSimulatorImages(
-                [
-                    @"C:\Users\DELL\Desktop\20261024_655_0_0_1_short_034006_PMT08-CH3_8.raw"
-                ]);
-            }
+            if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -377,8 +375,10 @@ public sealed partial class RTAWindowViewModel(
                 false,
                 cancellationToken);
 
-            var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(forwardDarkFieldRawScanImage);
+            var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(forwardDarkFieldRawScanImage, Cache.StageMapConfig, true, HtmlLogUniqueId);
             Cache.RTAScanResult.ForwardRTAScanSamples = forwardRTAScanSamples;
+
+            if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
 
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -394,7 +394,7 @@ public sealed partial class RTAWindowViewModel(
                 cancellationToken,
                 isForward: false);
 
-            var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(reverseDarkFieldRawScanImage);
+            var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(reverseDarkFieldRawScanImage, Cache.StageMapConfig, false, HtmlLogUniqueId);
             Cache.RTAScanResult.ReverseRTAScanSamples = reverseRTAScanSamples;
 
             isSuccess = true;
@@ -409,6 +409,8 @@ public sealed partial class RTAWindowViewModel(
             });
             if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+
+            if (IsDevelopment) cibViewModel.UseSimulatorImages(null);
 
             stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
         }

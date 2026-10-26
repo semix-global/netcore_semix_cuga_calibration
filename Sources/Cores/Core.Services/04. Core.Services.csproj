@@ -65,4 +65,16 @@
         <None Include="Implements\Grpc\*.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Update="Interfaces\ICalibrationAlgorithmService.*.cs">
+            <DependentUpon>ICalibrationAlgorithmService.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\CalibrationAlgorithmServiceImpl.*.cs">
+            <DependentUpon>CalibrationAlgorithmServiceImpl.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\Mock\CalibrationAlgorithmServiceMockImpl.*.cs">
+            <DependentUpon>CalibrationAlgorithmServiceMockImpl.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
 </Project>

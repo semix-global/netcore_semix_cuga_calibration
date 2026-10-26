@@ -3,7 +3,6 @@ using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -29,13 +28,14 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
+using Core.Models.Models.Common.DarkField;
 using Constants = Net.Utilities.Models.Constants;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 
 namespace Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationAlgorithmServiceImpl(
+public sealed partial class CalibrationAlgorithmServiceImpl(
     ILogger<CalibrationAlgorithmServiceImpl> logger,
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
@@ -701,105 +701,6 @@ public sealed class CalibrationAlgorithmServiceImpl(
         _algorithm.FindCircle(points.Select(t => t.X).ToList(), points.Select(t => t.Y).ToList(), out var yValue, out var xValue, out var radius);
 
         return (new Point(xValue.D, yValue.D), radius.D);
-    }
-
-    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage)
-    {
-        using var rawImage = new Image(rawScanImage.RawImageFilePath);
-        Guard.IsEqualTo(rawImage.Width, rawScanImage.Size.Height);
-        Guard.IsEqualTo(rawImage.Height, rawScanImage.Size.Width);
-
-        using var engine = new StageMapEngine(new StageMapConfig
-        {
-            period_row_start = 1000,
-            period_row_count = 2000,
-            period_y_min_cycles = 5.0,
-            period_x_min_cycles = 2.0,
-            detect_row_limit = 30000,
-            detect_tail_limit = 30000
-        });
-        using var result = engine.Process(rawImage);
-
-        Guard.IsNotNull(result.arr.hit);
-
-        var yCount = result.arr.hit.Width;
-        var xCount = result.arr.hit.Height;
-
-        Guard.IsGreaterThan(xCount, yCount);
-
-        var xMatrix = new double[yCount][];
-        var yMatrix = new double[yCount][];
-
-        for (var y = 0; y < yCount; y++)
-        {
-            xMatrix[y] = new double[xCount];
-            yMatrix[y] = new double[xCount];
-        }
-
-        for (var x = 0; x < xCount; x++)
-        {
-            var hitRow = result.arr.hit.GetRow<double>(x);
-            for (var y = 0; y < yCount; y++)
-            {
-                var xPixel = hitRow[y * 2];
-                var yPixel = hitRow[y * 2 + 1];
-
-                xMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
-                yMatrix[y][x] = double.IsFinite(yPixel) ? yPixel : double.NaN;
-            }
-        }
-
-        var xPoints = Generate.LinearRangeInt32(0, yCount - 1)
-            .SelectMany(y => xMatrix[y].Index().Select(xTuple => new Point(xTuple.Index, xTuple.Item)))
-            .Where(point => double.IsFinite(point.Y))
-            .ToArray();
-        var yPoints = Generate.LinearRangeInt32(0, xCount - 1)
-            .SelectMany(x => yMatrix.Index().Select(yTuple => new Point(yTuple.Index, yTuple.Item[x])))
-            .Where(point => double.IsFinite(point.Y))
-            .ToArray();
-
-        Guard.IsTrue(xPoints.Length >= 2);
-        Guard.IsTrue(yPoints.Length >= 2);
-
-        var (xSpacing, _, _, _) = PolynomialCurve.Fit1(
-            Vector<double>.Build.DenseOfEnumerable(xPoints.Select(point => point.X)),
-            Vector<double>.Build.DenseOfEnumerable(xPoints.Select(point => point.Y)));
-        var (ySpacing, _, _, _) = PolynomialCurve.Fit1(
-            Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.X)),
-            Vector<double>.Build.DenseOfEnumerable(yPoints.Select(point => point.Y)));
-
-        Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing > 0d);
-        Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing > 0d);
-
-        // 首个有效行和列只作为锚点, 标准矩阵保留跳过的空行和空列对应的索引偏移.
-        var yAnchorRow = Array.FindIndex(yMatrix, pixels => pixels.Any(double.IsFinite));
-        var yAnchor = yMatrix[yAnchorRow].Where(double.IsFinite).Average();
-
-        var xAnchorColumn = Generate.LinearRangeInt32(0, xCount - 1).First(x => xMatrix.Any(pixels => double.IsFinite(pixels[x])));
-        var xAnchor = xMatrix.Select(pixels => pixels[xAnchorColumn]).Where(double.IsFinite).Average();
-
-        var idealXMatrix = Matrix<double>.Build.Dense(yCount, xCount, (_, column) => xAnchor + (column - xAnchorColumn) * xSpacing);
-        var idealYMatrix = Matrix<double>.Build.Dense(yCount, xCount, (row, _) => yAnchor + (row - yAnchorRow) * ySpacing);
-
-        var errorXMatrix = Matrix<double>.Build.DenseOfRowArrays(xMatrix) - idealXMatrix;
-        var errorYMatrix = Matrix<double>.Build.DenseOfRowArrays(yMatrix) - idealYMatrix;
-
-        var meanErrorX = errorXMatrix.Enumerate().Where(double.IsFinite).Average();
-        var meanErrorY = errorYMatrix.Enumerate().Where(double.IsFinite).Average();
-
-        errorXMatrix = errorXMatrix.Map(value => double.IsFinite(value) ? value - meanErrorX : 0d);
-        errorYMatrix = errorYMatrix.Map(value => double.IsFinite(value) ? value - meanErrorY : 0d);
-
-        var samples = new ICalibrationAlgorithmService.RTAScanSample[xCount];
-
-        for (var x = 0; x < xCount; x++)
-        {
-            samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
-                idealXMatrix[0, x],
-                new Vector(errorXMatrix.Column(x).Average(), errorYMatrix.Column(x).Average()));
-        }
-
-        return samples;
     }
 
     #region BestFocus Algo

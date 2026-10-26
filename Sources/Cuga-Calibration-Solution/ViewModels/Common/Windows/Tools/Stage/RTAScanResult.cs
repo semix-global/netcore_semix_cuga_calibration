@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
@@ -83,7 +84,11 @@ public sealed partial class RTAScanResult : ObservableObject
             Point[] reverseXes = [.. ReverseRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.X * _xPixelSize))];
             Point[] reverseYes = [.. ReverseRTAScanSamples.Select(x => new Point(x.X / _productivityInformation.SampleRate, x.Error.Y * _yPixelSize))];
 
-            var plotCount = forwardXes.Length > 0 ? 1 : 0 + reverseXes.Length > 0 ? 1 : 0;
+            var isForwardAvailable = forwardXes.Length > 0;
+            var isReverseAvailable = reverseXes.Length > 0;
+            var plotCount = (isForwardAvailable ? 1 : 0) + (isReverseAvailable ? 1 : 0);
+
+            if (isReverseAvailable) Guard.IsEqualTo(plotCount, 2, "Reverse data is available but forward data is not. Both forward and reverse data must be available for plotting.");
 
             var xTimeDomainScatterLines = PlotDataSource.GetOrAddScatterLines(0, plotCount);
             var yTimeDomainScatterLines = PlotDataSource.GetOrAddScatterLines(1, plotCount);
@@ -111,9 +116,11 @@ public sealed partial class RTAScanResult : ObservableObject
 
         Point[] FrequencyDomain(Point[] points)
         {
-            if (points.Length <= 0) return [];
+            if (points.Length < 2) return [];
 
             var timeStep = Math.Abs(points[1].X - points[0].X);
+
+            Guard.IsTrue(double.IsFinite(timeStep) && timeStep > 0d, "Time step must be a finite positive number.");
 
             var signals = Vector<double>.Build.Dense([.. points.Select(t => t.Y)]);
 

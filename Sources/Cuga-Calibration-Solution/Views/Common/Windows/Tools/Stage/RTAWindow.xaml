@@ -10,7 +10,6 @@
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
-           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
@@ -224,6 +223,211 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
+                                    <Expander Header="{Binding Steps[2]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <Expander Header="StageMap Algorithm Configuration"
+                                                          IsExpanded="False"
+                                                          ExpandDirection="Down">
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Median Kernel Size: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.MedianKernelSize}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period Row Start: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodRowStart}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period Row Count: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodRowCount}" />
+                                                            <ComboBox hc:TitleElement.Title="Period YOperator: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="230"
+                                                                      SelectedValue="{Binding Cache.StageMapConfig.PeriodYOperator}"
+                                                                      SelectedValuePath="Content"
+                                                                      Style="{StaticResource ComboBoxExtend}">
+                                                                <ComboBoxItem Content="mean" />
+                                                                <ComboBoxItem Content="std" />
+                                                                <ComboBoxItem Content="range" />
+                                                            </ComboBox>
+                                                            <ComboBox hc:TitleElement.Title="Period XOperator: "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="230"
+                                                                      SelectedValue="{Binding Cache.StageMapConfig.PeriodXOperator}"
+                                                                      SelectedValuePath="Content"
+                                                                      Style="{StaticResource ComboBoxExtend}">
+                                                                <ComboBoxItem Content="mean" />
+                                                                <ComboBoxItem Content="std" />
+                                                                <ComboBoxItem Content="range" />
+                                                            </ComboBox>
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period Zero Padding: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodZeroPadding}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period Top N: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodTopN}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period YMin Pixels: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodYMinPixels}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period XMin Pixels: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodXMinPixels}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period YMin Cycles: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodYMinCycles}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period XMin Cycles: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodXMinCycles}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period YMin Distance: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodYMinDistance}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Period XMin Distance: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.PeriodXMinDistance}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Detect Row Limit: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DetectRowLimit}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Detect Tail Limit: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DetectTailLimit}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Detect Min Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DetectMinFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Detect Max Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DetectMaxFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Detect Need Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DetectNeedFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Band Smooth Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.BandSmoothFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Band Window Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.BandWindowFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Band Edge Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.BandEdgeFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Template Fraction: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.TemplateFraction}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Template Anchor Row: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.TemplateAnchorRow}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Template Anchor Column: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.TemplateAnchorColumn}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Match Margin: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.MatchMargin}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Match Threshold: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.MatchThreshold}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Match Refresh Threshold: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.MatchRefreshThreshold}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Fit Jitter: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.FitJitter}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Fit Match Ratio: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.FitMatchRatio}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Delta Trim: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.DeltaTrim}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Origin Search Rows: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.OriginSearchRows}" />
+                                                            <hc:NumericUpDown hc:TitleElement.Title="Stream Block Rows: "
+                                                                              hc:TitleElement.TitlePlacement="Left"
+                                                                              hc:TitleElement.TitleWidth="230"
+                                                                              Style="{StaticResource NumericUpDownExtend}"
+                                                                              Value="{Binding Cache.StageMapConfig.StreamBlockRows}" />
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                </Expander>
+                                                <Expander Header="Simulator Images"
+                                                          IsExpanded="False"
+                                                          ExpandDirection="Down"
+                                                          Visibility="{Binding IsDevelopment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                            <TextBox Text="{Binding Cache.ForwardSimulatorImageFilePath}"
+                                                                     hc:TitleElement.Title="Forward RAW Image: "
+                                                                     hc:TitleElement.TitlePlacement="Left"
+                                                                     hc:TitleElement.TitleWidth="190"
+                                                                     Style="{StaticResource TextBoxExtend}" />
+                                                            <TextBox Text="{Binding Cache.ReverseSimulatorImageFilePath}"
+                                                                     hc:TitleElement.Title="Reverse RAW Image: "
+                                                                     hc:TitleElement.TitlePlacement="Left"
+                                                                     hc:TitleElement.TitleWidth="190"
+                                                                     Style="{StaticResource TextBoxExtend}" />
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                </Expander>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -372,14 +576,9 @@
                             </graphicsWPF:WPFCanvasControl>
                         </Border>
                     </TabItem>
-                    <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} - Time Domain">
+                    <TabItem Header="{Binding Steps[2]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <v2:PlotControl DataSource="{Binding Cache.RTAScanResult.TimeDomainPlotDataSource}" />
-                        </Border>
-                    </TabItem>
-                    <TabItem Header="{Binding Steps[2]}" HeaderStringFormat="{}{0} - Frequency Domain">
-                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <v2:PlotControl DataSource="{Binding Cache.RTAScanResult.FrequencyDomainPlotDataSource}" />
+                            <v2:PlotControl DataSource="{Binding Cache.RTAScanResult.PlotDataSource}" />
                         </Border>
                     </TabItem>
                 </TabControl>

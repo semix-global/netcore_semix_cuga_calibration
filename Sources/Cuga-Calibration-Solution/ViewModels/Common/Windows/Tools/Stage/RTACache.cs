@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Services.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 using Newtonsoft.Json;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -50,6 +52,19 @@ public sealed partial class RTACache : CalibrationCacheBase
 
     #endregion
 
+    #region Step2
+
+    [ObservableProperty]
+    public partial ICalibrationAlgorithmService.StageMapConfigDTO StageMapConfig { get; set; } = new();
+
+    [ObservableProperty]
+    public partial string ForwardSimulatorImageFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string ReverseSimulatorImageFilePath { get; set; } = string.Empty;
+
+    #endregion
+
     #region Result
 
     [ObservableProperty]
@@ -80,6 +95,9 @@ public sealed partial class RTACache : CalibrationCacheBase
         CIBConfiguration,
         WaferRadius,
         DiePitchWidth,
-        DiePitchHeight
+        DiePitchHeight,
+        StageMapConfig = new HtmlQuote(StageMapConfig.ToHtmlAnonymous()),
+        ForwardSimulatorImageFilePath,
+        ReverseSimulatorImageFilePath,
     };
 }

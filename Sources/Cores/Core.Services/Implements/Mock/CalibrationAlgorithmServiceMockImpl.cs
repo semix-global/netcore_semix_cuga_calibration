@@ -1,6 +1,5 @@
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -16,11 +15,12 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
+using Core.Models.Models.Common.DarkField;
 
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationAlgorithmServiceMockImpl(
+public sealed partial class CalibrationAlgorithmServiceMockImpl(
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
 {
@@ -247,6 +247,4 @@ public sealed class CalibrationAlgorithmServiceMockImpl(
     {
         return _calibrationAlgorithmServiceImpl.FitCircle(points);
     }
-
-    public ICalibrationAlgorithmService.RTAScanSample[] GetRTAScanSamples(DarkFieldRawScanImageDTO rawScanImage) => _calibrationAlgorithmServiceImpl.GetRTAScanSamples(rawScanImage);
 }
