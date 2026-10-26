@@ -175,7 +175,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
         async Task Step0Async()
         {
-            InnerLoop:
+        InnerLoop:
 
             switch (CenterChannelMotionKindEnum)
             {
@@ -194,7 +194,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     break;
 
                 case CenterChannelMotionKindEnum.YRod:
-                    var yRodSize = new Size(_step0BitmapImageDrawable.BitmapImage.Width / 4d, _step0BitmapImageDrawable.BitmapImage.Height / 4d);
+                    var yRodSize = (Size)_step0BitmapImageDrawable.BitmapImage.Size / 4d;
                     Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)yRodSize / 2d, yRodSize)).ImageCoordinateRound();
 
                     break;
@@ -267,7 +267,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 }
             }
 
-            OuterLoop:
+        OuterLoop:
 
             Step0ROI.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0ROI.BitmapImageROIDrawable.Rect);
             Step0ROI.BitmapImageROIDrawable.IsFixed = true;
@@ -284,7 +284,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
         async Task Step1Async()
         {
-            InnerLoop:
+        InnerLoop:
 
             Step1ROI.ImageROI = Step0ROI.ImageROI;
             Step1ROI.BitmapImageROIDrawable.Rect = _step1BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Step1ROI.ImageROI);
@@ -347,7 +347,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                 }
             }
 
-            OuterLoop:
+        OuterLoop:
 
             Step1ROI.ImageROI = _step1BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step1ROI.BitmapImageROIDrawable.Rect);
             Step1ROI.BitmapImageROIDrawable.IsFixed = true;

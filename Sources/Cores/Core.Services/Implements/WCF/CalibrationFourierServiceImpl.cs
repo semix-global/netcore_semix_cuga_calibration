@@ -172,8 +172,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.FF_GetPACT(FFCH.Ch3_X));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100) != (int)(motorAbsoluteValue * 100)
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100)", false)
+        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
+            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -185,8 +185,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.GetRFPOS());
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100) != (int)(motorAbsoluteValue * 100)
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100)", false)
+        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
+            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -198,8 +198,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.GetDFPOS());
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100) != (int)(motorAbsoluteValue * 100)
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100)", false)
+        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
+            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -213,14 +213,14 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.FF_GetRACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if ((int)(getSxExecuteRet.Anything * 100) != (int)(angleMotorAbsoluteValue * 100)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100) != (int)(angleMotorAbsoluteValue({angleMotorAbsoluteValue}) * 100)", false);
+        if ((int)(getSxExecuteRet.Anything * 100d) != (int)(angleMotorAbsoluteValue * 100d)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(angleMotorAbsoluteValue({angleMotorAbsoluteValue}) * 100d)", false); // cuga应用都是保留两位小数
 
         setSxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
 
         getSxExecuteRet = Invoke(() => Service!.FF_GetLACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
-        if ((int)(getSxExecuteRet.Anything * 100) != (int)(motorAbsoluteValue * 100)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100)", false);
+        if ((int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false); // cuga应用都是保留两位小数
 
         return setSxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(true)

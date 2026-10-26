@@ -103,6 +103,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
         XDiffractionPushItem.Dispose();
         XReflectionCoarsePushItem.Dispose();
         XReflectionFinePushItem.Dispose();
+
         foreach (var yItem in YRodItems) yItem.Dispose();
     }
 }

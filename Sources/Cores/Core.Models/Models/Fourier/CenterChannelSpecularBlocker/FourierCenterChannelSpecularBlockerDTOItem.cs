@@ -212,7 +212,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
                 }
             }
 
-            OuterLoop0:
+        OuterLoop0:
 
             XReflectionPushROI.BitmapImageROIDrawable.IsFixed = true;
             XReflectionPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XReflectionPushROI.BitmapImageROIDrawable.Rect);
@@ -269,7 +269,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
                     }
                 }
 
-                OuterLoop1:
+            OuterLoop1:
 
                 YRodROI.BitmapImageROIDrawable.IsFixed = true;
                 YRodROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(YRodROI.BitmapImageROIDrawable.Rect);
