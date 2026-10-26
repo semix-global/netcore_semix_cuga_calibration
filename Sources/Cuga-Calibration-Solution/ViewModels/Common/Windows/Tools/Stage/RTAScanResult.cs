@@ -104,8 +104,8 @@ public sealed partial class RTAScanResult : ObservableObject
             xFrequencyDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", FrequencyDomain(forwardXes), color: Colors.Blue);
             yFrequencyDomainScatterLines.ElementAtOrDefault(0)?.Update("Forward", FrequencyDomain(forwardYes), color: Colors.Blue);
 
-            yFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseXes), color: Colors.Red);
-            xFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseYes), color: Colors.Red);
+            xFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseXes), color: Colors.Red);
+            yFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseYes), color: Colors.Red);
         }
         finally
         {
