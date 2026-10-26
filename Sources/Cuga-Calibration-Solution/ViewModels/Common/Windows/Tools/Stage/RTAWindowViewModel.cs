@@ -405,7 +405,7 @@ public sealed partial class RTAWindowViewModel(
             {
                 ForwardRawImageFilePath = forwardDarkFieldRawScanImage.RawImageFilePath,
                 ReverseRawImageFilePath = reverseDarkFieldRawScanImage.RawImageFilePath,
-                PlotDataSource = Cache.RTAScanResult.PlotDataSource.GetAllHtmlPlot2DLinesCharts()
+                PlotDataSource = new HtmlContainer([.. Cache.RTAScanResult.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
             });
             if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
             else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());

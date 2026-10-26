@@ -8,6 +8,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
+using Net.Utilities.ScottPlot.Plottables;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
 
@@ -106,6 +107,11 @@ public sealed partial class RTAScanResult : ObservableObject
 
             xFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseXes), color: Colors.Red);
             yFrequencyDomainScatterLines.ElementAtOrDefault(1)?.Update("Reverse", FrequencyDomain(reverseYes), color: Colors.Red);
+
+            foreach (var scatterLine in (ScatterLine[])[.. xTimeDomainScatterLines, .. yTimeDomainScatterLines, .. xFrequencyDomainScatterLines, .. yFrequencyDomainScatterLines])
+            {
+                scatterLine.MarkerStyle.IsVisible = false;
+            }
         }
         finally
         {

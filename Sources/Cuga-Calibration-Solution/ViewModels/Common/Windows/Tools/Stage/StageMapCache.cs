@@ -3,7 +3,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
-using Newtonsoft.Json;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -74,7 +73,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     [ObservableProperty]
     public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 

@@ -47,7 +47,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
             var hitRow = result.arr.hit.GetRow<double>(x);
             for (var y = 0; y < yCount; y++)
             {
-                var xPixel = isForward ? hitRow[y * 2] : rawImage.Height - 1d - hitRow[y * 2]; // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
+                var xPixel = hitRow[y * 2];
                 var yPixel = hitRow[y * 2 + 1];
 
                 xMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
@@ -79,6 +79,8 @@ public sealed partial class CalibrationAlgorithmServiceImpl
             rawScanImage.RawImageFilePath,
             Config = new HtmlQuote(stageMapConfig.ToHtmlAnonymous()),
             isForward,
+            xSpacing,
+            ySpacing,
             XFitPlot = new HtmlPlot2DLinesChart(
             [
                 ("Origin", [.. xPoints]),
@@ -117,7 +119,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
         for (var x = 0; x < xCount; x++)
         {
             samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
-                idealXMatrix[0, x],
+                isForward ? idealXMatrix[0, x] : rawImage.Height - 1d - idealXMatrix[0, x], // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
                 new Vector(errorXMatrix.Column(x).Average(), errorYMatrix.Column(x).Average()));
         }
 
