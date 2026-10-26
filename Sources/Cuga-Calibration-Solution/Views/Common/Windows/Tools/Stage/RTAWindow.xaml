@@ -16,6 +16,8 @@
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:stage1="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
+           xmlns:sys="clr-namespace:System;assembly=mscorlib"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:RTAWindowViewModel}"
@@ -251,22 +253,28 @@
                                                             <ComboBox hc:TitleElement.Title="Period YOperator: "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="230"
-                                                                      SelectedValue="{Binding Cache.StageMapConfig.PeriodYOperator}"
-                                                                      SelectedValuePath="Content"
+                                                                      SelectedItem="{Binding Cache.StageMapConfig.PeriodYOperator}"
                                                                       Style="{StaticResource ComboBoxExtend}">
-                                                                <ComboBoxItem Content="mean" />
-                                                                <ComboBoxItem Content="std" />
-                                                                <ComboBoxItem Content="range" />
+                                                                <ComboBox.ItemsSource>
+                                                                    <x:Array Type="{x:Type sys:String}">
+                                                                        <sys:String>mean</sys:String>
+                                                                        <sys:String>std</sys:String>
+                                                                        <sys:String>range</sys:String>
+                                                                    </x:Array>
+                                                                </ComboBox.ItemsSource>
                                                             </ComboBox>
                                                             <ComboBox hc:TitleElement.Title="Period XOperator: "
                                                                       hc:TitleElement.TitlePlacement="Left"
                                                                       hc:TitleElement.TitleWidth="230"
-                                                                      SelectedValue="{Binding Cache.StageMapConfig.PeriodXOperator}"
-                                                                      SelectedValuePath="Content"
+                                                                      SelectedItem="{Binding Cache.StageMapConfig.PeriodXOperator}"
                                                                       Style="{StaticResource ComboBoxExtend}">
-                                                                <ComboBoxItem Content="mean" />
-                                                                <ComboBoxItem Content="std" />
-                                                                <ComboBoxItem Content="range" />
+                                                                <ComboBox.ItemsSource>
+                                                                    <x:Array Type="{x:Type sys:String}">
+                                                                        <sys:String>mean</sys:String>
+                                                                        <sys:String>std</sys:String>
+                                                                        <sys:String>range</sys:String>
+                                                                    </x:Array>
+                                                                </ComboBox.ItemsSource>
                                                             </ComboBox>
                                                             <hc:NumericUpDown hc:TitleElement.Title="Period Zero Padding: "
                                                                               hc:TitleElement.TitlePlacement="Left"
@@ -403,6 +411,10 @@
                                                                               hc:TitleElement.TitleWidth="230"
                                                                               Style="{StaticResource NumericUpDownExtend}"
                                                                               Value="{Binding Cache.StageMapConfig.StreamBlockRows}" />
+                                                            <Button Content="Restore"
+                                                                    Command="{Binding Cache.StageMapConfig.RestoreCommand}"
+                                                                    HorizontalAlignment="Left"
+                                                                    Style="{StaticResource ButtonDefault}" />
                                                         </hc:UniformSpacingPanel>
                                                     </Border>
                                                 </Expander>
@@ -412,16 +424,42 @@
                                                           Visibility="{Binding IsDevelopment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Border Style="{StaticResource BorderRegion}">
                                                         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                            <TextBox Text="{Binding Cache.ForwardSimulatorImageFilePath}"
+                                                            <TextBox x:Name="ForwardSimulatorImageFilePathTextBox"
+                                                                     Text="{Binding Cache.ForwardSimulatorImageFilePath}"
+                                                                     Height="50"
+                                                                     TextWrapping="Wrap"
                                                                      hc:TitleElement.Title="Forward RAW Image: "
                                                                      hc:TitleElement.TitlePlacement="Left"
                                                                      hc:TitleElement.TitleWidth="190"
+                                                                     Background="{StaticResource SecondaryRegionBrush}"
+                                                                     IsReadOnly="True"
+                                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                      Style="{StaticResource TextBoxExtend}" />
-                                                            <TextBox Text="{Binding Cache.ReverseSimulatorImageFilePath}"
+                                                            <Button Content="Refresh"
+                                                                    Command="{x:Static cmd:Commands.SelectFileCommand}"
+                                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}">
+                                                                <Button.CommandParameter>
+                                                                    <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ForwardSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
+                                                                </Button.CommandParameter>
+                                                            </Button>
+                                                            <TextBox x:Name="ReverseSimulatorImageFilePathTextBox"
+                                                                     Text="{Binding Cache.ReverseSimulatorImageFilePath}"
+                                                                     Height="50"
+                                                                     TextWrapping="Wrap"
                                                                      hc:TitleElement.Title="Reverse RAW Image: "
                                                                      hc:TitleElement.TitlePlacement="Left"
                                                                      hc:TitleElement.TitleWidth="190"
+                                                                     Background="{StaticResource SecondaryRegionBrush}"
+                                                                     IsReadOnly="True"
+                                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                      Style="{StaticResource TextBoxExtend}" />
+                                                            <Button Content="Refresh"
+                                                                    Command="{x:Static cmd:Commands.SelectFileCommand}"
+                                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}">
+                                                                <Button.CommandParameter>
+                                                                    <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ReverseSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
+                                                                </Button.CommandParameter>
+                                                            </Button>
                                                         </hc:UniformSpacingPanel>
                                                     </Border>
                                                 </Expander>

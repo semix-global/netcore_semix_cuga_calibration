@@ -337,7 +337,8 @@ public sealed partial class RTAWindowViewModel(
             {
                 IsMultipleSelection = true,
                 CancellationToken = cancellationToken
-            });
+            })
+            .ConfigureAwait(false);
         Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
         StageMapDie[] selectStageMapDies = [.. inputResult.Output.OrderBy(t => t.Index.Y).ThenBy(t => t.Index.X)];

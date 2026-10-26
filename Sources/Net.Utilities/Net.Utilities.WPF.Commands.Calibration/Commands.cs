@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace Net.Utilities.WPF.Commands.Calibration;
 
-public static class Commands
+public static partial class Commands
 {
     public static IRelayCommand<string> OpenFilePathCommand { get; } = new RelayCommand<string>(static filePath =>
     {

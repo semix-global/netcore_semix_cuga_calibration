@@ -39,6 +39,7 @@ using Python.Runtime;
 using System.Collections;
 using System.IO;
 using System.Reflection;
+using Core.Models.Models.Common.Alignment;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -70,6 +71,9 @@ public sealed partial class StageMapWindowViewModel(
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
+
+    [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
@@ -254,7 +258,9 @@ public sealed partial class StageMapWindowViewModel(
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-        if (dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
+        if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
+            && Cache.AlignmentResult.MarkPoint2 != Point.Origin
+            && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
                 out dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
@@ -273,7 +279,7 @@ public sealed partial class StageMapWindowViewModel(
             }
         }
 
-        Cache.AlignmentResult = newAlignmentResult;
+        AlignmentResult = newAlignmentResult;
 
         stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
 
@@ -281,7 +287,7 @@ public sealed partial class StageMapWindowViewModel(
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum,
             AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(Cache.AlignmentResult)
+            AlignmentResult = new HtmlQuote(AlignmentResult)
         }), HtmlLogUniqueId.LoggingHtml());
 
         return true;
@@ -365,6 +371,8 @@ public sealed partial class StageMapWindowViewModel(
             }));
         }, true);
 
+        Cache.AlignmentResult = AlignmentResult;
+
         return Task.FromResult(true);
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
@@ -395,8 +403,8 @@ public sealed partial class StageMapWindowViewModel(
                 {
                     IsMultipleSelection = true,
                     CancellationToken = cancellationToken
-                });
-
+                })
+                .ConfigureAwait(false);
             Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
             selectStageMapDies = [.. inputResult.Output];

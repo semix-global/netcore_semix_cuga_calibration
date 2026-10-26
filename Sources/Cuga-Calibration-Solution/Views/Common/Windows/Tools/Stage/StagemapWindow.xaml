@@ -289,7 +289,7 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                                                <TextBox Text="{Binding AlignmentResult.Degrees, StringFormat='0.##########'}"
                                                          hc:TitleElement.Title="Alignment Degrees(°): "
                                                          hc:TitleElement.TitleWidth="150"
                                                          hc:TitleElement.TitlePlacement="Left"

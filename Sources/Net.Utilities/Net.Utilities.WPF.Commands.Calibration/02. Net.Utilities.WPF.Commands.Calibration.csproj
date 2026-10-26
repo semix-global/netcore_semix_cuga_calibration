@@ -11,4 +11,10 @@
         <ProjectReference Include="..\Net.Utilities.WPF.Converters.Calibration\01. Net.Utilities.WPF.Converters.Calibration.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Update="Commands.*.cs">
+            <DependentUpon>Commands.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
 </Project>
