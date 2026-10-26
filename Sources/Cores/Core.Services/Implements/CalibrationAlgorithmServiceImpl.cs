@@ -709,7 +709,15 @@ public sealed class CalibrationAlgorithmServiceImpl(
         Guard.IsEqualTo(rawImage.Width, rawScanImage.Size.Height);
         Guard.IsEqualTo(rawImage.Height, rawScanImage.Size.Width);
 
-        using var engine = new StageMapEngine(new StageMapConfig());
+        using var engine = new StageMapEngine(new StageMapConfig
+        {
+            period_row_start = 1000,
+            period_row_count = 2000,
+            period_y_min_cycles = 5.0,
+            period_x_min_cycles = 2.0,
+            detect_row_limit = 30000,
+            detect_tail_limit = 30000
+        });
         using var result = engine.Process(rawImage);
 
         Guard.IsNotNull(result.arr.hit);
@@ -736,8 +744,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
                 var xPixel = hitRow[y * 2];
                 var yPixel = hitRow[y * 2 + 1];
 
-                xMatrix[y][x] = double.IsFinite(yPixel) ? yPixel : double.NaN;
-                yMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
+                xMatrix[y][x] = double.IsFinite(xPixel) ? xPixel : double.NaN;
+                yMatrix[y][x] = double.IsFinite(yPixel) ? yPixel : double.NaN;
             }
         }
 
