@@ -160,7 +160,7 @@ public sealed partial class RTAWindowViewModel(
                 stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
                     currentCIBLineCentricity.MicroscopeLensInformation,
                     microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), Cache.CalChipSiteModelEnum);
+                    darkFieldPosition), Cache.CalChipSiteModelEnum); // todo: 两边导航未撤销生成地图时添加的 CIB 偏移
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -207,17 +207,16 @@ public sealed partial class RTAWindowViewModel(
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
         {
             var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
-            var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint1;
+            var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint2;
 
             var newMarkPoint1 = newAlignmentResult.MarkPoint1;
-            var newMarkPoint2 = newAlignmentResult.MarkPoint1;
+            var newMarkPoint2 = newAlignmentResult.MarkPoint2;
 
             var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
 
-            foreach (var stageMapTemplate in Cache.StageMapTemplates)
-            {
-                stageMapTemplate.FindBFMachinePosition += offset;
-            }
+            foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
+
+            Cache.AlignmentResult = newAlignmentResult;
         }
 
         AlignmentResult = newAlignmentResult;
@@ -380,6 +379,13 @@ public sealed partial class RTAWindowViewModel(
             return false;
         }
 
+        if (selectStageMapDies.Length < 2)
+        {
+            dialogWindowProvider.ShowDialog("At Least Two Dies Must Be Selected!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+            return false;
+        }
+
         foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
 
         var startPosition = selectStageMapDies[0].Rect.Point;
@@ -464,6 +470,8 @@ public sealed partial class RTAWindowViewModel(
             Step0CancelCommand.Execute(null);
 
             using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
+            Cache.Id = 0;
             cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
         catch (Exception ex)
