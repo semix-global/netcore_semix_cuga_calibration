@@ -261,6 +261,22 @@ public sealed partial class ProductivityInformation :
 
     #endregion Mapper
 
+    public object ToHtmlAnonymous() => new
+    {
+        Name,
+        OpticsIlluminationModeEnum,
+        OpticsMagType,
+        StageSpeedType,
+        XPixelSize,
+        YPixelSize,
+        YPixels,
+        OriginYPixels,
+        OriginYPixelsStartIndex,
+        OriginYPixelsEndIndex,
+        SampleRate,
+        XSpeedValue
+    };
+
     private sealed class ProductivityInformationConverter : JsonConverter<ProductivityInformation?>
     {
         private static readonly Lazy<ApplicationCookie> ApplicationCookie = new(HostApplication.GetRequiredService<ApplicationCookie>);

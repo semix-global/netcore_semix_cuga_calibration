@@ -333,7 +333,7 @@ public sealed partial class RTAWindowViewModel(
 
         logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            Cache.ProductivityInformation,
+            ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
             xSize.XPixelSize,
             ySize.YPixelSize
         }), HtmlLogUniqueId.LoggingHtml());
@@ -376,6 +376,8 @@ public sealed partial class RTAWindowViewModel(
         var reverseDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
         try
         {
+            logger.LogHtmlInformation("Scan", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);

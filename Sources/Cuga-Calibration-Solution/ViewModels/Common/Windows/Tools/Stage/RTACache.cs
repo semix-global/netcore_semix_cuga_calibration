@@ -86,13 +86,13 @@ public sealed partial class RTACache : CalibrationCacheBase
 
     public object ToHtmlAnonymous() => new
     {
-        ProductivityInformation,
+        ProductivityInformation = new HtmlQuote(ProductivityInformation.ToHtmlAnonymous()),
         MicroscopeLensInformation,
         LaserLightInformation,
         CIBInformation,
         CalChipSiteModelEnum,
-        OpticsConfiguration,
-        CIBConfiguration,
+        OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
+        CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
         WaferRadius,
         DiePitchWidth,
         DiePitchHeight,

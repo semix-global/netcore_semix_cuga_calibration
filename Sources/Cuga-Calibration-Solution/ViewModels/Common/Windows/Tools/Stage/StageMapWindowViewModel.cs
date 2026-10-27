@@ -635,7 +635,7 @@ public sealed partial class StageMapWindowViewModel(
 
         logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
-            Cache.ProductivityInformation,
+            ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
             xDirection,
             yDirection,
             xSize.XPixelSize,

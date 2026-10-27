@@ -3,6 +3,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -100,12 +101,12 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     public object ToHtmlAnonymous() => new
     {
-        ProductivityInformation,
+        ProductivityInformation = new HtmlQuote(ProductivityInformation.ToHtmlAnonymous()),
         MicroscopeLensInformation,
         LaserLightInformation,
         CIBInformation,
-        OpticsConfiguration,
-        CIBConfiguration,
+        OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
+        CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
         TemplateMatchSetting,
         IsROIMatchEnabled,
         ROIMatchWidthScale,
