@@ -11,7 +11,6 @@
 
     <Import Project="$(BuildToolsDirectory)\Common.Build.props" />
 
-    <!-- B3 使用双转盘, B4 使用单转盘; 硬件配置由解决方案下拉框选择. -->
     <PropertyGroup Condition="$(Configuration.EndsWith('-B3')) Or $(Configuration.EndsWith('-B4'))">
         <Configurations>Debug-B3;Debug-B4;Release-B3;Release-B4</Configurations>
         <DefineConstants Condition="$(Configuration.EndsWith('-B3'))">$(DefineConstants);B3</DefineConstants>
