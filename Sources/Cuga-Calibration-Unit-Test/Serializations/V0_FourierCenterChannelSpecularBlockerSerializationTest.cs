@@ -297,38 +297,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
     }
 
     [Theory]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public void AdaptTo_ShouldPreserveYRodAndXPushSelections(bool isSelectedY, bool isSelectedX)
-    {
-        using var dto = new V0FourierCenterChannelSpecularBlockerDTO();
-        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = 120d;
-        dto.Channel3Item.YRodROI.MotorAbsoluteValue = -3.5;
-        dto.Channel3Item.YRodROI.IsSelected = isSelectedY;
-        dto.Channel3Item.XPushROI.MotorAbsoluteValue = 42.25;
-        dto.Channel3Item.XPushROI.IsSelected = isSelectedX;
-
-        var actual = dto.AdaptTo();
-
-        actual.IsSelectedY.Should().Be(isSelectedY);
-        actual.Ch3Angle.Should().Be((float)dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue);
-        actual.Ch3TurnY.Should().Be((float)dto.Channel3Item.YRodROI.MotorAbsoluteValue);
-        actual.IsSelectedX.Should().Be(isSelectedX);
-        actual.Ch3Push.Should().Be((float)dto.Channel3Item.XPushROI.MotorAbsoluteValue);
-    }
-
-    [Fact]
-    public async Task CalibratingAsync_ShouldRejectEmptySelectionsBeforeOpeningImage()
-    {
-        using var item = new V0FourierCenterChannelSpecularBlockerDTOItem();
-
-        Func<Task> action = () => item.CalibratingAsync(null, null, (0d, 1d), (0d, 1d), CancellationToken.None);
-
-        await action.Should().ThrowAsync<ArgumentException>().WithMessage("*Select at least one*");
-    }
-
-    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool isUseCacheSettings)

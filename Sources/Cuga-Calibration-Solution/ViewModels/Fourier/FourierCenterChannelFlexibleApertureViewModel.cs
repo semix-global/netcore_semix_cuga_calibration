@@ -575,7 +575,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             if (HostEnvironment.IsDevelopment())
             {
-                // 每个校准项分别使用日志对应的实测完整原图.
                 var simulatorImageName = item.CenterChannelMotionKindEnum switch
                 {
                     CenterChannelMotionKindEnum.XAperture => nameof(CenterChannelMotionKindEnum.XAperture),
