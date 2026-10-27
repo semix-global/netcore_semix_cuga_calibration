@@ -40,6 +40,7 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using Core.Models.Models.Common.Alignment;
+using Core.Models.Models.Microscope.CalChip;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -93,14 +94,22 @@ public sealed partial class StageMapWindowViewModel(
     [ObservableProperty]
     public partial StageMapCache Cache { get; set; } = new();
 
+    [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        Cache = await Task.Run(() => cacheProvider.GetOrDefault<StageMapCache>()).ConfigureAwait(true);
+        await Task.Run(() =>
+        {
+            Cache = cacheProvider.GetOrDefault<StageMapCache>();
 
-        Cache.StageMap.Refresh();
-        foreach (var cacheRepeatStageMap in Cache.RepeatStageMaps) cacheRepeatStageMap.Refresh();
-        Cache.VerifyStageMap.Refresh();
+            MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
+
+            Cache.StageMap.Refresh();
+            foreach (var cacheRepeatStageMap in Cache.RepeatStageMaps) cacheRepeatStageMap.Refresh();
+            Cache.VerifyStageMap.Refresh();
+        }).ConfigureAwait(true);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -245,6 +254,8 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
     {
+        Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+
         AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
         AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
@@ -280,7 +291,7 @@ public sealed partial class StageMapWindowViewModel(
 
         AlignmentResult = newAlignmentResult;
 
-        stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+        stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
@@ -315,25 +326,29 @@ public sealed partial class StageMapWindowViewModel(
             dfPositions[index] = dfPosition;
         }
 
-        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlTable(
-        [
-            .. Cache.StageMapTemplates.Index().Select(t => new
-            {
-                t.Index,
-                t.Item.FindBFMachinePosition,
-                t.Item.TemplateROI,
-                t.Item.TemplateFilePath,
-                t.Item.TemplateImageFilePath,
-                DFPosition = dfPositions[t.Index]
-            })
-        ]), HtmlLogUniqueId.LoggingHtml());
+        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        {
+            CalChipPosition = MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel),
+            Table = new HtmlTable(
+            [
+                .. Cache.StageMapTemplates.Index().Select(t => new
+                {
+                    t.Index,
+                    t.Item.FindBFMachinePosition,
+                    t.Item.TemplateROI,
+                    t.Item.TemplateFilePath,
+                    t.Item.TemplateImageFilePath,
+                    DFPosition = dfPositions[t.Index]
+                })
+            ])
+        }), HtmlLogUniqueId.LoggingHtml());
 
         Cache.StageMapDocument.RunDesign(() =>
         {
             Cache.StageMapDocument.WaferModel.Clear();
             Cache.StageMapDocument.DieModel.Clear();
 
-            var dfCircle = new Circle(Point.Origin, Cache.WaferRadius);
+            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), Cache.WaferRadius);
             var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
 
             Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
@@ -809,7 +824,7 @@ public sealed partial class StageMapWindowViewModel(
         finally
         {
             foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), templateId);
-            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
         }
     }
 

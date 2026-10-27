@@ -123,7 +123,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 var averageX = errorXMatrix.Column(x).Average();
                 samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
                     isForward ? idealXMatrix[0, x] : rawImage.Height - 1d - idealXMatrix[0, x], // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
-                    new Vector(isForward ? averageX : -averageX, errorYMatrix.Column(x).Average()));
+                    new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, errorYMatrix.Column(x).Average()));
             }
 
             return samples;

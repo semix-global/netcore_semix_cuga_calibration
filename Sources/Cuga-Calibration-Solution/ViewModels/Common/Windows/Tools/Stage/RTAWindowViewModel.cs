@@ -25,6 +25,7 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Microscope.CalChip;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.ScottPlot.Extensions;
 
@@ -68,10 +69,18 @@ public sealed partial class RTAWindowViewModel(
     [ObservableProperty]
     public partial RTACache Cache { get; set; } = new();
 
+    [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
     [RelayCommand]
     private async Task LoadedAsync()
     {
-        Cache = await Task.Run(() => cacheProvider.GetOrDefault<RTACache>()).ConfigureAwait(true);
+        await Task.Run(() =>
+        {
+            Cache = cacheProvider.GetOrDefault<RTACache>();
+
+            MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
+        }).ConfigureAwait(true);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -151,7 +160,7 @@ public sealed partial class RTAWindowViewModel(
                 stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
                     currentCIBLineCentricity.MicroscopeLensInformation,
                     microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), CalChipSiteModelEnum.ChuckModel);
+                    darkFieldPosition), Cache.CalChipSiteModelEnum);
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -175,6 +184,8 @@ public sealed partial class RTAWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
     {
+        Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+
         AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
         AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
 
@@ -210,7 +221,7 @@ public sealed partial class RTAWindowViewModel(
 
         AlignmentResult = newAlignmentResult;
 
-        stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+        stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
@@ -245,25 +256,29 @@ public sealed partial class RTAWindowViewModel(
             dfPositions[index] = dfPosition;
         }
 
-        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlTable(
-        [
-            .. Cache.StageMapTemplates.Index().Select(t => new
-            {
-                t.Index,
-                t.Item.FindBFMachinePosition,
-                t.Item.TemplateROI,
-                t.Item.TemplateFilePath,
-                t.Item.TemplateImageFilePath,
-                DFPosition = dfPositions[t.Index]
-            })
-        ]), HtmlLogUniqueId.LoggingHtml());
+        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        {
+            CalChipPosition = MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum),
+            Table = new HtmlTable(
+            [
+                .. Cache.StageMapTemplates.Index().Select(t => new
+                {
+                    t.Index,
+                    t.Item.FindBFMachinePosition,
+                    t.Item.TemplateROI,
+                    t.Item.TemplateFilePath,
+                    t.Item.TemplateImageFilePath,
+                    DFPosition = dfPositions[t.Index]
+                })
+            ])
+        }), HtmlLogUniqueId.LoggingHtml());
 
         Cache.StageMapDocument.RunDesign(() =>
         {
             Cache.StageMapDocument.WaferModel.Clear();
             Cache.StageMapDocument.DieModel.Clear();
 
-            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(Cache.StageMapTemplates[0].FindBFMachinePosition), Cache.WaferRadius);
+            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.WaferRadius);
             var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
 
             Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
@@ -363,13 +378,14 @@ public sealed partial class RTAWindowViewModel(
         {
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
                 Cache.CIBInformation,
-                (false, Cache.CalChipSiteModelEnum),
+                (true, null),
                 (false, Cache.OpticsConfiguration),
                 (false, Cache.CIBConfiguration),
                 (false, Cache.LaserLightInformation),
@@ -382,13 +398,14 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
 
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition);
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
                 Cache.CIBInformation,
-                (false, Cache.CalChipSiteModelEnum),
+                (true, null),
                 (false, Cache.OpticsConfiguration),
                 (false, Cache.CIBConfiguration),
                 (false, Cache.LaserLightInformation),
@@ -415,7 +432,7 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(null);
 
-            stageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
         }
 
         return isSuccess;
