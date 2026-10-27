@@ -263,7 +263,7 @@ public sealed partial class RTAWindowViewModel(
             Cache.StageMapDocument.WaferModel.Clear();
             Cache.StageMapDocument.DieModel.Clear();
 
-            var dfCircle = new Circle(Point.Origin, Cache.WaferRadius);
+            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(Cache.StageMapTemplates[0].FindBFMachinePosition), Cache.WaferRadius);
             var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
 
             Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
