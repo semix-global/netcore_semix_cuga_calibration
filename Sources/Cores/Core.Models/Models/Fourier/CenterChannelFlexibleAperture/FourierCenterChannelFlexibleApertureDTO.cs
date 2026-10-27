@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;
@@ -10,36 +11,42 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
 {
     public const double AngleStep = 360d / 11d;
 
-    public FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, AngleStep * 9d) { Width = 17.5, Height = 17.5, Step0MotorAbsoluteValue = 5d, Step1MotorAbsoluteValue = 10d };
+    public FourierCenterChannelFlexibleApertureDTOItem XOriginItem { get; private init; } = new(CenterChannelMotionKindEnum.XRod, 0d) { Width = 1.1, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d };
 
-    public FourierCenterChannelFlexibleApertureDTOItem XCalibrationPatternItem { get; private init; } = new(CenterChannelMotionKindEnum.XCalibrationPattern, AngleStep * 8d) { Width = 35d, Height = 35d, Step0MotorAbsoluteValue = -13d, Step1MotorAbsoluteValue = -8d };
+    public FourierCenterChannelFlexibleApertureDTOOriginPositionItem XOriginPositionItem { get; private init; } = new();
+
+    public FourierCenterChannelFlexibleApertureDTOItem XApertureItem { get; private init; } = new(CenterChannelMotionKindEnum.XAperture, AngleStep * 2d) { Width = 17.5, Height = 17.5, Step0MotorAbsoluteValue = 5d, Step1MotorAbsoluteValue = 10d };
+
+    public FourierCenterChannelFlexibleApertureDTOItem XCalibrationPatternItem { get; private init; } = new(CenterChannelMotionKindEnum.XCalibrationPattern, AngleStep * 3d) { Width = 35d, Height = 35d, Step0MotorAbsoluteValue = -13d, Step1MotorAbsoluteValue = -8d };
 
     public FourierCenterChannelFlexibleApertureDTOItem[] XRodItems { get; private init; } =
     [
-        new(CenterChannelMotionKindEnum.XRod, AngleStep * 1d) { Width = 13.5, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.XRod, AngleStep * 2d) { Width = 10d, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.XRod, AngleStep * 3d) { Width = 7.5, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.XRod, AngleStep * 4d) { Width = 5d, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
+        new(CenterChannelMotionKindEnum.XRod, AngleStep * 10d) { Width = 13.5, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.XRod, AngleStep * 9d) { Width = 10d, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.XRod, AngleStep * 8d) { Width = 7.5, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.XRod, AngleStep * 7d) { Width = 5d, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
     ];
 
-    public FourierCenterChannelFlexibleApertureDTOItem XDiffractionPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XDiffractionPush, 0d) { Width = 0d, Height = 0d, Step0MotorAbsoluteValue = 15d, Step1MotorAbsoluteValue = 20d };
+    public FourierCenterChannelFlexibleApertureDTOItem XDiffractionPushItem { get; private init; } = new(CenterChannelMotionKindEnum.XDiffractionPush, 0d) { Width = 7d, Height = 42d, Step0MotorAbsoluteValue = 15d, Step1MotorAbsoluteValue = 20d };
 
-    public FourierCenterChannelFlexibleApertureDTOItem XReflectionCoarsePushItem { get; private init; } = new(CenterChannelMotionKindEnum.XReflectionCoarsePush, 0d) { Width = 0d, Height = 0d, Step0MotorAbsoluteValue = 20d, Step1MotorAbsoluteValue = 15d };
+    public FourierCenterChannelFlexibleApertureDTOItem XReflectionCoarsePushItem { get; private init; } = new(CenterChannelMotionKindEnum.XReflectionCoarsePush, 0d) { Width = 9d, Height = 42d, Step0MotorAbsoluteValue = 20d, Step1MotorAbsoluteValue = 15d };
 
-    public FourierCenterChannelFlexibleApertureDTOItem XReflectionFinePushItem { get; private init; } = new(CenterChannelMotionKindEnum.XReflectionFinePush, 0d) { Width = 0d, Height = 0d, Step0MotorAbsoluteValue = -10d, Step1MotorAbsoluteValue = -15d };
+    public FourierCenterChannelFlexibleApertureDTOItem XReflectionFinePushItem { get; private init; } = new(CenterChannelMotionKindEnum.XReflectionFinePush, 0d) { Width = 4.5, Height = 42d, Step0MotorAbsoluteValue = -10d, Step1MotorAbsoluteValue = -15d };
 
     public FourierCenterChannelFlexibleApertureDTOItem[] YRodItems { get; private init; } =
     [
-        new(CenterChannelMotionKindEnum.YRod, AngleStep * 5d) { Width = 24d, Height = 22d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.YRod, AngleStep * 6d) { Width = 24d, Height = 18.33, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.YRod, AngleStep * 7d) { Width = 24d, Height = 14d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
-        new(CenterChannelMotionKindEnum.YRod, AngleStep * 10d) { Width = 24d, Height = 11d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
+        new(CenterChannelMotionKindEnum.YRod, AngleStep * 6d) { Width = 24d, Height = 22d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.YRod, AngleStep * 5d) { Width = 24d, Height = 18.33, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.YRod, AngleStep * 4d) { Width = 24d, Height = 14d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d },
+        new(CenterChannelMotionKindEnum.YRod, AngleStep * 1d) { Width = 24d, Height = 11d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d }
     ];
 
 #pragma warning disable IDISP003
 
     public override FourierCenterChannelFlexibleApertureDTO Clone() => new()
     {
+        XOriginItem = XOriginItem.Clone(),
+        XOriginPositionItem = XOriginPositionItem.Clone(),
         XApertureItem = XApertureItem.Clone(),
         XCalibrationPatternItem = XCalibrationPatternItem.Clone(),
         XRodItems = [.. XRodItems.Select(t => t.Clone())],
@@ -97,6 +104,8 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
 
     public void Dispose()
     {
+        XOriginItem.Dispose();
+        XOriginPositionItem.Dispose();
         XApertureItem.Dispose();
         XCalibrationPatternItem.Dispose();
         foreach (var xItem in XRodItems) xItem.Dispose();

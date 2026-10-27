@@ -62,7 +62,12 @@
         <Project Path="Cores/Core.Wcf/01. Core.Wcf.csproj" />
         <Project Path="Cores/Core.Models/02. Core.Models.csproj" />
         <Project Path="Cores/Core.Algorithm/03. Core.Algorithm.csproj" />
-        <Project Path="Cores/Core.Services/04. Core.Services.csproj" />
+        <Project Path="Cores/Core.Services/04. Core.Services.csproj">
+            <BuildType Solution="Debug-B3|*" Project="Debug-B3" />
+            <BuildType Solution="Debug-B4|*" Project="Debug-B4" />
+            <BuildType Solution="Release-B3|*" Project="Release-B3" />
+            <BuildType Solution="Release-B4|*" Project="Release-B4" />
+        </Project>
         <Project Path="Cores/Core.Recipe/05. Core.Recipe.csproj" />
     </Folder>
 
@@ -74,6 +79,10 @@
         <Platform Project="x64" />
     </Project>
     <Project Path="Cuga-Calibration-Unit-Test/Cuga-Calibration-Unit-Test.csproj">
+        <BuildType Solution="Debug-B3|*" Project="Debug-B3" />
+        <BuildType Solution="Debug-B4|*" Project="Debug-B4" />
+        <BuildType Solution="Release-B3|*" Project="Release-B3" />
+        <BuildType Solution="Release-B4|*" Project="Release-B4" />
         <Platform Project="x64" />
     </Project>
 

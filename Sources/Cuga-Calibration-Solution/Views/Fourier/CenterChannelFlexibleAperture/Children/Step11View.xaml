@@ -26,11 +26,11 @@
                 <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
                            Status="{Binding CalibrationStepName}"
                            Color="{StaticResource InfoBrush}" />
-                <hc:Shield Subject="X Min Motor: "
-                           Status="{Binding Cache.XMinMotorAbsoluteValue}"
+                <hc:Shield Subject="X Reflection Push Min Motor: "
+                           Status="{Binding Cache.ReflectionPushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="X Max Motor: "
-                           Status="{Binding Cache.XMaxMotorAbsoluteValue}"
+                <hc:Shield Subject="X Reflection Push Max Motor: "
+                           Status="{Binding Cache.ReflectionPushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Productivity: "
                            Status="{Binding Cache.ProductivityInformation}"
@@ -48,24 +48,38 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <hc:NumericUpDown hc:TitleElement.Title="Width(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Increment="0.001"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XReflectionCoarsePushItem.Width, Mode=TwoWay}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Height(mm): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Increment="0.001"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding CalibratingItem.XReflectionCoarsePushItem.Height, Mode=TwoWay}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Angle(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[0].AngleMotorAbsoluteValue}" />
+                                          Value="{Binding CalibratingItem.XReflectionCoarsePushItem.AngleMotorAbsoluteValue, Mode=TwoWay}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[0].Step0MotorAbsoluteValue}" />
+                                          Value="{Binding CalibratingItem.XReflectionCoarsePushItem.Step0MotorAbsoluteValue}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[0].Step1MotorAbsoluteValue}" />
+                                          Value="{Binding CalibratingItem.XReflectionCoarsePushItem.Step1MotorAbsoluteValue}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
@@ -73,21 +87,21 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.YRodItems[0].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                        <TextBox Text="{Binding CalibratingItem.XReflectionCoarsePushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                  hc:TitleElement.Title="Step 0 Rect(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.YRodItems[0].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                        <TextBox Text="{Binding CalibratingItem.XReflectionCoarsePushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                  hc:TitleElement.Title="Step 1 Rect(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.YRodItems[0].PixelSize, Mode=OneWay}"
+                        <TextBox Text="{Binding CalibratingItem.XReflectionCoarsePushItem.PixelSize, Mode=OneWay}"
                                  hc:TitleElement.Title="Pixel Size(mm/px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
@@ -113,7 +127,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YRodItems[0].Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XReflectionCoarsePushItem.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>

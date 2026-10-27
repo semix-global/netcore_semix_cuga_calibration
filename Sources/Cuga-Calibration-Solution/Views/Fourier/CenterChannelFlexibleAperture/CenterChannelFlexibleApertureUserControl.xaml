@@ -46,6 +46,8 @@
                 <childrenView:Step12View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs12ToVisibilityConverter}}" />
                 <childrenView:Step13View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs13ToVisibilityConverter}}" />
                 <childrenView:Step14View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs14ToVisibilityConverter}}" />
+                <childrenView:Step15View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs15ToVisibilityConverter}}" />
+                <childrenView:Step16View Visibility="{Binding CalibrationStepIndex, Converter={StaticResource IntIs16ToVisibilityConverter}}" />
             </Grid>
             <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsReviewToVisibilityConverter}}">
                 <childrenView:Review />

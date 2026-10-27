@@ -384,6 +384,8 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
 
     private async Task<bool> InvokeCalibrateAsync(FourierCenterChannelSpecularBlockerDTOItem item, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(SelectedXReflectionPushItem is not null || SelectedYRodItem is not null, "Select at least one X reflection push or Y rod.");
+
         var detectImageDirectory = ImageFileDirectory;
 
         var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;

@@ -170,11 +170,11 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
         var getSxExecuteRet = Invoke(() => Service!.FF_GetPACT(FFCH.Ch3_X));
-        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        return Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
     }
 
     public SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue)
@@ -185,9 +185,9 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.GetRFPOS());
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        return Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
     }
 
     public SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue)
@@ -198,9 +198,9 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.GetDFPOS());
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        return (int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d) // cuga应用都是保留两位小数
-            ? SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false)
-            : SxExecuteRetHelper.CreateSuccess(true);
+        return Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d
+            ? SxExecuteRetHelper.CreateSuccess(true)
+            : SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
     }
 
     public SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue) => MoveChannel3Turntable(FFCH.Ch3_Y, angleMotorAbsoluteValue, motorAbsoluteValue);
@@ -211,16 +211,17 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
         var getSxExecuteRet = Invoke(() => Service!.FF_GetRACT(channel));
-        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        if ((int)(getSxExecuteRet.Anything * 100d) != (int)(angleMotorAbsoluteValue * 100d)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(angleMotorAbsoluteValue({angleMotorAbsoluteValue}) * 100d)", false); // cuga应用都是保留两位小数
+        if ((Math.Abs(getSxExecuteRet.Anything - angleMotorAbsoluteValue) * 100d < 10d) == false) return SxExecuteRetHelper.CreateError($"Motor angle difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {angleMotorAbsoluteValue}.", false);
 
         setSxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
+        if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
 
         getSxExecuteRet = Invoke(() => Service!.FF_GetLACT(channel));
-        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+        if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        if ((int)(getSxExecuteRet.Anything * 100d) != (int)(motorAbsoluteValue * 100d)) return SxExecuteRetHelper.CreateError($"(getSxExecuteRet.Anything({getSxExecuteRet.Anything}) * 100d) != (int)(motorAbsoluteValue({motorAbsoluteValue}) * 100d)", false); // cuga应用都是保留两位小数
+        if ((Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d) == false) return SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
 
         return setSxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(true)

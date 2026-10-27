@@ -1,10 +1,52 @@
 {
+  "XOriginItem": {
+    "CenterChannelMotionKindEnum": 1,
+    "DefaultAngleMotorAbsoluteValue": 0.0,
+    "Width": 1.1,
+    "Height": 35.0,
+    "AngleMotorAbsoluteValue": 2.5,
+    "Step0MotorAbsoluteValue": 2.0,
+    "Step1MotorAbsoluteValue": -3.0,
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOrigin_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOrigin_Step1.jpg",
+    "Step0ROI": {
+      "ImageROI": {
+        "X": 100.0,
+        "Y": 0.0,
+        "Width": 6.0,
+        "Height": 400.0
+      }
+    },
+    "Step1ROI": {
+      "ImageROI": {
+        "X": 300.0,
+        "Y": 0.0,
+        "Width": 6.0,
+        "Height": 400.0
+      }
+    },
+    "PixelSize": -0.025
+  },
+  "XOriginPositionItem": {
+    "AngleMotorAbsoluteValue": 2.5,
+    "MotorAbsoluteValue": 1.25,
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOriginPosition_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOriginPosition_Step1.jpg",
+    "XOriginROI": {
+      "ImageROI": {
+        "X": 130.0,
+        "Y": 0.0,
+        "Width": 6.0,
+        "Height": 400.0
+      }
+    }
+  },
   "XApertureItem": {
     "CenterChannelMotionKindEnum": 0,
-    "DefaultAngleMotorAbsoluteValue": 294.54545454545456,
+    "DefaultAngleMotorAbsoluteValue": 65.45454545454545,
     "Width": 17.5,
     "Height": 17.5,
-    "AngleMotorAbsoluteValue": 296.04545454545456,
+    "AngleMotorAbsoluteValue": 67.95454545454545,
     "Step0MotorAbsoluteValue": 0.25,
     "Step1MotorAbsoluteValue": 1.25,
     "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XAperture_Step0.jpg",
@@ -29,10 +71,10 @@
   },
   "XCalibrationPatternItem": {
     "CenterChannelMotionKindEnum": 3,
-    "DefaultAngleMotorAbsoluteValue": 261.8181818181818,
+    "DefaultAngleMotorAbsoluteValue": 98.18181818181819,
     "Width": 35.0,
     "Height": 35.0,
-    "AngleMotorAbsoluteValue": 264.3181818181818,
+    "AngleMotorAbsoluteValue": 100.68181818181819,
     "Step0MotorAbsoluteValue": 0.5,
     "Step1MotorAbsoluteValue": 1.5,
     "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XCalibrationPattern_Step0.jpg",
@@ -58,10 +100,10 @@
   "XRodItems": [
     {
       "CenterChannelMotionKindEnum": 1,
-      "DefaultAngleMotorAbsoluteValue": 32.72727272727273,
+      "DefaultAngleMotorAbsoluteValue": 327.27272727272725,
       "Width": 13.5,
       "Height": 35.0,
-      "AngleMotorAbsoluteValue": 33.72727272727273,
+      "AngleMotorAbsoluteValue": 329.77272727272725,
       "Step0MotorAbsoluteValue": -6.5,
       "Step1MotorAbsoluteValue": -8.5,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod120_Step0.jpg",
@@ -86,10 +128,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 1,
-      "DefaultAngleMotorAbsoluteValue": 65.45454545454545,
+      "DefaultAngleMotorAbsoluteValue": 294.54545454545456,
       "Width": 10.0,
       "Height": 35.0,
-      "AngleMotorAbsoluteValue": 66.45454545454545,
+      "AngleMotorAbsoluteValue": 297.04545454545456,
       "Step0MotorAbsoluteValue": -8.0,
       "Step1MotorAbsoluteValue": -10.0,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod180_Step0.jpg",
@@ -114,10 +156,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 1,
-      "DefaultAngleMotorAbsoluteValue": 98.18181818181819,
+      "DefaultAngleMotorAbsoluteValue": 261.8181818181818,
       "Width": 7.5,
       "Height": 35.0,
-      "AngleMotorAbsoluteValue": 99.18181818181819,
+      "AngleMotorAbsoluteValue": 264.3181818181818,
       "Step0MotorAbsoluteValue": -8.25,
       "Step1MotorAbsoluteValue": -10.25,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod240_Step0.jpg",
@@ -142,10 +184,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 1,
-      "DefaultAngleMotorAbsoluteValue": 130.9090909090909,
+      "DefaultAngleMotorAbsoluteValue": 229.0909090909091,
       "Width": 5.0,
       "Height": 35.0,
-      "AngleMotorAbsoluteValue": 131.9090909090909,
+      "AngleMotorAbsoluteValue": 231.5909090909091,
       "Step0MotorAbsoluteValue": -9.0,
       "Step1MotorAbsoluteValue": -11.0,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod300_Step0.jpg",
@@ -172,8 +214,8 @@
   "XDiffractionPushItem": {
     "CenterChannelMotionKindEnum": 2,
     "DefaultAngleMotorAbsoluteValue": 0.0,
-    "Width": 0.0,
-    "Height": 0.0,
+    "Width": 7.0,
+    "Height": 42.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 42.5,
     "Step1MotorAbsoluteValue": 43.5,
@@ -200,8 +242,8 @@
   "XReflectionCoarsePushItem": {
     "CenterChannelMotionKindEnum": 5,
     "DefaultAngleMotorAbsoluteValue": 0.0,
-    "Width": 0.0,
-    "Height": 0.0,
+    "Width": 9.0,
+    "Height": 42.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 10.0,
     "Step1MotorAbsoluteValue": 12.0,
@@ -228,8 +270,8 @@
   "XReflectionFinePushItem": {
     "CenterChannelMotionKindEnum": 6,
     "DefaultAngleMotorAbsoluteValue": 0.0,
-    "Width": 0.0,
-    "Height": 0.0,
+    "Width": 4.5,
+    "Height": 42.0,
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 10.0,
     "Step1MotorAbsoluteValue": 12.0,
@@ -256,10 +298,10 @@
   "YRodItems": [
     {
       "CenterChannelMotionKindEnum": 4,
-      "DefaultAngleMotorAbsoluteValue": 163.63636363636363,
+      "DefaultAngleMotorAbsoluteValue": 196.36363636363637,
       "Width": 24.0,
       "Height": 22.0,
-      "AngleMotorAbsoluteValue": 165.63636363636363,
+      "AngleMotorAbsoluteValue": 198.86363636363637,
       "Step0MotorAbsoluteValue": 2.5,
       "Step1MotorAbsoluteValue": 4.5,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod120_Step0.jpg",
@@ -284,10 +326,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 4,
-      "DefaultAngleMotorAbsoluteValue": 196.36363636363637,
+      "DefaultAngleMotorAbsoluteValue": 163.63636363636363,
       "Width": 24.0,
       "Height": 18.33,
-      "AngleMotorAbsoluteValue": 198.36363636363637,
+      "AngleMotorAbsoluteValue": 166.13636363636363,
       "Step0MotorAbsoluteValue": 4.0,
       "Step1MotorAbsoluteValue": 6.0,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod180_Step0.jpg",
@@ -312,10 +354,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 4,
-      "DefaultAngleMotorAbsoluteValue": 229.0909090909091,
+      "DefaultAngleMotorAbsoluteValue": 130.9090909090909,
       "Width": 24.0,
       "Height": 14.0,
-      "AngleMotorAbsoluteValue": 231.0909090909091,
+      "AngleMotorAbsoluteValue": 133.4090909090909,
       "Step0MotorAbsoluteValue": 6.25,
       "Step1MotorAbsoluteValue": 8.25,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod240_Step0.jpg",
@@ -340,10 +382,10 @@
     },
     {
       "CenterChannelMotionKindEnum": 4,
-      "DefaultAngleMotorAbsoluteValue": 327.27272727272725,
+      "DefaultAngleMotorAbsoluteValue": 32.72727272727273,
       "Width": 24.0,
       "Height": 11.0,
-      "AngleMotorAbsoluteValue": 329.27272727272725,
+      "AngleMotorAbsoluteValue": 35.22727272727273,
       "Step0MotorAbsoluteValue": 8.5,
       "Step1MotorAbsoluteValue": 10.5,
       "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod300_Step0.jpg",

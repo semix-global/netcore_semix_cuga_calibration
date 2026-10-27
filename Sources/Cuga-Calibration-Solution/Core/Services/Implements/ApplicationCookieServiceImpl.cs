@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
+using CugaCalibration.ViewModels.Fourier;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Local.SQL.DB.Providers.Models.Enums;
@@ -34,12 +35,12 @@ public sealed partial class ApplicationCookieServiceImpl(
 {
     public async Task LoadingSystemMenuCookieAsync(SysUserDTO sysUserDto, CancellationToken cancellationToken)
     {
-        var sysMenuService = HostApplication.GetRequiredService<ISysMenuService>();
         applicationCookie.SysUser.Update(sysUserDto);
-        applicationCookie.AllRoleSysMenus = await sysMenuService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var allRoleSysMenus = await sysMenuService.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        applicationCookie.AllRoleSysMenus = [.. allRoleSysMenus.Where(IsHardwareMenuEnabled)];
         applicationCookie.CurrentRoleSysMenus = sysUserDto.IsAdmin
             ? [.. applicationCookie.AllRoleSysMenus]
-            : [.. sysUserDto.SysRoleList.SelectMany(t => t.SysMenuList).DistinctBy(t => t.Id)];
+            : [.. sysUserDto.SysRoleList.SelectMany(t => t.SysMenuList).DistinctBy(t => t.Id).Where(IsHardwareMenuEnabled)];
 
         applicationCookie.CalibrationMenu = BuildCalibrationMenuTree();
         applicationCookie.TitleMenu = BuildTitleMenuTree();
@@ -47,6 +48,19 @@ public sealed partial class ApplicationCookieServiceImpl(
         UpdateCalibrationMenuEntry(applicationCookie.CalibrationMenu);
 
         return;
+
+        static bool IsHardwareMenuEnabled(SysMenuDTO sysMenuDTO)
+        {
+#if B3
+            return sysMenuDTO.Component != typeof(FourierCenterChannelFlexibleApertureViewModel).FullName
+                   && sysMenuDTO.Component != typeof(FourierCenterChannelSpecularBlockerViewModel).FullName;
+#elif B4
+            return sysMenuDTO.Component != typeof(V0FourierCenterChannelFlexibleApertureViewModel).FullName
+                   && sysMenuDTO.Component != typeof(V0FourierCenterChannelSpecularBlockerViewModel).FullName;
+#else
+            return true;
+#endif
+        }
 
         CalibrationMenu BuildCalibrationMenuTree()
         {

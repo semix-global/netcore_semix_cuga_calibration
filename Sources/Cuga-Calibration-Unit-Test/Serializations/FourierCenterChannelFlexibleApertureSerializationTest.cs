@@ -2,7 +2,6 @@ using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
-using Core.Models.Extensions;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
@@ -27,6 +26,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         "BitmapImageROIDrawable",
         "_step0BitmapImageDrawable",
         "_step1BitmapImageDrawable",
+        "_step1XOriginBitmapImageROIDrawable",
         "Document"
     ];
 
@@ -78,6 +78,8 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
             actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
 
+            AssertItemMatchesJson(actual.XOriginItem, expected[nameof(actual.XOriginItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertOriginPositionMatchesJson(actual.XOriginPositionItem, expected[nameof(actual.XOriginPositionItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemMatchesJson(actual.XApertureItem, expected[nameof(actual.XApertureItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemMatchesJson(actual.XCalibrationPatternItem, expected[nameof(actual.XCalibrationPatternItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertItemsMatchJson(actual.XRodItems, expected[nameof(actual.XRodItems)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
@@ -113,6 +115,17 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             var expectedStep1ROI = expected[nameof(actual.Step1ROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
             AssertRectMatchesJson(actual.Step0ROI.ImageROI, expectedStep0ROI[nameof(actual.Step0ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             AssertRectMatchesJson(actual.Step1ROI.ImageROI, expectedStep1ROI[nameof(actual.Step1ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+        }
+
+        static void AssertOriginPositionMatchesJson(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, JToken expected)
+        {
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
+            actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
+            actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+            actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+
+            var roi = expected[nameof(actual.XOriginROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
+            AssertRectMatchesJson(actual.XOriginROI.ImageROI, roi[nameof(actual.XOriginROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertRectMatchesJson(Rect actual, JToken expected)
@@ -172,6 +185,10 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         cloned.Should().NotBeNull();
         cloned.Should().NotBeSameAs(expected);
         cloned.HasErrors.Should().BeFalse();
+        cloned.XOriginItem.Should().NotBeSameAs(expected.XOriginItem);
+        cloned.XOriginPositionItem.Should().NotBeSameAs(expected.XOriginPositionItem);
+        cloned.XOriginPositionItem.XOriginROI.Should().NotBeSameAs(expected.XOriginPositionItem.XOriginROI);
+        cloned.XOriginPositionItem.XOriginROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XOriginPositionItem.XOriginROI.BitmapImageROIDrawable);
         cloned.XApertureItem.Should().NotBeSameAs(expected.XApertureItem);
         cloned.XCalibrationPatternItem.Should().NotBeSameAs(expected.XCalibrationPatternItem);
         cloned.XRodItems.Should().NotBeSameAs(expected.XRodItems);
@@ -212,7 +229,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
             dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
 
-            foreach (var item in new[] { dto.XApertureItem, dto.XCalibrationPatternItem }.Concat(dto.XRodItems).Concat([dto.XDiffractionPushItem, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem]).Concat(dto.YRodItems))
+            foreach (var item in new[] { dto.XOriginItem, dto.XApertureItem, dto.XCalibrationPatternItem }.Concat(dto.XRodItems).Concat([dto.XDiffractionPushItem, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem]).Concat(dto.YRodItems))
             {
                 item.Width = Math.Round(random.NextDouble() * 100d, 3);
                 item.Height = Math.Round(random.NextDouble() * 100d, 3);
@@ -226,6 +243,13 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
                 item.Step0ROI.ImageROI = CreateRandomRect(random);
                 item.Step1ROI.ImageROI = CreateRandomRect(random);
             }
+
+            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.AngleMotorAbsoluteValue), dto.XOriginItem.AngleMotorAbsoluteValue);
+            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.MotorAbsoluteValue), Math.Round((random.NextDouble() - 0.5) * 40d, 3));
+            dto.XOriginPositionItem.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_0.jpg";
+            dto.XOriginPositionItem.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_1.jpg";
+
+            dto.XOriginPositionItem.XOriginROI.ImageROI = CreateRandomRect(random);
 
             return dto;
 
@@ -260,6 +284,8 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             actual.ModifiedUserName.Should().Be(isPersistAudit ? expected.ModifiedUserName : string.Empty);
             actual.ModifiedTime.Should().Be(isPersistAudit ? expected.ModifiedTime : default);
 
+            AssertItemEquals(actual.XOriginItem, expected.XOriginItem);
+            AssertOriginPositionEquals(actual.XOriginPositionItem, expected.XOriginPositionItem);
             AssertItemEquals(actual.XApertureItem, expected.XApertureItem);
             AssertItemEquals(actual.XCalibrationPatternItem, expected.XCalibrationPatternItem);
             actual.XRodItems.Should().HaveCount(expected.XRodItems.Length);
@@ -269,6 +295,16 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             AssertItemEquals(actual.XReflectionFinePushItem, expected.XReflectionFinePushItem);
             actual.YRodItems.Should().HaveCount(expected.YRodItems.Length);
             for (var i = 0; i < expected.YRodItems.Length; i++) AssertItemEquals(actual.YRodItems[i], expected.YRodItems[i]);
+        }
+
+        static void AssertOriginPositionEquals(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, FourierCenterChannelFlexibleApertureDTOOriginPositionItem expected)
+        {
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.AngleMotorAbsoluteValue);
+            actual.MotorAbsoluteValue.Should().Be(expected.MotorAbsoluteValue);
+            actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+            actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+
+            actual.XOriginROI.ImageROI.Should().Be(expected.XOriginROI.ImageROI);
         }
 
         static void AssertItemEquals(FourierCenterChannelFlexibleApertureDTOItem actual, FourierCenterChannelFlexibleApertureDTOItem expected)
@@ -288,6 +324,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             actual.Step1ROI.ImageROI.Should().Be(expected.Step1ROI.ImageROI);
         }
     }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

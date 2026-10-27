@@ -136,7 +136,7 @@
                             <GridViewColumn Header="X Reflection Push Selected" DisplayMemberBinding="{Binding Channel3Item.XReflectionPushROI.IsSelected, Mode=OneWay}" />
                             <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, Mode=OneWay, StringFormat='0.########'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>

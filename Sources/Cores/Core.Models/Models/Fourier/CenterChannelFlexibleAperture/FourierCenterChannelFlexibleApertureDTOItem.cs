@@ -302,6 +302,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
 
                 Rect CalculateYRodImageROI(bool isTrustRight)
                 {
+                    Guard.IsTrue(double.IsFinite(Width) && Width > 0d);
+                    Guard.IsTrue(double.IsFinite(Height) && Height > 0d);
+
                     var pixelsPerMillimeter = Step0ROI.ImageROI.Height / Height;
                     var width = Width * pixelsPerMillimeter;
                     Guard.IsTrue(double.IsFinite(width) && width > 0d);

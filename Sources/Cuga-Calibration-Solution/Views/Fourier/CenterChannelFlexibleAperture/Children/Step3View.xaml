@@ -48,61 +48,28 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:NumericUpDown hc:TitleElement.Title="Angle(°): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Increment="0.001"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XCalibrationPatternItem.AngleMotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position(mm): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Increment="0.001"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XCalibrationPatternItem.Step0MotorAbsoluteValue}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Step 1 Position(mm): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Increment="0.001"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.XCalibrationPatternItem.Step1MotorAbsoluteValue}" />
-                        <StackPanel>
-                            <TextBlock Text="Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding CalibratingItem.XCalibrationPatternItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
-                                 hc:TitleElement.Title="Step 0 Rect(px): "
+
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultSuccess}" />
+                        <TextBox Text="{Binding CalibratingItem.XOriginItem.AngleMotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Angle(°): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.XCalibrationPatternItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
-                                 hc:TitleElement.Title="Step 0 Ellipse(px): "
+                        <TextBox Text="{Binding CalibratingItem.XOriginPositionItem.MotorAbsoluteValue, Mode=OneWay}"
+                                 hc:TitleElement.Title="Position(mm): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.XCalibrationPatternItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
-                                 hc:TitleElement.Title="Step 1 Rect(px): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.XCalibrationPatternItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
-                                 hc:TitleElement.Title="Step 1 Ellipse(px): "
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 hc:TitleElement.TitleWidth="190"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.XCalibrationPatternItem.PixelSize, Mode=OneWay}"
-                                 hc:TitleElement.Title="Pixel Size(mm/px): "
+                        <TextBox Text="{Binding CalibratingItem.XOriginPositionItem.XOriginROI.ImageROI, Converter={StaticResource RectToStringConverter}, Mode=OneWay}"
+                                 hc:TitleElement.Title="Origin Rect(px): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
@@ -127,7 +94,7 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
-                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XCalibrationPatternItem.Document, Mode=OneWay}" />
+                <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XOriginPositionItem.Document, Mode=OneWay}" />
             </Border>
         </GroupBox>
     </Grid>
