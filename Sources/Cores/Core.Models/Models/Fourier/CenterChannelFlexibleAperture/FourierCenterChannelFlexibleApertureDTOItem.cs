@@ -29,6 +29,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
     public double DefaultAngleMotorAbsoluteValue { get; }
 
     [ObservableProperty]
+    public partial double Width { get; set; }
+
+    [ObservableProperty]
+    public partial double Height { get; set; }
+
+    [ObservableProperty]
     public partial double AngleMotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
@@ -110,6 +116,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
     {
         var item = new FourierCenterChannelFlexibleApertureDTOItem(CenterChannelMotionKindEnum, DefaultAngleMotorAbsoluteValue)
         {
+            Width = Width,
+            Height = Height,
             AngleMotorAbsoluteValue = AngleMotorAbsoluteValue,
             Step0MotorAbsoluteValue = Step0MotorAbsoluteValue,
             Step1MotorAbsoluteValue = Step1MotorAbsoluteValue,
@@ -270,6 +278,41 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
         OuterLoop:
 
             Step0ROI.ImageROI = _step0BitmapImageDrawable.CartesianCoordinateToImageCoordinate(Step0ROI.BitmapImageROIDrawable.Rect);
+
+            if (CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.YRod)
+            {
+                HostApplication.GetRequiredService<IDialogWindowProvider>().TryShowDialog($"""
+                                                                                           Y rod at {AngleMotorAbsoluteValue:0.###} degrees: physical size {Width:0.###} x {Height:0.###} mm.
+                                                                                           ROI height: {Step0ROI.ImageROI.Height:0.###} px. Scale: {Step0ROI.ImageROI.Height / Height:0.###} px/mm.
+                                                                                           Calculated ROI width: {Step0ROI.ImageROI.Width:0.###} px.
+                                                                                           Yes: trust the right X edge ({Step0ROI.ImageROI.XMax:0.###} px).
+                                                                                           No: trust the left X edge ({Step0ROI.ImageROI.XMin:0.###} px).
+                                                                                           Cancel: abort calibration.
+                                                                                           """, out var dialogResult, DialogButtonsEnum.YesNoCancel);
+
+                var calculatedImageROI = dialogResult switch
+                {
+                    DialogResultEnum.Yes => CalculateYRodImageROI(true),
+                    DialogResultEnum.No => CalculateYRodImageROI(false),
+                    _ => ThrowHelper.ThrowOperationCanceledException<Rect>(cancellationToken)
+                };
+
+                Step0ROI.ImageROI = calculatedImageROI;
+                Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(Step0ROI.ImageROI);
+
+                Rect CalculateYRodImageROI(bool isTrustRight)
+                {
+                    var pixelsPerMillimeter = Step0ROI.ImageROI.Height / Height;
+                    var width = Width * pixelsPerMillimeter;
+                    Guard.IsTrue(double.IsFinite(width) && width > 0d);
+
+                    var x = isTrustRight ? Step0ROI.ImageROI.XMax - width : Step0ROI.ImageROI.XMin;
+                    Guard.IsTrue(double.IsFinite(x));
+
+                    return new Rect(x, Step0ROI.ImageROI.Y, width, Step0ROI.ImageROI.Height);
+                }
+            }
+
             Step0ROI.BitmapImageROIDrawable.IsFixed = true;
 
             if (CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.XCalibrationPattern && Step0ROI.ImageROI.Width - Step0ROI.ImageROI.Height != 0d)
@@ -421,6 +464,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
         Comment = new HtmlComment(StepsComment),
         CenterChannelMotionKindEnum,
         DefaultAngleMotorAbsoluteValue,
+        Width,
+        Height,
         AngleMotorAbsoluteValue,
         Step0MotorAbsoluteValue,
         Step1MotorAbsoluteValue,
@@ -435,6 +480,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
         Comment = new HtmlComment(StepsComment),
         CenterChannelMotionKindEnum,
         DefaultAngleMotorAbsoluteValue,
+        Width,
+        Height,
         AngleMotorAbsoluteValue,
         Step0MotorAbsoluteValue,
         Step1MotorAbsoluteValue,

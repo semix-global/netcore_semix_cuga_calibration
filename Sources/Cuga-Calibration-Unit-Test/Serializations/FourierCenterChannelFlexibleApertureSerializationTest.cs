@@ -100,6 +100,8 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
             actual.CenterChannelMotionKindEnum.Should().Be((CenterChannelMotionKindEnum)expected.Value<int>(nameof(actual.CenterChannelMotionKindEnum)));
             actual.DefaultAngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.DefaultAngleMotorAbsoluteValue)));
+            actual.Width.Should().Be(expected.Value<double>(nameof(actual.Width)));
+            actual.Height.Should().Be(expected.Value<double>(nameof(actual.Height)));
             actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
             actual.Step0MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step0MotorAbsoluteValue)));
             actual.Step1MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step1MotorAbsoluteValue)));
@@ -212,6 +214,8 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
             foreach (var item in new[] { dto.XApertureItem, dto.XCalibrationPatternItem }.Concat(dto.XRodItems).Concat([dto.XDiffractionPushItem, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem]).Concat(dto.YRodItems))
             {
+                item.Width = Math.Round(random.NextDouble() * 100d, 3);
+                item.Height = Math.Round(random.NextDouble() * 100d, 3);
                 item.AngleMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
                 item.Step0MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
                 item.Step1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
@@ -271,6 +275,8 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
         {
             actual.CenterChannelMotionKindEnum.Should().Be(expected.CenterChannelMotionKindEnum);
             actual.DefaultAngleMotorAbsoluteValue.Should().Be(expected.DefaultAngleMotorAbsoluteValue);
+            actual.Width.Should().Be(expected.Width);
+            actual.Height.Should().Be(expected.Height);
             actual.AngleMotorAbsoluteValue.Should().Be(expected.AngleMotorAbsoluteValue);
             actual.Step0MotorAbsoluteValue.Should().Be(expected.Step0MotorAbsoluteValue);
             actual.Step1MotorAbsoluteValue.Should().Be(expected.Step1MotorAbsoluteValue);
@@ -282,7 +288,6 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
             actual.Step1ROI.ImageROI.Should().Be(expected.Step1ROI.ImageROI);
         }
     }
-
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
