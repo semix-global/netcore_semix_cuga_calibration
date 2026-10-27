@@ -72,9 +72,6 @@ public sealed partial class StageMapWindowViewModel(
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
 
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public string TemplateFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Template", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
@@ -89,6 +86,9 @@ public sealed partial class StageMapWindowViewModel(
     ];
 
     public Guid HtmlLogUniqueId { get; private set; }
+
+    [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -105,6 +105,8 @@ public sealed partial class StageMapWindowViewModel(
             Cache = cacheProvider.GetOrDefault<StageMapCache>();
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
+
+            AlignmentResult = Cache.AlignmentResult;
 
             Cache.StageMap.Refresh();
             foreach (var cacheRepeatStageMap in Cache.RepeatStageMaps) cacheRepeatStageMap.Refresh();

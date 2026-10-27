@@ -53,9 +53,6 @@ public sealed partial class RTAWindowViewModel(
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
 
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     public string[] Steps { get; } =
     [
         "Step 1 Alignment",
@@ -64,6 +61,9 @@ public sealed partial class RTAWindowViewModel(
     ];
 
     public Guid HtmlLogUniqueId { get; private set; }
+
+    [ObservableProperty]
+    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [DefaultCache]
     [ObservableProperty]
@@ -80,6 +80,8 @@ public sealed partial class RTAWindowViewModel(
             Cache = cacheProvider.GetOrDefault<RTACache>();
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
+
+            AlignmentResult = Cache.AlignmentResult;
         }).ConfigureAwait(true);
     }
 
