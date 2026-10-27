@@ -377,6 +377,7 @@ public sealed partial class RTAWindowViewModel(
                 cancellationToken);
 
             var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(forwardDarkFieldRawScanImage, Cache.StageMapConfig, true, HtmlLogUniqueId);
+            Guard.IsNotEmpty(forwardRTAScanSamples);
             Cache.RTAScanResult.ForwardRTAScanSamples = forwardRTAScanSamples;
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
@@ -396,6 +397,7 @@ public sealed partial class RTAWindowViewModel(
                 isForward: false);
 
             var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(reverseDarkFieldRawScanImage, Cache.StageMapConfig, false, HtmlLogUniqueId);
+            Guard.IsNotEmpty(reverseRTAScanSamples);
             Cache.RTAScanResult.ReverseRTAScanSamples = reverseRTAScanSamples;
 
             isSuccess = true;

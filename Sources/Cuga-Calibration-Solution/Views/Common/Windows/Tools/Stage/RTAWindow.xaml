@@ -413,6 +413,7 @@
                                                                               Value="{Binding Cache.StageMapConfig.StreamBlockRows}" />
                                                             <Button Content="Restore"
                                                                     Command="{Binding Cache.StageMapConfig.RestoreCommand}"
+                                                                    CommandParameter="{x:Static models:Constants.False}"
                                                                     HorizontalAlignment="Left"
                                                                     Style="{StaticResource ButtonDefault}" />
                                                         </hc:UniformSpacingPanel>
@@ -435,9 +436,10 @@
                                                                      IsReadOnly="True"
                                                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                      Style="{StaticResource TextBoxExtend}" />
-                                                            <Button Content="Refresh"
+                                                            <Button Content="Select File"
                                                                     Command="{x:Static cmd:Commands.SelectFileCommand}"
-                                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}">
+                                                                    HorizontalAlignment="Right"
+                                                                    hc:IconElement.Geometry="{StaticResource DragHorizontalGeometry}">
                                                                 <Button.CommandParameter>
                                                                     <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ForwardSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
                                                                 </Button.CommandParameter>
@@ -453,9 +455,9 @@
                                                                      IsReadOnly="True"
                                                                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                                      Style="{StaticResource TextBoxExtend}" />
-                                                            <Button Content="Refresh"
+                                                            <Button Content="Select File"
                                                                     Command="{x:Static cmd:Commands.SelectFileCommand}"
-                                                                    hc:IconElement.Geometry="{StaticResource RotateRightGeometry}">
+                                                                    hc:IconElement.Geometry="{StaticResource DragHorizontalGeometry}">
                                                                 <Button.CommandParameter>
                                                                     <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ReverseSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
                                                                 </Button.CommandParameter>

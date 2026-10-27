@@ -73,6 +73,7 @@ public sealed partial class RTACache : CalibrationCacheBase
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 
+    [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
     public partial RTAScanResult RTAScanResult { get; set; } = new();
 

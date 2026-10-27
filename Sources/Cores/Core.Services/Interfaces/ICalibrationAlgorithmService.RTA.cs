@@ -5,6 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.DarkField;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Providers;
 
 namespace Core.Services.Interfaces;
 
@@ -222,11 +224,11 @@ public partial interface ICalibrationAlgorithmService
         [ObservableProperty]
         public partial int StreamBlockRows { get; set; }
 
-        public StageMapConfigDTO() => Restore();
+        public StageMapConfigDTO() => Restore(true);
 
         [RelayCommand]
         [MemberNotNull(nameof(PeriodYOperator), nameof(PeriodXOperator))]
-        private void Restore()
+        private void Restore(bool isSilent)
         {
             var config = new StageMapConfig
             {
@@ -270,6 +272,10 @@ public partial interface ICalibrationAlgorithmService
             DeltaTrim = config.delta_trim;
             OriginSearchRows = config.origin_search_rows;
             StreamBlockRows = config.stream_block_rows;
+
+            if (isSilent) return;
+
+            HostApplication.GetRequiredService<IDialogWindowProvider>().ShowDialog("Restored Ok!");
         }
 
         public StageMapConfigDTO Clone() => new()
