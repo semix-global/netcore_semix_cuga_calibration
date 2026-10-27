@@ -101,18 +101,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         Cache.DiffractionPushMaxMotorAbsoluteValue = configuration.CenterDiffractionPushMaxMotorAbsoluteValue;
 
         Guard.IsGreaterThan(Cache.XMaxMotorAbsoluteValue, Cache.XMinMotorAbsoluteValue);
-        if (double.IsFinite(Cache.ReflectionPushMinMotorAbsoluteValue) == false
-            || double.IsFinite(Cache.ReflectionPushMaxMotorAbsoluteValue) == false
-            || Cache.ReflectionPushMaxMotorAbsoluteValue <= Cache.ReflectionPushMinMotorAbsoluteValue)
-        {
-            ThrowHelper.ThrowInvalidOperationException("反射推杆行程范围无效, 请检查 RFPOSMin/RFPOSMax 配置.");
-        }
-        if (double.IsFinite(Cache.DiffractionPushMinMotorAbsoluteValue) == false
-            || double.IsFinite(Cache.DiffractionPushMaxMotorAbsoluteValue) == false
-            || Cache.DiffractionPushMaxMotorAbsoluteValue <= Cache.DiffractionPushMinMotorAbsoluteValue)
-        {
-            ThrowHelper.ThrowInvalidOperationException("衍射推杆行程范围无效, 请检查 DFPOSMin/DFPOSMax 配置.");
-        }
+        Guard.IsGreaterThan(Cache.ReflectionPushMinMotorAbsoluteValue, Cache.ReflectionPushMaxMotorAbsoluteValue);
+        Guard.IsGreaterThan(Cache.DiffractionPushMinMotorAbsoluteValue, Cache.DiffractionPushMaxMotorAbsoluteValue);
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
