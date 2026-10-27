@@ -40,7 +40,6 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using Core.Models.Models.Common.Alignment;
-using Net.Utilities.Helpers.Helpers.Structs;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -707,8 +706,16 @@ public sealed partial class StageMapWindowViewModel(
 
                     Guard.IsEqualTo(points.Length, darkFieldImages.Length);
 
-                    foreach (var (i, isInWaferColumnIndex) in isInWaferColumnIndexes.Index())
+                    var tempY = y;
+                    await Parallel.ForEachAsync(isInWaferColumnIndexes.Index(), new ParallelOptions
                     {
+                        CancellationToken = cancellationToken,
+                        MaxDegreeOfParallelism = Environment.ProcessorCount
+                    }, (item, token) =>
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        var (i, isInWaferColumnIndex) = item;
                         var templateIdIndex = xDirection > 0 ? i % Cache.StageMapTemplates.Length : ^(i % Cache.StageMapTemplates.Length + 1);
 
                         var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
@@ -745,14 +752,14 @@ public sealed partial class StageMapWindowViewModel(
                             matchOffset = new Point(offset.X, -offset.Y);
                         }
 
-                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
                         image.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
 
                         var htmlBullet = new HtmlBullet(new
                         {
-                            IdealPoint = stageMap.IdealMatrix[y][isInWaferColumnIndex],
+                            IdealPoint = stageMap.IdealMatrix[tempY][isInWaferColumnIndex],
                             templateROI,
                             imageBounds,
                             searchROI,
@@ -776,11 +783,13 @@ public sealed partial class StageMapWindowViewModel(
                         if (isSuccess) logger.LogHtmlInformation($"{isInWaferColumnIndex} Ok", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
                         else logger.LogHtmlError($"{isInWaferColumnIndex} Error", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
 
-                        stageMap.IsMatchMatrix[y][isInWaferColumnIndex] = isSuccess;
-                        if (isSuccess) stageMap.ErrorMatrix[y][isInWaferColumnIndex] = vector;
+                        stageMap.IsMatchMatrix[tempY][isInWaferColumnIndex] = isSuccess;
+                        if (isSuccess) stageMap.ErrorMatrix[tempY][isInWaferColumnIndex] = vector;
 
                         stageMap.Refresh();
-                    }
+
+                        return ValueTask.CompletedTask;
+                    }).ConfigureAwait(false);
                 }
                 finally
                 {
