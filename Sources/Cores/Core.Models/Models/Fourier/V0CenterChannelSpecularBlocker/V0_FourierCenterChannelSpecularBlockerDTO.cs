@@ -42,6 +42,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO : Calibrati
         IsSelectedY = Channel3Item.YRodROI.IsSelected,
         Ch3Angle = (float)Channel3Item.YRodROI.AngleMotorAbsoluteValue,
         Ch3TurnY = (float)Channel3Item.YRodROI.MotorAbsoluteValue,
+        IsSelectedX = Channel3Item.XPushROI.IsSelected,
         Ch3Push = (float)Channel3Item.XPushROI.MotorAbsoluteValue,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,

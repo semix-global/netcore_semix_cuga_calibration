@@ -297,22 +297,36 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
         }
     }
 
-    [Fact]
-    public void AdaptTo_ShouldPreserveXTurntableYRodAndNormalXReflectionPush()
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void AdaptTo_ShouldPreserveYRodAndXReflectionPushSelections(bool isSelectedY, bool isSelectedX)
     {
         using var dto = new FourierCenterChannelSpecularBlockerDTO();
         dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d;
         dto.Channel3Item.YRodROI.MotorAbsoluteValue = -3.5;
-        dto.Channel3Item.YRodROI.IsSelected = true;
+        dto.Channel3Item.YRodROI.IsSelected = isSelectedY;
         dto.Channel3Item.XReflectionPushROI.MotorAbsoluteValue = 42.25;
-        dto.Channel3Item.XReflectionPushROI.IsSelected = true;
+        dto.Channel3Item.XReflectionPushROI.IsSelected = isSelectedX;
 
         var actual = dto.AdaptTo();
 
-        actual.IsSelectedY.Should().BeTrue();
+        actual.IsSelectedY.Should().Be(isSelectedY);
         actual.Ch3Angle.Should().Be((float)dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue);
         actual.Ch3TurnY.Should().Be((float)dto.Channel3Item.YRodROI.MotorAbsoluteValue);
+        actual.IsSelectedX.Should().Be(isSelectedX);
         actual.Ch3Push.Should().Be((float)dto.Channel3Item.XReflectionPushROI.MotorAbsoluteValue);
+    }
+
+    [Fact]
+    public async Task CalibratingAsync_ShouldRejectEmptySelectionsBeforeOpeningImage()
+    {
+        using var item = new FourierCenterChannelSpecularBlockerDTOItem();
+
+        Func<Task> action = () => item.CalibratingAsync(null, null, (0d, 1d), (0d, 1d), CancellationToken.None);
+
+        await action.Should().ThrowAsync<ArgumentException>().WithMessage("*Select at least one*");
     }
 
     [Theory]

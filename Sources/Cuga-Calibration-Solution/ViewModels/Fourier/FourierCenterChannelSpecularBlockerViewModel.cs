@@ -61,14 +61,11 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
     [ObservableProperty]
     public partial FourierCenterChannelFlexibleApertureDTOItem? SelectedYRodItem { get; set; } = null;
 
-    public IReadOnlyList<KeyValuePair<string, CenterChannelMotionKindEnum>> XReflectionPushItems { get; } =
-    [
-        new("Coarse", CenterChannelMotionKindEnum.XReflectionCoarsePush),
-        new("Fine", CenterChannelMotionKindEnum.XReflectionFinePush)
-    ];
+    [ObservableProperty]
+    public partial KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>[] XReflectionPushItems { get; set; } = [];
 
     [ObservableProperty]
-    public partial CenterChannelMotionKindEnum SelectedXReflectionPushKind { get; set; } = CenterChannelMotionKindEnum.XReflectionCoarsePush;
+    public partial FourierCenterChannelFlexibleApertureDTOItem? SelectedXReflectionPushItem { get; set; } = null;
 
     #endregion Calibrate
 
@@ -117,6 +114,12 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             new KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
             .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t => new KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>(
                 $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px", t))
+        ];
+        XReflectionPushItems =
+        [
+            new KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
+            new KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>($"Coarse {FourierCenterChannelFlexibleAperture.XReflectionCoarsePushItem.Step0ROI.ImageROI.Width:0.###}px", FourierCenterChannelFlexibleAperture.XReflectionCoarsePushItem),
+            new KeyValuePair<string, FourierCenterChannelFlexibleApertureDTOItem?>($"Fine {FourierCenterChannelFlexibleAperture.XReflectionFinePushItem.Step0ROI.ImageROI.Width:0.###}px", FourierCenterChannelFlexibleAperture.XReflectionFinePushItem)
         ];
 
         Cache = ApplicationCookieService.GetCache<FourierCenterChannelSpecularBlockerCache>(cancellationToken);
@@ -385,12 +388,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
 
         var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
         var configuration = FourierViewModel.GetMotorConfiguration();
-        var xReflectionPushItem = SelectedXReflectionPushKind switch
-        {
-            CenterChannelMotionKindEnum.XReflectionCoarsePush => FourierCenterChannelFlexibleAperture.XReflectionCoarsePushItem,
-            CenterChannelMotionKindEnum.XReflectionFinePush => FourierCenterChannelFlexibleAperture.XReflectionFinePushItem,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<FourierCenterChannelFlexibleApertureDTOItem>(nameof(SelectedXReflectionPushKind))
-        };
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
@@ -401,19 +398,17 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             fourierPupilCameraAlignmentItem.ROI.ImageROI,
+            XReflectionPushKind = SelectedXReflectionPushItem?.CenterChannelMotionKindEnum,
+            YRodAngle = SelectedYRodItem?.AngleMotorAbsoluteValue,
             configuration.CenterReflectionPushMinMotorAbsoluteValue,
             configuration.CenterReflectionPushMaxMotorAbsoluteValue,
             configuration.CenterXMinMotorAbsoluteValue,
             configuration.CenterXMaxMotorAbsoluteValue,
-            xReflectionPushItem.CenterChannelMotionKindEnum,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
-
-        Guard.IsGreaterThan(configuration.CenterReflectionPushMaxMotorAbsoluteValue, configuration.CenterReflectionPushMinMotorAbsoluteValue);
-        Guard.IsTrue(SelectedYRodItem is null || FourierCenterChannelFlexibleAperture.YRodItems.Contains(SelectedYRodItem));
 
         item.Reset();
 
@@ -448,17 +443,17 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             try
             {
                 await item.CalibratingAsync(
-                    xReflectionPushItem,
+                    SelectedXReflectionPushItem,
                     SelectedYRodItem,
                     (configuration.CenterReflectionPushMinMotorAbsoluteValue, configuration.CenterReflectionPushMaxMotorAbsoluteValue),
                     (configuration.CenterXMinMotorAbsoluteValue, configuration.CenterXMaxMotorAbsoluteValue),
                     cancellationToken);
 
+                Guard.IsEqualTo(item.XReflectionPushROI.IsSelected, SelectedXReflectionPushItem is not null);
+                if (item.XReflectionPushROI.IsSelected) FourierViewModel.SetChannel3XReflectionPush(item.XReflectionPushROI.MotorAbsoluteValue);
+
                 Guard.IsEqualTo(item.YRodROI.IsSelected, SelectedYRodItem is not null);
                 if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3XTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
-
-                Guard.IsTrue(item.XReflectionPushROI.IsSelected);
-                FourierViewModel.SetChannel3XReflectionPush(item.XReflectionPushROI.MotorAbsoluteValue);
 
                 Grab(1);
 
@@ -492,7 +487,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"Assets\Data\Fourier",
                     nameof(FourierCenterChannelSpecularBlockerViewModel),
-                    $"Channel3_{xReflectionPushItem.CenterChannelMotionKindEnum}_Step{stepIndex}.jpg"));
+                    $"Channel3_{SelectedXReflectionPushItem?.CenterChannelMotionKindEnum}_Step{stepIndex}.jpg"));
             }
 
             using var bitmapImage = FourierViewModel.GetImage(
@@ -531,6 +526,8 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
 
     private async Task InvokeVerifyAsync(FourierCenterChannelSpecularBlockerDTO dto, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(dto.Channel3Item.YRodROI.IsSelected || dto.Channel3Item.XReflectionPushROI.IsSelected, "Select at least one X reflection push or Y rod.");
+
         var detectImageDirectory = ImageFileDirectory;
         FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Channel3Item];
         CIBInformation[] cibInformations =
@@ -581,10 +578,9 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
 
                 foreach (var item in items)
                 {
-                    if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3XTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
+                    if (item.XReflectionPushROI.IsSelected) FourierViewModel.SetChannel3XReflectionPush(item.XReflectionPushROI.MotorAbsoluteValue);
 
-                    Guard.IsTrue(item.XReflectionPushROI.IsSelected);
-                    FourierViewModel.SetChannel3XReflectionPush(item.XReflectionPushROI.MotorAbsoluteValue);
+                    if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3XTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
                 }
 
                 await GrabAsync(1);

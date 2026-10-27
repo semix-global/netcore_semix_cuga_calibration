@@ -57,7 +57,7 @@
                                   ItemsSource="{Binding XReflectionPushItems, Mode=OneWay}"
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
-                                  SelectedValue="{Binding SelectedXReflectionPushKind, Mode=TwoWay}" />
+                                  SelectedValue="{Binding SelectedXReflectionPushItem, Mode=TwoWay}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

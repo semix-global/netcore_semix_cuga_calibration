@@ -158,12 +158,14 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
     }
 
     public async Task CalibratingAsync(
-        FourierCenterChannelFlexibleApertureDTOItem xReflectionPushItem,
+        FourierCenterChannelFlexibleApertureDTOItem? xReflectionPushItem,
         FourierCenterChannelFlexibleApertureDTOItem? yRodItem,
         (double Min, double Max) xReflectionPushMotorRange,
         (double Min, double Max) yMotorRange,
         CancellationToken cancellationToken)
     {
+        Guard.IsTrue(xReflectionPushItem is not null || yRodItem is not null, "Select at least one X reflection push or Y rod.");
+
         try
         {
             Document.Reset();
@@ -173,60 +175,71 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
             Document.View.ZoomToFit();
 
-            Guard.IsTrue(xReflectionPushItem.CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush);
-            Guard.IsTrue(double.IsFinite(xReflectionPushItem.PixelSize) && xReflectionPushItem.PixelSize != 0d);
-
-            XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xReflectionPushItem.Step0ROI.ImageROI);
-
-            while (true)
+            if (xReflectionPushItem is not null)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                Guard.IsTrue(xReflectionPushItem.CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush);
+                Guard.IsTrue(double.IsFinite(xReflectionPushItem.PixelSize) && xReflectionPushItem.PixelSize != 0d);
 
-                var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
+                XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xReflectionPushItem.Step0ROI.ImageROI);
+
+                while (true)
                 {
-                    Title = "Adjust x-reflection-push on the Channel3 Fourier image.",
-                    BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
-                    IsOutsideImageAllowed = true,
-                    IsDeleteEnabled = false,
-                    CancellationToken = cancellationToken
-                });
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                switch (outputResult)
-                {
-                    case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
-                        goto OuterLoop0;
+                    var outputResult = await ModifyBitmapImageROIDrawableGetterEditor.RunAsync<ModifyBitmapImageROIDrawableGetterEditor>(Document.Edit, new ModifyBitmapImageROIDrawableInputOptions(_step0FourierBitmapImageDrawable)
+                    {
+                        Title = "Adjust x-reflection-push on the Channel3 Fourier image.",
+                        BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.X,
+                        IsOutsideImageAllowed = true,
+                        IsDeleteEnabled = false,
+                        CancellationToken = cancellationToken
+                    });
 
-                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
+                    switch (outputResult)
+                    {
+                        case { OutputResultModeEnum: OutputResultModeEnum.Ok }:
+                            goto OuterLoop0;
 
-                        continue;
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.Escape }:
 
-                    case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
-                        ThrowHelper.ThrowOperationCanceledException(cancellationToken);
+                            continue;
 
-                        break;
+                        case { OutputResultModeEnum: OutputResultModeEnum.Cancel, CancelReason: CancelReasonEnum.OperationCanceledException }:
+                            ThrowHelper.ThrowOperationCanceledException(cancellationToken);
 
-                    default:
-                        ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+                            break;
 
-                        break;
+                        default:
+                            ThrowHelper.ThrowInvalidOperationException($"{nameof(outputResult.CancelReason)}: {outputResult.CancelReason}, {nameof(outputResult.ErrorMessage)}: {outputResult.ErrorMessage}");
+
+                            break;
+                    }
                 }
+
+            OuterLoop0:
+
+                XReflectionPushROI.BitmapImageROIDrawable.IsFixed = true;
+                XReflectionPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XReflectionPushROI.BitmapImageROIDrawable.Rect);
+                XReflectionPushROI.AngleMotorAbsoluteValue = xReflectionPushItem.AngleMotorAbsoluteValue;
+                XReflectionPushROI.MotorAbsoluteValue = Math.Clamp(
+                    xReflectionPushItem.Step0MotorAbsoluteValue + (XReflectionPushROI.ImageROI.Center - xReflectionPushItem.Step0ROI.ImageROI.Center).X * xReflectionPushItem.PixelSize,
+                    xReflectionPushMotorRange.Min,
+                    xReflectionPushMotorRange.Max);
+
+                // 根据限位后的电机位置反算图像中心, 保持 ROI 尺寸并同步显示.
+                var xReflectionPushCenterX = xReflectionPushItem.Step0ROI.ImageROI.Center.X + (XReflectionPushROI.MotorAbsoluteValue - xReflectionPushItem.Step0MotorAbsoluteValue) / xReflectionPushItem.PixelSize;
+                XReflectionPushROI.ImageROI = (XReflectionPushROI.ImageROI + new Vector(xReflectionPushCenterX - XReflectionPushROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
+                XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XReflectionPushROI.ImageROI);
+                XReflectionPushROI.IsSelected = true;
             }
-
-        OuterLoop0:
-
-            XReflectionPushROI.BitmapImageROIDrawable.IsFixed = true;
-            XReflectionPushROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XReflectionPushROI.BitmapImageROIDrawable.Rect);
-            XReflectionPushROI.AngleMotorAbsoluteValue = xReflectionPushItem.AngleMotorAbsoluteValue;
-            XReflectionPushROI.MotorAbsoluteValue = Math.Clamp(
-                xReflectionPushItem.Step0MotorAbsoluteValue + (XReflectionPushROI.ImageROI.Center - xReflectionPushItem.Step0ROI.ImageROI.Center).X * xReflectionPushItem.PixelSize,
-                xReflectionPushMotorRange.Min,
-                xReflectionPushMotorRange.Max);
-
-            // 根据限位后的电机位置反算图像中心, 保持 ROI 尺寸并同步显示.
-            var xReflectionPushCenterX = xReflectionPushItem.Step0ROI.ImageROI.Center.X + (XReflectionPushROI.MotorAbsoluteValue - xReflectionPushItem.Step0MotorAbsoluteValue) / xReflectionPushItem.PixelSize;
-            XReflectionPushROI.ImageROI = (XReflectionPushROI.ImageROI + new Vector(xReflectionPushCenterX - XReflectionPushROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
-            XReflectionPushROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XReflectionPushROI.ImageROI);
-            XReflectionPushROI.IsSelected = true;
+            else
+            {
+                XReflectionPushROI.BitmapImageROIDrawable.IsVisible = false;
+                XReflectionPushROI.ImageROI = Rect.Empty;
+                XReflectionPushROI.AngleMotorAbsoluteValue = 0d;
+                XReflectionPushROI.MotorAbsoluteValue = 0d;
+                XReflectionPushROI.IsSelected = false;
+            }
 
             if (yRodItem is not null)
             {
@@ -366,18 +379,18 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
         ROIs = new HtmlTable([
-            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected },
             new { Name = "X Reflection Push", XReflectionPushROI.ImageROI, XReflectionPushROI.AngleMotorAbsoluteValue, XReflectionPushROI.MotorAbsoluteValue, XReflectionPushROI.IsSelected },
+            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected }
         ]),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
-            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI),
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI)
         ]),
         Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
-            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI),
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI)
         ])
     };
 

@@ -61,6 +61,12 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     [ObservableProperty]
     public partial V0FourierCenterChannelFlexibleApertureDTOItem? SelectedYRodItem { get; set; } = null;
 
+    [ObservableProperty]
+    public partial KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>[] XPushItems { get; set; } = [];
+
+    [ObservableProperty]
+    public partial V0FourierCenterChannelFlexibleApertureDTOItem? SelectedXPushItem { get; set; } = null;
+
     #endregion Calibrate
 
     [ObservableProperty]
@@ -108,6 +114,11 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
             .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t => new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>(
                 $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px", t))
+        ];
+        XPushItems =
+        [
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>($"{FourierCenterChannelFlexibleAperture.XPushItem.Step0ROI.ImageROI.Width:0.###}px", FourierCenterChannelFlexibleAperture.XPushItem)
         ];
 
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelSpecularBlockerCache>(cancellationToken);
@@ -386,6 +397,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             fourierPupilCameraAlignmentItem.ROI.ImageROI,
+            XPushKind = SelectedYRodItem?.CenterChannelMotionKindEnum,
+            YRodAngle = SelectedXPushItem?.AngleMotorAbsoluteValue,
             configuration.CenterPushMinMotorAbsoluteValue,
             configuration.CenterPushMaxMotorAbsoluteValue,
             configuration.CenterYMinMotorAbsoluteValue,
@@ -427,17 +440,17 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             try
             {
                 await item.CalibratingAsync(
-                    FourierCenterChannelFlexibleAperture.XPushItem,
+                    SelectedXPushItem,
                     SelectedYRodItem,
                     (configuration.CenterPushMinMotorAbsoluteValue, configuration.CenterPushMaxMotorAbsoluteValue),
                     (configuration.CenterYMinMotorAbsoluteValue, configuration.CenterYMaxMotorAbsoluteValue),
                     cancellationToken);
 
+                Guard.IsEqualTo(item.XPushROI.IsSelected, SelectedXPushItem is not null);
+                if (item.XPushROI.IsSelected) FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
+
                 Guard.IsEqualTo(item.YRodROI.IsSelected, SelectedYRodItem is not null);
                 if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3YTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
-
-                Guard.IsTrue(item.XPushROI.IsSelected);
-                FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
 
                 Grab(1);
 
@@ -511,6 +524,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
     private async Task InvokeVerifyAsync(V0FourierCenterChannelSpecularBlockerDTO dto, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(dto.Channel3Item.YRodROI.IsSelected || dto.Channel3Item.XPushROI.IsSelected, "Select at least one X push or Y rod.");
+
         var detectImageDirectory = ImageFileDirectory;
         V0FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Channel3Item];
         CIBInformation[] cibInformations =
@@ -559,10 +574,9 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
                 foreach (var item in items)
                 {
-                    if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3YTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
+                    if (item.XPushROI.IsSelected) FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
 
-                    Guard.IsTrue(item.XPushROI.IsSelected);
-                    FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
+                    if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3YTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
                 }
 
                 await GrabAsync(1);

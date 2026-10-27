@@ -332,8 +332,13 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
     public float Ch3TurnY { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，X方向推杆位置, **OI、NI下都需要记录**
-    /// </summary> 
+    /// 是否选择 X 方向推杆.
+    /// </summary>
+    public bool IsSelectedX { get; set; }
+
+    /// <summary>
+    /// 傅里叶 CH3 通道反射光校准的 X 方向推杆位置, 选择该推杆时记录.
+    /// </summary>
     public float Ch3Push { get; set; }
 }
 
@@ -541,7 +546,12 @@ public sealed class CalibrationPupilCenterChannelSpecularBlockerV1 : Calibration
     public float Ch3TurnY { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，X方向推杆位置, **OI、NI下都需要记录**
-    /// </summary> 
+    /// 是否选择 X 方向反射推杆.
+    /// </summary>
+    public bool IsSelectedX { get; set; }
+
+    /// <summary>
+    /// 傅里叶 CH3 通道反射光校准的 X 方向反射推杆位置, 选择该推杆时记录.
+    /// </summary>
     public float Ch3Push { get; set; }
 }

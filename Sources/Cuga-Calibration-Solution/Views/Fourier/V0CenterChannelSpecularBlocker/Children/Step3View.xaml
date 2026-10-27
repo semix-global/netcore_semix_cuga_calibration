@@ -50,6 +50,14 @@
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
                                   SelectedValue="{Binding SelectedYRodItem, Mode=TwoWay}" />
+                        <ComboBox hc:TitleElement.Title="X Push: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding XPushItems, Mode=OneWay}"
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding SelectedXPushItem, Mode=TwoWay}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
