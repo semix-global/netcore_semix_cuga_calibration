@@ -70,6 +70,7 @@
 - 使用 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth="190"`, `IsReadOnly="True"`, `SecondaryRegionBrush` 背景和 `TextBoxExtend` 样式.
 - 默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
 - 同一条绑定同时包含 `Mode` 和 `Converter` 时, `Mode` 写在 `Converter` 前面, 例如 `Mode=OneWay, Converter={StaticResource RectToStringConverter}`.
+- 普通只读信息默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
 
 ```xml
 <TextBox Text="{Binding Value, Mode=OneWay}"
@@ -86,6 +87,26 @@
 - `hc:NumericUpDown` 的 `Value` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
 - `ComboBox` 和 `Selector` 的 `SelectedValue` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
 - `ItemsSource` 默认是 `OneWay`, 不要显式写 `Mode=OneWay`.
+
+### 文件路径 TextBox
+
+- 显示文件路径的 TextBox 统一设置 `Height="50"`, `TextWrapping="Wrap"` 和 `ScrollViewer.VerticalScrollBarVisibility="Auto"`.
+- 使用 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth="190"`, `IsReadOnly="True"`, `SecondaryRegionBrush` 背景和 `TextBoxExtend` 样式.
+- 仅用于显示路径时, `Text` 绑定显式使用 `Mode=OneWay`. 需要通过文件选择命令回写路径时, 使用 `Mode=TwoWay`, 同时保留 `IsReadOnly="True"`.
+- 标题和绑定路径按实际页面调整, 参考以下写法.
+
+```xml
+<TextBox Text="{Binding FilePath, Mode=OneWay}"
+         Height="50"
+         TextWrapping="Wrap"
+         hc:TitleElement.Title="File Path: "
+         hc:TitleElement.TitlePlacement="Left"
+         hc:TitleElement.TitleWidth="190"
+         Background="{StaticResource SecondaryRegionBrush}"
+         IsReadOnly="True"
+         ScrollViewer.VerticalScrollBarVisibility="Auto"
+         Style="{StaticResource TextBoxExtend}" />
+```
 
 ### 只读结果区域与标题
 
