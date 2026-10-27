@@ -200,6 +200,7 @@ public sealed partial class RTAWindowViewModel(
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
         if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
             && Cache.AlignmentResult.MarkPoint2 != Point.Origin
+            && Cache.StageMapTemplates.Length > 0
             && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
                 out dialogResult,
                 DialogButtonsEnum.YesNo,
@@ -356,7 +357,20 @@ public sealed partial class RTAWindowViewModel(
             .ConfigureAwait(false);
         Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
 
-        StageMapDie[] selectStageMapDies = [.. inputResult.Output.OrderBy(t => t.Index.Y).ThenBy(t => t.Index.X)];
+        var (xDirection, _) = stageViewModel.GetMachineDirection();
+        StageMapDie[] selectStageMapDies = xDirection > 0
+            ?
+            [
+                .. inputResult.Output
+                    .OrderBy(t => t.Index.Y)
+                    .ThenBy(t => t.Index.X)
+            ]
+            :
+            [
+                .. inputResult.Output
+                    .OrderBy(t => t.Index.Y)
+                    .ThenByDescending(t => t.Index.X)
+            ];
         Guard.IsNotEmpty(selectStageMapDies);
 
         if (selectStageMapDies.DistinctBy(t => t.Row).Count() > 1)
@@ -380,7 +394,7 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
@@ -400,7 +414,7 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
 
-            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition);
+            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,

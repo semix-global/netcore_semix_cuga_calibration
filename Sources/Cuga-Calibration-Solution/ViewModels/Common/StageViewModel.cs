@@ -191,14 +191,14 @@ public sealed class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point)
+    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
     public void SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(Point point)

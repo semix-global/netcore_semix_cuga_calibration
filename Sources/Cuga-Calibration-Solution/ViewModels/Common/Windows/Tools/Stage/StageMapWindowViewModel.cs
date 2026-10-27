@@ -270,6 +270,7 @@ public sealed partial class StageMapWindowViewModel(
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
         if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
             && Cache.AlignmentResult.MarkPoint2 != Point.Origin
+            && Cache.StageMapTemplates.Length > 0
             && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
                 out dialogResult,
                 DialogButtonsEnum.YesNo,
@@ -702,7 +703,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 try
                 {
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0]);
+                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
                     darkFieldImages =
                     [
                         .. await cibViewModel.GetPMTImagesAsync(
