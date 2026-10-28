@@ -22,4 +22,10 @@ public sealed class StageMapDocument : CanvasDocument
 
         BackgroundEditor.GetOrAdd<StageMapSelectionBackgroundEditor>(Edit);
     }
+
+    public void Reset()
+    {
+        WaferModel.Clear();
+        DieModel.Clear();
+    }
 }

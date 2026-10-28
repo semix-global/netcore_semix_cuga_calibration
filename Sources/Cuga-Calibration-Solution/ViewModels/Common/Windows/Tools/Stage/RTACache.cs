@@ -79,9 +79,18 @@ public sealed partial class RTACache : CalibrationCacheBase
 
     #endregion
 
+    partial void OnCalChipSiteModelEnumChanged(CalChipSiteModelEnum value)
+    {
+        _ = value;
+
+        StageMapTemplates = [];
+    }
+
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+
+        StageMapDocument.Reset();
     }
 
     public object ToHtmlAnonymous() => new

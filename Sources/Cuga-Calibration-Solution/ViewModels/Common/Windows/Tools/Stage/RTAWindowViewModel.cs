@@ -23,7 +23,6 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Microscope.CalChip;
 using Microsoft.Extensions.Hosting;
@@ -62,9 +61,6 @@ public sealed partial class RTAWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     [DefaultCache]
     [ObservableProperty]
     public partial RTACache Cache { get; set; } = new();
@@ -80,8 +76,6 @@ public sealed partial class RTAWindowViewModel(
             Cache = cacheProvider.GetOrDefault<RTACache>();
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
-
-            AlignmentResult = Cache.AlignmentResult;
         }).ConfigureAwait(true);
     }
 
@@ -202,11 +196,7 @@ public sealed partial class RTAWindowViewModel(
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
         if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
             && Cache.AlignmentResult.MarkPoint2 != Point.Origin
-            && Cache.StageMapTemplates.Length > 0
-            && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
-                out dialogResult,
-                DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
+            && Cache.StageMapTemplates.Length > 0)
         {
             var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
             var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint2;
@@ -218,10 +208,10 @@ public sealed partial class RTAWindowViewModel(
 
             foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
 
-            Cache.AlignmentResult = newAlignmentResult;
+            Cache.StageMapDocument.Reset();
         }
 
-        AlignmentResult = newAlignmentResult;
+        Cache.AlignmentResult = newAlignmentResult;
 
         stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
 
@@ -229,7 +219,7 @@ public sealed partial class RTAWindowViewModel(
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum,
             AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(AlignmentResult)
+            AlignmentResult = new HtmlQuote(Cache.AlignmentResult)
         }), HtmlLogUniqueId.LoggingHtml());
 
         return true;
@@ -277,8 +267,7 @@ public sealed partial class RTAWindowViewModel(
 
         Cache.StageMapDocument.RunDesign(() =>
         {
-            Cache.StageMapDocument.WaferModel.Clear();
-            Cache.StageMapDocument.DieModel.Clear();
+            Cache.StageMapDocument.Reset();
 
             var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.WaferRadius);
             var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
@@ -316,8 +305,6 @@ public sealed partial class RTAWindowViewModel(
                 };
             }));
         }, true);
-
-        Cache.AlignmentResult = AlignmentResult;
 
         return Task.FromResult(true);
     }, isSilent, cancellationToken).ConfigureAwait(false);

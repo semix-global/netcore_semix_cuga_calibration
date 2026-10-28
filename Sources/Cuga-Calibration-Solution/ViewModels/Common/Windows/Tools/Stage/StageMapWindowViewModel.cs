@@ -87,9 +87,6 @@ public sealed partial class StageMapWindowViewModel(
 
     public Guid HtmlLogUniqueId { get; private set; }
 
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     [DefaultCache]
     [ObservableProperty]
     public partial StageMapCache Cache { get; set; } = new();
@@ -105,8 +102,6 @@ public sealed partial class StageMapWindowViewModel(
             Cache = cacheProvider.GetOrDefault<StageMapCache>();
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
-
-            AlignmentResult = Cache.AlignmentResult;
 
             Cache.StageMap.Refresh();
             foreach (var cacheRepeatStageMap in Cache.RepeatStageMaps) cacheRepeatStageMap.Refresh();
@@ -272,11 +267,7 @@ public sealed partial class StageMapWindowViewModel(
         var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
         if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
             && Cache.AlignmentResult.MarkPoint2 != Point.Origin
-            && Cache.StageMapTemplates.Length > 0
-            && dialogWindowProvider.TryShowDialog("Yes: Apply the alignment offset to the template points? No: Not Apply?",
-                out dialogResult,
-                DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
+            && Cache.StageMapTemplates.Length > 0)
         {
             var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
             var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint2;
@@ -288,10 +279,10 @@ public sealed partial class StageMapWindowViewModel(
 
             foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
 
-            Cache.AlignmentResult = newAlignmentResult;
+            Cache.StageMapDocument.Reset();
         }
 
-        AlignmentResult = newAlignmentResult;
+        Cache.AlignmentResult = newAlignmentResult;
 
         stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
 
@@ -299,7 +290,7 @@ public sealed partial class StageMapWindowViewModel(
         {
             AlignmentUserControlViewModel.CalChipSiteModelEnum,
             AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(AlignmentResult)
+            AlignmentResult = new HtmlQuote(Cache.AlignmentResult)
         }), HtmlLogUniqueId.LoggingHtml());
 
         return true;
@@ -347,8 +338,7 @@ public sealed partial class StageMapWindowViewModel(
 
         Cache.StageMapDocument.RunDesign(() =>
         {
-            Cache.StageMapDocument.WaferModel.Clear();
-            Cache.StageMapDocument.DieModel.Clear();
+            Cache.StageMapDocument.Reset();
 
             var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), Cache.WaferRadius);
             var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
@@ -386,8 +376,6 @@ public sealed partial class StageMapWindowViewModel(
                 };
             }));
         }, true);
-
-        Cache.AlignmentResult = AlignmentResult;
 
         return Task.FromResult(true);
     }, isSilent, cancellationToken).ConfigureAwait(false);

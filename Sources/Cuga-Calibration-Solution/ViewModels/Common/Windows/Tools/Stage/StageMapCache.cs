@@ -92,6 +92,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+
+        StageMapDocument.Reset();
     }
 
     partial void OnRepeatStageMapsChanged(StageMap[] value)
