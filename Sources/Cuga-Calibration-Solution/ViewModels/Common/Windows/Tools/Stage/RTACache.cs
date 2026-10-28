@@ -84,12 +84,14 @@ public sealed partial class RTACache : CalibrationCacheBase
         _ = value;
 
         StageMapTemplates = [];
+        AlignmentResult = new AlignmentResultDto();
     }
 
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
 
+        using var scope = StageMapDocument.View.Sync.EnterScope();
         StageMapDocument.Reset();
     }
 

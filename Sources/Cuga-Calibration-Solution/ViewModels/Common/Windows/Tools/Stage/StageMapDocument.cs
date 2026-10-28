@@ -27,5 +27,11 @@ public sealed class StageMapDocument : CanvasDocument
     {
         WaferModel.Clear();
         DieModel.Clear();
+
+        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
+
+        Edit.SelectedItems.Clear();
+
+        Transients.Clear();
     }
 }

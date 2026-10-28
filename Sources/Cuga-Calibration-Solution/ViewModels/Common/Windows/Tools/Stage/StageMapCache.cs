@@ -93,6 +93,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
 
+        using var scope = StageMapDocument.View.Sync.EnterScope();
         StageMapDocument.Reset();
     }
 
