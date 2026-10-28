@@ -67,6 +67,9 @@ public sealed partial class RTACache : CalibrationCacheBase
     #region Result
 
     [ObservableProperty]
+    public partial bool IsDarkFieldAlignment { get; set; }
+
+    [ObservableProperty]
     public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
@@ -84,7 +87,6 @@ public sealed partial class RTACache : CalibrationCacheBase
         _ = value;
 
         StageMapTemplates = [];
-        AlignmentResult = new AlignmentResultDto();
     }
 
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
@@ -93,6 +95,13 @@ public sealed partial class RTACache : CalibrationCacheBase
 
         using var scope = StageMapDocument.View.Sync.EnterScope();
         StageMapDocument.Reset();
+    }
+
+    partial void OnIsDarkFieldAlignmentChanged(bool value)
+    {
+        _ = value;
+
+        StageMapTemplates = [];
     }
 
     public object ToHtmlAnonymous() => new

@@ -72,6 +72,9 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     #region Result
 
     [ObservableProperty]
+    public partial bool IsDarkFieldAlignment { get; set; }
+
+    [ObservableProperty]
     public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
     [Newtonsoft.Json.JsonIgnore]
@@ -95,6 +98,13 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
         using var scope = StageMapDocument.View.Sync.EnterScope();
         StageMapDocument.Reset();
+    }
+
+    partial void OnIsDarkFieldAlignmentChanged(bool value)
+    {
+        _ = value;
+
+        StageMapTemplates = [];
     }
 
     partial void OnRepeatStageMapsChanged(StageMap[] value)

@@ -188,8 +188,8 @@ public sealed partial class RTAWindowViewModel(
         if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false; // todo: 明场暗场没有考虑
+                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+        else Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 

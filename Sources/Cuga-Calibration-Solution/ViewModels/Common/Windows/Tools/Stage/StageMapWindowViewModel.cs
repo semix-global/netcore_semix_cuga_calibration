@@ -39,7 +39,6 @@ using Python.Runtime;
 using System.Collections;
 using System.IO;
 using System.Reflection;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Microscope.CalChip;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -259,8 +258,8 @@ public sealed partial class StageMapWindowViewModel(
         if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+        else Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
