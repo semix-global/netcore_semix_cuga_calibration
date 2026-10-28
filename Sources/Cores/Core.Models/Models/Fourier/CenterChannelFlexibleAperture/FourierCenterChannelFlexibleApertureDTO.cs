@@ -11,7 +11,7 @@ public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase
 {
     public const double AngleStep = 360d / 11d;
 
-    public FourierCenterChannelFlexibleApertureDTOItem XOriginItem { get; private init; } = new(CenterChannelMotionKindEnum.XRod, 0d) { Width = 1.1, Height = 35d, Step0MotorAbsoluteValue = 2d, Step1MotorAbsoluteValue = -3d };
+    public FourierCenterChannelFlexibleApertureDTOItem XOriginItem { get; private init; } = new(CenterChannelMotionKindEnum.XRod, 0d) { Width = 1.1, Height = 35d, Step0MotorAbsoluteValue = 20d, Step1MotorAbsoluteValue = 10d };
 
     public FourierCenterChannelFlexibleApertureDTOOriginPositionItem XOriginPositionItem { get; private init; } = new();
 

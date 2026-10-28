@@ -595,7 +595,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 {
                     CenterChannelMotionKindEnum.XAperture => nameof(CenterChannelMotionKindEnum.XAperture),
                     CenterChannelMotionKindEnum.XCalibrationPattern => nameof(CenterChannelMotionKindEnum.XCalibrationPattern),
-                    CenterChannelMotionKindEnum.XRod when ReferenceEquals(item, CalibratingItem.XOriginItem) => "XRod_0",
+                    CenterChannelMotionKindEnum.XRod when ReferenceEquals(item, CalibratingItem.XOriginItem) => "XOrigin",
                     CenterChannelMotionKindEnum.XRod => $"XRod_{Array.IndexOf(CalibratingItem.XRodItems, item)}",
                     CenterChannelMotionKindEnum.XDiffractionPush => nameof(CenterChannelMotionKindEnum.XDiffractionPush),
                     CenterChannelMotionKindEnum.XReflectionCoarsePush => nameof(CenterChannelMotionKindEnum.XReflectionCoarsePush),
@@ -759,14 +759,13 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // 原点实拍素材尚未提供, 仿真暂复用第一根 X 挡杆图像.
             if (HostEnvironment.IsDevelopment())
             {
                 FourierViewModel.UseSimulatorImage(Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"Assets\Data\Fourier",
                     nameof(FourierCenterChannelFlexibleApertureViewModel),
-                    $"Channel3_XRod_0_Step{stepIndex}.jpg"));
+                    $"Channel3_XOriginPosition_Step{stepIndex}.jpg"));
             }
 
             using var bitmapImage = FourierViewModel.GetImage(

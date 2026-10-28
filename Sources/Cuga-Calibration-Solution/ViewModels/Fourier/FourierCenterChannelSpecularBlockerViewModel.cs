@@ -489,7 +489,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"Assets\Data\Fourier",
                     nameof(FourierCenterChannelSpecularBlockerViewModel),
-                    $"Channel3_{SelectedXReflectionPushItem?.CenterChannelMotionKindEnum}_Step{stepIndex}.jpg"));
+                    $"Channel3_Step{stepIndex}.jpg"));
             }
 
             using var bitmapImage = FourierViewModel.GetImage(
