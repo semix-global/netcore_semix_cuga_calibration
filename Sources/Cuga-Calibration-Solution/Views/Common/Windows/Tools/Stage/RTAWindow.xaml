@@ -438,7 +438,6 @@
                                                                      Style="{StaticResource TextBoxExtend}" />
                                                             <Button Content="Select File"
                                                                     Command="{x:Static cmd:Commands.SelectFileCommand}"
-                                                                    HorizontalAlignment="Right"
                                                                     hc:IconElement.Geometry="{StaticResource DragHorizontalGeometry}">
                                                                 <Button.CommandParameter>
                                                                     <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ForwardSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
@@ -476,12 +475,26 @@
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                     <Expander IsExpanded="False" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="Results" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                            <TextBlock Text="Result" Style="{StaticResource TextBlockDefaultSuccess}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
                                                          hc:TitleElement.Title="Alignment Degrees(°): "
+                                                         hc:TitleElement.TitleWidth="150"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <TextBox Text="{Binding Cache.AlignmentResult.MarkPoint1, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Mark Point1(um): "
+                                                         hc:TitleElement.TitleWidth="150"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <TextBox Text="{Binding Cache.AlignmentResult.MarkPoint2, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Mark Point2(um): "
                                                          hc:TitleElement.TitleWidth="150"
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          IsReadOnly="True"
