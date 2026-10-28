@@ -189,7 +189,7 @@ public sealed partial class RTAWindowViewModel(
                 out var dialogResult,
                 DialogButtonsEnum.YesNo,
                 DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        else AlignmentUserControlViewModel.IsDarkFieldAlignment = false; // todo: 明场暗场没有考虑
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
@@ -208,6 +208,7 @@ public sealed partial class RTAWindowViewModel(
 
             foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
 
+            using var scope = Cache.StageMapDocument.View.Sync.EnterScope();
             Cache.StageMapDocument.Reset();
         }
 

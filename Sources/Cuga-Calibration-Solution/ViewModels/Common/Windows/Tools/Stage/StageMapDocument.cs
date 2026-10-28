@@ -1,4 +1,4 @@
-﻿using Net.Utilities.Graphics;
+using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Editors;
 using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;

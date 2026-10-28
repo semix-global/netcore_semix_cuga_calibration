@@ -49,7 +49,7 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
         foreach (var item in Edit.SelectedItems) item.IsSelected = false;
 
         Edit.SelectedItems.Clear();
-        
+
         Transients.Clear();
     }
 }

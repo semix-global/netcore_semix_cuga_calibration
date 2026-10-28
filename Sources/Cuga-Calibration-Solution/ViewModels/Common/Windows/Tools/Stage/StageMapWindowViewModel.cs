@@ -279,6 +279,7 @@ public sealed partial class StageMapWindowViewModel(
 
             foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
 
+            using var scope = Cache.StageMapDocument.View.Sync.EnterScope();
             Cache.StageMapDocument.Reset();
         }
 
