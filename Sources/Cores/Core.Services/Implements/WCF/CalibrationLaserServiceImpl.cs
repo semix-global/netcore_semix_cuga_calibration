@@ -152,13 +152,35 @@ public sealed class CalibrationLaserServiceImpl(
         }
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double prescanCoefficient, double chirpAODDelay)
     {
-        var c2MProductivityInfo = productivityInformation.AdaptTo();
-        var sxExecuteRet = Invoke(() => Service?.SetMagAndWaveZero(c2MProductivityInfo.Mag, productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(), c2MProductivityInfo.Speed, Convert.ToInt32(chirpAODDelay), Convert.ToInt32(prescanAODDelay)));
+        // prescan
+        var sxExecuteRetByGetPrescanAODWaveProfiles = calibrationConfigService.GetPrescanAODWaveProfiles(productivityInformation);
+        if (sxExecuteRetByGetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetPrescanAODWaveProfiles.Msg, false);
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+        var prescanAODWaveProfiles = sxExecuteRetByGetPrescanAODWaveProfiles.Anything;
+
+        foreach (var aodWaveProfile in prescanAODWaveProfiles)
+        {
+            aodWaveProfile.ApplyCoefficient(prescanCoefficient);
+            aodWaveProfile.ZeroSampleCount = Convert.ToInt32(prescanAODDelay);
+        }
+
+        var sxExecuteRetBySetPrescanAODWaveProfiles = SetPrescanAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, prescanAODWaveProfiles);
+        if (sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false);
+
+        // chirp
+        var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
+        if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
+
+        var chirpAODWaveformProfiles = sxExecuteRetByGetChirpAODWaveProfiles.Anything;
+
+        foreach (var aodWaveProfile in chirpAODWaveformProfiles) aodWaveProfile.ZeroSampleCount = Convert.ToInt32(chirpAODDelay);
+
+        var sxExecuteRetBySetChirpAODWaveProfiles = SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, chirpAODWaveformProfiles);
+
+        return sxExecuteRetBySetChirpAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetChirpAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
@@ -219,10 +241,10 @@ public sealed class CalibrationLaserServiceImpl(
         var sxExecuteRetByGetChirpAODWaveProfiles = calibrationConfigService.GetChirpAODWaveProfiles(productivityInformation);
         if (sxExecuteRetByGetChirpAODWaveProfiles.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRetByGetChirpAODWaveProfiles.Msg, false);
 
-        var sxExecuteRetBySetPrescanAODWaveProfiles = SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
+        var sxExecuteRetBySetChirpAODWaveProfiles = SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, sxExecuteRetByGetChirpAODWaveProfiles.Anything);
 
-        return sxExecuteRetBySetPrescanAODWaveProfiles.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetPrescanAODWaveProfiles.Msg, false)
+        return sxExecuteRetBySetChirpAODWaveProfiles.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRetBySetChirpAODWaveProfiles.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 

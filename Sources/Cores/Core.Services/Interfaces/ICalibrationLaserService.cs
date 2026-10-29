@@ -93,9 +93,10 @@ public interface ICalibrationLaserService
     /// </summary>
     /// <param name="productivityInformation">产率</param>
     /// <param name="prescanAODDelay">Prescan AOD延迟</param>
+    /// <param name="prescanCoefficient">Prescan AOD光强饱和系数</param>
     /// <param name="chirpAODDelay">Chirp AOD延迟</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay);
+    SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double prescanCoefficient, double chirpAODDelay);
 
     /// <summary>
     /// 下发PrescanAOD波形

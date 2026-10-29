@@ -12,9 +12,6 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
     [NotifyPropertyChangedFor(nameof(Item))]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
-    [ObservableProperty]
-    public partial int SmoothWindowSize { get; set; } = 21;
-
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, AODDelayCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem> Items { get; init; } = [];
 
@@ -24,7 +21,6 @@ public sealed partial class AODDelayCache : CalibrationCacheBase<AODDelayCache>
     public override AODDelayCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        SmoothWindowSize = SmoothWindowSize,
         Items = new ConcurrentDictionary<ProductivityInformation, AODDelayCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODDelayCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         Id = Id,
         Expiration = Expiration
@@ -55,10 +51,7 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double WaitTime { get; set; } = 5;
-
-    [ObservableProperty]
-    public partial double StartRoughAODDelay { get; set; } = -1500;
+    public partial double StartRoughAODDelay { get; set; } = 0;
 
     [ObservableProperty]
     public partial double StepRoughAODDelay { get; set; } = 100;
@@ -81,7 +74,6 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
         CIBConfiguration = CIBConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
-        WaitTime = WaitTime,
         StartRoughAODDelay = StartRoughAODDelay,
         StepRoughAODDelay = StepRoughAODDelay,
         StopRoughAODDelay = StopRoughAODDelay,

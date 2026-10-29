@@ -58,57 +58,39 @@
                         </StackPanel>
                         <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.ImageWidth}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Rough Start AOD Delay(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Item.WaitTime}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Rough Start AOD Delay(sa): "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StartRoughAODDelay}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Rough Step AOD Delay(sa): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Rough Step AOD Delay(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StepRoughAODDelay}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Rough Stop AOD Delay(sa): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Rough Stop AOD Delay(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StopRoughAODDelay}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Refined AOD Delay ±Range(sa): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Refined AOD Delay ±Range(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.RangeRefinedAODDelay}" />
-                        <hc:NumericUpDown hc:TitleElement.Title="Refined Step AOD Delay(sa): "
+                        <hc:NumericUpDown hc:TitleElement.Title="Chirp Refined Step AOD Delay(sa): "
                                           hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
+                                          hc:TitleElement.TitleWidth="230"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.Item.StepRefinedAODDelay}" />
-                        <StackPanel>
-                            <TextBlock Text="Algorithm Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <hc:NumericUpDown hc:TitleElement.Title="Smooth Window Size: "
-                                          hc:TitleElement.TitlePlacement="Left"
-                                          hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
-                                          Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.SmoothWindowSize}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -160,7 +142,7 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding AODDelay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="AOD Delay(sa)" DisplayMemberBinding="{Binding ChirpAODDelay, StringFormat='0.###'}" />
                             <GridViewColumn Header="PMT Value" DisplayMemberBinding="{Binding PMTValue, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
@@ -193,7 +175,7 @@
                                                                  ShowAxes="True"
                                                                  ShowCursor="False"
                                                                  ShowGrid="False" />
-                                                <TextBlock Text="{Binding AODDelay, StringFormat='0.###'}"
+                                                <TextBlock Text="{Binding ChirpAODDelay, StringFormat='0.###'}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Top"
                                                            Foreground="Yellow" />
