@@ -120,7 +120,6 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
             logger.LogHtmlInformation("3. Origin Error", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, idealXMatrix + originErrorXMatrix, idealYMatrix + originErrorYMatrix, originErrorXMatrix, originErrorYMatrix, "X: scan px - Y: scan px - U: error X px - V: error Y px"),
                 XPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
                 YPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
                 SamplesX = new HtmlPlot2DLinesChart([(string.Empty, [.. originSamples.Select(sample => new Point(sample.X, sample.Error.X))])], "X: scan px - Y: mean error X px"),
@@ -131,37 +130,47 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
             #region 4. Y Alignment
 
-            var yAlignmentPoints = Generate.LinearRangeInt32(0, yCount - 1)
-                .SelectMany(y => realXMatrix.Row(y).Index().Select(xTuple => new Point(xTuple.Item, realYMatrix[y, xTuple.Index])))
-                .Where(point => double.IsFinite(point.X) && double.IsFinite(point.Y))
-                .ToArray();
-            Guard.IsTrue(yAlignmentPoints.Length >= 2);
+            var yAlignmentAngles = new List<double>();
+            var yAlignmentFitLines = new List<(string Name, Point[] PointList)>();
+            for (var y = 0; y < yCount; y++)
+            {
+                var points = realXMatrix
+                    .Row(y)
+                    .Index()
+                    .Select(t => new Point(t.Item, realYMatrix[y, t.Index]))
+                    .Where(point => double.IsFinite(point.X) && double.IsFinite(point.Y))
+                    .ToArray();
+                if (points.Length < 2 || points.DistinctBy(t => t.X).Count() < 2) continue;
 
-            var (yAlignmentSlope, yAlignmentIntercept, yAlignmentRSquared, yAlignmentPredicted) = PolynomialCurve.Fit1(
-                Vector<double>.Build.Dense([.. yAlignmentPoints.Select(t => t.X)]),
-                Vector<double>.Build.Dense([.. yAlignmentPoints.Select(t => t.Y)]));
-            var yAlignmentAngle = Math.Atan(yAlignmentSlope);
+                var (slope, intercept, rSquared, predicted) = PolynomialCurve.Fit1(
+                    Vector<double>.Build.Dense([.. points.Select(point => point.X)]),
+                    Vector<double>.Build.Dense([.. points.Select(point => point.Y)]));
+                if (double.IsFinite(slope) == false) continue;
+
+                yAlignmentAngles.Add(Math.Atan(slope));
+                yAlignmentFitLines.Add(($"Row {y}: Origin", points));
+                yAlignmentFitLines.Add(($"Row {y}: {PolynomialCurve.ToString1(slope, intercept, rSquared, "0.##########")}", [.. points.Index().Select(t => new Point(t.Item.X, predicted[t.Index]))]));
+            }
+
+            Guard.IsTrue(yAlignmentAngles.Count > 0);
+
+            var yAlignmentAngle = yAlignmentAngles.Average();
 
             logger.LogHtmlInformation("4. Y Alignment", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
-                yAlignmentSlope,
                 yAlignmentAngle,
-                FitPlot = new HtmlPlot2DLinesChart(
-                [
-                    ("Origin", [.. yAlignmentPoints]),
-                    ($"Fit {PolynomialCurve.ToString1(yAlignmentSlope, yAlignmentIntercept, yAlignmentRSquared, "0.##########")}", [.. yAlignmentPoints.Index().Select(t => new Point(t.Item.X, yAlignmentPredicted[t.Index]))])
-                ], "X: px - Y: px"),
+                FitPlot = new HtmlPlot2DLinesChart([.. yAlignmentFitLines], "X: px - Y: px"),
             }), htmlLogUniqueId.LoggingHtml());
 
-            Guard.IsTrue(double.IsFinite(yAlignmentSlope));
             Guard.IsTrue(double.IsFinite(yAlignmentAngle));
 
             var yAlignmentThetaMatrix = Matrix<double>.Build.DenseOfArray(new[,]
             {
-                { Math.Cos(yAlignmentAngle), -Math.Sin(yAlignmentAngle), 0d },
-                { Math.Sin(yAlignmentAngle), Math.Cos(yAlignmentAngle), 0d },
+                { Math.Cos(yAlignmentAngle), Math.Sin(yAlignmentAngle), 0d },
+                { -Math.Sin(yAlignmentAngle), Math.Cos(yAlignmentAngle), 0d },
                 { 0d, 0d, 1d }
             });
+
             for (var y = 0; y < yCount; y++)
             {
                 for (var x = 0; x < xCount; x++)
@@ -180,14 +189,12 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
             logger.LogHtmlInformation("4.1. Y Alignment Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, idealXMatrix + removeYAlignmentErrorXMatrix, idealYMatrix + removeYAlignmentErrorYMatrix, yAlignmentErrorXMatrix, yAlignmentErrorYMatrix, "X: scan px - Y: scan px - U: error X px - V: error Y px"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, yAlignmentErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
                 ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, yAlignmentErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
             }), htmlLogUniqueId.LoggingHtml());
 
             logger.LogHtmlInformation("4.2. Remove Y Alignment Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, idealXMatrix + removeYAlignmentErrorXMatrix, idealYMatrix + removeYAlignmentErrorYMatrix, removeYAlignmentErrorXMatrix, removeYAlignmentErrorYMatrix, "X: scan px - Y: scan px - U: error X px - V: error Y px"),
                 XPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, removeYAlignmentErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
                 YPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, removeYAlignmentErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
                 SamplesX = new HtmlPlot2DLinesChart([(string.Empty, [.. removeYAlignmentSamples.Select(sample => new Point(sample.X, sample.Error.X))])], "X: scan px - Y: mean error X px"),
@@ -202,15 +209,16 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 .SelectMany(y => idealXMatrix.Row(y).Index().Select(xTuple => new Point(xTuple.Item, realXMatrix[y, xTuple.Index])))
                 .Where(point => double.IsFinite(point.X) && double.IsFinite(point.Y))
                 .ToArray();
-            Guard.IsTrue(xScalePoints.Length >= 2);
+            Guard.IsTrue(xScalePoints.Length >= 2 && xScalePoints.DistinctBy(t => t.X).Count() >= 2);
 
             var (xScaleSlope, xScaleIntercept, xScaleRSquared, xScalePredicted) = PolynomialCurve.Fit1(
                 Vector<double>.Build.Dense([.. xScalePoints.Select(t => t.X)]),
                 Vector<double>.Build.Dense([.. xScalePoints.Select(t => t.Y)]));
 
+            var xScaleCorrection = 1d / xScaleSlope;
             logger.LogHtmlInformation("5. Y Scale", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
-                xScaleSlope,
+                xScaleCorrection,
                 FitPlot = new HtmlPlot2DLinesChart(
                 [
                     ("Origin", [.. xScalePoints]),
@@ -218,13 +226,13 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 ], "X: px - Y: px"),
             }), htmlLogUniqueId.LoggingHtml());
 
-            Guard.IsTrue(double.IsFinite(xScaleSlope));
+            Guard.IsTrue(double.IsFinite(xScaleCorrection) && xScaleCorrection > 0d, "The inverse X scale must be finite and positive.");
 
             var scaleMatrix = Matrix<double>.Build.DenseOfArray(new[,]
             {
-                { xScaleSlope, 0, 0 },
-                { 0, 1, 0 },
-                { 0, 0, 1 }
+                { xScaleCorrection, 0d, 0d },
+                { 0d, 1d, 0d },
+                { 0d, 0d, 1d }
             });
 
             for (var x = 0; x < yCount; x++)
@@ -240,19 +248,17 @@ public sealed partial class CalibrationAlgorithmServiceImpl
             var removeYAlignmentAndXScaleErrorXMatrix = CenterError(realXMatrix - idealXMatrix);
             var removeYAlignmentAndXScaleErrorYMatrix = CenterError(realYMatrix - idealYMatrix);
             var removeYAlignmentAndXScaleSamples = GetSamples(removeYAlignmentAndXScaleErrorXMatrix, removeYAlignmentAndXScaleErrorYMatrix);
-            var xScaleErrorXMatrix = yAlignmentErrorXMatrix - removeYAlignmentAndXScaleErrorXMatrix;
-            var xScaleErrorYMatrix = yAlignmentErrorYMatrix - removeYAlignmentAndXScaleErrorYMatrix;
+            var xScaleErrorXMatrix = removeYAlignmentErrorXMatrix - removeYAlignmentAndXScaleErrorXMatrix;
+            var xScaleErrorYMatrix = removeYAlignmentErrorYMatrix - removeYAlignmentAndXScaleErrorYMatrix;
 
             logger.LogHtmlInformation("5.1. X Scale Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, realXMatrix, realYMatrix, xScaleErrorXMatrix, xScaleErrorYMatrix, "X: scan px - Y: scan px - U: error X px - V: error Y px"),
                 ErrorX = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, xScaleErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
                 ErrorY = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, xScaleErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
             }), htmlLogUniqueId.LoggingHtml());
 
             logger.LogHtmlInformation("5.2. Remove Y Alignment And X Scale Error", HtmlHeaderLevelEnum.Header6, new HtmlBullet(new
             {
-                VectorField = ToHtmlPlot2DErrorMapVectorFieldChart(idealXMatrix, idealYMatrix, idealXMatrix + removeYAlignmentAndXScaleErrorXMatrix, idealYMatrix + removeYAlignmentAndXScaleErrorYMatrix, removeYAlignmentAndXScaleErrorXMatrix, removeYAlignmentAndXScaleErrorYMatrix, "X: scan px - Y: scan px - U: error X px - V: error Y px"),
                 XPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, removeYAlignmentAndXScaleErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
                 YPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, removeYAlignmentAndXScaleErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
                 SamplesX = new HtmlPlot2DLinesChart([(string.Empty, [.. removeYAlignmentAndXScaleSamples.Select(sample => new Point(sample.X, sample.Error.X))])], "X: scan px - Y: mean error X px"),
@@ -323,34 +329,6 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 ElapsedMilliseconds = Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds
             }), htmlLogUniqueId.LoggingHtml());
         }
-    }
-
-    private static HtmlPlot2DErrorMapVectorFieldChart ToHtmlPlot2DErrorMapVectorFieldChart(
-        Matrix<double> idealXMatrix,
-        Matrix<double> idealYMatrix,
-        Matrix<double> realXMatrix,
-        Matrix<double> realYMatrix,
-        Matrix<double> errorXMatrix,
-        Matrix<double> errorYMatrix,
-        string title
-    )
-    {
-        var rowCount = idealXMatrix.RowCount;
-        var columnCount = idealXMatrix.ColumnCount;
-        var idealMatrix = new Point[rowCount, columnCount];
-        var realMatrix = new Point[rowCount, columnCount];
-        var errorMatrix = new Point[rowCount, columnCount];
-        for (var row = 0; row < rowCount; row++)
-        {
-            for (var column = 0; column < columnCount; column++)
-            {
-                idealMatrix[row, column] = new Point(idealXMatrix[row, column], idealYMatrix[row, column]);
-                realMatrix[row, column] = new Point(realXMatrix[row, column], realYMatrix[row, column]);
-                errorMatrix[row, column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
-            }
-        }
-
-        return new HtmlPlot2DErrorMapVectorFieldChart(idealMatrix, realMatrix, errorMatrix, title);
     }
 
     private static HtmlPlot3DChart ToHtmlPlot3DChart(

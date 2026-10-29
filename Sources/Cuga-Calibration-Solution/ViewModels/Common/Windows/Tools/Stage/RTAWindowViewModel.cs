@@ -387,7 +387,7 @@ public sealed partial class RTAWindowViewModel(
         var reverseDarkFieldRawScanImage = new DarkFieldRawScanImageDTO();
         try
         {
-            logger.LogHtmlInformation("Scan", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation("Forward", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
@@ -413,6 +413,8 @@ public sealed partial class RTAWindowViewModel(
                 HtmlLogUniqueId);
             Guard.IsNotEmpty(forwardRTAScanSamples);
             Cache.RTAScanResult.ForwardRTAScanSamples = forwardRTAScanSamples;
+
+            logger.LogHtmlInformation("Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
 
