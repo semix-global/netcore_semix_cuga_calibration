@@ -223,7 +223,7 @@ public sealed class FourierCenterChannelSpecularBlockerSerializationTest(HostFix
             channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
 
             channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
-            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 5d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 7d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 10d }[random.Next(5)];
+            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 6d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 5d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 4d, FourierCenterChannelFlexibleApertureDTO.AngleStep * 1d }[random.Next(5)];
             channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
             channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
             channel.XReflectionPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));

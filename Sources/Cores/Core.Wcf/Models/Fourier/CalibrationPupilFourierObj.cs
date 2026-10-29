@@ -57,17 +57,17 @@ public sealed class CalibrationPupilCameraAlignment : CalibrationBase
 {
     /// <summary>
     /// 通道1截图矩形区域坐标值, **需要记录**
-    /// </summary> 
+    /// </summary>
     public RectD RectCh1 { get; set; }
 
     /// <summary>
     /// 通道2截图矩形区域坐标值, **需要记录**
-    /// </summary> 
+    /// </summary>
     public RectD RectCh2 { get; set; }
 
     /// <summary>
     /// 通道3截图矩形区域坐标值, **需要记录**
-    /// </summary> 
+    /// </summary>
     public RectD RectCh3 { get; set; }
 }
 
@@ -78,64 +78,103 @@ public sealed class CalibrationPupilCameraAlignment : CalibrationBase
 public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBase
 {
     /// <summary>
-    /// 傅里叶截图可见区域内第一根杆子起始像素坐标, **不需要记录**
-    /// </summary> 
+    /// CH1 傅里叶截图可见区域内第一根杆子起始像素坐标, **不需要记录**
+    /// </summary>
     public CgPoint CgFFBoxBeginPositionCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 傅里叶截图可见区域内第一根杆子起始像素坐标, **不需要记录**
+    /// </summary>
     public CgPoint CgFFBoxBeginPositionCh2 { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内最后一根杆子截止像素坐标, **不需要记录**
-    /// </summary> 
+    /// CH1 傅里叶截图可见区域内最后一根杆子截止像素坐标, **不需要记录**
+    /// </summary>
     public CgPoint CgFFBoxEndPositionCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 傅里叶截图可见区域内最后一根杆子截止像素坐标, **不需要记录**
+    /// </summary>
     public CgPoint CgFFBoxEndPositionCh2 { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内第一根杆子编号, **需要记录**
-    /// </summary> 
+    /// CH1 第一根杆子编号 1, **需要记录**
+    /// </summary>
     public int CgFFBoxBeginNumber1Ch1 { get; set; }
 
+    /// <summary>
+    /// CH1 第一根杆子编号 2, **需要记录**
+    /// </summary>
     public int CgFFBoxBeginNumber2Ch1 { get; set; }
+
+    /// <summary>
+    /// CH2 第一根杆子编号 1, **需要记录**
+    /// </summary>
     public int CgFFBoxBeginNumber1Ch2 { get; set; }
+
+    /// <summary>
+    /// CH2 第一根杆子编号 2, **需要记录**
+    /// </summary>
     public int CgFFBoxBeginNumber2Ch2 { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内最后一根杆子编号, **需要记录**
-    /// </summary> 
+    /// CH1 最后一根杆子编号 1, **需要记录**
+    /// </summary>
     public int CgFFBoxEndNumber1Ch1 { get; set; }
 
+    /// <summary>
+    /// CH1 最后一根杆子编号 2, **需要记录**
+    /// </summary>
     public int CgFFBoxEndNumber2Ch1 { get; set; }
+
+    /// <summary>
+    /// CH2 最后一根杆子编号 1, **需要记录**
+    /// </summary>
     public int CgFFBoxEndNumber1Ch2 { get; set; }
+
+    /// <summary>
+    /// CH2 最后一根杆子编号 2, **需要记录**
+    /// </summary>
     public int CgFFBoxEndNumber2Ch2 { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内每根杆子宽度（像素值）, **需要记录**
-    /// </summary> 
-
+    /// CH1 傅里叶截图可见区域内每根杆子宽度（像素值）, **需要记录**
+    /// </summary>
     public List<int> CgFFBoxRodWidthListCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 傅里叶截图可见区域内每根杆子宽度（像素值）, **需要记录**
+    /// </summary>
     public List<int> CgFFBoxRodWidthListCh2 { get; set; }
 
     /// <summary>
-    /// 每根杆子每1像素高度相当于多少毫米,**需要记录**
-    /// </summary> 
+    /// CH1 每根杆子每1像素高度相当于多少毫米, **需要记录**
+    /// </summary>
     public List<double> CgFFBoxHeightRelationPercentListCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 每根杆子每1像素高度相当于多少毫米, **需要记录**
+    /// </summary>
     public List<double> CgFFBoxHeightRelationPercentListCh2 { get; set; }
 
     /// <summary>
-    /// 每根杆子矩形区域像素坐标,**需要记录**
-    /// </summary> 
+    /// CH1 每根杆子矩形区域像素坐标, **需要记录**
+    /// </summary>
     public List<RectD> CurrentImageRectListFirstCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 每根杆子矩形区域像素坐标, **需要记录**
+    /// </summary>
     public List<RectD> CurrentImageRectListFirstCh2 { get; set; }
 
     /// <summary>
-    /// 每根杆子起始位置，也是记录的百分比,**需要记录**
-    /// </summary> 
+    /// CH1 每根杆子起始位置，也是记录的百分比, **需要记录**
+    /// </summary>
     public double CgFFBoxAllRodsBeginPercentCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 每根杆子起始位置，也是记录的百分比, **需要记录**
+    /// </summary>
     public double CgFFBoxAllRodsBeginPercentCh2 { get; set; }
 }
 
@@ -146,122 +185,122 @@ public sealed class CalibrationPupilSideChannelFlexibleAperture : CalibrationBas
 public sealed class CalibrationPupilCenterChannelFlexibleAperture : CalibrationBase
 {
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
-    /// </summary> 
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一个角度值, **需要记录**
+    /// </summary>
     public List<double> CgFFBoxTurnXAngleCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度,**需要记录**
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素宽度, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// X方向转盘从120度到300度转动4个位置，记录下来每1像素宽度相当于多少毫米, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnXMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnXMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// X方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标, **需要记录**
     /// </summary>
     public List<RectD> CgFFBoxTurnXRectPositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来每一个角度值,**需要记录**
+    /// X方向通光孔，记录下来每一个角度值, **需要记录**
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// X方向通光孔，记录下来每1像素宽度相当于多少毫米, **需要记录**
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X方向通光孔，记录下来位移电机起始位置（单位为毫米）, **需要记录**
     /// </summary>
     public double CgFFBoxTurnXLightHoleCirclePositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// X方向通光孔，算出来的圆形圆心坐标值, **需要记录**
     /// </summary>
     public CgPoint CgFFBoxTurnXLightHoleCircleCenterCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，算出来的圆形半径,**需要记录**
+    /// X方向通光孔，算出来的圆形半径, **需要记录**
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个角度值,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个角度值, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnYAngleCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一个挡杆像素高度, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnYWidthCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每1像素高度相当于多少毫米, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnYMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来位移电机起始位置（单位为毫米）, **需要记录**
     /// </summary>
     public List<double> CgFFBoxTurnYMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标,**需要记录**
+    /// Y方向转盘从120度到300度转动4个位置，记录下来每一根挡杆矩形区域坐标, **需要记录**
     /// </summary>
     public List<RectD> CgFFBoxTurnYRectPositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来每一个角度值,**需要记录**
+    /// Y方向通光孔，记录下来每一个角度值, **需要记录**
     /// </summary>
     public double CgFFBoxTurnYLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来每1像素高度相当于多少毫米,**需要记录**
+    /// Y方向通光孔，记录下来每1像素高度相当于多少毫米, **需要记录**
     /// </summary>
     public double CgFFBoxTurnYLightHoleCircleRelationCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// Y方向通光孔，记录下来位移电机起始位置（单位为毫米）, **需要记录**
     /// </summary>
     public double CgFFBoxTurnYLightHoleCirclePositionCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// Y方向通光孔，算出来的圆形圆心坐标值, **需要记录**
     /// </summary>
     public CgPoint CgFFBoxTurnYLightHoleCircleCenterCh3 { get; set; }
 
     /// <summary>
-    /// Y方向通光孔，算出来的圆形半径,**需要记录**
+    /// Y方向通光孔，算出来的圆形半径, **需要记录**
     /// </summary>
     public double CgFFBoxTurnYLightHoleCircleRadiusCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆像素宽度,**需要记录**
+    /// X方向单独的推杆像素宽度, **需要记录**
     /// </summary>
     public double CgFFBoxPushXWidthCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆每1像素宽度相当于多少毫米,**需要记录**
+    /// X方向单独的推杆每1像素宽度相当于多少毫米, **需要记录**
     /// </summary>
     public double CgFFBoxPushXMotorRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆起始位置,**需要记录**
+    /// X方向单独的推杆起始位置, **需要记录**
     /// </summary>
     public double CgFFBoxPushXMotorPositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向单独的推杆起始矩形区域坐标,**需要记录**
+    /// X方向单独的推杆起始矩形区域坐标, **需要记录**
     /// </summary>
     public RectD CgFFBoxPushXRectPositionCh3 { get; set; }
 }
@@ -288,10 +327,13 @@ public sealed class CalibrationPupilSideChannelSpecularBlocker : CalibrationBase
     public CgSpeedLevelType Speed { get; set; }
 
     /// <summary>
-    /// 傅里叶截图可见区域内每根杆子向下移动百分比, **需要记录**
-    /// </summary> 
+    /// CH1 傅里叶截图可见区域内每根杆子向下移动百分比, **需要记录**
+    /// </summary>
     public List<double> CgFFBoxMoveDownPercentListCh1 { get; set; }
 
+    /// <summary>
+    /// CH2 傅里叶截图可见区域内每根杆子向下移动百分比, **需要记录**
+    /// </summary>
     public List<double> CgFFBoxMoveDownPercentListCh2 { get; set; }
 }
 
@@ -322,13 +364,13 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
     public bool IsSelectedY { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
-    /// </summary> 
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆角度, **NI下才需要记录**
+    /// </summary>
     public float Ch3Angle { get; set; }
 
     /// <summary>
-    /// 傅里叶CH3通道反射光校准，Y方向挡杆位置, **NI下才需要记录**
-    /// </summary> 
+    /// 傅里叶CH3通道反射光校准，Y方向挡杆电机位置, **NI下才需要记录**
+    /// </summary>
     public float Ch3TurnY { get; set; }
 
     /// <summary>
@@ -349,27 +391,27 @@ public sealed class CalibrationPupilCenterChannelSpecularBlocker : CalibrationBa
 public sealed class CalibrationPupilCenterChannelFlexibleApertureV1 : CalibrationBase
 {
     /// <summary>
-    /// X方向通光孔，记录下来每一个角度值,**需要记录**
+    /// X方向通光孔的角度.
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleAngleCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来每1像素宽度相当于多少毫米,**需要记录**
+    /// X方向通光孔的每像素对应的电机位移.
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRelationCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，记录下来位移电机起始位置（单位为毫米）,**需要记录**
+    /// X方向通光孔的起始电机位置.
     /// </summary>
     public double CgFFBoxTurnXLightHoleCirclePositionCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，算出来的圆形圆心坐标值,**需要记录**
+    /// X方向通光孔的圆心坐标.
     /// </summary>
     public CgPoint CgFFBoxTurnXLightHoleCircleCenterCh3 { get; set; }
 
     /// <summary>
-    /// X方向通光孔，算出来的圆形半径,**需要记录**
+    /// X方向通光孔的半径.
     /// </summary>
     public double CgFFBoxTurnXLightHoleCircleRadiusCh3 { get; set; }
 

@@ -105,7 +105,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="CH3 X Push">
+        <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.XPushItem.Document, Mode=OneWay}" />
             </Border>

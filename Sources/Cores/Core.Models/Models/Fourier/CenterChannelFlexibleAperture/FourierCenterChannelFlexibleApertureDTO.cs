@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using Core.Models.Extensions;
 using Core.Wcf.Models.Fourier;
 using Local.SQL.Cache.Providers.Bases;

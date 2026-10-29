@@ -312,7 +312,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken).ConfigureAwait(false));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -399,8 +399,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             fourierPupilCameraAlignmentItem.ROI.ImageROI,
-            XPushKind = SelectedYRodItem?.CenterChannelMotionKindEnum,
-            YRodAngle = SelectedXPushItem?.AngleMotorAbsoluteValue,
+            XPushKind = SelectedXPushItem?.CenterChannelMotionKindEnum,
+            YRodAngle = SelectedYRodItem?.AngleMotorAbsoluteValue,
             configuration.CenterPushMinMotorAbsoluteValue,
             configuration.CenterPushMaxMotorAbsoluteValue,
             configuration.CenterYMinMotorAbsoluteValue,

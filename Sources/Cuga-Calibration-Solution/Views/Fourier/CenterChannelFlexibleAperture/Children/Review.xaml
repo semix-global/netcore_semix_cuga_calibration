@@ -159,7 +159,7 @@
                                          IsReadOnly="True"
                                          Background="{StaticResource SecondaryRegionBrush}"
                                          Style="{StaticResource TextBoxExtend}" />
-                                <TextBox Text="{Binding Review.XOriginPositionItem.XOriginROI.ImageROI, Converter={StaticResource RectToStringConverter}, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XOriginPositionItem.XOriginROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
                                          hc:TitleElement.Title="Origin Rect(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"

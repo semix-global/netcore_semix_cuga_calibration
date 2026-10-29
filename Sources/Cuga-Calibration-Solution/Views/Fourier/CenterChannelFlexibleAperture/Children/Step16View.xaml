@@ -54,20 +54,20 @@
                                           Increment="0.001"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[3].Width, Mode=TwoWay}" />
+                                          Value="{Binding CalibratingItem.YRodItems[3].Width}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Height(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"
                                           Minimum="0"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[3].Height, Mode=TwoWay}" />
+                                          Value="{Binding CalibratingItem.YRodItems[3].Height}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Angle(°): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
                                           Increment="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding CalibratingItem.YRodItems[3].AngleMotorAbsoluteValue, Mode=TwoWay}" />
+                                          Value="{Binding CalibratingItem.YRodItems[3].AngleMotorAbsoluteValue}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step 0 Position(mm): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"

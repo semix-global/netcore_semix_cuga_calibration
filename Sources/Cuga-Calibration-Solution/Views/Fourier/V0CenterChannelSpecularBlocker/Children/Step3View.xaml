@@ -49,7 +49,7 @@
                                   ItemsSource="{Binding YRodItems, Mode=OneWay}"
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
-                                  SelectedValue="{Binding SelectedYRodItem, Mode=TwoWay}" />
+                                  SelectedValue="{Binding SelectedYRodItem}" />
                         <ComboBox hc:TitleElement.Title="X Push: "
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
@@ -57,7 +57,7 @@
                                   ItemsSource="{Binding XPushItems, Mode=OneWay}"
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
-                                  SelectedValue="{Binding SelectedXPushItem, Mode=TwoWay}" />
+                                  SelectedValue="{Binding SelectedXPushItem}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

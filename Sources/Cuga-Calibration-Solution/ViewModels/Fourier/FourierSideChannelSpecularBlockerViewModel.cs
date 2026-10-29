@@ -298,13 +298,13 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, cancellationToken).ConfigureAwait(false));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step4Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, cancellationToken).ConfigureAwait(false));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]

@@ -125,7 +125,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="CH3 Y 60 Degree Aperture">
+        <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YApertureItem.Document, Mode=OneWay}" />
             </Border>
