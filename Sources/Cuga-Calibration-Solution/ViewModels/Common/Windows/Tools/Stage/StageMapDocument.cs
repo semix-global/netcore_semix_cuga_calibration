@@ -1,4 +1,4 @@
-﻿using Net.Utilities.Graphics;
+using Net.Utilities.Graphics;
 using Net.Utilities.Graphics.Editors;
 using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;
@@ -21,5 +21,17 @@ public sealed class StageMapDocument : CanvasDocument
         DieModel = ModelStorages.GetOrAddLayer<StageMapDie>(DieLayer);
 
         BackgroundEditor.GetOrAdd<StageMapSelectionBackgroundEditor>(Edit);
+    }
+
+    public void Reset()
+    {
+        WaferModel.Clear();
+        DieModel.Clear();
+
+        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
+
+        Edit.SelectedItems.Clear();
+
+        Transients.Clear();
     }
 }

@@ -39,7 +39,7 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
             ("ROI editing: Only visible and unlocked ROIs can be edited.", SubTitleTextStyle, SubTitleForegroundStyle),
             ("Enter / Ctrl + S: Save and exit; Esc: Discard changes and exit.", BodyTextStyle, ShortcutForegroundStyle),
             ("Ctrl + Z: Undo; Ctrl + Shift + Z: Redo.", BodyTextStyle, ShortcutForegroundStyle),
-            ("Tab: Show / hide this help panel.", BodyTextStyle, ShortcutForegroundStyle),
+            ("H(Help): Show / hide this help panel.", BodyTextStyle, ShortcutForegroundStyle),
             ("Select ROIs(Mouse): Left-Click a ROI or drag a selection box; Ctrl + Left-Click / drag box: toggle; Ctrl + A: select all.", BodyTextStyle, BodyForegroundStyle),
             ($"Move ROIs(Mouse): {options.BitmapImageROIDragMoveTypeEnum switch
             {
@@ -57,7 +57,7 @@ public sealed class BitmapImageROIEditInformationDrawable(ModifyBitmapImageROIDr
                 _ => $"Alt + ↑↓←→ step: {options.KeyboardMoveStep} px; Ctrl + Alt + ↑↓←→: 10x step; (all directions)."
             }}", BodyTextStyle, BodyShortcutForegroundStyle),
             ($"Resize ROIs(Keyboard): ↑↓←→: bottom / left edge; Shift + ↑↓←→: top / right edge (step: {options.KeyboardResizeStep} px); Ctrl or (Ctrl + Shift) + ↑↓←→ : 10x step.", BodyTextStyle, BodyShortcutForegroundStyle),
-            (options.IsDeleteEnabled ? "Delete ROIs(Keyboard): Delete: hide the selected ROIs (undo with Ctrl + Z)" : "Delete ROIs: Disabled.", BodyTextStyle, BodyShortcutForegroundStyle),
+            (options.IsDeleteEnabled ? "Delete ROIs(Keyboard): Delete: hide the selected ROIs (undo with Ctrl + Z)" : "Delete ROIs: Disabled.", BodyTextStyle, BodyShortcutForegroundStyle)
         ];
 
         if (string.IsNullOrWhiteSpace(options.Title) == false) lines.Insert(0, (options.Title, TitleTextStyle, TitleForegroundStyle));

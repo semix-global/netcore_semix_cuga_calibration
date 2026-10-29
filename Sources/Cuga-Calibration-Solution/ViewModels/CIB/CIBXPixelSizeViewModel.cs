@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -496,14 +495,17 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     {
                         await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                        tasks[index] = ResolveCIBXPixelSizeSlideItemAsync(
-                            itemItem,
-                            templateId,
-                            templateImageSize,
-                            templateMatchScoreThreshold,
-                            detectImageDirectory,
-                            semaphore,
-                            cancellationToken);
+                        tasks[index] = Task.Run(async () =>
+                        {
+                            await ResolveCIBXPixelSizeSlideItemAsync(
+                                itemItem,
+                                templateId,
+                                templateImageSize,
+                                templateMatchScoreThreshold,
+                                detectImageDirectory,
+                                semaphore,
+                                cancellationToken).ConfigureAwait(false);
+                        }, cancellationToken);
 
                         index++;
                     }

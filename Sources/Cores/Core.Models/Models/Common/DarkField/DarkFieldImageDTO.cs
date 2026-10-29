@@ -12,6 +12,7 @@ using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -130,7 +131,7 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        using var hImage = RAWImageFactoryV2.CreateImage(RawImageFilePath, IsToLiner);
+        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, IsToLiner);
 
         return hImage.ToBitmapImage(IsToLiner ? 16 : 12);
     }

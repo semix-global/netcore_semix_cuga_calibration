@@ -61,13 +61,24 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
 
         var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
+        var imageRect = Options.GetImageRect();
 
         var builder = ImmutableDictionary.CreateBuilder<BitmapImageROIDrawable, ROIState>();
 
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
         {
-            bitmapImageROIDrawable.Rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound().ClampToBounds(Options.GetImageRect());
+            var rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound();
+            if (Options.IsOutsideImageAllowed)
+            {
+                // 保留取整后的尺寸, 仅将完全脱离图片的ROI平移到最近的接触位置.
+                rect += new Vector(
+                    Math.Clamp(0d, Math.Ceiling(imageRect.XMin - rect.XMax), Math.Floor(imageRect.XMax - rect.XMin)),
+                    Math.Clamp(0d, Math.Ceiling(imageRect.YMin - rect.YMax), Math.Floor(imageRect.YMax - rect.YMin)));
+            }
+            else rect = rect.ClampToBounds(imageRect);
+
+            bitmapImageROIDrawable.Rect = rect;
             bitmapImageROIDrawable.IsEditorModified = false;
             builder.Add(bitmapImageROIDrawable, ROIState.From(bitmapImageROIDrawable));
         }
@@ -83,8 +94,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorChanged(Point point)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         DoPrompt(point.ToString(Edit.Document.Settings.NumberFormat));
 
         if (_isCursorDown == false) return;
@@ -105,8 +114,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorDownInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Pressed) == false) return;
 
         _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
@@ -197,8 +204,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void CursorUpInput(EventInputArgs<CursorEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.CheckIsCursorButtonEnum(CursorButtonEnum.Left, CursorButtonStateEnum.Released) == false) return;
 
         if (_selectionWindow is not null)
@@ -216,8 +221,6 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
     protected override void KeyDownInput(EventInputArgs<KeyEventArgs, Unit> eventInputArgs)
     {
-        using var scope = Edit.Document.View.Sync.EnterScope();
-
         if (eventInputArgs.Event.KeyEnum == KeyEnum.A && eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control))
         {
             CommitToHistory();
@@ -265,9 +268,9 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             return;
         }
 
-        if (eventInputArgs.Event.KeyEnum == KeyEnum.Tab)
+        if (eventInputArgs.Event.KeyEnum == KeyEnum.H)
         {
-            // Tab 切换显示 / 隐藏 ROI 编辑说明信息
+            // H(Help) 切换显示 / 隐藏 ROI 编辑说明信息
             if (_editInformationDrawable is not null)
             {
                 if (Edit.Document.Transients.Contains(_editInformationDrawable)) Edit.Document.Transients.Remove(_editInformationDrawable);
@@ -629,21 +632,36 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             .WithX((dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.X) == BitmapImageROIDragMoveTypeEnum.X ? delta.X : 0)
             .WithY((dragMoveTypeEnum & BitmapImageROIDragMoveTypeEnum.Y) == BitmapImageROIDragMoveTypeEnum.Y ? delta.Y : 0);
 
-        // 强制移动的范围: 用全部选中ROI的外接范围计算共同位移边界, 避免任何对象越过图片边缘
-        var minX = _edits.Min(t => t.OriginalState.Rect.XMin);
-        var maxX = _edits.Max(t => t.OriginalState.Rect.XMax);
-        var minY = _edits.Min(t => t.OriginalState.Rect.YMin);
-        var maxY = _edits.Max(t => t.OriginalState.Rect.YMax);
+        Vector constrainedDelta;
+        if (Options.IsOutsideImageAllowed)
+        {
+            // 对每个ROI的接触范围求交, 用共同的整像素位移保持尺寸和相对位置.
+            var minDeltaX = Math.Ceiling(_edits.Max(t => imageRect.XMin - t.OriginalState.Rect.XMax));
+            var maxDeltaX = Math.Floor(_edits.Min(t => imageRect.XMax - t.OriginalState.Rect.XMin));
+            var minDeltaY = Math.Ceiling(_edits.Max(t => imageRect.YMin - t.OriginalState.Rect.YMax));
+            var maxDeltaY = Math.Floor(_edits.Min(t => imageRect.YMax - t.OriginalState.Rect.YMin));
 
-        var constrainedDelta = new Vector(
-            Math.Clamp(delta.X, imageRect.XMin - minX, imageRect.XMax - maxX),
-            Math.Clamp(delta.Y, imageRect.YMin - minY, imageRect.YMax - maxY));
+            constrainedDelta = new Vector(
+                Math.Clamp(Math.Floor(delta.X), minDeltaX, maxDeltaX),
+                Math.Clamp(Math.Ceiling(delta.Y), minDeltaY, maxDeltaY));
+        }
+        else
+        {
+            // 用全部选中ROI的外接范围计算共同位移边界, 避免任何对象越过图片边缘.
+            var minX = _edits.Min(t => t.OriginalState.Rect.XMin);
+            var maxX = _edits.Max(t => t.OriginalState.Rect.XMax);
+            var minY = _edits.Min(t => t.OriginalState.Rect.YMin);
+            var maxY = _edits.Max(t => t.OriginalState.Rect.YMax);
+
+            constrainedDelta = new Vector(
+                Math.Clamp(delta.X, imageRect.XMin - minX, imageRect.XMax - maxX),
+                Math.Clamp(delta.Y, imageRect.YMin - minY, imageRect.YMax - maxY));
+        }
 
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
-            bitmapImageROIDrawable.Rect = (originalState.Rect + constrainedDelta)
-                .ImageCoordinateRound()
-                .ClampToBounds(imageRect);
+            var modifiedRect = (originalState.Rect + constrainedDelta).ImageCoordinateRound();
+            bitmapImageROIDrawable.Rect = Options.IsOutsideImageAllowed ? modifiedRect : modifiedRect.ClampToBounds(imageRect);
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
     }
@@ -688,6 +706,15 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             var yMin = Math.Min(originalRect.YMin + constrainedDelta.Y, originalRect.YMax);
             var yMax = Math.Max(originalRect.YMax + constrainedDelta.Y, originalRect.YMin);
 
+            if (Options.IsOutsideImageAllowed)
+            {
+                // 只限制活动边不能完全脱离图片, 保留图片外的固定边和向外扩张的空间.
+                xMin = Math.Min(xMin, Math.Floor(imageRect.XMax));
+                xMax = Math.Max(xMax, Math.Ceiling(imageRect.XMin));
+                yMin = Math.Min(yMin, Math.Floor(imageRect.YMax));
+                yMax = Math.Max(yMax, Math.Ceiling(imageRect.YMin));
+            }
+
             var modifiedRect = _resizeJoystickStateEnum switch
             {
                 BitmapImageROIResizeJoystickStateEnum.None => originalRect,
@@ -718,9 +745,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            modifiedRect = modifiedRect
-                .ImageCoordinateRound()
-                .ClampToBounds(imageRect);
+            modifiedRect = modifiedRect.ImageCoordinateRound();
+            if (Options.IsOutsideImageAllowed == false) modifiedRect = modifiedRect.ClampToBounds(imageRect);
 
             if (Options.IsAspectRatioFixed && originalRect is { Width: > 0d, Height: > 0d })
             {
@@ -730,6 +756,31 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
                 if (width > height * aspectRatio) width = height * aspectRatio;
                 else if (width < height * aspectRatio) height = width / aspectRatio; // height > width / aspectRatio
+
+                if (Options.IsOutsideImageAllowed)
+                {
+                    // 比例联动也可能使另一轴脱离图片, 按固定边或固定中心计算仍能接触的最小尺寸.
+                    var minimumWidth = _resizeJoystickStateEnum switch
+                    {
+                        BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMinYCenter
+                            => Math.Max(0d, originalRect.XMax - Math.Floor(imageRect.XMax)),
+                        BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYCenter
+                            => Math.Max(0d, Math.Ceiling(imageRect.XMin) - originalRect.XMin),
+                        _ => 2d * Math.Max(0d, Math.Max(Math.Ceiling(imageRect.XMin) - originalRect.Center.X, originalRect.Center.X - Math.Floor(imageRect.XMax)))
+                    };
+                    var minimumHeight = _resizeJoystickStateEnum switch
+                    {
+                        BitmapImageROIResizeJoystickStateEnum.XMinYMin or BitmapImageROIResizeJoystickStateEnum.XMaxYMin or BitmapImageROIResizeJoystickStateEnum.XCenterYMin
+                            => Math.Max(0d, originalRect.YMax - Math.Floor(imageRect.YMax)),
+                        BitmapImageROIResizeJoystickStateEnum.XMinYMax or BitmapImageROIResizeJoystickStateEnum.XMaxYMax or BitmapImageROIResizeJoystickStateEnum.XCenterYMax
+                            => Math.Max(0d, Math.Ceiling(imageRect.YMin) - originalRect.YMin),
+                        _ => 2d * Math.Max(0d, Math.Max(Math.Ceiling(imageRect.YMin) - originalRect.Center.Y, originalRect.Center.Y - Math.Floor(imageRect.YMax)))
+                    };
+
+                    // 同时保护两轴的触图下限, 避免浮点误差在像素取整后造成完全分离.
+                    width = Math.Max(width, Math.Max(minimumWidth, minimumHeight * aspectRatio));
+                    height = Math.Max(height, Math.Max(minimumHeight, minimumWidth / aspectRatio));
+                }
 
                 var point = _resizeJoystickStateEnum switch
                 {
@@ -745,9 +796,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
                 };
 
-                modifiedRect = new Rect(point, new Size(width, height))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(imageRect); // 取整和夹取可能会有每边 ±1px
+                modifiedRect = new Rect(point, new Size(width, height)).ImageCoordinateRound();
+                if (Options.IsOutsideImageAllowed == false) modifiedRect = modifiedRect.ClampToBounds(imageRect); // 取整和夹取可能会有每边 ±1px
             }
 
             bitmapImageROIDrawable.Rect = modifiedRect;

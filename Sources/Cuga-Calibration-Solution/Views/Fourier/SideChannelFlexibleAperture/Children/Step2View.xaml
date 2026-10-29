@@ -1,6 +1,8 @@
 <UserControl x:Class="CugaCalibration.Views.Fourier.SideChannelFlexibleAperture.Children.Step2View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -10,6 +12,13 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -44,14 +53,14 @@
                 <hc:Shield Subject="Laser Light: "
                            Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Haze BF Machine Position(um): "
-                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step0/Step1 Motor: "
                            Status="{Binding Cache.Step0AndStep1MotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step2 Motor: "
                            Status="{Binding Cache.Step2MotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -76,10 +85,50 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="Channel 1 Even Image">
             <TabControl>
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
                 <TabItem Header="Edit Even">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel1Item.EvenItem.Document, Mode=OneWay}" />
-                    </Border>
+                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel1Item.EvenItem, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="Image">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 0">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <TextBox Text="{Binding Step0LeftRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Left Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Step0RightRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Right Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 1">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step1Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 2">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step2Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
             </TabControl>
         </GroupBox>

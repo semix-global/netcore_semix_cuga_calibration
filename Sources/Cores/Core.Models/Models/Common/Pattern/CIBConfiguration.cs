@@ -13,7 +13,7 @@ public sealed partial class CIBConfiguration : ObservableObject, ICloneable<CIBC
     public partial bool IsAutoGainControl { get; set; } = true;
 
     [ObservableProperty]
-    public partial bool IsL0K { get; set; }
+    public partial bool IsL0K { get; set; } = true;
 
     [ObservableProperty]
     public partial CIBProfileModeEnum CIBProfileMode { get; set; } = CIBProfileModeEnum.PMTLog;

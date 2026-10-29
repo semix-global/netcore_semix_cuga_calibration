@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
@@ -25,9 +24,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
     public partial int VerifyImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double ExtinctionRatioThreshold { get; set; } = 0.2;
-
-    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+    public partial double ExtinctionRatioThreshold { get; set; } = 0.6;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem> Items { get; init; } = [];
@@ -43,7 +40,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCache : Calibra
         VerifyImageWidth = VerifyImageWidth,
         ExtinctionRatioThreshold = ExtinctionRatioThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>(x.Key.Clone(), x.Value.Clone()))),
-        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -61,12 +57,10 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCacheItem : Cal
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 20d;
+    public partial double ScanLength { get; set; } = 3d;
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }
-
-    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     public override V0FourierCenterChannelSpecularBlockerCacheItem Clone() => new()
     {
@@ -75,7 +69,6 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerCacheItem : Cal
         OpticsConfiguration = OpticsConfiguration.Clone(),
         ScanLength = ScanLength,
         ShinyWaferFindBFMachinePosition = ShinyWaferFindBFMachinePosition,
-        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

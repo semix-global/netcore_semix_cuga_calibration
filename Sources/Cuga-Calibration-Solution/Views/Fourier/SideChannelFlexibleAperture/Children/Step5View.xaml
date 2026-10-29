@@ -12,6 +12,13 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -46,14 +53,14 @@
                 <hc:Shield Subject="Laser Light: "
                            Status="{Binding Cache.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Haze BF Machine Position(um): "
-                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                           Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step0/Step1 Motor: "
                            Status="{Binding Cache.Step0AndStep1MotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Step2 Motor: "
                            Status="{Binding Cache.Step2MotorAbsoluteValue}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Haze BF Machine Position(um): "
+                           Status="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
@@ -82,19 +89,105 @@
                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                 </i:Interaction.Behaviors>
                 <TabItem Header="Edit Odd">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.OddItem.Document, Mode=OneWay}" />
-                    </Border>
+                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel2Item.OddItem, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="Image">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 0">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <TextBox Text="{Binding Step0LeftRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Left Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Step0RightRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Right Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 1">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step1Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 2">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step2Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
                 <TabItem Header="Even">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.EvenItem.Document, Mode=OneWay}" />
-                    </Border>
+                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel2Item.EvenItem, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="Image">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 0">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <TextBox Text="{Binding Step0LeftRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Left Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <TextBox Text="{Binding Step0RightRod.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                             hc:TitleElement.Title="Right Rod ROI(px): "
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="190"
+                                             IsReadOnly="True"
+                                             Background="{StaticResource SecondaryRegionBrush}"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 1">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step1Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Step 2">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding Step2Rods, Mode=OneWay}" ContentTemplate="{StaticResource RodListTemplate}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
                 <TabItem Header="Result">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.Channel2Item.Document, Mode=OneWay}" />
-                    </Border>
+                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel2Item, Mode=OneWay}">
+                        <i:Interaction.Behaviors>
+                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                        </i:Interaction.Behaviors>
+                        <TabItem Header="Image">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                            </Border>
+                        </TabItem>
+                        <TabItem Header="Rod Information">
+                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                <ContentPresenter Content="{Binding RodResults, Mode=OneWay}" ContentTemplate="{StaticResource RodResultListTemplate}" />
+                            </Border>
+                        </TabItem>
+                    </TabControl>
                 </TabItem>
             </TabControl>
         </GroupBox>

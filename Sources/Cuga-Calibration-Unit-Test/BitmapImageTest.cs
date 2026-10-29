@@ -5,7 +5,6 @@ using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using System.IO;
-using Xunit.Abstractions;
 
 namespace CugaCalibrationUnitTest;
 
@@ -13,7 +12,7 @@ namespace CugaCalibrationUnitTest;
 /// BitmapImage 转 AlgoCV Image 测试：BitmapImage 默认为正向图，转换后不做转置，宽高不对调，
 /// algo(r,c) == bitmap(r,c)，像素与 HALCON 逐点一致（位深语义保留 12/16bit）。
 /// </summary>
-public class BitmapImageTest(ITestOutputHelper testOutputHelper)
+public class BitmapImageTest
 {
     [Fact]
     public void ToAlgoCVImage_With16BitRawBitmapImage_ShouldKeepUprightImage()

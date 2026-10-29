@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
 using Core.Models.Models.Microscope.CalChip;
@@ -91,13 +90,17 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelFlexibleApertureCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<V0FourierCenterChannelFlexibleApertureDTO>(cancellationToken);
 
-        var config = FourierViewModel.GetFourierConfig();
-        Cache.XMinMotorAbsoluteValue = config.CH3_X_LPOSMin;
-        Cache.XMaxMotorAbsoluteValue = config.CH3_X_LPOSMax;
-        Cache.PushMinMotorAbsoluteValue = config.CH3_X_PPOSMin;
-        Cache.PushMaxMotorAbsoluteValue = config.CH3_X_PPOSMax;
-        Cache.YMinMotorAbsoluteValue = config.CH3_Y_LPOSMin;
-        Cache.YMaxMotorAbsoluteValue = config.CH3_Y_LPOSMax;
+        var configuration = FourierViewModel.GetMotorConfiguration();
+        Cache.XMinMotorAbsoluteValue = configuration.CenterXMinMotorAbsoluteValue;
+        Cache.XMaxMotorAbsoluteValue = configuration.CenterXMaxMotorAbsoluteValue;
+        Cache.PushMinMotorAbsoluteValue = configuration.CenterPushMinMotorAbsoluteValue;
+        Cache.PushMaxMotorAbsoluteValue = configuration.CenterPushMaxMotorAbsoluteValue;
+        Cache.YMinMotorAbsoluteValue = configuration.CenterYMinMotorAbsoluteValue;
+        Cache.YMaxMotorAbsoluteValue = configuration.CenterYMaxMotorAbsoluteValue;
+
+        Guard.IsGreaterThan(Cache.XMaxMotorAbsoluteValue, Cache.XMinMotorAbsoluteValue);
+        Guard.IsGreaterThan(Cache.PushMaxMotorAbsoluteValue, Cache.PushMinMotorAbsoluteValue);
+        Guard.IsGreaterThan(Cache.YMaxMotorAbsoluteValue, Cache.YMinMotorAbsoluteValue);
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -422,7 +425,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         Guard.IsBetweenOrEqualTo(item.AngleMotorAbsoluteValue, item.DefaultAngleMotorAbsoluteValue - 10d, item.DefaultAngleMotorAbsoluteValue + 10d);
@@ -446,13 +449,19 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
         try
         {
-            SetRods(item.Step0MotorAbsoluteValue);
-            Grab(0);
+            try
+            {
+                FourierViewModel.Home(3, false);
 
-            SetRods(item.Step1MotorAbsoluteValue);
-            Grab(1);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                SetRods(item.Step0MotorAbsoluteValue);
+                Grab(0);
+                SetRods(item.Step1MotorAbsoluteValue);
+                Grab(1);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
@@ -492,26 +501,30 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
         void SetRods(double motorAbsoluteValue)
         {
-            FourierViewModel.Home(3);
+            cancellationToken.ThrowIfCancellationRequested();
 
             switch (item.CenterChannelMotionKindEnum)
             {
                 case CenterChannelMotionKindEnum.XAperture:
                 case CenterChannelMotionKindEnum.XRod:
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_X, item.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XPush(0d);
+                    FourierViewModel.SetChannel3YTurntable(0d, 0d);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XPush:
-                    FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XPush(motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
+                    FourierViewModel.SetChannel3YTurntable(0d, 0d);
 
                     break;
 
                 case CenterChannelMotionKindEnum.YAperture:
                 case CenterChannelMotionKindEnum.YRod:
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3YTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
+                    FourierViewModel.SetChannel3XTurntable(0d, 0d);
+                    FourierViewModel.SetChannel3XPush(0d);
 
                     break;
 
@@ -539,24 +552,24 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
                 hazeBFPosition,
                 Cache.ScanLength,
                 3,
-                true);
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    item.Step0ChannelImageFilePath = roiChannelImageFilePath;
+                    item.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    item.Step1ChannelImageFilePath = roiChannelImageFilePath;
+                    item.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 

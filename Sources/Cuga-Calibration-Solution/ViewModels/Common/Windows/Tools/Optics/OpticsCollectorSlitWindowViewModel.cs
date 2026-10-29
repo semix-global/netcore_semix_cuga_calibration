@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -28,8 +27,9 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using Generate = MathNet.Numerics.Generate;
+using System.IO;
 using Constants = Net.Utilities.Models.Constants;
+using Generate = MathNet.Numerics.Generate;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 

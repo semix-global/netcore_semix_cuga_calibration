@@ -332,7 +332,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
     public async Task<SxExecuteRet<List<(double X, double Ecs, double NSC)>>> GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(CancellationToken cancellationToken)
     {
-         var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
         {
             CgAutofocusTraceBufferReg.ACS_X_H,
             CgAutofocusTraceBufferReg.ECS,
@@ -352,7 +352,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
             || sxExecuteRetStopTraceBuffExec.Anything.Any(t => t.Count == 0)
             || sxExecuteRetStopTraceBuffExec.Anything[0].Count != sxExecuteRetStopTraceBuffExec.Anything[1].Count
             || sxExecuteRetStopTraceBuffExec.Anything[1].Count != sxExecuteRetStopTraceBuffExec.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double X, double Ecs, double NSC)>>("AF Trace buffer is empty", []);
-        
+
         var traceBufferList = sxExecuteRetStopTraceBuffExec.Anything
             .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
             .ToList();
@@ -362,7 +362,7 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
 
         return SxExecuteRetHelper.CreateSuccess(resultList);
     }
-    
+
     public SxExecuteRet<double> GetSensorNscRelativeZero()
     {
         var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());

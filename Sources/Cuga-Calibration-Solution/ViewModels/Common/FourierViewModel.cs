@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Exceptions;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
@@ -23,9 +22,9 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void Home(int channelId)
+    public void Home(int channelId, bool isGoToZero = true)
     {
-        var ret = calibrationFourierService.Home(channelId);
+        var ret = calibrationFourierService.Home(channelId, isGoToZero);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
@@ -56,28 +55,46 @@ public sealed class FourierViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public C2MFFRangeModel GetFourierConfig()
+    public ICalibrationFourierService.FourierMotorConfiguration GetMotorConfiguration()
     {
-        var ret = calibrationFourierService.GetFourierConfig();
+        var ret = calibrationFourierService.GetMotorConfiguration();
+
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool SetFFRPOS_CH3(FFCH ch, double pos)
+    public void SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
     {
-        var ret = calibrationFourierService.SetFFRPOS_CH3(ch, pos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+        var ret = calibrationFourierService.SetChannel3XTurntable(angleMotorAbsoluteValue, motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool SetFFLPOS_CH3(FFCH ch, double pos)
+    public void SetChannel3XPush(double motorAbsoluteValue)
     {
-        var ret = calibrationFourierService.SetFFLPOS_CH3(ch, pos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+        var ret = calibrationFourierService.SetChannel3XPush(motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public bool SetFFPPOS_CH3(FFCH ch, double pos)
+    public void SetChannel3XReflectionPush(double motorAbsoluteValue)
     {
-        var ret = calibrationFourierService.SetFFPPOS_CH3(ch, pos);
-        return ret.IsSuccess ? true : throw new CugaException(ret.ErrorMsg);
+        var ret = calibrationFourierService.SetChannel3XReflectionPush(motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChannel3XDiffractionPush(double motorAbsoluteValue)
+    {
+        var ret = calibrationFourierService.SetChannel3XDiffractionPush(motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue)
+    {
+        var ret = calibrationFourierService.SetChannel3YTurntable(angleMotorAbsoluteValue, motorAbsoluteValue);
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
     public void UseSimulatorImage(string? simulatorImageFilePath)

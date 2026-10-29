@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
+
 #else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
@@ -260,6 +261,22 @@ public sealed partial class ProductivityInformation :
     };
 
     #endregion Mapper
+
+    public object ToHtmlAnonymous() => new
+    {
+        Name,
+        OpticsIlluminationModeEnum,
+        OpticsMagType,
+        StageSpeedType,
+        XPixelSize,
+        YPixelSize,
+        YPixels,
+        OriginYPixels,
+        OriginYPixelsStartIndex,
+        OriginYPixelsEndIndex,
+        SampleRate,
+        XSpeedValue
+    };
 
     private sealed class ProductivityInformationConverter : JsonConverter<ProductivityInformation?>
     {

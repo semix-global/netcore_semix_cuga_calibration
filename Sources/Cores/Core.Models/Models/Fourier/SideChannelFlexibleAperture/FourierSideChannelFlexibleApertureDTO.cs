@@ -20,11 +20,11 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
     public FourierSideChannelFlexibleApertureDTOItem Channel2Item { get; private init; }
 
-    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1ImageFilePath, string channel2ImageFilePath)
+    public FourierSideChannelFlexibleApertureDTO(int rodTotalCount, string channel1FourierImageFilePath, string channel2FourierImageFilePath)
     {
         _rodTotalCount = rodTotalCount;
-        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 1, channel1ImageFilePath);
-        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 2, channel2ImageFilePath);
+        Channel1Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 1, channel1FourierImageFilePath);
+        Channel2Item = new FourierSideChannelFlexibleApertureDTOItem(rodTotalCount, 2, channel2FourierImageFilePath);
     }
 
     public FourierSideChannelFlexibleApertureDTO() : this(DefaultRodTotalCount, string.Empty, string.Empty)
@@ -47,7 +47,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
 
 #pragma warning disable IDISP003
 
-    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, Channel1Item.ChannelImageFilePath, Channel2Item.ChannelImageFilePath)
+    public override FourierSideChannelFlexibleApertureDTO Clone() => new(_rodTotalCount, Channel1Item.FourierImageFilePath, Channel2Item.FourierImageFilePath)
     {
         Channel1Item = Channel1Item.Clone(),
         Channel2Item = Channel2Item.Clone(),
@@ -103,14 +103,14 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
             CgFFBoxBeginPositionCh2 = channel2FirstRod.MinImageROI.Point.ToCgPoint(),
             CgFFBoxEndPositionCh1 = channel1LastRod.MinImageROI.Point.ToCgPoint(),
             CgFFBoxEndPositionCh2 = channel2LastRod.MinImageROI.Point.ToCgPoint(),
-            CgFFBoxBeginNumber1Ch1 = channel1FirstRod.Index,
-            CgFFBoxBeginNumber2Ch1 = channel1FirstRod.Index,
-            CgFFBoxBeginNumber1Ch2 = channel2FirstRod.Index,
-            CgFFBoxBeginNumber2Ch2 = channel2FirstRod.Index,
-            CgFFBoxEndNumber1Ch1 = channel1LastRod.Index,
-            CgFFBoxEndNumber2Ch1 = channel1LastRod.Index,
-            CgFFBoxEndNumber1Ch2 = channel2LastRod.Index,
-            CgFFBoxEndNumber2Ch2 = channel2LastRod.Index,
+            CgFFBoxBeginNumber1Ch1 = channel1FirstRod.Index + 1,
+            CgFFBoxBeginNumber2Ch1 = channel1FirstRod.Index + 1,
+            CgFFBoxBeginNumber1Ch2 = channel2FirstRod.Index + 1,
+            CgFFBoxBeginNumber2Ch2 = channel2FirstRod.Index + 1,
+            CgFFBoxEndNumber1Ch1 = channel1LastRod.Index + 1,
+            CgFFBoxEndNumber2Ch1 = channel1LastRod.Index + 1,
+            CgFFBoxEndNumber1Ch2 = channel2LastRod.Index + 1,
+            CgFFBoxEndNumber2Ch2 = channel2LastRod.Index + 1,
             CgFFBoxRodWidthListCh1 = [.. channel1ItemRodResults.Select(t => ((RectI)t.MinImageROI).Width)],
             CgFFBoxRodWidthListCh2 = [.. channel2ItemRodResults.Select(t => ((RectI)t.MinImageROI).Width)],
             CgFFBoxHeightRelationPercentListCh1 = [.. channel1ItemRodResults.Select(t => t.PixelSize)],

@@ -24,7 +24,7 @@ public sealed partial class FourierSideChannelSpecularBlockerCache : Calibration
     public partial int VerifyImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double ExtinctionRatioThreshold { get; set; } = 0.2;
+    public partial double ExtinctionRatioThreshold { get; set; } = 0.6;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, FourierSideChannelSpecularBlockerCacheItem> Items { get; init; } = [];
@@ -57,7 +57,7 @@ public sealed partial class FourierSideChannelSpecularBlockerCacheItem : Calibra
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    public partial double ScanLength { get; set; } = 20d;
+    public partial double ScanLength { get; set; } = 3d;
 
     [ObservableProperty]
     public partial Point ShinyWaferFindBFMachinePosition { get; set; }

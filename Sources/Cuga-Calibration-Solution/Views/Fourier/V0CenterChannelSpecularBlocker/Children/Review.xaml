@@ -11,7 +11,8 @@
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
              xmlns:v0CenterChannelSpecularBlocker="clr-namespace:Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:V0FourierCenterChannelSpecularBlockerViewModel}"
-             d:DesignWidth="1920" d:DesignHeight="1080"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -125,13 +126,17 @@
                                     <Setter Property="VerticalContentAlignment" Value="Center" />
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
-                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
-                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.AngleMotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Y Rod Position(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.MotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="X Push Position(mm)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.MotorAbsoluteValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation, Mode=OneWay}" />
+                            <GridViewColumn Header="Y Rod ROI(px)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                            <GridViewColumn Header="Y Rod Angle(°)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.AngleMotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Rod Position(mm)" DisplayMemberBinding="{Binding Channel3Item.YRodROI.MotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Y Rod Selected" DisplayMemberBinding="{Binding Channel3Item.YRodROI.IsSelected, Mode=OneWay}" />
+                            <GridViewColumn Header="X Push ROI(px)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                            <GridViewColumn Header="X Push Position(mm)" DisplayMemberBinding="{Binding Channel3Item.XPushROI.MotorAbsoluteValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="X Push Selected" DisplayMemberBinding="{Binding Channel3Item.XPushROI.IsSelected, Mode=OneWay}" />
+                            <GridViewColumn Header="Ch3 Step0 CIB" DisplayMemberBinding="{Binding Channel3Item.Step0CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Step1 CIB" DisplayMemberBinding="{Binding Channel3Item.Step1CIBImageAverageValue, Mode=OneWay, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch3 Extinction Ratio" DisplayMemberBinding="{Binding Channel3Item.ExtinctionRatio, Mode=OneWay, StringFormat='0.########'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -163,7 +168,7 @@
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.Document, Mode=OneWay}" />
                                                     </Border>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel3Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>

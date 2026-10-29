@@ -12,6 +12,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using System.IO;
 
 namespace Core.Models.Models.Fourier.SideChannelSpecularBlocker;
 
@@ -111,13 +112,12 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
         Document.Reset();
 
         foreach (var rod in Rods) rod.BitmapImageROIDrawable.Text = $"{rod.Index + 1}";
+        foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
 
     private void ResetCIBDocument()
     {
         CIBDocument.Reset();
-
-        foreach (var rod in Rods) _step1FourierROIDrawables[rod.Index].Text = $"{rod.Index + 1}";
     }
 
     #region Mapper
@@ -208,6 +208,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 {
                     Title = $"Adjust rod height on the Channel{ChannelId} Fourier image.",
                     BitmapImageROIDragMoveTypeEnum = BitmapImageROIDragMoveTypeEnum.None,
+                    IsOutsideImageAllowed = true,
                     IsDeleteEnabled = false,
                     CancellationToken = cancellationToken
                 });
@@ -241,12 +242,19 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
 
                 var rodResult = fourierSideChannelFlexibleApertureItem.RodResults.Single(t => t.Index == rod.Index);
 
+                Guard.IsTrue(double.IsFinite(rodResult.PixelSize) && rodResult.PixelSize != 0d);
+
                 rod.BitmapImageROIDrawable.IsFixed = true;
                 rod.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(rod.BitmapImageROIDrawable.Rect);
                 rod.MotorAbsoluteValue = Math.Clamp(
                     fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue + (rod.ImageROI.Height - rodResult.MinImageROI.Height) * rodResult.PixelSize,
                     fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue,
                     fourierSideChannelFlexibleApertureItem.MaxMotorAbsoluteValue);
+
+                // 侧通道由固定顶边的高度变化标定电机位移, 限位后反算高度并同步显示.
+                var height = rodResult.MinImageROI.Height + (rod.MotorAbsoluteValue - fourierSideChannelFlexibleApertureItem.MinMotorAbsoluteValue) / rodResult.PixelSize;
+                rod.ImageROI = new Rect(rod.ImageROI.Point, new Size(rod.ImageROI.Width, height)).ImageCoordinateRound();
+                rod.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(rod.ImageROI);
             }
         }
         finally
@@ -296,11 +304,11 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
             if (string.IsNullOrWhiteSpace(Step0CIBImageFilePath)) return;
 
             _step0CIBBitmapImageDrawable.Point = Point.Origin;
-            _step0CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep0CIBImageFilePath);
+            _step0CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(File.Exists(RawStep0CIBImageFilePath) ? RawStep0CIBImageFilePath : Step0CIBImageFilePath);
 
             if (string.IsNullOrWhiteSpace(Step1CIBImageFilePath)) return;
 
-            _step1CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(RawStep1CIBImageFilePath);
+            _step1CIBBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(File.Exists(RawStep1CIBImageFilePath) ? RawStep1CIBImageFilePath : Step1CIBImageFilePath);
             _step1CIBBitmapImageDrawable.Point = _step0CIBBitmapImageDrawable.Point - new Vector(0d, _step0CIBBitmapImageDrawable.BitmapImage.Height + 10d);
         }
         finally

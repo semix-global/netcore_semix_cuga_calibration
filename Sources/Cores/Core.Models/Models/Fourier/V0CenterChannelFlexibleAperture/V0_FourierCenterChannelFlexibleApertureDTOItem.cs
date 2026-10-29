@@ -38,10 +38,10 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
     public partial double Step1MotorAbsoluteValue { get; set; }
 
     [ObservableProperty]
-    public partial string Step0ChannelImageFilePath { get; set; } = string.Empty;
+    public partial string Step0FourierImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string Step1ChannelImageFilePath { get; set; } = string.Empty;
+    public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
     public FourierPupilCameraAlignmentDTO.ROI Step0ROI { get; }
 
@@ -113,8 +113,8 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
             AngleMotorAbsoluteValue = AngleMotorAbsoluteValue,
             Step0MotorAbsoluteValue = Step0MotorAbsoluteValue,
             Step1MotorAbsoluteValue = Step1MotorAbsoluteValue,
-            Step0ChannelImageFilePath = Step0ChannelImageFilePath,
-            Step1ChannelImageFilePath = Step1ChannelImageFilePath,
+            Step0FourierImageFilePath = Step0FourierImageFilePath,
+            Step1FourierImageFilePath = Step1FourierImageFilePath,
             PixelSize = PixelSize
         };
 
@@ -130,8 +130,8 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
 
     public void Reset()
     {
-        Step0ChannelImageFilePath = string.Empty;
-        Step1ChannelImageFilePath = string.Empty;
+        Step0FourierImageFilePath = string.Empty;
+        Step1FourierImageFilePath = string.Empty;
 
         Step0ROI.Reset();
         Step1ROI.Reset();
@@ -146,12 +146,12 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
         {
             Document.Reset();
 
-            Guard.IsNotNullOrWhiteSpace(Step0ChannelImageFilePath);
-            Guard.IsNotNullOrWhiteSpace(Step1ChannelImageFilePath);
+            Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
+            Guard.IsNotNullOrWhiteSpace(Step1FourierImageFilePath);
 
-            _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
+            _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
 
-            _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+            _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
             _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
             Document.View.ZoomToFit();
@@ -222,6 +222,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
                     },
                     IsDeleteEnabled = false,
                     IsAspectRatioFixed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
+                    IsOutsideImageAllowed = true,
                     CancellationToken = cancellationToken
                 });
 
@@ -306,6 +307,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
                     },
                     IsDeleteEnabled = false,
                     IsAspectRatioFixed = CenterChannelMotionKindEnum is CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture,
+                    IsOutsideImageAllowed = true,
                     CancellationToken = cancellationToken
                 });
 
@@ -399,11 +401,11 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
         {
             Document.Reset();
 
-            if (string.IsNullOrWhiteSpace(Step0ChannelImageFilePath) || string.IsNullOrWhiteSpace(Step1ChannelImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(Step0FourierImageFilePath) || string.IsNullOrWhiteSpace(Step1FourierImageFilePath)) return;
 
-            _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
+            _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
 
-            _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+            _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
             _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
             RestoreFindItem(Step0ROI, _step0BitmapImageDrawable);
@@ -433,10 +435,10 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
         AngleMotorAbsoluteValue,
         Step0MotorAbsoluteValue,
         Step1MotorAbsoluteValue,
-        Step0ChannelImageFilePath,
-        Step1ChannelImageFilePath,
-        Step0Image = new HtmlImage(Step0ChannelImageFilePath),
-        Step1Image = new HtmlImage(Step1ChannelImageFilePath)
+        Step0FourierImageFilePath,
+        Step1FourierImageFilePath,
+        Step0Image = new HtmlImage(Step0FourierImageFilePath),
+        Step1Image = new HtmlImage(Step1FourierImageFilePath)
     };
 
     public object ToHtmlAnonymous() => new
@@ -447,17 +449,19 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
         AngleMotorAbsoluteValue,
         Step0MotorAbsoluteValue,
         Step1MotorAbsoluteValue,
-        Step0ChannelImageFilePath,
-        Step1ChannelImageFilePath,
+        Step0FourierImageFilePath,
+        Step1FourierImageFilePath,
         Step0ImageROI = Step0ROI.ImageROI,
+        Step0ImageEllipse = Step0ROI.BitmapImageROIDrawable.IsShowEllipse ? (Ellipse?)Step0ROI.ImageROI : null,
         Step1ImageROI = Step1ROI.ImageROI,
-        Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+        Step1ImageEllipse = Step1ROI.BitmapImageROIDrawable.IsShowEllipse ? (Ellipse?)Step1ROI.ImageROI : null,
+        Step0Image = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(Step0ROI.ImageROI),
             .. Step0ROI.BitmapImageROIDrawable.IsShowEllipse ? [new HtmlImageEllipseOverlay(Step0ROI.ImageROI)] : (HtmlImageEllipseOverlay[])[],
             new HtmlImageCrossOverlay(Step0ROI.ImageROI.Center)
         ]),
-        Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
+        Step1Image = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(Step1ROI.ImageROI),
             .. Step1ROI.BitmapImageROIDrawable.IsShowEllipse ? [new HtmlImageEllipseOverlay(Step1ROI.ImageROI)] : (HtmlImageEllipseOverlay[])[],

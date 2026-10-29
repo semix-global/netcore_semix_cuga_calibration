@@ -19,7 +19,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     public int ChannelId { get; }
 
-    public string ChannelImageFilePath { get; }
+    public string FourierImageFilePath { get; }
 
     public Item EvenItem { get; private init; }
 
@@ -36,12 +36,12 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
-    public FourierSideChannelFlexibleApertureDTOItem(int rodTotalCount, int channelId, string channelImageFilePath)
+    public FourierSideChannelFlexibleApertureDTOItem(int rodTotalCount, int channelId, string fourierImageFilePath)
     {
         _rodTotalCount = rodTotalCount;
 
         ChannelId = channelId;
-        ChannelImageFilePath = channelImageFilePath;
+        FourierImageFilePath = fourierImageFilePath;
         EvenItem = new Item(rodTotalCount, true);
         OddItem = new Item(rodTotalCount, false);
 
@@ -68,11 +68,11 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         [Newtonsoft.Json.JsonProperty(nameof(_rodTotalCount))]
         int rodTotalCount,
         int channelId,
-        string channelImageFilePath,
+        string fourierImageFilePath,
         Item evenItem,
         Item oddItem,
         FourierSideChannelFlexibleApertureDTO.RodResult[] rodResults)
-        : this(rodTotalCount, channelId, channelImageFilePath)
+        : this(rodTotalCount, channelId, fourierImageFilePath)
     {
         EvenItem.Dispose();
         EvenItem = evenItem;
@@ -96,7 +96,7 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
     public FourierSideChannelFlexibleApertureDTOItem Clone()
     {
-        var item = new FourierSideChannelFlexibleApertureDTOItem(_rodTotalCount, ChannelId, ChannelImageFilePath)
+        var item = new FourierSideChannelFlexibleApertureDTOItem(_rodTotalCount, ChannelId, FourierImageFilePath)
         {
             EvenItem = EvenItem.Clone(),
             OddItem = OddItem.Clone(),
@@ -131,12 +131,12 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         {
             ResetDocument();
 
-            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+            Guard.IsNotNullOrWhiteSpace(FourierImageFilePath);
 
             MinMotorAbsoluteValue = minMotorAbsoluteValue;
             MaxMotorAbsoluteValue = maxMotorAbsoluteValue;
 
-            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(FourierImageFilePath);
             Document.View.ZoomToFit();
 
             CalculateRodResults(EvenItem);
@@ -184,29 +184,29 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                          """);
                 }
 
-                rodResult.PixelSize = deltaMotorAbsoluteValue / heightDelta;
-                if (double.IsFinite(rodResult.PixelSize) == false || rodResult.PixelSize <= 0d)
+                var pixelSize = deltaMotorAbsoluteValue / heightDelta;
+                if (double.IsFinite(pixelSize) == false || pixelSize <= 0d)
                 {
                     ThrowHelper.ThrowInvalidOperationException($"""
                                                                 Channel {ChannelId}, rod {step2Rod.Index}: {(deltaMotorAbsoluteValue != 0d && ((deltaMotorAbsoluteValue < 0d && heightDelta > 0d) || (deltaMotorAbsoluteValue > 0d && heightDelta < 0d)) ? "motor displacement and ROI height change have opposite signs" : "motor displacement and ROI height change do not produce a positive PixelSize")}.
                                                                 Motor: Step1={item.Step0AndStep1MotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}, Step2-Step1={deltaMotorAbsoluteValue:0.###}.
                                                                 ROI height (px): Step1={step1Rod.ImageROI.Height:0.###}, Step2={step2Rod.ImageROI.Height:0.###}, Step2-Step1={heightDelta:0.###}.
-                                                                PixelSize = motor displacement / ROI height change = {rodResult.PixelSize:0.###} mm/px; a positive finite value is required.
+                                                                PixelSize = motor displacement / ROI height change = {pixelSize:0.###} mm/px; a positive finite value is required.
                                                                 Expected: motor displacement and ROI height change must be nonzero and have the same sign. Check the recorded motor positions, Step1/Step2 image order, and the same rod's ROI boundaries before recalibrating.
                                                                 """);
                 }
 
                 rodResult.MinImageROI = new Rect(
                         step2Rod.ImageROI.Point,
-                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize))
+                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
                     .ImageCoordinateRound()
                     .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
-
                 rodResult.MaxImageROI = new Rect(
                         step2Rod.ImageROI.Point,
-                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / rodResult.PixelSize))
+                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
                     .ImageCoordinateRound()
                     .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
+                rodResult.PixelSize = pixelSize;
             }
         }
     }
@@ -217,9 +217,9 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
         {
             ResetDocument();
 
-            if (string.IsNullOrWhiteSpace(ChannelImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(FourierImageFilePath)) return;
 
-            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(FourierImageFilePath);
 
             foreach (var rodResult in RodResults)
             {
@@ -242,16 +242,16 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
     {
         _rodTotalCount,
         ChannelId,
-        ChannelImageFilePath,
+        FourierImageFilePath,
         MinMotorAbsoluteValue,
         MaxMotorAbsoluteValue,
-        RodResults = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.PixelSize, t.MinImageROI, t.MaxImageROI })]),
-        MinResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        RodResults = new HtmlTable([.. RodResults.Select(t => new { t.Index, t.IsDeleted, t.MinImageROI, t.MaxImageROI, t.PixelSize })]),
+        MinResultImage = new HtmlImage(FourierImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MinImageROI)),
             .. RodResults.Select(t => new HtmlImageTextOverlay(t.MinImageROI.Center, t.BitmapImageROIDrawable.Text))
         ]),
-        MaxResultImage = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        MaxResultImage = new HtmlImage(FourierImageFilePath, htmlImageOverlays:
         [
             .. RodResults.Select(t => new HtmlImageRectangleOverlay(t.MaxImageROI)),
             .. RodResults.Select(t => new HtmlImageTextOverlay(t.MaxImageROI.Center, t.BitmapImageROIDrawable.Text))

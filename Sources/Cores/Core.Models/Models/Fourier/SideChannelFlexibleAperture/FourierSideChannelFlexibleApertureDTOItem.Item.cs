@@ -40,13 +40,13 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         public partial double Step2MotorAbsoluteValue { get; set; }
 
         [ObservableProperty]
-        public partial string Step0ChannelImageFilePath { get; set; } = string.Empty;
+        public partial string Step0FourierImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        public partial string Step1ChannelImageFilePath { get; set; } = string.Empty;
+        public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
         [ObservableProperty]
-        public partial string Step2ChannelImageFilePath { get; set; } = string.Empty;
+        public partial string Step2FourierImageFilePath { get; set; } = string.Empty;
 
         public FourierSideChannelFlexibleApertureDTO.Rod Step0LeftRod { get; }
 
@@ -147,9 +147,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             {
                 Step0AndStep1MotorAbsoluteValue = Step0AndStep1MotorAbsoluteValue,
                 Step2MotorAbsoluteValue = Step2MotorAbsoluteValue,
-                Step0ChannelImageFilePath = Step0ChannelImageFilePath,
-                Step1ChannelImageFilePath = Step1ChannelImageFilePath,
-                Step2ChannelImageFilePath = Step2ChannelImageFilePath
+                Step0FourierImageFilePath = Step0FourierImageFilePath,
+                Step1FourierImageFilePath = Step1FourierImageFilePath,
+                Step2FourierImageFilePath = Step2FourierImageFilePath
             };
 
             item.Step0LeftRod.AdaptIn(Step0LeftRod);
@@ -168,9 +168,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
         {
             Step0AndStep1MotorAbsoluteValue = 0d;
             Step2MotorAbsoluteValue = 0d;
-            Step0ChannelImageFilePath = string.Empty;
-            Step1ChannelImageFilePath = string.Empty;
-            Step2ChannelImageFilePath = string.Empty;
+            Step0FourierImageFilePath = string.Empty;
+            Step1FourierImageFilePath = string.Empty;
+            Step2FourierImageFilePath = string.Empty;
 
             Step0LeftRod.Reset();
             Step0RightRod.Reset();
@@ -186,19 +186,19 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             {
                 ResetDocument();
 
-                Guard.IsNotNullOrWhiteSpace(Step0ChannelImageFilePath);
-                Guard.IsNotNullOrWhiteSpace(Step1ChannelImageFilePath);
-                Guard.IsNotNullOrWhiteSpace(Step2ChannelImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step1FourierImageFilePath);
+                Guard.IsNotNullOrWhiteSpace(Step2FourierImageFilePath);
 
                 Step0AndStep1MotorAbsoluteValue = step0AndStep1MotorAbsoluteValue;
                 Step2MotorAbsoluteValue = step2MotorAbsoluteValue;
 
-                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
+                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
 
-                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
                 _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
-                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2ChannelImageFilePath);
+                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2FourierImageFilePath);
                 _step2BitmapImageDrawable.Point = _step1BitmapImageDrawable.Point - new Vector(0d, _step1BitmapImageDrawable.BitmapImage.Height + 10d);
 
                 Document.View.ZoomToFit();
@@ -234,7 +234,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                 Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
                 Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
-                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.02);
 
                 while (true)
                 {
@@ -327,7 +328,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     [.. Step1Rods.Except([step1LeftRod, step1RightRod])],
                     false);
 
-                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step1BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.02);
 
                 while (true)
                 {
@@ -470,7 +472,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     step2Rod.BitmapImageROIDrawable.IsVisible = step2Rod is { IsDeleted: false, BitmapImageROIDrawable.Rect.Width: > 0 };
                 }
 
-                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents().Expand(new Padding(10d)));
+                Document.View.SetViewBounds(_step2BitmapImageDrawable.GetExtents());
+                Document.View.Zoom(1.02);
 
                 while (true)
                 {
@@ -570,11 +573,9 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     var height = nearestVisibleRod.ImageROI.Height;
                     Guard.IsGreaterThan(height, 0d);
 
-                    var imageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
+                    invisibleRod.ImageROI = new Rect(invisibleRod.ImageROI.Point, new Size(invisibleRod.ImageROI.Width, height))
                         .ImageCoordinateRound()
                         .ClampToBounds(new Rect(Point.Origin, _step2BitmapImageDrawable.BitmapImage.Size));
-
-                    invisibleRod.ImageROI = imageROI;
                     invisibleRod.BitmapImageROIDrawable.IsFixed = true;
                     invisibleRod.BitmapImageROIDrawable.Rect = _step2BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(invisibleRod.ImageROI);
                     invisibleRod.BitmapImageROIDrawable.IsVisible = invisibleRod.BitmapImageROIDrawable.Rect is { Width: > 0 };
@@ -618,16 +619,16 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             {
                 ResetDocument();
 
-                if (string.IsNullOrWhiteSpace(Step0ChannelImageFilePath)
-                    || string.IsNullOrWhiteSpace(Step1ChannelImageFilePath)
-                    || string.IsNullOrWhiteSpace(Step2ChannelImageFilePath)) return;
+                if (string.IsNullOrWhiteSpace(Step0FourierImageFilePath)
+                    || string.IsNullOrWhiteSpace(Step1FourierImageFilePath)
+                    || string.IsNullOrWhiteSpace(Step2FourierImageFilePath)) return;
 
-                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0ChannelImageFilePath);
+                _step0BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
 
-                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1ChannelImageFilePath);
+                _step1BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step1FourierImageFilePath);
                 _step1BitmapImageDrawable.Point = _step0BitmapImageDrawable.Point - new Vector(0d, _step0BitmapImageDrawable.BitmapImage.Height + 10d);
 
-                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2ChannelImageFilePath);
+                _step2BitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step2FourierImageFilePath);
                 _step2BitmapImageDrawable.Point = _step1BitmapImageDrawable.Point - new Vector(0d, _step1BitmapImageDrawable.BitmapImage.Height + 10d);
 
                 RestoreRod(Step0LeftRod, _step0BitmapImageDrawable);
@@ -659,12 +660,12 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             Comment = new HtmlComment(StepsComment),
             _rodTotalCount,
             _isEven,
-            Step0ChannelImageFilePath,
-            Step1ChannelImageFilePath,
-            Step2ChannelImageFilePath,
-            Step0Image = new HtmlImage(Step0ChannelImageFilePath),
-            Step1Image = new HtmlImage(Step1ChannelImageFilePath),
-            Step2Image = new HtmlImage(Step2ChannelImageFilePath)
+            Step0FourierImageFilePath,
+            Step1FourierImageFilePath,
+            Step2FourierImageFilePath,
+            Step0Image = new HtmlImage(Step0FourierImageFilePath),
+            Step1Image = new HtmlImage(Step1FourierImageFilePath),
+            Step2Image = new HtmlImage(Step2FourierImageFilePath)
         };
 
         public object ToHtmlAnonymous() => new
@@ -674,26 +675,26 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
             _isEven,
             Step0AndStep1MotorAbsoluteValue,
             Step2MotorAbsoluteValue,
-            Step0ChannelImageFilePath,
-            Step1ChannelImageFilePath,
-            Step2ChannelImageFilePath,
+            Step0FourierImageFilePath,
+            Step1FourierImageFilePath,
+            Step2FourierImageFilePath,
             Step0LeftRod = new HtmlQuote(new { Step0LeftRod.Index, Step0LeftRod.IsDeleted, Step0LeftRod.ImageROI }),
             Step0RightRod = new HtmlQuote(new { Step0RightRod.Index, Step0RightRod.IsDeleted, Step0RightRod.ImageROI }),
             Step1Rods = new HtmlTable([.. Step1Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI })]),
             Step2Rods = new HtmlTable([.. Step2Rods.Select(t => new { t.Index, t.IsDeleted, t.ImageROI })]),
-            Step0Image = new HtmlImage(Step0ChannelImageFilePath, htmlImageOverlays:
+            Step0Image = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
             [
                 new HtmlImageRectangleOverlay(Step0LeftRod.ImageROI),
                 new HtmlImageRectangleOverlay(Step0RightRod.ImageROI),
                 new HtmlImageTextOverlay(Step0LeftRod.ImageROI.Center, Step0LeftRod.BitmapImageROIDrawable.Text),
                 new HtmlImageTextOverlay(Step0RightRod.ImageROI.Center, Step0RightRod.BitmapImageROIDrawable.Text)
             ]),
-            Step1Image = new HtmlImage(Step1ChannelImageFilePath, htmlImageOverlays:
+            Step1Image = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
             [
                 .. Step1Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
                 .. Step1Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))
             ]),
-            Step2Image = new HtmlImage(Step2ChannelImageFilePath, htmlImageOverlays:
+            Step2Image = new HtmlImage(Step2FourierImageFilePath, htmlImageOverlays:
             [
                 .. Step2Rods.Select(t => new HtmlImageRectangleOverlay(t.ImageROI)),
                 .. Step2Rods.Select(t => new HtmlImageTextOverlay(t.ImageROI.Center, t.BitmapImageROIDrawable.Text))

@@ -1,13 +1,11 @@
 using AwesomeAssertions;
 using AwesomeAssertions.Execution;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Optics;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;
-using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Serializations;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,15 +43,16 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         nameof(ICacheItem.ModifiedUserId),
         nameof(ICacheItem.ModifiedUserName),
         nameof(ICacheItem.ModifiedTime),
+        nameof(ICacheItem.IsDeleted),
         nameof(ObservableValidator.HasErrors)
     ];
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool useCacheSettings)
+    public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "V0FourierCenterChannelSpecularBlocker.json"));
         var expected = JObject.Parse(json);
@@ -67,11 +66,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
         saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
 
-        if (useCacheSettings == false)
-        {
-            RemoveMetadata(saved);
-            saved.Remove(nameof(ICacheItem.IsDeleted));
-        }
+        if (isUseCacheSettings == false) RemoveMetadata(saved);
 
         saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
 
@@ -98,7 +93,6 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         {
             using var scope = new AssertionScope(expected.Path);
 
-            actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected[nameof(actual.YRodROI)]!.Value<double>(nameof(actual.YRodROI.AngleMotorAbsoluteValue)));
             actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
             actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
             actual.RawStep0CIBImageFilePath.Should().Be(expected.Value<string>(nameof(actual.RawStep0CIBImageFilePath)));
@@ -117,10 +111,10 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         {
             using var scope = new AssertionScope(expected.Path);
 
+            AssertRectMatchesJson(actual.ImageROI, expected[nameof(actual.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
             actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
             actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
             actual.IsSelected.Should().Be(expected.Value<bool>(nameof(actual.IsSelected)));
-            AssertRectMatchesJson(actual.ImageROI, expected[nameof(actual.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
         }
 
         static void AssertRectMatchesJson(Rect actual, JToken expected)
@@ -160,9 +154,9 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
     [InlineData(33, false)]
     [InlineData(44, true)]
     [InlineData(55, false)]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool useCacheSettings)
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         var productivityInformations = fixture.Host.Services.GetRequiredService<ApplicationCookie>().ProductivityInformations;
         using var expected = CreateRandom(new Random(seed), productivityInformations);
@@ -173,7 +167,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.Should().NotBeNull();
         actual.HasErrors.Should().BeFalse();
 
-        AssertEquals(actual, expected, useCacheSettings);
+        AssertEquals(actual, expected, isUseCacheSettings);
         AssertIndependentItem(actual.Channel3Item, expected.Channel3Item);
 
         using var cloned = expected.Clone();
@@ -181,7 +175,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         cloned.Should().NotBeSameAs(expected);
         cloned.HasErrors.Should().BeFalse();
         AssertIndependentItem(cloned.Channel3Item, expected.Channel3Item);
-        AssertEquals(cloned, expected, useCacheSettings: false, isClone: true);
+        AssertEquals(cloned, expected, isUseCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
@@ -190,10 +184,8 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
 
         foreach (var name in IgnoreProperties)
         {
-            saved.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
+            saved.ContainsKey(name).Should().Be(isUseCacheSettings == false, "{0} persistence must follow the selected settings", name);
         }
-
-        saved.ContainsKey(nameof(ICacheItem.IsDeleted)).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", nameof(ICacheItem.IsDeleted));
 
         return;
 
@@ -211,7 +203,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
                 CreatedUserName = $"Created_{random.Next()}",
                 CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
                 ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
-                ModifiedUserName = $"Modified_{random.Next()}",
+                ModifiedUserName = $"Modified_{random.Next()}"
             };
 
             dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
@@ -219,32 +211,44 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             dto.ProductivityInformation = productivityInformations[random.Next(productivityInformations.Count)].Clone();
 
             var channel = dto.Channel3Item;
-            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
-            channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
-            channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
-            channel.XPushROI.AngleMotorAbsoluteValue = 0d;
-            channel.XPushROI.IsSelected = true;
-            channel.XPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5d) * 40d, 3);
-            channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
-            channel.XPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
             channel.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step0Fourier_{random.Next(0, 99)}.jpg";
             channel.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step1Fourier_{random.Next(0, 99)}.jpg";
             channel.RawStep0CIBImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\RawStep0CIB_{random.Next(0, 99)}.jpg";
             channel.RawStep1CIBImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\RawStep1CIB_{random.Next(0, 99)}.jpg";
             channel.Step0CIBImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step0CIB_{random.Next(0, 99)}.jpg";
             channel.Step1CIBImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Step1CIB_{random.Next(0, 99)}.jpg";
-            channel.Step0CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
-            channel.Step1CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
-            channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5d) * 4000d, 3);
+            channel.Step0CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+            channel.Step1CIBImageAverageValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+            channel.ExtinctionRatio = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+
+            channel.YRodROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3));
+            channel.YRodROI.AngleMotorAbsoluteValue = new[] { 0d, 120d, 180d, 240d, 300d }[random.Next(5)];
+            channel.YRodROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
+            channel.YRodROI.IsSelected = channel.YRodROI.AngleMotorAbsoluteValue != 0d;
+            channel.XPushROI.ImageROI = new Rect(Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 100d, 3), Math.Round(random.NextDouble() * 40d + 1d, 3), Math.Round(random.NextDouble() * 80d + 1d, 3));
+            channel.XPushROI.AngleMotorAbsoluteValue = 0d;
+            channel.XPushROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
+            channel.XPushROI.IsSelected = true;
 
             return dto;
         }
 
-        static void AssertEquals(V0FourierCenterChannelSpecularBlockerDTO actual, V0FourierCenterChannelSpecularBlockerDTO expected, bool useCacheSettings, bool isClone = false)
+        static void AssertIndependentItem(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
+        {
+            actual.Should().NotBeSameAs(expected);
+            actual.YRodROI.Should().NotBeSameAs(expected.YRodROI);
+            actual.YRodROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.YRodROI.BitmapImageROIDrawable);
+            actual.XPushROI.Should().NotBeSameAs(expected.XPushROI);
+            actual.XPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XPushROI.BitmapImageROIDrawable);
+            actual.Document.Should().NotBeSameAs(expected.Document);
+            actual.CIBDocument.Should().NotBeSameAs(expected.CIBDocument);
+        }
+
+        static void AssertEquals(V0FourierCenterChannelSpecularBlockerDTO actual, V0FourierCenterChannelSpecularBlockerDTO expected, bool isUseCacheSettings, bool isClone = false)
         {
             using var scope = new AssertionScope("DTO");
 
-            var persistAudit = useCacheSettings == false && isClone == false;
+            var isPersistAudit = isUseCacheSettings == false && isClone == false;
 
             actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
             actual.ProductivityInformation.OpticsIlluminationModeEnum.Should().Be(expected.ProductivityInformation.OpticsIlluminationModeEnum);
@@ -256,29 +260,21 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
 
-            actual.Id.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Id);
-            actual.Expiration.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Expiration);
-            actual.IsDeleted.Should().Be(persistAudit && expected.IsDeleted);
-            actual.CreatedUserId.Should().Be(persistAudit ? expected.CreatedUserId : 0L);
-            actual.CreatedUserName.Should().Be(persistAudit ? expected.CreatedUserName : string.Empty);
-            actual.CreatedTime.Should().Be(persistAudit ? expected.CreatedTime : default);
-            actual.ModifiedUserId.Should().Be(persistAudit ? expected.ModifiedUserId : 0L);
-            actual.ModifiedUserName.Should().Be(persistAudit ? expected.ModifiedUserName : string.Empty);
-            actual.ModifiedTime.Should().Be(persistAudit ? expected.ModifiedTime : default);
+            actual.Id.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Id);
+            actual.Expiration.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(isPersistAudit && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(isPersistAudit ? expected.CreatedUserId : 0L);
+            actual.CreatedUserName.Should().Be(isPersistAudit ? expected.CreatedUserName : string.Empty);
+            actual.CreatedTime.Should().Be(isPersistAudit ? expected.CreatedTime : default);
+            actual.ModifiedUserId.Should().Be(isPersistAudit ? expected.ModifiedUserId : 0L);
+            actual.ModifiedUserName.Should().Be(isPersistAudit ? expected.ModifiedUserName : string.Empty);
+            actual.ModifiedTime.Should().Be(isPersistAudit ? expected.ModifiedTime : default);
 
             AssertItemEquals(actual.Channel3Item, expected.Channel3Item);
         }
 
         static void AssertItemEquals(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
         {
-            actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected.YRodROI.AngleMotorAbsoluteValue);
-            actual.YRodROI.IsSelected.Should().Be(expected.YRodROI.IsSelected);
-            actual.YRodROI.ImageROI.Should().Be(expected.YRodROI.ImageROI);
-            actual.YRodROI.MotorAbsoluteValue.Should().Be(expected.YRodROI.MotorAbsoluteValue);
-            actual.XPushROI.AngleMotorAbsoluteValue.Should().Be(expected.XPushROI.AngleMotorAbsoluteValue);
-            actual.XPushROI.IsSelected.Should().Be(expected.XPushROI.IsSelected);
-            actual.XPushROI.ImageROI.Should().Be(expected.XPushROI.ImageROI);
-            actual.XPushROI.MotorAbsoluteValue.Should().Be(expected.XPushROI.MotorAbsoluteValue);
             actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
             actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
             actual.RawStep0CIBImageFilePath.Should().Be(expected.RawStep0CIBImageFilePath);
@@ -288,43 +284,24 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actual.Step0CIBImageAverageValue.Should().Be(expected.Step0CIBImageAverageValue);
             actual.Step1CIBImageAverageValue.Should().Be(expected.Step1CIBImageAverageValue);
             actual.ExtinctionRatio.Should().Be(expected.ExtinctionRatio);
+
+            actual.YRodROI.ImageROI.Should().Be(expected.YRodROI.ImageROI);
+            actual.YRodROI.AngleMotorAbsoluteValue.Should().Be(expected.YRodROI.AngleMotorAbsoluteValue);
+            actual.YRodROI.MotorAbsoluteValue.Should().Be(expected.YRodROI.MotorAbsoluteValue);
+            actual.YRodROI.IsSelected.Should().Be(expected.YRodROI.IsSelected);
+            actual.XPushROI.ImageROI.Should().Be(expected.XPushROI.ImageROI);
+            actual.XPushROI.AngleMotorAbsoluteValue.Should().Be(expected.XPushROI.AngleMotorAbsoluteValue);
+            actual.XPushROI.MotorAbsoluteValue.Should().Be(expected.XPushROI.MotorAbsoluteValue);
+            actual.XPushROI.IsSelected.Should().Be(expected.XPushROI.IsSelected);
         }
-    }
-
-    private static void AssertIndependentItem(V0FourierCenterChannelSpecularBlockerDTOItem actual, V0FourierCenterChannelSpecularBlockerDTOItem expected)
-    {
-        actual.Should().NotBeSameAs(expected);
-        actual.YRodROI.Should().NotBeSameAs(expected.YRodROI);
-        actual.XPushROI.Should().NotBeSameAs(expected.XPushROI);
-        actual.YRodROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.YRodROI.BitmapImageROIDrawable);
-        actual.XPushROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XPushROI.BitmapImageROIDrawable);
-        actual.Document.Should().NotBeSameAs(expected.Document);
-        actual.CIBDocument.Should().NotBeSameAs(expected.CIBDocument);
-    }
-
-    [Theory]
-    [InlineData(0d, 0d, 42.25d)]
-    [InlineData(180d, 5.5d, 43d)]
-    public void AdaptTo_ShouldUseAngleAndROIMotorPositions(double angle, double yPosition, double pushPosition)
-    {
-        using var dto = new V0FourierCenterChannelSpecularBlockerDTO();
-        dto.Channel3Item.YRodROI.AngleMotorAbsoluteValue = angle;
-        dto.Channel3Item.YRodROI.MotorAbsoluteValue = yPosition;
-        dto.Channel3Item.XPushROI.MotorAbsoluteValue = pushPosition;
-
-        var actual = dto.AdaptTo();
-
-        actual.Ch3Angle.Should().Be((float)angle);
-        actual.Ch3TurnY.Should().Be((float)yPosition);
-        actual.Ch3Push.Should().Be((float)pushPosition);
     }
 
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool useCacheSettings)
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
         var oiItem = new V0FourierCenterChannelSpecularBlockerCacheItem
@@ -337,9 +314,8 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
                 OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.P,
                 OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.N
             },
-            ScanLength = 510.5d,
+            ScanLength = 510.5,
             ShinyWaferFindBFMachinePosition = new Point(3.5, 4.5),
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size32, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
             Id = 51,
             Expiration = 52,
             IsDeleted = false,
@@ -361,9 +337,8 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
                 OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S,
                 OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.None
             },
-            ScanLength = 720.25d,
+            ScanLength = 720.25,
             ShinyWaferFindBFMachinePosition = new Point(13.5, 14.5),
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size256, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Ncc } },
             Id = 53,
             Expiration = 54,
             IsDeleted = true,
@@ -388,8 +363,12 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
                 IsKeepRawImageCIBProfileModeEnum = true
             },
             VerifyImageWidth = 2048,
-            ExtinctionRatioThreshold = 0.35d,
-            TemplateMatchSetting = new TemplateMatchSetting { TemplateSize = AlgorithmTemplateSizeEnum.Size512, Halcon = new HalconTemplateMatchSetting { TemplateType = AlgorithmTemplateTypeEnum.Sharpe } },
+            ExtinctionRatioThreshold = 0.35,
+            Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>
+            {
+                [cookie.OIProductivityInformations[0]] = oiItem,
+                [cookie.NIProductivityInformations[0]] = niItem
+            },
             Id = 61,
             Expiration = 62,
             IsDeleted = true,
@@ -397,12 +376,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             CreatedUserName = "Created_Specular",
             CreatedTime = new DateTime(2000, 3, 3, 0, 0, 0, DateTimeKind.Utc),
             ModifiedUserId = 3102,
-            ModifiedUserName = "Modified_Specular",
-            Items = new ConcurrentDictionary<ProductivityInformation, V0FourierCenterChannelSpecularBlockerCacheItem>
-            {
-                [cookie.OIProductivityInformations[0]] = oiItem,
-                [cookie.NIProductivityInformations[0]] = niItem
-            }
+            ModifiedUserName = "Modified_Specular"
         };
         expected.ModifiedTime = expected.CreatedTime.AddTicks(11);
 
@@ -421,21 +395,20 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
         actual.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum.Should().Be(expected.VerifyCIBConfiguration.IsKeepRawImageCIBProfileModeEnum);
         actual.VerifyImageWidth.Should().Be(expected.VerifyImageWidth);
         actual.ExtinctionRatioThreshold.Should().Be(expected.ExtinctionRatioThreshold);
-        actual.TemplateMatchSetting.Should().Be(expected.TemplateMatchSetting);
-
-        actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
-        actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
-        actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
-        actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
-        actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
-        actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
-        actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
-        actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
-        actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
 
         actual.Items.Should().HaveCount(2);
         AssertItemEquals(actual.Items.Single(i => i.Key == cookie.OIProductivityInformations[0]).Value, oiItem);
         AssertItemEquals(actual.Items.Single(i => i.Key == cookie.NIProductivityInformations[0]).Value, niItem);
+
+        actual.Id.Should().Be(isUseCacheSettings ? 0L : expected.Id);
+        actual.Expiration.Should().Be(isUseCacheSettings ? 0L : expected.Expiration);
+        actual.IsDeleted.Should().Be(isUseCacheSettings == false && expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(isUseCacheSettings ? 0L : expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(isUseCacheSettings ? default : expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(isUseCacheSettings ? 0L : expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(isUseCacheSettings ? default : expected.ModifiedTime);
 
         JsonConvert.SerializeObject(actual, settings).Should().Be(json);
 
@@ -451,17 +424,16 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
             actualItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expectedItem.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
             actualItem.ScanLength.Should().Be(expectedItem.ScanLength);
             actualItem.ShinyWaferFindBFMachinePosition.Should().Be(expectedItem.ShinyWaferFindBFMachinePosition);
-            actualItem.TemplateMatchSetting.Should().Be(expectedItem.TemplateMatchSetting);
 
-            actualItem.Id.Should().Be(useCacheSettings ? 0L : expectedItem.Id);
-            actualItem.Expiration.Should().Be(useCacheSettings ? 0L : expectedItem.Expiration);
-            actualItem.IsDeleted.Should().Be(useCacheSettings == false && expectedItem.IsDeleted);
-            actualItem.CreatedUserId.Should().Be(useCacheSettings ? 0L : expectedItem.CreatedUserId);
-            actualItem.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expectedItem.CreatedUserName);
-            actualItem.CreatedTime.Should().Be(useCacheSettings ? default : expectedItem.CreatedTime);
-            actualItem.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expectedItem.ModifiedUserId);
-            actualItem.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expectedItem.ModifiedUserName);
-            actualItem.ModifiedTime.Should().Be(useCacheSettings ? default : expectedItem.ModifiedTime);
+            actualItem.Id.Should().Be(isUseCacheSettings ? 0L : expectedItem.Id);
+            actualItem.Expiration.Should().Be(isUseCacheSettings ? 0L : expectedItem.Expiration);
+            actualItem.IsDeleted.Should().Be(isUseCacheSettings == false && expectedItem.IsDeleted);
+            actualItem.CreatedUserId.Should().Be(isUseCacheSettings ? 0L : expectedItem.CreatedUserId);
+            actualItem.CreatedUserName.Should().Be(isUseCacheSettings ? string.Empty : expectedItem.CreatedUserName);
+            actualItem.CreatedTime.Should().Be(isUseCacheSettings ? default : expectedItem.CreatedTime);
+            actualItem.ModifiedUserId.Should().Be(isUseCacheSettings ? 0L : expectedItem.ModifiedUserId);
+            actualItem.ModifiedUserName.Should().Be(isUseCacheSettings ? string.Empty : expectedItem.ModifiedUserName);
+            actualItem.ModifiedTime.Should().Be(isUseCacheSettings ? default : expectedItem.ModifiedTime);
         }
     }
 }
