@@ -623,7 +623,7 @@ public sealed partial class StageMapWindowViewModel(
                                                                                                                              && t.PmtId == Cache.CIBInformation.PMTId);
         Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
 
-        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
         {
             ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
             xDirection,

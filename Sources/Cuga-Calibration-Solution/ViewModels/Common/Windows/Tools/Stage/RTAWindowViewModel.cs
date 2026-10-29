@@ -321,12 +321,11 @@ public sealed partial class RTAWindowViewModel(
                                                                                                                              && t.PmtId == Cache.CIBInformation.PMTId);
         Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
 
-        logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+        logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
             xSize.XPixelSize,
-            ySize.YPixelSize,
-            Cache.IsRemoveLinear
+            ySize.YPixelSize
         }), HtmlLogUniqueId.LoggingHtml());
 
         Cache.RTAScanResult = new RTAScanResult(Cache.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);

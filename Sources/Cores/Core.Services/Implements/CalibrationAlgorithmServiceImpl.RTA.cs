@@ -58,8 +58,8 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 .SelectMany(x => realYMatrix.Column(x).Index().Select(yTuple => new Point(yTuple.Index, yTuple.Item)))
                 .Where(point => double.IsFinite(point.Y))
                 .ToArray();
-            Guard.IsTrue(xSpacingPoints.Length >= 2);
-            Guard.IsTrue(ySpacingPoints.Length >= 2);
+            Guard.IsTrue(xSpacingPoints.Length >= 2 && xSpacingPoints.DistinctBy(t => t.X).Count() >= 2);
+            Guard.IsTrue(ySpacingPoints.Length >= 2 && ySpacingPoints.DistinctBy(t => t.X).Count() >= 2);
 
             var (xSpacing, xSpacingIntercept, xSpacingRSquared, xSpacingPredicted) = PolynomialCurve.Fit1(
                 Vector<double>.Build.Dense([.. xSpacingPoints.Select(t => t.X)]),
@@ -84,7 +84,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 ], "X: index - Y: px")
             }), htmlLogUniqueId.LoggingHtml());
 
-            Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing != 0d);
+            Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing > 0d);
             Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing > 0d);
 
             #endregion
