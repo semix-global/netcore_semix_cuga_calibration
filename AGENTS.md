@@ -31,7 +31,7 @@
 
 ## 文件编码与结尾格式
 
-- 新建或修改的文本文件统一使用 UTF-8 无 BOM 编码.
+- 新建或修改的文本文件统一使用 UTF-8 无 BOM 编码, 换行使用 CRLF.
 - 新建或修改文件后，文件最后一行末尾不要添加换行符；文件应直接结束于最后一个有效字符。
 
 ## C# 编码风格
@@ -69,6 +69,7 @@
 - 只读信息绑定显式使用 `Mode=OneWay`.
 - 使用 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth="190"`, `IsReadOnly="True"`, `SecondaryRegionBrush` 背景和 `TextBoxExtend` 样式.
 - 默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
+- 同一条绑定同时包含 `Mode` 和 `Converter` 时, `Mode` 写在 `Converter` 前面, 例如 `Mode=OneWay, Converter={StaticResource RectToStringConverter}`.
 
 ```xml
 <TextBox Text="{Binding Value, Mode=OneWay}"
@@ -79,6 +80,12 @@
          Background="{StaticResource SecondaryRegionBrush}"
          Style="{StaticResource TextBoxExtend}" />
 ```
+
+### NumericUpDown 与 ComboBox
+
+- `hc:NumericUpDown` 的 `Value` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
+- `ComboBox` 和 `Selector` 的 `SelectedValue` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
+- `ItemsSource` 默认是 `OneWay`, 不要显式写 `Mode=OneWay`.
 
 ### 只读结果区域与标题
 
@@ -136,6 +143,7 @@
 - 页签中的普通页面内容使用 `Border Margin="5" Style="{StaticResource BorderRegion}"` 包裹.
 - 嵌套 TabControl 的外边距与其内部页签内容 Border 的外边距均须保留, 两层都显式设置 `Margin="5"`, 不得因其中一层已有外边距而省略另一层.
 - 以上外边距约定针对 TabItem 的内容, 不要求其他位置的 TabControl 或 Border 统一添加外边距.
+- `GroupBox` 或 `Border` 中的 `TabControl` 不是 `TabItem` 的直接内容时, 不设置 `Margin="5"`.
 - 页签名称, 内容, 数量, 顺序和页面布局按实际需求确定.
 
 ```xml

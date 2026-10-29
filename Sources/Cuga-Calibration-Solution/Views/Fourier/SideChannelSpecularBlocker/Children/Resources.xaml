@@ -13,7 +13,7 @@
         <ListView d:DataContext="{d:DesignInstance Type=sideChannelSpecularBlocker:FourierSideChannelSpecularBlockerDTO+Rod,
                                                    CreateList=True}"
                   ItemContainerStyle="{StaticResource RodListViewItemStyle}"
-                  ItemsSource="{Binding Mode=OneWay}"
+                  ItemsSource="{Binding}"
                   Style="{StaticResource ListView.Small}"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto">

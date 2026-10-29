@@ -46,7 +46,7 @@
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding YRodItems, Mode=OneWay}"
+                                  ItemsSource="{Binding YRodItems}"
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
                                   SelectedValue="{Binding SelectedYRodItem}" />
@@ -54,7 +54,7 @@
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding XReflectionPushItems, Mode=OneWay}"
+                                  ItemsSource="{Binding XReflectionPushItems}"
                                   DisplayMemberPath="Key"
                                   SelectedValuePath="Value"
                                   SelectedValue="{Binding SelectedXReflectionPushItem}" />

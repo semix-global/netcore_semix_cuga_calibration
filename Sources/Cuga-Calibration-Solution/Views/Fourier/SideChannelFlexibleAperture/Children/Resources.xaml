@@ -33,7 +33,7 @@
                   Style="{StaticResource ListView.Small}"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ItemsSource="{Binding Mode=OneWay}"
+                  ItemsSource="{Binding}"
                   ItemContainerStyle="{StaticResource RodListViewItemStyle}">
             <i:Interaction.Behaviors>
                 <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
@@ -59,7 +59,7 @@
                   Style="{StaticResource ListView.Small}"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ItemsSource="{Binding Mode=OneWay}"
+                  ItemsSource="{Binding}"
                   ItemContainerStyle="{StaticResource RodListViewItemStyle}">
             <i:Interaction.Behaviors>
                 <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
