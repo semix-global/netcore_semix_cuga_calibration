@@ -95,8 +95,7 @@ public class FocusTest(ITestOutputHelper testOutputHelper)
     {
         var service = new CalibrationAlgorithmServiceImpl(
             NullLogger<CalibrationAlgorithmServiceImpl>.Instance,
-            new CalibrationSetting(),
-            new AffineTransformation(NullLogger<AffineTransformation>.Instance));
+            new CalibrationSetting());
 
         var files = Directory.GetFiles($@"Assets\Focus\{magnification}", "*.jpg");
         files.Length.Should().BeGreaterThan(0);

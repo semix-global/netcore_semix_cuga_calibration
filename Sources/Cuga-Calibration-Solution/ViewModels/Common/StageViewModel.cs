@@ -396,13 +396,6 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetStageMap(StageMapDto stageMapDto)
-    {
-        var ret = calibrationStageService.SetStageMap(stageMapDto);
-
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
     public void SetStageMap(StageMapErrorDTO stageMapError)
     {
         var ret = calibrationStageService.SetStageMap(stageMapError);

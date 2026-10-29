@@ -507,15 +507,6 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto)
-    {
-        var sxExecuteRet = Invoke(() => Service!.ExecErrorMap(stageMapDto.AdaptTo().ToCgErrorMap()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
     public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
     {
         var sxExecuteRet = Invoke(() => Service!.ExecErrorMap(stageMapError.AdaptTo()));

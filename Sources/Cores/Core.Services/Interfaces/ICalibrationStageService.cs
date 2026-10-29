@@ -356,13 +356,6 @@ public interface ICalibrationStageService
     SxExecuteRet<bool> ToggleEnableStageMap(bool enable);
 
     /// <summary>
-    /// 设置StageMap
-    /// </summary>
-    /// <param name="stageMapDto">stage map</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto);
-
-    /// <summary>
     /// 使用 Cuga ACS ErrorMap 结构设置 StageMap。
     /// </summary>
     /// <param name="stageMapError">Cuga ACS ErrorMap</param>
