@@ -7,10 +7,12 @@
            xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
-           xmlns:collections="clr-namespace:System.Collections;assembly=mscorlib"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+           xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+           xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
+           xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:OpticsCollectorSlitWindowViewModel}"
@@ -27,12 +29,6 @@
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Grid>
-        <Grid.Resources>
-            <Style BasedOn="{StaticResource BorderRegion}" TargetType="Border">
-                <Setter Property="CornerRadius" Value="0" />
-                <Setter Property="BorderThickness" Value="0" />
-            </Style>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
@@ -75,21 +71,17 @@
         </hc:SimplePanel>
         <Grid Grid.Row="1" Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="500" />
                 <ColumnDefinition Width="5" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Width="500"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
-                <hc:ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                                 IsInertiaEnabled="True"
-                                 VerticalScrollBarVisibility="Auto">
+            <Border Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <GroupBox Header="Common Params">
+                        <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:UniformSpacingPanel Margin="11,0"
+                                    <hc:UniformSpacingPanel Margin="5,0,0,0"
                                                             Orientation="Vertical"
                                                             Spacing="2">
                                         <ComboBox hc:TitleElement.Title="Productivity Information: "
@@ -107,40 +99,36 @@
                                                   SelectedItem="{Binding Cache.PmtId}"
                                                   Style="{StaticResource ComboBoxExtend}"
                                                   ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="0"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.ImageWidthPixel}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="0"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.RangeEcs}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Step(ECS): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="200"
-                                                          Minimum="0"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.StepEcs}" />
+                                        <ComboBox hc:TitleElement.Title="Capture Mode: "
+                                                  hc:TitleElement.TitlePlacement="Left"
+                                                  hc:TitleElement.TitleWidth="200"
+                                                  SelectedItem="{Binding Cache.CaptureMode}"
+                                                  Style="{StaticResource ComboBoxExtend}"
+                                                  ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type viewModels:OpticsCollectorSlitCaptureModeEnum}}}" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Scan Forward: "
+                                                       Width="200"
+                                                       VerticalAlignment="Center" />
+                                            <ToggleButton IsChecked="{Binding Cache.IsForward}"
+                                                          HorizontalAlignment="Left"
+                                                          VerticalAlignment="Center"
+                                                          Background="{StaticResource DangerBrush}"
+                                                          Style="{StaticResource ToggleButtonSwitch}" />
+                                        </StackPanel>
                                     </hc:UniformSpacingPanel>
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                        <GroupBox Header="Step1 Haze">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="Optics Configuration">
-                                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.HazeOpticsConfiguration}" />
+                                    <Expander Header="Optics Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.HazeOpticsConfiguration}" />
+                                        </Border>
                                     </Expander>
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="CIB Configuration">
-                                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
+                                    <Expander Header="CIB Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.HazeCIBConfiguration}" />
+                                        </Border>
                                     </Expander>
                                     <ComboBox HorizontalAlignment="Left"
                                               hc:TitleElement.TitleWidth="200"
@@ -149,13 +137,153 @@
                                               SelectedItem="{Binding Cache.HazeLaserLightInformation}"
                                               ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
                                     <TextBox Text="{Binding Cache.HazeBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:TitleElement.Title="Bright Field Position:"
+                                             Margin="5,0,0,0"
+                                             hc:TitleElement.Title="Haze Bright Field Position:"
                                              hc:TitleElement.TitlePlacement="Left"
                                              hc:TitleElement.TitleWidth="200"
                                              Style="{StaticResource TextBoxExtend}" />
+                                    <Expander Header="{Binding Steps[0]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <Grid>
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel.Style>
+                                                        <Style TargetType="hc:UniformSpacingPanel">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Cache.CaptureMode}" Value="{x:Static viewModels:OpticsCollectorSlitCaptureModeEnum.FixedHeight}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </hc:UniformSpacingPanel.Style>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <hc:NumericUpDown Grid.Column="0"
+                                                                          Margin="0,0,-1,0"
+                                                                          hc:TitleElement.Title="Center(ECS): "
+                                                                          hc:TitleElement.TitlePlacement="Left"
+                                                                          hc:TitleElement.TitleWidth="200"
+                                                                          hc:BorderElement.CornerRadius="4,0,0,4"
+                                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                                          Value="{Binding Cache.CenterECS}" />
+                                                        <Button Grid.Column="1"
+                                                                Command="{Binding GetECSCommand}"
+                                                                Padding="6,3"
+                                                                VerticalAlignment="Stretch"
+                                                                hc:BorderElement.CornerRadius="0,4,4,0"
+                                                                hc:IconElement.Width="12"
+                                                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                                                ToolTip="Get current ECS"
+                                                                Style="{StaticResource ButtonDefault}" />
+                                                    </Grid>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.RangeEcs}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Step(ECS): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.StepEcs}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.ImageWidthPixel}" />
+                                                </hc:UniformSpacingPanel>
+                                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                    <hc:UniformSpacingPanel.Style>
+                                                        <Style TargetType="hc:UniformSpacingPanel">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Cache.CaptureMode}" Value="{x:Static viewModels:OpticsCollectorSlitCaptureModeEnum.VariableHeight}">
+                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </hc:UniformSpacingPanel.Style>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <hc:NumericUpDown Grid.Column="0"
+                                                                          Margin="0,0,-1,0"
+                                                                          hc:TitleElement.Title="Center(ECS): "
+                                                                          hc:TitleElement.TitlePlacement="Left"
+                                                                          hc:TitleElement.TitleWidth="200"
+                                                                          hc:BorderElement.CornerRadius="4,0,0,4"
+                                                                          Style="{StaticResource NumericUpDownExtend}"
+                                                                          Value="{Binding Cache.CenterECS}" />
+                                                        <Button Grid.Column="1"
+                                                                Command="{Binding GetECSCommand}"
+                                                                Padding="6,3"
+                                                                VerticalAlignment="Stretch"
+                                                                hc:BorderElement.CornerRadius="0,4,4,0"
+                                                                hc:IconElement.Width="12"
+                                                                hc:IconElement.Geometry="{StaticResource RotateRightGeometry}"
+                                                                ToolTip="Get current ECS"
+                                                                Style="{StaticResource ButtonDefault}" />
+                                                    </Grid>
+                                                    <hc:NumericUpDown hc:TitleElement.Title="±Range(ECS): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.RangeEcs}" />
+                                                    <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
+                                                                      hc:TitleElement.TitlePlacement="Left"
+                                                                      hc:TitleElement.TitleWidth="200"
+                                                                      Minimum="0"
+                                                                      Style="{StaticResource NumericUpDownExtend}"
+                                                                      Value="{Binding Cache.ScanLength}" />
+                                                </hc:UniformSpacingPanel>
+                                            </Grid>
+                                        </Border>
+                                    </Expander>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Actions">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Results" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <TextBox Text="{Binding Cache.BinWidthPixel}"
+                                                         hc:TitleElement.Title="Bin Width(px): "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <TextBox Text="{Binding Cache.DiscardedPixelCount}"
+                                                         hc:TitleElement.Title="Discarded Pixels: "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
                                     <hc:UniformSpacingPanel Spacing="10">
                                         <Button Content="Action"
                                                 Command="{Binding Step0Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                 Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
@@ -163,208 +291,235 @@
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
                                     </hc:UniformSpacingPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="Result"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <TextBox Text="{Binding Cache.HazeAverageECS, StringFormat={}{0:0.###}}"
-                                             hc:TitleElement.Title="Result Average ECS:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                        <GroupBox Header="Step2 DSW">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="Optics Configuration">
-                                        <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.DSWOpticsConfiguration}" />
-                                    </Expander>
-                                    <Expander IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Header="CIB Configuration">
-                                        <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.DSWCIBConfiguration}" />
-                                    </Expander>
-                                    <ComboBox HorizontalAlignment="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.Title="Coefficient: "
-                                              SelectedItem="{Binding Cache.DSWLaserLightInformation}"
-                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
-                                    <TextBox Text="{Binding Cache.DSWBrightFieldPosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:TitleElement.Title="Bright Field Position:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="X Pixel Size(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.DSWXPixelSize}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Y Pixel Size(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.DSWYPixelSize}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Pot Diameter(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.DSWPotDiameter}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="X Point Diameter(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.DSWXPointDiameter}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Y Point Diameter(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.DSWYPointDiameter}" />
-                                    <hc:UniformSpacingPanel Spacing="10">
-                                        <Button Content="Action"
-                                                Command="{Binding Step1Command}"
-                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
-                                        <Button Content="Cancel"
-                                                Command="{Binding Step1CancelCommand}"
-                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                                Style="{StaticResource ButtonWarning}" />
-                                    </hc:UniformSpacingPanel>
-                                    <StackPanel>
-                                        <TextBlock Text="Result"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <TextBox Text="{Binding Cache.DSWROIRect, Converter={StaticResource RectToStringConverter}}"
-                                             hc:TitleElement.Title="ROI Rect(px):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.DSWAverageECS, StringFormat={}{0:0.###}}"
-                                             hc:TitleElement.Title="Result Average ECS:"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             IsReadOnly="True"
-                                             IsEnabled="False"
-                                             Style="{StaticResource TextBoxExtend}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                     </hc:UniformSpacingPanel>
-                </hc:ScrollViewer>
+                </ScrollViewer>
             </Border>
-            <GridSplitter Grid.Column="1" />
-            <Border Grid.Column="2"
-                    Style="{StaticResource BorderRegion}"
-                    Effect="{StaticResource EffectShadow1}">
+            <GridSplitter Grid.Column="1" Width="5" />
+            <GroupBox Grid.Column="2"
+                      Padding="5"
+                      Header="History">
                 <TabControl>
                     <i:Interaction.Behaviors>
                         <behaviors:SelectorAutoSelectFirstBehavior />
                     </i:Interaction.Behaviors>
-                    <TabItem Header="Plots">
-                        <TabControl ItemsSource="{Binding PlotDataSources}">
+                    <TabItem Header="Samples">
+                        <TabControl ItemsSource="{Binding Cache.ChannelResults}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:SelectorAutoSelectFirstBehavior />
+                            </i:Interaction.Behaviors>
                             <TabControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                    <TextBlock Text="{Binding Key, StringFormat='Channel Id: {0}'}"
+                                <DataTemplate DataType="{x:Type viewModels:OpticsCollectorSlitChannelResult}">
+                                    <TextBlock Text="{Binding ChannelId, StringFormat='Channel Id: {0}'}"
                                                Padding="5,2"
                                                Style="{StaticResource TextBlockDefaultBold}" />
                                 </DataTemplate>
                             </TabControl.ItemTemplate>
                             <TabControl.ContentTemplate>
-                                <DataTemplate DataType="{x:Type collections:IDictionaryEnumerator}">
-                                    <Border Style="{StaticResource BorderRegion}">
-                                        <v2:PlotControl DataSource="{Binding Value, Mode=OneWay}" />
-                                    </Border>
+                                <DataTemplate DataType="{x:Type viewModels:OpticsCollectorSlitChannelResult}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="1.3*" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <DataGrid Margin="5"
+                                                  hc:DataGridAttach.ShowRowNumber="True"
+                                                  RowHeaderWidth="60"
+                                                  HeadersVisibility="All"
+                                                  AutoGenerateColumns="False"
+                                                  IsReadOnly="True"
+                                                  Style="{StaticResource DataGrid.Small}"
+                                                  SelectedItem="{Binding SelectedItem}"
+                                                  ItemsSource="{Binding Samples}"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:DataGridScrollToCurrentBehavior />
+                                            </i:Interaction.Behaviors>
+                                            <DataGrid.ColumnHeaderStyle>
+                                                <Style BasedOn="{StaticResource DataGridColumnHeaderStyle.Small}" TargetType="DataGridColumnHeader">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                </Style>
+                                            </DataGrid.ColumnHeaderStyle>
+                                            <DataGrid.CellStyle>
+                                                <Style BasedOn="{StaticResource DataGridCellStyle.Small}" TargetType="DataGridCell">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                    <Setter Property="Background" Value="Transparent" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="Transparent" />
+                                                            <Setter Property="Foreground" Value="White" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </DataGrid.CellStyle>
+                                            <DataGrid.RowStyle>
+                                                <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </DataGrid.RowStyle>
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Width="100"
+                                                                    Header="ECS"
+                                                                    Binding="{Binding ECS, StringFormat={}{0:0.###}}" />
+                                                <DataGridTextColumn Width="110"
+                                                                    Header="Top"
+                                                                    Binding="{Binding TopAverageGray, StringFormat={}{0:0.###}}" />
+                                                <DataGridTextColumn Width="110"
+                                                                    Header="Mid"
+                                                                    Binding="{Binding MiddleAverageGray, StringFormat={}{0:0.###}}" />
+                                                <DataGridTextColumn Width="110"
+                                                                    Header="Bottom"
+                                                                    Binding="{Binding BottomAverageGray, StringFormat={}{0:0.###}}" />
+                                                <DataGridTextColumn Width="90"
+                                                                    Header="Std"
+                                                                    Binding="{Binding StandardDeviation, StringFormat={}{0:0.###}}" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        <GridSplitter Grid.Row="1" Height="5" />
+                                        <TabControl Grid.Row="2">
+                                            <TabItem Header="Images">
+                                                <Border Style="{StaticResource BorderRegion}">
+                                                    <Grid>
+                                                        <view:CanvasView AxisColor="Red"
+                                                                         BackgroundColor="#0A0A0A"
+                                                                         BackgroundImage="{Binding SelectedItem.ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                         Interactive="True"
+                                                                         ShowAxes="False"
+                                                                         ShowCursor="False"
+                                                                         ShowGrid="False" />
+                                                        <TextBlock Text="{Binding SelectedItem.ECS, StringFormat={}ECS: {0:F3}}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Top"
+                                                                   Foreground="Yellow" />
+                                                    </Grid>
+                                                </Border>
+                                            </TabItem>
+                                        </TabControl>
+                                    </Grid>
                                 </DataTemplate>
                             </TabControl.ContentTemplate>
                         </TabControl>
                     </TabItem>
-                    <TabItem Header="Haze Details">
-                        <ListView Margin="5"
-                                  ItemsSource="{Binding Cache.HazeResults}"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  Style="{StaticResource ListView.Small}">
-                            <i:Interaction.Behaviors>
-                                <behaviors:ListBoxScrollToCurrentBehavior />
-                            </i:Interaction.Behaviors>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.View>
-                                <GridView>
-                                    <GridView.ColumnHeaderContainerStyle>
-                                        <Style TargetType="GridViewColumnHeader">
-                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        </Style>
-                                    </GridView.ColumnHeaderContainerStyle>
-                                    <GridViewColumn Width="150"
-                                                    Header="ECS"
-                                                    DisplayMemberBinding="{Binding ECS, StringFormat={}{0:0.###}}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-                    </TabItem>
-                    <TabItem Header="DSW Details">
-                        <ListView Margin="5"
-                                  ItemsSource="{Binding Cache.DSWResults}"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  Style="{StaticResource ListView.Small}">
-                            <i:Interaction.Behaviors>
-                                <behaviors:ListBoxScrollToCurrentBehavior />
-                            </i:Interaction.Behaviors>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.View>
-                                <GridView>
-                                    <GridView.ColumnHeaderContainerStyle>
-                                        <Style TargetType="GridViewColumnHeader">
-                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                            <Setter Property="VerticalContentAlignment" Value="Center" />
-                                        </Style>
-                                    </GridView.ColumnHeaderContainerStyle>
-                                    <GridViewColumn Width="150"
-                                                    Header="ECS"
-                                                    DisplayMemberBinding="{Binding ECS, StringFormat={}{0:0.###}}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                    <TabItem Header="Plots">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="2*" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TabControl ItemsSource="{Binding Cache.ChannelResults}">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:SelectorAutoSelectFirstBehavior />
+                                </i:Interaction.Behaviors>
+                                <TabControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:OpticsCollectorSlitChannelResult}">
+                                        <TextBlock Text="{Binding ChannelId, StringFormat='Channel Id: {0}'}"
+                                                   Padding="5,2"
+                                                   Style="{StaticResource TextBlockDefaultBold}" />
+                                    </DataTemplate>
+                                </TabControl.ItemTemplate>
+                                <TabControl.ContentTemplate>
+                                    <DataTemplate DataType="{x:Type viewModels:OpticsCollectorSlitChannelResult}">
+                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </TabControl.ContentTemplate>
+                            </TabControl>
+
+                            <GridSplitter Grid.Row="1" Height="5" />
+
+                            <TabControl Grid.Row="2">
+                                <TabItem Header="Features">
+                                    <DataGrid Margin="5"
+                                              hc:DataGridAttach.ShowRowNumber="True"
+                                              RowHeaderWidth="60"
+                                              HeadersVisibility="All"
+                                              AutoGenerateColumns="False"
+                                              IsReadOnly="True"
+                                              Style="{StaticResource DataGrid.Small}"
+                                              ItemsSource="{Binding Cache.ChannelResults}"
+                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:DataGridScrollToCurrentBehavior />
+                                        </i:Interaction.Behaviors>
+                                        <DataGrid.ColumnHeaderStyle>
+                                            <Style BasedOn="{StaticResource DataGridColumnHeaderStyle.Small}" TargetType="DataGridColumnHeader">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                            </Style>
+                                        </DataGrid.ColumnHeaderStyle>
+                                        <DataGrid.CellStyle>
+                                            <Style BasedOn="{StaticResource DataGridCellStyle.Small}" TargetType="DataGridCell">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter Property="Background" Value="Transparent" />
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGrid.CellStyle>
+                                        <DataGrid.RowStyle>
+                                            <Style BasedOn="{StaticResource DataGridRowStyle.Small}" TargetType="DataGridRow">
+                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGrid.RowStyle>
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Width="50"
+                                                                Header="Channel"
+                                                                Binding="{Binding ChannelId}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="95% Left"
+                                                                Binding="{Binding PeakRegionLeftEcs, StringFormat={}{0:0.###}}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="95% Right"
+                                                                Binding="{Binding PeakRegionRightEcs, StringFormat={}{0:0.###}}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="95% Width"
+                                                                Binding="{Binding PeakRegionWidth, StringFormat={}{0:0.###}}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="ReachedEnd"
+                                                                Binding="{Binding PeakRegionReachedEndpoint}" />
+                                            <DataGridTextColumn Width="150"
+                                                                Header="Collection BF"
+                                                                Binding="{Binding CollectionBestFocusPoint, Converter={StaticResource PointToStringConverter}, StringFormat={}{0:f3}}" />
+                                            <DataGridTextColumn Width="150"
+                                                                Header="Illumination BF"
+                                                                Binding="{Binding IlluminationBestFocusPoint, Converter={StaticResource PointToStringConverter}, StringFormat={}{0:f3}}" />
+                                            <DataGridTextColumn Width="100"
+                                                                Header="Offset"
+                                                                Binding="{Binding Offset, StringFormat={}{0:0.###}}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </TabItem>
+                            </TabControl>
+                        </Grid>
+
                     </TabItem>
                 </TabControl>
-            </Border>
+            </GroupBox>
         </Grid>
     </Grid>
 </hc:Window>

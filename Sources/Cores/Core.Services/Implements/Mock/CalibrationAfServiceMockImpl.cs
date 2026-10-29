@@ -225,6 +225,17 @@ public sealed class CalibrationAfServiceMockImpl : ICalibrationAfService
         return SxExecuteRetHelper.CreateSuccess(Enumerable.Range(1, 1000).Select(_ => (Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble(), Random.Shared.NextDouble())).ToList());
     }
 
+    public async Task<SxExecuteRet<List<(double X, double Ecs, double NSC)>>> GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(CancellationToken cancellationToken)
+    {
+        var traceBufferPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CollectorSilt", "traceBuffer200ECS.xlsx");
+        var traceBuffers = (await MiniExcel.QueryAsync(traceBufferPath, useHeaderRow: true, cancellationToken: cancellationToken))
+            .Cast<IDictionary<string, object>>()
+            .Select(t => (X: Convert.ToDouble(t["X"]), Ecs: Convert.ToDouble(t["ECS"]), NSC: Convert.ToDouble(t["NSC"])))
+            .ToList();
+
+        return SxExecuteRetHelper.CreateSuccess(traceBuffers);
+    }
+
     public SxExecuteRet<double> GetSensorNscRelativeZero()
     {
         Thread.Sleep(100);

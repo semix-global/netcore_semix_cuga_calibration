@@ -31,6 +31,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using MathNet.Numerics.Interpolation;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -664,6 +665,122 @@ public sealed class CIBViewModel(
 
     #endregion
 
+    #region X/Z 同步采 TraceBuffer 列插值
+
+    public async Task<(IReadOnlyList<(
+            DarkFieldImageDTO Image,
+            double[] ColumnEcs)> Images,
+        IReadOnlyList<(double X, double Ecs, double NSC)> TraceBuffers,
+        int StartIndex,
+        int EndIndex)> GetXzSyncColumnEcsAsync(
+        ProductivityInformation productivityInformation,
+        StageCoordinateSystemEnum stageCoordinateSystemEnum,
+        Point startPosition,
+        Point stopPosition,
+        double startECS,
+        double stopECS,
+        IReadOnlyList<CIBInformation> cibInformations,
+        (bool IsCustom, CalChipSiteModelEnum? CalChipSiteModelEnum) customCalChip,
+        (bool IsCustom, OpticsConfiguration? OpticsConfiguration) customOpticsConfiguration,
+        (bool IsCustom, CIBConfiguration? CIBConfiguration) customCIBConfiguration,
+        (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
+        bool isCustomChirpAODWaveform,
+        CancellationToken cancellationToken,
+        bool isForward = true,
+        bool? isKeepRawImageCIBProfileModeEnum = null)
+    {
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken: cancellationToken).SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
+        Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+
+        var startMachineX = ToMachinePosition(startPosition).X;
+        var stopMachineX = ToMachinePosition(stopPosition).X;
+        var calChipSiteModelEnum = customCalChip.CalChipSiteModelEnum ?? CalChipSiteModelEnum.HazeModel;
+        switch (stageCoordinateSystemEnum)
+        {
+            case StageCoordinateSystemEnum.Bright:
+                stageViewModel.SetBrightFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                break;
+            case StageCoordinateSystemEnum.Dark:
+                stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum);
+                break;
+            case StageCoordinateSystemEnum.Machine:
+                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition);
+                break;
+            default:
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stageCoordinateSystemEnum));
+                break;
+        }
+
+        afViewModel.SetSensorEcsValue(startECS);
+        await Task.Delay(TimeSpan.FromMilliseconds(500d), cancellationToken).ConfigureAwait(false);
+
+        using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var traceTask = afViewModel.GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(cancellationTokenSource.Token);
+        var darkFieldImageDtos = await GetPMTImagesAsync(
+            productivityInformation,
+            stageCoordinateSystemEnum,
+            startPosition,
+            stopPosition,
+            startECS,
+            stopECS,
+            cibInformations,
+            customCalChip,
+            customOpticsConfiguration,
+            customCIBConfiguration,
+            customPrescanAODWaveform,
+            isCustomChirpAODWaveform,
+            cancellationToken,
+            isForward: isForward,
+            isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
+
+        await cancellationTokenSource.CancelAsync();
+
+        var traceBuffers = await traceTask.ConfigureAwait(false);
+        var (xDirection, _) = stageViewModel.GetMachineDirection();
+
+        var pairs = traceBuffers.Index()
+            .Zip(traceBuffers.Index().Skip(1), (preview, next) => (preview, next))
+            .ToArray();
+
+        var x1Items = pairs.Where(t => Crosses(t.preview.Item.X, t.next.Item.X, startMachineX)).Select(t => t.next).ToArray();
+        var x2Items = pairs.Where(t => Crosses(t.preview.Item.X, t.next.Item.X, stopMachineX)).Select(t => t.preview).ToArray();
+
+        Guard.IsNotEmpty(x1Items);
+        Guard.IsNotEmpty(x2Items);
+
+        var closest = x1Items
+            .SelectMany(_ => x2Items, (x1, x2) => (x1, x2, Distance: Math.Abs(x1.Index - x2.Index)))
+            .Where(t => t.x1.Index < t.x2.Index)
+            .MinBy(t => t.Distance);
+
+        var startIndex = closest.x1.Index;
+        var endIndex = closest.x2.Index;
+        var filter = traceBuffers.Skip(startIndex).Take(endIndex - startIndex + 1).ToArray();
+        var linearSplineEcs = LinearSpline.Interpolate([.. filter.Select(t => t.X)], [.. filter.Select(t => t.Ecs)]);
+        var images = darkFieldImageDtos
+            .Select(image => (Image: image, ColumnEcs: InterpolateColumnEcs(image.Size.Width)))
+            .ToArray();
+
+        return (images, traceBuffers, startIndex, endIndex);
+
+        bool Crosses(double preview, double next, double target) => xDirection < 0d
+            ? preview >= target && target >= next
+            : preview <= target && target <= next;
+
+        double[] InterpolateColumnEcs(int columnCount) =>
+            [.. Enumerable.Range(0, columnCount).Select(column => linearSplineEcs.Interpolate(startMachineX + xDirection * column * xSize.XPixelSize))];
+
+        Point ToMachinePosition(Point position) => stageCoordinateSystemEnum switch
+        {
+            StageCoordinateSystemEnum.Bright => stageViewModel.BrightFieldToMachinePosition(position),
+            StageCoordinateSystemEnum.Dark => stageViewModel.DarkFieldToMachinePosition(position),
+            StageCoordinateSystemEnum.Machine => position,
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(stageCoordinateSystemEnum))
+        };
+    }
+
+    #endregion
+
     #region 坐标转换
 
     public Vector GetCIBInformationOffset(
@@ -686,14 +803,14 @@ public sealed class CIBViewModel(
             var offset = currentCIBLineCentricity.DFMachineCenterPosition - centerCIBLineCentricity.DFMachineCenterPosition;
             cartesianCIBLineCentricityOffset = new Vector(xDirection * offset.X, yDirection * offset.Y)
                                                - (isLineCentricityOffset
-                                                   ? new Vector(0, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * applicationCookie.PMTInterval)
+                                                   ? new Vector(0d, (currentCIBLineCentricity.PmtId - centerCIBLineCentricity.PmtId) * applicationCookie.PMTInterval)
                                                    : Vector.Zero);
         }
         else
         {
             cartesianCIBLineCentricityOffset = isLineCentricityOffset
                 ? Vector.Zero
-                : new Vector(0, (cibInformation.PMTId - calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) * applicationCookie.PMTInterval);
+                : new Vector(0d, (cibInformation.PMTId - calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId) * applicationCookie.PMTInterval);
         }
 
         var cartesianOffset = cartesianCIBLineCentricityOffset
@@ -722,8 +839,8 @@ public sealed class CIBViewModel(
             stageCoordinateSystemEnum,
             productivityInformation,
             cibInformation,
-            microscopeLensInformation,
-            false);
+            microscopeLensInformation: microscopeLensInformation,
+            isLineCentricityOffset: false);
 
     #endregion
 
@@ -850,8 +967,8 @@ public sealed class CIBViewModel(
         }), logGuid.LoggingHtml());
 
         resultPosition = Point.Origin;
-        matchScore = 0;
-        matchAngle = 0;
+        matchScore = 0d;
+        matchAngle = 0d;
         resultImageFilePath = string.Empty;
 
         var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>()
