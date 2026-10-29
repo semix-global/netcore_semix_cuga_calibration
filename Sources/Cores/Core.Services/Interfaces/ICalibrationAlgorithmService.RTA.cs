@@ -18,13 +18,15 @@ public partial interface ICalibrationAlgorithmService
     /// <param name="rawScanImage">包含原图路径和尺寸的行扫图.</param>
     /// <param name="stageMapConfig">可绑定的格点识别配置.</param>
     /// <param name="isForward">是否正向扫描, 反向扫描时按原图扫描宽度翻转全部 X 像素坐标.</param>
+    /// <param name="isRemoveLinear">是否返回去线性结果.</param>
     /// <param name="htmlLogUniqueId">拟合曲线, 参数和算法耗时对应的 HTML 日志标识.</param>
     /// <returns>按矩阵列顺序返回的标准 X 像素坐标与居中误差向量. 各方向仅使用有限值拟合和计算整体误差均值, 居中后将缺失误差补零并计算列均值.</returns>
-    /// <exception cref="ArgumentException">有效格点不足或拟合格点间距无效.</exception>
+    /// <exception cref="ArgumentException">有效格点不足, 拟合格点间距无效, 或启用去线性时没有可用的行拟合角度.</exception>
     RTAScanSample[] GetRTAScanSamples(
         DarkFieldRawScanImageDTO rawScanImage,
         StageMapConfigDTO stageMapConfig,
         bool isForward,
+        bool isRemoveLinear,
         Guid htmlLogUniqueId);
 
     /// <summary>

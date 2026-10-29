@@ -464,6 +464,16 @@
                                                         </hc:UniformSpacingPanel>
                                                     </Border>
                                                 </Expander>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Remove Linear: "
+                                                               Width="230"
+                                                               VerticalAlignment="Center" />
+                                                    <ToggleButton IsChecked="{Binding Cache.IsRemoveLinear}"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  Background="{StaticResource DangerBrush}"
+                                                                  Style="{StaticResource ToggleButtonSwitch}" />
+                                                </StackPanel>
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>

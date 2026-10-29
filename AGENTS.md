@@ -47,6 +47,7 @@
 - `return` 或包含 `return` 的提前返回判断是当前代码块的第一条语句时, 不在其前面添加空行.
 - `return` 前还有其他语句时, 在返回语句或单行提前返回判断所在行前保留一个空行.
 - 保留单行提前返回写法, 不在 `if` 条件与其对应的 `return` 之间插入空行.
+- LINQ 中需要同时使用元素及其索引时, 统一先调用 `.Index()`, 再通过元组的 `Item` 和 `Index` 访问元素与索引, 不使用 `.Select((item, index) => ...)` 等带索引参数的重载. 需要保留原序列索引时, 在过滤前调用 `.Index()`.
 
 ## 属性顺序同步
 
@@ -68,7 +69,6 @@
 
 - 只读信息绑定显式使用 `Mode=OneWay`.
 - 使用 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth="190"`, `IsReadOnly="True"`, `SecondaryRegionBrush` 背景和 `TextBoxExtend` 样式.
-- 默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
 - 同一条绑定同时包含 `Mode` 和 `Converter` 时, `Mode` 写在 `Converter` 前面, 例如 `Mode=OneWay, Converter={StaticResource RectToStringConverter}`.
 - 普通只读信息默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
 

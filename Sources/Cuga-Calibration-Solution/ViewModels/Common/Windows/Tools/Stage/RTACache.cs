@@ -62,6 +62,9 @@ public sealed partial class RTACache : CalibrationCacheBase
     [ObservableProperty]
     public partial string ReverseSimulatorImageFilePath { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    public partial bool IsRemoveLinear { get; set; }
+
     #endregion
 
     #region Result
@@ -119,5 +122,6 @@ public sealed partial class RTACache : CalibrationCacheBase
         StageMapConfig = new HtmlQuote(StageMapConfig.ToHtmlAnonymous()),
         ForwardSimulatorImageFilePath,
         ReverseSimulatorImageFilePath,
+        IsRemoveLinear,
     };
 }

@@ -325,7 +325,8 @@ public sealed partial class RTAWindowViewModel(
         {
             ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
             xSize.XPixelSize,
-            ySize.YPixelSize
+            ySize.YPixelSize,
+            Cache.IsRemoveLinear
         }), HtmlLogUniqueId.LoggingHtml());
 
         Cache.RTAScanResult = new RTAScanResult(Cache.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
@@ -404,7 +405,12 @@ public sealed partial class RTAWindowViewModel(
                 false,
                 cancellationToken);
 
-            var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(forwardDarkFieldRawScanImage, Cache.StageMapConfig, true, HtmlLogUniqueId);
+            var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
+                forwardDarkFieldRawScanImage,
+                Cache.StageMapConfig,
+                true,
+                Cache.IsRemoveLinear,
+                HtmlLogUniqueId);
             Guard.IsNotEmpty(forwardRTAScanSamples);
             Cache.RTAScanResult.ForwardRTAScanSamples = forwardRTAScanSamples;
 
@@ -425,7 +431,12 @@ public sealed partial class RTAWindowViewModel(
                 cancellationToken,
                 isForward: false);
 
-            var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(reverseDarkFieldRawScanImage, Cache.StageMapConfig, false, HtmlLogUniqueId);
+            var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
+                reverseDarkFieldRawScanImage,
+                Cache.StageMapConfig,
+                false,
+                Cache.IsRemoveLinear,
+                HtmlLogUniqueId);
             Guard.IsNotEmpty(reverseRTAScanSamples);
             Cache.RTAScanResult.ReverseRTAScanSamples = reverseRTAScanSamples;
 
