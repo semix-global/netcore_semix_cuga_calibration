@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
@@ -22,8 +22,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
         {
             base.AdaptIn(obj);
 
-            MotorAbsoluteValue = obj.MotorAbsoluteValue;
             AngleMotorAbsoluteValue = obj.AngleMotorAbsoluteValue;
+            MotorAbsoluteValue = obj.MotorAbsoluteValue;
             IsSelected = obj.IsSelected;
 
             return this;
@@ -33,8 +33,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTO
         {
             base.Reset();
 
-            MotorAbsoluteValue = 0d;
             AngleMotorAbsoluteValue = 0d;
+            MotorAbsoluteValue = 0d;
             IsSelected = false;
         }
     }

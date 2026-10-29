@@ -88,6 +88,21 @@
         <Compile Update="ViewModels\Common\Windows\Tools\Stage\StageMap*.cs">
             <DependentUpon>StageMapWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Stage\RTA*.cs">
+            <DependentUpon>RTAWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsObjectiveYAngleResult.cs">
+          <DependentUpon>OpticsObjectiveYAngleWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsObjectiveYAngleCache.cs">
+          <DependentUpon>OpticsObjectiveYAngleWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsCollectorSlitHazeResult.cs">
+          <DependentUpon>OpticsCollectorSlitWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsCollectorSlitCache.cs">
+          <DependentUpon>OpticsCollectorSlitWindowViewModel.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>

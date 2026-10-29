@@ -1,0 +1,418 @@
+using AwesomeAssertions;
+using AwesomeAssertions.Execution;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Core.Models.Enums.Optics;
+using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
+using Local.SQL.Cache.Providers.Serializations;
+using Local.SQL.Cache.Providers.Services.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Net.Utilities.Helpers.Helpers;
+using Net.Utilities.Models.Geometries;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using System.IO;
+using System.Reflection;
+
+namespace CugaCalibrationUnitTest.Serializations;
+
+[Collection(HostCollection.Name)]
+public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFixture fixture)
+{
+    private static readonly string[] NonPersistentNames =
+    [
+        "BitmapImageROIDrawable",
+        "_step0BitmapImageDrawable",
+        "_step1BitmapImageDrawable",
+        "_step1XOriginBitmapImageROIDrawable",
+        "Document"
+    ];
+
+    private static readonly string[] IgnoreProperties =
+    [
+        nameof(ICacheItem.Id),
+        nameof(ICacheItem.Expiration),
+        nameof(ICacheItem.CreatedUserId),
+        nameof(ICacheItem.CreatedUserName),
+        nameof(ICacheItem.CreatedTime),
+        nameof(ICacheItem.ModifiedUserId),
+        nameof(ICacheItem.ModifiedUserName),
+        nameof(ICacheItem.ModifiedTime),
+        nameof(ICacheItem.IsDeleted),
+        nameof(ObservableValidator.HasErrors)
+    ];
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool isUseCacheSettings)
+    {
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
+
+        var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierCenterChannelFlexibleAperture.json"));
+        var expected = JObject.Parse(json);
+
+        using var actual = JsonConvert.DeserializeObject<FourierCenterChannelFlexibleApertureDTO>(json, settings);
+        actual.Should().NotBeNull();
+        actual.HasErrors.Should().BeFalse();
+
+        AssertMatchesJson();
+
+        var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
+        saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
+
+        if (isUseCacheSettings == false) RemoveMetadata(saved);
+
+        saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
+
+        return;
+
+        void AssertMatchesJson()
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.IsCalibrated.Should().Be(expected.Value<bool>(nameof(actual.IsCalibrated)));
+            actual.IsVerified.Should().Be(expected.Value<bool>(nameof(actual.IsVerified)));
+            actual.IsRequiredSelfCheck.Should().Be(expected.Value<bool>(nameof(actual.IsRequiredSelfCheck)));
+            actual.IsOk.Should().Be(expected.Value<bool>(nameof(actual.IsOk)));
+
+            AssertItemMatchesJson(actual.XOriginItem, expected[nameof(actual.XOriginItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertOriginPositionMatchesJson(actual.XOriginPositionItem, expected[nameof(actual.XOriginPositionItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XApertureItem, expected[nameof(actual.XApertureItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XCalibrationPatternItem, expected[nameof(actual.XCalibrationPatternItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemsMatchJson(actual.XRodItems, expected[nameof(actual.XRodItems)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
+            AssertItemMatchesJson(actual.XDiffractionPushItem, expected[nameof(actual.XDiffractionPushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XReflectionCoarsePushItem, expected[nameof(actual.XReflectionCoarsePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemMatchesJson(actual.XReflectionFinePushItem, expected[nameof(actual.XReflectionFinePushItem)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertItemsMatchJson(actual.YRodItems, expected[nameof(actual.YRodItems)].Should().NotBeNull().And.BeAssignableTo<JArray>().Which);
+        }
+
+        static void AssertItemsMatchJson(FourierCenterChannelFlexibleApertureDTOItem[] actual, JArray expected)
+        {
+            actual.Should().HaveCount(expected.Count);
+
+            for (var i = 0; i < actual.Length; i++) AssertItemMatchesJson(actual[i], expected[i]);
+        }
+
+        static void AssertItemMatchesJson(FourierCenterChannelFlexibleApertureDTOItem actual, JToken expected)
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.CenterChannelMotionKindEnum.Should().Be((CenterChannelMotionKindEnum)expected.Value<int>(nameof(actual.CenterChannelMotionKindEnum)));
+            actual.DefaultAngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.DefaultAngleMotorAbsoluteValue)));
+            actual.Width.Should().Be(expected.Value<double>(nameof(actual.Width)));
+            actual.Height.Should().Be(expected.Value<double>(nameof(actual.Height)));
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
+            actual.Step0MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step0MotorAbsoluteValue)));
+            actual.Step1MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.Step1MotorAbsoluteValue)));
+            actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+            actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+            actual.PixelSize.Should().Be(expected.Value<double>(nameof(actual.PixelSize)));
+
+            var expectedStep0ROI = expected[nameof(actual.Step0ROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
+            var expectedStep1ROI = expected[nameof(actual.Step1ROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
+            AssertRectMatchesJson(actual.Step0ROI.ImageROI, expectedStep0ROI[nameof(actual.Step0ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            AssertRectMatchesJson(actual.Step1ROI.ImageROI, expectedStep1ROI[nameof(actual.Step1ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+        }
+
+        static void AssertOriginPositionMatchesJson(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, JToken expected)
+        {
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.AngleMotorAbsoluteValue)));
+            actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
+            actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
+            actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
+
+            var roi = expected[nameof(actual.XOriginROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
+            AssertRectMatchesJson(actual.XOriginROI.ImageROI, roi[nameof(actual.XOriginROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+        }
+
+        static void AssertRectMatchesJson(Rect actual, JToken expected)
+        {
+            using var scope = new AssertionScope(expected.Path);
+
+            actual.X.Should().Be(expected.Value<double>(nameof(actual.X)));
+            actual.Y.Should().Be(expected.Value<double>(nameof(actual.Y)));
+            actual.Width.Should().Be(expected.Value<double>(nameof(actual.Width)));
+            actual.Height.Should().Be(expected.Value<double>(nameof(actual.Height)));
+        }
+
+        static void RemoveMetadata(JToken jToken)
+        {
+            switch (jToken)
+            {
+                case JArray array:
+                    foreach (var item in array) RemoveMetadata(item);
+
+                    break;
+
+                case JObject obj:
+                    foreach (var ignoreProperty in IgnoreProperties) obj.Remove(ignoreProperty);
+
+                    foreach (var property in obj.Properties()) RemoveMetadata(property.Value);
+
+                    break;
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(0, false)]
+    [InlineData(0, true)]
+    [InlineData(11, false)]
+    [InlineData(22, true)]
+    [InlineData(33, false)]
+    [InlineData(44, true)]
+    [InlineData(55, false)]
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
+    {
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : PrivateSetterContractResolver.Settings;
+
+        using var expected = seed == 0
+            ? new FourierCenterChannelFlexibleApertureDTO()
+            : CreateRandom(new Random(seed));
+
+        var json = JsonConvert.SerializeObject(expected, settings);
+
+        using var actual = JsonConvert.DeserializeObject<FourierCenterChannelFlexibleApertureDTO>(json, settings);
+        actual.Should().NotBeNull();
+        actual.HasErrors.Should().BeFalse();
+
+        AssertEquals(actual, expected, isUseCacheSettings);
+
+        using var cloned = expected.Clone();
+        cloned.Should().NotBeNull();
+        cloned.Should().NotBeSameAs(expected);
+        cloned.HasErrors.Should().BeFalse();
+        cloned.XOriginItem.Should().NotBeSameAs(expected.XOriginItem);
+        cloned.XOriginPositionItem.Should().NotBeSameAs(expected.XOriginPositionItem);
+        cloned.XOriginPositionItem.XOriginROI.Should().NotBeSameAs(expected.XOriginPositionItem.XOriginROI);
+        cloned.XOriginPositionItem.XOriginROI.BitmapImageROIDrawable.Should().NotBeSameAs(expected.XOriginPositionItem.XOriginROI.BitmapImageROIDrawable);
+        cloned.XApertureItem.Should().NotBeSameAs(expected.XApertureItem);
+        cloned.XCalibrationPatternItem.Should().NotBeSameAs(expected.XCalibrationPatternItem);
+        cloned.XRodItems.Should().NotBeSameAs(expected.XRodItems);
+        cloned.XDiffractionPushItem.Should().NotBeSameAs(expected.XDiffractionPushItem);
+        cloned.XReflectionCoarsePushItem.Should().NotBeSameAs(expected.XReflectionCoarsePushItem);
+        cloned.XReflectionFinePushItem.Should().NotBeSameAs(expected.XReflectionFinePushItem);
+        cloned.YRodItems.Should().NotBeSameAs(expected.YRodItems);
+        AssertEquals(cloned, expected, isUseCacheSettings: false, isClone: true);
+
+        var expectedJson = JObject.Parse(json);
+        var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
+        saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
+        saved.ToString(Formatting.Indented).Should().Be(expectedJson.ToString(Formatting.Indented));
+
+        foreach (var name in IgnoreProperties)
+        {
+            saved.ContainsKey(name).Should().Be(isUseCacheSettings == false, "{0} persistence must follow the selected settings", name);
+        }
+
+        return;
+
+        static FourierCenterChannelFlexibleApertureDTO CreateRandom(Random random)
+        {
+            var dto = new FourierCenterChannelFlexibleApertureDTO
+            {
+                IsCalibrated = random.Next(2) == 1,
+                IsVerified = random.Next(2) == 1,
+                IsRequiredSelfCheck = random.Next(2) == 1,
+                Id = ((long)random.Next() << 31) ^ random.Next(),
+                Expiration = ((long)random.Next() << 31) ^ random.Next(),
+                IsDeleted = random.Next(2) == 1,
+                CreatedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                CreatedUserName = $"Created_{random.Next()}",
+                CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
+                ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
+                ModifiedUserName = $"Modified_{random.Next()}"
+            };
+
+            dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
+
+            foreach (var item in new[] { dto.XOriginItem, dto.XApertureItem, dto.XCalibrationPatternItem }.Concat(dto.XRodItems).Concat([dto.XDiffractionPushItem, dto.XReflectionCoarsePushItem, dto.XReflectionFinePushItem]).Concat(dto.YRodItems))
+            {
+                item.Width = Math.Round(random.NextDouble() * 100d, 3);
+                item.Height = Math.Round(random.NextDouble() * 100d, 3);
+                item.AngleMotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+                item.Step0MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+                item.Step1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
+                item.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
+                item.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
+                ObjectHelper.SetPropertyValue(item, nameof(FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5) * 4000d, 3));
+
+                item.Step0ROI.ImageROI = CreateRandomRect(random);
+                item.Step1ROI.ImageROI = CreateRandomRect(random);
+            }
+
+            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.AngleMotorAbsoluteValue), dto.XOriginItem.AngleMotorAbsoluteValue);
+            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.MotorAbsoluteValue), Math.Round((random.NextDouble() - 0.5) * 40d, 3));
+            dto.XOriginPositionItem.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_0.jpg";
+            dto.XOriginPositionItem.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_1.jpg";
+
+            dto.XOriginPositionItem.XOriginROI.ImageROI = CreateRandomRect(random);
+
+            return dto;
+
+            static Rect CreateRandomRect(Random random) => random.Next(6) switch
+            {
+                0 => Rect.Empty,
+                1 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), 0d, 0d),
+                2 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), 0d, random.NextDouble() * 4000d + 1d),
+                3 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), random.NextDouble() * 4000d + 1d, 0d),
+                _ => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5) * 4000d, 3)))
+            };
+        }
+
+        static void AssertEquals(FourierCenterChannelFlexibleApertureDTO actual, FourierCenterChannelFlexibleApertureDTO expected, bool isUseCacheSettings, bool isClone = false)
+        {
+            using var scope = new AssertionScope("DTO");
+
+            var isPersistAudit = isUseCacheSettings == false && isClone == false;
+
+            actual.IsCalibrated.Should().Be(expected.IsCalibrated);
+            actual.IsVerified.Should().Be(expected.IsVerified);
+            actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
+            actual.IsOk.Should().Be(expected.IsOk);
+
+            actual.Id.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Id);
+            actual.Expiration.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(isPersistAudit && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(isPersistAudit ? expected.CreatedUserId : 0L);
+            actual.CreatedUserName.Should().Be(isPersistAudit ? expected.CreatedUserName : string.Empty);
+            actual.CreatedTime.Should().Be(isPersistAudit ? expected.CreatedTime : default);
+            actual.ModifiedUserId.Should().Be(isPersistAudit ? expected.ModifiedUserId : 0L);
+            actual.ModifiedUserName.Should().Be(isPersistAudit ? expected.ModifiedUserName : string.Empty);
+            actual.ModifiedTime.Should().Be(isPersistAudit ? expected.ModifiedTime : default);
+
+            AssertItemEquals(actual.XOriginItem, expected.XOriginItem);
+            AssertOriginPositionEquals(actual.XOriginPositionItem, expected.XOriginPositionItem);
+            AssertItemEquals(actual.XApertureItem, expected.XApertureItem);
+            AssertItemEquals(actual.XCalibrationPatternItem, expected.XCalibrationPatternItem);
+            actual.XRodItems.Should().HaveCount(expected.XRodItems.Length);
+            for (var i = 0; i < expected.XRodItems.Length; i++) AssertItemEquals(actual.XRodItems[i], expected.XRodItems[i]);
+            AssertItemEquals(actual.XDiffractionPushItem, expected.XDiffractionPushItem);
+            AssertItemEquals(actual.XReflectionCoarsePushItem, expected.XReflectionCoarsePushItem);
+            AssertItemEquals(actual.XReflectionFinePushItem, expected.XReflectionFinePushItem);
+            actual.YRodItems.Should().HaveCount(expected.YRodItems.Length);
+            for (var i = 0; i < expected.YRodItems.Length; i++) AssertItemEquals(actual.YRodItems[i], expected.YRodItems[i]);
+        }
+
+        static void AssertOriginPositionEquals(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, FourierCenterChannelFlexibleApertureDTOOriginPositionItem expected)
+        {
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.AngleMotorAbsoluteValue);
+            actual.MotorAbsoluteValue.Should().Be(expected.MotorAbsoluteValue);
+            actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+            actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+
+            actual.XOriginROI.ImageROI.Should().Be(expected.XOriginROI.ImageROI);
+        }
+
+        static void AssertItemEquals(FourierCenterChannelFlexibleApertureDTOItem actual, FourierCenterChannelFlexibleApertureDTOItem expected)
+        {
+            actual.CenterChannelMotionKindEnum.Should().Be(expected.CenterChannelMotionKindEnum);
+            actual.DefaultAngleMotorAbsoluteValue.Should().Be(expected.DefaultAngleMotorAbsoluteValue);
+            actual.Width.Should().Be(expected.Width);
+            actual.Height.Should().Be(expected.Height);
+            actual.AngleMotorAbsoluteValue.Should().Be(expected.AngleMotorAbsoluteValue);
+            actual.Step0MotorAbsoluteValue.Should().Be(expected.Step0MotorAbsoluteValue);
+            actual.Step1MotorAbsoluteValue.Should().Be(expected.Step1MotorAbsoluteValue);
+            actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
+            actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
+            actual.PixelSize.Should().Be(expected.PixelSize);
+
+            actual.Step0ROI.ImageROI.Should().Be(expected.Step0ROI.ImageROI);
+            actual.Step1ROI.ImageROI.Should().Be(expected.Step1ROI.ImageROI);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool isUseCacheSettings)
+    {
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+
+        var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
+        var expected = new FourierCenterChannelFlexibleApertureCache
+        {
+            XMinMotorAbsoluteValue = -100.5,
+            XMaxMotorAbsoluteValue = 100.25,
+            ReflectionPushMinMotorAbsoluteValue = 0d,
+            ReflectionPushMaxMotorAbsoluteValue = 80.5,
+            DiffractionPushMinMotorAbsoluteValue = -20.25,
+            DiffractionPushMaxMotorAbsoluteValue = 90.75,
+            ProductivityInformation = cookie.ProductivityInformations[0],
+            MicroscopeLensInformation = cookie.MicroscopeLensInformations[0],
+            LaserLightInformation = cookie.LaserLightInformations[0],
+            OpticsConfiguration = new OpticsConfiguration
+            {
+                OpticsApodizationModeEnum = OpticsApodizationModeEnum.SuperGaussian,
+                OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.C,
+                OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.S
+            },
+            ScanLength = 500.25,
+            HazeFindBFMachinePosition = new Point(11.5, 21.5),
+            Id = 31,
+            Expiration = 32,
+            IsDeleted = true,
+            CreatedUserId = 2001,
+            CreatedUserName = "Created_Center",
+            CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            ModifiedUserId = 2002,
+            ModifiedUserName = "Modified_Center"
+        };
+        expected.ModifiedTime = expected.CreatedTime.AddTicks(5);
+
+        var json = JsonConvert.SerializeObject(expected, settings);
+        var actual = JsonConvert.DeserializeObject<FourierCenterChannelFlexibleApertureCache>(json, settings);
+        actual.Should().NotBeNull();
+        actual.HasErrors.Should().BeFalse();
+
+        actual.XMinMotorAbsoluteValue.Should().Be(expected.XMinMotorAbsoluteValue);
+        actual.XMaxMotorAbsoluteValue.Should().Be(expected.XMaxMotorAbsoluteValue);
+        actual.ReflectionPushMinMotorAbsoluteValue.Should().Be(expected.ReflectionPushMinMotorAbsoluteValue);
+        actual.ReflectionPushMaxMotorAbsoluteValue.Should().Be(expected.ReflectionPushMaxMotorAbsoluteValue);
+        actual.DiffractionPushMinMotorAbsoluteValue.Should().Be(expected.DiffractionPushMinMotorAbsoluteValue);
+        actual.DiffractionPushMaxMotorAbsoluteValue.Should().Be(expected.DiffractionPushMaxMotorAbsoluteValue);
+        actual.ProductivityInformation.Should().Be(expected.ProductivityInformation);
+        actual.MicroscopeLensInformation.Should().Be(expected.MicroscopeLensInformation);
+        actual.LaserLightInformation.Should().Be(expected.LaserLightInformation);
+        actual.OpticsConfiguration.OpticsApodizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsApodizationModeEnum);
+        actual.OpticsConfiguration.OpticsPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsPolarizationModeEnum);
+        actual.OpticsConfiguration.OpticsCollectorPolarizationModeEnum.Should().Be(expected.OpticsConfiguration.OpticsCollectorPolarizationModeEnum);
+        actual.ScanLength.Should().Be(expected.ScanLength);
+        actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
+
+        actual.Id.Should().Be(isUseCacheSettings ? 0L : expected.Id);
+        actual.Expiration.Should().Be(isUseCacheSettings ? 0L : expected.Expiration);
+        actual.IsDeleted.Should().Be(isUseCacheSettings == false && expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(isUseCacheSettings ? 0L : expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(isUseCacheSettings ? default : expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(isUseCacheSettings ? 0L : expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(isUseCacheSettings ? default : expected.ModifiedTime);
+
+        JsonConvert.SerializeObject(actual, settings).Should().Be(json);
+    }
+
+    private sealed class PrivateSetterContractResolver : DefaultContractResolver // FourierCenterChannelFlexibleApertureDTOItem.PixelSize private需要添加这个
+    {
+        public static readonly JsonSerializerSettings Settings = new()
+        {
+            ContractResolver = new PrivateSetterContractResolver()
+        };
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+
+            if (property.Writable || member is not PropertyInfo propertyInfo) return property;
+
+            var isPrivateSetterAvailable = propertyInfo.GetSetMethod(true) is not null;
+            property.Writable = isPrivateSetterAvailable;
+
+            return property;
+        }
+    }
+}

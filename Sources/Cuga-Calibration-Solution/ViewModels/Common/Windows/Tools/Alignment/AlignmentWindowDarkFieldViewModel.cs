@@ -8,6 +8,7 @@ using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
@@ -31,10 +32,12 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     private readonly ILogger<AlignmentWindowBrightFieldViewModel> _logger;
     private readonly IDialogWindowProvider _dialogWindowProvider;
     private readonly IWindowManagerService _windowManagerService;
+    private readonly ICacheProvider _cacheProvider;
     private readonly ICacheProvider _recipeCacheProvider;
     private readonly CalibrationSetting _calibrationSetting;
     private readonly ApplicationCookie _applicationCookie;
     private readonly ICalibrationCacheProvider _calibrationCacheProvider;
+    private readonly IApplicationCookieService _applicationCookieService;
 
     private CancellationTokenSource? _cancellationTokenSource;
 
@@ -64,6 +67,9 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
 
     [ObservableProperty]
     public partial AlignmentCacheDarkField[] Caches { get; set; } = [];
+
+    [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
 
     #region 界面
 
@@ -134,10 +140,13 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         IWindowManagerService windowManagerService,
         CalibrationSetting calibrationSetting,
         ApplicationCookie applicationCookie,
-        ICalibrationCacheProvider calibrationCacheProvider)
+        ICalibrationCacheProvider calibrationCacheProvider,
+        IApplicationCookieService applicationCookieService)
     {
         _dialogWindowProvider = dialogWindowProvider;
+        _cacheProvider = HostApplication.GetRequiredService<ICacheProvider>();
         _recipeCacheProvider = HostApplication.GetKeyedService<ICacheProvider>(CalibrationConstantsHelper.RecipeDbKey);
+        _applicationCookieService = applicationCookieService;
         _logger = logger;
         _contextProvider = contextProvider;
         AlignmentParamWindowDarkFieldViewModel = alignmentParamWindowDarkFieldViewModel;
@@ -166,10 +175,12 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 _cancellationTokenSource = new CancellationTokenSource();
                 var cancellationToken = _cancellationTokenSource.Token;
 
-                Caches = _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>();
-                Cache = Caches.SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation
-                                                    && t is { IsOk: true, IsVerified: true })
-                        ?? Cache;
+                MicroscopeCalChip = _applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
+                Caches =
+                [
+                    .. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(),
+                    .. _cacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>()
+                ];
 
                 if (_applicationCookie.MicroscopeLensInformations.Contains(Cache.LowMag) == false ||
                     _applicationCookie.MicroscopeLensInformations.Contains(Cache.HighMag) == false)
@@ -199,9 +210,11 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Advanced();
 
                 // 设置到明场中心、低倍镜、角度为0(上料默认状态)
-                StageViewModel.SetBrightFieldAbsoluteStageXy(Point.Origin, CalChipSiteModelEnum.ChuckModel);
-                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: cancellationToken).ConfigureAwait(false);
+                MicroscopeCalChip.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+
                 StageViewModel.SetAbsoluteStageTheta(0d);
+                await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: cancellationToken).ConfigureAwait(false);
+                StageViewModel.SetBrightFieldAbsoluteStageXy(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum), Cache.CalChipSiteModelEnum);
             }
             catch (Exception ex)
             {
@@ -283,7 +296,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                     }
 
                     var resultLowSite2 = StageViewModel.MarkAlignSite2(Cache.LowSite1);
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location, CalChipSiteModelEnum.ChuckModel);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.LowSite2 = resultLowSite2;
                     Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -311,7 +324,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.ProductivityInformation, Cache.HighSizeEnum);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1DarkField(Cache.ProductivityInformation, Cache.HighSizeEnum, Cache.CalChipSiteModelEnum);
 
                     Cache.HighSite1 = resultHighSite1;
                     Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -331,8 +344,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                         return;
                     }
 
-                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1);
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location, CalChipSiteModelEnum.ChuckModel);
+                    var resultHighSite2 = StageViewModel.MarkAlignSite2DarkField(Cache.ProductivityInformation, Cache.HighSite1, Cache.CalChipSiteModelEnum);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.HighSite2 = resultHighSite2;
                     Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
@@ -357,6 +370,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.HighSite2,
                 Cache.ProductivityInformation,
                 Cache.LowMag,
+                Cache.CalChipSiteModelEnum,
                 _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
@@ -399,12 +413,20 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
         update(Cache);
         Caches =
         [
-            .. Caches
-                .Where(t => t.ProductivityInformation == Cache.ProductivityInformation == false),
-            Cache.Clone()
+            .. _recipeCacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>(),
+            .. _cacheProvider.GetOrDefaultArray<AlignmentCacheDarkField>()
+        ];
+        Caches =
+        [
+            Cache.Clone(),
+            .. Caches.Where(t =>
+                t.ProductivityInformation != Cache.ProductivityInformation
+                || t.CalChipSiteModelEnum != Cache.CalChipSiteModelEnum)
         ];
 
-        _recipeCacheProvider.SetArray(Caches, cancellationToken);
+        _recipeCacheProvider.SetArray([.. Caches.Where(t => t.CalChipSiteModelEnum == CalChipSiteModelEnum.ChuckModel)], cancellationToken);
+        _cacheProvider.SetArray([.. Caches.Where(t => t.CalChipSiteModelEnum != CalChipSiteModelEnum.ChuckModel)], cancellationToken);
+
         return true;
     }, nameof(AlignmentCacheDarkField), cancellationToken);
 
@@ -438,22 +460,22 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
             switch (StepIndex)
             {
                 case 0:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, CalChipSiteModelEnum.ChuckModel);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite1.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 1:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, CalChipSiteModelEnum.ChuckModel);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.LowSite2.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.LowMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 2:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, CalChipSiteModelEnum.ChuckModel);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite1.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
 
                 case 3:
-                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, CalChipSiteModelEnum.ChuckModel);
+                    StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.HighSite2.Location, Cache.CalChipSiteModelEnum);
                     await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.HighMag, cancellationToken: _cancellationTokenSource.Token).ConfigureAwait(false);
                     break;
             }
@@ -521,5 +543,8 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
     {
         if (message.Value.IsToolsWindowEnable.HasValue)
             AlignmentParamWindowDarkFieldViewModel.IsToolsEnable = message.Value.IsToolsWindowEnable.Value;
+
+        if (message.Value.IsProductivityEnable.HasValue)
+            AlignmentParamWindowDarkFieldViewModel.IsProductivityEnable = message.Value.IsProductivityEnable.Value;
     }
 }

@@ -83,12 +83,13 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
         Cache = ApplicationCookieService.GetCache<FourierSideChannelFlexibleApertureCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<FourierSideChannelFlexibleApertureDTO>(cancellationToken);
 
-        var config = FourierViewModel.GetFourierConfig();
-        Cache.RodTotalCount = config.RodNum;
-        Cache.MinMotorAbsoluteValue = config.CH12MinPOS;
-        Cache.MaxMotorAbsoluteValue = config.CH12MaxPOS;
-        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = config.CH12MaxPOS * 0.8;
-        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = config.CH12MaxPOS * 0.5;
+        var configuration = FourierViewModel.GetMotorConfiguration();
+        Cache.RodTotalCount = configuration.SideRodTotalCount;
+        Cache.MinMotorAbsoluteValue = configuration.SideMinMotorAbsoluteValue;
+        Cache.MaxMotorAbsoluteValue = configuration.SideMaxMotorAbsoluteValue;
+        Guard.IsGreaterThan(Cache.MaxMotorAbsoluteValue, Cache.MinMotorAbsoluteValue);
+        if (Cache.Step0AndStep1MotorAbsoluteValue == 0d) Cache.Step0AndStep1MotorAbsoluteValue = Cache.MinMotorAbsoluteValue + (Cache.MaxMotorAbsoluteValue - Cache.MinMotorAbsoluteValue) * 0.8;
+        if (Cache.Step2MotorAbsoluteValue == 0d) Cache.Step2MotorAbsoluteValue = Cache.MinMotorAbsoluteValue + (Cache.MaxMotorAbsoluteValue - Cache.MinMotorAbsoluteValue) * 0.5;
 
         UpdateEntryStatus(Calibration, cancellationToken);
 
@@ -153,8 +154,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 CalibratingItem.Dispose();
                 CalibratingItem = new FourierSideChannelFlexibleApertureDTO(
                     Cache.RodTotalCount,
-                    FourierPupilCameraAlignment.Channel1Item.ROIChannelImageFilePath,
-                    FourierPupilCameraAlignment.Channel2Item.ROIChannelImageFilePath);
+                    FourierPupilCameraAlignment.Channel1Item.ROIFourierImageFilePath,
+                    FourierPupilCameraAlignment.Channel2Item.ROIFourierImageFilePath);
 
                 await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken);
                 StageViewModel.SetAbsoluteStageTheta(0d);
@@ -280,16 +281,16 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, true, cancellationToken));
+    private Task<bool> Step2Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, true, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, false, cancellationToken));
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel1Item, false, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, true, cancellationToken));
+    private Task<bool> Step4Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, true, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, false, cancellationToken));
+    private Task<bool> Step5Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel2Item, false, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -360,7 +361,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         var itemData = isEven ? item.EvenItem : item.OddItem;
@@ -382,16 +383,21 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         try
         {
-            FourierViewModel.Home(item.ChannelId);
+            try
+            {
+                FourierViewModel.Home(item.ChannelId);
 
-            SetRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
-            Grab(0);
-            SetRods(1, Cache.Step0AndStep1MotorAbsoluteValue);
-            Grab(1);
-            SetRods(2, Cache.Step2MotorAbsoluteValue);
-            Grab(2);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                SetRods(0, Cache.Step0AndStep1MotorAbsoluteValue);
+                Grab(0);
+                SetRods(1, Cache.Step0AndStep1MotorAbsoluteValue);
+                Grab(1);
+                SetRods(2, Cache.Step2MotorAbsoluteValue);
+                Grab(2);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(itemData.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
@@ -439,6 +445,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
         void SetRods(int stepIndex, double motorAbsoluteValue)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var indexes = stepIndex switch
             {
                 0 => [itemData.Step0LeftRod.Index, itemData.Step0RightRod.Index],
@@ -473,29 +481,30 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
-                item.ChannelId);
+                item.ChannelId,
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    itemData.Step0ChannelImageFilePath = roiChannelImageFilePath;
+                    itemData.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    itemData.Step1ChannelImageFilePath = roiChannelImageFilePath;
+                    itemData.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 2:
-                    itemData.Step2ChannelImageFilePath = roiChannelImageFilePath;
+                    itemData.Step2FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 

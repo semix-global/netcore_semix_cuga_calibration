@@ -497,20 +497,25 @@ public abstract partial class V0AbstractAODWaveformElectrodeDelayWindowViewModel
             }
             finally
             {
-                var htmlBullet = new HtmlBullet(new
+                try
                 {
-                    Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
-                    ElectrodeDelayItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))]),
-                    UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))])
-                });
+                    var htmlBullet = new HtmlBullet(new
+                    {
+                        Table = new HtmlTable([.. Cache.ElectrodeConfigurationResults.Select(t => t.ToHtmlAnonymous())]),
+                        ElectrodeDelayItems = new HtmlContainer([.. Cache.Step0Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))]),
+                        UniformityItems = new HtmlContainer([.. Cache.Step1Items.Select(t => new HtmlExpand(t.Title, new HtmlContainer([.. t.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))])
+                    });
 
-                if (isSuccess)
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
-                else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    if (isSuccess)
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    else
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                }
+                finally
+                {
+                    if (Cache.IsSupportAutoCloseLaser) LaserViewModel.ToggleLaserEnable(false);
+                }
             }
-
-            if (isSuccess) CloseLaserAfterStep1();
 
             return isSuccess;
         }, isSilent).ConfigureAwait(false);

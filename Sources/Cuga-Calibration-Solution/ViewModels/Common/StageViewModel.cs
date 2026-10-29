@@ -6,9 +6,13 @@ using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
+using Net.Utilities.Nlog.Entities.HtmlElements;
+using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 
 namespace CugaCalibration.ViewModels.Common;
@@ -17,7 +21,8 @@ namespace CugaCalibration.ViewModels.Common;
 public sealed class StageViewModel(
     ICalibrationStageService calibrationStageService,
     AfViewModel afViewModel,
-    CalibrationSetting calibrationSetting) : ViewModelBase
+    CalibrationSetting calibrationSetting,
+    ILogger<StageViewModel> logger) : ViewModelBase
 {
     #region 服务
 
@@ -186,14 +191,14 @@ public sealed class StageViewModel(
         afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
-    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point)
+    public void SetMachineAbsoluteStageXyByNotAutoFocus(Point point, CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         afViewModel.ToggleBrightFieldEnable(false);
 
         var ret = calibrationStageService.SetMachineAbsoluteStageXy(point);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        afViewModel.ToggleCalChipSiteModelEnum(CalChipSiteModelEnum.ChuckModel);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
     }
 
     public void SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(Point point)
@@ -290,25 +295,27 @@ public sealed class StageViewModel(
     public AlignmentSiteDto MarkAlignSite1DarkField(
         ProductivityInformation productivityInformation,
         AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         LaserLightInformation? laserLightInformation = null)
     {
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.MarkAlignSite1DarkField(productivityInformation, algorithmTemplateSizeEnum, laserLightInformation);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, calChipSiteModelEnum);
 
         return ret.Anything;
     }
 
     public AlignmentSiteDto MarkAlignSite2DarkField(
         ProductivityInformation productivityInformation,
-        AlignmentSiteDto site)
+        AlignmentSiteDto site,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
     {
         var ret = calibrationStageService.MarkAlignSite2DarkField(productivityInformation, site);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
-        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(ret.Anything.Location, calChipSiteModelEnum);
 
         return ret.Anything;
     }
@@ -320,8 +327,12 @@ public sealed class StageViewModel(
         AlignmentSiteDto darkFieldHighSite2,
         ProductivityInformation productivityInformation,
         MicroscopeLensInformation lowMicroscopeLensInformation,
+        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel,
         LaserLightInformation? laserLightInformation = null)
     {
+        SetAbsoluteStageTheta(0);
+        afViewModel.ToggleCalChipSiteModelEnum(calChipSiteModelEnum);
+
         laserLightInformation ??= calibrationSetting.SettingCommonParam.MainLaserLightInformation;
         var ret = calibrationStageService.AlignmentDarkField(
             brightFieldLowSite1,
@@ -335,7 +346,7 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
 
         var result = ret.Anything;
-        SetBrightFieldAbsoluteStageXy(result.MarkPoint2, CalChipSiteModelEnum.ChuckModel);
+        SetBrightFieldAbsoluteStageXy(result.MarkPoint2, calChipSiteModelEnum);
 
         result.MarkPoint1 = DarkFieldToMachinePosition(result.MarkPoint1);
         result.MarkPoint2 = DarkFieldToMachinePosition(result.MarkPoint2);
@@ -350,11 +361,39 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetGantryOffset(double gantryOffset)
+    public void SetGantryOffset(double gantryOffset, Guid guid)
     {
+        logger.LogHtmlInformation("Set Gantry Offset", HtmlHeaderLevelEnum.Header5, guid.LoggingHtml());
+
         var ret = calibrationStageService.SetGantryOffset(gantryOffset);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var reReadGantryOffsetRet = calibrationStageService.GetGantryOffset();
+        if (reReadGantryOffsetRet.IsSuccess == false)
+            throw new CugaException($"Failed to validate the read-back value.{reReadGantryOffsetRet.ErrorMsg}. ApplyGantryOffset={gantryOffset}.");
+
+        var reReadGantryOffset = reReadGantryOffsetRet.Anything;
+        var result = Math.Abs(gantryOffset - reReadGantryOffset) <= 0.1d;
+        var htmlBullet = new HtmlBullet(new
+        {
+            ApplyGantryOffset = gantryOffset,
+            reReadGantryOffset
+        });
+
+        if (result) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+
+        if (result == false) throw new CugaException($"Failed to validate the read-back value.ApplyGantryOffset={gantryOffset}, ReadGantryOffset={reReadGantryOffsetRet.Anything}.");
+    }
+
+    public double GetGantryOffset()
+    {
+        var ret = calibrationStageService.GetGantryOffset();
+
+        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        return ret.Anything;
     }
 
     public void SetEnableStageMap(bool enable)
@@ -378,10 +417,31 @@ public sealed class StageViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetBrightFieldCenterMachinePositionValue(Point position)
+    public void SetBrightFieldCenterMachinePositionValue(Point position, Guid guid)
     {
+        logger.LogHtmlInformation("Set Bright Field Center", HtmlHeaderLevelEnum.Header5, guid.LoggingHtml());
+
         var ret = calibrationStageService.SetBrightFieldCenterMachinePositionValue(position);
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var reReadPositionRet = calibrationStageService.GetBrightFieldCenterMachinePositionValue();
+
+        if (reReadPositionRet.IsSuccess == false)
+            throw new CugaException($"Failed to validate the read-back value.{reReadPositionRet.ErrorMsg}. ApplyBFCenterMachinePosition={position}");
+
+        var reReadPosition = reReadPositionRet.Anything;
+        var result = Math.Abs(position.X - reReadPosition.X) < Constants.Tolerance
+                     && Math.Abs(position.Y - reReadPosition.Y) < Constants.Tolerance;
+        var htmlBullet = new HtmlBullet(new
+        {
+            ApplyBrightFieldCenter = position,
+            ReadBrightFieldCenter = reReadPosition
+        });
+
+        if (result) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+
+        if (result == false) throw new CugaException($"Failed to validate the read-back value.ApplyBFCenterMachinePosition={position}, ReadBFCenterMachinePosition={reReadPositionRet.Anything}");
 
         afViewModel.SetSensorBrightFieldChuckCenterMachinePositionValue(position);
     }
@@ -401,32 +461,70 @@ public sealed class StageViewModel(
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void ResetXYGlobalScale()
+    public void SetXYGlobalScale(double xScale, double yScale, Guid guid)
     {
-        var ret = calibrationStageService.SetXYGlobalScale(1, 1);
+        logger.LogHtmlInformation("Set XY Global Scale", HtmlHeaderLevelEnum.Header5, guid.LoggingHtml());
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
-    }
-
-    public void SetXYGlobalScale(double xScale, double yScale)
-    {
         var ret = calibrationStageService.SetXYGlobalScale(xScale, yScale);
-
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var readAxisScaleRet = calibrationStageService.GetXYGlobalScale();
+        if (readAxisScaleRet.IsSuccess == false)
+            throw new CugaException($"Failed to validate the read-back value.{readAxisScaleRet.ErrorMsg}. ApplyXYScale=({xScale},{yScale}).");
+
+        var readAxisScale = readAxisScaleRet.Anything;
+        var result = Math.Abs(xScale - readAxisScale.X) < Constants.Tolerance && Math.Abs(yScale - readAxisScale.Y) < Constants.Tolerance;
+        var htmlBullet = new HtmlBullet(new
+        {
+            ApplyXScale = xScale,
+            ApplyYScale = yScale,
+            ReadXScale = readAxisScale.X,
+            ReadYScale = readAxisScale.Y
+        });
+
+        if (result) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+
+        if (result == false) throw new CugaException($"Failed to validate the read-back value.ApplyXYScale=({xScale},{yScale}), ReadXYScale=({readAxisScaleRet.Anything.X},{readAxisScaleRet.Anything.Y})");
     }
 
-    public void ResetTScale()
+    public (double X, double Y) GetXYGlobalScale()
     {
-        var ret = calibrationStageService.SetTScale(1);
+        var ret = calibrationStageService.GetXYGlobalScale();
 
-        if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetTScale(double scaleT)
+    public void SetTScale(double scaleT, Guid guid)
     {
+        logger.LogHtmlInformation("Set T Scale", HtmlHeaderLevelEnum.Header5, guid.LoggingHtml());
+
         var ret = calibrationStageService.SetTScale(scaleT);
-
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+
+        var readAxisScaleRet = calibrationStageService.GetTScale();
+        if (readAxisScaleRet.IsSuccess == false)
+            throw new CugaException($"Failed to validate the read-back value.{readAxisScaleRet.ErrorMsg}. ApplyTScale={scaleT}.");
+
+        var readAxisScale = readAxisScaleRet.Anything;
+        var result = Math.Abs(scaleT - readAxisScale) < Constants.Tolerance;
+        var htmlBullet = new HtmlBullet(new
+        {
+            ApplyTScale = scaleT,
+            ReadTScale = readAxisScale
+        });
+
+        if (result) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, guid.LoggingHtml());
+
+        if (result == false) throw new CugaException($"Failed to validate the read-back value.ApplyTScale={scaleT}, ReadTScale={readAxisScaleRet.Anything}");
+    }
+
+    public double GetTScale()
+    {
+        var ret = calibrationStageService.GetTScale();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
 
     public Point GetEfemLoadWaferMachineStagePosition()

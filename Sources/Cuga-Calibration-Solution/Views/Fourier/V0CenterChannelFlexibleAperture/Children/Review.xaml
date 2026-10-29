@@ -34,10 +34,10 @@
                 <hc:Shield Subject="X Max Motor: "
                            Status="{Binding Cache.XMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Push Min Motor: "
+                <hc:Shield Subject="X Push Min Motor: "
                            Status="{Binding Cache.PushMinMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="Push Max Motor: "
+                <hc:Shield Subject="X Push Max Motor: "
                            Status="{Binding Cache.PushMaxMotorAbsoluteValue}"
                            Color="{StaticResource SuccessBrush}" />
                 <hc:Shield Subject="Y Min Motor: "
@@ -78,13 +78,6 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <StackPanel>
-                                    <TextBlock Text="Result"
-                                               HorizontalAlignment="Center"
-                                               FontSize="13"
-                                               FontWeight="Bold"
-                                               Style="{StaticResource TextBlockDefaultSuccess}" />
-                                </StackPanel>
                                 <TextBox Text="{Binding Review.XApertureItem.AngleMotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Angle(°): "
                                          hc:TitleElement.TitlePlacement="Left"
@@ -101,6 +94,34 @@
                                          Style="{StaticResource TextBoxExtend}" />
                                 <TextBox Text="{Binding Review.XApertureItem.Step1MotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 0 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                         hc:TitleElement.Title="Step 0 Ellipse(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 1 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.XApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                         hc:TitleElement.Title="Step 1 Ellipse(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
@@ -129,13 +150,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -152,6 +166,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.XRodItems[0].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[0].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[0].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -175,13 +203,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -198,6 +219,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.XRodItems[1].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[1].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[1].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -221,13 +256,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -244,6 +272,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.XRodItems[2].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[2].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[2].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -267,13 +309,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -295,6 +330,20 @@
                                                  IsReadOnly="True"
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[3].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XRodItems[3].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.XRodItems[3].PixelSize, Mode=OneWay}"
                                                  hc:TitleElement.Title="Pixel Size(mm/px): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -307,19 +356,12 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="Push">
+                        <TabItem Header="X Push">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.XPushItem.Step0MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 0 Position(mm): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -329,6 +371,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.XPushItem.Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XPushItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.XPushItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -354,13 +410,6 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <StackPanel>
-                                    <TextBlock Text="Result"
-                                               HorizontalAlignment="Center"
-                                               FontSize="13"
-                                               FontWeight="Bold"
-                                               Style="{StaticResource TextBlockDefaultSuccess}" />
-                                </StackPanel>
                                 <TextBox Text="{Binding Review.YApertureItem.AngleMotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Angle(°): "
                                          hc:TitleElement.TitlePlacement="Left"
@@ -377,6 +426,34 @@
                                          Style="{StaticResource TextBoxExtend}" />
                                 <TextBox Text="{Binding Review.YApertureItem.Step1MotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Step 1 Position(mm): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 0 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                         hc:TitleElement.Title="Step 0 Ellipse(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                         hc:TitleElement.Title="Step 1 Rect(px): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding Review.YApertureItem.Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToEllipseStringConverter}, ConverterParameter=0.###}"
+                                         hc:TitleElement.Title="Step 1 Ellipse(px): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"
                                          IsReadOnly="True"
@@ -405,13 +482,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[0].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -428,6 +498,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.YRodItems[0].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[0].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[0].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -451,13 +535,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[1].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -474,6 +551,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.YRodItems[1].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[1].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[1].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -497,13 +588,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[2].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -520,6 +604,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.YRodItems[2].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[2].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[2].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"
@@ -543,13 +641,6 @@
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                             Orientation="Vertical"
                                                             Spacing="2">
-                                        <StackPanel>
-                                            <TextBlock Text="Result"
-                                                       HorizontalAlignment="Center"
-                                                       FontSize="13"
-                                                       FontWeight="Bold"
-                                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                                        </StackPanel>
                                         <TextBox Text="{Binding Review.YRodItems[3].AngleMotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Angle(°): "
                                                  hc:TitleElement.TitlePlacement="Left"
@@ -566,6 +657,20 @@
                                                  Style="{StaticResource TextBoxExtend}" />
                                         <TextBox Text="{Binding Review.YRodItems[3].Step1MotorAbsoluteValue, Mode=OneWay}"
                                                  hc:TitleElement.Title="Step 1 Position(mm): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[3].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding Review.YRodItems[3].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                                 hc:TitleElement.Title="Step 1 Rect(px): "
                                                  hc:TitleElement.TitlePlacement="Left"
                                                  hc:TitleElement.TitleWidth="190"
                                                  IsReadOnly="True"

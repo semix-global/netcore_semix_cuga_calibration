@@ -571,7 +571,7 @@ public sealed class CalibrationCIBServiceImpl(
 
         try
         {
-            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(60));
+            setWaitTimeRet = Invoke(() => Service?.SetWaitTime(100));
             if (setWaitTimeRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
 
             getDFImgCalibrationRet = Invoke(() => Service?.GetDFImgCalibration(sxCollectImgParam));

@@ -10,6 +10,7 @@
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+           xmlns:enumStage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            d:DataContext="{d:DesignInstance Type=viewModels:AlignmentParamWindowDarkFieldViewModel}"
            SizeToContent="WidthAndHeight"
            WindowStartupLocation="CenterScreen"
@@ -107,18 +108,6 @@
                                     </DataTemplate>
                                 </hc:ComboBox.ItemTemplate>
                             </hc:ComboBox>
-                            <hc:ComboBox hc:TitleElement.Title="Productivity Information: "
-                                         hc:TitleElement.TitlePlacement="Left"
-                                         hc:TitleElement.TitleWidth="160"
-                                         IsEnabled="{Binding IsToolsEnable}"
-                                         IsEditable="True"
-                                         IsReadOnly="True"
-                                         Style="{StaticResource ComboBoxExtend}"
-                                         ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
-                                <i:Interaction.Behaviors>
-                                    <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                </i:Interaction.Behaviors>
-                            </hc:ComboBox>
                         </hc:UniformSpacingPanel>
                     </GroupBox>
                     <pattern:OpticsConfigurationUserControl DataContext="{Binding OpticsConfiguration}" />
@@ -144,6 +133,32 @@
                                     <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
                                 </DataTemplate>
                             </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:ComboBox Width="300"
+                                     hc:TitleElement.TitleWidth="150"
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.Title="Cal Chip Type: "
+                                     IsEnabled="{Binding IsToolsEnable}"
+                                     SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumStage:CalChipSiteModelEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <hc:ComboBox Width="300"
+                                     hc:TitleElement.Title="Productivity Information: "
+                                     hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="160"
+                                     IsEnabled="{Binding IsProductivityEnable}"
+                                     IsEditable="True"
+                                     IsReadOnly="True"
+                                     Style="{StaticResource ComboBoxExtend}"
+                                     ItemsSource="{Binding ApplicationCookie.ProductivityInformations}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            </i:Interaction.Behaviors>
                         </hc:ComboBox>
                     </hc:UniformSpacingPanel>
 

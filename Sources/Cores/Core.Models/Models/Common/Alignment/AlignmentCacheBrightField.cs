@@ -1,14 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Stage;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Common.Alignment;
 
 public sealed partial class AlignmentCacheBrightField : AlignmentCacheBase, ICloneable<AlignmentCacheBrightField>
 {
-    [ObservableProperty]
-    public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
-
     public AlignmentCacheBrightField Clone() => new()
     {
         AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,

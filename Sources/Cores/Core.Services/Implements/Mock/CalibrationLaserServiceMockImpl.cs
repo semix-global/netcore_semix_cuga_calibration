@@ -113,7 +113,7 @@ public sealed class CalibrationLaserServiceMockImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double prescanCoefficient, double chirpAODDelay)
     {
         Thread.Sleep(100);
 

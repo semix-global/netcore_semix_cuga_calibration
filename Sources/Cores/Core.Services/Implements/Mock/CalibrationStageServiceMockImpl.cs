@@ -22,6 +22,10 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
 
     private Point _curPosition = BrightFieldStagePosition;
     private double _curTheta;
+    private (double X, double Y) _axisXYScale = (1d, 1d);
+    private double _axisTScale = 1d;
+    private double _gantryOffset;
+    private Point _brightFieldCenter = new(89500, -20300);
 
     public SxExecuteRet<bool> Connect()
     {
@@ -359,8 +363,16 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<bool> SetGantryOffset(double gantryOffset)
     {
         Thread.Sleep(100);
+        _gantryOffset = gantryOffset;
 
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetGantryOffset()
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(_gantryOffset);
     }
 
     public SxExecuteRet<bool> ToggleEnableStageMap(bool enable)
@@ -387,6 +399,7 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)
     {
         Thread.Sleep(100);
+        _brightFieldCenter = position;
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
@@ -402,17 +415,31 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     {
         Thread.Sleep(100);
 
-        return SxExecuteRetHelper.CreateSuccess(new Point(89500, -20300));
+        return SxExecuteRetHelper.CreateSuccess(_brightFieldCenter);
     }
 
     public SxExecuteRet<bool> SetXYGlobalScale(double xScale, double yScale)
     {
+        _axisXYScale = (xScale, yScale);
+
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<(double X, double Y)> GetXYGlobalScale()
+    {
+        return SxExecuteRetHelper.CreateSuccess(_axisXYScale);
     }
 
     public SxExecuteRet<bool> SetTScale(double tScale)
     {
+        _axisTScale = tScale;
+
         return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetTScale()
+    {
+        return SxExecuteRetHelper.CreateSuccess(_axisTScale);
     }
 
     public SxExecuteRet<Point> GetEfemLoadWaferMachineStagePosition()

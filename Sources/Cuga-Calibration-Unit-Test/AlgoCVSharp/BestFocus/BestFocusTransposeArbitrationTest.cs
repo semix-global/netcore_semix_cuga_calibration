@@ -20,7 +20,8 @@ public class BestFocusTransposeArbitrationTest(ITestOutputHelper testOutputHelpe
 
         using var hImage = RAWImageFactory.CreateImage(filePath, true);
         using var bitmapImage = hImage.ToBitmapImage();
-        using var imageA = bitmapImage.ToAlgoCVImage(isRawSource: true);
+        using var uprightImage = bitmapImage.ToAlgoCVImage();
+        using var imageA = algocv_sharp.ImageProc.Transpose(uprightImage);
         using var engineA = new BestFocusEngine(new BestFocusConfig());
         using var resultA = engineA.Process(imageA);
 

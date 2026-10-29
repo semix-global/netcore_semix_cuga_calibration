@@ -47,31 +47,17 @@
                                   hc:TitleElement.TitleWidth="190"
                                   Style="{StaticResource ComboBoxExtend}"
                                   ItemsSource="{Binding YRodItems}"
-                                  SelectedItem="{Binding SelectedYRodItem}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text">
-                                                    <Setter.Value>
-                                                        <MultiBinding StringFormat="{}{0:0.###}° {1:0.###}px">
-                                                            <Binding Path="AngleMotorAbsoluteValue" />
-                                                            <Binding Path="Step0ROI.ImageROI" Converter="{StaticResource RectHeightConverter}" />
-                                                        </MultiBinding>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
-                                                        <Setter Property="Text" Value="None" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding SelectedYRodItem}" />
+                        <ComboBox hc:TitleElement.Title="X Push: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding XPushItems}"
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  SelectedValue="{Binding SelectedXPushItem}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
@@ -79,6 +65,13 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Y Rod ROI(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.AngleMotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="Y Rod Angle(°): "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -93,8 +86,29 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.YRodROI.IsSelected, Mode=OneWay}"
+                                 hc:TitleElement.Title="Y Rod Selected: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="X Push ROI(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.MotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="X Push Position(mm): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.Channel3Item.XPushROI.IsSelected, Mode=OneWay}"
+                                 hc:TitleElement.Title="X Push Selected: "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"

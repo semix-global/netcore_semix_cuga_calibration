@@ -35,7 +35,7 @@ using Rect = Net.Utilities.Models.Geometries.Rect;
 namespace Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationAlgorithmServiceImpl(
+public sealed partial class CalibrationAlgorithmServiceImpl(
     ILogger<CalibrationAlgorithmServiceImpl> logger,
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
@@ -50,7 +50,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
         if (_isAlgorithmEngineInitialized) return;
 
         var options = HostApplication.GetRequiredService<IOptions<ApplicationSetting>>();
-        AlgoCv.InitAlgoCv(Path.Combine(options.Value.AlgorithmLogDirectory, $"{Constants.DateTimeFormat}"));
+        AlgoCv.InitAlgoCv(Path.Combine(options.Value.AlgorithmLogDirectory, $"{Constants.DateTimeFormat}"), options.Value.AlgorithmLogLevel);
         _isAlgorithmEngineInitialized = true;
     }
 
@@ -278,10 +278,8 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     private BestFocus GetAlgoCVSharpBestFocus(BitmapImage image, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum)
     {
-        // BestFocus 输入为 raw 链路图（PMT raw 转正的物理正向图），桥按 raw 规则转置竖图喂入
-        // （1.2.0 引擎假定 raw 列优先竖图输入，正向图直搬会被拒绝，见 BestFocusTransposeArbitrationTest 仲裁）。
-        // TODO: algocv_sharp 提供方向 flag 后，由 flag 统一驱动方向语义。
-        using var algoImage = image.ToAlgoCVImage(isRawSource: true);
+        // 输入为正向图，XAxis.Col 表示宽方向为 X 轴，输出矩阵与图像方向一致
+        using var algoImage = image.ToAlgoCVImage();
         BestFocusEngineResult algoResult;
 
         switch (algorithmBestFocusTypeEnum)
@@ -289,13 +287,13 @@ public sealed class CalibrationAlgorithmServiceImpl(
             case AlgorithmBestFocusTypeEnum.DSW065:
                 using (var engine = new BestFocusEngine(new BestFocusConfig()))
                 {
-                    algoResult = engine.Process(algoImage);
+                    algoResult = engine.Process(algoImage, XAxis.Col);
                 }
 
                 break;
 
             case AlgorithmBestFocusTypeEnum.DSW:
-                algoResult = BestFocusEngine.ProcessDSW163(algoImage);
+                algoResult = BestFocusEngine.ProcessDSW163(algoImage, XAxis.Col);
                 break;
 
             default:
@@ -347,7 +345,7 @@ public sealed class CalibrationAlgorithmServiceImpl(
 
     /// <summary>
     /// AlgoCSharp 引擎（BfPixelSize 明场网格拟合）：显微 BF 图为常规格式（8bit 灰/彩色，jpg 直读），
-    /// 桥直搬保持物理正向（isRawSource: false，协议：其余格式同方向）。
+    /// 桥直搬保持物理正向。
     /// </summary>
     private Size GetAlgoCVSharpPixelSize(BitmapImage image, Size standardMaskSquareSize, out BitmapImage drawingImage, out double angle)
     {
@@ -435,18 +433,17 @@ public sealed class CalibrationAlgorithmServiceImpl(
     }
 
     /// <summary>
-    /// AlgoCSharp 引擎（DfPixelSize 暗场首末列配对）：DF 为 raw 图，终态应经桥转置竖图喂入（API 内部用竖图出横向结果）。
-    /// TODO: 当前 API 未支持竖图输入（实测报“内缩后区间过短”），先直搬（isRawSource: false），待 algocv_sharp 提供方向 flag 后改为 true。
+    /// AlgoCVSharp 计算 Y pixel size，输入为正向图，XAxis.Row（行方向为 X，默认口径），输出与图像方向一致
     /// </summary>
     private double GetAlgoCVSharpYPixelSize(BitmapImage image, double standardMaskSquareYSize, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes)
     {
         using var algoImage = image.ToAlgoCVImage();
         using var engine = new DfPixelSizeEngine(new DfPixelSizeConfig());
-        using var result = engine.Process(algoImage);
+        using var result = engine.Process(algoImage, XAxis.Row);
 
         // pairs.step_mean_c = 列向步长均值(像素/格)；Y pixel size = 物理格高 / 列向步长。
         // Y 投影曲线 = 每行灰度均值（与 HAlgorithm 版 projectionYs 同信号）；配对行位置 r0 对应 AMPD 峰位语义（竖线标记）。
-        // 当前直搬为正向图：行号即物理 Y；待改竖图（isRawSource: true）后投影与索引须随竖图坐标系同步换算（竖图 c 轴=物理 Y）。
+        // 输入为正向图（XAxis.Row 为 DfPixelSize 默认口径），rowMean 按行号投影，r0 与 rowMean 下标一致
         var rowMean = new double[algoImage.Height];
         var pixels = algoImage.ToSpan<ushort>();
         for (var row = 0; row < algoImage.Height; row++)

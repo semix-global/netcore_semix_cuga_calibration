@@ -6,6 +6,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.Centricity;
 using Core.Models.Models.Microscope.PixelSize;
@@ -146,11 +147,12 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 .ThenByDescending(t => t.LensCode)
                 .ElementAt(CalibrationStepIndex - 2),
             1 => ApplicationCookie.MicroscopeLensInformations[0],
-            _ => throw new ArgumentOutOfRangeException()
+            _ => ThrowHelper.ThrowArgumentOutOfRangeException<MicroscopeLensInformation>(nameof(CalibrationStepIndex))
         };
 
         await MicroscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, isMoveToMicroscopeCenter: false, cancellationToken: cancellationToken).ConfigureAwait(false);
         StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+
         return true;
     }
 
@@ -203,6 +205,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 Cache.Item.WaferMaskTypeEnum,
                 Cache.Item.FindPosition
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -221,14 +224,20 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 HtmlLogUniqueId);
             if (generateTemplateLow1)
                 Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
+            else
+            {
+                LogFailure($"Generate Template Failed! TemplateFilePath: {Cache.Item.TemplateFilePath}", HtmlHeaderLevelEnum.Header3, nameof(CalibrationConstantsHelper.TemplatePathToTemplateImagePath));
+                DialogWindowProvider.ShowDialog("Generate Template Failed", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
 
-            if (generateTemplateLow1 == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
 
             var (isSuccess, errorMessage) = Cache.Verify();
             if (isSuccess == false)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-                DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure($"Validate Failed: {errorMessage}", HtmlHeaderLevelEnum.Header3, "Cache.Verify");
+                DialogWindowProvider.ShowDialog(errorMessage, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
@@ -236,6 +245,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             CalibratingItem.IsCalibrated = false;
 
             StageViewModel.SetBrightFieldAbsoluteStageXy(Cache.Item.FindPosition, Cache.CalChipSiteModelEnum);
+
             if (MatchTemplate(cancellationToken) == false) return false;
 
             var averageX = CalibratingItem.Items.Average(t => t.CentricityPosition.X);
@@ -280,11 +290,14 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
         {
             if (SelectedReviewItem is null)
             {
-                DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                LogFailure("Please select a review item!", HtmlHeaderLevelEnum.Header3, nameof(SelectedReviewItem) + "is null");
+                DialogWindowProvider.ShowDialog("Please select a review item!", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
                 return false;
             }
 
             Cache.MicroscopeLensInformation = SelectedReviewItem.MicroscopeLensInformation;
+            VerifyFileName = EnumHelper.ToDescriptionString(SelectedReviewItem.MicroscopeLensInformation.LensName);
 
             Logger.LogHtmlInformation($"{Cache.MicroscopeLensInformation.LensName}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
@@ -295,7 +308,8 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
 
             if (centricityItemMaxDto is null)
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Please calibrate max magnification first!"), HtmlLogUniqueId.LoggingHtml());
+                LogFailure("Please calibrate max magnification first!", HtmlHeaderLevelEnum.Header4, nameof(centricityItemMaxDto) + "is null");
+
                 return false;
             }
 
@@ -306,7 +320,7 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
 
             var originalPosition = StageViewModel.GetBrightFieldStagePosition();
 
-            if (MatchTemplate(cancellationToken, 1) == false) return false;
+            if (MatchTemplate(cancellationToken, repeatCount: 1) == false) return false;
 
             var microscopeCentricityItem = CalibratingItem.Items[0];
             var newPosition = microscopeCentricityItem.CentricityPosition;
@@ -331,10 +345,15 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
             SelectedReviewItem.IsVerified = result;
 
             Guard.IsTrue(Save([SelectedReviewItem], cancellationToken));
-            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition}) Old Offset: ({originalPosition}) Error: ({offset})", DialogButtonsEnum.OK,
-                result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+            DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New Offset: ({newPosition}) Old Offset: ({originalPosition}) Error: ({offset})", dialogButtonsEnum: DialogButtonsEnum.OK,
+                dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
-            if (result == false) return false;
+            if (result == false)
+            {
+                LogFailure($"Verify Failed: Offset ({offset}) exceeds Threshold ({Cache.Threshold})", HtmlHeaderLevelEnum.Header4, "Verify");
+
+                return false;
+            }
 
             // 同心验证
             var verifiedDtoList = Calibrations.Where(t => t.IsOk).ToList();
@@ -344,7 +363,8 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                 result = Math.Abs(concentricOffset) <= Cache.ConcentricThreshold;
                 if (result == false)
                 {
-                    DialogWindowProvider.ShowDialog($"Concentric {(result ? "OK" : "Failed")}, Offset: {concentricOffset}", DialogButtonsEnum.OK, result ? DialogIconEnum.Information : DialogIconEnum.Warning);
+                    LogFailure($"Concentric Failed: Offset ({concentricOffset}) exceeds ConcentricThreshold ({Cache.ConcentricThreshold})", HtmlHeaderLevelEnum.Header4, "Concentric Verify");
+                    DialogWindowProvider.ShowDialog($"Concentric {(result ? "OK" : "Failed")}, Offset: {concentricOffset}", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: result ? DialogIconEnum.Information : DialogIconEnum.Warning);
                     SelectedReviewItem.IsVerified = false;
                     Guard.IsTrue(Save([SelectedReviewItem], cancellationToken));
                 }
@@ -393,7 +413,12 @@ public sealed partial class MicroscopeCentricityViewModel : CalibrationViewModel
                     out var matchSnapshot,
                     out var resultPosition,
                     out _,
-                    Cache.CalChipSiteModelEnum) == false) return false;
+                    site: Cache.CalChipSiteModelEnum) == false)
+            {
+                LogFailure($"Match Template Failed: cannot find the target (Lens: {Cache.MicroscopeLensInformation.LensName}, Repeat Time: {times}/{repeatCount})", HtmlHeaderLevelEnum.Header5, nameof(ReviewViewModel.TryGetMatchPosition));
+
+                return false;
+            }
 
             var microscopeCentricityItem = new MicroscopeCentricityDTOItem
             {

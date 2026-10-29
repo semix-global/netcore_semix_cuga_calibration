@@ -26,7 +26,7 @@ public sealed partial class BitmapImageROIDrawable(BitmapImageDrawable bitmapIma
     ];
 
     /// <summary>
-    /// 该ROI所依附的图片. 所有ROI坐标都会被限制在该图片范围内.
+    /// 该ROI所依附的图片. 编辑时是否允许越界由编辑器输入选项决定.
     /// </summary>
     public readonly BitmapImageDrawable BitmapImageDrawable = bitmapImageDrawable;
 

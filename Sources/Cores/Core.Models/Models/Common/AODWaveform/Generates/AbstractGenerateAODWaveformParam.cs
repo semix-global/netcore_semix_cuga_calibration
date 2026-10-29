@@ -40,7 +40,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     public partial FunctionMonotonicTypeEnum FunctionMonotonicTypeEnum { get; set; }
 
     [ObservableProperty]
-    public partial double SampleRate { get; set; } = 1064d;
+    public partial double SampleRate { get; set; } = 1228.8;
 
     [ObservableProperty]
     public partial string DirectoryPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), nameof(AODWaveform));
@@ -52,7 +52,7 @@ public abstract partial class AbstractGenerateAODWaveformParam :
     public partial int EndpointSampleCount { get; set; }
 
     [ObservableProperty]
-    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [];
+    public partial IReadOnlyList<GenerateAODWaveformElectrodeConfiguration> ElectrodeConfigurations { get; set; } = [new() { OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.Electrode1 }];
 
     [ObservableProperty]
     public partial IReadOnlyList<GenerateAODWaveformSlopeConfiguration> SlopeConfigurations { get; set; } = [];

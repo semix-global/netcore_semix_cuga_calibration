@@ -73,6 +73,20 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultSuccess}" />
                         </StackPanel>
+                        <TextBox Text="{Binding CalibratingItem.YRodItems[1].Step0ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Step 0 Rect(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.YRodItems[1].Step1ROI.ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
+                                 hc:TitleElement.Title="Step 1 Rect(px): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding CalibratingItem.YRodItems[1].PixelSize, Mode=OneWay}"
                                  hc:TitleElement.Title="Pixel Size(mm/px): "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -97,7 +111,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="CH3 Y 180 Degree Rod">
+        <GroupBox Grid.Column="2" Header="{Binding CalibrationStepName}">
             <Border Style="{StaticResource BorderRegion}">
                 <wpf:OpticsFourierImageCanvasControl Document="{Binding CalibratingItem.YRodItems[1].Document, Mode=OneWay}" />
             </Border>

@@ -7,7 +7,7 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Services.Interfaces;
 
-public interface ICalibrationAlgorithmService
+public partial interface ICalibrationAlgorithmService
 {
     void InitialAlgorithmEngine();
 

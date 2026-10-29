@@ -45,5 +45,11 @@ public sealed class OpticsFourierImageDocument : CanvasDocument
             bitmapImageROIDrawable.IsVisible = true;
             bitmapImageROIDrawable.IsSelected = false;
         }
+
+        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
+
+        Edit.SelectedItems.Clear();
+
+        Transients.Clear();
     }
 }

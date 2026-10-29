@@ -95,9 +95,9 @@ public sealed class LaserViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
-    public void SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public void SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double prescanCoefficient, double chirpAODDelay)
     {
-        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAODDelay, chirpAODDelay);
+        var ret = calibrationLaserService.SetAODDelayValue(productivityInformation, prescanAODDelay, prescanCoefficient, chirpAODDelay);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }

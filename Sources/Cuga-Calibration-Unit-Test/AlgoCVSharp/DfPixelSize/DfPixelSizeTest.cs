@@ -98,6 +98,35 @@ public class DfPixelSizeTest(ITestOutputHelper testOutputHelper)
 #endif
     }
 
+    /// <summary>正向图 + XAxis.Row 与转置图 + XAxis.Col 的结果应交叉一致（结果坐标按调用方图像 (行,列) 返回）</summary>
+    [Theory]
+    [InlineData(@"Assets\DFPixelSize\test\OI-S10_20260613.tiff")]
+    [InlineData(@"Assets\DFPixelSize\test\OI-S90_20260613.tiff")]
+    [InlineData(@"Assets\DFPixelSize\test\NI-S40_20260613.tiff")]
+    public void Process_UprightRow_ShouldMatchTransposedCol(string filePath)
+    {
+        using AlgoCvImage uprightImage = new(filePath);
+        uprightImage.IsEmpty.Should().BeFalse();
+        using var transposedImage = algocv_sharp.ImageProc.Transpose(uprightImage);
+        transposedImage.Width.Should().Be(uprightImage.Height);
+        transposedImage.Height.Should().Be(uprightImage.Width);
+
+        using var engine = new DfPixelSizeEngine(new DfPixelSizeConfig());
+        using var uprightResult = engine.Process(uprightImage, XAxis.Row);
+        using var transposedResult = engine.Process(transposedImage, XAxis.Col);
+
+        testOutputHelper.WriteLine($"img={uprightImage.Width}x{uprightImage.Height}, upright: pairs={uprightResult.pairs.r}, step_mean=(r: {uprightResult.pairs.step_mean_r:0.####}, c: {uprightResult.pairs.step_mean_c:0.####}); transposed: pairs={transposedResult.pairs.r}, step_mean=(r: {transposedResult.pairs.step_mean_r:0.####}, c: {transposedResult.pairs.step_mean_c:0.####})");
+
+        // 配对数量相等，步长均值交叉一致：正向图 r 对转置图 c，正向图 c 对转置图 r
+        uprightResult.pairs.r.Should().BeGreaterThan(0);
+        uprightResult.pairs.r.Should().Be(transposedResult.pairs.r);
+        uprightResult.pairs.step_mean_r.Should().BeApproximately(transposedResult.pairs.step_mean_c, 1e-6);
+        uprightResult.pairs.step_mean_c.Should().BeApproximately(transposedResult.pairs.step_mean_r, 1e-6);
+
+        // 输出方向与图像一致：r0 为正向图行号
+        uprightResult.pairs.pairs.Should().OnlyContain(t => t.r0 >= 0d && t.r0 < uprightImage.Height);
+    }
+
 #if DfPixelSizeTest
     /// <summary>每行灰度均值（Y 投影曲线，16 位单通道）。</summary>
     private static double[] ComputeRowMean(AlgoCvImage image)

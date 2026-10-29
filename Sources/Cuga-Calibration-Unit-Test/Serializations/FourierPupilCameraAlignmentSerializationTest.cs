@@ -43,9 +43,9 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool useCacheSettings)
+    public void ProvidedJson_ShouldMatchEveryField_AndSerializeBackIdentically(bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         var json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Assets", "FourierSerialization", "FourierPupilCameraAlignment.json"));
         var expected = JObject.Parse(json);
@@ -59,7 +59,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
         saved.Descendants().OfType<JProperty>().Select(t => t.Name).Should().NotContain(NonPersistentNames);
 
-        if (useCacheSettings == false) RemoveMetadata(saved);
+        if (isUseCacheSettings == false) RemoveMetadata(saved);
 
         saved.ToString(Formatting.Indented).Should().Be(expected.ToString(Formatting.Indented));
 
@@ -84,8 +84,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
             using var scope = new AssertionScope(expected.Path);
 
             actual.ChannelId.Should().Be(expected.Value<int>(nameof(actual.ChannelId)));
-            actual.ChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ChannelImageFilePath)));
-            actual.ROIChannelImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIChannelImageFilePath)));
+            actual.FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.FourierImageFilePath)));
+            actual.ROIFourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.ROIFourierImageFilePath)));
 
             var expectedROI = expected[nameof(actual.ROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
             AssertRectMatchesJson(actual.ROI.ImageROI, expectedROI[nameof(actual.ROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
@@ -128,9 +128,9 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     [InlineData(33, false)]
     [InlineData(44, true)]
     [InlineData(55, false)]
-    public void RandomDto_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool useCacheSettings)
+    public void RandomDTO_ShouldMatchEveryField_AfterJsonRoundTrip(int seed, bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         using var expected = seed == 0
             ? new FourierPupilCameraAlignmentDTO()
@@ -142,7 +142,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         actual.Should().NotBeNull();
         actual.HasErrors.Should().BeFalse();
 
-        AssertEquals(actual, expected, useCacheSettings);
+        AssertEquals(actual, expected, isUseCacheSettings);
 
         using var cloned = expected.Clone();
         cloned.Should().NotBeNull();
@@ -151,7 +151,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         cloned.Channel1Item.Should().NotBeSameAs(expected.Channel1Item);
         cloned.Channel2Item.Should().NotBeSameAs(expected.Channel2Item);
         cloned.Channel3Item.Should().NotBeSameAs(expected.Channel3Item);
-        AssertEquals(cloned, expected, useCacheSettings: false, isClone: true);
+        AssertEquals(cloned, expected, isUseCacheSettings: false, isClone: true);
 
         var expectedJson = JObject.Parse(json);
         var saved = JObject.Parse(JsonConvert.SerializeObject(actual, settings));
@@ -160,7 +160,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
 
         foreach (var name in IgnoreProperties)
         {
-            saved.ContainsKey(name).Should().Be(useCacheSettings == false, "{0} persistence must follow the selected settings", name);
+            saved.ContainsKey(name).Should().Be(isUseCacheSettings == false, "{0} persistence must follow the selected settings", name);
         }
 
         return;
@@ -179,48 +179,48 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
                 CreatedUserName = $"Created_{random.Next()}",
                 CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
                 ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
-                ModifiedUserName = $"Modified_{random.Next()}",
+                ModifiedUserName = $"Modified_{random.Next()}"
             };
 
             dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));
 
             foreach (var channel in new[] { dto.Channel1Item, dto.Channel2Item, dto.Channel3Item })
             {
-                channel.ChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Channel_{random.Next(0, 99)}.jpg";
-                channel.ROIChannelImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\ROI_{random.Next(0, 99)}.jpg";
+                channel.FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\Channel_{random.Next(0, 99)}.jpg";
+                channel.ROIFourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\ROI_{random.Next(0, 99)}.jpg";
                 channel.ROI.ImageROI = random.Next(6) switch
                 {
                     0 => Rect.Empty,
-                    1 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, 0d),
-                    2 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), 0d, random.NextDouble() * 4000d + 1d),
-                    3 => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), random.NextDouble() * 4000d + 1d, 0d),
-                    _ => new Rect(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Round((random.NextDouble() - 0.5d) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5d) * 4000d, 3)))
+                    1 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), 0d, 0d),
+                    2 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), 0d, random.NextDouble() * 4000d + 1d),
+                    3 => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), random.NextDouble() * 4000d + 1d, 0d),
+                    _ => new Rect(Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), Math.Abs(Math.Round((random.NextDouble() - 0.5) * 4000d, 3)), Math.Abs(Math.Round((random.NextDouble() - 0.5) * 4000d, 3)))
                 };
             }
 
             return dto;
         }
 
-        static void AssertEquals(FourierPupilCameraAlignmentDTO actual, FourierPupilCameraAlignmentDTO expected, bool useCacheSettings, bool isClone = false)
+        static void AssertEquals(FourierPupilCameraAlignmentDTO actual, FourierPupilCameraAlignmentDTO expected, bool isUseCacheSettings, bool isClone = false)
         {
             using var scope = new AssertionScope("DTO");
 
-            var persistAudit = useCacheSettings == false && isClone == false;
+            var isPersistAudit = isUseCacheSettings == false && isClone == false;
 
             actual.IsCalibrated.Should().Be(expected.IsCalibrated);
             actual.IsVerified.Should().Be(expected.IsVerified);
             actual.IsRequiredSelfCheck.Should().Be(expected.IsRequiredSelfCheck);
             actual.IsOk.Should().Be(expected.IsOk);
 
-            actual.Id.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Id);
-            actual.Expiration.Should().Be(useCacheSettings && isClone == false ? 0L : expected.Expiration);
-            actual.IsDeleted.Should().Be(persistAudit && expected.IsDeleted);
-            actual.CreatedUserId.Should().Be(persistAudit ? expected.CreatedUserId : 0L);
-            actual.CreatedUserName.Should().Be(persistAudit ? expected.CreatedUserName : string.Empty);
-            actual.CreatedTime.Should().Be(persistAudit ? expected.CreatedTime : default);
-            actual.ModifiedUserId.Should().Be(persistAudit ? expected.ModifiedUserId : 0L);
-            actual.ModifiedUserName.Should().Be(persistAudit ? expected.ModifiedUserName : string.Empty);
-            actual.ModifiedTime.Should().Be(persistAudit ? expected.ModifiedTime : default);
+            actual.Id.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Id);
+            actual.Expiration.Should().Be(isUseCacheSettings && isClone == false ? 0L : expected.Expiration);
+            actual.IsDeleted.Should().Be(isPersistAudit && expected.IsDeleted);
+            actual.CreatedUserId.Should().Be(isPersistAudit ? expected.CreatedUserId : 0L);
+            actual.CreatedUserName.Should().Be(isPersistAudit ? expected.CreatedUserName : string.Empty);
+            actual.CreatedTime.Should().Be(isPersistAudit ? expected.CreatedTime : default);
+            actual.ModifiedUserId.Should().Be(isPersistAudit ? expected.ModifiedUserId : 0L);
+            actual.ModifiedUserName.Should().Be(isPersistAudit ? expected.ModifiedUserName : string.Empty);
+            actual.ModifiedTime.Should().Be(isPersistAudit ? expected.ModifiedTime : default);
 
             AssertChannelEquals(actual.Channel1Item, expected.Channel1Item);
             AssertChannelEquals(actual.Channel2Item, expected.Channel2Item);
@@ -230,8 +230,8 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         static void AssertChannelEquals(FourierPupilCameraAlignmentDTOItem actual, FourierPupilCameraAlignmentDTOItem expected)
         {
             actual.ChannelId.Should().Be(expected.ChannelId);
-            actual.ChannelImageFilePath.Should().Be(expected.ChannelImageFilePath);
-            actual.ROIChannelImageFilePath.Should().Be(expected.ROIChannelImageFilePath);
+            actual.FourierImageFilePath.Should().Be(expected.FourierImageFilePath);
+            actual.ROIFourierImageFilePath.Should().Be(expected.ROIFourierImageFilePath);
             actual.ROI.ImageROI.Should().Be(expected.ROI.ImageROI);
         }
     }
@@ -239,9 +239,9 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool useCacheSettings)
+    public void Cache_ShouldMatchEveryField_AfterJsonRoundTrip(bool isUseCacheSettings)
     {
-        var settings = useCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
+        var settings = isUseCacheSettings ? IgnoreCacheItemPropertiesContractResolver.Settings : new JsonSerializerSettings();
 
         var cookie = fixture.Host.Services.GetRequiredService<ApplicationCookie>();
         var expected = new FourierPupilCameraAlignmentCache
@@ -255,7 +255,7 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
                 OpticsPolarizationModeEnum = OpticsPolarizationModeEnum.S,
                 OpticsCollectorPolarizationModeEnum = OpticsCollectorPolarizationModeEnum.P
             },
-            ScanLength = 1234.5d,
+            ScanLength = 1234.5,
             HazeFindBFMachinePosition = new Point(10.5, 20.5),
             Id = 11,
             Expiration = 22,
@@ -282,15 +282,15 @@ public sealed class FourierPupilCameraAlignmentSerializationTest(HostFixture fix
         actual.ScanLength.Should().Be(expected.ScanLength);
         actual.HazeFindBFMachinePosition.Should().Be(expected.HazeFindBFMachinePosition);
 
-        actual.Id.Should().Be(useCacheSettings ? 0L : expected.Id);
-        actual.Expiration.Should().Be(useCacheSettings ? 0L : expected.Expiration);
-        actual.IsDeleted.Should().Be(useCacheSettings == false && expected.IsDeleted);
-        actual.CreatedUserId.Should().Be(useCacheSettings ? 0L : expected.CreatedUserId);
-        actual.CreatedUserName.Should().Be(useCacheSettings ? string.Empty : expected.CreatedUserName);
-        actual.CreatedTime.Should().Be(useCacheSettings ? default : expected.CreatedTime);
-        actual.ModifiedUserId.Should().Be(useCacheSettings ? 0L : expected.ModifiedUserId);
-        actual.ModifiedUserName.Should().Be(useCacheSettings ? string.Empty : expected.ModifiedUserName);
-        actual.ModifiedTime.Should().Be(useCacheSettings ? default : expected.ModifiedTime);
+        actual.Id.Should().Be(isUseCacheSettings ? 0L : expected.Id);
+        actual.Expiration.Should().Be(isUseCacheSettings ? 0L : expected.Expiration);
+        actual.IsDeleted.Should().Be(isUseCacheSettings == false && expected.IsDeleted);
+        actual.CreatedUserId.Should().Be(isUseCacheSettings ? 0L : expected.CreatedUserId);
+        actual.CreatedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.CreatedUserName);
+        actual.CreatedTime.Should().Be(isUseCacheSettings ? default : expected.CreatedTime);
+        actual.ModifiedUserId.Should().Be(isUseCacheSettings ? 0L : expected.ModifiedUserId);
+        actual.ModifiedUserName.Should().Be(isUseCacheSettings ? string.Empty : expected.ModifiedUserName);
+        actual.ModifiedTime.Should().Be(isUseCacheSettings ? default : expected.ModifiedTime);
 
         JsonConvert.SerializeObject(actual, settings).Should().Be(json);
     }

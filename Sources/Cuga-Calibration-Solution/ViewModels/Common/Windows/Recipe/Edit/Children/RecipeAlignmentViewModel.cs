@@ -173,17 +173,22 @@ public sealed partial class RecipeAlignmentViewModel(
     private void DarkFiledMarkSites()
     {
         alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation = Cache.ProductivityInformation;
+        alignmentWindowDarkFieldViewModel.Cache.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
 
         try
         {
             messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(false));
+            messenger.Send(ToggleToolsEventFactory.RefreshProductivityEnableStatus(true));
 
             Guard.IsTrue(windowManagerService.ShowDialog(alignmentWindowDarkFieldViewModel) == true, nameof(alignmentWindowDarkFieldViewModel));
         }
         finally
         {
             messenger.Send(ToggleToolsEventFactory.RefreshToolsWindowEnableStatus(true));
+            messenger.Send(ToggleToolsEventFactory.RefreshProductivityEnableStatus(true));
         }
+
+        Cache.ProductivityInformation = alignmentWindowDarkFieldViewModel.Cache.ProductivityInformation;
     }
 
     // 切换到 Alignment Tab 时调用，仅重新广播通知，不重新加载数据，为了解决TabControl延迟加载UI树的问题

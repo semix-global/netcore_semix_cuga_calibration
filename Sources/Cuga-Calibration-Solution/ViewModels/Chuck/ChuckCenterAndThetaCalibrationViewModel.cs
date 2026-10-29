@@ -9,9 +9,10 @@ using Core.Models.Models.Chuck.CenterAndTheta;
 using Core.Models.Models.Chuck.Gantry;
 using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.Core.Services.Implements;
+using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
@@ -28,8 +29,13 @@ using System.IO;
 namespace CugaCalibration.ViewModels.Chuck;
 
 [IOCAppService(ServiceType = typeof(ChuckCenterAndThetaCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
-public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnvironment hostEnvironment) : CalibrationViewModelBase<ChuckCenterAndThetaCache>
+public sealed partial class ChuckCenterAndThetaCalibrationViewModel : CalibrationViewModelBase<ChuckCenterAndThetaCache>
 {
+    private readonly StageDirectionTypeEnum[] _stageDirectionTypeEnums = [StageDirectionTypeEnum.Up, StageDirectionTypeEnum.Down, StageDirectionTypeEnum.Left, StageDirectionTypeEnum.Right];
+    private readonly IHostEnvironment _hostEnvironment;
+    private readonly ControllerGuard<double> _tScaleGuard;
+    private readonly ControllerGuard<Point> _bfMachineCenterGuard;
+
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -87,7 +93,24 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
     #endregion 属性
 
-    private readonly StageDirectionTypeEnum[] _stageDirectionTypeEnums = [StageDirectionTypeEnum.Up, StageDirectionTypeEnum.Down, StageDirectionTypeEnum.Left, StageDirectionTypeEnum.Right];
+    /// <inheritdoc/>
+    public ChuckCenterAndThetaCalibrationViewModel(IHostEnvironment hostEnvironment)
+    {
+        _hostEnvironment = hostEnvironment;
+        _tScaleGuard = new ControllerGuard<double>(
+            "TScale",
+            () => StageViewModel.GetTScale(),
+            value => StageViewModel.SetTScale(value, HtmlLogUniqueId),
+            Logger,
+            message => DialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Warning));
+
+        _bfMachineCenterGuard = new ControllerGuard<Point>(
+            "BrightFieldCenterMachineStagePosition",
+            () => StageViewModel.GetBrightFieldCenterMachineStagePosition(),
+            value => StageViewModel.SetBrightFieldCenterMachinePositionValue(value, HtmlLogUniqueId),
+            Logger,
+            message => DialogWindowProvider.ShowDialog(message, DialogButtonsEnum.OK, DialogIconEnum.Warning));
+    }
 
     #region 控制校准业务重载
 
@@ -101,6 +124,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
         Calibration = ApplicationCookieService.GetCalibration<ChuckCenterAndThetaItemDto>(cancellationToken);
 
         UpdateEntryStatus(Calibration, cancellationToken);
+
+        ControllerGuardScope.RestoreControllers(_tScaleGuard, _bfMachineCenterGuard);
 
         return true;
     }
@@ -121,6 +146,13 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
         StageViewModel.SetBrightFieldAbsoluteStageXy(ReviewDto.ChuckCenterPosition, CalChipSiteModelEnum.ChuckModel);
         return true;
+    }
+
+    protected override async Task<bool> CancelingAsync()
+    {
+        ControllerGuardScope.RestoreControllers(_tScaleGuard, _bfMachineCenterGuard);
+
+        return await base.CancelingAsync().ConfigureAwait(false);
     }
 
     protected override async Task<bool> NextingAsync(CancellationToken cancellationToken)
@@ -196,6 +228,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 break;
 
             case 7:
+                _tScaleGuard.WriteController();
+
                 Cache.SiteDirection = StageDirectionTypeEnum.Right;
 
                 StageViewModel.SetAbsoluteStageTheta(Cache.ThetaAngle);
@@ -217,6 +251,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     {
         return InvokeCalibrateAsync(async () =>
         {
+            _tScaleGuard.WriteController(1d);
+
             AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
             AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
 
@@ -239,23 +275,21 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step1CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        if (Cache.HighMicroscopeLensInformation.LensCode <= Cache.LowMicroscopeLensInformation.LensCode)
+        return await InvokeCalibrateAsync(() =>
         {
-            DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+            if (Cache.HighMicroscopeLensInformation.LensCode <= Cache.LowMicroscopeLensInformation.LensCode)
+            {
+                DialogWindowProvider.ShowDialog("The high magnification less than or equal low magnification! Please select correct magnification!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                return false;
+            }
 
-        var (isSuccess, errorMessage) = Cache.Step1Verify();
-        if (isSuccess == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-            DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            return false;
-        }
+            var (isSuccess, errorMessage) = Cache.Step1Verify();
+            if (isSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
 
-        var result = false;
-        await InvokeCalibrateAsync(() =>
-        {
             var position = StageViewModel.GetBrightFieldStagePosition();
             var baseBrightFieldPosition = Cache.BaseLowSiteFindPosition = position;
 
@@ -308,8 +342,14 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             Cache.LowBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_Low_{Cache.LowMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.LowBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.LowBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.LowBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Idea Bright Field Positions", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -326,10 +366,8 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                 })
             }), HtmlLogUniqueId.LoggingHtml());
 
-            result = true;
-            return result;
+            return true;
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -342,8 +380,14 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
             Cache.HighBaseTemplateFilePath = $"{TemplateFileDirectory}\\Base_High_{Cache.HighMicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, imageSize, Cache.HighBaseTemplateFilePath), HtmlLogUniqueId);
-            if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            else Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
+            if (generateTemplateHigh == false)
+            {
+                DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Cache.HighBaseTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.HighBaseTemplateFilePath);
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -354,6 +398,7 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     HighTemplateImage = new HtmlImage(Cache.HighBaseTemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
+
             return true;
         });
     }
@@ -370,7 +415,13 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     MicroscopePixelSizeItems,
                     result,
                     Cache.LowMicroscopeLensInformation,
-                    out var lowPosition) == false) return false;
+                    ImageFileDirectory,
+                    HtmlLogUniqueId,
+                    Name,
+                    $"Teaching {Cache.SiteDirection}",
+                    out _,
+                    out var lowPosition,
+                    out _) == false) return false;
 
             Cache.SetPosition(lowPosition);
 
@@ -386,187 +437,180 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step4CalibrateActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
-        await InvokeCalibrateAsync(() =>
+        return await InvokeCalibrateAsync(async () =>
         {
-            var (isSuccess, errorMessage) = Cache.Step4Verify();
-            if (isSuccess == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-                DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                result = false;
-                return false;
-            }
+            _tScaleGuard.WriteController();
 
-            ClearCalibrationTemp();
-
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
+            return await ControllerGuardScope.RunAsync([_tScaleGuard], async context =>
             {
-                Cache.RotateAngle,
-                Cache.CenterCalibrationThreshold,
-                Cache.RotateScaleThreshold,
-                Cache.BaseLowSiteFindPosition,
-                Cache.BaseHighSiteFindPosition,
-                Cache.LowToHighMagnificationOffset,
-                Cache.TopLowSitePosition,
-                Cache.BottomLowSitePosition,
-                Cache.LeftLowSitePosition,
-                Cache.RightLowSitePosition
-            }), HtmlLogUniqueId.LoggingHtml());
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            // 初始化
-            var calibrationItemDto = new ChuckCenterAndThetaItemDto
-            {
-                LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
-                HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
-                AppliedScaleT = 1d,
-                PositiveMatchResult = new ChuckGlobalTemplateMatchDtoItem
+                var (isSuccess, errorMessage) = Cache.Step4Verify();
+                if (isSuccess == false)
                 {
-                    LensInformation = Cache.HighMicroscopeLensInformation,
-                    TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
-                    BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
-                    LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
-                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle)
-                },
-                NegativeMatchResult = new ChuckGlobalTemplateMatchDtoItem
-                {
-                    LensInformation = Cache.HighMicroscopeLensInformation,
-                    TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
-                    BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
-                    LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
-                    RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle)
-                }
-            };
+                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                    context.Defer(() => DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning));
 
-            var scaleCalibrationResult = false;
-            foreach (var time in Enumerable.Range(1, Cache.Times))
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                Logger.LogHtmlInformation($"Calibration Times: {time}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                var selectChuckCenterAndThetaItemDto = SelectCenterAndThetaItemDto = calibrationItemDto.Clone();
-                SynchronizationContextProvider.Send(() => ChuckCenterAndThetaItemDtoList.Add(selectChuckCenterAndThetaItemDto));
-                // 校准
-                if (GetChuckCenterAndThetaScaleResult(selectChuckCenterAndThetaItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Calibration Result Failed!"), HtmlLogUniqueId.LoggingHtml());
                     return false;
                 }
 
-                if (Math.Abs(selectChuckCenterAndThetaItemDto.ScaleErrorUmAverage) < Cache.RotateScaleThreshold)
+                ClearCalibrationTemp();
+
+                Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
                 {
-                    scaleCalibrationResult = true;
-                    break;
+                    Cache.RotateAngle,
+                    Cache.CenterCalibrationThreshold,
+                    Cache.RotateScaleThreshold,
+                    Cache.BaseLowSiteFindPosition,
+                    Cache.BaseHighSiteFindPosition,
+                    Cache.LowToHighMagnificationOffset,
+                    Cache.TopLowSitePosition,
+                    Cache.BottomLowSitePosition,
+                    Cache.LeftLowSitePosition,
+                    Cache.RightLowSitePosition
+                }), HtmlLogUniqueId.LoggingHtml());
+
+                // 初始化
+                var calibrationItemDto = new ChuckCenterAndThetaItemDto
+                {
+                    LowMicroscopeLensInformation = Cache.LowMicroscopeLensInformation,
+                    HighMicroscopeLensInformation = Cache.HighMicroscopeLensInformation,
+                    AppliedScaleT = 1d,
+                    PositiveMatchResult = new ChuckGlobalTemplateMatchDtoItem
+                    {
+                        LensInformation = Cache.HighMicroscopeLensInformation,
+                        TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
+                        BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
+                        LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle),
+                        RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle - Cache.RotateAngle)
+                    },
+                    NegativeMatchResult = new ChuckGlobalTemplateMatchDtoItem
+                    {
+                        LensInformation = Cache.HighMicroscopeLensInformation,
+                        TopPosition = Cache.TopLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
+                        BottomPosition = Cache.BottomLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
+                        LeftPosition = Cache.LeftLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle),
+                        RightPosition = Cache.RightLowSitePosition.DegreeAngleByOrigin(Cache.ThetaAngle + Cache.RotateAngle)
+                    }
+                };
+
+                var scaleCalibrationResult = false;
+                foreach (var time in Enumerable.Range(1, Cache.Times))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    Logger.LogHtmlInformation($"Calibration Times: {time}", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    var selectChuckCenterAndThetaItemDto = SelectCenterAndThetaItemDto = calibrationItemDto.Clone();
+
+                    SynchronizationContextProvider.Send(() => ChuckCenterAndThetaItemDtoList.Add(selectChuckCenterAndThetaItemDto));
+
+                    GetChuckCenterAndThetaScaleResult(selectChuckCenterAndThetaItemDto, cancellationToken);
+
+                    if (Math.Abs(selectChuckCenterAndThetaItemDto.ScaleErrorUmAverage) < Cache.RotateScaleThreshold)
+                    {
+                        scaleCalibrationResult = true;
+                        break;
+                    }
+
+                    calibrationItemDto.AppliedScaleT *= selectChuckCenterAndThetaItemDto.ResultScaleT;
                 }
 
-                calibrationItemDto.AppliedScaleT *= selectChuckCenterAndThetaItemDto.ResultScaleT;
-            }
+                var chuckCenterPosition = new Point(
+                    ChuckCenterAndThetaItemDtoList.Average(t => t.ChuckCenterPosition.X),
+                    ChuckCenterAndThetaItemDtoList.Average(t => t.ChuckCenterPosition.Y));
 
-            var chuckCenterPosition = new Point(
-                ChuckCenterAndThetaItemDtoList.Average(t => t.ChuckCenterPosition.X),
-                ChuckCenterAndThetaItemDtoList.Average(t => t.ChuckCenterPosition.Y));
+                var bFCenterStagePosition = StageViewModel.GetBrightFieldCenterMachineStagePosition();
+                var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
 
-            var bFCenterStagePosition = StageViewModel.GetBrightFieldCenterMachineStagePosition();
-            var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
+                ResultCenterAndThetaItemDto = ChuckCenterAndThetaItemDtoList.Last();
+                ResultCenterAndThetaItemDto.ChuckCenterPosition = chuckCenterPosition;
+                ResultCenterAndThetaItemDto.BFCenterStagePosition = bFCenterStagePosition;
+                ResultCenterAndThetaItemDto.NewBFCenterStagePosition = new Point(bFCenterStagePosition.X + xDirection * chuckCenterPosition.X, bFCenterStagePosition.Y + yDirection * chuckCenterPosition.Y);
 
-            ResultCenterAndThetaItemDto = ChuckCenterAndThetaItemDtoList.Last();
-            ResultCenterAndThetaItemDto.ChuckCenterPosition = chuckCenterPosition;
-            ResultCenterAndThetaItemDto.BFCenterStagePosition = bFCenterStagePosition;
-            ResultCenterAndThetaItemDto.NewBFCenterStagePosition = new Point(bFCenterStagePosition.X + xDirection * chuckCenterPosition.X, bFCenterStagePosition.Y + yDirection * chuckCenterPosition.Y);
+                var chuckCenterCalibrationResult = chuckCenterPosition != Point.Origin
+                                                   && Math.Abs(chuckCenterPosition.X) < Cache.CenterCalibrationThreshold
+                                                   && Math.Abs(chuckCenterPosition.Y) < Cache.CenterCalibrationThreshold;
 
-            var chuckCenterCalibrationResult = chuckCenterPosition != Point.Origin
-                                               && Math.Abs(chuckCenterPosition.X) < Cache.CenterCalibrationThreshold
-                                               && Math.Abs(chuckCenterPosition.Y) < Cache.CenterCalibrationThreshold;
+                var result = scaleCalibrationResult && chuckCenterCalibrationResult;
 
-            result = scaleCalibrationResult && chuckCenterCalibrationResult;
+                ResultCenterAndThetaItemDto.IsCalibrated = result;
 
-            ResultCenterAndThetaItemDto.IsCalibrated = result;
+                Guard.IsTrue(Save(ResultCenterAndThetaItemDto, cancellationToken));
 
-            Guard.IsTrue(Save(ResultCenterAndThetaItemDto, cancellationToken));
+                Logger.LogHtmlInformation($"Calibration Result {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                {
+                    ChuckCenterIsOK = chuckCenterCalibrationResult,
+                    ThetaScaleIsOK = scaleCalibrationResult,
+                    XDirection = xDirection,
+                    YDirection = yDirection,
+                    ResultCenterAndThetaItemDto.ChuckCenterPosition,
+                    ResultCenterAndThetaItemDto.BFCenterStagePosition,
+                    ChuckCenterResult = ResultCenterAndThetaItemDto.NewBFCenterStagePosition,
+                    ResultCenterAndThetaItemDto.AppliedScaleT,
+                    ResultCenterAndThetaItemDto.RealAngleOffsetAverage,
+                    ResultCenterAndThetaItemDto.ScaleErrorUmAverage,
+                    ResultChuckCenterCurve = new HtmlPlot2DLinesChart([
+                        ("PointX-PointY", ChuckCenterAndThetaItemDtoList.Select(t => t.ChuckCenterPosition).ToList())
+                    ], "ResultChuckCenterCurve"),
+                    ResultScaleValueCurve = new HtmlPlot2DLinesChart([
+                        ("Times-ScaleResult", ChuckCenterAndThetaItemDtoList.Select(t => t.ResultScaleT).ToList().ToPoints())
+                    ], "ResultScaleValueCurve"),
+                    ResultScaleErrorUmCurve = new HtmlPlot2DLinesChart([
+                        ("Times-ScaleErrorUm", ChuckCenterAndThetaItemDtoList.Select(t => t.ScaleErrorUmAverage).ToList().ToPoints())
+                    ], "ArcLengthErrorCurve"),
+                    ResultAngleOffsetCurve = new HtmlPlot2DLinesChart([
+                        ("Times-RealAngleOffset", ChuckCenterAndThetaItemDtoList.Select(t => t.RealAngleOffsetAverage).ToList().ToPoints())
+                    ], "RealAngleOffset")
+                }), HtmlLogUniqueId.LoggingHtml());
 
-            Logger.LogHtmlInformation($"Calibration Result {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-            {
-                ChuckCenterIsOK = chuckCenterCalibrationResult,
-                ThetaScaleIsOK = scaleCalibrationResult,
-                XDirection = xDirection,
-                YDirection = yDirection,
-                ResultCenterAndThetaItemDto.ChuckCenterPosition,
-                ResultCenterAndThetaItemDto.BFCenterStagePosition,
-                ChuckCenterResult = ResultCenterAndThetaItemDto.NewBFCenterStagePosition,
-                ResultCenterAndThetaItemDto.AppliedScaleT,
-                ResultCenterAndThetaItemDto.RealAngleOffsetAverage,
-                ResultCenterAndThetaItemDto.ScaleErrorUmAverage,
-                ResultChuckCenterCurve = new HtmlPlot2DLinesChart([
-                    ("PointX-PointY", ChuckCenterAndThetaItemDtoList.Select(t => t.ChuckCenterPosition).ToList())
-                ], "ResultChuckCenterCurve"),
-                ResultScaleValueCurve = new HtmlPlot2DLinesChart([
-                    ("Times-ScaleResult", ChuckCenterAndThetaItemDtoList.Select(t => t.ResultScaleT).ToList().ToPoints())
-                ], "ResultScaleValueCurve"),
-                ResultScaleErrorUmCurve = new HtmlPlot2DLinesChart([
-                    ("Times-ScaleErrorUm", ChuckCenterAndThetaItemDtoList.Select(t => t.ScaleErrorUmAverage).ToList().ToPoints())
-                ], "ArcLengthErrorCurve"),
-                ResultAngleOffsetCurve = new HtmlPlot2DLinesChart([
-                    ("Times-RealAngleOffset", ChuckCenterAndThetaItemDtoList.Select(t => t.RealAngleOffsetAverage).ToList().ToPoints())
-                ], "RealAngleOffset")
-            }), HtmlLogUniqueId.LoggingHtml());
-            return result;
+                return result;
+            }, ControllerGuardMode.AlwaysRestore, recordCache: false);
         });
-        return result;
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyActionAsync(CancellationToken cancellationToken)
     {
-        var result = true;
         if (ReviewDto is null)
         {
             DialogWindowProvider.ShowDialog("Please select a review item!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             return;
         }
 
-        var (isSuccess, errorMessage) = Cache.Verify();
-        if (isSuccess == false)
-        {
-            Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
-            DialogWindowProvider.ShowDialog(errorMessage, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-            result = false;
-            return;
-        }
-
         await InvokeVerifyAsync(async () =>
         {
-            if (await VerifyCalibrationAsync(ReviewDto, cancellationToken) == false) result = false;
-            return result;
+            var (isSuccess, errorMessage) = Cache.Verify();
+            if (isSuccess == false)
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment($"Cache varify error:{errorMessage}"), HtmlLogUniqueId.LoggingHtml());
+                return false;
+            }
+
+            return await VerifyCalibrationAsync(ReviewDto, cancellationToken);
         }).ConfigureAwait(false);
     }
 
-    private async Task<bool> VerifyCalibrationAsync(ChuckCenterAndThetaItemDto chuckCenterAndThetaItemDto, CancellationToken cancellationToken)
+    private Task<bool> VerifyCalibrationAsync(ChuckCenterAndThetaItemDto chuckCenterAndThetaItemDto, CancellationToken cancellationToken)
     {
-        var result = true;
-        await Task.Run(() =>
+        return ControllerGuardScope.RunAsync([_tScaleGuard, _bfMachineCenterGuard], async context =>
         {
             try
             {
                 chuckCenterAndThetaItemDto.IsVerified = false;
-                StageViewModel.SetBrightFieldCenterMachinePositionValue(chuckCenterAndThetaItemDto.NewBFCenterStagePosition);
+                StageViewModel.SetBrightFieldCenterMachinePositionValue(chuckCenterAndThetaItemDto.NewBFCenterStagePosition, HtmlLogUniqueId);
 
                 SelectCenterAndThetaItemDto = chuckCenterAndThetaItemDto.Clone();
 
                 ApplicationCookieService.SetCache(Cache, cancellationToken);
 
-                if (GetChuckCenterAndThetaScaleResult(SelectCenterAndThetaItemDto, cancellationToken) == false)
-                {
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header4, new HtmlComment("Error: Get Calibration Result Failed!"), HtmlLogUniqueId.LoggingHtml());
-                    result = false;
-                    return;
-                }
+                GetChuckCenterAndThetaScaleResult(SelectCenterAndThetaItemDto, cancellationToken);
 
-                var bFCenterStagePosition = StageViewModel.GetBrightFieldCenterMachineStagePosition();
                 var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
 
                 var chuckCenterPosition = SelectCenterAndThetaItemDto.ChuckCenterPosition;
-                SelectCenterAndThetaItemDto.BFCenterStagePosition = bFCenterStagePosition;
-                SelectCenterAndThetaItemDto.NewBFCenterStagePosition = new Point(bFCenterStagePosition.X + xDirection * chuckCenterPosition.X, bFCenterStagePosition.Y + yDirection * chuckCenterPosition.Y);
+                var initialBfCenter = _bfMachineCenterGuard.CacheValue;
+                SelectCenterAndThetaItemDto.BFCenterStagePosition = initialBfCenter;
+                SelectCenterAndThetaItemDto.NewBFCenterStagePosition = new Point(initialBfCenter.X + xDirection * chuckCenterPosition.X, initialBfCenter.Y + yDirection * chuckCenterPosition.Y);
 
                 var chuckCenterResult = chuckCenterPosition != Point.Origin
                                         && Math.Abs(chuckCenterPosition.X) < Cache.CenterVerifyThreshold
@@ -574,16 +618,19 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
                 var scaleResult = Math.Abs(SelectCenterAndThetaItemDto.ScaleErrorUmAverage) < Cache.RotateScaleThreshold;
 
-                result = chuckCenterResult && scaleResult;
+                var result = chuckCenterResult && scaleResult;
 
                 Logger.LogHtmlInformation($"Calibration Result {(result ? "OK" : "Failed")}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
+                    Cache.RotateAngle,
+                    Cache.CenterVerifyThreshold,
+                    Cache.RotateScaleThreshold,
                     ChuckCenterIsOK = chuckCenterResult,
                     ThetaScaleIsOK = scaleResult,
                     XDirection = xDirection,
                     YDirection = yDirection,
-                    SelectCenterAndThetaItemDto.ChuckCenterPosition,
-                    SelectCenterAndThetaItemDto.BFCenterStagePosition,
+                    ChuckCenterOffset = SelectCenterAndThetaItemDto.ChuckCenterPosition,
+                    OldBFCenterStagePosition = SelectCenterAndThetaItemDto.BFCenterStagePosition,
                     ChuckCenterVerifyResult = SelectCenterAndThetaItemDto.NewBFCenterStagePosition,
                     SelectCenterAndThetaItemDto.AppliedScaleT,
                     SelectCenterAndThetaItemDto.RealAngleOffsetAverage,
@@ -594,159 +641,139 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
 
                 Guard.IsTrue(Save(chuckCenterAndThetaItemDto, cancellationToken));
 
-                StageViewModel.SetBrightFieldCenterMachinePositionValue(result ? chuckCenterAndThetaItemDto.NewBFCenterStagePosition : chuckCenterAndThetaItemDto.BFCenterStagePosition);
+                context.Defer(() => DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter offset: ({SelectCenterAndThetaItemDto.ChuckCenterPosition})", DialogButtonsEnum.OK,
+                    result ? DialogIconEnum.Information : DialogIconEnum.Warning));
 
-                DialogWindowProvider.ShowDialog($"Verify {(result ? "OK" : "Failed")}, New ChuckCenter offset: ({SelectCenterAndThetaItemDto.ChuckCenterPosition})", DialogButtonsEnum.OK,
-                    result ? DialogIconEnum.Information : DialogIconEnum.Warning);
-
+                return result;
+            }
+            finally
+            {
                 StageViewModel.SetAbsoluteStageTheta(0d);
                 StageViewModel.SetBrightFieldAbsoluteStageXy(new Point(0, 0), CalChipSiteModelEnum.ChuckModel);
             }
-            catch (Exception ex)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Error: Verify exception!" + ex.Message), HtmlLogUniqueId.LoggingHtml());
-
-                StageViewModel.SetBrightFieldCenterMachinePositionValue(chuckCenterAndThetaItemDto.BFCenterStagePosition);
-            }
-        }, cancellationToken);
-        return result;
+        }, ControllerGuardMode.RestoreOnFailure);
     }
 
-    private bool GetChuckCenterAndThetaScaleResult(ChuckCenterAndThetaItemDto chuckCenterAndThetaItemDto, CancellationToken cancellationToken)
+    private void GetChuckCenterAndThetaScaleResult(ChuckCenterAndThetaItemDto chuckCenterAndThetaItemDto, CancellationToken cancellationToken)
     {
-        try
+        StageViewModel.SetTScale(chuckCenterAndThetaItemDto.AppliedScaleT, HtmlLogUniqueId);
+        // 正向
+        Logger.LogHtmlInformation("Positive Rotate", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        StageViewModel.SetAbsoluteStageTheta(Cache.RotateAngle);
+        chuckCenterAndThetaItemDto.IsPositive = true;
+        foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
         {
-            StageViewModel.SetTScale(chuckCenterAndThetaItemDto.AppliedScaleT);
-            // 正向
-            Logger.LogHtmlInformation("Positive Rotate", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-            StageViewModel.SetAbsoluteStageTheta(Cache.RotateAngle);
-            chuckCenterAndThetaItemDto.IsPositive = true;
-            foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
-                chuckCenterAndThetaItemDto.SiteDirection = siteDirectionTypeEnum;
-                if (MatchTemplate() == false) return false;
-            }
-
-            // 反向
-            Logger.LogHtmlInformation("Negative Rotate", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-            StageViewModel.SetAbsoluteStageTheta(-Cache.RotateAngle);
-            chuckCenterAndThetaItemDto.IsPositive = false;
-            foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                chuckCenterAndThetaItemDto.SiteDirection = siteDirectionTypeEnum;
-                if (MatchTemplate() == false) return false;
-            }
-
-            #region Center
-
-            var chuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
-                chuckCenterAndThetaItemDto.PositiveMatchResult.TopPosition,
-                chuckCenterAndThetaItemDto.NegativeMatchResult.TopPosition,
-                chuckCenterAndThetaItemDto.NegativeMatchResult.RightPosition,
-                chuckCenterAndThetaItemDto.PositiveMatchResult.RightPosition,
-                chuckCenterAndThetaItemDto.PositiveMatchResult.BottomPosition,
-                chuckCenterAndThetaItemDto.NegativeMatchResult.BottomPosition,
-                chuckCenterAndThetaItemDto.NegativeMatchResult.LeftPosition,
-                chuckCenterAndThetaItemDto.PositiveMatchResult.LeftPosition
-            );
-
-            chuckCenterAndThetaItemDto.ChuckCenterPosition = chuckCenterPosition;
-
-            #endregion Center
-
-            #region Scale
-
-            if (GetAverageScaleResult() == false) return false;
-
-            if (hostEnvironment.IsProduction() && chuckCenterAndThetaItemDto.ResultScaleT is >= 2 or 0) // 防止下发异常值
-            {
-                DialogWindowProvider.ShowDialog("Result scale is illegal !", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                return false;
-            }
-
-            #endregion Scale
-
-            Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-            {
-                PositiveTopHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.TopPosition,
-                PositiveBottomHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.BottomPosition,
-                PositiveLeftHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.LeftPosition,
-                PositiveRightHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.RightPosition,
-                NegativeTopHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.TopPosition,
-                NegativeBottomHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.BottomPosition,
-                NegativeLeftHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.LeftPosition,
-                NegativeRightHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.RightPosition,
-                chuckCenterAndThetaItemDto.ChuckCenterPosition,
-                chuckCenterAndThetaItemDto.AppliedScaleT,
-                chuckCenterAndThetaItemDto.ResultScaleT,
-                chuckCenterAndThetaItemDto.RealAngleOffsetAverage,
-                PositiveMatchResultTab = new HtmlTab(new
-                {
-                    TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                }),
-                NegativeMatchResultTab = new HtmlTab(new
-                {
-                    TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "{@Name}: Get Result Failed", Name);
-            return false;
+            chuckCenterAndThetaItemDto.SiteDirection = siteDirectionTypeEnum;
+            MatchTemplate();
         }
 
-        bool MatchTemplate()
+        // 反向
+        Logger.LogHtmlInformation("Negative Rotate", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+        StageViewModel.SetAbsoluteStageTheta(-Cache.RotateAngle);
+        chuckCenterAndThetaItemDto.IsPositive = false;
+        foreach (var siteDirectionTypeEnum in _stageDirectionTypeEnums)
         {
-            var stageDirection = chuckCenterAndThetaItemDto.SiteDirection;
-            var affineIdeaPosition = chuckCenterAndThetaItemDto.GetPosition();
+            cancellationToken.ThrowIfCancellationRequested();
 
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, affineIdeaPosition, Cache.LowMicroscopeLensInformation, ImageFileDirectory,
-                    HtmlLogUniqueId, Name,
-                    $"Low Magnification {stageDirection} Site", out var lowSnapshot, out var lowResultPosition, out _) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Low Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
-            }
-
-            if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, ImageFileDirectory,
-                    HtmlLogUniqueId, Name,
-                    $"High Magnification {stageDirection} Site", out var highSnapshot, out var highResultPosition, out _) == false)
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: High Magnification {stageDirection} Site Matching Failed!"), HtmlLogUniqueId.LoggingHtml());
-                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(highResultPosition), "High Magnification Matching Failed!");
-            }
-
-            chuckCenterAndThetaItemDto.SetMatchResultInfo(highResultPosition, highSnapshot.ResultImageFilePath);
-
-            Logger.LogHtmlInformation($"{stageDirection} site Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                affineIdeaPosition,
-                FindLowSiteResultPosition = lowResultPosition,
-                FindHighSiteResultPosition = highResultPosition,
-                HtmlTab = new HtmlTab(new
-                {
-                    LowMatchImage = new HtmlImage(lowSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                    HighMatchImage = new HtmlImage(highSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            }), HtmlLogUniqueId.LoggingHtml());
-
-            return true;
+            chuckCenterAndThetaItemDto.SiteDirection = siteDirectionTypeEnum;
+            MatchTemplate();
         }
 
-        bool GetAverageScaleResult()
+        #region Center
+
+        var chuckCenterPosition = CalibrationAlgorithmService.GetChuckCenter(
+            chuckCenterAndThetaItemDto.PositiveMatchResult.TopPosition,
+            chuckCenterAndThetaItemDto.NegativeMatchResult.TopPosition,
+            chuckCenterAndThetaItemDto.NegativeMatchResult.RightPosition,
+            chuckCenterAndThetaItemDto.PositiveMatchResult.RightPosition,
+            chuckCenterAndThetaItemDto.PositiveMatchResult.BottomPosition,
+            chuckCenterAndThetaItemDto.NegativeMatchResult.BottomPosition,
+            chuckCenterAndThetaItemDto.NegativeMatchResult.LeftPosition,
+            chuckCenterAndThetaItemDto.PositiveMatchResult.LeftPosition
+        );
+
+        chuckCenterAndThetaItemDto.ChuckCenterPosition = chuckCenterPosition;
+
+        #endregion Center
+
+        #region Scale
+
+        GetAverageScaleResult();
+
+        if (_hostEnvironment.IsProduction()) // 防止下发异常值
+            Guard.IsBetween(chuckCenterAndThetaItemDto.ResultScaleT, 0, 2, $"Result scale {chuckCenterAndThetaItemDto.ResultScaleT} is illegal!");
+
+        #endregion Scale
+
+        Logger.LogHtmlInformation("Get Result OK", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        {
+            PositiveTopHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.TopPosition,
+            PositiveBottomHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.BottomPosition,
+            PositiveLeftHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.LeftPosition,
+            PositiveRightHighSiteFindPosition = chuckCenterAndThetaItemDto.PositiveMatchResult.RightPosition,
+            NegativeTopHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.TopPosition,
+            NegativeBottomHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.BottomPosition,
+            NegativeLeftHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.LeftPosition,
+            NegativeRightHighSiteFindPosition = chuckCenterAndThetaItemDto.NegativeMatchResult.RightPosition,
+            chuckCenterAndThetaItemDto.ChuckCenterPosition,
+            chuckCenterAndThetaItemDto.AppliedScaleT,
+            chuckCenterAndThetaItemDto.ResultScaleT,
+            chuckCenterAndThetaItemDto.RealAngleOffsetAverage,
+            PositiveMatchResultTab = new HtmlTab(new
+            {
+                TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.PositiveMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+            }),
+            NegativeMatchResultTab = new HtmlTab(new
+            {
+                TopHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.TopFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                BottomHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.BottomFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                LeftHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.LeftFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                RightHighSiteResultImage = new HtmlImage(chuckCenterAndThetaItemDto.NegativeMatchResult.RightFindResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+            })
+        }), HtmlLogUniqueId.LoggingHtml());
+
+        void MatchTemplate()
+        {
+            try
+            {
+                var stageDirection = chuckCenterAndThetaItemDto.SiteDirection;
+                var affineIdeaPosition = chuckCenterAndThetaItemDto.GetPosition();
+
+                if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.LowBaseTemplateFilePath), MicroscopePixelSizeItems, affineIdeaPosition, Cache.LowMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                        $"Low Magnification {stageDirection} Site", out var lowSnapshot, out var lowResultPosition, out _) == false)
+                    ThrowHelper.ThrowArgumentException(nameof(lowResultPosition), "Low Magnification Matching Failed!");
+
+                if (ReviewViewModel.TryGetMatchPosition(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.HighBaseTemplateFilePath), MicroscopePixelSizeItems, lowResultPosition + (Vector)Cache.LowToHighMagnificationOffset, Cache.HighMicroscopeLensInformation, ImageFileDirectory, HtmlLogUniqueId, Name,
+                        $"High Magnification {stageDirection} Site", out var highSnapshot, out var highResultPosition, out _) == false)
+                    ThrowHelper.ThrowArgumentException(nameof(highResultPosition), "High Magnification Matching Failed!");
+
+                chuckCenterAndThetaItemDto.SetMatchResultInfo(highResultPosition, highSnapshot.ResultImageFilePath);
+
+                Logger.LogHtmlInformation($"{stageDirection} site Result", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                {
+                    affineIdeaPosition,
+                    FindLowSiteResultPosition = lowResultPosition,
+                    FindHighSiteResultPosition = highResultPosition,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        LowMatchImage = new HtmlImage(lowSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                        HighMatchImage = new HtmlImage(highSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
+                }), HtmlLogUniqueId.LoggingHtml());
+            }
+            catch
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Match Template Failed!"), HtmlLogUniqueId.LoggingHtml());
+                throw;
+            }
+        }
+
+        void GetAverageScaleResult()
         {
             try
             {
@@ -773,14 +800,14 @@ public sealed partial class ChuckCenterAndThetaCalibrationViewModel(IHostEnviron
                     chuckCenterAndThetaItemDto.RealAngleOffsetAverage,
                     chuckCenterAndThetaItemDto.ScaleErrorUmAverage
                 }), HtmlLogUniqueId.LoggingHtml());
-
-                return true;
             }
-            catch (Exception ex)
+            catch
             {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"Error: Get Average Scale Result Failed!{ex.Message}"), HtmlLogUniqueId.LoggingHtml());
-                return false;
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Error: Get Average Scale Result Failed!}"), HtmlLogUniqueId.LoggingHtml());
+                throw;
             }
+
+            return;
 
             double GetRealRotateAngle(Point positivePosition, Point negativePosition, Point rotateCenterPosition)
             {

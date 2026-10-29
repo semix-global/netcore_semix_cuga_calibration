@@ -26,17 +26,14 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     public partial IReadOnlyList<AODDelayDTOItem> Items { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<Point> SmoothPoints { get; set; } = [];
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
+    [NotifyPropertyChangedFor(nameof(ChirpAODDelay))]
     public partial double? MaxItemAODDelay { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public double PrescanAODDelay => MaxItemAODDelay <= 0 ? Math.Abs(MaxItemAODDelay.Value) : 0d;
+    public double PrescanAODDelay { get; set; }
 
     [Newtonsoft.Json.JsonIgnore]
-    public double ChirpAODDelay => MaxItemAODDelay >= 0 ? Math.Abs(MaxItemAODDelay.Value) : 0d;
+    public double ChirpAODDelay => MaxItemAODDelay ?? 0;
 
 #pragma warning disable IDE0079
 #pragma warning disable CS0657
@@ -67,8 +64,6 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
         void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
     }
 
-    partial void OnSmoothPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
-
     partial void OnMaxItemAODDelayChanged(double? value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
@@ -82,17 +77,12 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         try
         {
-            var scatterLines = PlotDataSource.GetOrAddScatterLines((Items.Count > 0 ? 1 : 0) + (SmoothPoints.Count > 0 ? 1 : 0));
+            var scatterLines = PlotDataSource.GetOrAddScatterLines(Items.Count > 0 ? 1 : 0);
             var xLines = PlotDataSource.GetOrAddXLines(MaxItemAODDelay is not null ? 1 : 0);
 
             scatterLines.ElementAtOrDefault(0)?.Update(
                 "AOD Delay",
-                [.. Items.Select(t => new Point(t.AODDelay, t.PMTValue))],
-                Constants.Category10.GetColor(0));
-
-            scatterLines.ElementAtOrDefault(1)?.Update(
-                "Smooth",
-                SmoothPoints,
+                [.. Items.Select(t => new Point(t.ChirpAODDelay, t.PMTValue))],
                 Constants.Category10.GetColor(0));
 
             xLines.ElementAtOrDefault(0)?.Update("Max", Guard.IsNotNullAndReturn(MaxItemAODDelay), Colors.Red);
@@ -109,7 +99,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        SmoothPoints = [.. SmoothPoints],
+        PrescanAODDelay = PrescanAODDelay,
         MaxItemAODDelay = MaxItemAODDelay,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
@@ -135,14 +125,7 @@ public sealed partial class AODDelayDTO : CalibrationDTOBase<AODDelayDTO>, IAdap
 public sealed partial class AODDelayDTOItem : ObservableObject, ICloneable<AODDelayDTOItem>
 {
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PrescanAODDelay), nameof(ChirpAODDelay))]
-    public partial double AODDelay { get; set; }
-
-    [Newtonsoft.Json.JsonIgnore]
-    public double PrescanAODDelay => AODDelay <= 0 ? Math.Abs(AODDelay) : 0d;
-
-    [Newtonsoft.Json.JsonIgnore]
-    public double ChirpAODDelay => AODDelay >= 0 ? Math.Abs(AODDelay) : 0d;
+    public partial double ChirpAODDelay { get; set; }
 
     [ObservableProperty]
     public partial double PMTValue { get; set; }
@@ -155,7 +138,7 @@ public sealed partial class AODDelayDTOItem : ObservableObject, ICloneable<AODDe
 
     public AODDelayDTOItem Clone() => new()
     {
-        AODDelay = AODDelay,
+        ChirpAODDelay = ChirpAODDelay,
         PMTValue = PMTValue,
         ImageFilePath = ImageFilePath,
         RawImageFilePath = RawImageFilePath

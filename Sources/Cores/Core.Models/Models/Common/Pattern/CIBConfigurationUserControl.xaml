@@ -9,6 +9,7 @@
              xmlns:cibEnum="clr-namespace:Core.Models.Enums.CIB"
              d:DataContext="{d:DesignInstance Type=pattern:CIBConfiguration}"
              d:DesignWidth="300"
+             d:DesignHeight="300"
              mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>

@@ -14,6 +14,13 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -129,10 +136,10 @@
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Ch1 Step0 CIB" DisplayMemberBinding="{Binding Channel1Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch1 Step1 CIB" DisplayMemberBinding="{Binding Channel1Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch1 Extinction Ratio" DisplayMemberBinding="{Binding Channel1Item.ExtinctionRatio, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch1 Extinction Ratio" DisplayMemberBinding="{Binding Channel1Item.ExtinctionRatio, StringFormat='0.########'}" />
                             <GridViewColumn Header="Ch2 Step0 CIB" DisplayMemberBinding="{Binding Channel2Item.Step0CIBImageAverageValue, StringFormat='0.###'}" />
                             <GridViewColumn Header="Ch2 Step1 CIB" DisplayMemberBinding="{Binding Channel2Item.Step1CIBImageAverageValue, StringFormat='0.###'}" />
-                            <GridViewColumn Header="Ch2 Extinction Ratio" DisplayMemberBinding="{Binding Channel2Item.ExtinctionRatio, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Ch2 Extinction Ratio" DisplayMemberBinding="{Binding Channel2Item.ExtinctionRatio, StringFormat='0.########'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -160,11 +167,23 @@
                                                     <behaviors:SelectorAutoSelectFirstBehavior />
                                                 </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
-                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.Document, Mode=OneWay}" />
-                                                    </Border>
+                                                    <TabControl Margin="5" DataContext="{Binding Channel1Item, Mode=OneWay}">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:SelectorAutoSelectFirstBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                        <TabItem Header="Image">
+                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                                                            </Border>
+                                                        </TabItem>
+                                                        <TabItem Header="Rod Information">
+                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                <ContentPresenter Content="{Binding Rods, Mode=OneWay}" ContentTemplate="{StaticResource SpecularBlockerRodListTemplate}" />
+                                                            </Border>
+                                                        </TabItem>
+                                                    </TabControl>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel1Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>
@@ -179,11 +198,23 @@
                                                     <behaviors:SelectorAutoSelectFirstBehavior />
                                                 </i:Interaction.Behaviors>
                                                 <TabItem Header="Fourier">
-                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.Document, Mode=OneWay}" />
-                                                    </Border>
+                                                    <TabControl Margin="5" DataContext="{Binding Channel2Item, Mode=OneWay}">
+                                                        <i:Interaction.Behaviors>
+                                                            <behaviors:SelectorAutoSelectFirstBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                        <TabItem Header="Image">
+                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                                                            </Border>
+                                                        </TabItem>
+                                                        <TabItem Header="Rod Information">
+                                                            <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                <ContentPresenter Content="{Binding Rods, Mode=OneWay}" ContentTemplate="{StaticResource SpecularBlockerRodListTemplate}" />
+                                                            </Border>
+                                                        </TabItem>
+                                                    </TabControl>
                                                 </TabItem>
-                                                <TabItem Header="CIB" IsSelected="True">
+                                                <TabItem Header="CIB">
                                                     <Border Margin="5" Style="{StaticResource BorderRegion}">
                                                         <wpf:OpticsFourierImageCanvasControl Document="{Binding Channel2Item.CIBDocument, Mode=OneWay}" />
                                                     </Border>

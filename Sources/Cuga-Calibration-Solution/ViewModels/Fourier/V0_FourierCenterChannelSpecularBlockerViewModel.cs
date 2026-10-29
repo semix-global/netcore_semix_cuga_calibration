@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Fourier;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Fourier.PupilCameraAlignment;
@@ -57,10 +56,16 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     public partial IReadOnlyList<ProductivityInformationStatus> CalibratingStatuses { get; set; } = [];
 
     [ObservableProperty]
-    public partial V0FourierCenterChannelFlexibleApertureDTOItem?[] YRodItems { get; set; } = [];
+    public partial KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>[] YRodItems { get; set; } = [];
 
     [ObservableProperty]
     public partial V0FourierCenterChannelFlexibleApertureDTOItem? SelectedYRodItem { get; set; } = null;
+
+    [ObservableProperty]
+    public partial KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>[] XPushItems { get; set; } = [];
+
+    [ObservableProperty]
+    public partial V0FourierCenterChannelFlexibleApertureDTOItem? SelectedXPushItem { get; set; } = null;
 
     #endregion Calibrate
 
@@ -104,7 +109,17 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
         FourierPupilCameraAlignment = ApplicationCookieService.GetCalibration<FourierPupilCameraAlignmentDTO>(cancellationToken);
         FourierCenterChannelFlexibleAperture = ApplicationCookieService.GetCalibration<V0FourierCenterChannelFlexibleApertureDTO>(cancellationToken);
         MicroscopeCalChip = ApplicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
-        YRodItems = [null, .. FourierCenterChannelFlexibleAperture.YRodItems];
+        YRodItems =
+        [
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
+            .. FourierCenterChannelFlexibleAperture.YRodItems.Select(t => new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>(
+                $"{t.AngleMotorAbsoluteValue:0.###}° {t.Step0ROI.ImageROI.Height:0.###}px", t))
+        ];
+        XPushItems =
+        [
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>("None", null),
+            new KeyValuePair<string, V0FourierCenterChannelFlexibleApertureDTOItem?>($"{FourierCenterChannelFlexibleAperture.XPushItem.Step0ROI.ImageROI.Width:0.###}px", FourierCenterChannelFlexibleAperture.XPushItem)
+        ];
 
         Cache = ApplicationCookieService.GetCache<V0FourierCenterChannelSpecularBlockerCache>(cancellationToken);
         Calibrations = ApplicationCookieService.GetCalibrations<V0FourierCenterChannelSpecularBlockerDTO>(cancellationToken);
@@ -297,7 +312,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken)
     {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken));
+        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken).ConfigureAwait(false));
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -368,10 +383,12 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
     private async Task<bool> InvokeCalibrateAsync(V0FourierCenterChannelSpecularBlockerDTOItem item, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(SelectedXPushItem is not null || SelectedYRodItem is not null, "Select at least one X push or Y rod.");
+
         var detectImageDirectory = ImageFileDirectory;
 
         var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
-        var config = FourierViewModel.GetFourierConfig();
+        var configuration = FourierViewModel.GetMotorConfiguration();
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
@@ -382,14 +399,16 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             fourierPupilCameraAlignmentItem.ROI.ImageROI,
-            config.CH3_X_PPOSMin,
-            config.CH3_X_PPOSMax,
-            config.CH3_Y_LPOSMin,
-            config.CH3_Y_LPOSMax,
+            XPushKind = SelectedXPushItem?.CenterChannelMotionKindEnum,
+            YRodAngle = SelectedYRodItem?.AngleMotorAbsoluteValue,
+            configuration.CenterPushMinMotorAbsoluteValue,
+            configuration.CenterPushMaxMotorAbsoluteValue,
+            configuration.CenterYMinMotorAbsoluteValue,
+            configuration.CenterYMaxMotorAbsoluteValue,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIChannelImageFilePath);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
         Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         item.Reset();
@@ -408,31 +427,32 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         try
         {
-            FourierViewModel.Home(3);
+            try
+            {
+                FourierViewModel.Home(3);
 
-            Grab(0);
-
-            Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                Grab(0);
+            }
+            finally
+            {
+                Logger.LogHtmlInformation("Image", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToImageHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+            }
 
             var isSuccess = false;
             try
             {
                 await item.CalibratingAsync(
+                    SelectedXPushItem,
                     SelectedYRodItem,
-                    FourierCenterChannelFlexibleAperture.XPushItem,
-                    (config.CH3_Y_LPOSMin, config.CH3_Y_LPOSMax),
-                    (config.CH3_X_PPOSMin, config.CH3_X_PPOSMax),
+                    (configuration.CenterPushMinMotorAbsoluteValue, configuration.CenterPushMaxMotorAbsoluteValue),
+                    (configuration.CenterYMinMotorAbsoluteValue, configuration.CenterYMaxMotorAbsoluteValue),
                     cancellationToken);
 
-                Guard.IsEqualTo(item.YRodROI.IsSelected, SelectedYRodItem is not null);
-                if (item.YRodROI.IsSelected)
-                {
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.YRodROI.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodROI.MotorAbsoluteValue);
-                }
+                Guard.IsEqualTo(item.XPushROI.IsSelected, SelectedXPushItem is not null);
+                if (item.XPushROI.IsSelected) FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
 
-                Guard.IsTrue(item.XPushROI.IsSelected);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.XPushROI.MotorAbsoluteValue);
+                Guard.IsEqualTo(item.YRodROI.IsSelected, SelectedYRodItem is not null);
+                if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3YTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
 
                 Grab(1);
 
@@ -474,24 +494,25 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 Cache.Item.LaserLightInformation,
                 shinyBFPosition,
                 Cache.Item.ScanLength,
-                3);
+                3,
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiChannelImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
             using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
-            roiBitmapImageDrawable.SaveImage(roiChannelImageFilePath);
+            roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)
             {
                 case 0:
-                    item.Step0FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step0FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
                 case 1:
-                    item.Step1FourierImageFilePath = roiChannelImageFilePath;
+                    item.Step1FourierImageFilePath = roiFourierImageFilePath;
 
                     break;
 
@@ -505,6 +526,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
     private async Task InvokeVerifyAsync(V0FourierCenterChannelSpecularBlockerDTO dto, CancellationToken cancellationToken)
     {
+        Guard.IsTrue(dto.Channel3Item.YRodROI.IsSelected || dto.Channel3Item.XPushROI.IsSelected, "Select at least one X push or Y rod.");
+
         var detectImageDirectory = ImageFileDirectory;
         V0FourierCenterChannelSpecularBlockerDTOItem[] items = [dto.Channel3Item];
         CIBInformation[] cibInformations =
@@ -519,12 +542,12 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             Cache.VerifyLaserLightInformation,
             VerifyCIBConfiguration = new HtmlQuote(Cache.VerifyCIBConfiguration.ToHtmlAnonymous()),
             Cache.VerifyImageWidth,
+            Cache.ExtinctionRatioThreshold,
             Cache.Item.MicroscopeLensInformation,
             Cache.Item.LaserLightInformation,
             OpticsConfiguration = new HtmlQuote(Cache.Item.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
-            Cache.ExtinctionRatioThreshold,
             CIBInformations = new HtmlTable([.. cibInformations.Select(t => t.ToHtmlAnonymous())])
         }), HtmlLogUniqueId.LoggingHtml());
 
@@ -543,36 +566,36 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
 
         try
         {
-            foreach (var item in items)
+            try
             {
-                item.ResetCIB();
+                foreach (var item in items) item.ResetCIB();
 
                 FourierViewModel.Home(3);
-            }
 
-            await GrabAsync(0);
+                await GrabAsync(0);
 
-            foreach (var item in items)
-            {
-                if (item.YRodROI.IsSelected)
+                foreach (var item in items)
                 {
-                    FourierViewModel.SetFFRPOS_CH3(FFCH.Ch3_Y, item.YRodROI.AngleMotorAbsoluteValue);
-                    FourierViewModel.SetFFLPOS_CH3(FFCH.Ch3_Y, item.YRodROI.MotorAbsoluteValue);
+                    if (item.XPushROI.IsSelected) FourierViewModel.SetChannel3XPush(item.XPushROI.MotorAbsoluteValue);
+
+                    if (item.YRodROI.IsSelected) FourierViewModel.SetChannel3YTurntable(item.YRodROI.AngleMotorAbsoluteValue, item.YRodROI.MotorAbsoluteValue);
                 }
 
-                Guard.IsTrue(item.XPushROI.IsSelected);
-                FourierViewModel.SetFFPPOS_CH3(FFCH.Ch3_X, item.XPushROI.MotorAbsoluteValue);
+                await GrabAsync(1);
+
+                foreach (var item in items)
+                {
+                    Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
+
+                    item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
+                }
             }
-
-            await GrabAsync(1);
-
-            foreach (var item in items)
+            finally
             {
-                Guard.IsGreaterThan(item.Step0CIBImageAverageValue, 0d);
-
-                item.ExtinctionRatio = item.Step1CIBImageAverageValue / item.Step0CIBImageAverageValue;
-
-                Logger.LogHtmlInformation("Channel3 Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                foreach (var item in items)
+                {
+                    Logger.LogHtmlInformation("Channel3 Image", HtmlHeaderLevelEnum.Header4, new HtmlQuote(item.ToCIBHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                }
             }
 
             return;
@@ -606,41 +629,51 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                     false,
                     cancellationToken);
 
-                Guard.IsEqualTo(darkFieldImages.Count, items.Length);
-
-                foreach (var item in items)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    Guard.IsEqualTo(darkFieldImages.Count, items.Length);
 
-                    using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == 3);
-
-                    var cibImageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
-                    darkFieldImage.Image.SaveImage(cibImageFilePath);
-
-                    switch (stepIndex)
+                    foreach (var item in items)
                     {
-                        case 0:
-                            item.RawStep0CIBImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step0CIBImageFilePath = cibImageFilePath;
-                            item.Step0CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                            break;
+                        using var darkFieldImage = darkFieldImages.Single(t => t.CIBInformation.ChannelId == 3);
 
-                        case 1:
-                            item.RawStep1CIBImageFilePath = darkFieldImage.RawImageFilePath;
-                            item.Step1CIBImageFilePath = cibImageFilePath;
-                            item.Step1CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+                        var cibImageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Verify_Step{stepIndex}_CIB_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+                        DirectoryHelper.CreateFileDirectoryIfNotExists(cibImageFilePath);
+                        darkFieldImage.Image.SaveImage(cibImageFilePath);
 
-                            break;
+                        switch (stepIndex)
+                        {
+                            case 0:
+                                item.RawStep0CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                                item.Step0CIBImageFilePath = cibImageFilePath;
+                                item.Step0CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
 
-                        default:
-                            ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+                                break;
 
-                            break;
+                            case 1:
+                                item.RawStep1CIBImageFilePath = darkFieldImage.RawImageFilePath;
+                                item.Step1CIBImageFilePath = cibImageFilePath;
+                                item.Step1CIBImageAverageValue = darkFieldImage.Image.GetIntensity().Average;
+
+                                break;
+
+                            default:
+                                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(stepIndex));
+
+                                break;
+                        }
+
+                        item.ReviewCIB();
                     }
-
-                    item.ReviewCIB();
+                }
+                finally
+                {
+                    foreach (var darkFieldImage in darkFieldImages)
+                    {
+                        using var _ = darkFieldImage;
+                    }
                 }
             }
         }

@@ -211,8 +211,8 @@
     "Step1CIBImageAverageValue": 33.5,
     "ExtinctionRatio": 0.38
   },
-  "IsVerified": true,
   "IsCalibrated": true,
+  "IsVerified": true,
   "IsRequiredSelfCheck": false,
   "IsOk": true
 }

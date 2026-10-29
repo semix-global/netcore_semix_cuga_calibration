@@ -28,6 +28,9 @@ public sealed partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     public partial int ROICount { get; set; } = 8;
 
+    [ObservableProperty]
+    public partial bool IsOutsideImageAllowed { get; set; }
+
     public MainWindowViewModel()
     {
         BitmapImageDrawable = new BitmapImageDrawable();
@@ -83,6 +86,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
         false,
         cancellationToken: cancellationToken);
 
+    [RelayCommand(IncludeCancelCommand = true)]
+    private Task EditFixedAspectRatioROIAsync(CancellationToken cancellationToken) => EditROIAsync(
+        BitmapImageROIResizeJoystickStateEnum.All,
+        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
+        true,
+        cancellationToken: cancellationToken,
+        isAspectRatioFixed: true);
+
     [RelayCommand]
     private void CancelEditROI()
     {
@@ -92,14 +103,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
         EditFixedAspectRatioROICancelCommand.Execute(null);
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private Task EditFixedAspectRatioROIAsync(CancellationToken cancellationToken) => EditROIAsync(
-        BitmapImageROIResizeJoystickStateEnum.All,
-        dragMoveTypeEnum: BitmapImageROIDragMoveTypeEnum.All,
-        true,
-        cancellationToken: cancellationToken,
-        isAspectRatioFixed: true);
-
     private async Task EditROIAsync(
         BitmapImageROIResizeJoystickStateEnum resizeJoystickStateEnum,
         BitmapImageROIDragMoveTypeEnum dragMoveTypeEnum,
@@ -107,7 +110,10 @@ public sealed partial class MainWindowViewModel : ObservableObject
         CancellationToken cancellationToken,
         bool isAspectRatioFixed = false)
     {
-        if (ROICount <= 0) return;
+        var roiCount = isAspectRatioFixed ? 3 : ROICount;
+        if (roiCount <= 0) return;
+
+        var isOutsideImageAllowed = IsOutsideImageAllowed;
 
         await Task.Run(async () =>
         {
@@ -116,7 +122,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 
             var imageWidth = (double)bitmapImage.Width;
             var imageHeight = (double)bitmapImage.Height;
-            var roiWidth = imageWidth / (ROICount * 2d - 1d);
+            var roiWidth = imageWidth / (roiCount * 2d - 1d);
             var roiHeight = imageHeight / 2d;
 
             var roiY = BitmapImageDrawable.Point.Y + imageHeight - roiHeight;
@@ -125,14 +131,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
             {
                 Document.ROIModel.Clear();
 
-                for (var i = 0; i < ROICount; i++)
+                for (var i = 0; i < roiCount; i++)
                 {
                     var roiX = BitmapImageDrawable.Point.X + i * roiWidth * 2d;
                     var width = roiWidth;
                     var height = roiHeight;
                     if (isAspectRatioFixed)
                     {
-                        var aspectRatio = (i % 3) switch { 0 => 1d, 1 => 2d, _ => 0.5d };
+                        var aspectRatio = i switch { 0 => 1d, 1 => 2d, _ => 0.5 };
                         height = Math.Min(roiHeight, roiWidth / aspectRatio);
                         width = height * aspectRatio;
                     }
@@ -140,7 +146,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                     Document.ROIModel.Add(new BitmapImageROIDrawable(BitmapImageDrawable)
                     {
                         Rect = new Rect(roiX, roiY, width, height),
-                        IsFixed = !isAspectRatioFixed && Random.Shared.NextDouble() > 0.5,
+                        IsFixed = isAspectRatioFixed == false && Random.Shared.NextDouble() > 0.5,
                         Text = $"{i + 1}",
                         ResizeJoystickStateEnum = isAspectRatioFixed
                             ? resizeJoystickStateEnum
@@ -156,6 +162,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 IsDeleteEnabled = isDeleteEnabled,
                 IsAspectRatioFixed = isAspectRatioFixed,
+                IsOutsideImageAllowed = isOutsideImageAllowed,
                 CancellationToken = cancellationToken
             };
 

@@ -469,6 +469,15 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<double> GetGantryOffset()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadGantry());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
+    }
+
     public SxExecuteRet<bool> ToggleEnableStageMap(bool enable)
     {
         var sxExecuteRet = Invoke(() => Service!.ErrorMapSwich(enable));
@@ -543,6 +552,15 @@ public sealed class CalibrationStageServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<(double X, double Y)> GetXYGlobalScale()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadAxisScale());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, (0d, 0d))
+            : SxExecuteRetHelper.CreateSuccess((sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
+    }
+
     public SxExecuteRet<bool> SetTScale(double tScale)
     {
         var sxExecuteRet = Invoke(() => Service!.UpdateScale(ESxAxisEnum.T, tScale));
@@ -550,6 +568,15 @@ public sealed class CalibrationStageServiceImpl(
         return sxExecuteRet.IsSuccess
             ? SxExecuteRetHelper.CreateSuccess(true)
             : SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
+    }
+
+    public SxExecuteRet<double> GetTScale()
+    {
+        var sxExecuteRet = Invoke(() => Service!.ReadAxisScale());
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything.T);
     }
 
     public SxExecuteRet<Point> GetEfemLoadWaferMachineStagePosition()

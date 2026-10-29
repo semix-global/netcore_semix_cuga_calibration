@@ -2,18 +2,14 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
-using Core.Models.Enums.Optics;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
-using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
-using Local.SQL.Cache.Providers.Bases;
-using Local.SQL.Cache.Providers.Services.Interfaces;
+using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Modules;
@@ -21,6 +17,7 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -28,168 +25,37 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
+using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using System.Text;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
-
-public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
-{
-    #region Param
-
-    [ObservableProperty]
-    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
-
-    [ObservableProperty]
-    public partial int ChannelId { get; set; } = CalibrationConstantsHelper.MainChannelId;
-
-    [ObservableProperty]
-    public partial double PrescanFrequency { get; set; }
-
-    [ObservableProperty]
-    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
-    public partial double ChirpFrequency { get; set; }
-
-    [ObservableProperty]
-    public partial GenerateChirpAODWaveformParam GenerateChirpAODWaveformParam { get; set; } = new();
-
-    [ObservableProperty]
-    public partial Point HazeBFMachinePosition { get; set; } = Point.Origin;
-
-    [ObservableProperty]
-    public partial LaserLightInformation HazeLaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    public partial Point ShinyWaferBFMachinePosition { get; set; } = Point.Origin;
-
-    [ObservableProperty]
-    public partial LaserLightInformation ShinyWaferLaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    public partial double WaitTime { get; set; } = 5;
-
-    [ObservableProperty]
-    public partial double RotateAngle { get; set; }
-
-    /// <summary>
-    /// D型光斑直径(um)
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DegreePerUm))]
-    public partial double CenterChannelLensDiameterUm { get; set; } = 33_000;
-
-    /// <summary>
-    /// 最大半角度(°)
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DegreePerUm))]
-    public partial double CenterChannelLensMaximumAngle { get; set; } = 41.3;
-
-    public double DegreePerUm => CenterChannelLensMaximumAngle / CenterChannelLensDiameterUm;
-
-    [ObservableProperty]
-    public partial double Threshold { get; set; } = 2;
-
-    #endregion
-
-    [ObservableProperty]
-    public partial string ChirpAODWaveformResultFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
-
-    [ObservableProperty]
-    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial IReadOnlyList<ChirpAODWaveformProfile> ChirpAODWaveformProfiles { get; set; } = [];
-
-    [ObservableProperty]
-    public partial OpticsObjectiveYAngleResult Result { get; set; } = new();
-
-    public object ToHtmlAnonymous() => new
-    {
-        ProductivityInformation,
-        ChannelId,
-        GeneratePrescanAODWaveformParam = new HtmlQuote(GeneratePrescanAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        GenerateChirpAODWaveformParam = new HtmlQuote(GenerateChirpAODWaveformParam.ToFlatnessHtmlAnonymous()),
-        HazeBFMachinePosition,
-        HazeLaserLightInformation,
-        ShinyWaferBFMachinePosition,
-        ShinyWaferLaserLightInformation,
-        WaitTime,
-        Threshold
-    };
-}
-
-public sealed partial class OpticsObjectiveYAngleResult : ObservableObject
-{
-    [ObservableProperty]
-    public partial bool IsOk { get; set; }
-
-    [ObservableProperty]
-    public partial string HazeImageFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial string ShinyWaferImageFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial string ResultImageFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial Point CenterChannelLightCenterPosition { get; set; } = Point.Origin;
-
-    [ObservableProperty]
-    public partial Point ReflectedLightCenterPosition { get; set; } = Point.Origin;
-
-    public double LightCenterXPixelOffset => ReflectedLightCenterPosition.X - CenterChannelLightCenterPosition.X;
-
-    [ObservableProperty]
-    public partial double CenterChannelLightDiameterPixel { get; set; }
-
-    [ObservableProperty]
-    public partial double HorizontalDegree { get; set; }
-
-    [ObservableProperty]
-    public partial double PixelSize { get; set; }
-
-    [ObservableProperty]
-    public partial double YAngleDegrees { get; set; }
-
-    public object ToHtmlAnonymous() => new
-    {
-        IsOk,
-        CenterChannelLightCenterPosition,
-        ReflectedLightCenterPosition,
-        LightCenterXPixelOffset = Math.Round(LightCenterXPixelOffset, 4),
-        HorizontalDegree = Math.Round(HorizontalDegree, 4),
-        CenterChannelLightDiameterPixel,
-        PixelSize = Math.Round(PixelSize, 4),
-        HazeImage = new HtmlImage(HazeImageFilePath),
-        ShinyWaferImage = new HtmlImage(ShinyWaferImageFilePath),
-        ResultImageh = new HtmlImage(ResultImageFilePath),
-        YAngleDegrees
-    };
-}
 
 [IOCAppService(ServiceType = typeof(OpticsObjectiveYAngleWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     ApplicationCookie applicationCookie,
     ICalibrationAlgorithmService calibrationAlgorithmService,
-    ICacheProvider cacheProvider,
     IApplicationCookieService applicationCookieService,
     IDialogWindowProvider dialogWindowProvider,
     IOptions<ApplicationSetting> options,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     LaserViewModel laserViewModel,
-    CIBViewModel cibViewModel,
     FourierViewModel fourierViewModel,
     ILogger<OpticsObjectiveYAngleWindowViewModel> logger) : ViewModelBase
 {
+    #region 仿真器
+
+    private static readonly string[] SimulatorImageFilePaths =
+    [
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "Haze.jpg"),
+        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "ShinyWafer.jpg")
+    ];
+
+    #endregion 仿真器
+
     public string Name => "Optics Y Angle";
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, nameof(AODWaveform), nameof(OpticsObjectiveYAngleWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
@@ -198,58 +64,124 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
 
-    public Guid HtmlLogUniqueId { get; private set; }
+    public IHostEnvironment HostEnvironment { get; } = HostApplication.GetRequiredService<IHostEnvironment>();
 
     [DefaultCache]
     [ObservableProperty]
     public partial OpticsObjectiveYAngleCache Cache { get; set; } = new();
 
+    [ObservableProperty]
+    public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
+
     [RelayCommand]
     private void Loaded()
     {
-        Cache = cacheProvider.GetOrDefault<OpticsObjectiveYAngleCache>();
+        Cache = applicationCookieService.GetOrDefault<OpticsObjectiveYAngleCache>(false);
+        MicroscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
     }
 
     [RelayCommand]
-    private void RefreshBFMachinePosition()
+    private void RefreshHazeBFMachinePosition()
     {
-        var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>();
-
-        if (microscopeCalChip.IsOk)
+        if (MicroscopeCalChip.IsOk)
         {
-            Cache.HazeBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.HazeItem).BrightFieldMachinePosition;
-            Cache.ShinyWaferBFMachinePosition = Guard.IsNotNullAndReturn(microscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
+            Cache.HazeBFMachinePosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.HazeItem).BrightFieldMachinePosition;
 
             return;
         }
 
-        dialogWindowProvider.ShowDialog("Please Calibrate CalChip First", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+        dialogWindowProvider.ShowDialog("Please Calibrate CalChip First", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+    }
+
+    [RelayCommand]
+    private void RefreshShinyWaferBFMachinePosition()
+    {
+        if (MicroscopeCalChip.IsOk)
+        {
+            Cache.ShinyWaferBFMachinePosition = Guard.IsNotNullAndReturn(MicroscopeCalChip.ShinyWaferItem).BrightFieldMachinePosition;
+
+            return;
+        }
+
+        dialogWindowProvider.ShowDialog("Please Calibrate CalChip First", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+    }
+
+    [RelayCommand]
+    private void ImportAODWaveformParams()
+    {
+        try
+        {
+            var isSuccess = true;
+
+            var stringBuilder = new StringBuilder();
+
+            var productivityInformation = Cache.ShinyWaferProductivityInformation;
+            var prescanCache = applicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>(false);
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType);
+
+            if (prescanResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GeneratePrescanAODWaveformParam = prescanResult.GeneratePrescanAODWaveformParam.Clone();
+                Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = productivityInformation;
+                stringBuilder.AppendLine("Ok: Prescan AOD Waveform Param Import Success!");
+            }
+
+            var chirpCache = applicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeDelayCache>(false);
+            var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
+                                                                      && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType);
+
+            if (chirpResult is null)
+            {
+                stringBuilder.AppendLine("Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!");
+                isSuccess = false;
+            }
+            else
+            {
+                Cache.GenerateChirpAODWaveformParam = chirpResult.GenerateChirpAODWaveformParam.Clone();
+                Cache.GenerateChirpAODWaveformParam.ProductivityInformation = productivityInformation;
+                stringBuilder.AppendLine("Ok: Chirp AOD Waveform Param Import Success!");
+            }
+
+            dialogWindowProvider.ShowDialog(stringBuilder.ToString(), dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: isSuccess ? DialogIconEnum.Information : DialogIconEnum.Warning);
+        }
+        catch (Exception ex)
+        {
+            dialogWindowProvider.ShowDialog($"""
+                                             Import Parameters Failed
+                                             {ex.Message}
+                                             """, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+            logger.LogError(ex, "Import Parameters Failed");
+        }
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task Step0Async(CancellationToken cancellationToken)
     {
-        await Task.Run(async () =>
+        await Task.Run(() =>
         {
-            HtmlLogUniqueId = Guid.NewGuid();
+            var htmlLogUniqueId = Guid.NewGuid();
 
             const string stepName = "Y Angle";
+            BitmapImage? hazeFourierImage = null;
+            BitmapImage? shinyWaferFourierImage = null;
+            BitmapImage? drawingImage = null;
 
-            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, htmlLogUniqueId.LoggingHtml());
 
             logger.LogHtmlInformation("Diagnosis Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.RotateAngle,
                 Cache.Threshold,
-                Cache.CenterChannelLensMaximumAngle,
-                Cache.CenterChannelLensDiameterUm,
-                Cache.DegreePerUm
-            }), HtmlLogUniqueId.LoggingHtml());
+                Cache.CenterChannelLensMaximumAngle
+            }), htmlLogUniqueId.LoggingHtml());
 
-            var isSuccess = false;
-            BitmapImage? hazeFourierImage = null;
-            BitmapImage? shinyWaferFourierImage = null;
             try
             {
                 Cache.PrescanAODWaveformResultFilePath = string.Empty;
@@ -261,79 +193,73 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 Cache.Result.HazeImageFilePath = string.Empty;
                 Cache.Result.ShinyWaferImageFilePath = string.Empty;
                 Cache.Result.ResultImageFilePath = string.Empty;
+                Cache.Result.HorizontalDegree = 0d;
                 Cache.Result.YAngleDegrees = 0d;
-                Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
-                Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
 
-                logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
+                logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
 
-                laserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-                cibViewModel.SetAGC(ApplicationCookie.CIBInformations, true);
+                fourierViewModel.Home(Cache.ChannelId);
+                var productivityInformation = Cache.HazeProductivityInformation;
+                laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-                try
+                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(SimulatorImageFilePaths[0]);
+
                 {
-                    var brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(Cache.HazeBFMachinePosition);
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(brightFieldPosition, CalChipSiteModelEnum.HazeModel);
-                    afViewModel.ToggleDarkFieldEnable(true);
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.HazeLaserLightInformation.Coefficient);
-                    laserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
-                    laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+                    var brightFieldPosition = SetPosition(Cache.HazeBFMachinePosition, CalChipSiteModelEnum.HazeModel);
+                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, Cache.HazeLaserLightInformation.Coefficient);
+                    laserViewModel.SetChirpAODWaveProfile(productivityInformation);
 
-                    await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
                     hazeFourierImage = fourierViewModel.GetImage(
-                        Cache.ProductivityInformation,
+                        productivityInformation,
                         Cache.HazeLaserLightInformation,
                         brightFieldPosition,
-                        800,
-                        Cache.ChannelId); // todo: 改为界面输入
+                        Cache.ScanLength,
+                        Cache.ChannelId,
+                        true);
 
-                    var resultHazeImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    hazeFourierImage.SaveImage(resultHazeImageFilePath);
-                    Cache.Result.HazeImageFilePath = resultHazeImageFilePath;
+                    Cache.Result.HazeImageFilePath = SaveImage(hazeFourierImage);
 
                     logger.LogHtmlInformation("Haze", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
                         HazeImage = new HtmlImage(Cache.Result.HazeImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-                finally
-                {
-                    laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+                    }), htmlLogUniqueId.LoggingHtml());
                 }
 
-                try
-                {
-                    var brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(Cache.ShinyWaferBFMachinePosition);
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(brightFieldPosition, CalChipSiteModelEnum.ShinyWaferModel);
-                    afViewModel.ToggleDarkFieldEnable(true);
+                productivityInformation = Cache.ShinyWaferProductivityInformation;
+                laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-                    Cache.GeneratePrescanAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
+                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(SimulatorImageFilePaths[1]);
+
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var brightFieldPosition = SetPosition(Cache.ShinyWaferBFMachinePosition, CalChipSiteModelEnum.ShinyWaferModel);
+
+                    Cache.GeneratePrescanAODWaveformParam.WithFrequencyFlatness(Cache.PrescanFrequency);
                     Cache.GeneratePrescanAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+                    Cache.GenerateChirpAODWaveformParam.WithFrequencyFlatness(Cache.ChirpFrequency);
+                    Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
+
                     var prescanAODWaveformResult = AODWaveformGenerator1.GeneratePrescanAODWaveform(Cache.GeneratePrescanAODWaveformParam.AdaptTo(), cancellationToken);
                     Cache.PrescanAODWaveformProfiles = AODWaveformProfileFactory.CreatePrescanList(prescanAODWaveformResult);
                     Cache.PrescanAODWaveformResultFilePath = prescanAODWaveformResult.FilePath;
 
-                    Cache.GenerateChirpAODWaveformParam.ProductivityInformation = Cache.ProductivityInformation;
-                    Cache.GenerateChirpAODWaveformParam.DirectoryPath = AODWaveformDirectoryPath;
                     var chirpAODWaveformResult = AODWaveformGenerator1.GenerateChirpAODWaveform(Cache.GenerateChirpAODWaveformParam.AdaptTo(), cancellationToken);
                     Cache.ChirpAODWaveformProfiles = AODWaveformProfileFactory.CreateChirpList(chirpAODWaveformResult);
                     Cache.ChirpAODWaveformResultFilePath = chirpAODWaveformResult.FilePath;
 
-                    laserViewModel.SetPrescanAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
-                    laserViewModel.SetChirpAODWaveProfiles(Cache.ProductivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
-                    laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Through);
+                    laserViewModel.SetPrescanAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, [.. Cache.PrescanAODWaveformProfiles.Select(t => t.ApplyCoefficient(Cache.ShinyWaferLaserLightInformation.Coefficient))]);
+                    laserViewModel.SetChirpAODWaveProfiles(productivityInformation.OpticsIlluminationModeEnum, Cache.ChirpAODWaveformProfiles);
 
-                    await Task.Delay(TimeSpan.FromSeconds(Cache.WaitTime), cancellationToken).ConfigureAwait(false);
                     shinyWaferFourierImage = fourierViewModel.GetImage(
-                        Cache.ProductivityInformation,
+                        productivityInformation,
                         Cache.ShinyWaferLaserLightInformation,
                         brightFieldPosition,
-                        800,
-                        Cache.ChannelId); // todo: 改为界面输入
+                        Cache.ScanLength,
+                        Cache.ChannelId,
+                        true);
 
-                    var resultShinyWaferImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                    shinyWaferFourierImage.SaveImage(resultShinyWaferImageFilePath);
-                    Cache.Result.ShinyWaferImageFilePath = resultShinyWaferImageFilePath;
+                    Cache.Result.ShinyWaferImageFilePath = SaveImage(shinyWaferFourierImage);
 
                     logger.LogHtmlInformation("ShinyWafer", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                     {
@@ -342,42 +268,28 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                         Cache.ChirpAODWaveformResultFilePath,
                         ChirpAODWaveformProfiles = new HtmlTable([.. Cache.ChirpAODWaveformProfiles.Select(t => t.ToFlatnessHtmlAnonymous())]),
                         ShinyWaferImage = new HtmlImage(Cache.Result.ShinyWaferImageFilePath)
-                    }), HtmlLogUniqueId.LoggingHtml());
-                }
-                finally
-                {
-                    laserViewModel.ToggleOpticsAODWorkingMode(OpticsAODWorkingModeEnum.Scan);
+                    }), htmlLogUniqueId.LoggingHtml());
                 }
 
-                var (drawingImage,
-                    diameter,
-                    horizontalDegree,
-                    centerChannelLightCenterPosition,
-                    reflectedLightCenterPosition) = calibrationAlgorithmService.GetOpticsObjectiveYAngleResult(hazeFourierImage, shinyWaferFourierImage, Cache.RotateAngle, HtmlLogUniqueId);
-                Cache.Result.CenterChannelLightCenterPosition = centerChannelLightCenterPosition;
-                Cache.Result.ReflectedLightCenterPosition = reflectedLightCenterPosition;
-                Cache.Result.HorizontalDegree = horizontalDegree;
-                Cache.Result.CenterChannelLightDiameterPixel = diameter;
-                Cache.Result.PixelSize = Cache.CenterChannelLensDiameterUm / diameter;
-                Cache.Result.YAngleDegrees = (reflectedLightCenterPosition.X - centerChannelLightCenterPosition.X) * Cache.Result.PixelSize * Cache.DegreePerUm;
+                (drawingImage,
+                    Cache.Result.CenterChannelLightDiameterPixel,
+                    Cache.Result.HorizontalDegree,
+                    Cache.Result.CenterChannelLightCenterPosition,
+                    Cache.Result.ReflectedLightCenterPosition) = calibrationAlgorithmService.GetOpticsObjectiveYAngleResult(hazeFourierImage, shinyWaferFourierImage, Cache.RotateAngle, htmlLogUniqueId);
 
-                var resultImageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                using var _ = drawingImage;
-                drawingImage.SaveImage(resultImageFilePath);
-                Cache.Result.ResultImageFilePath = resultImageFilePath;
-
-                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(Cache.Result.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
-
+                Guard.IsGreaterThan(Cache.Result.CenterChannelLightDiameterPixel, 0d);
+                Cache.Result.YAngleDegrees = Cache.Result.LightCenterYPixelOffset * Cache.CenterChannelLensMaximumAngle / Cache.Result.CenterChannelLightDiameterPixel;
+                Cache.Result.ResultImageFilePath = SaveImage(drawingImage);
                 Cache.Result.IsOk = Math.Abs(Cache.Result.YAngleDegrees) <= Cache.Threshold;
 
-                isSuccess = Cache.Result.IsOk;
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(Cache.Result.ToHtmlAnonymous()), htmlLogUniqueId.LoggingHtml());
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    dialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                    dialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+                    logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                     return;
                 }
@@ -385,33 +297,53 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 dialogWindowProvider.ShowDialog($"""
                                                  {Name}: {stepName} Failed
                                                  {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                                 """, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+                logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
                 return;
             }
             finally
             {
+                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(null);
+
                 hazeFourierImage?.Dispose();
                 shinyWaferFourierImage?.Dispose();
-                logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
+                drawingImage?.Dispose();
+                logger.LogHtmlInformation(htmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(Cache.Result.IsOk ? "OK" : "Failed")}"));
             }
 
-            if (isSuccess)
-                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Success, Result: {Cache.Result.YAngleDegrees:0.###}°");
-            else
-                dialogWindowProvider.ShowDialog($"{Name}: {stepName} Error, Result: {Cache.Result.YAngleDegrees:0.###}°", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+            dialogWindowProvider.ShowDialog($"{Name}: {stepName} {(Cache.Result.IsOk ? "Success" : "Error")}, Result: {Cache.Result.YAngleDegrees:0.###}°", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: Cache.Result.IsOk ? DialogIconEnum.Information : DialogIconEnum.Warning);
         }, cancellationToken).ConfigureAwait(false);
+
+        Point SetPosition(Point position, CalChipSiteModelEnum calChipSiteModelEnum)
+        {
+            var bfPosition = stageViewModel.MachineToBrightFieldPosition(position == Point.Origin ? MicroscopeCalChip.GetBFMachinePosition(calChipSiteModelEnum) : position);
+            stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(bfPosition, calChipSiteModelEnum);
+            afViewModel.ToggleDarkFieldEnable(true);
+
+            return bfPosition;
+        }
+
+        string SaveImage(BitmapImage image)
+        {
+            var imageFilePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+            DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
+            image.SaveImage(imageFilePath);
+
+            return imageFilePath;
+        }
     }
 
     [RelayCommand]
     private void Close()
     {
+        if (Step0Command.IsRunning) Step0CancelCommand.Execute(null);
+
         try
         {
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5d));
 
-            cacheProvider.Set(Cache, cancellationTokenSource.Token);
+            applicationCookieService.Set(Cache, false, cancellationToken: cancellationTokenSource.Token);
         }
         catch (Exception ex)
         {

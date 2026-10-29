@@ -395,7 +395,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
             Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
             Guard.IsEqualTo(ChuckCenter.IsOk, true);
-            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition);
+            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition, HtmlLogUniqueId);
 
             var xPixelSize = CIBXPixelSizes.Single(t => t.ProductivityInformation == Cache.ProductivityInformation);
             Guard.IsGreaterThan(xPixelSize.XPixelSize, 0);
@@ -460,7 +460,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
             Guard.IsNotEqualTo(ChuckCenter.NewBFCenterStagePosition, Point.Origin);
             Guard.IsEqualTo(ChuckCenter.IsOk, true);
-            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition);
+            StageViewModel.SetBrightFieldCenterMachinePositionValue(ChuckCenter.NewBFCenterStagePosition, HtmlLogUniqueId);
 
             var xPixelSize = CIBXPixelSizes.Single(t => t.ProductivityInformation == Cache.ProductivityInformation);
             Guard.IsGreaterThan(xPixelSize.XPixelSize, 0);

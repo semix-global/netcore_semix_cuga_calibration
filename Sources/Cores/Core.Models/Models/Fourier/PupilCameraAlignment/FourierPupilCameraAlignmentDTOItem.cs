@@ -26,10 +26,10 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     public int ChannelId { get; }
 
     [ObservableProperty]
-    public partial string ChannelImageFilePath { get; set; } = string.Empty;
+    public partial string FourierImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string ROIChannelImageFilePath { get; set; } = string.Empty;
+    public partial string ROIFourierImageFilePath { get; set; } = string.Empty;
 
     public FourierPupilCameraAlignmentDTO.ROI ROI { get; }
 
@@ -70,8 +70,8 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     {
         var item = new FourierPupilCameraAlignmentDTOItem(ChannelId)
         {
-            ChannelImageFilePath = ChannelImageFilePath,
-            ROIChannelImageFilePath = ROIChannelImageFilePath,
+            FourierImageFilePath = FourierImageFilePath,
+            ROIFourierImageFilePath = ROIFourierImageFilePath
         };
         item.ROI.AdaptIn(ROI);
 
@@ -84,8 +84,8 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
 
     public void Reset()
     {
-        ChannelImageFilePath = string.Empty;
-        ROIChannelImageFilePath = string.Empty;
+        FourierImageFilePath = string.Empty;
+        ROIFourierImageFilePath = string.Empty;
 
         ROI.Reset();
 
@@ -98,9 +98,9 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         {
             Document.Reset();
 
-            Guard.IsNotNullOrWhiteSpace(ChannelImageFilePath);
+            Guard.IsNotNullOrWhiteSpace(FourierImageFilePath);
 
-            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(FourierImageFilePath);
 
         InnerLoop:
 
@@ -170,11 +170,11 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
             ROI.BitmapImageROIDrawable.IsFixed = true;
             Guard.IsEqualTo(_originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ROI.ImageROI), ROI.BitmapImageROIDrawable.Rect);
 
-            ROIChannelImageFilePath = Path.Combine(Path.GetDirectoryName(ChannelImageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(ChannelImageFilePath)}_ROI_{ROI.ImageROI}{Path.GetExtension(ChannelImageFilePath)}");
+            ROIFourierImageFilePath = Path.Combine(Path.GetDirectoryName(FourierImageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(FourierImageFilePath)}_ROI_{ROI.ImageROI}{Path.GetExtension(FourierImageFilePath)}");
 
             _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
             _roiBitmapImageDrawable.BitmapImage = _originalBitmapImageDrawable.BitmapImage.ToROI(ROI.ImageROI);
-            _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIChannelImageFilePath);
+            _roiBitmapImageDrawable.BitmapImage.SaveImage(ROIFourierImageFilePath);
         }
         finally
         {
@@ -204,12 +204,12 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         {
             Document.Reset();
 
-            if (string.IsNullOrWhiteSpace(ChannelImageFilePath) || string.IsNullOrWhiteSpace(ROIChannelImageFilePath)) return;
+            if (string.IsNullOrWhiteSpace(FourierImageFilePath) || string.IsNullOrWhiteSpace(ROIFourierImageFilePath)) return;
 
-            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ChannelImageFilePath);
+            _originalBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(FourierImageFilePath);
 
             _roiBitmapImageDrawable.Point = _originalBitmapImageDrawable.Point + new Vector(_originalBitmapImageDrawable.BitmapImage.Size.Width + 10d, 0d);
-            _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIChannelImageFilePath);
+            _roiBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(ROIFourierImageFilePath);
 
             ROI.BitmapImageROIDrawable.IsFixed = true;
             ROI.BitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(ROI.ImageROI);
@@ -225,21 +225,21 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
     public object ToImageHtmlAnonymous() => new
     {
         ChannelId,
-        ChannelImageFilePath,
-        Image = new HtmlImage(ChannelImageFilePath)
+        FourierImageFilePath,
+        Image = new HtmlImage(FourierImageFilePath)
     };
 
     public object ToHtmlAnonymous() => new
     {
         ChannelId,
-        ChannelImageFilePath,
-        ROIChannelImageFilePath,
+        FourierImageFilePath,
+        ROIFourierImageFilePath,
         ROI.ImageROI,
-        Image = new HtmlImage(ChannelImageFilePath, htmlImageOverlays:
+        Image = new HtmlImage(FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(ROI.ImageROI)
         ]),
-        ROIImage = new HtmlImage(ROIChannelImageFilePath)
+        ROIImage = new HtmlImage(ROIFourierImageFilePath)
     };
 
     public void Dispose()

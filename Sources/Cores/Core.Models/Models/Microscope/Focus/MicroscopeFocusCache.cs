@@ -32,7 +32,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase<Microsco
     public partial int ParfocalThreshold { get; set; }
 
     [ObservableProperty]
-    public partial Core.Models.Enums.Algorithm.AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = Core.Models.Enums.Algorithm.AlgorithmEngineTypeEnum.HAlgorithm;
+    public partial Enums.Algorithm.AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = Enums.Algorithm.AlgorithmEngineTypeEnum.HAlgorithm;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<MicroscopeLensInformation, MicroscopeFocusCacheItem>))]
     public ConcurrentDictionary<MicroscopeLensInformation, MicroscopeFocusCacheItem> Items { get; init; } = [];
@@ -44,9 +44,13 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase<Microsco
     {
         ClearErrors();
         ValidateProperty(Threshold, nameof(Threshold));
-        var validateResult = Item.CacheItemVerify();
+        var (isSuccess, errorMessage) = Item.CacheItemVerify();
 
-        return HasErrors ? validateResult : (true, string.Empty);
+        if (HasErrors == false) return (isSuccess, errorMessage);
+
+        var cacheErrorMessage = string.Join(Environment.NewLine, GetErrors());
+
+        return (false, isSuccess ? cacheErrorMessage : $"{cacheErrorMessage}{Environment.NewLine}{errorMessage}");
     }
 
     public override MicroscopeFocusCache Clone() => new()

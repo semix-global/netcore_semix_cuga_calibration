@@ -330,6 +330,39 @@ public sealed class CalibrationAfServiceImpl : BaseService<ICgCalibrationService
         return SxExecuteRetHelper.CreateSuccess(resultList);
     }
 
+    public async Task<SxExecuteRet<List<(double X, double Ecs, double NSC)>>> GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(CancellationToken cancellationToken)
+    {
+        var calibrationRegList = new List<CgAutofocusTraceBufferReg>
+        {
+            CgAutofocusTraceBufferReg.ACS_X_H,
+            CgAutofocusTraceBufferReg.ECS,
+            CgAutofocusTraceBufferReg.NSC
+        };
+        var sxExecuteRetStartTraceBufferExec = Invoke(() => Service!.StartTraceBufferExecByHighPrecision(calibrationRegList));
+
+        if (sxExecuteRetStartTraceBufferExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double X, double Ecs, double NSC)>>(sxExecuteRetStartTraceBufferExec.Msg, []);
+
+        await cancellationToken.WaitUntilCanceledAsync();
+
+        var sxExecuteRetStopTraceBuffExec = Invoke(() => Service!.StopTraceBuffExecByHighPrecision(calibrationRegList));
+
+        if (sxExecuteRetStopTraceBuffExec.IsSuccess == false) return SxExecuteRetHelper.CreateError<List<(double X, double Ecs, double NSC)>>(sxExecuteRetStopTraceBuffExec.Msg, []);
+
+        if (sxExecuteRetStopTraceBuffExec.Anything.Count != 3
+            || sxExecuteRetStopTraceBuffExec.Anything.Any(t => t.Count == 0)
+            || sxExecuteRetStopTraceBuffExec.Anything[0].Count != sxExecuteRetStopTraceBuffExec.Anything[1].Count
+            || sxExecuteRetStopTraceBuffExec.Anything[1].Count != sxExecuteRetStopTraceBuffExec.Anything[2].Count) return SxExecuteRetHelper.CreateError<List<(double X, double Ecs, double NSC)>>("AF Trace buffer is empty", []);
+
+        var traceBufferList = sxExecuteRetStopTraceBuffExec.Anything
+            .Select(shortList => shortList.Select(Convert.ToDouble).ToList())
+            .ToList();
+        var resultList = traceBufferList[0]
+            .Select((_, index) => (X: traceBufferList[0][index], Ecs: traceBufferList[1][index], NSC: traceBufferList[2][index]))
+            .ToList();
+
+        return SxExecuteRetHelper.CreateSuccess(resultList);
+    }
+
     public SxExecuteRet<double> GetSensorNscRelativeZero()
     {
         var sxExecuteRet = Invoke(() => Service!.GetAutofocusData());

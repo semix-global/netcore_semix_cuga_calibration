@@ -10,21 +10,21 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO
     public sealed partial class RodResult(BitmapImageDrawable bitmapImageDrawable) : Rod(bitmapImageDrawable), IAdaptIn<RodResult, RodResult>
     {
         [ObservableProperty]
-        public partial double PixelSize { get; set; }
-
-        [ObservableProperty]
         public partial Rect MinImageROI { get; set; }
 
         [ObservableProperty]
         public partial Rect MaxImageROI { get; set; }
 
+        [ObservableProperty]
+        public partial double PixelSize { get; set; }
+
         public RodResult AdaptIn(RodResult obj)
         {
             base.AdaptIn(obj);
 
-            PixelSize = obj.PixelSize;
             MinImageROI = obj.MinImageROI;
             MaxImageROI = obj.MaxImageROI;
+            PixelSize = obj.PixelSize;
 
             return this;
         }
@@ -33,9 +33,9 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO
         {
             base.Reset();
 
-            PixelSize = 0d;
             MinImageROI = Rect.Empty;
             MaxImageROI = Rect.Empty;
+            PixelSize = 0d;
         }
     }
 }

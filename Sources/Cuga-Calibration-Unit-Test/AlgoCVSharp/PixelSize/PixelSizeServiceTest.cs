@@ -3,6 +3,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Setting;
 using Core.Services.Implements;
 using Microsoft.Extensions.Logging.Abstractions;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Xunit.Abstractions;
@@ -65,6 +66,30 @@ public class PixelSizeServiceTest(ITestOutputHelper testOutputHelper)
         yPixelSize.Should().BeInRange(0.3231 * 0.9, 0.3231 * 1.1);
 
         // Y 投影曲线 = 每行一个投影点（正向图行号即物理 Y）；配对行位置 r0 对应 AMPD 峰位语义
+        yProjects.Should().HaveCount(image.Height);
+        resultIndexes.Should().NotBeEmpty();
+        resultIndexes.Should().OnlyContain(t => t >= 0 && t < image.Height);
+    }
+
+    [Fact]
+    public void GetYPixelSize_AlgoCSharp_DfPixelSize_WithRaw16Bit_ShouldOutputYPixelSize()
+    {
+        const string filePath = @"Assets\YPixelSize\20261007_96_0_0_1_short_002048_PMT08-CH2_8.raw";
+
+        // 16 位 raw 为列优先，经 RAWImageFactory 转为正向图后再走服务路径
+        using var hImage = RAWImageFactory.CreateImage(filePath, true);
+        using var image = hImage.ToBitmapImage(16);
+        var service = new CalibrationAlgorithmServiceImpl(
+            NullLogger<CalibrationAlgorithmServiceImpl>.Instance,
+            new CalibrationSetting(),
+            new AffineTransformation(NullLogger<AffineTransformation>.Instance));
+
+        var yPixelSize = service.GetYPixelSize(image, 10.0, Guid.NewGuid(), AlgorithmEngineTypeEnum.AlgoCSharp, out var drawingImage, out var yProjects, out var resultIndexes);
+
+        testOutputHelper.WriteLine($"img={image.Width}x{image.Height}, DfPixelSize: Y={yPixelSize:0.000000} um/px, pairs={resultIndexes.Length}");
+
+        // 期望值待首跑结果确定，暂只校验输出有效
+        yPixelSize.Should().BeGreaterThan(0d);
         yProjects.Should().HaveCount(image.Height);
         resultIndexes.Should().NotBeEmpty();
         resultIndexes.Should().OnlyContain(t => t >= 0 && t < image.Height);
