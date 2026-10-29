@@ -371,7 +371,7 @@ public sealed partial class AlignmentWindowDarkFieldViewModel : ViewModelBase, I
                 Cache.ProductivityInformation,
                 Cache.LowMag,
                 Cache.CalChipSiteModelEnum,
-                 _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
+                _calibrationSetting.SettingCommonParam.MainLaserLightInformation);
 
             _dialogWindowProvider.ShowDialog("Alignment Ok");
             Cache.Result = result;

@@ -1,4 +1,3 @@
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Fourier.V0CenterChannelFlexibleAperture;
@@ -12,6 +11,7 @@ using Net.Utilities.OpticsFourierImageViewer.WPF.Drawables;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Editors;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 using Net.Utilities.OpticsFourierImageViewer.WPF.Primitives.Enums;
+using System.IO;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Fourier.V0CenterChannelSpecularBlocker;

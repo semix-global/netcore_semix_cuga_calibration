@@ -203,7 +203,7 @@ public sealed class V0FourierCenterChannelSpecularBlockerSerializationTest(HostF
                 CreatedUserName = $"Created_{random.Next()}",
                 CreatedTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddTicks(((long)random.Next() << 20) ^ random.Next()),
                 ModifiedUserId = ((long)random.Next() << 31) ^ random.Next(),
-                ModifiedUserName = $"Modified_{random.Next()}",
+                ModifiedUserName = $"Modified_{random.Next()}"
             };
 
             dto.ModifiedTime = dto.CreatedTime.AddTicks(random.Next(1, int.MaxValue));

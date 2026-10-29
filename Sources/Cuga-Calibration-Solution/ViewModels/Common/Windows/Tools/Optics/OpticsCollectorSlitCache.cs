@@ -46,7 +46,7 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
     public partial double RangeEcs { get; set; }
 
     [ObservableProperty]
-    public partial double StepEcs { get; set; } 
+    public partial double StepEcs { get; set; }
 
     [ObservableProperty]
     public partial double ScanLength { get; set; } = 2000d;
@@ -76,7 +76,7 @@ public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
         Capture = CaptureMode switch
         {
             OpticsCollectorSlitCaptureModeEnum.FixedHeight => new HtmlQuote(new { ImageWidthPixel, StepEcs }),
-            OpticsCollectorSlitCaptureModeEnum.VariableHeight => new HtmlQuote(new { ScanLength }) ,
+            OpticsCollectorSlitCaptureModeEnum.VariableHeight => new HtmlQuote(new { ScanLength }),
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<HtmlQuote>(nameof(CaptureMode), CaptureMode, null)
         },
         HazeOpticsConfiguration = new HtmlQuote(HazeOpticsConfiguration.ToHtmlAnonymous()),

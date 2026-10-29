@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using algocv_sharp;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -7,6 +6,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Core.Services.Interfaces;
 

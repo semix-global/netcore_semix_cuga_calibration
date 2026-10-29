@@ -3,6 +3,7 @@ using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -28,7 +29,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
-using Core.Models.Models.Common.DarkField;
 using Constants = Net.Utilities.Models.Constants;
 using Rect = Net.Utilities.Models.Geometries.Rect;
 

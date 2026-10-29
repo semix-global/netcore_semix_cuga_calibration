@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Services.Interfaces;
 using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Services.Interfaces;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -122,6 +122,6 @@ public sealed partial class RTACache : CalibrationCacheBase
         StageMapConfig = new HtmlQuote(StageMapConfig.ToHtmlAnonymous()),
         ForwardSimulatorImageFilePath,
         ReverseSimulatorImageFilePath,
-        IsRemoveLinear,
+        IsRemoveLinear
     };
 }

@@ -71,7 +71,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         var item = new FourierPupilCameraAlignmentDTOItem(ChannelId)
         {
             FourierImageFilePath = FourierImageFilePath,
-            ROIFourierImageFilePath = ROIFourierImageFilePath,
+            ROIFourierImageFilePath = ROIFourierImageFilePath
         };
         item.ROI.AdaptIn(ROI);
 

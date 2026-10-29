@@ -183,7 +183,7 @@ public sealed partial class OpticsCrossTalkDTO : ObservableObject
         TopSignalResult = new HtmlBullet(TopSignalResult.ToHtmlAnonymous(signalRoi)),
         BottomSignalResult = new HtmlBullet(BottomSignalResult.ToHtmlAnonymous(signalRoi)),
         QuietGray,
-        SignalGrayAverage = AverageSignalGray,
+        SignalGrayAverage = AverageSignalGray
     };
 }
 

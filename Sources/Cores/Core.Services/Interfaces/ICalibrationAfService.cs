@@ -172,7 +172,7 @@ public interface ICalibrationAfService
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns></returns>
     Task<SxExecuteRet<List<(double Trigger, double X, double Ecs, double NSC)>>> GetZAndXSyncModeTraceBufferListAsync(CancellationToken cancellationToken);
-    
+
     /// <summary>
     ///  获取传感器: TracesBuffer XZ同步模式下的 X机械位置、ECS的Buffer值
     /// </summary>

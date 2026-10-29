@@ -1,5 +1,6 @@
 using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
+using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
@@ -15,7 +16,6 @@ using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
 using System.IO;
-using Core.Models.Models.Common.DarkField;
 
 namespace Core.Services.Implements.Mock;
 

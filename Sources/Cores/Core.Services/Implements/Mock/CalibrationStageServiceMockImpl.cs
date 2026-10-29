@@ -440,7 +440,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
     public SxExecuteRet<double> GetTScale()
     {
         return SxExecuteRetHelper.CreateSuccess(_axisTScale);
-
     }
 
     public SxExecuteRet<Point> GetEfemLoadWaferMachineStagePosition()
