@@ -203,7 +203,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
             #endregion
 
-            #region 5. Y Scale
+            #region 5. X Scale
 
             var xScalePoints = Generate.LinearRangeInt32(0, yCount - 1)
                 .SelectMany(y => idealXMatrix.Row(y).Index().Select(xTuple => new Point(xTuple.Item, realXMatrix[y, xTuple.Index])))
@@ -216,7 +216,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 Vector<double>.Build.Dense([.. xScalePoints.Select(t => t.Y)]));
 
             var xScaleCorrection = 1d / xScaleSlope;
-            logger.LogHtmlInformation("5. Y Scale", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            logger.LogHtmlInformation("5. X Scale", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
                 xScaleCorrection,
                 FitPlot = new HtmlPlot2DLinesChart(
