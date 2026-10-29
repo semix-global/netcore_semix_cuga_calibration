@@ -99,7 +99,7 @@ public sealed class CalibrationLaserServiceImpl : BaseService<ICgCalibLaserServi
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double chirpAODDelay)
+    public SxExecuteRet<bool> SetAODDelayValue(ProductivityInformation productivityInformation, double prescanAODDelay, double prescanCoefficient, double chirpAODDelay)
     {
         throw new NotImplementedException();
     }
