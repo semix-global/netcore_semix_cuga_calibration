@@ -229,6 +229,17 @@ public sealed class AfViewModel(
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }
+    
+    public async Task<List<(double X, double Ecs, double NSC)>> GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Start TraceBuffer");
+
+        var ret = await calibrationAfService.GetZAndXSyncModeByHighPrecisionTraceBufferListAsync(cancellationToken);
+
+        logger.LogInformation("End TraceBuffer");
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
 
     public void SetSensorBrightFieldChuckCenterMachinePositionValue(Point position)
     {

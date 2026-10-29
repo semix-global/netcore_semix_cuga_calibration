@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -6,12 +7,9 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
-using Local.SQL.Cache.Providers.Bases;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.Extensions;
@@ -20,274 +18,39 @@ using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Algorithms.Halcon;
-using Net.Utilities.Helpers.Extensions;
-using Net.Utilities.Helpers.Helpers;
+using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
-using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.ScottPlot.Interfaces;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using ScottPlot;
-using ScottPlot.MultiplotLayouts;
-using System.Collections.Immutable;
-using System.IO;
 using Generate = MathNet.Numerics.Generate;
-using Range = ScottPlot.Range;
+using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
 
-public sealed partial class OpticsCollectorSlitCache : ObservableCacheBase
-{
-    [ObservableProperty]
-    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
-
-    [ObservableProperty]
-    public partial int PmtId { get; set; }
-
-    [ObservableProperty]
-    public partial int ImageWidthPixel { get; set; }
-
-    [ObservableProperty]
-    public partial double RangeEcs { get; set; }
-
-    [ObservableProperty]
-    public partial double StepEcs { get; set; }
-
-    #region Haze
-
-    [ObservableProperty]
-    public partial OpticsConfiguration HazeOpticsConfiguration { get; set; } = new();
-
-    [ObservableProperty]
-    public partial CIBConfiguration HazeCIBConfiguration { get; set; } = new();
-
-    [ObservableProperty]
-    public partial LaserLightInformation HazeLaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    public partial Point HazeBrightFieldPosition { get; set; }
-
-    [ObservableProperty]
-    public partial double HazeAverageECS { get; set; }
-
-    [ObservableProperty]
-    public partial IReadOnlyList<HazeResult> HazeResults { get; set; } = [];
-
-    #endregion Haze
-
-    #region DSW
-
-    [ObservableProperty]
-    public partial OpticsConfiguration DSWOpticsConfiguration { get; set; } = new();
-
-    [ObservableProperty]
-    public partial CIBConfiguration DSWCIBConfiguration { get; set; } = new();
-
-    [ObservableProperty]
-    public partial LaserLightInformation DSWLaserLightInformation { get; set; } = LaserLightInformation.Default;
-
-    [ObservableProperty]
-    public partial Point DSWBrightFieldPosition { get; set; }
-
-    [ObservableProperty]
-    public partial Rect DSWROIRect { get; set; } = new(0, 0, 256, 256);
-
-    [ObservableProperty]
-    public partial double DSWXPixelSize { get; set; }
-
-    [ObservableProperty]
-    public partial double DSWYPixelSize { get; set; }
-
-    [ObservableProperty]
-    public partial double DSWPotDiameter { get; set; }
-
-    [ObservableProperty]
-    public partial double DSWXPointDiameter { get; set; }
-
-    [ObservableProperty]
-    public partial double DSWYPointDiameter { get; set; }
-
-    [ObservableProperty]
-    public partial double DSWAverageECS { get; set; }
-
-    [ObservableProperty]
-    public partial IReadOnlyList<DSWResult> DSWResults { get; set; } = [];
-
-    #endregion DSW
-
-    public IDictionary<int, IDictionary<string, IReadOnlyList<Point>>> GetPoints(string resultPropertyName, params string[] resultItemPropertyNames)
-    {
-        const string resultECSPropertyName = nameof(HazeResult.ECS);
-        const string resultItemsPropertyName = nameof(HazeResult.Items);
-        const string resultItemImageChannelIdPropertyName = nameof(HazeResultItem.ChannelId);
-
-        var dictionary = new Dictionary<int, IDictionary<string, IReadOnlyList<Point>>>();
-
-        var count = 0;
-        foreach (var result in ObjectHelper.GetPropertyValue<System.Collections.IEnumerable>(this, resultPropertyName))
-        {
-            foreach (var resultItem in ObjectHelper.GetPropertyValue<System.Collections.IEnumerable>(result, resultItemsPropertyName))
-            {
-                var temp = dictionary.GetOrAdd(
-                    ObjectHelper.GetPropertyValue<int>(resultItem, resultItemImageChannelIdPropertyName),
-                    resultItemPropertyNames.ToDictionary<string, string, IReadOnlyList<Point>>(t => t, _ => new List<Point>()));
-
-                foreach (var resultItemPropertyName in resultItemPropertyNames)
-                {
-                    Guard.IsAssignableToTypeAndReturn<List<Point>>(temp[resultItemPropertyName]).Add(new Point(
-                        ObjectHelper.GetPropertyValue<double>(result, resultECSPropertyName),
-                        ObjectHelper.GetPropertyValue<double>(resultItem, resultItemPropertyName)));
-                }
-            }
-
-            count++;
-        }
-
-        var counts = dictionary.SelectMany(t => t.Value.Values.Select(tt => tt.Count)).ToArray();
-        if (count > 0)
-        {
-            Guard.IsEqualTo(counts[0], count);
-            Guard.IsEqualTo(counts.Distinct().Count(), 1);
-        }
-        else Guard.IsEqualTo(dictionary.Count, 0);
-
-        return dictionary;
-    }
-
-    public object ToHtmlAnonymous() => new
-    {
-        ProductivityInformation,
-        PmtId,
-        ImageWidth = ImageWidthPixel,
-        RangeEcs,
-        StepEcs,
-        HazeOpticsConfiguration = new HtmlQuote(HazeOpticsConfiguration.ToHtmlAnonymous()),
-        HazeCIBConfiguration = new HtmlQuote(HazeCIBConfiguration.ToHtmlAnonymous()),
-        HazeLaserLightInformation,
-        HazeBrightFieldPosition,
-        DSWOpticsConfiguration = new HtmlQuote(DSWOpticsConfiguration.ToHtmlAnonymous()),
-        DSWCIBConfiguration = new HtmlQuote(DSWCIBConfiguration.ToHtmlAnonymous()),
-        DSWLaserLightInformation,
-        DSWBrightFieldPosition
-    };
-}
-
-public sealed partial class HazeResult : ObservableObject
-{
-    [ObservableProperty]
-    public partial double ECS { get; set; }
-
-    [ObservableProperty]
-    public partial IReadOnlyList<HazeResultItem> Items { get; set; } = [];
-}
-
-public sealed partial class HazeResultItem : ObservableObject
-{
-    [ObservableProperty]
-    public partial int ChannelId { get; set; }
-
-    [ObservableProperty]
-    public partial string ImageFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial double BeginningAverageGray { get; set; }
-
-    [ObservableProperty]
-    public partial double BeginningAverageGrayNormalization { get; set; }
-
-    [ObservableProperty]
-    public partial double MiddleAverageGray { get; set; }
-
-    [ObservableProperty]
-    public partial double MiddleAverageGrayNormalization { get; set; }
-
-    [ObservableProperty]
-    public partial double EndAverageGray { get; set; }
-
-    [ObservableProperty]
-    public partial double EndAverageGrayNormalization { get; set; }
-
-    [ObservableProperty]
-    public partial double StandardDeviation { get; set; }
-
-    [ObservableProperty]
-    public partial double StandardDeviationNormalization { get; set; }
-
-    public object ToHtmlAnonymous() => new
-    {
-        BeginningAverageGray,
-        MiddleAverageGray,
-        EndAverageGray,
-        StandardDeviation
-    };
-}
-
-public sealed partial class DSWResult : ObservableObject
-{
-    [ObservableProperty]
-    public partial double ECS { get; set; }
-
-    [ObservableProperty]
-    public partial IReadOnlyList<DSWResultItem> Items { get; set; } = [];
-}
-
-public sealed partial class DSWResultItem : ObservableObject
-{
-    [ObservableProperty]
-    public partial int ChannelId { get; set; }
-
-    [ObservableProperty]
-    public partial string ImageFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial double StrehlRatioX { get; set; }
-
-    [ObservableProperty]
-    public partial double StrehlRatioY { get; set; }
-
-    [ObservableProperty]
-    public partial double StrehlRatioXNormalization { get; set; }
-
-    [ObservableProperty]
-    public partial double StrehlRatioYNormalization { get; set; }
-
-    public object ToHtmlAnonymous() => new
-    {
-        StrehlRatioX,
-        StrehlRatioY
-    };
-}
-
 [IOCAppService(ServiceType = typeof(OpticsCollectorSlitWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class OpticsCollectorSlitWindowViewModel(
-    IServiceProvider serviceProvider,
     StageViewModel stageViewModel,
     AfViewModel afViewModel,
     CIBViewModel cibViewModel,
     IOptions<ApplicationSetting> options,
-    CreateRoiWindowViewModel createRoiWindowViewModel,
     ApplicationCookie applicationCookie,
-    CalibrationSetting calibrationSetting,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
-    IWindowManagerService windowManagerService,
     ILogger<OpticsCollectorSlitWindowViewModel> logger) : ViewModelBase
 {
-    private const string DSW = nameof(DSW);
-    private const string Haze = nameof(Haze);
-
     public string Name => "Collection Focus Align Optics Focus";
 
     public string ImageDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(OpticsCollectorSlitWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
 
     public ApplicationCookie ApplicationCookie => applicationCookie;
+
+    public string[] Steps { get; } = ["Step 1 Capture"];
 
     public Guid HtmlLogUniqueId { get; private set; }
 
@@ -295,199 +58,268 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
     [ObservableProperty]
     public partial OpticsCollectorSlitCache Cache { get; set; } = new();
 
-    [ObservableProperty]
-    public partial IDictionary<int, IPlotDataSource> PlotDataSources { get; set; } = ImmutableDictionary<int, IPlotDataSource>.Empty;
-
     [RelayCommand]
     private void Loaded()
     {
-        try
-        {
-            Cache = cacheProvider.GetOrDefault<OpticsCollectorSlitCache>();
-
-            if (PlotDataSources.Count > 0) return;
-
-            PlotDataSources = ApplicationCookie.CIBInformationChannelIds.ToDictionary(channelId => channelId, _ => GetScatterPlotControl());
-        }
-        finally
-        {
-            RefreshPlot();
-        }
+        Cache = cacheProvider.GetOrDefault<OpticsCollectorSlitCache>();
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step0Async(CancellationToken cancellationToken)
+    private async Task GetECSAsync(CancellationToken cancellationToken)
     {
-        await InvokeAsync(
-            "Step1 Haze",
-            CalChipSiteModelEnum.HazeModel,
-            () => Task.CompletedTask,
-            (item, darkFieldImageDto) =>
-            {
-                var hazeResultItem = Guard.IsAssignableToTypeAndReturn<HazeResultItem>(item);
+        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(Cache.HazeBrightFieldPosition, CalChipSiteModelEnum.HazeModel);
+        afViewModel.ToggleDarkFieldEnable(true);
+        await Task.Delay(TimeSpan.FromMilliseconds(1000d), cancellationToken).ConfigureAwait(false);
 
+        Cache.CenterECS = afViewModel.GetSensorAverageEcsValue();
+        afViewModel.ToggleDarkFieldEnable(false);
+    }
+
+    [RelayCommand(IncludeCancelCommand = true)]
+    private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
+    {
+        Cache.BinWidthPixel = 0;
+        Cache.DiscardedPixelCount = 0;
+
+        var cibInformations = ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId).OrderBy(t => t.ChannelId).ToArray();
+        Guard.IsNotEmpty(cibInformations, $"PMTId {Cache.PmtId} has no CIB information.");
+
+        var currentPosition = cibViewModel.GetCIBInformationPosition(
+            StageCoordinateSystemEnum.Dark,
+            Cache.ProductivityInformation,
+            cibInformations[0],
+            Cache.HazeBrightFieldPosition);
+
+        Cache.ChannelResults = [.. cibInformations.Select(t => new OpticsCollectorSlitChannelResult { ChannelId = t.ChannelId })];
+
+        if (Cache.CaptureMode == OpticsCollectorSlitCaptureModeEnum.VariableHeight)
+            await CaptureVariableHeightAsync(cancellationToken, currentPosition, cibInformations).ConfigureAwait(false);
+        else
+            await CaptureFixedHeightAsync(cancellationToken, currentPosition, cibInformations).ConfigureAwait(false);
+
+        Guard.IsTrue(Cache.ChannelResults.Any(t => t.Samples.Count > 0));
+        UpdateChannelResults();
+
+        foreach (var channelResult in Cache.ChannelResults)
+        {
+            logger.LogHtmlInformation($"Channel Id: {channelResult.ChannelId} OK", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                Result = new HtmlQuote(channelResult.ToHtmlAnonymous()),
+                Plots = new HtmlContainer([.. channelResult.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+            }), HtmlLogUniqueId.LoggingHtml());
+        }
+
+        return true;
+    }, isSilent, cancellationToken).ConfigureAwait(false);
+
+    private async Task CaptureFixedHeightAsync(CancellationToken cancellationToken, Point currentPosition, CIBInformation[] cibInformations)
+    {
+        stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(currentPosition, CalChipSiteModelEnum.HazeModel);
+
+        var ecss = Generate.LinearRange(Cache.CenterECS - Cache.RangeEcs, Cache.StepEcs, Cache.CenterECS + Cache.RangeEcs);
+        Guard.IsNotEmpty(ecss);
+
+        logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+        foreach (var ecs in ecss)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
+
+            afViewModel.ToggleBrightFieldEnable(false);
+            afViewModel.SetSensorEcsValue(ecs);
+            await Task.Delay(TimeSpan.FromMilliseconds(500d), cancellationToken).ConfigureAwait(false);
+
+            var darkFieldImageDtos = await cibViewModel.GetPMTImagesAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Dark,
+                currentPosition,
+                Cache.ImageWidthPixel,
+                cibInformations,
+                (false, CalChipSiteModelEnum.HazeModel),
+                (false, Cache.HazeOpticsConfiguration),
+                (false, Cache.HazeCIBConfiguration),
+                (false, Cache.HazeLaserLightInformation),
+                false,
+                cancellationToken,
+                isForward: Cache.IsForward,
+                isAutoFocus: false).ConfigureAwait(false);
+
+            foreach (var darkFieldImageDto in darkFieldImageDtos)
+            {
+                using var _ = darkFieldImageDto;
                 using var hImage = darkFieldImageDto.Image.ToHImage();
                 var matrix = Matrix<double>.Build.DenseOfArray(hImage.RAW16BitsPerPixelToMatrix());
+                var filePath = SaveImg(darkFieldImageDto);
+                var sample = CreateSample(darkFieldImageDto, ecs, matrix, filePath);
+                var channel = Cache.ChannelResults.Single(t => t.ChannelId == darkFieldImageDto.CIBInformation.ChannelId);
+                channel.Samples = [.. channel.Samples, sample];
 
-                var baseSize = matrix.RowCount / 3;
-                var remainder = matrix.RowCount % 3;
-
-                var rows1 = baseSize + (remainder > 0 ? 1 : 0);
-                var rows2 = baseSize + (remainder > 1 ? 1 : 0);
-                var rows3 = baseSize;
-
-                var beginningSubMatrix = matrix.SubMatrix(0, rows1, 0, matrix.ColumnCount);
-                var middleSubMatrix = matrix.SubMatrix(0 + rows1, rows2, 0, matrix.ColumnCount);
-                var endSubMatrix = matrix.SubMatrix(0 + rows1 + rows2, rows3, 0, matrix.ColumnCount);
-
-                hazeResultItem.BeginningAverageGray = beginningSubMatrix.Enumerate().Average();
-                hazeResultItem.MiddleAverageGray = middleSubMatrix.Enumerate().Average();
-                hazeResultItem.EndAverageGray = endSubMatrix.Enumerate().Average();
-                hazeResultItem.StandardDeviation = matrix.Enumerate().StandardDeviation();
-
-                logger.LogHtmlInformation($"Channel Id: {hazeResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+                logger.LogHtmlInformation($"Channel Id: {sample.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
                 {
-                    Image = new HtmlImage(hazeResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
-                    darkFieldImageDto.RawImageFilePath,
-                    Result = new HtmlQuote(hazeResultItem.ToHtmlAnonymous())
+                    Image = new HtmlImage(sample.ImageFilePath),
+                    Result = new HtmlQuote(sample.ToHtmlAnonymous())
                 }), HtmlLogUniqueId.LoggingHtml());
-
-                return Task.CompletedTask;
-            },
-            () =>
-            {
-                for (var i = 0; i < Cache.HazeResults[0].Items.Count; i++)
-                {
-                    var maxBeginningAverageGray = Cache.HazeResults.Max(t => t.Items[i].BeginningAverageGray);
-                    var maxMiddleAverageGray = Cache.HazeResults.Max(t => t.Items[i].MiddleAverageGray);
-                    var maxEndAverageGray = Cache.HazeResults.Max(t => t.Items[i].EndAverageGray);
-                    var maxStandardDeviation = Cache.HazeResults.Max(t => t.Items[i].StandardDeviation);
-
-                    foreach (var cacheHazeResult in Cache.HazeResults)
-                    {
-                        cacheHazeResult.Items[i].BeginningAverageGrayNormalization = cacheHazeResult.Items[i].BeginningAverageGray / maxBeginningAverageGray;
-                        cacheHazeResult.Items[i].MiddleAverageGrayNormalization = cacheHazeResult.Items[i].MiddleAverageGray / maxMiddleAverageGray;
-                        cacheHazeResult.Items[i].EndAverageGrayNormalization = cacheHazeResult.Items[i].EndAverageGray / maxEndAverageGray;
-                        cacheHazeResult.Items[i].StandardDeviationNormalization = cacheHazeResult.Items[i].StandardDeviation / maxStandardDeviation;
-                    }
-                }
-
-                RefreshPlot();
-
-                foreach (var keyValuePair in PlotDataSources)
-                {
-                    var scatterPlotControl = PlotDataSources[keyValuePair.Key];
-
-                    logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([.. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0)]), HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
-                }
-
-                return Task.CompletedTask;
-            }, cancellationToken);
+            }
+        }
     }
 
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task Step1Async(CancellationToken cancellationToken)
+    private async Task CaptureVariableHeightAsync(CancellationToken cancellationToken, Point startPosition, CIBInformation[] cibInformations)
     {
-        await InvokeAsync(
-            "Step1 DSW",
-            CalChipSiteModelEnum.DswModel,
-            async () =>
+        logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+
+        var stopPosition = startPosition + new Vector(Cache.ScanLength, 0d);
+        var (images, traceBuffers, startIndex, endIndex) = await cibViewModel.GetXzSyncColumnEcsAsync(
+            Cache.ProductivityInformation,
+            StageCoordinateSystemEnum.Dark,
+            startPosition,
+            stopPosition,
+            Cache.CenterECS - Cache.RangeEcs,
+            Cache.CenterECS + Cache.RangeEcs,
+            cibInformations,
+            (true, null),
+            (false, Cache.HazeOpticsConfiguration),
+            (false, Cache.HazeCIBConfiguration),
+            (false, Cache.HazeLaserLightInformation),
+            false,
+            cancellationToken,
+            isForward: Cache.IsForward).ConfigureAwait(false);
+
+        foreach (var channel in Cache.ChannelResults)
+        {
+            channel.TraceBufferX = [.. traceBuffers.Select(t => t.X)];
+            channel.TraceBufferECS = [.. traceBuffers.Select(t => t.Ecs)];
+            channel.StartIndex = startIndex;
+            channel.EndIndex = endIndex;
+        }
+
+        var ecsRange = Math.Abs(Cache.RangeEcs * 2d);
+        foreach (var (darkFieldImageDto, columnEcs) in images)
+        {
+            using var _ = darkFieldImageDto;
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var filePath = SaveImg(darkFieldImageDto);
+            var samples = CreateSamplesFromColumns(darkFieldImageDto, filePath, ecsRange, columnEcs);
+
+            if (samples.Count == 0) continue;
+
+            var channel = Cache.ChannelResults.Single(t => t.ChannelId == darkFieldImageDto.CIBInformation.ChannelId);
+            channel.Samples = [.. channel.Samples, .. samples];
+
+            logger.LogHtmlInformation($"Channel Id: {darkFieldImageDto.CIBInformation.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
-                var darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
-                    Cache.ProductivityInformation,
-                    StageCoordinateSystemEnum.Bright,
-                    Cache.DSWBrightFieldPosition,
-                    Cache.ImageWidthPixel,
-                    ApplicationCookie.CIBInformations.Single(t => t.PMTId == Cache.PmtId && t.ChannelId == calibrationSetting.SettingCommonParam.MainCIBInformation.ChannelId),
-                    (false, CalChipSiteModelEnum.DswModel),
-                    (false, Cache.DSWOpticsConfiguration),
-                    (false, Cache.DSWCIBConfiguration),
-                    (false, Cache.DSWLaserLightInformation),
-                    false,
-                    cancellationToken);
-                using var _ = darkFieldImageDto;
+                Image = new HtmlImage(filePath),
+                samples[0].Ny,
+                Cache.BinWidthPixel,
+                Cache.DiscardedPixelCount,
+                darkFieldImageDto.RawImageFilePath
+            }), HtmlLogUniqueId.LoggingHtml());
+        }
+    }
 
-                var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                darkFieldImageDto.Image.SaveImage(filePath);
-                createRoiWindowViewModel.ImageFilePath = filePath;
+    private IReadOnlyList<OpticsCollectorSlitSample> CreateSamplesFromColumns(DarkFieldImageDTO darkFieldImageDto,
+        string filePath,
+        double ecsRange,
+        double[] columnEcs)
+    {
+        using var hImage = darkFieldImageDto.Image.ToHImage();
+        var matrix = Matrix<double>.Build.DenseOfArray(hImage.RAW16BitsPerPixelToMatrix());
+        var columnCount = matrix.ColumnCount;
+        //bin 宽度取 0.5 个 ECS 对应的像素数并向下取整,一个 ECS 对应的像素数为 NX 除以图像覆盖的 ECS 扫描范围
+        Cache.BinWidthPixel = ecsRange == 0d ? 0 : (int)Math.Floor(0.5 * columnCount / ecsRange);
 
-                if (windowManagerService.ShowDialog(createRoiWindowViewModel) == false) ThrowHelper.ThrowOperationCanceledException<bool>("Generate ROI");
+        if (Cache.BinWidthPixel < 1) return [];
 
-                Cache.DSWROIRect = createRoiWindowViewModel.Rect;
+        var binCount = columnCount / Cache.BinWidthPixel;
+        Cache.DiscardedPixelCount = columnCount % Cache.BinWidthPixel;
+        var samples = new OpticsCollectorSlitSample[binCount];
 
-                logger.LogHtmlInformation("Create ROI", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
-                {
-                    Cache.DSWROIRect,
-                    Cache.DSWXPixelSize,
-                    Cache.DSWYPixelSize,
-                    Cache.DSWPotDiameter,
-                    Cache.DSWXPointDiameter,
-                    Cache.DSWYPointDiameter,
-                    Image = new HtmlImage(filePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)])
-                }), HtmlLogUniqueId.LoggingHtml());
-            },
-            (item, darkFieldImageDto) =>
-            {
-                var dswResultItem = Guard.IsAssignableToTypeAndReturn<DSWResultItem>(item);
+        for (var binIndex = 0; binIndex < binCount; binIndex++)
+        {
+            var columnStart = binIndex * Cache.BinWidthPixel;
+            var averaged = Matrix<double>.Build.Dense(matrix.RowCount, 1, (row, _) => Enumerable.Range(columnStart, Cache.BinWidthPixel).Average(column => matrix[row, column]));
+            var ecs = (columnEcs[columnStart] + columnEcs[columnStart + Cache.BinWidthPixel - 1]) / 2d;
+            samples[binIndex] = CreateSample(darkFieldImageDto, ecs, averaged, filePath);
+        }
 
-                using var hImage = darkFieldImageDto.Image.ToHImage();
+        return samples;
+    }
 
-                var ((strehlRatioX, xLine, xFitLine), (strehlRatioY, yLine, yFitLine)) =
-                    StrehlRatioUtility.GetStrehlRatio(hImage.RAW16BitsPerPixelToMatrix(), Cache.DSWROIRect, Cache.DSWXPixelSize, Cache.DSWYPixelSize, Cache.DSWPotDiameter, Cache.DSWXPointDiameter, Cache.DSWYPointDiameter);
-                dswResultItem.StrehlRatioX = strehlRatioX;
-                dswResultItem.StrehlRatioY = strehlRatioY;
+    private OpticsCollectorSlitSample CreateSample(DarkFieldImageDTO darkFieldImageDto, double ecs, Matrix<double> matrix, string filePath)
+    {
+        var baseSize = matrix.RowCount / 3;
+        var remainder = matrix.RowCount % 3;
 
-                logger.LogHtmlInformation($"Channel Id: {dswResultItem.ChannelId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    Image = new HtmlImage(dswResultItem.ImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(Cache.DSWROIRect)]),
-                    darkFieldImageDto.RawImageFilePath,
-                    xFitLine = new HtmlPlot2DLinesChart([(nameof(xFitLine), xFitLine.ToPoints()), (nameof(xLine), xLine.ToPoints())], string.Empty),
-                    yFitLine = new HtmlPlot2DLinesChart([(nameof(yFitLine), yFitLine.ToPoints()), (nameof(yLine), yLine.ToPoints())], string.Empty),
-                    Result = new HtmlQuote(dswResultItem.ToHtmlAnonymous())
-                }), HtmlLogUniqueId.LoggingHtml());
+        var topRows = baseSize;
+        var middleRows = baseSize;
+        var bottomRows = baseSize + remainder;
 
-                return Task.CompletedTask;
-            },
-            () =>
-            {
-                for (var i = 0; i < Cache.DSWResults[0].Items.Count; i++)
-                {
-                    var maxStrehlRatioX = Cache.DSWResults.Max(t => t.Items[i].StrehlRatioX);
-                    var maxStrehlRatioY = Cache.DSWResults.Max(t => t.Items[i].StrehlRatioY);
+        return new()
+        {
+            ECS = ecs,
+            ChannelId = darkFieldImageDto.CIBInformation.ChannelId,
+            ImageFilePath = filePath,
+            RawImageFilePath = darkFieldImageDto.RawImageFilePath,
+            Ny = [topRows, middleRows, bottomRows],
+            TopAverageGray = AverageRows(0, topRows),
+            MiddleAverageGray = AverageRows(topRows, middleRows),
+            BottomAverageGray = AverageRows(topRows + middleRows, bottomRows),
+            StandardDeviation = matrix.Enumerate().StandardDeviation()
+        };
 
-                    foreach (var cacheDSWResult in Cache.DSWResults)
-                    {
-                        cacheDSWResult.Items[i].StrehlRatioXNormalization = cacheDSWResult.Items[i].StrehlRatioX / maxStrehlRatioX;
-                        cacheDSWResult.Items[i].StrehlRatioYNormalization = cacheDSWResult.Items[i].StrehlRatioY / maxStrehlRatioY;
-                    }
-                }
+        double AverageRows(int startRow, int rowCount) =>
+            matrix.SubMatrix(startRow, rowCount, 0, matrix.ColumnCount).Enumerate().Average();
+    }
 
-                RefreshPlot();
+    private string SaveImg(DarkFieldImageDTO darkFieldImageDto)
+    {
+        var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
+        DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
+        darkFieldImageDto.Image.SaveImage(filePath);
 
-                foreach (var keyValuePair in PlotDataSources)
-                {
-                    var scatterPlotControl = PlotDataSources[keyValuePair.Key];
+        return filePath;
+    }
 
-                    logger.LogHtmlInformation($"Channel Id: {keyValuePair.Key} OK", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation("Origin", HtmlHeaderLevelEnum.Header4, new HtmlContainer([
-                        .. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(0),
-                        .. scatterPlotControl.GetFlatMapHtmlPlot2DLinesCharts(1)
-                    ]), HtmlLogUniqueId.LoggingHtml());
-                    logger.LogHtmlInformation("Normalization", HtmlHeaderLevelEnum.Header4, scatterPlotControl.GetHtmlPlot2DLinesChart(2), HtmlLogUniqueId.LoggingHtml());
-                }
+    private void UpdateChannelResults()
+    {
+        foreach (var channel in Cache.ChannelResults)
+        {
+            var ordered = channel.Samples.OrderBy(t => t.ECS).ToArray();
+            if (ordered.Length == 0) continue;
 
-                return Task.CompletedTask;
-            }, cancellationToken);
+            var collectionPeak = ordered.Index().MaxBy(t => t.Item.MiddleAverageGray);
+            var illuminationPeak = ordered.MaxBy(t => t.StandardDeviation);
+
+            Guard.IsNotNull(collectionPeak);
+            Guard.IsNotNull(illuminationPeak);
+
+            var collectionBestFocus = new Point(collectionPeak.Item.ECS, collectionPeak.Item.MiddleAverageGray);
+            var illuminationBestFocus = new Point(illuminationPeak.ECS, illuminationPeak.StandardDeviation);
+            var threshold = 0.95 * collectionPeak.Item.MiddleAverageGray;
+            var left = ordered.Take(collectionPeak.Index + 1).Reverse().TakeWhile(t => t.MiddleAverageGray >= threshold).Last();
+            var right = ordered.Skip(collectionPeak.Index).TakeWhile(t => t.MiddleAverageGray >= threshold).Last();
+
+            channel.CollectionBestFocusPoint = collectionBestFocus;
+            channel.PeakRegionLeftEcs = left.ECS;
+            channel.PeakRegionRightEcs = right.ECS;
+            channel.PeakRegionWidth = right.ECS - left.ECS;
+            channel.PeakRegionReachedEndpoint = left == ordered[0] || right == ordered[^1];
+            channel.IlluminationBestFocusPoint = illuminationBestFocus;
+            channel.Samples = ordered;
+            channel.Offset = collectionBestFocus.X - illuminationBestFocus.X;
+            channel.HasBestFocus = true;
+        }
     }
 
     [RelayCommand]
     private void Close()
     {
+        if (Step0Command.IsRunning) Step0CancelCommand.Execute(null);
+
         try
         {
-            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5d));
 
             cacheProvider.Set(Cache, cancellationTokenSource.Token);
         }
@@ -499,219 +331,60 @@ public sealed partial class OpticsCollectorSlitWindowViewModel(
         CloseView(null);
     }
 
-    private async Task InvokeAsync(
-        string stepName,
-        CalChipSiteModelEnum calChipSiteModelEnum,
-        Func<Task> beforeAction,
-        Func<object, DarkFieldImageDTO, Task> resultItemAction,
-        Func<Task> finallyAction,
+    private async Task<bool> InvokeAsync(
+        int stepIndex,
+        Func<Task<bool>> func,
+        bool isSilent,
         CancellationToken cancellationToken)
     {
-        await Task.Run(async () =>
+        return await Task.Run(async () =>
         {
-            HtmlLogUniqueId = Guid.NewGuid();
+            var isInitHtmlLog = isSilent == false || stepIndex == 0;
+            var isEndHtml = isSilent == false || stepIndex == Steps.Length - 1;
 
-            logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation(stepName, HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
+            HtmlLogUniqueId = isInitHtmlLog ? Guid.NewGuid() : HtmlLogUniqueId;
+
+            if (isInitHtmlLog) logger.LogHtmlInformation(Name, HtmlHeaderLevelEnum.Header1, HtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation(Steps[stepIndex], HtmlHeaderLevelEnum.Header2, HtmlLogUniqueId.LoggingHtml());
             logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(Cache.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
 
             var isSuccess = false;
             try
             {
-                await beforeAction.Invoke();
-
-                var name = calChipSiteModelEnum switch
-                {
-                    CalChipSiteModelEnum.DswModel => DSW,
-                    CalChipSiteModelEnum.HazeModel => Haze,
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(calChipSiteModelEnum))
-                };
-
-                var opticsConfiguration = ObjectHelper.GetPropertyValue<OpticsConfiguration>(Cache, nameof(Cache.HazeOpticsConfiguration).Replace(Haze, name));
-                var cibConfiguration = ObjectHelper.GetPropertyValue<CIBConfiguration>(Cache, nameof(Cache.HazeCIBConfiguration).Replace(Haze, name));
-                var laserLightInformation = ObjectHelper.GetPropertyValue<LaserLightInformation>(Cache, nameof(Cache.HazeLaserLightInformation).Replace(Haze, name));
-                var brightFieldPosition = ObjectHelper.GetPropertyValue<Point>(Cache, nameof(Cache.HazeBrightFieldPosition).Replace(Haze, name));
-
-                var resultType = Guard.IsNotNullAndReturn(Type.GetType(typeof(HazeResult).GetAssemblyQualifiedName().Replace(Haze, name)));
-                var resultItemType = Guard.IsNotNullAndReturn(Type.GetType(typeof(HazeResultItem).GetAssemblyQualifiedName().Replace(Haze, name)));
-
-                var cacheAverageECSPropertyName = nameof(Cache.HazeAverageECS).Replace(Haze, name);
-                var cacheResultsPropertyName = nameof(Cache.HazeResults).Replace(Haze, name);
-
-                const string resultECSPropertyName = nameof(HazeResult.ECS);
-                const string resultItemsPropertyName = nameof(HazeResult.Items);
-                const string resultItemImageChannelIdPropertyName = nameof(HazeResultItem.ChannelId);
-                const string resultItemImageFilePathPropertyName = nameof(HazeResultItem.ImageFilePath);
-
-                ObjectHelper.SetPropertyValue(Cache, cacheAverageECSPropertyName, 0d);
-                ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, Array.CreateInstance(resultType, 0));
-                RefreshPlot();
-
-                stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(stageViewModel.BrightFieldToMachinePosition(brightFieldPosition));
-                afViewModel.ToggleDarkFieldEnable(true);
-
-                await Task.Delay(TimeSpan.FromMilliseconds(1000), cancellationToken);
-
-                var sensorAverageEcsValue = afViewModel.GetSensorAverageEcsValue();
-                ObjectHelper.SetPropertyValue(Cache, cacheAverageECSPropertyName, sensorAverageEcsValue);
-
-                afViewModel.ToggleBrightFieldEnable(false);
-
-                var ecss = Generate.LinearRange(sensorAverageEcsValue - Cache.RangeEcs, Cache.StepEcs, sensorAverageEcsValue + Cache.RangeEcs);
-                Guard.IsNotEmpty(ecss);
-
-                logger.LogHtmlInformation("Action", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
-
-                foreach (var ecs in ecss)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    logger.LogHtmlInformation($"{ecs}(ECS)", HtmlHeaderLevelEnum.Header4, HtmlLogUniqueId.LoggingHtml());
-
-                    afViewModel.SetSensorEcsValue(ecs);
-                    await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
-
-                    var darkFieldImageDtos = await cibViewModel.GetPMTImagesAsync(
-                        Cache.ProductivityInformation,
-                        StageCoordinateSystemEnum.Dark,
-                        brightFieldPosition,
-                        Cache.ImageWidthPixel,
-                        [.. ApplicationCookie.CIBInformations.Where(t => t.PMTId == Cache.PmtId)],
-                        (false, calChipSiteModelEnum),
-                        (false, opticsConfiguration),
-                        (false, cibConfiguration),
-                        (false, laserLightInformation),
-                        false,
-                        cancellationToken);
-
-                    var resultList = Guard.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultType)));
-                    Guard.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.AddRange))).Invoke(resultList, [ObjectHelper.GetPropertyValue(Cache, cacheResultsPropertyName)]);
-
-                    var result = Guard.IsNotNullAndReturn(Activator.CreateInstance(resultType));
-                    var resultItemList = Guard.IsNotNullAndReturn(Activator.CreateInstance(typeof(List<>).MakeGenericType(resultItemType)));
-
-                    ObjectHelper.SetPropertyValue(result, resultECSPropertyName, ecs);
-                    ObjectHelper.SetPropertyValue(result, resultItemsPropertyName, resultItemList);
-
-                    foreach (var darkFieldImageDto in darkFieldImageDtos)
-                    {
-                        using var _ = darkFieldImageDto;
-
-                        var filePath = Path.Combine(ImageDirectory, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
-                        darkFieldImageDto.Image.SaveImage(filePath);
-
-                        var resultItem = Guard.IsNotNullAndReturn(Activator.CreateInstance(resultItemType));
-
-                        ObjectHelper.SetPropertyValue(resultItem, resultItemImageChannelIdPropertyName, darkFieldImageDto.CIBInformation.ChannelId);
-                        ObjectHelper.SetPropertyValue(resultItem, resultItemImageFilePathPropertyName, filePath);
-                        await resultItemAction.Invoke(resultItem, darkFieldImageDto);
-
-                        Guard.IsNotNullAndReturn(resultItemList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultItemList, [resultItem]);
-                    }
-
-                    Guard.IsNotNullAndReturn(resultList.GetType().GetMethod(nameof(List<>.Add))).Invoke(resultList, [result]);
-                    ObjectHelper.SetPropertyValue(Cache, cacheResultsPropertyName, resultList);
-
-                    RefreshPlot();
-                }
-
-                await finallyAction.Invoke();
-
-                RefreshPlot();
-
-                isSuccess = true;
+                isSuccess = await func().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 if (ex is OperationCanceledException)
                 {
-                    dialogWindowProvider.ShowDialog($"{Name}: {stepName} Canceled({ex.Message})", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                    if (isSilent) isEndHtml = true;
+
+                    dialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Canceled", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
                     logger.LogHtmlWarning("Canceled", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                    return;
+                    return false;
                 }
 
                 dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: {stepName} Failed
+                                                 {Name}: {Steps[stepIndex]} Failed
                                                  {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogHtmlError(ex, "Failed", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+                                                 """, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+                logger.LogHtmlError(ex, Name, HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
             }
             finally
             {
-                logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{Name}_{stepName}_{(isSuccess ? "OK" : "Failed")}"));
+                if (isEndHtml || isSuccess == false)
+                    logger.LogHtmlInformation(HtmlLogUniqueId.LoggedEndHtml($"{(isSilent ? "All" : Steps[stepIndex].Replace(" ", string.Empty))}_{(isSuccess ? "OK" : "Failed")}"));
             }
+
+            if (isSuccess)
+            {
+                if (isEndHtml) dialogWindowProvider.ShowDialog($"{Name}: {(isSilent ? "All" : Steps[stepIndex])} Success");
+            }
+            else
+                dialogWindowProvider.ShowDialog($"{Name}: {Steps[stepIndex]} Error", dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Warning);
+
+            return isSuccess;
         }, cancellationToken).ConfigureAwait(false);
-    }
-
-    private void RefreshPlot()
-    {
-        var hazeOriginDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGray), nameof(HazeResultItem.MiddleAverageGray), nameof(HazeResultItem.EndAverageGray), nameof(HazeResultItem.StandardDeviation));
-        var hazeNormalizationDictionary = Cache.GetPoints(nameof(Cache.HazeResults), nameof(HazeResultItem.BeginningAverageGrayNormalization), nameof(HazeResultItem.MiddleAverageGrayNormalization), nameof(HazeResultItem.EndAverageGrayNormalization),
-            nameof(HazeResultItem.StandardDeviationNormalization));
-        var dswOriginDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioX), nameof(DSWResultItem.StrehlRatioY));
-        var dswNormalizationDictionary = Cache.GetPoints(nameof(Cache.DSWResults), nameof(DSWResultItem.StrehlRatioXNormalization), nameof(DSWResultItem.StrehlRatioYNormalization));
-
-        if (hazeOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(hazeOriginDictionary.Keys));
-        if (hazeNormalizationDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(hazeNormalizationDictionary.Keys));
-        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(dswOriginDictionary.Keys));
-        if (dswOriginDictionary.Count > 0) Guard.IsTrue(PlotDataSources.Keys.SequenceEqual(dswOriginDictionary.Keys));
-
-        foreach (var keyValuePair in PlotDataSources)
-        {
-            var hazeOriginDictionaryByChannelId = hazeOriginDictionary.Count > 0 ? hazeOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
-            var hazeNormalizationDictionaryByChannelId = hazeNormalizationDictionary.Count > 0 ? hazeNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
-            var dswOriginDictionaryByChannelId = dswOriginDictionary.Count > 0 ? dswOriginDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
-            var dswNormalizationDictionaryByChannelId = dswNormalizationDictionary.Count > 0 ? dswNormalizationDictionary[keyValuePair.Key] : ImmutableDictionary<string, IReadOnlyList<Point>>.Empty;
-
-            var scatterPlotControl = PlotDataSources[keyValuePair.Key];
-
-            try
-            {
-                foreach (var (index, item) in hazeOriginDictionaryByChannelId.Index())
-                {
-                    scatterPlotControl.GetOrAddScatterLine(0, item.Key, item.Value, index, new Range(0, hazeOriginDictionaryByChannelId.Count - 1));
-                }
-
-                foreach (var (index, item) in dswOriginDictionaryByChannelId.Index())
-                {
-                    scatterPlotControl.GetOrAddScatterLine(1, item.Key, item.Value, index, new Range(0, dswOriginDictionaryByChannelId.Count - 1));
-                }
-
-                foreach (var (index, item) in hazeNormalizationDictionaryByChannelId.Index())
-                {
-                    scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, hazeNormalizationDictionaryByChannelId.Count - 1));
-                }
-
-                foreach (var (index, item) in dswNormalizationDictionaryByChannelId.Index())
-                {
-                    scatterPlotControl.GetOrAddScatterLine(2, item.Key, item.Value, index, new Range(0, dswNormalizationDictionaryByChannelId.Count - 1));
-                }
-            }
-            finally
-            {
-                scatterPlotControl.AutoScaleRefresh();
-            }
-        }
-    }
-
-    private IPlotDataSource GetScatterPlotControl()
-    {
-        var scatterPlotControl = serviceProvider.GetRequiredService<IPlotDataSource>();
-
-        var customGrid = new CustomGrid();
-        scatterPlotControl.Configure(customGrid, 3,
-            plots =>
-            {
-                customGrid.Set(plots[0], new GridCell(0, 0, 2, 2));
-                customGrid.Set(plots[1], new GridCell(0, 1, 2, 2));
-                customGrid.Set(plots[2], new GridCell(1, 0, 2, 1));
-            });
-
-        scatterPlotControl.SetTitle(0, $"{Haze} Origin");
-        scatterPlotControl.SetTitle(1, $"{DSW} Origin");
-        scatterPlotControl.SetTitle(2, "Normalization");
-
-        return scatterPlotControl;
     }
 }
