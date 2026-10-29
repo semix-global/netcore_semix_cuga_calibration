@@ -615,7 +615,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
-                3);
+                3,
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
@@ -773,7 +774,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
-                3);
+                3,
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_XOriginPosition_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

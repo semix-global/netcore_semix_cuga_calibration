@@ -495,7 +495,7 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                 shinyBFPosition,
                 Cache.Item.ScanLength,
                 3,
-                true);
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

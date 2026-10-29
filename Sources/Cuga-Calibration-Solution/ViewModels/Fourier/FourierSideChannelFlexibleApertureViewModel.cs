@@ -482,7 +482,7 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
                 hazeBFPosition,
                 Cache.ScanLength,
                 item.ChannelId,
-                true);
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

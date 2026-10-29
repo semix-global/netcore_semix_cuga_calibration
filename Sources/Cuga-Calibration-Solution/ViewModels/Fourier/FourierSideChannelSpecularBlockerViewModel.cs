@@ -490,7 +490,7 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                 shinyBFPosition,
                 Cache.Item.ScanLength,
                 item.ChannelId,
-                true);
+                false);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

@@ -316,7 +316,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                     Cache.LaserLightInformation,
                     hazeBFPosition,
                     Cache.ScanLength,
-                    item.ChannelId);
+                    item.ChannelId,
+                    false);
                 var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
                 bitmapImage.SaveImage(imageFilePath);
