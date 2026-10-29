@@ -2,8 +2,6 @@ using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
-using C2MFFRangeModel = Core.Models.Models.Common.Fourier.C2MFFRangeModel;
-using FFCH = Core.Models.Models.Common.Fourier.FFCH;
 
 namespace Core.Services.Interfaces;
 
@@ -19,7 +17,8 @@ public interface ICalibrationFourierService
     /// 通道回零
     /// </summary>
     /// <param name="channelId">1(channel 1), 2(channel 2), 3(channel 3)</param>
-    SxExecuteRet<bool> Home(int channelId);
+    /// <param name="isGoToZero">是否去零点</param>
+    SxExecuteRet<bool> Home(int channelId, bool isGoToZero = true);
 
     /// <summary>
     /// 设置通道1或2挡杆位置
@@ -47,14 +46,76 @@ public interface ICalibrationFourierService
         bool isCustomWaveform);
 
     /// <summary>
-    /// 获取傅里叶相机的配置
-    /// </summary>  
-    /// <returns>傅里叶相机的配置</returns>
-    SxExecuteRet<C2MFFRangeModel> GetFourierConfig();
+    /// 获取傅里叶电机的配置
+    /// </summary>
+    /// <returns>傅里叶电机的配置</returns>
+    SxExecuteRet<FourierMotorConfiguration> GetMotorConfiguration();
 
-    SxExecuteRet<bool> SetFFRPOS_CH3(FFCH ch, double pos);
+    /// <summary>
+    /// 设置通道3的X转盘
+    /// </summary>
+    /// <param name="angleMotorAbsoluteValue">角度电机绝对值</param>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3XTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue);
 
-    SxExecuteRet<bool> SetFFLPOS_CH3(FFCH ch, double pos);
+    /// <summary>
+    /// 设置通道3的X推杆位置
+    /// </summary>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3XPush(double motorAbsoluteValue);
 
-    SxExecuteRet<bool> SetFFPPOS_CH3(FFCH ch, double pos);
+    /// <summary>
+    /// 设置通道3的X反射推杆位置, 粗侧与细侧共用同一根推杆.
+    /// </summary>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3XReflectionPush(double motorAbsoluteValue);
+
+    /// <summary>
+    /// 设置通道3的X衍射推杆位置.
+    /// </summary>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3XDiffractionPush(double motorAbsoluteValue);
+
+    /// <summary>
+    /// 设置通道3的Y转盘
+    /// </summary>
+    /// <param name="angleMotorAbsoluteValue">角度电机绝对值</param>
+    /// <param name="motorAbsoluteValue">位置电机绝对值</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetChannel3YTurntable(double angleMotorAbsoluteValue, double motorAbsoluteValue);
+
+    /// <summary>
+    /// 傅里叶电机配置
+    /// </summary>
+    /// <param name="SideRodTotalCount">侧通道挡杆数量</param>
+    /// <param name="SideMinMotorAbsoluteValue">侧通道挡杆最小位置电机绝对值</param>
+    /// <param name="SideMaxMotorAbsoluteValue">侧通道挡杆最大位置电机绝对值</param>
+    /// <param name="CenterXMinMotorAbsoluteValue">中心通道X转盘最小位置电机绝对值</param>
+    /// <param name="CenterXMaxMotorAbsoluteValue">中心通道X转盘最大位置电机绝对值</param>
+    /// <param name="CenterPushMinMotorAbsoluteValue">中心通道X推杆最小位置电机绝对值</param>
+    /// <param name="CenterPushMaxMotorAbsoluteValue">中心通道X推杆最大位置电机绝对值</param>
+    /// <param name="CenterYMinMotorAbsoluteValue">中心通道Y转盘最小位置电机绝对值</param>
+    /// <param name="CenterYMaxMotorAbsoluteValue">中心通道Y转盘最大位置电机绝对值</param>
+    /// <param name="CenterReflectionPushMinMotorAbsoluteValue">中心通道X反射推杆最小位置电机绝对值</param>
+    /// <param name="CenterReflectionPushMaxMotorAbsoluteValue">中心通道X反射推杆最大位置电机绝对值</param>
+    /// <param name="CenterDiffractionPushMinMotorAbsoluteValue">中心通道X衍射推杆最小位置电机绝对值</param>
+    /// <param name="CenterDiffractionPushMaxMotorAbsoluteValue">中心通道X衍射推杆最大位置电机绝对值</param>
+    public readonly record struct FourierMotorConfiguration(
+        int SideRodTotalCount,
+        double SideMinMotorAbsoluteValue,
+        double SideMaxMotorAbsoluteValue,
+        double CenterXMinMotorAbsoluteValue,
+        double CenterXMaxMotorAbsoluteValue,
+        double CenterPushMinMotorAbsoluteValue,
+        double CenterPushMaxMotorAbsoluteValue,
+        double CenterYMinMotorAbsoluteValue,
+        double CenterYMaxMotorAbsoluteValue,
+        double CenterReflectionPushMinMotorAbsoluteValue,
+        double CenterReflectionPushMaxMotorAbsoluteValue,
+        double CenterDiffractionPushMinMotorAbsoluteValue,
+        double CenterDiffractionPushMaxMotorAbsoluteValue);
 }

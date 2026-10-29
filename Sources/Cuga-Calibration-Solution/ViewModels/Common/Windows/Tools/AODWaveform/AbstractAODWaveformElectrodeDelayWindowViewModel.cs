@@ -453,80 +453,85 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             }
             finally
             {
-                EndDetailLog();
-
-                var htmlBullet = new HtmlBullet(new
+                try
                 {
-                    Cache.Noise,
-                    ElectrodeConfigurationResults = new HtmlTable(
-                    [
-                        .. Cache.ElectrodeConfigurationResults.Index().Select(t =>
-                        {
-                            var boardCardDelay = Cache.ElectrodeDelayParams[t.Index].BoardCardDelay;
+                    EndDetailLog();
 
-                            return new
-                            {
-                                t.Item.OpticsAODElectrodeEnum,
-                                boardCardDelay,
-                                t.Item.Delay,
-                                SubtractBoardCardDelay = t.Item.Delay - (t.Index == 0
-                                    ? 0d
-                                    : boardCardDelay),
-                                t.Item.Amplitude,
-                                t.Item.IsGenerateAODWaveformZero
-                            };
-                        })
-                    ]),
-                    Step1Items = new HtmlTable(
-                    [
-                        .. Cache.Step1.Items
-                            .Index()
-                            .Select(t => new
-                            {
-                                Index = t.Index + 1,
-                                t.Item.Delays,
-                                SubtractBoardCardDelays = Cache.ElectrodeDelayParams
-                                    .Index()
-                                    .Select(tt => t.Item.Delays[tt.Index] - (tt.Index == 0
-                                        ? 0d
-                                        : tt.Item.BoardCardDelay))
-                                    .ToArray(),
-                                t.Item.Score,
-                                t.Item.IsSelected,
-                                FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
-                            })
-                    ]),
-                    Step1Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
-                    Step1StabilityPlot = new HtmlContainer([.. Cache.Step1.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
-                });
-
-                if (isSuccess)
-                {
-                    var (index, bestScoreItem) = Cache.Step1.Items.Index().First(t => t.Item.IsSelected);
-
-                    Logger.LogHtmlInformation("Best Score Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                    var htmlBullet = new HtmlBullet(new
                     {
-                        Index = index + 1,
-                        bestScoreItem.Score,
-                        bestScoreItem.Delays,
-                        SubtractBoardCardDelays = Cache.ElectrodeDelayParams
-                            .Index()
-                            .Select(tt => bestScoreItem.Delays[tt.Index] - (tt.Index == 0
-                                ? 0d
-                                : tt.Item.BoardCardDelay))
-                            .ToArray(),
-                        FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty),
-                        MeasurePower = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower))])], string.Empty),
-                        PercentMeasurePowerp = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower / Cache.TotalMeasurePower))])], string.Empty)
-                    }), HtmlLogUniqueId.LoggingHtml());
+                        Cache.Noise,
+                        ElectrodeConfigurationResults = new HtmlTable(
+                        [
+                            .. Cache.ElectrodeConfigurationResults.Index().Select(t =>
+                            {
+                                var boardCardDelay = Cache.ElectrodeDelayParams[t.Index].BoardCardDelay;
 
-                    Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                                return new
+                                {
+                                    t.Item.OpticsAODElectrodeEnum,
+                                    boardCardDelay,
+                                    t.Item.Delay,
+                                    SubtractBoardCardDelay = t.Item.Delay - (t.Index == 0
+                                        ? 0d
+                                        : boardCardDelay),
+                                    t.Item.Amplitude,
+                                    t.Item.IsGenerateAODWaveformZero
+                                };
+                            })
+                        ]),
+                        Step1Items = new HtmlTable(
+                        [
+                            .. Cache.Step1.Items
+                                .Index()
+                                .Select(t => new
+                                {
+                                    Index = t.Index + 1,
+                                    t.Item.Delays,
+                                    SubtractBoardCardDelays = Cache.ElectrodeDelayParams
+                                        .Index()
+                                        .Select(tt => t.Item.Delays[tt.Index] - (tt.Index == 0
+                                            ? 0d
+                                            : tt.Item.BoardCardDelay))
+                                        .ToArray(),
+                                    t.Item.Score,
+                                    t.Item.IsSelected,
+                                    FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. t.Item.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty)
+                                })
+                        ]),
+                        Step1Plot = new HtmlContainer([.. Cache.Step1.PlotDataSource.GetAllHtmlPlot2DLinesCharts()]),
+                        Step1StabilityPlot = new HtmlContainer([.. Cache.Step1.StabilityPlotDataSource.GetAllHtmlPlot2DLinesCharts()])
+                    });
+
+                    if (isSuccess)
+                    {
+                        var (index, bestScoreItem) = Cache.Step1.Items.Index().First(t => t.Item.IsSelected);
+
+                        Logger.LogHtmlInformation("Best Score Result", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+                        {
+                            Index = index + 1,
+                            bestScoreItem.Score,
+                            bestScoreItem.Delays,
+                            SubtractBoardCardDelays = Cache.ElectrodeDelayParams
+                                .Index()
+                                .Select(tt => bestScoreItem.Delays[tt.Index] - (tt.Index == 0
+                                    ? 0d
+                                    : tt.Item.BoardCardDelay))
+                                .ToArray(),
+                            FrequencyItems = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.Amplitude))])], string.Empty),
+                            MeasurePower = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower))])], string.Empty),
+                            PercentMeasurePowerp = new HtmlPlot2DLinesChart([(string.Empty, [.. bestScoreItem.FrequencyItems.Select(tt => new Point(tt.Frequency, tt.MeasurePower / Cache.TotalMeasurePower))])], string.Empty)
+                        }), HtmlLogUniqueId.LoggingHtml());
+
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                    }
+                    else
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
-                else
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
+                finally
+                {
+                    if (Cache.IsSupportAutoCloseLaser) LaserViewModel.ToggleLaserEnable(false);
+                }
             }
-
-            if (isSuccess) CloseLaserAfterStep1();
 
             return isSuccess;
 

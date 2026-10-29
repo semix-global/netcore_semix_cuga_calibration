@@ -3,7 +3,7 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
-using Newtonsoft.Json;
+using Net.Utilities.Nlog.Entities.HtmlElements;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
@@ -30,6 +30,9 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
+    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
+    [ObservableProperty]
     public partial bool IsROIMatchEnabled { get; set; }
 
     [ObservableProperty]
@@ -40,31 +43,22 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     #endregion
 
-    #region Step0
-
-    [ObservableProperty]
-    public partial bool IsDarkFieldAlignment { get; set; }
-
-    #endregion
-
     #region Step1
 
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double WaferRadius { get; set; }
+    public partial double WaferRadius { get; set; } = 140_000d;
 
     [ObservableProperty]
-    public partial double DiePitchWidth { get; set; }
+    public partial double DiePitchWidth { get; set; } = 5100d;
 
     [ObservableProperty]
-    public partial double DiePitchHeight { get; set; }
+    public partial double DiePitchHeight { get; set; } = 16600d;
 
     [ObservableProperty]
     public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
-
-    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     #endregion
 
@@ -78,9 +72,12 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     #region Result
 
     [ObservableProperty]
+    public partial bool IsDarkFieldAlignment { get; set; }
+
+    [ObservableProperty]
     public partial AlignmentResultDto AlignmentResult { get; set; } = new();
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
     public partial StageMapDocument StageMapDocument { get; set; } = new();
 
@@ -98,6 +95,16 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+
+        using var scope = StageMapDocument.View.Sync.EnterScope();
+        StageMapDocument.Reset();
+    }
+
+    partial void OnIsDarkFieldAlignmentChanged(bool value)
+    {
+        _ = value;
+
+        StageMapTemplates = [];
     }
 
     partial void OnRepeatStageMapsChanged(StageMap[] value)
@@ -107,17 +114,16 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
     public object ToHtmlAnonymous() => new
     {
-        ProductivityInformation,
+        ProductivityInformation = new HtmlQuote(ProductivityInformation.ToHtmlAnonymous()),
         MicroscopeLensInformation,
         LaserLightInformation,
         CIBInformation,
-        OpticsConfiguration,
-        CIBConfiguration,
+        OpticsConfiguration = new HtmlQuote(OpticsConfiguration.ToHtmlAnonymous()),
+        CIBConfiguration = new HtmlQuote(CIBConfiguration.ToHtmlAnonymous()),
         TemplateMatchSetting,
         IsROIMatchEnabled,
         ROIMatchWidthScale,
         ROIMatchHeightScale,
-        IsDarkFieldAlignment,
         ImageWidth,
         WaferRadius,
         DiePitchWidth,

@@ -75,13 +75,13 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <controls:ScatterMultiPlotControl Grid.Column="0"
-                                                                          Title="Time Domain Signal"
+                                                                          Title="Time Domain Signal(Y: Amplitude - X: sa)"
                                                                           ScatterLine0Points="{Binding Signals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
-                                                                          Title="Spectrum FFT Analysis"
+                                                                          Title="Spectrum FFT Analysis(Y: Modulus - X: MHz)"
                                                                           ScatterLine0Points="{Binding FFTSignals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="2"
-                                                                          Title="Dynamic Frequency Coefficient"
+                                                                          Title="Dynamic Frequency Coefficient(Y: Coefficient - X: MHz)"
                                                                           ScatterLine0Points="{Binding FrequencyCoefficients}" />
                                     </Grid>
                                 </TabItem>
@@ -92,10 +92,10 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <controls:ScatterMultiPlotControl Grid.Column="0"
-                                                                          Title="Flatness Frequency"
+                                                                          Title="Flatness Frequency(Y: MHz - X: sa)"
                                                                           ScatterLine0Points="{Binding FlatnessFrequencySignals}" />
                                         <controls:ScatterMultiPlotControl Grid.Column="1"
-                                                                          Title="Flatness Phase"
+                                                                          Title="Flatness Phase(Y: Phase - X: sa)"
                                                                           ScatterLine0Points="{Binding FlatnessPhaseSignals}" />
                                     </Grid>
                                 </TabItem>

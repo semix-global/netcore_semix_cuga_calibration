@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
@@ -6,6 +5,7 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot;
 using ScottPlot.MultiplotLayouts;
+using System.ComponentModel;
 using PlotConstants = Net.Utilities.ScottPlot.Helper.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;
@@ -113,7 +113,7 @@ public sealed partial class OpticsCollectorSlitChannelResult : ObservableObject
         PeakRegionReachedEndpoint,
         CollectionBestFocusPoint,
         IlluminationBestFocusPoint,
-        Offset,
+        Offset
     };
 
     // ReSharper disable UnusedParameterInPartialMethod

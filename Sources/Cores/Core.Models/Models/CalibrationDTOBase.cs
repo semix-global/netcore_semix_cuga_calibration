@@ -8,11 +8,11 @@ public abstract partial class CalibrationDTOBase : ObservableCacheBase
 {
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]
-    public partial bool IsVerified { get; set; }
+    public partial bool IsCalibrated { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsOk))]
-    public partial bool IsCalibrated { get; set; }
+    public partial bool IsVerified { get; set; }
 
     [ObservableProperty]
     public partial bool IsRequiredSelfCheck { get; set; }

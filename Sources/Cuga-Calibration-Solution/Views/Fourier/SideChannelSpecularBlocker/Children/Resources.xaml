@@ -1,0 +1,41 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+                    xmlns:sideChannelSpecularBlocker="clr-namespace:Core.Models.Models.Fourier.SideChannelSpecularBlocker;assembly=Core.Models"
+                    mc:Ignorable="d">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../../SideChannelFlexibleAperture/Children/Resources.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    <DataTemplate x:Key="SpecularBlockerRodListTemplate">
+        <ListView d:DataContext="{d:DesignInstance Type=sideChannelSpecularBlocker:FourierSideChannelSpecularBlockerDTO+Rod,
+                                                   CreateList=True}"
+                  ItemContainerStyle="{StaticResource RodListViewItemStyle}"
+                  ItemsSource="{Binding}"
+                  Style="{StaticResource ListView.Small}"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+            <i:Interaction.Behaviors>
+                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+            </i:Interaction.Behaviors>
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource RodColumnHeaderStyle}">
+                    <GridViewColumn Width="50"
+                                    Header="Rod"
+                                    DisplayMemberBinding="{Binding Index, Converter={StaticResource OrdinalIndexConverter}}" />
+                    <GridViewColumn Width="70"
+                                    Header="Deleted"
+                                    DisplayMemberBinding="{Binding IsDeleted}" />
+                    <GridViewColumn Width="360"
+                                    Header="ROI(px)"
+                                    DisplayMemberBinding="{Binding ImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                    <GridViewColumn Width="140"
+                                    Header="Motor Position"
+                                    DisplayMemberBinding="{Binding MotorAbsoluteValue, StringFormat='0.###'}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DataTemplate>
+</ResourceDictionary>

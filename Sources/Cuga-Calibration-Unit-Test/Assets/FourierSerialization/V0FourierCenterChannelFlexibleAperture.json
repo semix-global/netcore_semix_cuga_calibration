@@ -5,8 +5,8 @@
     "AngleMotorAbsoluteValue": 61.5,
     "Step0MotorAbsoluteValue": 0.25,
     "Step1MotorAbsoluteValue": 1.25,
-    "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XAperture_Step0.jpg",
-    "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XAperture_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XAperture_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XAperture_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 100.0,
@@ -32,8 +32,8 @@
       "AngleMotorAbsoluteValue": 121.0,
       "Step0MotorAbsoluteValue": -6.5,
       "Step1MotorAbsoluteValue": -8.5,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod120_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod120_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod120_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod120_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 10.0,
@@ -58,8 +58,8 @@
       "AngleMotorAbsoluteValue": 181.0,
       "Step0MotorAbsoluteValue": -8.0,
       "Step1MotorAbsoluteValue": -10.0,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod180_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod180_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod180_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod180_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 12.0,
@@ -84,8 +84,8 @@
       "AngleMotorAbsoluteValue": 241.0,
       "Step0MotorAbsoluteValue": -8.25,
       "Step1MotorAbsoluteValue": -10.25,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod240_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod240_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod240_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod240_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 14.0,
@@ -110,8 +110,8 @@
       "AngleMotorAbsoluteValue": 301.0,
       "Step0MotorAbsoluteValue": -9.0,
       "Step1MotorAbsoluteValue": -11.0,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod300_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod300_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod300_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XRod300_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 16.0,
@@ -137,8 +137,8 @@
     "AngleMotorAbsoluteValue": 1.5,
     "Step0MotorAbsoluteValue": 42.5,
     "Step1MotorAbsoluteValue": 43.5,
-    "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XPush_Step0.jpg",
-    "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XPush_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XPush_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XPush_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 20.0,
@@ -163,8 +163,8 @@
     "AngleMotorAbsoluteValue": 62.5,
     "Step0MotorAbsoluteValue": 0.5,
     "Step1MotorAbsoluteValue": 1.5,
-    "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YAperture_Step0.jpg",
-    "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YAperture_Step1.jpg",
+    "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YAperture_Step0.jpg",
+    "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YAperture_Step1.jpg",
     "Step0ROI": {
       "ImageROI": {
         "X": 0.0,
@@ -190,8 +190,8 @@
       "AngleMotorAbsoluteValue": 122.0,
       "Step0MotorAbsoluteValue": 2.5,
       "Step1MotorAbsoluteValue": 4.5,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod120_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod120_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod120_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod120_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 0.0,
@@ -216,8 +216,8 @@
       "AngleMotorAbsoluteValue": 182.0,
       "Step0MotorAbsoluteValue": 4.0,
       "Step1MotorAbsoluteValue": 6.0,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod180_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod180_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod180_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod180_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 0.0,
@@ -242,8 +242,8 @@
       "AngleMotorAbsoluteValue": 242.0,
       "Step0MotorAbsoluteValue": 6.25,
       "Step1MotorAbsoluteValue": 8.25,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod240_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod240_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod240_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod240_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 0.0,
@@ -268,8 +268,8 @@
       "AngleMotorAbsoluteValue": 302.0,
       "Step0MotorAbsoluteValue": 8.5,
       "Step1MotorAbsoluteValue": 10.5,
-      "Step0ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod300_Step0.jpg",
-      "Step1ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod300_Step1.jpg",
+      "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod300_Step0.jpg",
+      "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\YRod300_Step1.jpg",
       "Step0ROI": {
         "ImageROI": {
           "X": 0.0,
@@ -289,8 +289,8 @@
       "PixelSize": 0.044
     }
   ],
-  "IsVerified": true,
   "IsCalibrated": true,
+  "IsVerified": true,
   "IsRequiredSelfCheck": false,
   "IsOk": true
 }

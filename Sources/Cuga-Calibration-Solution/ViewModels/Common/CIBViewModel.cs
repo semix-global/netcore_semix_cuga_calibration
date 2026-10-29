@@ -19,6 +19,7 @@ using Core.Models.Models.Setting;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
+using MathNet.Numerics.Interpolation;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
@@ -31,7 +32,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using MathNet.Numerics.Interpolation;
 
 namespace CugaCalibration.ViewModels.Common;
 

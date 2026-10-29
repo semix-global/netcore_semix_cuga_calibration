@@ -35,7 +35,7 @@ using Rect = Net.Utilities.Models.Geometries.Rect;
 namespace Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationAlgorithmServiceImpl(
+public sealed partial class CalibrationAlgorithmServiceImpl(
     ILogger<CalibrationAlgorithmServiceImpl> logger,
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService

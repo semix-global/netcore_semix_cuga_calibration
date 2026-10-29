@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
@@ -63,6 +63,18 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
         <Compile Remove="Implements\Grpc\*.cs" />
         <None Include="Implements\Grpc\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Interfaces\ICalibrationAlgorithmService.*.cs">
+            <DependentUpon>ICalibrationAlgorithmService.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\CalibrationAlgorithmServiceImpl.*.cs">
+            <DependentUpon>CalibrationAlgorithmServiceImpl.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\Mock\CalibrationAlgorithmServiceMockImpl.*.cs">
+            <DependentUpon>CalibrationAlgorithmServiceMockImpl.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
 </Project>

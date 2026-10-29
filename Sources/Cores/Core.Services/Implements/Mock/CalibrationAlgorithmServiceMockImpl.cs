@@ -20,7 +20,7 @@ using System.IO;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationAlgorithmServiceMockImpl(
+public sealed partial class CalibrationAlgorithmServiceMockImpl(
     CalibrationSetting calibrationSetting,
     AffineTransformation affineTransformation) : ICalibrationAlgorithmService
 {

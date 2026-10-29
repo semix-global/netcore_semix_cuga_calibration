@@ -1,8 +1,8 @@
 {
   "Channel1Item": {
     "ChannelId": 1,
-    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel.jpg",
-    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel_ROI.jpg",
+    "FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel.jpg",
+    "ROIFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel1\\Channel_ROI.jpg",
     "ROI": {
       "ImageROI": {
         "X": 330.0,
@@ -14,8 +14,8 @@
   },
   "Channel2Item": {
     "ChannelId": 2,
-    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel.jpg",
-    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel_ROI.jpg",
+    "FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel.jpg",
+    "ROIFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel2\\Channel_ROI.jpg",
     "ROI": {
       "ImageROI": {
         "X": 214.0,
@@ -27,8 +27,8 @@
   },
   "Channel3Item": {
     "ChannelId": 3,
-    "ChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel.jpg",
-    "ROIChannelImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel_ROI.jpg",
+    "FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel.jpg",
+    "ROIFourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\FourierPupilCameraAlignmentViewModel\\20260912\\Channel3\\Channel_ROI.jpg",
     "ROI": {
       "ImageROI": {
         "X": 0.0,
@@ -38,8 +38,8 @@
       }
     }
   },
-  "IsVerified": true,
   "IsCalibrated": true,
+  "IsVerified": true,
   "IsRequiredSelfCheck": false,
   "IsOk": true
 }

@@ -10,6 +10,7 @@
     <singleValue:PointYToStringConverter x:Key="PointYToStringConverter" />
     <singleValue:PointXToStringConverter x:Key="PointXToStringConverter" />
     <singleValue:RectHeightConverter x:Key="RectHeightConverter" />
+    <singleValue:RectToEllipseStringConverter x:Key="RectToEllipseStringConverter" />
     <singleValue:StringToBitmapImageDrawableConverter x:Key="StringToBitmapImageDrawableConverter" />
     <singleValue:ListToStringFormatConverter x:Key="ListToStringFormatConverter" />
     <singleValue:StringToNullableBoolConverter x:Key="EnumDescriptionToEnableConverter"

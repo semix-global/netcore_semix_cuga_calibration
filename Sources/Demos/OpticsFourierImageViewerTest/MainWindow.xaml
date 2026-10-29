@@ -41,6 +41,7 @@
                                       Minimum="0"
                                       Style="{StaticResource NumericUpDownExtend}"
                                       Value="{Binding ROICount}" />
+                    <CheckBox Content="Allow Outside Image" IsChecked="{Binding IsOutsideImageAllowed}" />
                     <Button Content="All Anchors + Move" Command="{Binding EditAllAnchorROICommand}" />
                     <Button Content="Three Bottom Anchors + Move" Command="{Binding EditThreeBottomAnchorROICommand}" />
                     <Button Content="Bottom Anchor Only + No Move" Command="{Binding EditBottomAnchorROICommand}" />
