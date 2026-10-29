@@ -35,6 +35,7 @@ public interface ICalibrationFourierService
     /// <param name="laserLightInformation">激光光强</param>
     /// <param name="dfPosition">暗场位置</param>
     /// <param name="scanLength">扫描长度</param>
+    /// <param name="isCustomWaveform">是否自定义波形</param>
     /// <param name="channelId">1(channel 1), 2(channel 2), 3(channel 3)</param>
     /// <returns>傅里叶相机的图片</returns>
     SxExecuteRet<BitmapImage> GetImage(
@@ -42,7 +43,8 @@ public interface ICalibrationFourierService
         LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId);
+        int channelId,
+        bool isCustomWaveform);
 
     /// <summary>
     /// 获取傅里叶相机的配置

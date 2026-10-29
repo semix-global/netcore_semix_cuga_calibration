@@ -36,14 +36,10 @@
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-        <hc:SimplePanel Grid.Row="0" Grid.Column="0"
-                        Background="{StaticResource PrimaryBrush}">
+        <hc:SimplePanel Grid.Row="0" Background="{StaticResource PrimaryBrush}">
             <StackPanel Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Grid}, Path=Width}"
                         VerticalAlignment="Center"
                         Background="Transparent">
@@ -88,154 +84,185 @@
                                  IsInertiaEnabled="True"
                                  VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <GroupBox Header="AOD Waveform Params">
+                        <GroupBox Header="Haze">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:UniformSpacingPanel Margin="11,0"
-                                                            Orientation="Vertical"
-                                                            Spacing="2">
-                                        <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
-                                                  Style="{StaticResource ComboBoxExtend}">
-                                            <i:Interaction.Behaviors>
-                                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                            </i:Interaction.Behaviors>
-                                        </ComboBox>
-                                        <ComboBox hc:TitleElement.Title="Channel Id: "
-                                                  hc:TitleElement.TitlePlacement="Left"
-                                                  hc:TitleElement.TitleWidth="200"
-                                                  SelectedItem="{Binding Cache.ChannelId}"
-                                                  Style="{StaticResource ComboBoxExtend}"
-                                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
-                                    </hc:UniformSpacingPanel>
-                                    <Expander Header="Prescan AOD Waveform"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
+                                    <ComboBox Margin="7,0,0,0"
+                                              hc:TitleElement.Title="Productivity Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                                              Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.HazeProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <TextBox Text="{Binding Cache.HazeBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                             Margin="7,0,0,0"
+                                             hc:TitleElement.Title="Haze BF Machine Position(um):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <Button Content="Refresh Haze Machine Position"
+                                            Command="{Binding RefreshHazeBFMachinePositionCommand}"
+                                            Style="{StaticResource ButtonDefault}" />
+                                    <ComboBox Margin="7,0,0,0"
+                                              hc:TitleElement.Title="Laser Light Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                              Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.HazeLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
+                        <GroupBox Header="Shiny Wafer">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <ComboBox Margin="7,0,0,0"
+                                              hc:TitleElement.Title="Productivity Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.ProductivityInformations}"
+                                              Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ShinyWaferProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <TextBox Text="{Binding Cache.ShinyWaferBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+                                             Margin="7,0,0,0"
+                                             hc:TitleElement.Title="Shiny BF Machine Position(um):"
+                                             hc:TitleElement.TitlePlacement="Left"
+                                             hc:TitleElement.TitleWidth="200"
+                                             Style="{StaticResource TextBoxExtend}" />
+                                    <Button Content="Refresh Shiny Machine Position"
+                                            Command="{Binding RefreshShinyWaferBFMachinePositionCommand}"
+                                            Style="{StaticResource ButtonDefault}" />
+                                    <ComboBox Margin="7,0,0,0"
+                                              hc:TitleElement.Title="Laser Light Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                              Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Behaviors>
+                                            <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ShinyWaferLaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <GroupBox x:Name="GroupBoxAodWaveformParams">
+                                        <GroupBox.Header>
+                                            <Grid Width="{Binding ActualWidth, ElementName=GroupBoxAodWaveformParams}">
+                                                <TextBlock Text="AOD Waveform Params"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                                <Button Content="Import"
+                                                        Command="{Binding ImportAODWaveformParamsCommand}"
+                                                        Margin="0,0,20,0"
+                                                        HorizontalAlignment="Right"
+                                                        hc:IconElement.Geometry="{StaticResource ImportGeometry}"
+                                                        Style="{StaticResource ButtonInfo.Small}" />
+                                            </Grid>
+                                        </GroupBox.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:UniformSpacingPanel Margin="11,0"
-                                                                        Orientation="Vertical"
-                                                                        Spacing="2">
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Minimum="0"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.PrescanFrequency}" />
-                                                </hc:UniformSpacingPanel>
-                                                <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                                      IsVisibleFrequency="False"
-                                                                                                      IsVisibleAmplitude="False"
-                                                                                                      IsVisibleDirectoryPath="False"
-                                                                                                      IsVisibleUniformityConfiguration="False"
-                                                                                                      IsVisibleSlopeConfiguration="False"
-                                                                                                      DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                                <Expander Header="Prescan AOD Waveform"
+                                                          IsExpanded="False"
+                                                          ExpandDirection="Down">
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                            <hc:UniformSpacingPanel Margin="11,0"
+                                                                                    Orientation="Vertical"
+                                                                                    Spacing="2">
+                                                                <hc:NumericUpDown hc:TitleElement.Title="Prescan Frequency(MHz): "
+                                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                                  hc:TitleElement.TitleWidth="200"
+                                                                                  Minimum="0"
+                                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                                  Value="{Binding Cache.PrescanFrequency}" />
+                                                            </hc:UniformSpacingPanel>
+                                                            <generates:GeneratePrescanAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                                  IsVisibleFrequency="False"
+                                                                                                                  IsVisibleAmplitude="False"
+                                                                                                                  IsVisibleDirectoryPath="False"
+                                                                                                                  IsVisibleUniformityConfiguration="False"
+                                                                                                                  IsVisibleSlopeConfiguration="False"
+                                                                                                                  DataContext="{Binding Cache.GeneratePrescanAODWaveformParam}" />
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                </Expander>
+                                                <Expander Header="Chirp AOD Waveform"
+                                                          IsExpanded="False"
+                                                          ExpandDirection="Down">
+                                                    <Border Style="{StaticResource BorderRegion}">
+                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                            <hc:UniformSpacingPanel Margin="11,0"
+                                                                                    Orientation="Vertical"
+                                                                                    Spacing="2">
+                                                                <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
+                                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                                  hc:TitleElement.TitleWidth="200"
+                                                                                  Minimum="0"
+                                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                                  Value="{Binding Cache.ChirpFrequency}" />
+                                                            </hc:UniformSpacingPanel>
+                                                            <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
+                                                                                                                IsVisibleFrequency="False"
+                                                                                                                IsVisibleAmplitude="False"
+                                                                                                                IsVisibleDirectoryPath="False"
+                                                                                                                IsVisibleUniformityConfiguration="False"
+                                                                                                                IsVisibleSlopeConfiguration="False"
+                                                                                                                DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
+                                                        </hc:UniformSpacingPanel>
+                                                    </Border>
+                                                </Expander>
                                             </hc:UniformSpacingPanel>
                                         </Border>
-                                    </Expander>
-                                    <Expander Header="Chirp AOD Waveform"
-                                              IsExpanded="False"
-                                              ExpandDirection="Down">
-                                        <Border Style="{StaticResource BorderRegion}">
-                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <hc:UniformSpacingPanel Margin="11,0"
-                                                                        Orientation="Vertical"
-                                                                        Spacing="2">
-                                                    <hc:NumericUpDown hc:TitleElement.Title="Chirp Frequency(MHz): "
-                                                                      hc:TitleElement.TitlePlacement="Left"
-                                                                      hc:TitleElement.TitleWidth="200"
-                                                                      Minimum="0"
-                                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                                      Value="{Binding Cache.ChirpFrequency}" />
-                                                </hc:UniformSpacingPanel>
-                                                <generates:GenerateChirpAODWaveformParamUserControl IsVisibleProductivityInformation="False"
-                                                                                                    IsVisibleFrequency="False"
-                                                                                                    IsVisibleAmplitude="False"
-                                                                                                    IsVisibleDirectoryPath="False"
-                                                                                                    IsVisibleUniformityConfiguration="False"
-                                                                                                    IsVisibleSlopeConfiguration="False"
-                                                                                                    DataContext="{Binding Cache.GenerateChirpAODWaveformParam}" />
-                                            </hc:UniformSpacingPanel>
-                                        </Border>
-                                    </Expander>
+                                    </GroupBox>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                         <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <TextBox Text="{Binding Cache.HazeBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:TitleElement.Title="Haze BF Machine Position(um):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <TextBox Text="{Binding Cache.ShinyWaferBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
-                                             hc:TitleElement.Title="Shiny BF Machine Position(um):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="200"
-                                             Style="{StaticResource TextBoxExtend}" />
-                                    <Button Content="Refresh Machine Position"
-                                            Command="{Binding RefreshBFMachinePositionCommand}"
-                                            Style="{StaticResource ButtonDefault}" />
-                                    <ComboBox HorizontalAlignment="Left"
-                                              hc:TitleElement.TitleWidth="200"
+                                    <ComboBox Margin="7,0,0,0"
+                                              hc:TitleElement.Title="Channel Id: "
                                               hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.Title="Haze Laser Light Information: "
-                                              SelectedItem="{Binding Cache.HazeLaserLightInformation}"
-                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
-                                    <ComboBox HorizontalAlignment="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.Title="Shiny Laser Light Information: "
-                                              SelectedItem="{Binding Cache.ShinyWaferLaserLightInformation}"
-                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Wait Time(s): "
+                                              hc:TitleElement.TitleWidth="300"
+                                              SelectedItem="{Binding Cache.ChannelId}"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
+                                    <hc:NumericUpDown Margin="7,0,0,0"
+                                                      hc:TitleElement.Title="Rotate Angle(°): "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.WaitTime}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Rotate Angle(°): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
+                                                      hc:TitleElement.TitleWidth="300"
                                                       Minimum="-180"
                                                       Maximum="180"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.RotateAngle}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Threshold(°): "
+                                    <hc:NumericUpDown Margin="7,0,0,0"
+                                                      hc:TitleElement.Title="Scan Length(um): "
                                                       hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="200"
-                                                      Minimum="0"
+                                                      hc:TitleElement.TitleWidth="300"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.Threshold}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </GroupBox>
-                        <GroupBox Header="Optics Params">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="Center Channel Lens Diameter(um): "
+                                                      Value="{Binding Cache.ScanLength}" />
+                                    <hc:NumericUpDown Margin="7,0,0,0"
+                                                      hc:TitleElement.Title="Threshold(°): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="300"
                                                       Minimum="0"
                                                       Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding Cache.CenterChannelLensDiameterUm}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Center Channel Lens Maximum Angle(°): "
+                                                      Value="{Binding Cache.Threshold}" />
+                                    <hc:NumericUpDown Margin="7,0,0,0"
+                                                      hc:TitleElement.Title="Center Channel Lens Maximum Angle(°): "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="300"
                                                       Minimum="0"
                                                       Maximum="360"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding Cache.CenterChannelLensMaximumAngle}" />
-                                    <TextBox Text="{Binding Cache.DegreePerUm, Mode=OneWay, StringFormat={}{0:f5}}"
-                                             hc:TitleElement.Title="DegreePerUm(°/um):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="300"
-                                             Background="{StaticResource SecondaryRegionBrush}"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
@@ -249,13 +276,6 @@
                                                    FontWeight="Bold"
                                                    Style="{StaticResource TextBlockDefaultInfo}" />
                                     </StackPanel>
-                                    <TextBox Text="{Binding Cache.Result.PixelSize, StringFormat={}{0:f5}}"
-                                             hc:TitleElement.Title="Pixel Size(um/pix):"
-                                             hc:TitleElement.TitlePlacement="Left"
-                                             hc:TitleElement.TitleWidth="300"
-                                             Background="{StaticResource SecondaryRegionBrush}"
-                                             IsReadOnly="True"
-                                             Style="{StaticResource TextBoxExtend}" />
                                     <TextBox Text="{Binding Cache.Result.HorizontalDegree, StringFormat={}{0:f5}}"
                                              hc:TitleElement.Title="Center Channel Light Horizontal Degree(°):"
                                              hc:TitleElement.TitlePlacement="Left"

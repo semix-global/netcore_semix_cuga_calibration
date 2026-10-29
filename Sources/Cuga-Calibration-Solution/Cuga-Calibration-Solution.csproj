@@ -88,6 +88,12 @@
         <Compile Update="ViewModels\Common\Windows\Tools\Stage\StageMap*.cs">
             <DependentUpon>StageMapWindowViewModel.cs</DependentUpon>
         </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsObjectiveYAngleResult.cs">
+          <DependentUpon>OpticsObjectiveYAngleWindowViewModel.cs</DependentUpon>
+        </Compile>
+        <Compile Update="ViewModels\Common\Windows\Tools\Optics\OpticsObjectiveYAngleCache.cs">
+          <DependentUpon>OpticsObjectiveYAngleWindowViewModel.cs</DependentUpon>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
