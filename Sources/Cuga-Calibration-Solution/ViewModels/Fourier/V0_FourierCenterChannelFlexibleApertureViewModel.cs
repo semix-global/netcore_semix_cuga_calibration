@@ -538,7 +538,8 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
                 Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
-                3);
+                3,
+                true);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);

@@ -42,14 +42,16 @@ public sealed class FourierViewModel(
         LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId)
+        int channelId,
+        bool isCustomWaveform)
     {
         var ret = calibrationFourierService.GetImage(
             productivityInformation,
             laserLightInformation,
             dfPosition,
             scanLength,
-            channelId);
+            channelId,
+            isCustomWaveform);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

@@ -38,7 +38,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgDiagFourierOp
         throw new NotImplementedException();
     }
 
-    public SxExecuteRet<BitmapImage> GetImage(ProductivityInformation productivityInformation, LaserLightInformation laserLightInformation, Point dfPosition, double scanLength, int channelId)
+    public SxExecuteRet<BitmapImage> GetImage(ProductivityInformation productivityInformation, LaserLightInformation laserLightInformation, Point dfPosition, double scanLength, int channelId, bool isCustomWaveform)
     {
         throw new NotImplementedException();
     }

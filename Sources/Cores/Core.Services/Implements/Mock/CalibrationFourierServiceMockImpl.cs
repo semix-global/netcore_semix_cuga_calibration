@@ -30,7 +30,8 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId)
+        int channelId,
+        bool isCustomWaveform)
     {
         Thread.Sleep(100);
 

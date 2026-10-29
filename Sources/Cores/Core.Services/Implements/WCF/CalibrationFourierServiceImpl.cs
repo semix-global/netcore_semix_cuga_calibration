@@ -79,7 +79,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId)
+        int channelId,
+        bool isCustomWaveform)
     {
         var wcfParam = new Semix.WcfTransfer.DTO.SxOpticsParam
         {
@@ -90,11 +91,13 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             OpenZoos = true
         };
 
-        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTrigger(
+        var sxExecuteRet = Invoke(() => Service!.GetFFReviewImgForTriggerCalibration(
             channelId - 1, /* Cuga配置规定 */
             wcfParam,
             dfPosition.ToSxPointD(),
-            Convert.ToInt32(scanLength)));
+            Convert.ToInt32(scanLength),
+            isCustomWaveform)
+        );
 
 #pragma warning disable IDE0079
 #pragma warning disable IDISP001
