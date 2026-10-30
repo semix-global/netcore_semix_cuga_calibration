@@ -62,7 +62,7 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding CalibratingItem.XOriginPositionItem.MotorAbsoluteValue, Mode=OneWay}"
+                        <TextBox Text="{Binding CalibratingItem.XOriginPositionItem.XOriginROI.MotorAbsoluteValue, Mode=OneWay}"
                                  hc:TitleElement.Title="Position(mm): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"

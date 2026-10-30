@@ -378,10 +378,19 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         Comment = new HtmlComment(StepsComment),
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        ROIs = new HtmlTable([
-            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected },
-            new { Name = "X Reflection Push", XReflectionPushROI.ImageROI, XReflectionPushROI.AngleMotorAbsoluteValue, XReflectionPushROI.MotorAbsoluteValue, XReflectionPushROI.IsSelected }
-        ]),
+        YRod = new HtmlQuote(new
+        {
+            YRodROI.ImageROI,
+            YRodROI.AngleMotorAbsoluteValue,
+            YRodROI.MotorAbsoluteValue,
+            YRodROI.IsSelected
+        }),
+        XReflectionPush = new HtmlQuote(new
+        {
+            XReflectionPushROI.ImageROI,
+            XReflectionPushROI.MotorAbsoluteValue,
+            XReflectionPushROI.IsSelected
+        }),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(YRodROI.ImageROI),

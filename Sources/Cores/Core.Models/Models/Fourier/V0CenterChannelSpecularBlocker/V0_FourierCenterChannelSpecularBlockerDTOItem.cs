@@ -378,10 +378,19 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerDTOItem : Obser
         Comment = new HtmlComment(StepsComment),
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        ROIs = new HtmlTable([
-            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected },
-            new { Name = "X Push", XPushROI.ImageROI, XPushROI.AngleMotorAbsoluteValue, XPushROI.MotorAbsoluteValue, XPushROI.IsSelected }
-        ]),
+        YRod = new HtmlQuote(new
+        {
+            YRodROI.ImageROI,
+            YRodROI.AngleMotorAbsoluteValue,
+            YRodROI.MotorAbsoluteValue,
+            YRodROI.IsSelected
+        }),
+        XPush = new HtmlQuote(new
+        {
+            XPushROI.ImageROI,
+            XPushROI.MotorAbsoluteValue,
+            XPushROI.IsSelected
+        }),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
             new HtmlImageRectangleOverlay(YRodROI.ImageROI),

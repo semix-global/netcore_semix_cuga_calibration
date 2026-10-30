@@ -145,7 +145,7 @@
                             <hc:UniformSpacingPanel DockPanel.Dock="Top"
                                                     Orientation="Vertical"
                                                     Spacing="2">
-                                <TextBox Text="{Binding Review.XOriginPositionItem.MotorAbsoluteValue, Mode=OneWay}"
+                                <TextBox Text="{Binding Review.XOriginPositionItem.XOriginROI.MotorAbsoluteValue, Mode=OneWay}"
                                          hc:TitleElement.Title="Position(mm): "
                                          hc:TitleElement.TitlePlacement="Left"
                                          hc:TitleElement.TitleWidth="190"

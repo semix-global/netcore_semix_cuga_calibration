@@ -23,22 +23,19 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     private readonly BitmapImageROIDrawable _step1XOriginBitmapImageROIDrawable;
 
     [ObservableProperty]
-    public partial double MotorAbsoluteValue { get; private set; }
-
-    [ObservableProperty]
     public partial string Step0FourierImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string Step1FourierImageFilePath { get; set; } = string.Empty;
 
-    public FourierPupilCameraAlignmentDTO.ROI XOriginROI { get; }
+    public FourierCenterChannelFlexibleApertureDTO.ROI XOriginROI { get; }
 
     [Newtonsoft.Json.JsonIgnore]
     public OpticsFourierImageDocument Document { get; } = new();
 
     public FourierCenterChannelFlexibleApertureDTOOriginPositionItem()
     {
-        XOriginROI = new FourierPupilCameraAlignmentDTO.ROI(_step0FourierBitmapImageDrawable)
+        XOriginROI = new FourierCenterChannelFlexibleApertureDTO.ROI(_step0FourierBitmapImageDrawable)
         {
             BitmapImageROIDrawable = { ResizeJoystickStateEnum = BitmapImageROIResizeJoystickStateEnum.None }
         };
@@ -54,8 +51,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     }
 
     [Newtonsoft.Json.JsonConstructor]
-    private FourierCenterChannelFlexibleApertureDTOOriginPositionItem(FourierPupilCameraAlignmentDTO.ROI xOriginROI)
-        : this()
+    private FourierCenterChannelFlexibleApertureDTOOriginPositionItem(FourierPupilCameraAlignmentDTO.ROI xOriginROI) : this()
     {
         XOriginROI.AdaptIn(xOriginROI);
     }
@@ -66,7 +62,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     {
         var item = new FourierCenterChannelFlexibleApertureDTOOriginPositionItem
         {
-            MotorAbsoluteValue = MotorAbsoluteValue,
             Step0FourierImageFilePath = Step0FourierImageFilePath,
             Step1FourierImageFilePath = Step1FourierImageFilePath
         };
@@ -82,7 +77,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
 
     public void Reset()
     {
-        MotorAbsoluteValue = 0d;
         Step0FourierImageFilePath = string.Empty;
         Step1FourierImageFilePath = string.Empty;
 
@@ -91,36 +85,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
         Document.Reset();
     }
 
-    public void UpdatePosition(FourierCenterChannelFlexibleApertureDTOItem xOriginItem, (double Min, double Max) xMotorRange)
-    {
-        Guard.IsTrue(xOriginItem.CenterChannelMotionKindEnum == CenterChannelMotionKindEnum.XRod && xOriginItem.DefaultAngleMotorAbsoluteValue == 0d);
-        Guard.IsTrue(double.IsFinite(xOriginItem.PixelSize) && xOriginItem.PixelSize != 0d);
-        Guard.IsTrue(double.IsFinite(xOriginItem.Step0MotorAbsoluteValue));
-        Guard.IsTrue(double.IsFinite(xOriginItem.AngleMotorAbsoluteValue));
-        Guard.IsTrue(xOriginItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(XOriginROI.ImageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(double.IsFinite(xMotorRange.Min) && double.IsFinite(xMotorRange.Max));
-        Guard.IsGreaterThan(xMotorRange.Max, xMotorRange.Min);
-
-        var motorAbsoluteValue = xOriginItem.Step0MotorAbsoluteValue + (XOriginROI.ImageROI.Center - xOriginItem.Step0ROI.ImageROI.Center).X * xOriginItem.PixelSize;
-        Guard.IsTrue(double.IsFinite(motorAbsoluteValue));
-        
-        MotorAbsoluteValue = Math.Clamp(motorAbsoluteValue, xMotorRange.Min, xMotorRange.Max);
-
-        // 限位后反算 ROI 中心, 保持显示位置与实际电机位置一致.
-        var xOriginCenterX = xOriginItem.Step0ROI.ImageROI.Center.X + (MotorAbsoluteValue - xOriginItem.Step0MotorAbsoluteValue) / xOriginItem.PixelSize;
-        XOriginROI.ImageROI = (XOriginROI.ImageROI + new Vector(xOriginCenterX - XOriginROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
-    }
-
     public async Task CalibratingAsync(
         FourierCenterChannelFlexibleApertureDTOItem xOriginItem,
         (double Min, double Max) xMotorRange,
         CancellationToken cancellationToken)
     {
-        Guard.IsTrue(double.IsFinite(xOriginItem.PixelSize) && xOriginItem.PixelSize != 0d);
-        Guard.IsTrue(double.IsFinite(xOriginItem.AngleMotorAbsoluteValue));
-        
-
         try
         {
             Document.Reset();
@@ -128,8 +97,12 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
             Guard.IsNotNullOrWhiteSpace(Step0FourierImageFilePath);
 
             _step0FourierBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(Step0FourierImageFilePath);
-            XOriginROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xOriginItem.Step0ROI.ImageROI);
             Document.View.ZoomToFit();
+
+            Guard.IsTrue(double.IsFinite(xOriginItem.PixelSize) && xOriginItem.PixelSize != 0d);
+            Guard.IsTrue(double.IsFinite(xOriginItem.AngleMotorAbsoluteValue));
+
+            XOriginROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(xOriginItem.Step0ROI.ImageROI);
 
             while (true)
             {
@@ -167,11 +140,17 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
 
         OuterLoop:
 
-            XOriginROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XOriginROI.BitmapImageROIDrawable.Rect);
-            UpdatePosition(xOriginItem, xMotorRange);
-
-            XOriginROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XOriginROI.ImageROI);
             XOriginROI.BitmapImageROIDrawable.IsFixed = true;
+            XOriginROI.ImageROI = _step0FourierBitmapImageDrawable.CartesianCoordinateToImageCoordinate(XOriginROI.BitmapImageROIDrawable.Rect);
+            XOriginROI.MotorAbsoluteValue = Math.Clamp(
+                xOriginItem.Step0MotorAbsoluteValue + (XOriginROI.ImageROI.Center - xOriginItem.Step0ROI.ImageROI.Center).X * xOriginItem.PixelSize,
+                xMotorRange.Min,
+                xMotorRange.Max);
+
+            // 限位后反算 ROI 中心, 保持显示位置与实际电机位置一致.
+            var xOriginCenterX = xOriginItem.Step0ROI.ImageROI.Center.X + (XOriginROI.MotorAbsoluteValue - xOriginItem.Step0MotorAbsoluteValue) / xOriginItem.PixelSize;
+            XOriginROI.ImageROI = (XOriginROI.ImageROI + new Vector(xOriginCenterX - XOriginROI.ImageROI.Center.X, 0d)).ImageCoordinateRound();
+            XOriginROI.BitmapImageROIDrawable.Rect = _step0FourierBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(XOriginROI.ImageROI);
         }
         finally
         {
@@ -207,7 +186,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     public object ToImageHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        MotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath),
@@ -217,10 +195,13 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     public object ToHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        MotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
-        XOriginROI = XOriginROI.ImageROI,
+        XOrigin = new HtmlQuote(new
+        {
+            XOriginROI.ImageROI,
+            XOriginROI.MotorAbsoluteValue,
+        }),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(XOriginROI.ImageROI)]),
         Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(XOriginROI.ImageROI)])
     };

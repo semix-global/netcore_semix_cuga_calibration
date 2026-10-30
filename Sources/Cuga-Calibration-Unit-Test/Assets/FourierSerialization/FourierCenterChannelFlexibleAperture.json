@@ -28,7 +28,6 @@
     "PixelSize": -0.025
   },
   "XOriginPositionItem": {
-    "AngleMotorAbsoluteValue": 2.5,
     "MotorAbsoluteValue": 1.25,
     "Step0FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOriginPosition_Step0.jpg",
     "Step1FourierImageFilePath": "D:\\Nano\\Cuga-Calibration\\Images\\Center\\XOriginPosition_Step1.jpg",

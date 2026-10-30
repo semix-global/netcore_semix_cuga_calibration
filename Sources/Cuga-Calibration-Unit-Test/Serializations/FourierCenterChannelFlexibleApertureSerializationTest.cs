@@ -119,7 +119,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
         static void AssertOriginPositionMatchesJson(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, JToken expected)
         {
-            actual.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.MotorAbsoluteValue)));
+            actual.XOriginROI.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.XOriginROI.MotorAbsoluteValue)));
             actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
             actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
 
@@ -243,7 +243,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
                 item.Step1ROI.ImageROI = CreateRandomRect(random);
             }
 
-            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.MotorAbsoluteValue), Math.Round((random.NextDouble() - 0.5) * 40d, 3));
+            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.XOriginROI.MotorAbsoluteValue), Math.Round((random.NextDouble() - 0.5) * 40d, 3));
             dto.XOriginPositionItem.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_0.jpg";
             dto.XOriginPositionItem.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_1.jpg";
 
@@ -297,7 +297,7 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
         static void AssertOriginPositionEquals(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, FourierCenterChannelFlexibleApertureDTOOriginPositionItem expected)
         {
-            actual.MotorAbsoluteValue.Should().Be(expected.MotorAbsoluteValue);
+            actual.XOriginROI.MotorAbsoluteValue.Should().Be(expected.XOriginROI.MotorAbsoluteValue);
             actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
             actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
 

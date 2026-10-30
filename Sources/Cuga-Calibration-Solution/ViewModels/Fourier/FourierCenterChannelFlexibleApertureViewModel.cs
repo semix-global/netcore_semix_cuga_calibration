@@ -714,7 +714,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                     cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
-                FourierViewModel.SetChannel3XTurntable(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue, item.MotorAbsoluteValue);
+                FourierViewModel.SetChannel3XTurntable(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue, item.XOriginROI.MotorAbsoluteValue);
 
                 Grab(1);
 
