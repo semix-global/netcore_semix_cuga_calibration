@@ -559,24 +559,24 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 case CenterChannelMotionKindEnum.XCalibrationPattern:
                 case CenterChannelMotionKindEnum.XRod:
                 case CenterChannelMotionKindEnum.YRod:
+                    FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
                     FourierViewModel.SetChannel3XReflectionPush(0d);
                     FourierViewModel.SetChannel3XDiffractionPush(0d);
-                    FourierViewModel.SetChannel3XTurntable(item.AngleMotorAbsoluteValue, motorAbsoluteValue);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XDiffractionPush:
+                    FourierViewModel.SetChannel3XDiffractionPush(motorAbsoluteValue);
                     FourierViewModel.SetChannel3XTurntable(0d, 0d);
                     FourierViewModel.SetChannel3XReflectionPush(0d);
-                    FourierViewModel.SetChannel3XDiffractionPush(motorAbsoluteValue);
 
                     break;
 
                 case CenterChannelMotionKindEnum.XReflectionCoarsePush:
                 case CenterChannelMotionKindEnum.XReflectionFinePush:
+                    FourierViewModel.SetChannel3XReflectionPush(motorAbsoluteValue);
                     FourierViewModel.SetChannel3XTurntable(0d, 0d);
                     FourierViewModel.SetChannel3XDiffractionPush(0d);
-                    FourierViewModel.SetChannel3XReflectionPush(motorAbsoluteValue);
 
                     break;
 
@@ -648,8 +648,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
     private async Task<bool> InvokeCalibrateAsync(FourierCenterChannelFlexibleApertureDTOOriginPositionItem item, CancellationToken cancellationToken)
     {
         var detectImageDirectory = ImageFileDirectory;
-        var (minMotorAbsoluteValue, maxMotorAbsoluteValue) = (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue);
-        var imageROI = FourierPupilCameraAlignment.Channel3Item.ROI.ImageROI;
+        var fourierPupilCameraAlignmentItem = FourierPupilCameraAlignment.Channel3Item;
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
@@ -663,21 +662,14 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             Cache.HazeFindBFMachinePosition,
             CalibratingItem.XOriginItem.AngleMotorAbsoluteValue,
             CalibratingItem.XOriginItem.PixelSize,
-            minMotorAbsoluteValue,
-            maxMotorAbsoluteValue,
-            ImageROI = imageROI,
+            fourierPupilCameraAlignmentItem.ROI.ImageROI,
             detectImageDirectory
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Guard.IsTrue(imageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(double.IsFinite(CalibratingItem.XOriginItem.PixelSize) && CalibratingItem.XOriginItem.PixelSize != 0d);
-        Guard.IsTrue(CalibratingItem.XOriginItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(double.IsFinite(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue));
-        Guard.IsGreaterThan(maxMotorAbsoluteValue, minMotorAbsoluteValue);
+        Guard.IsNotNullOrWhiteSpace(fourierPupilCameraAlignmentItem.ROIFourierImageFilePath);
+        Guard.IsTrue(fourierPupilCameraAlignmentItem.ROI.ImageROI is { Width: > 0d, Height: > 0d });
 
         item.Reset();
-        CalibratingItem.IsCalibrated = false;
-        CalibratingItem.IsVerified = false;
 
         var hazeBFPosition = StageViewModel.MachineToBrightFieldPosition(Cache.HazeFindBFMachinePosition);
         var startCurrentHazeBFPosition = CIBViewModel.GetCIBInformationPosition(
@@ -695,7 +687,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             try
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 FourierViewModel.Home(3);
 
                 Grab(0);
@@ -710,26 +701,16 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             {
                 await item.CalibratingAsync(
                     CalibratingItem.XOriginItem,
-                    (minMotorAbsoluteValue, maxMotorAbsoluteValue),
+                    (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue),
                     cancellationToken);
 
-                cancellationToken.ThrowIfCancellationRequested();
                 FourierViewModel.SetChannel3XTurntable(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue, item.XOriginROI.MotorAbsoluteValue);
 
                 Grab(1);
 
-                cancellationToken.ThrowIfCancellationRequested();
                 item.Review();
 
-                FourierCenterChannelFlexibleApertureDTOItem[] items =
-                [
-                    CalibratingItem.XOriginItem,
-                    CalibratingItem.XApertureItem,
-                    CalibratingItem.XCalibrationPatternItem,
-                    .. CalibratingItem.XRodItems,
-                    .. CalibratingItem.YRodItems
-                ];
-                foreach (var dtoItem in items)
+                foreach (var dtoItem in (FourierCenterChannelFlexibleApertureDTOItem[])[CalibratingItem.XOriginItem, CalibratingItem.XApertureItem, CalibratingItem.XCalibrationPatternItem, .. CalibratingItem.XRodItems, .. CalibratingItem.YRodItems])
                 {
                     dtoItem.AngleMotorAbsoluteValue = dtoItem.DefaultAngleMotorAbsoluteValue + CalibratingItem.XOriginItem.AngleMotorAbsoluteValue;
                 }
@@ -773,9 +754,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_XOriginPosition_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
             bitmapImage.SaveImage(imageFilePath);
-            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{imageROI}{Path.GetExtension(imageFilePath)}");
+            var roiFourierImageFilePath = Path.Combine(Path.GetDirectoryName(imageFilePath) ?? string.Empty, $"{Path.GetFileNameWithoutExtension(imageFilePath)}_ROI_{fourierPupilCameraAlignmentItem.ROI.ImageROI}{Path.GetExtension(imageFilePath)}");
 
-            using var roiBitmapImageDrawable = bitmapImage.ToROI(imageROI);
+            using var roiBitmapImageDrawable = bitmapImage.ToROI(fourierPupilCameraAlignmentItem.ROI.ImageROI);
             roiBitmapImageDrawable.SaveImage(roiFourierImageFilePath);
 
             switch (stepIndex)

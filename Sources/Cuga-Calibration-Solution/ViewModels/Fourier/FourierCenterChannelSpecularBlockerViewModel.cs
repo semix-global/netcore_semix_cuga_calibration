@@ -428,8 +428,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             try
             {
                 FourierViewModel.Home(3);
-                FourierViewModel.SetChannel3XReflectionPush(0d);
-                FourierViewModel.SetChannel3XDiffractionPush(0d);
 
                 Grab(0);
             }
@@ -571,8 +569,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
                 foreach (var item in items) item.ResetCIB();
 
                 FourierViewModel.Home(3);
-                FourierViewModel.SetChannel3XReflectionPush(0d);
-                FourierViewModel.SetChannel3XDiffractionPush(0d);
 
                 await GrabAsync(0);
 
