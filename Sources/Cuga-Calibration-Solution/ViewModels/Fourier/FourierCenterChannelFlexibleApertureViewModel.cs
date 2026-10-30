@@ -650,8 +650,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         var detectImageDirectory = ImageFileDirectory;
         var (minMotorAbsoluteValue, maxMotorAbsoluteValue) = (Cache.XMinMotorAbsoluteValue, Cache.XMaxMotorAbsoluteValue);
         var imageROI = FourierPupilCameraAlignment.Channel3Item.ROI.ImageROI;
-        var xOriginItem = CalibratingItem.XOriginItem;
-        var angleMotorAbsoluteValue = xOriginItem.AngleMotorAbsoluteValue;
 
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
         {
@@ -663,8 +661,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             OpticsConfiguration = new HtmlQuote(Cache.OpticsConfiguration.ToHtmlAnonymous()),
             Cache.ScanLength,
             Cache.HazeFindBFMachinePosition,
-            AngleMotorAbsoluteValue = angleMotorAbsoluteValue,
-            xOriginItem.PixelSize,
+            CalibratingItem.XOriginItem.AngleMotorAbsoluteValue,
+            CalibratingItem.XOriginItem.PixelSize,
             minMotorAbsoluteValue,
             maxMotorAbsoluteValue,
             ImageROI = imageROI,
@@ -672,9 +670,9 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         }), HtmlLogUniqueId.LoggingHtml());
 
         Guard.IsTrue(imageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(double.IsFinite(xOriginItem.PixelSize) && xOriginItem.PixelSize != 0d);
-        Guard.IsTrue(xOriginItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
-        Guard.IsTrue(double.IsFinite(angleMotorAbsoluteValue));
+        Guard.IsTrue(double.IsFinite(CalibratingItem.XOriginItem.PixelSize) && CalibratingItem.XOriginItem.PixelSize != 0d);
+        Guard.IsTrue(CalibratingItem.XOriginItem.Step0ROI.ImageROI is { Width: > 0d, Height: > 0d });
+        Guard.IsTrue(double.IsFinite(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue));
         Guard.IsGreaterThan(maxMotorAbsoluteValue, minMotorAbsoluteValue);
 
         item.Reset();
@@ -711,21 +709,17 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             try
             {
                 await item.CalibratingAsync(
-                    xOriginItem,
+                    CalibratingItem.XOriginItem,
                     (minMotorAbsoluteValue, maxMotorAbsoluteValue),
                     cancellationToken);
 
                 cancellationToken.ThrowIfCancellationRequested();
-                Guard.IsEqualTo(xOriginItem.AngleMotorAbsoluteValue, angleMotorAbsoluteValue);
-                Guard.IsEqualTo(item.AngleMotorAbsoluteValue, angleMotorAbsoluteValue);
-                FourierViewModel.SetChannel3XTurntable(angleMotorAbsoluteValue, item.MotorAbsoluteValue);
+                FourierViewModel.SetChannel3XTurntable(CalibratingItem.XOriginItem.AngleMotorAbsoluteValue, item.MotorAbsoluteValue);
 
                 Grab(1);
 
                 cancellationToken.ThrowIfCancellationRequested();
                 item.Review();
-                Guard.IsEqualTo(xOriginItem.AngleMotorAbsoluteValue, angleMotorAbsoluteValue);
-                Guard.IsEqualTo(item.AngleMotorAbsoluteValue, angleMotorAbsoluteValue);
 
                 FourierCenterChannelFlexibleApertureDTOItem[] items =
                 [
@@ -737,7 +731,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
                 ];
                 foreach (var dtoItem in items)
                 {
-                    dtoItem.AngleMotorAbsoluteValue = dtoItem.DefaultAngleMotorAbsoluteValue + item.AngleMotorAbsoluteValue;
+                    dtoItem.AngleMotorAbsoluteValue = dtoItem.DefaultAngleMotorAbsoluteValue + CalibratingItem.XOriginItem.AngleMotorAbsoluteValue;
                 }
 
                 isSuccess = true;

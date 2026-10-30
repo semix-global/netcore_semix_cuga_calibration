@@ -23,9 +23,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     private readonly BitmapImageROIDrawable _step1XOriginBitmapImageROIDrawable;
 
     [ObservableProperty]
-    public partial double AngleMotorAbsoluteValue { get; private set; }
-
-    [ObservableProperty]
     public partial double MotorAbsoluteValue { get; private set; }
 
     [ObservableProperty]
@@ -69,7 +66,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     {
         var item = new FourierCenterChannelFlexibleApertureDTOOriginPositionItem
         {
-            AngleMotorAbsoluteValue = AngleMotorAbsoluteValue,
             MotorAbsoluteValue = MotorAbsoluteValue,
             Step0FourierImageFilePath = Step0FourierImageFilePath,
             Step1FourierImageFilePath = Step1FourierImageFilePath
@@ -108,8 +104,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
 
         var motorAbsoluteValue = xOriginItem.Step0MotorAbsoluteValue + (XOriginROI.ImageROI.Center - xOriginItem.Step0ROI.ImageROI.Center).X * xOriginItem.PixelSize;
         Guard.IsTrue(double.IsFinite(motorAbsoluteValue));
-
-        AngleMotorAbsoluteValue = xOriginItem.AngleMotorAbsoluteValue;
+        
         MotorAbsoluteValue = Math.Clamp(motorAbsoluteValue, xMotorRange.Min, xMotorRange.Max);
 
         // 限位后反算 ROI 中心, 保持显示位置与实际电机位置一致.
@@ -124,8 +119,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     {
         Guard.IsTrue(double.IsFinite(xOriginItem.PixelSize) && xOriginItem.PixelSize != 0d);
         Guard.IsTrue(double.IsFinite(xOriginItem.AngleMotorAbsoluteValue));
-
-        AngleMotorAbsoluteValue = xOriginItem.AngleMotorAbsoluteValue;
+        
 
         try
         {
@@ -213,7 +207,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     public object ToImageHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        AngleMotorAbsoluteValue,
         MotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
@@ -224,7 +217,6 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     public object ToHtmlAnonymous() => new
     {
         Comment = new HtmlComment(StepsComment),
-        AngleMotorAbsoluteValue,
         MotorAbsoluteValue,
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
