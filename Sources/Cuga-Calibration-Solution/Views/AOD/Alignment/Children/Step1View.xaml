@@ -60,15 +60,26 @@
                                 <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
                             </i:Interaction.Behaviors>
                         </ComboBox>
-                        <ComboBox hc:TitleElement.Title="CIB Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                            <i:Interaction.Behaviors>
-                                <behaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.Item.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="CIB Informations: "
+                                       Width="190"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center" />
+                            <ListBox Grid.Column="1"
+                                     Height="180"
+                                     ItemContainerStyle="{StaticResource ListBoxItemStyle.Center}"
+                                     ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                     SelectionMode="Extended">
+                                <i:Interaction.Behaviors>
+                                    <behaviors:ListBoxScrollToCurrentBehavior />
+                                    <behaviors:ListBoxSelectedItemsBehavior Type="{x:Type pattern:CIBInformation}" BindableSelectedItems="{Binding Cache.Item.CIBInformations}" />
+                                </i:Interaction.Behaviors>
+                            </ListBox>
+                        </Grid>
                         <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />
                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"

@@ -34,8 +34,8 @@
                 <hc:Shield Subject="Laser Light: "
                            Status="{Binding Cache.Item.LaserLightInformation}"
                            Color="{StaticResource SuccessBrush}" />
-                <hc:Shield Subject="CIB Information: "
-                           Status="{Binding Cache.Item.CIBInformation}"
+                <hc:Shield Subject="CIB Informations: "
+                           Status="{Binding Cache.Item.CIBInformationsText}"
                            Color="{StaticResource SuccessBrush}" />
             </hc:UniformSpacingPanel>
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
