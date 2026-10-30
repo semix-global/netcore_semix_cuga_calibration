@@ -119,12 +119,12 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
         static void AssertOriginPositionMatchesJson(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, JToken expected)
         {
-            actual.XOriginROI.MotorAbsoluteValue.Should().Be(expected.Value<double>(nameof(actual.XOriginROI.MotorAbsoluteValue)));
             actual.Step0FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step0FourierImageFilePath)));
             actual.Step1FourierImageFilePath.Should().Be(expected.Value<string>(nameof(actual.Step1FourierImageFilePath)));
 
             var roi = expected[nameof(actual.XOriginROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which;
             AssertRectMatchesJson(actual.XOriginROI.ImageROI, roi[nameof(actual.XOriginROI.ImageROI)].Should().NotBeNull().And.BeAssignableTo<JToken>().Which);
+            actual.XOriginROI.MotorAbsoluteValue.Should().Be(roi.Value<double>(nameof(actual.XOriginROI.MotorAbsoluteValue)));
         }
 
         static void AssertRectMatchesJson(Rect actual, JToken expected)
@@ -237,17 +237,19 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
                 item.Step1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
                 item.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
                 item.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
-                ObjectHelper.SetPropertyValue(item, nameof(FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5) * 4000d, 3));
+                // SetPropertyValue 会按名称调用 GetProperty. net48 在该类型尚未调用 GetProperties 时, 会把这次取到的属性放到属性缓存最前面.
+                // Newtonsoft 第一次建契约时按 GetProperties 的顺序保存, IgnoreCacheItemPropertiesContractResolver.Settings 是静态的, 之后一直沿用.
+                // SetFieldValue 只调用 GetField 写 <PixelSize>k__BackingField, 不访问属性缓存, 因此序列化顺序保持声明顺序.
+                ObjectHelper.SetFieldValue(item, nameof(FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), isAutoPropertyGenerateField: true);
 
                 item.Step0ROI.ImageROI = CreateRandomRect(random);
                 item.Step1ROI.ImageROI = CreateRandomRect(random);
             }
 
-            ObjectHelper.SetPropertyValue(dto.XOriginPositionItem, nameof(FourierCenterChannelFlexibleApertureDTOOriginPositionItem.XOriginROI.MotorAbsoluteValue), Math.Round((random.NextDouble() - 0.5) * 40d, 3));
             dto.XOriginPositionItem.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_0.jpg";
             dto.XOriginPositionItem.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\origin_position_1.jpg";
-
             dto.XOriginPositionItem.XOriginROI.ImageROI = CreateRandomRect(random);
+            dto.XOriginPositionItem.XOriginROI.MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 40d, 3);
 
             return dto;
 
@@ -297,11 +299,10 @@ public sealed class FourierCenterChannelFlexibleApertureSerializationTest(HostFi
 
         static void AssertOriginPositionEquals(FourierCenterChannelFlexibleApertureDTOOriginPositionItem actual, FourierCenterChannelFlexibleApertureDTOOriginPositionItem expected)
         {
-            actual.XOriginROI.MotorAbsoluteValue.Should().Be(expected.XOriginROI.MotorAbsoluteValue);
             actual.Step0FourierImageFilePath.Should().Be(expected.Step0FourierImageFilePath);
             actual.Step1FourierImageFilePath.Should().Be(expected.Step1FourierImageFilePath);
-
             actual.XOriginROI.ImageROI.Should().Be(expected.XOriginROI.ImageROI);
+            actual.XOriginROI.MotorAbsoluteValue.Should().Be(expected.XOriginROI.MotorAbsoluteValue);
         }
 
         static void AssertItemEquals(FourierCenterChannelFlexibleApertureDTOItem actual, FourierCenterChannelFlexibleApertureDTOItem expected)

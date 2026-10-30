@@ -1,6 +1,5 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Models.Fourier.PupilCameraAlignment;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Mapper.Interfaces;
@@ -51,7 +50,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
     }
 
     [Newtonsoft.Json.JsonConstructor]
-    private FourierCenterChannelFlexibleApertureDTOOriginPositionItem(FourierPupilCameraAlignmentDTO.ROI xOriginROI) : this()
+    private FourierCenterChannelFlexibleApertureDTOOriginPositionItem(FourierCenterChannelFlexibleApertureDTO.ROI xOriginROI) : this()
     {
         XOriginROI.AdaptIn(xOriginROI);
     }

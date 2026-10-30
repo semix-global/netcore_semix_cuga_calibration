@@ -237,13 +237,13 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 { 0d, 0d, 1d }
             });
 
-            for (var x = 0; x < yCount; x++)
+            for (var y = 0; y < yCount; y++)
             {
-                for (var y = 0; y < xCount; y++)
+                for (var x = 0; x < xCount; x++)
                 {
-                    var temp = scaleMatrix * Vector<double>.Build.DenseOfArray([realXMatrix[x, y], realYMatrix[x, y], 1]);
-                    realXMatrix[x, y] = temp[0];
-                    realYMatrix[x, y] = temp[1];
+                    var temp = scaleMatrix * Vector<double>.Build.DenseOfArray([realXMatrix[y, x], realYMatrix[y, x], 1]);
+                    realXMatrix[y, x] = temp[0];
+                    realYMatrix[y, x] = temp[1];
                 }
             }
 
