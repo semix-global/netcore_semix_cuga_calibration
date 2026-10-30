@@ -9,6 +9,8 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.AOD"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:aodAlignment="clr-namespace:Core.Models.Models.AOD.Alignment;assembly=Core.Models"
+             xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
+             xmlns:paramUI="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
              xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:AODAlignmentViewModel}"
              d:DesignWidth="1920"
@@ -47,7 +49,13 @@
                                           Minimum="0"
                                           Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.Threshold}" />
+                                          Value="{Binding Cache.RSquaredThreshold}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Delta Pixels(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.DeltaPixels}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -112,7 +120,7 @@
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Productivity" DisplayMemberBinding="{Binding ProductivityInformation}" />
                             <GridViewColumn Header="Slope(px/MHz)" DisplayMemberBinding="{Binding Slope, StringFormat='0.###'}" />
-                            <GridViewColumn Header="RSquared" DisplayMemberBinding="{Binding RSquared, StringFormat='0.###'}" />
+                            <GridViewColumn Header="Intercept" DisplayMemberBinding="{Binding Intercept, StringFormat='0.###'}" />
                         </GridView>
                     </ListView.View>
                 </ListView>
@@ -130,40 +138,157 @@
                         <TabControl.ContentTemplate>
                             <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTO}">
                                 <TabControl Margin="5">
-                                    <TabItem Header="Plots">
-                                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                            <v2:PlotControl DataSource="{Binding PlotDataSource}" />
-                                        </Border>
-                                    </TabItem>
-                                    <TabItem Header="Images">
-                                        <ListBox Margin="5" ItemsSource="{Binding Items}">
-                                            <ListBox.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <WrapPanel Orientation="Horizontal" />
-                                                </ItemsPanelTemplate>
-                                            </ListBox.ItemsPanel>
-                                            <ListBox.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTOItem}">
-                                                    <Border Width="300"
-                                                            Height="300"
-                                                            Style="{StaticResource BorderRegion}">
-                                                        <hc:SimplePanel>
-                                                            <view:CanvasView AxisColor="Red"
-                                                                             BackgroundColor="#0A0A0A"
-                                                                             BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
-                                                                             Interactive="True"
-                                                                             ShowAxes="True"
-                                                                             ShowCursor="False"
-                                                                             ShowGrid="False" />
-                                                            <TextBlock Text="{Binding PrescanFrequency, StringFormat='0.###'}"
-                                                                       HorizontalAlignment="Center"
-                                                                       VerticalAlignment="Top"
-                                                                       Foreground="Yellow" />
-                                                        </hc:SimplePanel>
-                                                    </Border>
+                                    <TabItem Header="Alignment">
+                                        <TabControl ItemsSource="{Binding ChannelItems}">
+                                            <i:Interaction.Behaviors>
+                                                <behaviors:SelectorAutoSelectFirstBehavior />
+                                            </i:Interaction.Behaviors>
+                                            <TabControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentChannel}">
+                                                    <TextBlock Text="{Binding CIBInformation}" />
                                                 </DataTemplate>
-                                            </ListBox.ItemTemplate>
-                                        </ListBox>
+                                            </TabControl.ItemTemplate>
+                                            <TabControl.ContentTemplate>
+                                                <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentChannel}">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="*" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="2*" />
+                                                        </Grid.RowDefinitions>
+                                                        <ListView x:Name="ChannelHistoryListView"
+                                                                  ItemsSource="{Binding Items}"
+                                                                  Style="{StaticResource ListView.Small}"
+                                                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                                  ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                                                            <i:Interaction.Behaviors>
+                                                                <behaviors:ListBoxScrollToCurrentBehavior />
+                                                            </i:Interaction.Behaviors>
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsSelected" Value="True">
+                                                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.View>
+                                                                <GridView>
+                                                                    <GridView.ColumnHeaderContainerStyle>
+                                                                        <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                        </Style>
+                                                                    </GridView.ColumnHeaderContainerStyle>
+                                                                    <GridViewColumn Header="Frequency(MHz)" DisplayMemberBinding="{Binding PrescanFrequency, StringFormat='0.###'}" />
+                                                                    <GridViewColumn Header="Peak(px)" DisplayMemberBinding="{Binding PeakPosition, StringFormat='0.###'}" />
+                                                                    <GridViewColumn Header="Profiles">
+                                                                        <GridViewColumn.CellTemplate>
+                                                                            <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTOItem}">
+                                                                                <Grid>
+                                                                                    <ToggleButton x:Name="ToggleButtonPrescanAODWaveformProfiles"
+                                                                                                  Content="Profiles"
+                                                                                                  Margin="0,2"
+                                                                                                  HorizontalAlignment="Left"
+                                                                                                  hc:IconElement.Geometry="{StaticResource AllGeometry}" />
+                                                                                    <Popup Width="800"
+                                                                                           Height="800"
+                                                                                           StaysOpen="False"
+                                                                                           PlacementTarget="{Binding ElementName=ToggleButtonPrescanAODWaveformProfiles}"
+                                                                                           Placement="Right"
+                                                                                           AllowsTransparency="True"
+                                                                                           PopupAnimation="Slide"
+                                                                                           IsOpen="{Binding IsChecked, ElementName=ToggleButtonPrescanAODWaveformProfiles, Mode=TwoWay}">
+                                                                                        <Border Style="{StaticResource BorderRegion}">
+                                                                                            <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                                                                        </Border>
+                                                                                    </Popup>
+                                                                                </Grid>
+                                                                            </DataTemplate>
+                                                                        </GridViewColumn.CellTemplate>
+                                                                    </GridViewColumn>
+                                                                </GridView>
+                                                            </ListView.View>
+                                                        </ListView>
+                                                        <GridSplitter Grid.Row="1" Height="5" />
+                                                        <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                                            <TabControl>
+                                                                <TabItem Header="Plots">
+                                                                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                                                        <v2:PlotControl DataSource="{Binding PlotDataSource}" />
+                                                                    </Border>
+                                                                </TabItem>
+                                                                <TabItem Header="Images">
+                                                                    <ListBox Margin="5" ItemsSource="{Binding SelectedItems, ElementName=ChannelHistoryListView}">
+                                                                        <ListBox.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <WrapPanel Orientation="Horizontal" />
+                                                                            </ItemsPanelTemplate>
+                                                                        </ListBox.ItemsPanel>
+                                                                        <ListBox.ItemTemplate>
+                                                                            <DataTemplate DataType="{x:Type aodAlignment:AODAlignmentDTOItem}">
+                                                                                <Border Width="300"
+                                                                                        Height="300"
+                                                                                        Style="{StaticResource BorderRegion}">
+                                                                                    <hc:SimplePanel>
+                                                                                        <view:CanvasView AxisColor="Red"
+                                                                                                         BackgroundColor="#0A0A0A"
+                                                                                                         BackgroundImage="{Binding ImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}"
+                                                                                                         Interactive="True"
+                                                                                                         ShowAxes="True"
+                                                                                                         ShowCursor="False"
+                                                                                                         ShowGrid="False" />
+                                                                                        <TextBlock Text="{Binding PrescanFrequency, StringFormat='0.###'}"
+                                                                                                   HorizontalAlignment="Center"
+                                                                                                   VerticalAlignment="Top"
+                                                                                                   Foreground="Yellow" />
+                                                                                    </hc:SimplePanel>
+                                                                                </Border>
+                                                                            </DataTemplate>
+                                                                        </ListBox.ItemTemplate>
+                                                                    </ListBox>
+                                                                </TabItem>
+                                                            </TabControl>
+                                                        </Border>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </TabControl.ContentTemplate>
+                                        </TabControl>
+                                    </TabItem>
+                                    <TabItem Header="Prescan AOD Waveform">
+                                        <Grid Margin="5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding ProductivityInformation}"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockSubTitleBold}"
+                                                       Foreground="{StaticResource SuccessBrush}" />
+                                            <StackPanel Grid.Row="1">
+                                                <TextBox Text="{Binding PrescanAODWaveformResultFilePath, Mode=OneWay}"
+                                                         Height="50"
+                                                         TextWrapping="Wrap"
+                                                         Margin="0,2"
+                                                         hc:TitleElement.Title="Result File Path: "
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Style="{StaticResource TextBoxExtend}"
+                                                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                                            </StackPanel>
+                                            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                                                <ui:PrescanAODWaveformProfilesUserControl DataContext="{Binding PrescanAODWaveformProfiles}" />
+                                            </Border>
+                                        </Grid>
+                                    </TabItem>
+                                    <TabItem Header="Prescan Param">
+                                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                            <paramUI:GeneratePrescanAODWaveformParamUserControl Margin="5" DataContext="{Binding GeneratePrescanAODWaveformParam}" />
+                                        </ScrollViewer>
                                     </TabItem>
                                 </TabControl>
                             </DataTemplate>

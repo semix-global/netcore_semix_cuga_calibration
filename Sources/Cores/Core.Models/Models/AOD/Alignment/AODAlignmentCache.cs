@@ -15,7 +15,19 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial double Threshold { get; set; } = 0.999;
+    public partial double RSquaredThreshold { get; set; } = 0.999;
+
+    [ObservableProperty]
+    public partial int MinFitPoints { get; set; } = 3;
+
+    [ObservableProperty]
+    public partial int ExcludedEdgePixelCount { get; set; } = 3;
+
+    [ObservableProperty]
+    public partial double MaxSubpixelOffset { get; set; } = 0.5;
+    
+    [ObservableProperty]
+    public partial int DeltaPixels { get; set; }
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, AODAlignmentCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem> Items { get; init; } = [];
@@ -26,7 +38,11 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
     public override AODAlignmentCache Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        Threshold = Threshold,
+        RSquaredThreshold = RSquaredThreshold,
+        MinFitPoints = MinFitPoints,
+        ExcludedEdgePixelCount = ExcludedEdgePixelCount,
+        MaxSubpixelOffset = MaxSubpixelOffset,
+        DeltaPixels = DeltaPixels,
         Items = new ConcurrentDictionary<ProductivityInformation, AODAlignmentCacheItem>(Items.Select(x => new KeyValuePair<ProductivityInformation, AODAlignmentCacheItem>(x.Key.Clone(), x.Value.Clone()))),
         Id = Id,
         Expiration = Expiration
@@ -42,7 +58,11 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlig
     public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
+    [NotifyPropertyChangedFor(nameof(CIBInformationsText))]
+    public partial IReadOnlyList<CIBInformation> CIBInformations { get; set; } = [];
+
+    [Newtonsoft.Json.JsonIgnore]
+    public string CIBInformationsText => string.Join(", ", CIBInformations.OrderBy(t => t.ChannelId));
 
     [ObservableProperty]
     public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
@@ -63,19 +83,16 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlig
     public partial double StartPrescanFrequency { get; set; }
 
     [ObservableProperty]
-    public partial double StepPrescanFrequency { get; set; } = 10;
+    public partial double StepPrescanFrequency { get; set; } = 10d;
 
     [ObservableProperty]
     public partial double StopPrescanFrequency { get; set; }
-
-    [ObservableProperty]
-    public partial int RangeSkipFitCount { get; set; } = 1;
 
     public override AODAlignmentCacheItem Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         LaserLightInformation = LaserLightInformation.Clone(),
-        CIBInformation = CIBInformation.Clone(),
+        CIBInformations = [.. CIBInformations.Select(item => item.Clone())],
         OpticsConfiguration = OpticsConfiguration.Clone(),
         CIBConfiguration = CIBConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
@@ -84,7 +101,6 @@ public sealed partial class AODAlignmentCacheItem : CalibrationCacheBase<AODAlig
         StartPrescanFrequency = StartPrescanFrequency,
         StepPrescanFrequency = StepPrescanFrequency,
         StopPrescanFrequency = StopPrescanFrequency,
-        RangeSkipFitCount = RangeSkipFitCount,
         Id = Id,
         Expiration = Expiration
     };
