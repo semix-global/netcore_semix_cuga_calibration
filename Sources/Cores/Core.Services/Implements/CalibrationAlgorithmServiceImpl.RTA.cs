@@ -302,10 +302,11 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
                 for (var x = 0; x < xCount; x++)
                 {
-                    var averageX = errorX.Column(x).Average();
+                    var averageX = errorX.Column(x).Where(double.IsFinite).Average();
+                    var averageY = errorY.Column(x).Where(double.IsFinite).Average();
                     samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
                         isForward ? idealXMatrix[0, x] : rawImage.Height - 1d - idealXMatrix[0, x], // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
-                        new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, errorY.Column(x).Average()));
+                        new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, averageY));
                 }
 
                 return samples;
@@ -319,7 +320,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 var meanError = validErrors.Average();
                 Guard.IsTrue(double.IsFinite(meanError), "The mean grid error must be finite.");
 
-                return errorMatrix.Map(value => double.IsFinite(value) ? value - meanError : 0d, Zeros.Include);
+                return errorMatrix.Map(value => double.IsFinite(value) ? value - meanError : double.NaN, Zeros.Include);
             }
         }
         finally
@@ -345,7 +346,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
         {
             for (var column = 0; column < columnCount; column++)
             {
-                point3DMatrix[row, column] = new Point3D(idealXMatrix[row, column], idealYMatrix[row, column], errorMatrix[row, column]);
+                point3DMatrix[row, column] = new Point3D(idealXMatrix[row, column], idealYMatrix[row, column], double.IsFinite(errorMatrix[row, column]) ? errorMatrix[row, column] : 0d);
             }
         }
 

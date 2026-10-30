@@ -379,18 +379,18 @@ public sealed partial class FourierCenterChannelSpecularBlockerDTOItem : Observa
         Step0FourierImageFilePath,
         Step1FourierImageFilePath,
         ROIs = new HtmlTable([
-            new { Name = "X Reflection Push", XReflectionPushROI.ImageROI, XReflectionPushROI.AngleMotorAbsoluteValue, XReflectionPushROI.MotorAbsoluteValue, XReflectionPushROI.IsSelected },
-            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected }
+            new { Name = "Y Rod", YRodROI.ImageROI, YRodROI.AngleMotorAbsoluteValue, YRodROI.MotorAbsoluteValue, YRodROI.IsSelected },
+            new { Name = "X Reflection Push", XReflectionPushROI.ImageROI, XReflectionPushROI.AngleMotorAbsoluteValue, XReflectionPushROI.MotorAbsoluteValue, XReflectionPushROI.IsSelected }
         ]),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI),
-            new HtmlImageRectangleOverlay(YRodROI.ImageROI)
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
         ]),
         Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays:
         [
-            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI),
-            new HtmlImageRectangleOverlay(YRodROI.ImageROI)
+            new HtmlImageRectangleOverlay(YRodROI.ImageROI),
+            new HtmlImageRectangleOverlay(XReflectionPushROI.ImageROI)
         ])
     };
 
