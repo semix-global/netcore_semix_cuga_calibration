@@ -1,9 +1,8 @@
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.AODWaveform;
+using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
 using Local.SQL.Cache.Providers.Bases;
-using MathNet.Numerics.LinearAlgebra;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
@@ -11,8 +10,6 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
 using ScottPlot.MultiplotLayouts;
-using System.ComponentModel;
-using Range = ScottPlot.Range;
 
 namespace Core.Models.Models.AOD.Alignment;
 
@@ -23,56 +20,32 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    public partial IReadOnlyList<AODAlignmentDTOItem> Items { get; set; } = [];
+    public partial IReadOnlyList<AODAlignmentChannel> ChannelItems { get; set; } = [];
 
     [ObservableProperty]
     public partial double Slope { get; set; }
 
     [ObservableProperty]
     public partial double Intercept { get; set; }
-
-    [ObservableProperty]
-    public partial double RSquared { get; set; }
-
-    [ObservableProperty]
-    public partial IReadOnlyList<Point> FitAlignmentPoints { get; set; } = [];
-
-#pragma warning disable IDE0079
-#pragma warning disable CS0657
-
+    
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
 
-#pragma warning restore CS0657
-#pragma warning restore IDE0079
+    [ObservableProperty]
+    public partial GeneratePrescanAODWaveformParam GeneratePrescanAODWaveformParam { get; set; } = new();
 
+    [ObservableProperty]
+    public partial string PrescanAODWaveformResultFilePath { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
+    
     // ReSharper disable UnusedParameterInPartialMethod
-
-    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem> oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue)
-    {
-        foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
-
-        foreach (var item in newValue)
-        {
-            item.PropertyChanged -= ItemOnPropertyChanged;
-            item.PropertyChanged += ItemOnPropertyChanged;
-        }
-
-        RefreshPlot();
-
-        return;
-
-        void ItemOnPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshPlot();
-    }
-
+    
     partial void OnSlopeChanged(double value) => RefreshPlot();
 
     partial void OnInterceptChanged(double value) => RefreshPlot();
-
-    partial void OnRSquaredChanged(double value) => RefreshPlot();
-
-    partial void OnFitAlignmentPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
 
     // ReSharper restore UnusedParameterInPartialMethod
 
@@ -88,57 +61,77 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
     {
         try
         {
-            PlotDataSource.Clear(0);
-            PlotDataSource.Clear(1);
+            var channels = ChannelItems.OrderBy(channel => channel.CIBInformation.ChannelId).ToArray();
+            var projectionCount = channels.Sum(channel => channel.Items.Count(item => item.ImageHorizontalProjects.Length > 0));
+            var alignmentCount = channels.Sum(channel => (HasAlignmentPoints(channel) ? 1 : 0) + (channel.FitAlignmentPoints.Count > 0 ? 1 : 0));
 
-            var isNeedRefreshes = new bool[Items.Count];
+            var projectionLines = PlotDataSource.GetOrAddScatterLines(0, projectionCount);
+            var alignmentLines = PlotDataSource.GetOrAddScatterLines(1, alignmentCount);
 
-            foreach (var (index, item) in Items.Index())
+            var projectionIndex = 0;
+            var alignmentIndex = 0;
+            foreach (var (channelIndex, channel) in channels.Index())
             {
-                if (item.ImageHorizontalProjects.Count <= 0) continue;
+                foreach (var item in channel.Items.OrderBy(item => item.PrescanFrequency))
+                {
+                    if (item.ImageHorizontalProjects.Length <= 0) continue;
 
-                PlotDataSource.GetOrAddScatterLine(
-                    0,
-                    $"{item.PrescanFrequency:0.###}(MHz)",
-                    [.. item.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item))],
-                    index,
-                    new Range(0, Items.Count - 1));
+                    projectionLines.ElementAtOrDefault(projectionIndex)?.Update(
+                        $"{channel.CIBInformation} {item.PrescanFrequency:0.###}(MHz)",
+                        item.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item)).ToArray(),
+                        Constants.Category10.GetColor(channelIndex));
+                    projectionIndex++;
+                }
 
-                item.ProjectMaxPixel = Vector<double>.Build.DenseOfEnumerable(item.ImageHorizontalProjects).MaximumIndex();
+                var alignmentPoints = channel.Items
+                    .OrderBy(item => item.PrescanFrequency)
+                    .Select(item => item.PeakPosition is { } peak && double.IsFinite(peak)
+                        ? new Point(item.PrescanFrequency, peak)
+                        : item.PeakInteger is { } pixel
+                            ? new Point(item.PrescanFrequency, pixel)
+                            : (Point?)null)
+                    .Where(point => point.HasValue)
+                    .Select(point => point!.Value)
+                    .ToArray();
 
-                isNeedRefreshes[index] = true;
+                if (alignmentPoints.Length > 0)
+                {
+                    alignmentLines.ElementAtOrDefault(alignmentIndex)?.Update(
+                        $"{channel.CIBInformation}",
+                        alignmentPoints,
+                        Constants.Category10.GetColor(channelIndex));
+                    alignmentIndex++;
+                }
+
+                if (channel.FitAlignmentPoints.Count > 0)
+                {
+                    alignmentLines.ElementAtOrDefault(alignmentIndex)?.Update(
+                        $"{channel.CIBInformation} Fit: y = {channel.Slope:0.######}x + {channel.Intercept:0.######} r^2 = {channel.RSquared:0.######}",
+                        channel.FitAlignmentPoints.ToArray(),
+                        Constants.Category10.GetColor(channelIndex));
+                    alignmentIndex++;
+                }
             }
-
-            if (isNeedRefreshes.All(b => b))
-            {
-                PlotDataSource.GetOrAddScatterLine(
-                    1,
-                    "Alignment",
-                    [.. Items.Select(t => new Point(t.PrescanFrequency, Guard.IsNotNullAndReturn(t.ProjectMaxPixel)))],
-                    Constants.Category10.GetColor(0));
-            }
-
-            if (FitAlignmentPoints.Count > 0)
-                PlotDataSource.GetOrAddScatterLine(
-                    1,
-                    $"Fit Curve: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}",
-                    FitAlignmentPoints,
-                    Constants.Category10.GetColor(1));
         }
         finally
         {
             PlotDataSource.AutoScaleRefresh();
         }
+
+        return;
+
+        static bool HasAlignmentPoints(AODAlignmentChannel channel) => channel.Items.Any(item => item.PeakPosition is { } peak && double.IsFinite(peak) || item.PeakInteger is not null);
     }
 
     public override AODAlignmentDTO Clone() => new()
     {
         ProductivityInformation = ProductivityInformation.Clone(),
-        Items = [.. Items.Select(x => x.Clone())],
+        ChannelItems = [.. ChannelItems.Select(x => x.Clone())],
         Slope = Slope,
         Intercept = Intercept,
-        RSquared = RSquared,
-        FitAlignmentPoints = [.. FitAlignmentPoints],
+        GeneratePrescanAODWaveformParam = GeneratePrescanAODWaveformParam.Clone(),
+        PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
+        PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,
@@ -159,10 +152,16 @@ public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<A
     public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
 
     [ObservableProperty]
-    public partial IReadOnlyList<double> ImageHorizontalProjects { get; set; } = [];
+    public partial double[] ImageHorizontalProjects { get; set; } = [];
 
     [ObservableProperty]
-    public partial int? ProjectMaxPixel { get; set; }
+    public partial int? PeakInteger { get; set; }
+
+    [ObservableProperty]
+    public partial double? PeakPosition { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsPeakValid { get; set; }
 
     [ObservableProperty]
     public partial string RawImageFilePath { get; set; } = string.Empty;
@@ -176,8 +175,156 @@ public sealed partial class AODAlignmentDTOItem : ObservableObject, ICloneable<A
         PrescanAODWaveformResultFilePath = PrescanAODWaveformResultFilePath,
         PrescanAODWaveformProfiles = [.. PrescanAODWaveformProfiles.Select(t => t.Clone())],
         ImageHorizontalProjects = [.. ImageHorizontalProjects],
-        ProjectMaxPixel = ProjectMaxPixel,
+        PeakInteger = PeakInteger,
+        PeakPosition = PeakPosition,
+        IsPeakValid = IsPeakValid,
         RawImageFilePath = RawImageFilePath,
         ImageFilePath = ImageFilePath
+    };
+}
+
+public sealed partial class AODAlignmentChannel : ObservableObject, ICloneable<AODAlignmentChannel>
+{
+    [ObservableProperty]
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
+
+    [ObservableProperty]
+    public partial IReadOnlyList<AODAlignmentDTOItem> Items { get; set; } = [];
+
+    [ObservableProperty]
+    public partial double Slope { get; set; }
+
+    [ObservableProperty]
+    public partial double Intercept { get; set; }
+
+    [ObservableProperty]
+    public partial double RSquared { get; set; }
+
+    [ObservableProperty]
+    public partial IReadOnlyList<Point> FitAlignmentPoints { get; set; } = [];
+
+    [ObservableProperty]
+    public partial int LeftRemovedCount { get; set; }
+
+    [ObservableProperty]
+    public partial int RightRemovedCount { get; set; }
+
+    [ObservableProperty]
+    public partial int KeptPointCount { get; set; }
+
+    [ObservableProperty]
+    public partial double FitStartFrequency { get; set; }
+
+    [ObservableProperty]
+    public partial double FitStopFrequency { get; set; }
+
+    [ObservableProperty]
+    public partial string FitStatus { get; set; } = string.Empty;
+
+#pragma warning disable IDE0079
+#pragma warning disable CS0657
+
+    [ObservableProperty]
+    [Newtonsoft.Json.JsonIgnore]
+    public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
+
+#pragma warning restore CS0657
+#pragma warning restore IDE0079
+
+    // ReSharper disable UnusedParameterInPartialMethod
+
+    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem> oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue)=> RefreshPlot();
+
+    partial void OnSlopeChanged(double value) => RefreshPlot();
+
+    partial void OnInterceptChanged(double value) => RefreshPlot();
+
+    partial void OnRSquaredChanged(double value) => RefreshPlot();
+
+    partial void OnFitAlignmentPointsChanged(IReadOnlyList<Point> value) => RefreshPlot();
+
+    // ReSharper restore UnusedParameterInPartialMethod
+
+    public AODAlignmentChannel()
+    {
+        PlotDataSource.Configure(new Columns(), 2);
+
+        PlotDataSource.SetTitle(0, "Projection Y(Y: PMT Value - X: px)");
+        PlotDataSource.SetTitle(1, "Alignment(Y: px - X: MHz)");
+    }
+
+    private void RefreshPlot()
+    {
+        try
+        {
+            var items = Items.OrderBy(item => item.PrescanFrequency).ToArray();
+            var projectionCount = items.Count(item => item.ImageHorizontalProjects.Length > 0);
+            var alignmentPoints = items
+                .Select(item => item.PeakPosition is { } peak && double.IsFinite(peak)
+                    ? new Point(item.PrescanFrequency, peak)
+                    : item.PeakInteger is { } pixel
+                        ? new Point(item.PrescanFrequency, pixel)
+                        : (Point?)null)
+                .Where(point => point.HasValue)
+                .Select(point => point!.Value)
+                .ToArray();
+            var alignmentCount = (alignmentPoints.Length > 0 ? 1 : 0) + (FitAlignmentPoints.Count > 0 ? 1 : 0);
+
+            var projectionLines = PlotDataSource.GetOrAddScatterLines(0, projectionCount);
+            var alignmentLines = PlotDataSource.GetOrAddScatterLines(1, alignmentCount);
+
+            var projectionIndex = 0;
+            foreach (var (index, item) in items.Index())
+            {
+                if (item.ImageHorizontalProjects.Length <= 0) continue;
+
+                projectionLines.ElementAtOrDefault(projectionIndex)?.Update(
+                    $"{item.PrescanFrequency:0.###}(MHz)",
+                    item.ImageHorizontalProjects.Index().Select(t => new Point(t.Index, t.Item)).ToArray(),
+                    Constants.Category10.GetColor(index));
+                projectionIndex++;
+            }
+
+            var alignmentIndex = 0;
+            if (alignmentPoints.Length > 0)
+            {
+                alignmentLines.ElementAtOrDefault(alignmentIndex)?.Update(
+                    $"{CIBInformation}",
+                    alignmentPoints,
+                    Constants.Category10.GetColor(0));
+                alignmentIndex++;
+            }
+
+            if (FitAlignmentPoints.Count > 0)
+            {
+                PlotDataSource.SetTitle(0, $"CH{CIBInformation.ChannelId}Projection Y(Y: PMT Value - X: px)");
+                PlotDataSource.SetTitle(1, $"CH{CIBInformation.ChannelId}Alignment(Y: px - X: MHz)");
+
+                alignmentLines.ElementAtOrDefault(alignmentIndex)?.Update(
+                    $"Fit: y = {Slope:0.######}x + {Intercept:0.######} r^2 = {RSquared:0.######}",
+                    FitAlignmentPoints.ToArray(),
+                    Constants.Category10.GetColor(1));
+            }
+        }
+        finally
+        {
+            PlotDataSource.AutoScaleRefresh();
+        }
+    }
+
+    public AODAlignmentChannel Clone() => new()
+    {
+        CIBInformation = CIBInformation.Clone(),
+        Items = [.. Items.Select(item => item.Clone())],
+        Slope = Slope,
+        Intercept = Intercept,
+        RSquared = RSquared,
+        FitAlignmentPoints = [.. FitAlignmentPoints],
+        LeftRemovedCount = LeftRemovedCount,
+        RightRemovedCount = RightRemovedCount,
+        KeptPointCount = KeptPointCount,
+        FitStartFrequency = FitStartFrequency,
+        FitStopFrequency = FitStopFrequency,
+        FitStatus = FitStatus
     };
 }

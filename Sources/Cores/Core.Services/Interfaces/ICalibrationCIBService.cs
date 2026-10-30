@@ -137,6 +137,12 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetXPixelSize(ProductivityInformation productivityInformation, double xPixelSize);
 
     /// <summary>
+    /// 获取相机采样频率
+    /// </summary>
+    /// <returns>Y方向采样频率</returns>
+    SxExecuteRet<double> GetYSamplingRate();
+
+    /// <summary>
     /// 获取Gain实测关系
     /// </summary>
     /// <param name="cibInformations">CIB列表</param>

@@ -161,6 +161,13 @@ public sealed class CIBViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public double GetYSamplingRate()
+    {
+        var ret = calibrationCIBService.GetYSamplingRate();
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     #region 采图
 
     public void SetGlobalRTFCParams(ProductivityInformation productivityInformation)

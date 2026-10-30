@@ -147,6 +147,15 @@ public sealed class CalibrationCIBServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    public SxExecuteRet<double> GetYSamplingRate()
+    {
+        var ret = Invoke(() => Service?.GetYSamplingRate());
+
+        return ret.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(ret.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(ret.Anything);
+    }
+    
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
     {
         var timestamp = Stopwatch.GetTimestamp();
