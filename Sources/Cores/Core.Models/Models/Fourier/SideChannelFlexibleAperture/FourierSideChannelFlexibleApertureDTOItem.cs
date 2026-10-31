@@ -199,13 +199,11 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                 rodResult.MinImageROI = new Rect(
                         step2Rod.ImageROI.Point,
                         new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
+                    .ImageCoordinateRound();
                 rodResult.MaxImageROI = new Rect(
                         step2Rod.ImageROI.Point,
                         new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
+                    .ImageCoordinateRound();
                 rodResult.PixelSize = pixelSize;
             }
         }
