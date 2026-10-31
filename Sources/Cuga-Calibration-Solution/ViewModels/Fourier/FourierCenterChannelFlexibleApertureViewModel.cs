@@ -591,23 +591,11 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
         {
             if (HostEnvironment.IsDevelopment())
             {
-                var simulatorImageName = item.CenterChannelMotionKindEnum switch
-                {
-                    CenterChannelMotionKindEnum.XAperture => nameof(CenterChannelMotionKindEnum.XAperture),
-                    CenterChannelMotionKindEnum.XCalibrationPattern => nameof(CenterChannelMotionKindEnum.XCalibrationPattern),
-                    CenterChannelMotionKindEnum.XRod when ReferenceEquals(item, CalibratingItem.XOriginItem) => "XOrigin",
-                    CenterChannelMotionKindEnum.XRod => $"XRod_{Array.IndexOf(CalibratingItem.XRodItems, item)}",
-                    CenterChannelMotionKindEnum.XDiffractionPush => nameof(CenterChannelMotionKindEnum.XDiffractionPush),
-                    CenterChannelMotionKindEnum.XReflectionCoarsePush => nameof(CenterChannelMotionKindEnum.XReflectionCoarsePush),
-                    CenterChannelMotionKindEnum.XReflectionFinePush => nameof(CenterChannelMotionKindEnum.XReflectionFinePush),
-                    CenterChannelMotionKindEnum.YRod => $"YRod_{Array.IndexOf(CalibratingItem.YRodItems, item)}",
-                    _ => ThrowHelper.ThrowArgumentOutOfRangeException<string>(nameof(item.CenterChannelMotionKindEnum))
-                };
                 FourierViewModel.UseSimulatorImage(Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
                     @"Assets\Data\Fourier",
                     nameof(FourierCenterChannelFlexibleApertureViewModel),
-                    $"Channel3_{simulatorImageName}_Step{stepIndex}.jpg"));
+                    $"Channel3_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_Step{stepIndex}.jpg"));
             }
 
             using var bitmapImage = FourierViewModel.GetImage(
