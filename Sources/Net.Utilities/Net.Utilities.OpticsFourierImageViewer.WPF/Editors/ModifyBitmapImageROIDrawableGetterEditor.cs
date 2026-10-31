@@ -68,7 +68,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
         {
-            var rect = bitmapImageROIDrawable.Rect.ImageCoordinateRound();
+            var rect = bitmapImageROIDrawable.Rect.CartesianCoordinateRound();
             if (Options.IsOutsideImageAllowed)
             {
                 // 保留取整后的尺寸, 仅将完全脱离图片的ROI平移到最近的接触位置.
@@ -98,7 +98,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         if (_isCursorDown == false) return;
 
-        var currentMousePoint = point.ImageCoordinateRound();
+        var currentMousePoint = point.CartesianCoordinateRound();
 
         if (_selectionWindow is not null)
         {
@@ -118,7 +118,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         _lastCursorTypeEnum = Edit.Document.View.CanvasControl?.CursorTypeEnum;
 
-        var point = eventInputArgs.Event.Point.ImageCoordinateRound();
+        var point = eventInputArgs.Event.Point.CartesianCoordinateRound();
 
         _lastMousePoint = point;
         _isCursorDown = true;
@@ -208,7 +208,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         if (_selectionWindow is not null)
         {
-            _selectionWindow.EndPoint = eventInputArgs.Event.Point.ImageCoordinateRound();
+            _selectionWindow.EndPoint = eventInputArgs.Event.Point.CartesianCoordinateRound();
             CompleteSelection(eventInputArgs.Event.ModifierKeysEnum.IsPressed(ModifierKeysEnum.Control));
         }
 
@@ -660,7 +660,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
 
         foreach (var (bitmapImageROIDrawable, originalState) in _edits)
         {
-            var modifiedRect = (originalState.Rect + constrainedDelta).ImageCoordinateRound();
+            var modifiedRect = (originalState.Rect + constrainedDelta).CartesianCoordinateRound();
             bitmapImageROIDrawable.Rect = Options.IsOutsideImageAllowed ? modifiedRect : modifiedRect.ClampToBounds(imageRect);
             bitmapImageROIDrawable.IsEditorModified = _originalDictionary[bitmapImageROIDrawable] != ROIState.From(bitmapImageROIDrawable);
         }
@@ -745,7 +745,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                 _ => ThrowHelper.ThrowArgumentOutOfRangeException<Rect>(nameof(_resizeJoystickStateEnum))
             };
 
-            modifiedRect = modifiedRect.ImageCoordinateRound();
+            modifiedRect = modifiedRect.CartesianCoordinateRound();
             if (Options.IsOutsideImageAllowed == false) modifiedRect = modifiedRect.ClampToBounds(imageRect);
 
             if (Options.IsAspectRatioFixed && originalRect is { Width: > 0d, Height: > 0d })
@@ -796,7 +796,7 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
                     _ => ThrowHelper.ThrowArgumentOutOfRangeException<Point>(nameof(_resizeJoystickStateEnum))
                 };
 
-                modifiedRect = new Rect(point, new Size(width, height)).ImageCoordinateRound();
+                modifiedRect = new Rect(point, new Size(width, height)).CartesianCoordinateRound();
                 if (Options.IsOutsideImageAllowed == false) modifiedRect = modifiedRect.ClampToBounds(imageRect); // 取整和夹取可能会有每边 ±1px
             }
 
