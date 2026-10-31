@@ -196,7 +196,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     break;
 
                 case CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush:
-                    var width = _step0BitmapImageDrawable.BitmapImage.Width / 4;
+                    var width = _step0BitmapImageDrawable.BitmapImage.Width / 4d;
                     Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
 
                     break;

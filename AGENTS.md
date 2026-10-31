@@ -71,6 +71,7 @@
 - 使用 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth="190"`, `IsReadOnly="True"`, `SecondaryRegionBrush` 背景和 `TextBoxExtend` 样式.
 - 同一条绑定同时包含 `Mode` 和 `Converter` 时, `Mode` 写在 `Converter` 前面, 例如 `Mode=OneWay, Converter={StaticResource RectToStringConverter}`.
 - 普通只读信息默认不设置 `TextWrapping="Wrap"`, 参考以下写法.
+- 由命令写入的机器位置文本框不适用本规则, 见下一节.
 
 ```xml
 <TextBox Text="{Binding Value, Mode=OneWay}"
@@ -79,6 +80,22 @@
          hc:TitleElement.TitleWidth="190"
          IsReadOnly="True"
          Background="{StaticResource SecondaryRegionBrush}"
+         Style="{StaticResource TextBoxExtend}" />
+```
+
+### 机器位置 TextBox
+
+- Haze, Shiny 等由按钮或命令写入的机器位置属于参数, 不是只读结果.
+- 不要套用只读 TextBox 样式. 不要写 `Mode`, `IsReadOnly` 和 `SecondaryRegionBrush`.
+- `TextBox` 的 `Text` 默认是 `TwoWay`. 位置由命令回写时沿用默认双向绑定, 绑定里可以只写 `Converter`.
+- 保留 `hc:TitleElement.Title`, `TitlePlacement="Left"`, `TitleWidth` 和 `TextBoxExtend`. 标题较长时保留已有的较宽 `TitleWidth`, 例如 Shiny 使用 `230`, 不要为了对齐只读规则改成 `190`.
+- 标题和绑定路径按实际页面调整, 参考以下写法.
+
+```xml
+<TextBox Text="{Binding Cache.HazeFindBFMachinePosition, Converter={StaticResource PointToStringConverter}}"
+         hc:TitleElement.Title="Haze BF Machine Position(um): "
+         hc:TitleElement.TitlePlacement="Left"
+         hc:TitleElement.TitleWidth="190"
          Style="{StaticResource TextBoxExtend}" />
 ```
 
