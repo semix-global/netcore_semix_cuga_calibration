@@ -20,3 +20,6 @@
 | Chuck | Chuck-GlobalScaleError | [Chuck Global Scale Error 校准方案](Chuck/Chuck-GlobalScaleError/校准方案.md) | [Chuck Global Scale Error 验收](Chuck/Chuck-GlobalScaleError/验收.md) |
 | Chuck | Chuck-ChuckCenterAndTheta | [Chuck Center And Theta 校准方案](Chuck/Chuck-ChuckCenterAndTheta/校准方案.md) | [Chuck Center And Theta 验收](Chuck/Chuck-ChuckCenterAndTheta/验收.md) |
 | Chuck | Chuck-PrealignerToStage | [Chuck Prealigner To Stage 校准方案](Chuck/Chuck-PrealignerToStage/校准方案.md) | [Chuck Prealigner To Stage 验收](Chuck/Chuck-PrealignerToStage/验收.md) |
+| CIB | CIB-LineCentricity | [CIB Line Centricity 校准方案](CIB/CIB-LineCentricity/校准方案.md) | [CIB Line Centricity 验收](CIB/CIB-LineCentricity/验收.md) |
+| CIB | CIB-XPixelSize | [CIB X PixelSize 校准方案](CIB/CIB-XPixelSize/校准方案.md) | [CIB X PixelSize 验收](CIB/CIB-XPixelSize/验收.md) |
+| CIB | CIB-YPixelSize | [CIB Y PixelSize 校准方案](CIB/CIB-YPixelSize/校准方案.md) | [CIB Y PixelSize 验收](CIB/CIB-YPixelSize/验收.md) |
