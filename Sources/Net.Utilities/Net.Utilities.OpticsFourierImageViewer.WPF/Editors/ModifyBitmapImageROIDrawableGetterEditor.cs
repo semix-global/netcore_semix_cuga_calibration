@@ -61,10 +61,8 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
         }
 
         var opticsFourierImageDocument = Guard.IsAssignableToTypeAndReturn<OpticsFourierImageDocument>(Edit.Document);
-        var imageRect = Options.GetImageRect();
 
         var builder = ImmutableDictionary.CreateBuilder<BitmapImageROIDrawable, ROIState>();
-
         foreach (var bitmapImageROIDrawable in opticsFourierImageDocument.ROIModel
                      .Where(t => ReferenceEquals(t.BitmapImageDrawable, Options.BitmapImageDrawable) && t.Layer.IsVisible && t is { IsVisible: true, IsFixed: false }))
         {
@@ -73,10 +71,10 @@ public sealed class ModifyBitmapImageROIDrawableGetterEditor(
             {
                 // 保留取整后的尺寸, 仅将完全脱离图片的ROI平移到最近的接触位置.
                 rect += new Vector(
-                    Math.Clamp(0d, Math.Ceiling(imageRect.XMin - rect.XMax), Math.Floor(imageRect.XMax - rect.XMin)),
-                    Math.Clamp(0d, Math.Ceiling(imageRect.YMin - rect.YMax), Math.Floor(imageRect.YMax - rect.YMin)));
+                    Math.Clamp(0d, Math.Ceiling(Options.GetImageRect().XMin - rect.XMax), Math.Floor(Options.GetImageRect().XMax - rect.XMin)),
+                    Math.Clamp(0d, Math.Ceiling(Options.GetImageRect().YMin - rect.YMax), Math.Floor(Options.GetImageRect().YMax - rect.YMin)));
             }
-            else rect = rect.ClampToBounds(imageRect);
+            else rect = rect.ClampToBounds(Options.GetImageRect());
 
             bitmapImageROIDrawable.Rect = rect;
             bitmapImageROIDrawable.IsEditorModified = false;
