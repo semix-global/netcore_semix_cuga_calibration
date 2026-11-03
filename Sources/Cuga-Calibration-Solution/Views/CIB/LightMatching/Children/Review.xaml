@@ -58,7 +58,6 @@
                         <hc:NumericUpDown hc:TitleElement.Title="Threshold(Log): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
-                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.HazeThreshold}" />
                         <TextBox Text="{Binding Cache.ReviewHazeThreshold, Mode=OneWay, StringFormat='0.###'}"
@@ -86,7 +85,6 @@
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="200"
                                           Minimum="0"
-                                          Maximum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.SilicaSphereThreshold}" />
                         <TextBox Text="{Binding Cache.ReviewSilicaSphereThreshold, Mode=OneWay, StringFormat='0.###'}"

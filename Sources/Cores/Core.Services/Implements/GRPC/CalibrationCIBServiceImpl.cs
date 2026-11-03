@@ -88,6 +88,11 @@ public sealed class CalibrationCIBServiceImpl : BaseService<ICgDiagIlluminationO
         throw new NotImplementedException();
     }
 
+    public SxExecuteRet<bool> SetLightMatchings(IReadOnlyList<(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactor)> cibInformationDigitalGainPlusMultiplicativeFactors)
+    {
+        throw new NotImplementedException();
+    }
+
     public SxExecuteRet<bool> SetIlluminationProfile(IReadOnlyList<CIBInformation> cibInformations, IReadOnlyList<double> illuminationProfiles)
     {
         throw new NotImplementedException();

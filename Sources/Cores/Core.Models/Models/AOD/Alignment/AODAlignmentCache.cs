@@ -25,7 +25,7 @@ public sealed partial class AODAlignmentCache : CalibrationCacheBase<AODAlignmen
 
     [ObservableProperty]
     public partial double MaxSubpixelOffset { get; set; } = 0.5;
-    
+
     [ObservableProperty]
     public partial int DeltaPixels { get; set; }
 

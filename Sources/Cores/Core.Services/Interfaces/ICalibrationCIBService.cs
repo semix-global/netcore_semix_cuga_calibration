@@ -99,12 +99,19 @@ public interface ICalibrationCIBService
     SxExecuteRet<bool> SetMMD(CIBInformation cibInformation, IReadOnlyList<double> logGainMul128U12Bits, IReadOnlyList<double> gainS16Bits);
 
     /// <summary>
-    /// 设置LightMatching
+    /// 设置LightMatching（群发相同的系数）
     /// </summary>
     /// <param name="cibInformations">CIB列表</param>
-    /// <param name="digitalGainPlusMultiplicativeFactors">数码增益+缩放系数</param>
+    /// <param name="digitalGainPlusMultiplicativeFactor">数码增益+缩放系数</param>
     /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors);
+    SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactor);
+
+    /// <summary>
+    /// 设置LightMatching
+    /// </summary>
+    /// <param name="cibInformationDigitalGainPlusMultiplicativeFactors">数码增益+缩放系数列表</param>
+    /// <returns>是否成功</returns>
+    SxExecuteRet<bool> SetLightMatchings(IReadOnlyList<(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactor)> cibInformationDigitalGainPlusMultiplicativeFactors);
 
     /// <summary>
     /// 设置照明文件

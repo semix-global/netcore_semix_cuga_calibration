@@ -34,6 +34,13 @@ public sealed partial class CIBDelayDTO : ObservableObject, ICloneable<CIBDelayD
         return this;
     }
 
+    public CIBDelayDTO WithAGCDelayByPMTDelayOffset(double offset)
+    {
+        AGCDelay = PMTDelay - offset;
+
+        return this;
+    }
+
     #region Mapper
 
     public CIBDelayDTO Clone() => new()

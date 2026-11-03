@@ -16,7 +16,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
     public partial int CalibratingRetryTimes { get; set; } = 5;
 
     [ObservableProperty]
-    public partial double CalibratingThreshold { get; set; } = 1;
+    public partial double Threshold { get; set; } = 1;
 
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 2;
@@ -31,7 +31,7 @@ public sealed partial class CIBAGCDelayCache : CalibrationCacheBase<CIBAGCDelayC
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         CalibratingRetryTimes = CalibratingRetryTimes,
-        CalibratingThreshold = CalibratingThreshold,
+        Threshold = Threshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBAGCDelayCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBAGCDelayCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         Id = Id,

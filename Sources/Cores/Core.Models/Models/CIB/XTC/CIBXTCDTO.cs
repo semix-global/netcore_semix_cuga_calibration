@@ -200,6 +200,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
 
             scatterPlotControl.Clear(0);
             scatterPlotControl.Clear(1);
+            scatterPlotControl.Clear(4);
 
             try
             {
@@ -246,6 +247,38 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
                                 itemItemData.HorizontalProjectMinPixel,
                                 color).IsVisible = i == count - 1;
                         }
+
+                        foreach (var channelItems in itemItems.GroupBy(t => t.CIBInformation.ChannelId))
+                        {
+                            foreach (var items in channelItems.Select(t => t.Items))
+                            {
+                                scatterPlotControl.GetOrAddScatterLine(
+                                   3,
+                                   $"Channel{channelItems.Key}",
+                                   [.. items.Select((t, i) => new Point(i, t.HorizontalProjectMinPixel))],
+                                   Constants.Category10.GetColor(channelItems.Key));
+                            }
+                        }
+
+
+                    }
+
+                    // 每个Channel一条折线,记录该Channel各轮次的Offset(Error)收敛过程
+                    var channelGroups = itemItems
+                        .GroupBy(t => t.CIBInformation.ChannelId)
+                        .OrderBy(t => t.Key)
+                        .ToArray();
+
+                    for (var i = 0; i < channelGroups.Length; i++)
+                    {
+                        var channelGroup = channelGroups[i];
+                        var color = Constants.Turbo.GetColor(i, new Range(0, channelGroups.Length - 1));
+
+                        scatterPlotControl.GetOrAddScatterLine(
+                            4,
+                            $"{nameof(CIBInformation.ChannelId)}({channelGroup.Key}) Offset",
+                            [.. channelGroup.SelectMany(t => t.Items.Select((item, timesIndex) => new Point(timesIndex, item.Error)))],
+                            color);
                     }
                 }
 
@@ -254,6 +287,7 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
                     "Result",
                     [.. itemItems.Select(t => new Point(t.CIBInformation.ChannelId, t.Delay))],
                     Colors.Red);
+
             }
             finally
             {
@@ -266,13 +300,16 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
     {
         var plotDataSource = new PlotDataSource();
 
-        plotDataSource.Configure(new Rows(), 3);
+        plotDataSource.Configure(new Rows(), 5);
 
         plotDataSource.SetTitle(0, "Window(Y: Coefficient - X: sa)");
         plotDataSource.SetTitle(1, "Horizontal Projects(Y: PMT Value(Log) - X: px)");
         plotDataSource.SetTitle(2, "Result(Y: Delay - X: Channel Id)");
+        plotDataSource.SetTitle(3, "Details(Y: HorizontalProjectMinPixel - X: times)");
+        plotDataSource.SetTitle(4, "Offset(Y: Error - X: Times)");
         plotDataSource.ToggleInvisibleLegendItem(0, false);
         plotDataSource.ToggleInvisibleLegendItem(1, false);
+        plotDataSource.ToggleInvisibleLegendItem(4, false);
 
         return plotDataSource;
     }
@@ -318,6 +355,9 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
     [ObservableProperty]
     public partial double Delay { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsOK { get; set; }
+
     partial void OnItemsChanged(IReadOnlyList<Item> oldValue, IReadOnlyList<Item> newValue)
     {
         foreach (var item in oldValue) item.PropertyChanged -= ItemOnPropertyChanged;
@@ -341,7 +381,8 @@ public sealed partial class CIBXTCDTOItem : ObservableObject, ICloneable<CIBXTCD
     {
         CIBInformation = CIBInformation.Clone(),
         Items = [.. Items.Select(t => t.Clone())],
-        Delay = Delay
+        Delay = Delay,
+        IsOK = IsOK
     };
 
     public CalibrationLaserCIBXTCItem.Item AdaptTo() => new()
