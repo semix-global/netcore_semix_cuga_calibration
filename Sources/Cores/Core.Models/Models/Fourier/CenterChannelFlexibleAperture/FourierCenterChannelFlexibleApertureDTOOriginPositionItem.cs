@@ -199,7 +199,7 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOOriginPositio
         XOrigin = new HtmlQuote(new
         {
             XOriginROI.ImageROI,
-            XOriginROI.MotorAbsoluteValue,
+            XOriginROI.MotorAbsoluteValue
         }),
         Step0FourierImage = new HtmlImage(Step0FourierImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(XOriginROI.ImageROI)]),
         Step1FourierImage = new HtmlImage(Step1FourierImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(XOriginROI.ImageROI)])
