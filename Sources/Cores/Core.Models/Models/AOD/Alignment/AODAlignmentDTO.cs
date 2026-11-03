@@ -27,7 +27,7 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
     [ObservableProperty]
     public partial double Intercept { get; set; }
-    
+
     [ObservableProperty]
     [Newtonsoft.Json.JsonIgnore]
     public partial IPlotDataSource PlotDataSource { get; set; } = new PlotDataSource();
@@ -40,9 +40,9 @@ public sealed partial class AODAlignmentDTO : CalibrationDTOBase<AODAlignmentDTO
 
     [ObservableProperty]
     public partial IReadOnlyList<PrescanAODWaveformProfile> PrescanAODWaveformProfiles { get; set; } = [];
-    
+
     // ReSharper disable UnusedParameterInPartialMethod
-    
+
     partial void OnSlopeChanged(double value) => RefreshPlot();
 
     partial void OnInterceptChanged(double value) => RefreshPlot();
@@ -233,7 +233,7 @@ public sealed partial class AODAlignmentChannel : ObservableObject, ICloneable<A
 
     // ReSharper disable UnusedParameterInPartialMethod
 
-    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem> oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue)=> RefreshPlot();
+    partial void OnItemsChanged(IReadOnlyList<AODAlignmentDTOItem> oldValue, IReadOnlyList<AODAlignmentDTOItem> newValue) => RefreshPlot();
 
     partial void OnSlopeChanged(double value) => RefreshPlot();
 

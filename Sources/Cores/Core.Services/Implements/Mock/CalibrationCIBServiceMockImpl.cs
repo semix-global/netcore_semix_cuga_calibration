@@ -130,7 +130,14 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors)
+    public SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactor)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetLightMatchings(IReadOnlyList<(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactor)> cibInformationDigitalGainPlusMultiplicativeFactors)
     {
         Thread.Sleep(100);
 

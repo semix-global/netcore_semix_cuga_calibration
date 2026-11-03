@@ -16,7 +16,7 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
     public partial int CalibratingRetryTimes { get; set; } = 5;
 
     [ObservableProperty]
-    public partial double CalibratingThreshold { get; set; } = 1;
+    public partial double Threshold { get; set; } = 1;
 
     [ObservableProperty]
     public partial double ReviewThreshold { get; set; } = 1;
@@ -31,7 +31,7 @@ public sealed partial class CIBXTCCache : CalibrationCacheBase<CIBXTCCache>
     {
         ProductivityInformation = ProductivityInformation.Clone(),
         CalibratingRetryTimes = CalibratingRetryTimes,
-        CalibratingThreshold = CalibratingThreshold,
+        Threshold = Threshold,
         ReviewThreshold = ReviewThreshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBXTCCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBXTCCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         Id = Id,

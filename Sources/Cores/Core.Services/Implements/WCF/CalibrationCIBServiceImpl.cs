@@ -98,9 +98,29 @@ public sealed class CalibrationCIBServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(true);
     }
 
-    public SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactors)
+    public SxExecuteRet<bool> SetLightMatching(IReadOnlyList<CIBInformation> cibInformations, double digitalGainPlusMultiplicativeFactor)
     {
-        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.Digital_Gain_Multiplicative_Factors, [.. cibInformations.Select(t => (Convert.ToInt32(digitalGainPlusMultiplicativeFactors), t.PMTId, t.ChannelId))]));
+        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.Digital_Gain_Multiplicative_Factors, [.. cibInformations.Select(t => (Convert.ToInt32(digitalGainPlusMultiplicativeFactor), t.PMTId, t.ChannelId))]));
+        if (sxExecuteRet.IsSuccess == false) SxExecuteRetHelper.CreateError("Set LightMatching error!:" + sxExecuteRet.Msg, false);
+
+        var sxRedExecuteRet = Invoke(() => Service?.ReadCIBReg(PMTRegEnum.Digital_Gain_Multiplicative_Factors));
+        if (sxRedExecuteRet.IsSuccess == false) SxExecuteRetHelper.CreateError("Set LightMatching read error!:" + sxExecuteRet.Msg, false);
+
+        foreach (var cibInformation in cibInformations)
+        {
+            var ret = sxRedExecuteRet.Anything.Single(t => t.Id == cibInformation.PMTId && t.Channel == cibInformation.ChannelId);
+            if (Math.Abs(ret.Value - digitalGainPlusMultiplicativeFactor) > 1)
+                SxExecuteRetHelper.CreateError($"Set LightMatching read validate failed!:{cibInformation} write value {digitalGainPlusMultiplicativeFactor},read value {ret.Value}.", false);
+        }
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
+            : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<bool> SetLightMatchings(IReadOnlyList<(CIBInformation cibInformation, double digitalGainPlusMultiplicativeFactor)> cibInformationDigitalGainPlusMultiplicativeFactors)
+    {
+        var sxExecuteRet = Invoke(() => Service?.SetPmtDiffDataCommon(PMTRegEnum.Digital_Gain_Multiplicative_Factors, [.. cibInformationDigitalGainPlusMultiplicativeFactors.Select(t => (Convert.ToInt32(t.digitalGainPlusMultiplicativeFactor), t.cibInformation.PMTId, t.cibInformation.ChannelId))]));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
@@ -155,7 +175,7 @@ public sealed class CalibrationCIBServiceImpl(
             ? SxExecuteRetHelper.CreateError(ret.Msg, 0d)
             : SxExecuteRetHelper.CreateSuccess(ret.Anything);
     }
-    
+
     public SxExecuteRet<IReadOnlyList<IReadOnlyList<CIBMMDGainRelationshipDTO>>> GetCIBMMDGains(IReadOnlyList<CIBInformation> cibInformations, double startGain, double stepGain, double stopGain)
     {
         var timestamp = Stopwatch.GetTimestamp();
