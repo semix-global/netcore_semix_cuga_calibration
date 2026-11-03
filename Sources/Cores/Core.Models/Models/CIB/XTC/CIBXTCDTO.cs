@@ -253,14 +253,12 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
                             foreach (var items in channelItems.Select(t => t.Items))
                             {
                                 scatterPlotControl.GetOrAddScatterLine(
-                                   3,
-                                   $"Channel{channelItems.Key}",
-                                   [.. items.Select((t, i) => new Point(i, t.HorizontalProjectMinPixel))],
-                                   Constants.Category10.GetColor(channelItems.Key));
+                                    3,
+                                    $"Channel{channelItems.Key}",
+                                    [.. items.Select((t, i) => new Point(i, t.HorizontalProjectMinPixel))],
+                                    Constants.Category10.GetColor(channelItems.Key));
                             }
                         }
-
-
                     }
 
                     // 每个Channel一条折线,记录该Channel各轮次的Offset(Error)收敛过程
@@ -287,7 +285,6 @@ public sealed partial class CIBXTCDTO : CalibrationDTOBase<CIBXTCDTO>, IAdaptTo<
                     "Result",
                     [.. itemItems.Select(t => new Point(t.CIBInformation.ChannelId, t.Delay))],
                     Colors.Red);
-
             }
             finally
             {

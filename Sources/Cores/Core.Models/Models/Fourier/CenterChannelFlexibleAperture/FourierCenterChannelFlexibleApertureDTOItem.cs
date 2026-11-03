@@ -191,19 +191,19 @@ public sealed partial class FourierCenterChannelFlexibleApertureDTOItem : Observ
                     var diameter = (int)Math.Round(Math.Min(_step0BitmapImageDrawable.BitmapImage.Width / 2d, _step0BitmapImageDrawable.BitmapImage.Height / 2d));
                     var size = new Size(diameter, diameter);
 
-                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)size / 2d, size)).ImageCoordinateRound();
+                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)size / 2d, size));
 
                     break;
 
                 case CenterChannelMotionKindEnum.XDiffractionPush or CenterChannelMotionKindEnum.XRod or CenterChannelMotionKindEnum.XReflectionCoarsePush or CenterChannelMotionKindEnum.XReflectionFinePush:
-                    var width = _step0BitmapImageDrawable.BitmapImage.Width / 4;
-                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
+                    var width = _step0BitmapImageDrawable.BitmapImage.Width / 4d;
+                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(_step0BitmapImageDrawable.BitmapImage.Size.Width / 2d - width / 2d, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height));
 
                     break;
 
                 case CenterChannelMotionKindEnum.YRod:
                     var yRodSize = (Size)_step0BitmapImageDrawable.BitmapImage.Size / 4d;
-                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)yRodSize / 2d, yRodSize)).ImageCoordinateRound();
+                    Step0ROI.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)(Size)_step0BitmapImageDrawable.BitmapImage.Size / 2d - (Vector)yRodSize / 2d, yRodSize));
 
                     break;
 

@@ -212,7 +212,10 @@ public sealed class V0FourierCenterChannelFlexibleApertureSerializationTest(Host
                 item.Step1MotorAbsoluteValue = Math.Round((random.NextDouble() - 0.5) * 4000d, 3);
                 item.Step0FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
                 item.Step1FourierImageFilePath = $@"C:\Rnd\{random.Next(1000, 9999)}\step_{random.Next(0, 99)}.jpg";
-                ObjectHelper.SetPropertyValue(item, nameof(V0FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5) * 4000d, 3));
+                // SetPropertyValue 会按名称调用 GetProperty. net48 在该类型尚未调用 GetProperties 时, 会把这次取到的属性放到属性缓存最前面.
+                // Newtonsoft 第一次建契约时按 GetProperties 的顺序保存, IgnoreCacheItemPropertiesContractResolver.Settings 是静态的, 之后一直沿用.
+                // SetFieldValue 只调用 GetField 写 <PixelSize>k__BackingField, 不访问属性缓存, 因此序列化顺序保持声明顺序.
+                ObjectHelper.SetFieldValue(item, nameof(V0FourierCenterChannelFlexibleApertureDTOItem.PixelSize), Math.Round((random.NextDouble() - 0.5) * 4000d, 3), isAutoPropertyGenerateField: true);
 
                 item.Step0ROI.ImageROI = CreateRandomRect(random);
                 item.Step1ROI.ImageROI = CreateRandomRect(random);

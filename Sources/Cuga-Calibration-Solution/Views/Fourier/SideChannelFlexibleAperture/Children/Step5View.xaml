@@ -173,21 +173,9 @@
                     </TabControl>
                 </TabItem>
                 <TabItem Header="Result">
-                    <TabControl Margin="5" DataContext="{Binding CalibratingItem.Channel2Item, Mode=OneWay}">
-                        <i:Interaction.Behaviors>
-                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
-                        </i:Interaction.Behaviors>
-                        <TabItem Header="Image">
-                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
-                            </Border>
-                        </TabItem>
-                        <TabItem Header="Rod Information">
-                            <Border Margin="5" Style="{StaticResource BorderRegion}">
-                                <ContentPresenter Content="{Binding RodResults, Mode=OneWay}" ContentTemplate="{StaticResource RodResultListTemplate}" />
-                            </Border>
-                        </TabItem>
-                    </TabControl>
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <ContentPresenter Content="{Binding CalibratingItem.Channel2Item, Mode=OneWay}" ContentTemplate="{StaticResource ChannelResultTemplate}" />
+                    </Border>
                 </TabItem>
             </TabControl>
         </GroupBox>

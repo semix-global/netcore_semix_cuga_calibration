@@ -105,9 +105,7 @@ public sealed partial class FourierPupilCameraAlignmentDTOItem : ObservableObjec
         InnerLoop:
 
             var roiSize = (Size)_originalBitmapImageDrawable.BitmapImage.Size / 2d;
-            ROI.BitmapImageROIDrawable.Rect = _originalBitmapImageDrawable
-                .ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize))
-                .ImageCoordinateRound();
+            ROI.BitmapImageROIDrawable.Rect = _originalBitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect((Point)roiSize - (Vector)roiSize / 2d, roiSize));
             Document.View.ZoomToFit();
 
             while (true)

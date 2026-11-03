@@ -144,7 +144,7 @@
                         <i:Interaction.Behaviors>
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
-                        <TabItem Header="120">
+                        <TabItem Header="{Binding Review.XRodItems[0].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -197,7 +197,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="180">
+                        <TabItem Header="{Binding Review.XRodItems[1].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -250,7 +250,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="240">
+                        <TabItem Header="{Binding Review.XRodItems[2].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -303,7 +303,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="300">
+                        <TabItem Header="{Binding Review.XRodItems[3].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -476,7 +476,7 @@
                         <i:Interaction.Behaviors>
                             <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
                         </i:Interaction.Behaviors>
-                        <TabItem Header="120">
+                        <TabItem Header="{Binding Review.YRodItems[0].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -529,7 +529,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="180">
+                        <TabItem Header="{Binding Review.YRodItems[1].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -582,7 +582,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="240">
+                        <TabItem Header="{Binding Review.YRodItems[2].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"
@@ -635,7 +635,7 @@
                                 </DockPanel>
                             </Border>
                         </TabItem>
-                        <TabItem Header="300">
+                        <TabItem Header="{Binding Review.YRodItems[3].DefaultAngleMotorAbsoluteValue, Mode=OneWay, StringFormat={}{0:0.###}°}">
                             <Border Margin="5" Style="{StaticResource BorderRegion}">
                                 <DockPanel>
                                     <hc:UniformSpacingPanel DockPanel.Dock="Top"

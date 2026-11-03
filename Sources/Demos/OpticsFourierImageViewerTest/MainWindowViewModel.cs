@@ -113,8 +113,6 @@ public sealed partial class MainWindowViewModel : ObservableObject
         var roiCount = isAspectRatioFixed ? 3 : ROICount;
         if (roiCount <= 0) return;
 
-        var isOutsideImageAllowed = IsOutsideImageAllowed;
-
         await Task.Run(async () =>
         {
             var bitmapImage = BitmapImageDrawable.BitmapImage;
@@ -162,7 +160,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
                 BitmapImageROIDragMoveTypeEnum = dragMoveTypeEnum,
                 IsDeleteEnabled = isDeleteEnabled,
                 IsAspectRatioFixed = isAspectRatioFixed,
-                IsOutsideImageAllowed = isOutsideImageAllowed,
+                IsOutsideImageAllowed = IsOutsideImageAllowed,
                 CancellationToken = cancellationToken
             };
 

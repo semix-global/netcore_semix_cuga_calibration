@@ -46,89 +46,11 @@ public sealed partial class CalibrationAlgorithmServiceImpl
             var xCount = arrHit.Height;
             Guard.IsGreaterThan(xCount, yCount);
 
-            var (realXMatrix, realYMatrix) = GetRealMatrix();
+            var (originRealXMatrix, originRealYMatrix) = GetRealMatrix();
+            var realXMatrix = originRealXMatrix.Clone();
+            var realYMatrix = originRealYMatrix.Clone();
 
-            #region 1. Spacing
-
-            var xSpacingPoints = Generate.LinearRangeInt32(0, yCount - 1)
-                .SelectMany(y => realXMatrix.Row(y).Index().Select(xTuple => new Point(xTuple.Index, xTuple.Item)))
-                .Where(point => double.IsFinite(point.Y))
-                .ToArray();
-            var ySpacingPoints = Generate.LinearRangeInt32(0, xCount - 1)
-                .SelectMany(x => realYMatrix.Column(x).Index().Select(yTuple => new Point(yTuple.Index, yTuple.Item)))
-                .Where(point => double.IsFinite(point.Y))
-                .ToArray();
-            Guard.IsTrue(xSpacingPoints.Length >= 2 && xSpacingPoints.DistinctBy(t => t.X).Count() >= 2);
-            Guard.IsTrue(ySpacingPoints.Length >= 2 && ySpacingPoints.DistinctBy(t => t.X).Count() >= 2);
-
-            var (xSpacing, xSpacingIntercept, xSpacingRSquared, xSpacingPredicted) = PolynomialCurve.Fit1(
-                Vector<double>.Build.Dense([.. xSpacingPoints.Select(t => t.X)]),
-                Vector<double>.Build.Dense([.. xSpacingPoints.Select(t => t.Y)]));
-            var (ySpacing, ySpacingIntercept, ySpacingRSquared, ySpacingPredicted) = PolynomialCurve.Fit1(
-                Vector<double>.Build.Dense([.. ySpacingPoints.Select(t => t.X)]),
-                Vector<double>.Build.Dense([.. ySpacingPoints.Select(t => t.Y)]));
-
-            logger.LogHtmlInformation("1. Spacing", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                xSpacing,
-                ySpacing,
-                XFitPlot = new HtmlPlot2DLinesChart(
-                [
-                    ("Origin", [.. xSpacingPoints]),
-                    ($"Fit {PolynomialCurve.ToString1(xSpacing, xSpacingIntercept, xSpacingRSquared, "0.##########")}", [.. xSpacingPoints.Index().Select(t => new Point(t.Item.X, xSpacingPredicted[t.Index]))])
-                ], "X: index - Y: px"),
-                YFitPlot = new HtmlPlot2DLinesChart(
-                [
-                    ("Origin", [.. ySpacingPoints]),
-                    ($"Fit {PolynomialCurve.ToString1(ySpacing, ySpacingIntercept, ySpacingRSquared, "0.##########")}", [.. ySpacingPoints.Index().Select(t => new Point(t.Item.X, ySpacingPredicted[t.Index]))])
-                ], "X: index - Y: px")
-            }), htmlLogUniqueId.LoggingHtml());
-
-            Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing > 0d);
-            Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing > 0d);
-
-            #endregion
-
-            #region 2. Ideal
-
-            var (xAnchor, xAnchorVector) = realXMatrix.EnumerateColumns().Index().First(t => t.Item.Any(double.IsFinite));
-            var xAnchorVectorAverage = xAnchorVector.Where(double.IsFinite).Average();
-
-            var (yAnchor, yAnchorVector) = realYMatrix.EnumerateRows().Index().First(t => t.Item.Any(double.IsFinite));
-            var yAnchorVectorAverage = yAnchorVector.Where(double.IsFinite).Average();
-
-            var idealXMatrix = Matrix<double>.Build.Dense(yCount, xCount, (_, x) => xAnchorVectorAverage + (x - xAnchor) * xSpacing);
-            var idealYMatrix = Matrix<double>.Build.Dense(yCount, xCount, (y, _) => yAnchorVectorAverage + (y - yAnchor) * ySpacing);
-
-            logger.LogHtmlInformation("2. Ideal", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                xCount,
-                xAnchor,
-                xAnchorVectorAverage,
-                yCount,
-                yAnchor,
-                yAnchorVectorAverage
-            }), htmlLogUniqueId.LoggingHtml());
-
-            #endregion
-
-            #region 3. Origin
-
-            var originErrorXMatrix = CenterError(realXMatrix - idealXMatrix);
-            var originErrorYMatrix = CenterError(realYMatrix - idealYMatrix);
-            var originSamples = GetSamples(originErrorXMatrix, originErrorYMatrix);
-
-            logger.LogHtmlInformation("3. Origin Error", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-            {
-                XPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
-                YPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
-                SamplesX = new HtmlPlot2DLinesChart([(string.Empty, [.. originSamples.Select(sample => new Point(sample.X, sample.Error.X))])], "X: scan px - Y: mean error X px"),
-                SamplesY = new HtmlPlot2DLinesChart([(string.Empty, [.. originSamples.Select(sample => new Point(sample.X, sample.Error.Y))])], "X: scan px - Y: mean error Y px")
-            }), htmlLogUniqueId.LoggingHtml());
-
-            #endregion
-
-            #region 4. Y Alignment
+            #region 1. Y Alignment
 
             var yAlignmentAngles = new List<double>();
             var yAlignmentFitLines = new List<(string Name, Point[] PointList)>();
@@ -156,7 +78,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
             var yAlignmentAngle = yAlignmentAngles.Average();
 
-            logger.LogHtmlInformation("4. Y Alignment", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            logger.LogHtmlInformation("1. Y Alignment", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
             {
                 yAlignmentAngle,
                 FitPlot = new HtmlPlot2DLinesChart([.. yAlignmentFitLines], "X: px - Y: px")
@@ -180,6 +102,86 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                     realYMatrix[y, x] = temp[1];
                 }
             }
+
+            #endregion
+
+            #region 2. Spacing
+
+            var xSpacingPoints = Generate.LinearRangeInt32(0, yCount - 1)
+                .SelectMany(y => realXMatrix.Row(y).Index().Select(xTuple => new Point(xTuple.Index, xTuple.Item)))
+                .Where(point => double.IsFinite(point.Y))
+                .ToArray();
+            var ySpacingPoints = Generate.LinearRangeInt32(0, xCount - 1)
+                .SelectMany(x => realYMatrix.Column(x).Index().Select(yTuple => new Point(yTuple.Index, yTuple.Item)))
+                .Where(point => double.IsFinite(point.Y))
+                .ToArray();
+            Guard.IsTrue(xSpacingPoints.Length >= 2 && xSpacingPoints.DistinctBy(t => t.X).Count() >= 2);
+            Guard.IsTrue(ySpacingPoints.Length >= 2 && ySpacingPoints.DistinctBy(t => t.X).Count() >= 2);
+
+            var (xSpacing, xSpacingIntercept, xSpacingRSquared, xSpacingPredicted) = PolynomialCurve.Fit1(
+                Vector<double>.Build.Dense([.. xSpacingPoints.Select(t => t.X)]),
+                Vector<double>.Build.Dense([.. xSpacingPoints.Select(t => t.Y)]));
+            var (ySpacing, ySpacingIntercept, ySpacingRSquared, ySpacingPredicted) = PolynomialCurve.Fit1(
+                Vector<double>.Build.Dense([.. ySpacingPoints.Select(t => t.X)]),
+                Vector<double>.Build.Dense([.. ySpacingPoints.Select(t => t.Y)]));
+
+            logger.LogHtmlInformation("2. Spacing", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            {
+                xSpacing,
+                ySpacing,
+                XFitPlot = new HtmlPlot2DLinesChart(
+                [
+                    ("Origin", [.. xSpacingPoints]),
+                    ($"Fit {PolynomialCurve.ToString1(xSpacing, xSpacingIntercept, xSpacingRSquared, "0.##########")}", [.. xSpacingPoints.Index().Select(t => new Point(t.Item.X, xSpacingPredicted[t.Index]))])
+                ], "X: index - Y: px"),
+                YFitPlot = new HtmlPlot2DLinesChart(
+                [
+                    ("Origin", [.. ySpacingPoints]),
+                    ($"Fit {PolynomialCurve.ToString1(ySpacing, ySpacingIntercept, ySpacingRSquared, "0.##########")}", [.. ySpacingPoints.Index().Select(t => new Point(t.Item.X, ySpacingPredicted[t.Index]))])
+                ], "X: index - Y: px")
+            }), htmlLogUniqueId.LoggingHtml());
+
+            Guard.IsTrue(double.IsFinite(xSpacing) && xSpacing > 0d);
+            Guard.IsTrue(double.IsFinite(ySpacing) && ySpacing > 0d);
+
+            #endregion
+
+            #region 3. Ideal
+
+            var (xAnchor, xAnchorVector) = realXMatrix.EnumerateColumns().Index().First(t => t.Item.Any(double.IsFinite));
+            var xAnchorVectorAverage = xAnchorVector.Where(double.IsFinite).Average();
+
+            var (yAnchor, yAnchorVector) = realYMatrix.EnumerateRows().Index().First(t => t.Item.Any(double.IsFinite));
+            var yAnchorVectorAverage = yAnchorVector.Where(double.IsFinite).Average();
+
+            var idealXMatrix = Matrix<double>.Build.Dense(yCount, xCount, (_, x) => xAnchorVectorAverage + (x - xAnchor) * xSpacing);
+            var idealYMatrix = Matrix<double>.Build.Dense(yCount, xCount, (y, _) => yAnchorVectorAverage + (y - yAnchor) * ySpacing);
+
+            logger.LogHtmlInformation("3. Ideal", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            {
+                xCount,
+                xAnchor,
+                xAnchorVectorAverage,
+                yCount,
+                yAnchor,
+                yAnchorVectorAverage
+            }), htmlLogUniqueId.LoggingHtml());
+
+            #endregion
+
+            #region 4. Origin
+
+            var originErrorXMatrix = CenterError(originRealXMatrix - idealXMatrix);
+            var originErrorYMatrix = CenterError(originRealYMatrix - idealYMatrix);
+            var originSamples = GetSamples(originErrorXMatrix, originErrorYMatrix);
+
+            logger.LogHtmlInformation("4. Origin Error", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
+            {
+                XPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorXMatrix, "X: scan px - Y: scan px - Z: error X px"),
+                YPlot3D = ToHtmlPlot3DChart(idealXMatrix, idealYMatrix, originErrorYMatrix, "X: scan px - Y: scan px - Z: error Y px"),
+                SamplesX = new HtmlPlot2DLinesChart([(string.Empty, [.. originSamples.Select(sample => new Point(sample.X, sample.Error.X))])], "X: scan px - Y: mean error X px"),
+                SamplesY = new HtmlPlot2DLinesChart([(string.Empty, [.. originSamples.Select(sample => new Point(sample.X, sample.Error.Y))])], "X: scan px - Y: mean error Y px")
+            }), htmlLogUniqueId.LoggingHtml());
 
             var removeYAlignmentErrorXMatrix = CenterError(realXMatrix - idealXMatrix);
             var removeYAlignmentErrorYMatrix = CenterError(realYMatrix - idealYMatrix);
@@ -235,13 +237,13 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 { 0d, 0d, 1d }
             });
 
-            for (var x = 0; x < yCount; x++)
+            for (var y = 0; y < yCount; y++)
             {
-                for (var y = 0; y < xCount; y++)
+                for (var x = 0; x < xCount; x++)
                 {
-                    var temp = scaleMatrix * Vector<double>.Build.DenseOfArray([realXMatrix[x, y], realYMatrix[x, y], 1]);
-                    realXMatrix[x, y] = temp[0];
-                    realYMatrix[x, y] = temp[1];
+                    var temp = scaleMatrix * Vector<double>.Build.DenseOfArray([realXMatrix[y, x], realYMatrix[y, x], 1]);
+                    realXMatrix[y, x] = temp[0];
+                    realYMatrix[y, x] = temp[1];
                 }
             }
 
@@ -302,10 +304,14 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
                 for (var x = 0; x < xCount; x++)
                 {
-                    var averageX = errorX.Column(x).Average();
+                    double[] xes = [.. errorX.Column(x).Where(double.IsFinite)];
+                    double[] yes = [.. errorY.Column(x).Where(double.IsFinite)];
+
+                    var averageX = xes.Length > 0 ? xes.Average() : 0d;
+                    var averageY = yes.Length > 0 ? yes.Average() : 0d;
                     samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
                         isForward ? idealXMatrix[0, x] : rawImage.Height - 1d - idealXMatrix[0, x], // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
-                        new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, errorY.Column(x).Average()));
+                        new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, averageY));
                 }
 
                 return samples;
@@ -319,7 +325,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 var meanError = validErrors.Average();
                 Guard.IsTrue(double.IsFinite(meanError), "The mean grid error must be finite.");
 
-                return errorMatrix.Map(value => double.IsFinite(value) ? value - meanError : 0d, Zeros.Include);
+                return errorMatrix.Map(value => double.IsFinite(value) ? value - meanError : double.NaN, Zeros.Include);
             }
         }
         finally
@@ -345,7 +351,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
         {
             for (var column = 0; column < columnCount; column++)
             {
-                point3DMatrix[row, column] = new Point3D(idealXMatrix[row, column], idealYMatrix[row, column], errorMatrix[row, column]);
+                point3DMatrix[row, column] = new Point3D(idealXMatrix[row, column], idealYMatrix[row, column], double.IsFinite(errorMatrix[row, column]) ? errorMatrix[row, column] : 0d);
             }
         }
 

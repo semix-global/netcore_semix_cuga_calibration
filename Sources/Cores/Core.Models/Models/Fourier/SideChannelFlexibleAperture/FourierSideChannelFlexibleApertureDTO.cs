@@ -81,12 +81,12 @@ public sealed partial class FourierSideChannelFlexibleApertureDTO : CalibrationD
             {
                 var logger = HostApplication.GetRequiredService<ILogger<FourierSideChannelFlexibleApertureDTO>>();
 
-                if (channel1ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 1 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
-                if (channel2ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 2 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
-                if (channel1FirstRod is null) logger.LogError("Channel 1 first rod is null.");
-                if (channel1LastRod is null) logger.LogError("Channel 1 last rod is null.");
-                if (channel2FirstRod is null) logger.LogError("Channel 2 first rod is null.");
-                if (channel2LastRod is null) logger.LogError("Channel 2 last rod is null.");
+                if (channel1ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 1 rod count is not equal to {RodTotalCount}", _rodTotalCount);
+                if (channel2ItemRodResults.Length != _rodTotalCount) logger.LogError("Channel 2 rod count is not equal to {RodTotalCount}", _rodTotalCount);
+                if (channel1FirstRod is null) logger.LogError("Channel 1 first rod is null");
+                if (channel1LastRod is null) logger.LogError("Channel 1 last rod is null");
+                if (channel2FirstRod is null) logger.LogError("Channel 2 first rod is null");
+                if (channel2LastRod is null) logger.LogError("Channel 2 last rod is null");
             }
 
             return new CalibrationPupilSideChannelFlexibleAperture

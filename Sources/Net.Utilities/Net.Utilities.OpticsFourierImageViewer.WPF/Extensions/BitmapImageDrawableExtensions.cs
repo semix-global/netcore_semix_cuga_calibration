@@ -6,23 +6,28 @@ using System.Runtime.CompilerServices;
 
 namespace Net.Utilities.OpticsFourierImageViewer.WPF.Extensions;
 
+/// <summary>
+/// BitmapImageDrawable 图片坐标系 (原点左上, Y 向下) 与笛卡尔坐标系 (原点左下, Y 向上) 的转换扩展.
+/// 两个 Round 方法的名字约定为输入点所在的坐标系, 均取整到所在像素的左上角;
+/// 坐标为整数格点且 BitmapImageDrawable.Point 为整数时, 两个方向转换往返恒等.
+/// </summary>
 public static class BitmapImageDrawableExtensions
 {
     extension(Point @this)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Point ImageCoordinateRound()
+        public Point CartesianCoordinateRound()
         {
-            // 向左上角收敛 (图片坐标系左上角origin点)
+            // 笛卡尔坐标系 (Y 向上) 输入: 取整到所在像素的左上角
             return new Point(Math.Floor(@this.X), Math.Ceiling(@this.Y));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Point CartesianCoordinateRound()
+        public Point ImageCoordinateRound()
         {
-            // 向左下角收敛 (图片坐标系左下角origin点)
+            // 图片坐标系 (Y 向下) 输入: 取整到所在像素的左上角
             return new Point(Math.Floor(@this.X), Math.Floor(@this.Y));
         }
     }
@@ -31,22 +36,22 @@ public static class BitmapImageDrawableExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Rect ImageCoordinateRound()
+        public Rect CartesianCoordinateRound()
         {
             var extents = new Extents();
-            extents.Add(@this.XMinYMin.ImageCoordinateRound());
-            extents.Add(@this.XMaxYMax.ImageCoordinateRound());
+            extents.Add(@this.XMinYMin.CartesianCoordinateRound());
+            extents.Add(@this.XMaxYMax.CartesianCoordinateRound());
 
             return (Rect)extents;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [TargetedPatchingOptOut(Constants.TargetedPatchingOptOutReason)]
-        public Rect CartesianCoordinateRound()
+        public Rect ImageCoordinateRound()
         {
             var extents = new Extents();
-            extents.Add(@this.XMinYMin.CartesianCoordinateRound());
-            extents.Add(@this.XMaxYMax.CartesianCoordinateRound());
+            extents.Add(@this.XMinYMin.ImageCoordinateRound());
+            extents.Add(@this.XMaxYMax.ImageCoordinateRound());
 
             return (Rect)extents;
         }
@@ -60,7 +65,7 @@ public static class BitmapImageDrawableExtensions
         {
             if (@this.BitmapImage?.IsEmpty != false) return Point.Origin;
 
-            var vector = cartesianCoordinatePoint.ImageCoordinateRound() - @this.Point;
+            var vector = cartesianCoordinatePoint.CartesianCoordinateRound() - @this.Point;
 
             return new Point(vector.X, @this.BitmapImage.Height - vector.Y);
         }
@@ -71,7 +76,7 @@ public static class BitmapImageDrawableExtensions
         {
             if (@this.BitmapImage?.IsEmpty != false) return Point.Origin;
 
-            var cartesianCoordinateRound = imageCoordinatePoint.CartesianCoordinateRound();
+            var cartesianCoordinateRound = imageCoordinatePoint.ImageCoordinateRound();
             var point = new Point(cartesianCoordinateRound.X, @this.BitmapImage.Height - cartesianCoordinateRound.Y);
 
             return point + (Vector)@this.Point;
