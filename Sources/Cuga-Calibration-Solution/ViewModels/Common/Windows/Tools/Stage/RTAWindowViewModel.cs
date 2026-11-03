@@ -390,6 +390,7 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
 
+            cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -404,6 +405,7 @@ public sealed partial class RTAWindowViewModel(
                 false,
                 cancellationToken);
 
+            cancellationToken.ThrowIfCancellationRequested();
             var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
                 forwardDarkFieldRawScanImage,
                 Cache.StageMapConfig,
@@ -417,6 +419,7 @@ public sealed partial class RTAWindowViewModel(
 
             if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
 
+            cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
                 Cache.ProductivityInformation,
@@ -432,6 +435,7 @@ public sealed partial class RTAWindowViewModel(
                 cancellationToken,
                 isForward: false);
 
+            cancellationToken.ThrowIfCancellationRequested();
             var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
                 reverseDarkFieldRawScanImage,
                 Cache.StageMapConfig,

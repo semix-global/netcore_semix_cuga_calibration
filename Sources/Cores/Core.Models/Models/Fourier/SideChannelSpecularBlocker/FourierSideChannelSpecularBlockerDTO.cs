@@ -74,8 +74,8 @@ public sealed partial class FourierSideChannelSpecularBlockerDTO : CalibrationDT
             {
                 var logger = HostApplication.GetRequiredService<ILogger<FourierSideChannelSpecularBlockerDTO>>();
 
-                if (Channel1Item.Rods.Length != _rodTotalCount) logger.LogError("Channel 1 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
-                if (Channel2Item.Rods.Length != _rodTotalCount) logger.LogError("Channel 2 rod count is not equal to {@RodTotalCount}.", _rodTotalCount);
+                if (Channel1Item.Rods.Length != _rodTotalCount) logger.LogError("Channel 1 rod count is not equal to {RodTotalCount}", _rodTotalCount);
+                if (Channel2Item.Rods.Length != _rodTotalCount) logger.LogError("Channel 2 rod count is not equal to {RodTotalCount}", _rodTotalCount);
             }
 
             return new CalibrationPupilSideChannelSpecularBlocker

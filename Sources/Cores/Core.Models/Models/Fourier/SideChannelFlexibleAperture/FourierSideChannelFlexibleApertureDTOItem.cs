@@ -133,7 +133,6 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
 
             Guard.IsNotNullOrWhiteSpace(FourierImageFilePath);
 
-            MinMotorAbsoluteValue = minMotorAbsoluteValue;
             MaxMotorAbsoluteValue = maxMotorAbsoluteValue;
 
             _resultBitmapImageDrawable.BitmapImage = BitmapHelper.OpenImage(FourierImageFilePath);
@@ -142,9 +141,37 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
             CalculateRodResults(EvenItem);
             CalculateRodResults(OddItem);
 
+            var onePixelMotorAbsoluteValues = RodResults.ToDictionary(
+                t => t.Index,
+                t => maxMotorAbsoluteValue - (t.MaxImageROI.Height - 1d) * t.PixelSize); // 每根杆反推高度为 1 px 的电机位置, 取最大值并限制到配置范围, 使所有杆至少保留 1 px.
+            var calculatedMinMotorAbsoluteValue = onePixelMotorAbsoluteValues.Values.Max(); // 最大的一个电机值: 表示所有杆的高度至少为 1 px 时的电机位置, 取最大值是为了保证所有杆都至少有 1 px.
+            if (onePixelMotorAbsoluteValues.Values.Any(t => double.IsFinite(t) == false) || calculatedMinMotorAbsoluteValue > maxMotorAbsoluteValue)
+            {
+                ThrowHelper.ThrowInvalidOperationException($"""
+                                                            Channel {ChannelId}: a common minimum motor position cannot be calculated for a minimum ROI height of 1 px.
+                                                            Motor: CalculatedMin={calculatedMinMotorAbsoluteValue:0.###}, Max={maxMotorAbsoluteValue:0.###}.
+                                                            Each rod's motor position at 1 px must be finite, and their maximum must not exceed the maximum motor position. Check the maximum ROI heights and PixelSize values before recalibrating.
+                                                            """);
+            }
+
+            MinMotorAbsoluteValue = Math.Clamp(calculatedMinMotorAbsoluteValue, minMotorAbsoluteValue, maxMotorAbsoluteValue);
+
             foreach (var rodResult in RodResults)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                var minImageROIHeight = rodResult.MaxImageROI.Height + (MinMotorAbsoluteValue - maxMotorAbsoluteValue) / rodResult.PixelSize;
+                if (double.IsFinite(minImageROIHeight) == false || minImageROIHeight < 1d)
+                {
+                    ThrowHelper.ThrowInvalidOperationException($"""
+                                                                Channel {ChannelId}, rod {rodResult.Index}: the extrapolated minimum ROI height is invalid.
+                                                                Motor: Min={MinMotorAbsoluteValue:0.###}, Max={maxMotorAbsoluteValue:0.###}.
+                                                                ROI height (px): Min={minImageROIHeight:0.###}, Max={rodResult.MaxImageROI.Height:0.###}; PixelSize={rodResult.PixelSize:0.###} mm/px.
+                                                                The height at the minimum motor position must be finite and at least 1 px. Check the motor range, recorded positions, and ROI boundaries before recalibrating.
+                                                                """);
+                }
+
+                rodResult.MinImageROI = new Rect(rodResult.MaxImageROI.Point, new Size(rodResult.MaxImageROI.Width, minImageROIHeight)).ImageCoordinateRound();
 
                 if (rodResult.IsDeleted) rodResult.BitmapImageROIDrawable.Text = $"X {rodResult.BitmapImageROIDrawable.Text}";
 
@@ -196,16 +223,18 @@ public sealed partial class FourierSideChannelFlexibleApertureDTOItem : Observab
                                                                 """);
                 }
 
-                rodResult.MinImageROI = new Rect(
-                        step2Rod.ImageROI.Point,
-                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (minMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
-                rodResult.MaxImageROI = new Rect(
-                        step2Rod.ImageROI.Point,
-                        new Size(step2Rod.ImageROI.Width, step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize))
-                    .ImageCoordinateRound()
-                    .ClampToBounds(new Rect(Point.Origin, _resultBitmapImageDrawable.BitmapImage.Size));
+                var maxImageROIHeight = step2Rod.ImageROI.Height + (maxMotorAbsoluteValue - item.Step2MotorAbsoluteValue) / pixelSize;
+                if (double.IsFinite(maxImageROIHeight) == false || maxImageROIHeight < 1d)
+                {
+                    ThrowHelper.ThrowInvalidOperationException($"""
+                                                                Channel {ChannelId}, rod {step2Rod.Index}: the extrapolated maximum ROI height is invalid.
+                                                                Motor: Max={maxMotorAbsoluteValue:0.###}, Step2={item.Step2MotorAbsoluteValue:0.###}.
+                                                                ROI height (px): Step2={step2Rod.ImageROI.Height:0.###}, Max={maxImageROIHeight:0.###}; PixelSize={pixelSize:0.###} mm/px.
+                                                                The height at the maximum motor position must be finite and at least 1 px. Check the motor range, recorded positions, and ROI boundaries before recalibrating.
+                                                                """);
+                }
+
+                rodResult.MaxImageROI = new Rect(step2Rod.ImageROI.Point, new Size(step2Rod.ImageROI.Width, maxImageROIHeight)).ImageCoordinateRound();
                 rodResult.PixelSize = pixelSize;
             }
         }

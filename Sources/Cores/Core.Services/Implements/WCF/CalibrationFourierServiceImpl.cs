@@ -213,7 +213,7 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         var getSxExecuteRet = Invoke(() => Service!.FF_GetRACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        if ((Math.Abs(getSxExecuteRet.Anything - angleMotorAbsoluteValue) * 100d < 10d) == false) return SxExecuteRetHelper.CreateError($"Motor angle difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {angleMotorAbsoluteValue}.", false);
+        if (Math.Abs(getSxExecuteRet.Anything - angleMotorAbsoluteValue) * 100d >= 10d) return SxExecuteRetHelper.CreateError($"Motor angle difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {angleMotorAbsoluteValue}.", false);
 
         setSxExecuteRet = Invoke(() => Service!.FF_Move_LPOS_CH3(channel, motorAbsoluteValue));
         if (setSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
@@ -221,10 +221,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
         getSxExecuteRet = Invoke(() => Service!.FF_GetLACT(channel));
         if (getSxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(getSxExecuteRet.ErrorMsg, false);
 
-        if ((Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d) == false) return SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
-
-        return setSxExecuteRet.IsSuccess
+        return Math.Abs(getSxExecuteRet.Anything - motorAbsoluteValue) * 100d < 10d
             ? SxExecuteRetHelper.CreateSuccess(true)
-            : SxExecuteRetHelper.CreateError(setSxExecuteRet.ErrorMsg, false);
+            : SxExecuteRetHelper.CreateError($"Motor position difference must be less than 0.1. Actual: {getSxExecuteRet.Anything}, target: {motorAbsoluteValue}.", false);
     }
 }

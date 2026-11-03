@@ -719,6 +719,7 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                     if (isItemOk) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                     else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, HtmlLogUniqueId.LoggingHtml());
                 }
+
                 var resulthtmlBullet = new HtmlBullet(new
                 {
                     Error = new HtmlExpand(string.Empty, new HtmlTable(
@@ -731,12 +732,12 @@ public sealed partial class CIBXTCViewModel : CalibrationViewModelBase<CIBXTCCac
                     ])),
                     ConvergenceTimes = new HtmlExpand(string.Empty, new HtmlTable(
                     [
-                        .. convergedPmtTimes.OrderBy(t=>t.Key).Select(t => new
+                        .. convergedPmtTimes.OrderBy(t => t.Key).Select(t => new
                         {
                             PMTId = t.Key,
                             FrozenTimesIndex = t.Value
                         })
-                    ])),
+                    ]))
                 });
                 if (result) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, resulthtmlBullet, HtmlLogUniqueId.LoggingHtml());
                 else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, resulthtmlBullet, HtmlLogUniqueId.LoggingHtml());
