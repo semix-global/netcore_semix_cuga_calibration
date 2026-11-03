@@ -6,7 +6,7 @@ using Net.Utilities.Mapper.Interfaces;
 namespace Core.Models.Models.Fourier.CenterChannelFlexibleAperture;
 
 [CacheVersion("2.0.0")]
-public sealed class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleApertureV1>, IDisposable
+public sealed partial class FourierCenterChannelFlexibleApertureDTO : CalibrationDTOBase<FourierCenterChannelFlexibleApertureDTO>, IAdaptTo<CalibrationPupilCenterChannelFlexibleApertureV1>, IDisposable
 {
     public const double AngleStep = 360d / 11d;
 

@@ -231,8 +231,8 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
                 var width = _step0BitmapImageDrawable.BitmapImage.Width / (Step1Rods.Length * 2d);
 
-                Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
-                Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height)).ImageCoordinateRound();
+                Step0LeftRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0LeftRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height));
+                Step0RightRod.BitmapImageROIDrawable.Rect = _step0BitmapImageDrawable.ImageCoordinateToCartesianCoordinate(new Rect(width * Step0RightRod.Index, 0d, width, _step0BitmapImageDrawable.BitmapImage.Height));
 
                 Document.View.SetViewBounds(_step0BitmapImageDrawable.GetExtents());
                 Document.View.Zoom(1.02);

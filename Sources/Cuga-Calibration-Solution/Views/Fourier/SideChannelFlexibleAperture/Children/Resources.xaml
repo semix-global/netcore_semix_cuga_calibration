@@ -2,9 +2,11 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:hc="https://handyorg.github.io/handycontrol"
                     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                     xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
                     xmlns:sideChannelFlexibleAperture="clr-namespace:Core.Models.Models.Fourier.SideChannelFlexibleAperture;assembly=Core.Models"
+                    xmlns:wpf="clr-namespace:Net.Utilities.OpticsFourierImageViewer.WPF;assembly=Net.Utilities.OpticsFourierImageViewer.WPF"
                     mc:Ignorable="d">
     <Style x:Key="RodListViewItemStyle"
            d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTO+Rod}"
@@ -53,36 +55,71 @@
             </ListView.View>
         </ListView>
     </DataTemplate>
-    <DataTemplate x:Key="RodResultListTemplate">
-        <ListView d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTO+RodResult,
-                                                   CreateList=True}"
-                  Style="{StaticResource ListView.Small}"
-                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  ItemsSource="{Binding}"
-                  ItemContainerStyle="{StaticResource RodListViewItemStyle}">
-            <i:Interaction.Behaviors>
-                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
-            </i:Interaction.Behaviors>
-            <ListView.View>
-                <GridView ColumnHeaderContainerStyle="{StaticResource RodColumnHeaderStyle}">
-                    <GridViewColumn Width="50"
-                                    Header="Rod"
-                                    DisplayMemberBinding="{Binding Index, Converter={StaticResource OrdinalIndexConverter}}" />
-                    <GridViewColumn Width="70"
-                                    Header="Deleted"
-                                    DisplayMemberBinding="{Binding IsDeleted}" />
-                    <GridViewColumn Width="360"
-                                    Header="Min ROI(px)"
-                                    DisplayMemberBinding="{Binding MinImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
-                    <GridViewColumn Width="360"
-                                    Header="Max ROI(px)"
-                                    DisplayMemberBinding="{Binding MaxImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
-                    <GridViewColumn Width="130"
-                                    Header="Pixel Size"
-                                    DisplayMemberBinding="{Binding PixelSize, StringFormat='0.###'}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
+    <DataTemplate x:Key="ChannelResultTemplate">
+        <Grid d:DataContext="{d:DesignInstance Type=sideChannelFlexibleAperture:FourierSideChannelFlexibleApertureDTOItem}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <TextBox Text="{Binding MinMotorAbsoluteValue, Mode=OneWay}"
+                         hc:TitleElement.Title="Min Motor Position(mm): "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="190"
+                         IsReadOnly="True"
+                         Background="{StaticResource SecondaryRegionBrush}"
+                         Style="{StaticResource TextBoxExtend}" />
+                <TextBox Text="{Binding MaxMotorAbsoluteValue, Mode=OneWay}"
+                         hc:TitleElement.Title="Max Motor Position(mm): "
+                         hc:TitleElement.TitlePlacement="Left"
+                         hc:TitleElement.TitleWidth="190"
+                         IsReadOnly="True"
+                         Background="{StaticResource SecondaryRegionBrush}"
+                         Style="{StaticResource TextBoxExtend}" />
+            </hc:UniformSpacingPanel>
+            <TabControl Grid.Row="2">
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
+                <TabItem Header="Image">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <wpf:OpticsFourierImageCanvasControl Document="{Binding Document, Mode=OneWay}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Rod Information">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <ListView Style="{StaticResource ListView.Small}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                  ItemsSource="{Binding RodResults}"
+                                  ItemContainerStyle="{StaticResource RodListViewItemStyle}">
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+                            </i:Interaction.Behaviors>
+                            <ListView.View>
+                                <GridView ColumnHeaderContainerStyle="{StaticResource RodColumnHeaderStyle}">
+                                    <GridViewColumn Width="50"
+                                                    Header="Rod"
+                                                    DisplayMemberBinding="{Binding Index, Converter={StaticResource OrdinalIndexConverter}}" />
+                                    <GridViewColumn Width="70"
+                                                    Header="Deleted"
+                                                    DisplayMemberBinding="{Binding IsDeleted}" />
+                                    <GridViewColumn Width="360"
+                                                    Header="Min ROI(px)"
+                                                    DisplayMemberBinding="{Binding MinImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                                    <GridViewColumn Width="360"
+                                                    Header="Max ROI(px)"
+                                                    DisplayMemberBinding="{Binding MaxImageROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
+                                    <GridViewColumn Width="130"
+                                                    Header="Pixel Size"
+                                                    DisplayMemberBinding="{Binding PixelSize, StringFormat='0.###'}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </DataTemplate>
 </ResourceDictionary>

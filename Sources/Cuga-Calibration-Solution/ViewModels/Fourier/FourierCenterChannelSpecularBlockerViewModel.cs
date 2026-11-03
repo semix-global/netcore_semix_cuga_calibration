@@ -311,10 +311,7 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private Task<bool> Step3Async(CancellationToken cancellationToken)
-    {
-        return InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken).ConfigureAwait(false));
-    }
+    private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () => await InvokeCalibrateAsync(CalibratingItem.Channel3Item, cancellationToken).ConfigureAwait(false));
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task VerifyAsync(CancellationToken cancellationToken)
@@ -400,8 +397,8 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             Cache.Item.ScanLength,
             Cache.Item.ShinyWaferFindBFMachinePosition,
             fourierPupilCameraAlignmentItem.ROI.ImageROI,
-            XReflectionPushKind = SelectedXReflectionPushItem?.CenterChannelMotionKindEnum,
             YRodAngle = SelectedYRodItem?.AngleMotorAbsoluteValue,
+            XReflectionPushKind = SelectedXReflectionPushItem?.CenterChannelMotionKindEnum,
             configuration.CenterReflectionPushMinMotorAbsoluteValue,
             configuration.CenterReflectionPushMaxMotorAbsoluteValue,
             configuration.CenterXMinMotorAbsoluteValue,
@@ -431,8 +428,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
             try
             {
                 FourierViewModel.Home(3);
-                FourierViewModel.SetChannel3XReflectionPush(0d);
-                FourierViewModel.SetChannel3XDiffractionPush(0d);
 
                 Grab(0);
             }
@@ -574,8 +569,6 @@ public sealed partial class FourierCenterChannelSpecularBlockerViewModel : Calib
                 foreach (var item in items) item.ResetCIB();
 
                 FourierViewModel.Home(3);
-                FourierViewModel.SetChannel3XReflectionPush(0d);
-                FourierViewModel.SetChannel3XDiffractionPush(0d);
 
                 await GrabAsync(0);
 

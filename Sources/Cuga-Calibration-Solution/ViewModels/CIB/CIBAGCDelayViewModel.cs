@@ -617,6 +617,7 @@ public sealed partial class CIBAGCDelayViewModel : CalibrationViewModelBase<CIBA
                 {
                     item.Items = [];
                 }
+
                 await GetResultAsync(selectedReviewItem, true, cancellationToken).ConfigureAwait(false);
 
                 var htmlBullet = new HtmlBullet(new

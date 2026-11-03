@@ -476,7 +476,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
                 else Logger.LogHtmlError("ROI", HtmlHeaderLevelEnum.Header3, new HtmlQuote(item.ToHtmlAnonymous()), HtmlLogUniqueId.LoggingHtml());
             }
 
-            if (item is { CenterChannelMotionKindEnum: CenterChannelMotionKindEnum.YRod, DefaultAngleMotorAbsoluteValue: 300d })
+            if (ReferenceEquals(item, CalibratingItem.YRodItems[3]))
             {
                 CalibratingItem.IsCalibrated = true;
 

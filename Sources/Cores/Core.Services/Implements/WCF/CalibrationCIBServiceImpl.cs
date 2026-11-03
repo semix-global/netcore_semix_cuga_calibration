@@ -255,7 +255,6 @@ public sealed class CalibrationCIBServiceImpl(
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         var getPMTImagesRet = await GetPMTImagesAsync(
-            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -272,13 +271,14 @@ public sealed class CalibrationCIBServiceImpl(
                 AF = isAutoFocus ? 0 : 1,
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
+                ImgArrayResoult = false, /* true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url) */
                 FocusParamNoUsed = isCustomAFParam,
                 PxRange = new SxPxRange
                 {
                     StartPoint = Convert.ToInt32(customImageHeight?.startYPixel),
                     EndPoint = Convert.ToInt32(customImageHeight?.endYPixel)
-                }
+                },
+                AfLedType = 1 /* High-0 Mid-1 Low-2 */
             },
             stageCoordinateSystemEnum switch
             {
@@ -342,8 +342,9 @@ public sealed class CalibrationCIBServiceImpl(
             AF = isAutoFocus ? 0 : 1,
             IsForward = isIncreasing,
             IsCalibration = true, /*为true时不下发波形*/
-            ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
-            FocusParamNoUsed = isCustomAFParam
+            ImgArrayResoult = false, /* true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url) */
+            FocusParamNoUsed = isCustomAFParam,
+            AfLedType = 1 /* High-0 Mid-1 Low-2 */
         });
         if (getDFImgCalibrationRet.IsSuccess == false) return SxExecuteRetHelper.CreateError<IReadOnlyList<DarkFieldImageDTO>>(getDFImgCalibrationRet.Msg, []);
 
@@ -394,7 +395,6 @@ public sealed class CalibrationCIBServiceImpl(
         var pmtIds = cibInformations.GroupBy(t => t.PMTId).Select(t => t.Key).ToArray();
 
         return await GetPMTImagesAsync(
-            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -411,8 +411,9 @@ public sealed class CalibrationCIBServiceImpl(
                 AF = isAutoFocus ? 0 : 1,
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false, /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/
-                FocusParamNoUsed = isCustomAFParam
+                ImgArrayResoult = false, /* true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url) */
+                FocusParamNoUsed = isCustomAFParam,
+                AfLedType = 1 /* High-0 Mid-1 Low-2 */
             },
             stageCoordinateSystemEnum switch
             {
@@ -447,7 +448,6 @@ public sealed class CalibrationCIBServiceImpl(
         var speedECS = Math.Abs(stopECS - startECS) / time;
 
         var getPMTImagesRet = await GetPMTImagesAsync(
-            productivityInformation,
             cibInformations,
             new SxCollectImgParam
             {
@@ -464,13 +464,14 @@ public sealed class CalibrationCIBServiceImpl(
                 AF = 1,
                 IsForward = isForward,
                 IsCalibration = true, /*为true时不下发波形*/
-                ImgArrayResoult = false /*true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url)*/,
+                ImgArrayResoult = false /* true时返回CgRawImgModel/C2MImgMode(byte[])，false时返回M2CImgSysCollectImgDTO(Url) */,
                 ZParam = new SxZParam
                 {
                     Start = Convert.ToInt32(startECS),
                     End = Convert.ToInt32(stopECS),
                     Vel = Convert.ToInt32(speedECS)
-                }
+                },
+                AfLedType = 1 /* High-0 Mid-1 Low-2 */
             },
             stageCoordinateSystemEnum switch
             {
@@ -557,8 +558,9 @@ public sealed class CalibrationCIBServiceImpl(
         return SxExecuteRetHelper.CreateSuccess(true);
     }
 
+    #region Image
+
     private async Task<SxExecuteRet<IReadOnlyList<DarkFieldRawScanImageDTO>>> GetPMTImagesAsync(
-        ProductivityInformation productivityInformation,
         IReadOnlyList<CIBInformation> cibInformations,
         SxCollectImgParam sxCollectImgParam,
         bool isForward,
@@ -615,4 +617,6 @@ public sealed class CalibrationCIBServiceImpl(
             ? getDFImgCalibrationRet
             : SxExecuteRetHelper.CreateError<List<M2CImgSysCollectImgDTO>>(setWaitTimeRet.ErrorMsg, []);
     }
+
+    #endregion
 }
