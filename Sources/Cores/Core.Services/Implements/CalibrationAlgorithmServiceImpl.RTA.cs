@@ -304,8 +304,11 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
                 for (var x = 0; x < xCount; x++)
                 {
-                    var averageX = errorX.Column(x).Where(double.IsFinite).Average();
-                    var averageY = errorY.Column(x).Where(double.IsFinite).Average();
+                    double[] xes = [.. errorX.Column(x).Where(double.IsFinite)];
+                    double[] yes = [.. errorY.Column(x).Where(double.IsFinite)];
+
+                    var averageX = xes.Length > 0 ? xes.Average() : 0d;
+                    var averageY = yes.Length > 0 ? yes.Average() : 0d;
                     samples[x] = new ICalibrationAlgorithmService.RTAScanSample(
                         isForward ? idealXMatrix[0, x] : rawImage.Height - 1d - idealXMatrix[0, x], // 原生匹配位置按行列存储, 行号对应行扫 X 像素, 反向扫描按零基像素位置翻转.
                         new Vector(isForward ? averageX : -averageX /* 反向扫描误差也需要翻转 */, averageY));
