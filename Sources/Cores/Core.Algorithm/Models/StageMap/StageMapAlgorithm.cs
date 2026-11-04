@@ -27,7 +27,10 @@ public static class StageMapAlgorithm
         stageMap.ApplyPythonErrorMatrix(result);
     }
 
-    public static bool ProcessStage2Residuals(IReadOnlyList<CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap> historyStageMaps, Wcf.Models.Chuck.StageMap scanStageMap)
+    public static bool ProcessStage2Residuals(
+        IReadOnlyList<CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap> historyStageMaps,
+        CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap scanStageMap,
+        int stageMapRepeatTimes)
     {
         Guard.IsNotEmpty(historyStageMaps);
 
@@ -47,7 +50,7 @@ public static class StageMapAlgorithm
         }
 
         using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
-        using var pyTargetValidCount = Cache.StageMapRepeatTimes.ToPython();
+        using var pyTargetValidCount = stageMapRepeatTimes.ToPython();
         using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyTargetValidCount, pyMasks);
 
         using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
@@ -62,25 +65,28 @@ public static class StageMapAlgorithm
         return needMoreMeasurement == false;
     }
 
-    public static void CombineCorrectionTables(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap residualStageMap)
+    public static void CombineCorrectionTables(
+        CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap initialStageMap,
+        CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap residualStageMap,
+        int stageMapTemplateCount)
     {
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
         using var combine = module.GetAttr("combine_correction_tables");
 
         // 阶段 1 mask 表示初始修正值的来源, 阶段 2 mask 表示残差是否可参与合并.
-        using var pyInitialCorrection = Cache.StageMap.ToPythonErrorMatrix();
+        using var pyInitialCorrection = initialStageMap.ToPythonErrorMatrix();
         using var pyResidualTable = residualStageMap.ToPythonErrorMatrix();
-        using var pyStage1Mask = Cache.StageMap.ToPythonIsMatchMatrix();
+        using var pyStage1Mask = initialStageMap.ToPythonIsMatchMatrix();
         using var pyStage2ValidMask = residualStageMap.ToPythonIsMatchMatrix();
-        using var pyXGroupSize = Cache.StageMapTemplates.Length.ToPython();
+        using var pyXGroupSize = stageMapTemplateCount.ToPython();
         using var result = combine.Invoke(pyInitialCorrection, pyResidualTable, pyStage1Mask, pyStage2ValidMask, pyXGroupSize);
 
         using var pyFinalCorrection = Guard.IsNotNullAndReturn(result[0]);
         using var pyInterpolationMask = Guard.IsNotNullAndReturn(result[1]);
 
-        Cache.StageMap.ApplyPythonErrorMatrix(pyFinalCorrection);
-        Cache.StageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
+        initialStageMap.ApplyPythonErrorMatrix(pyFinalCorrection);
+        initialStageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
     }
 
     public static PyList ToPythonPointMatrix(Point[][] matrix)
