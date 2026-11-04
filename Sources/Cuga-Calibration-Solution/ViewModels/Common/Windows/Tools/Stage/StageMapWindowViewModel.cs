@@ -474,7 +474,7 @@ public sealed partial class StageMapWindowViewModel(
 
         logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        StageMapAlgorithm.ProcessFirstMeasurement(Cache.StageMap);
+        Cache.StageMap.CalculateErrorMatrix();
         Cache.StageMap.Refresh();
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
@@ -523,10 +523,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
-                isSuccess = StageMapAlgorithm.ProcessStage2Residuals(
-                    historyStageMapList,
-                    scanStageMap,
-                    Cache.StageMapRepeatTimes);
+                isSuccess = scanStageMap.CanRepeatAndCalculateErrorMatrix(historyStageMapList, Cache.StageMapRepeatTimes);
 
                 scanStageMap.Refresh();
 
@@ -537,10 +534,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 if (isSuccess || ++times > Cache.StageMapRepeatTimes - 1)
                 {
-                    StageMapAlgorithm.CombineCorrectionTables(
-                        Cache.StageMap,
-                        scanStageMap,
-                        Cache.StageMapTemplates.Length);
+                    Cache.StageMap.MergeErrorMatrix(scanStageMap, Cache.StageMapTemplates.Length);
 
                     Cache.StageMap.Refresh();
 
@@ -588,7 +582,7 @@ public sealed partial class StageMapWindowViewModel(
 
         logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        StageMapAlgorithm.ProcessFirstMeasurement(Cache.VerifyStageMap);
+        Cache.VerifyStageMap.CalculateErrorMatrix();
         Cache.VerifyStageMap.Refresh();
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
