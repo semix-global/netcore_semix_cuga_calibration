@@ -65,8 +65,6 @@ public sealed partial class StageMapWindowViewModel(
     IAlgorithmEngines algorithmEngines,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
 {
-    private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
-
     public string Name { get; } = "StageMap";
 
     public CalibrationSetting CalibrationSetting { get; } = calibrationSetting;
@@ -825,77 +823,6 @@ public sealed partial class StageMapWindowViewModel(
         }
     }
 
-    private static void ProcessFirstMeasurement(StageMap stageMap)
-    {
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
-        using var process = module.GetAttr("process_first_measurement");
-
-        using var pyResidual = stageMap.ToPythonErrorMatrix();
-        using var pyDesiredPositions = stageMap.ToPythonIdealMatrix();
-        using var pyMask = stageMap.ToPythonIsMatchMatrix();
-        using var pyFillValue = 0d.ToPython();
-        using var result = process.Invoke(pyResidual, pyDesiredPositions, pyMask, pyFillValue);
-
-        stageMap.ApplyPythonErrorMatrix(result);
-    }
-
-    private bool ProcessStage2Residuals(IReadOnlyList<StageMap> historyStageMaps, StageMap scanStageMap)
-    {
-        Guard.IsNotEmpty(historyStageMaps);
-
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
-        using var process = module.GetAttr("process_stage2_residuals");
-
-        using var pyResiduals = new PyList();
-        using var pyMasks = new PyList();
-        foreach (var stageMap in historyStageMaps)
-        {
-            using var pyResidual = stageMap.ToPythonErrorMatrix();
-            using var pyMask = stageMap.ToPythonIsMatchMatrix();
-
-            pyResiduals.Append(pyResidual);
-            pyMasks.Append(pyMask);
-        }
-
-        using var pyDesiredPositions = scanStageMap.ToPythonIdealMatrix();
-        using var pyTargetValidCount = Cache.StageMapRepeatTimes.ToPython();
-        using var result = process.Invoke(pyResiduals, pyDesiredPositions, pyTargetValidCount, pyMasks);
-
-        using var pyNeedMoreMeasurement = Guard.IsNotNullAndReturn(result[0]);
-        using var pyResidualTable = Guard.IsNotNullAndReturn(result[1]);
-        using var pyStage2ValidMask = Guard.IsNotNullAndReturn(result[2]);
-
-        var needMoreMeasurement = pyNeedMoreMeasurement.As<bool>();
-
-        scanStageMap.ApplyPythonErrorMatrix(pyResidualTable);
-        scanStageMap.ApplyPythonIsMatchMatrix(pyStage2ValidMask);
-
-        return needMoreMeasurement == false;
-    }
-
-    private void CombineCorrectionTables(StageMap residualStageMap)
-    {
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
-        using var combine = module.GetAttr("combine_correction_tables");
-
-        // 阶段 1 mask 表示初始修正值的来源, 阶段 2 mask 表示残差是否可参与合并.
-        using var pyInitialCorrection = Cache.StageMap.ToPythonErrorMatrix();
-        using var pyResidualTable = residualStageMap.ToPythonErrorMatrix();
-        using var pyStage1Mask = Cache.StageMap.ToPythonIsMatchMatrix();
-        using var pyStage2ValidMask = residualStageMap.ToPythonIsMatchMatrix();
-        using var pyXGroupSize = Cache.StageMapTemplates.Length.ToPython();
-        using var result = combine.Invoke(pyInitialCorrection, pyResidualTable, pyStage1Mask, pyStage2ValidMask, pyXGroupSize);
-
-        using var pyFinalCorrection = Guard.IsNotNullAndReturn(result[0]);
-        using var pyInterpolationMask = Guard.IsNotNullAndReturn(result[1]);
-
-        Cache.StageMap.ApplyPythonErrorMatrix(pyFinalCorrection);
-        Cache.StageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
-    }
-
     private void DownloadStageMap(Guid htmlLogUniqueId)
     {
         stageViewModel.SetEnableStageMap(false);
@@ -1003,18 +930,5 @@ public sealed partial class StageMapWindowViewModel(
 
             return isSuccess;
         }, cancellationToken).ConfigureAwait(false);
-    }
-
-    private static string GetEmbeddedResource(string fileName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(t => t.EndsWith($".Assets.Python.{fileName}", StringComparison.OrdinalIgnoreCase));
-        Guard.IsNotNull(resourceName);
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        Guard.IsNotNull(stream);
-
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
     }
 }

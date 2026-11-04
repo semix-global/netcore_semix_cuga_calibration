@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="pythonnet" />
         <PackageReference Include="SourceGenerator.InjectHostDI">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -23,6 +24,11 @@
     <ItemGroup>
         <ProjectReference Include="..\Core.Models\02. Core.Models.csproj" />
         <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Assets\Python\*.*" />
+        <EmbeddedResource Include="Assets\Python\*.*" />
     </ItemGroup>
 
 </Project>
