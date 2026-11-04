@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StageMap Studio · 误差可视化</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172f39;
+      --muted: #71878c;
+      --subtle: #a3b3b4;
+      --line: #e5eeee;
+      --surface: #fff;
+      --page: #f1f6f5;
+      --teal: #087f75;
+      --teal-dark: #086d65;
+      --teal-soft: #e7f5f0;
+      --orange: #d97957;
+      --blue: #418ba1;
+      --shadow: 0 8px 24px rgba(33, 65, 65, .045);
+      font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--ink); font-size: 14px; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible { outline: 3px solid rgba(8, 127, 117, .28); outline-offset: 2px; }
+    button:disabled { cursor: not-allowed; opacity: .46; }
+    .topbar { height: 66px; display: flex; align-items: center; justify-content: space-between; padding: 0 38px; background: #fff; border-bottom: 1px solid #e3eded; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-icon { width: 34px; height: 34px; display: grid; place-items: center; color: white; background: var(--teal); border-radius: 10px; }
+    .brand-name { font-size: 15px; font-weight: 750; letter-spacing: -.03em; }
+    .brand-name span { color: var(--teal); }
+    .brand-divider { width: 1px; height: 20px; background: #e0eaea; margin: 0 5px; }
+    .brand-caption, .eyebrow, .section-kicker, .metric-label { color: #819597; font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .local-pill { display: inline-flex; align-items: center; gap: 7px; color: #68827f; border: 1px solid #e5efed; background: #f8fbfa; border-radius: 100px; padding: 7px 11px; font-size: 11px; font-weight: 650; }
+    .local-dot { width: 7px; height: 7px; border-radius: 50%; background: #48a695; }
+    .shell { width: min(1760px, calc(100% - 76px)); margin: 0 auto; padding: 35px 0 48px; }
+    .heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 25px; }
+    .eyebrow { color: var(--teal); margin-bottom: 8px; }
+    h1 { margin: 0; font-size: clamp(25px, 2.2vw, 32px); line-height: 1.2; letter-spacing: -.04em; font-weight: 760; }
+    .heading p { margin: 8px 0 0; color: var(--muted); line-height: 1.6; }
+    .heading-note { color: #819795; font-size: 12px; white-space: nowrap; padding-bottom: 2px; }
+    .heading-note strong { color: #4e6c69; font-weight: 650; }
+    .layout { display: grid; grid-template-columns: 304px minmax(0, 1fr); gap: 20px; align-items: start; }
+    .sidebar { display: grid; gap: 14px; }
+    .card { background: var(--surface); border: 1px solid #e4eeee; border-radius: 16px; box-shadow: var(--shadow); }
+    .side-card { padding: 21px; }
+    .side-heading { display: flex; align-items: start; justify-content: space-between; margin-bottom: 16px; }
+    .side-heading h2 { margin: 5px 0 0; font-size: 16px; letter-spacing: -.02em; }
+    .step-badge { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #e5eeee; border-radius: 9px; color: #94aaa6; font-size: 10px; font-weight: 700; }
+    .dropzone { border: 1px dashed #b9d6cf; border-radius: 12px; padding: 20px 13px 15px; background: #f8fcfa; text-align: center; transition: background .18s, border-color .18s; }
+    .dropzone.is-dragging { background: #e8f8f2; border-color: var(--teal); }
+    .upload-icon { display: grid; place-items: center; width: 38px; height: 38px; margin: 0 auto 10px; color: var(--teal); border-radius: 12px; background: #e5f4ef; }
+    .drop-title { font-weight: 700; font-size: 13px; }
+    .drop-help { color: #91a5a2; font-size: 11px; line-height: 1.6; margin: 5px 0 13px; }
+    .button { min-height: 38px; display: inline-flex; justify-content: center; align-items: center; gap: 7px; padding: 0 13px; border: 1px solid transparent; border-radius: 9px; font-weight: 700; font-size: 12px; transition: background .16s, border-color .16s, transform .16s; }
+    .button:hover:not(:disabled) { transform: translateY(-1px); }
+    .button-primary { background: var(--teal); color: #fff; }
+    .button-primary:hover:not(:disabled) { background: var(--teal-dark); }
+    .button-outline { background: #fff; color: var(--teal); border-color: #c7e2dc; }
+    .button-outline:hover:not(:disabled) { background: #f1faf6; }
+    .button-wide { width: 100%; }
+    .file-summary { display: none; align-items: center; gap: 9px; margin-top: 13px; min-width: 0; }
+    .file-summary.is-visible { display: flex; }
+    .file-icon { flex: 0 0 auto; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: #eef7f4; color: var(--teal); }
+    .file-copy { min-width: 0; flex: 1; }
+    .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 700; }
+    .file-meta { margin-top: 3px; color: #91a5a2; font-size: 10px; }
+    .success-mark { color: var(--teal); font-size: 15px; }
+    .field-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 0 9px; font-size: 12px; font-weight: 700; }
+    .field-title small { color: #9aacaa; font-size: 10px; font-weight: 500; }
+    .number-wrap { display: flex; align-items: center; height: 40px; border: 1px solid #e0ebea; border-radius: 9px; background: #fbfdfc; overflow: hidden; }
+    .number-wrap:focus-within { border-color: #75b9aa; box-shadow: 0 0 0 3px rgba(8, 127, 117, .08); }
+    .number-wrap input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); padding: 0 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .number-unit { color: #86a09b; font-size: 12px; padding: 0 12px; }
+    input[type=range] { width: 100%; height: 4px; margin: 16px 0 11px; accent-color: var(--teal); cursor: pointer; }
+    .presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .preset { border: 1px solid #e5eeec; background: #fafcfb; color: #79918c; height: 28px; border-radius: 7px; font-size: 11px; font-weight: 700; }
+    .preset.is-active { color: var(--teal); background: #eaf8f2; border-color: #bce1d6; }
+    .helper { margin: 11px 0 0; color: #8da19e; font-size: 11px; line-height: 1.7; }
+    .divider { height: 1px; margin: 18px 0; background: #edf2f1; }
+    .formula { margin: 11px 0 0; padding: 10px; border-radius: 8px; background: #f5f9f7; color: #66817c; font-family: Consolas, monospace; font-size: 10px; line-height: 1.5; }
+    .privacy-note { display: flex; align-items: flex-start; gap: 8px; padding: 0 4px; color: #92a7a2; font-size: 10px; line-height: 1.6; }
+    .privacy-note svg { flex: 0 0 auto; margin-top: 1px; }
+    .workspace { min-width: 0; display: grid; gap: 14px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .metric { min-width: 0; min-height: 99px; padding: 18px 19px; }
+    .metric-label { display: flex; align-items: center; gap: 7px; letter-spacing: .04em; font-size: 10px; }
+    .metric-icon { color: #78a79c; }
+    .metric-value { margin-top: 11px; color: #193d43; font-size: clamp(16px, 1.25vw, 21px); font-weight: 740; letter-spacing: -.035em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .metric-value span { color: #92a9a5; font-size: 11px; font-weight: 500; letter-spacing: 0; }
+    .metric-foot { margin-top: 5px; color: #a0b1af; font-size: 10px; }
+    .plot-card { overflow: hidden; }
+    .plot-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 20px 22px 0; }
+    .plot-title { display: flex; align-items: center; gap: 9px; }
+    .plot-title h2 { margin: 0; font-size: 15px; letter-spacing: -.02em; }
+    .title-icon { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px; background: #e9f6f1; color: var(--teal); }
+    .plot-subtitle { margin: 6px 0 0 36px; color: #94a7a4; font-size: 11px; }
+    .plot-tag { flex: 0 0 auto; color: #6a8d85; background: #f3f8f6; border: 1px solid #e7f0ec; border-radius: 7px; padding: 5px 8px; font-size: 10px; font-weight: 650; }
+    .plot-wrap { position: relative; padding: 4px 14px 2px; }
+    .plot-wrap canvas { width: 100%; display: block; }
+    #map-canvas { height: clamp(355px, 38vw, 540px); }
+    #trend-canvas { height: 230px; }
+    .empty-state { position: absolute; inset: 5px 14px 2px; display: grid; place-content: center; text-align: center; background: rgba(255,255,255,.86); }
+    .empty-state[hidden] { display: none; }
+    .empty-icon { display: grid; place-items: center; margin: 0 auto 12px; width: 46px; height: 46px; border: 1px solid #dfefea; color: #80b8a8; border-radius: 14px; background: #f3faf6; }
+    .empty-title { font-weight: 700; color: #66827b; }
+    .empty-copy { color: #a1b4ae; margin-top: 5px; font-size: 11px; }
+    .plot-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 22px 19px; color: #8ba29d; font-size: 10px; }
+    .legend { display: flex; align-items: center; gap: 8px; }
+    .gradient { width: 102px; height: 5px; border-radius: 5px; background: linear-gradient(90deg, #438fa5, #d8e5df 50%, #dc805c); }
+    .plot-hint { white-space: nowrap; }
+    .tooltip { position: absolute; z-index: 3; pointer-events: none; display: none; white-space: pre-line; padding: 9px 11px; color: #eefaf7; background: rgba(25, 53, 57, .95); border-radius: 9px; font-size: 10px; line-height: 1.65; box-shadow: 0 7px 18px rgba(20,50,50,.18); font-variant-numeric: tabular-nums; }
+    .toast { position: fixed; right: 24px; bottom: 24px; z-index: 5; max-width: min(420px, calc(100vw - 48px)); padding: 12px 16px; border-radius: 10px; background: #213e40; color: white; box-shadow: 0 12px 30px rgba(20, 50, 45, .18); opacity: 0; transform: translateY(8px); transition: opacity .18s, transform .18s; pointer-events: none; font-size: 12px; line-height: 1.5; }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast.is-error { background: #a44134; }
+    @media (max-width: 1100px) { .shell { width: min(100% - 40px, 1760px); } .topbar { padding: 0 20px; } .layout { grid-template-columns: 270px minmax(0, 1fr); } .metrics { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 760px) { .topbar { height: 58px; } .brand-caption, .brand-divider, .heading-note { display: none; } .shell { padding-top: 25px; } .heading { margin-bottom: 18px; } .layout { grid-template-columns: 1fr; } .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .privacy-note { grid-column: 1 / -1; } .side-card { padding: 17px; } #map-canvas { height: 380px; } }
+    @media (max-width: 500px) { .shell { width: calc(100% - 24px); } .topbar { padding: 0 12px; } .sidebar { grid-template-columns: 1fr; } .metrics { gap: 8px; } .metric { padding: 14px; min-height: 90px; } .metric-value { font-size: 16px; } .plot-header { padding: 17px 15px 0; } .plot-footer { align-items: flex-start; flex-direction: column; padding: 0 16px 17px; } .plot-tag { display: none; } #map-canvas { height: 320px; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 7h5M5 12h8M5 17h5M16 5v14M13 8l3-3 3 3M13 16l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="brand-name">StageMap <span>Studio</span></div>
+      <div class="brand-divider"></div><div class="brand-caption">ERROR FIELD VIEWER</div>
+    </div>
+    <div class="local-pill"><span class="local-dot"></span> 本地运行 · 数据不上传</div>
+  </header>
+  <main class="shell">
+    <section class="heading">
+      <div><div class="eyebrow">STAGE METROLOGY / ANALYSIS</div><h1>让每一处误差，清晰可见。</h1><p>基于 Ideal 坐标查看 StageMap 的误差分布与线性趋势。</p></div>
+      <div class="heading-note"><strong>StageMap</strong> &nbsp;/&nbsp; Error analysis</div>
+    </section>
+    <div class="layout">
+      <aside class="sidebar">
+        <section class="card side-card">
+          <div class="side-heading"><div><div class="section-kicker">DATA SOURCE</div><h2>导入数据</h2></div><div class="step-badge">01</div></div>
+          <div class="dropzone" id="dropzone">
+            <div class="upload-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L8 8m4-4 4 4M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="drop-title">拖放 StageMapCache 文件</div>
+            <div class="drop-help">或选择本地 JSON 文件<br>支持项目中的示例数据</div>
+            <button class="button button-outline" id="open-button" type="button">选择 JSON 文件</button>
+            <input id="file-input" type="file" hidden>
+          </div>
+          <div class="file-summary" id="file-summary"><div class="file-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h4M9 13h6M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="file-copy"><div class="file-name" id="file-name"></div><div class="file-meta" id="file-meta"></div></div><span class="success-mark">✓</span></div>
+        </section>
+        <section class="card side-card">
+          <div class="side-heading"><div><div class="section-kicker">VISUAL SETTINGS</div><h2>显示设置</h2></div><div class="step-badge">02</div></div>
+          <label class="field-title" for="magnification">向量显示倍率 <small>仅影响图形</small></label>
+          <div class="number-wrap"><input id="magnification" type="number" min="0.01" step="any" value="5" inputmode="decimal"><span class="number-unit">×</span></div>
+          <input id="magnification-range" type="range" min="1" max="50" step="1" value="5" aria-label="向量显示倍率滑块">
+          <div class="presets" role="group" aria-label="显示倍率快捷选项"><button class="preset" type="button" data-scale="1">1×</button><button class="preset is-active" type="button" data-scale="5">5×</button><button class="preset" type="button" data-scale="10">10×</button><button class="preset" type="button" data-scale="20">20×</button></div>
+          <p class="helper">箭头从 Ideal 坐标出发。调整倍率不会改变实际误差值。</p>
+          <div class="divider"></div>
+          <label class="field-title" for="scale-percent">X 线性比例误差 <small>生成新文件</small></label>
+          <div class="number-wrap"><input id="scale-percent" type="number" step="any" value="1" inputmode="decimal"><span class="number-unit">%</span></div>
+          <div class="formula">Error X = (Ideal X − 中心 X) × 比例</div>
+          <p class="helper">只更新晶圆内匹配成功的点，保留 Y 误差及其他数据。</p>
+          <button class="button button-primary button-wide" id="generate-button" type="button" disabled style="margin-top: 13px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>生成并下载 JSON</button>
+        </section>
+        <div class="privacy-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg><span>所有数据均在浏览器本地处理，不会上传到网络。</span></div>
+      </aside>
+      <section class="workspace" aria-label="误差分析结果">
+        <div class="metrics">
+          <div class="card metric"><div class="metric-label"><span class="metric-icon">◈</span> 有效匹配点</div><div class="metric-value" id="metric-count">—</div><div class="metric-foot">晶圆内且匹配成功</div></div>
+          <div class="card metric"><div class="metric-label"><span class="metric-icon">↔</span> X 误差范围</div><div class="metric-value" id="metric-x">—</div><div class="metric-foot">实际最小值 / 最大值</div></div>
+          <div class="card metric"><div class="metric-label"><span class="metric-icon">↕</span> Y 误差范围</div><div class="metric-value" id="metric-y">—</div><div class="metric-foot">实际最小值 / 最大值</div></div>
+          <div class="card metric"><div class="metric-label"><span class="metric-icon">⌁</span> X 线性拟合比例</div><div class="metric-value" id="metric-slope">—</div><div class="metric-foot">基于 Ideal X 的线性拟合</div></div>
+        </div>
+        <section class="card plot-card"><div class="plot-header"><div><div class="plot-title"><span class="title-icon" aria-hidden="true">↗</span><h2>误差向量分布</h2></div><p class="plot-subtitle">以 Ideal 为起点，箭头表示实际误差方向</p></div><span class="plot-tag" id="scale-tag">显示倍率 5×</span></div>
+          <div class="plot-wrap" id="map-wrap"><canvas id="map-canvas" aria-label="基于理想坐标的误差向量分布图"></canvas><div class="empty-state" id="map-empty"><div class="empty-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M12 7v10M7 12h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="empty-title">等待导入数据</div><div class="empty-copy">选择 JSON 文件后开始分析</div></div><div class="tooltip" id="map-tooltip"></div></div>
+          <div class="plot-footer"><div class="legend"><span>X 负误差</span><span class="gradient"></span><span>X 正误差</span></div><div class="plot-hint">悬停在点上查看实际坐标与误差</div></div>
+        </section>
+        <section class="card plot-card"><div class="plot-header"><div><div class="plot-title"><span class="title-icon" aria-hidden="true">⌁</span><h2>X 误差趋势</h2></div><p class="plot-subtitle">实际 Error X 与 Ideal X 的关系</p></div><span class="plot-tag" id="trend-tag">线性拟合</span></div><div class="plot-wrap"><canvas id="trend-canvas" aria-label="X 误差与理想 X 坐标关系图"></canvas><div class="empty-state" id="trend-empty"><div class="empty-title">导入后显示误差趋势</div><div class="empty-copy">坐标与误差均使用实际数值</div></div></div><div class="plot-footer"><div>横轴 · Ideal X (μm)</div><div>纵轴 · 实际 Error X (μm)</div></div></section>
+      </section>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+    const state = { text: null, name: "", points: [], magnification: 5, mapPixels: [], frame: 0 };
+    const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+    let toastTimer;
+
+    function notify(message, isError = false) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.toggle("is-error", isError);
+      toast.classList.add("is-visible");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 4200);
+    }
+
+    function fmt(value, digits = 2) {
+      if (!Number.isFinite(value)) return "—";
+      if (value !== 0 && Math.abs(value) < 0.0001) return value.toExponential(2);
+      const precision = Math.abs(value) < 1 ? Math.max(digits, 4) : digits;
+      if (precision === 2) return numberFormat.format(Object.is(value, -0) ? 0 : value);
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: precision }).format(Object.is(value, -0) ? 0 : value);
+    }
+
+    function analyze(text) {
+      let cache;
+      try { cache = JSON.parse(text.replace(/^\uFEFF/, "")); }
+      catch { throw new Error("文件不是有效的 JSON，请检查文件内容。"); }
+      if (!cache || typeof cache !== "object" || Array.isArray(cache) || !cache.StageMap || typeof cache.StageMap !== "object" || Array.isArray(cache.StageMap)) throw new Error("JSON 中没有顶层 StageMap 对象。");
+      const stageMap = cache.StageMap;
+      const names = ["IdealMatrix", "ErrorMatrix", "IsInWaferMatrix", "IsMatchMatrix"];
+      const matrices = names.map(name => {
+        const matrix = stageMap[name];
+        if (!Array.isArray(matrix) || matrix.length === 0) throw new Error(`StageMap.${name} 不是非空矩阵。`);
+        return matrix;
+      });
+      if (matrices.some(matrix => matrix.length !== matrices[0].length)) throw new Error("StageMap 矩阵的行数不一致。");
+      const points = [];
+      for (let row = 0; row < matrices[0].length; row++) {
+        const rows = matrices.map(matrix => matrix[row]);
+        if (rows.some(value => !Array.isArray(value)) || rows.some(value => value.length !== rows[0].length)) throw new Error(`第 ${row + 1} 行的矩阵长度不一致。`);
+        for (let column = 0; column < rows[0].length; column++) {
+          const [ideal, error, inWafer, isMatch] = rows.map(value => value[column]);
+          if (typeof inWafer !== "boolean" || typeof isMatch !== "boolean") throw new Error(`第 ${row + 1} 行第 ${column + 1} 列的状态不是布尔值。`);
+          if (!inWafer || !isMatch) continue;
+          if (!ideal || typeof ideal !== "object" || !error || typeof error !== "object" || ![ideal.X, ideal.Y, error.X, error.Y].every(Number.isFinite)) throw new Error(`第 ${row + 1} 行第 ${column + 1} 列包含无效坐标或误差。`);
+          points.push({ row, column, x: ideal.X, y: ideal.Y, errorX: error.X, errorY: error.Y });
+        }
+      }
+      if (!points.length) throw new Error("没有同时满足 IsInWaferMatrix 和 IsMatchMatrix 的有效点。");
+      return points;
+    }
+
+    function measure(points) {
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      let sumX = 0, sumErrorX = 0, minIdeal = Infinity, maxIdeal = -Infinity;
+      for (const point of points) {
+        minX = Math.min(minX, point.errorX); maxX = Math.max(maxX, point.errorX);
+        minY = Math.min(minY, point.errorY); maxY = Math.max(maxY, point.errorY);
+        minIdeal = Math.min(minIdeal, point.x); maxIdeal = Math.max(maxIdeal, point.x);
+        sumX += point.x; sumErrorX += point.errorX;
+      }
+      const meanX = sumX / points.length, meanErrorX = sumErrorX / points.length;
+      let numerator = 0, denominator = 0;
+      for (const point of points) { numerator += (point.x - meanX) * (point.errorX - meanErrorX); denominator += (point.x - meanX) ** 2; }
+      return { minX, maxX, minY, maxY, minIdeal, maxIdeal, meanX, meanErrorX, slope: denominator ? numerator / denominator : null };
+    }
+
+    function showData(text, name) {
+      const clean = text.replace(/^\uFEFF/, "");
+      const points = analyze(clean);
+      state.text = clean; state.name = name; state.points = points;
+      const stats = measure(points);
+      $("file-name").textContent = name;
+      $("file-name").title = name;
+      $("file-meta").textContent = `StageMap · ${points.length.toLocaleString("en-US")} 个有效点`;
+      $("file-summary").classList.add("is-visible");
+      $("metric-count").textContent = points.length.toLocaleString("en-US");
+      $("metric-x").replaceChildren(document.createTextNode(`${fmt(stats.minX)} ~ ${fmt(stats.maxX)} `), unit());
+      $("metric-y").replaceChildren(document.createTextNode(`${fmt(stats.minY)} ~ ${fmt(stats.maxY)} `), unit());
+      $("metric-slope").replaceChildren(document.createTextNode(stats.slope === null ? "—" : `${fmt(stats.slope * 100, 6)} `), percentUnit());
+      $("map-empty").hidden = true; $("trend-empty").hidden = true; $("generate-button").disabled = false;
+      requestDraw();
+    }
+
+    function unit() { const span = document.createElement("span"); span.textContent = "μm"; return span; }
+    function percentUnit() { const span = document.createElement("span"); span.textContent = "%"; return span; }
+
+    async function openFile(file) {
+      if (!file) return;
+      try { showData(await file.text(), file.name); notify("文件已加载，可以开始查看误差。"); }
+      catch (error) { notify(error.message || "无法读取文件。", true); }
+    }
+
+    function updateMagnification(value, reportError = false) {
+      const parsed = Number(value);
+      if (value === "" || !Number.isFinite(parsed) || parsed <= 0) {
+        if (reportError) notify("显示倍率必须是大于 0 的有限数字。", true);
+        return false;
+      }
+      if (state.points.some(point => !Number.isFinite(point.x + point.errorX * parsed) || !Number.isFinite(point.y + point.errorY * parsed))) {
+        if (reportError) notify("显示倍率过大，无法绘制坐标。", true);
+        return false;
+      }
+      state.magnification = parsed;
+      $("magnification").value = String(parsed);
+      $("magnification-range").value = String(Math.max(1, Math.min(50, parsed)));
+      $("scale-tag").textContent = `显示倍率 ${fmt(parsed, 4)}×`;
+      document.querySelectorAll(".preset").forEach(button => button.classList.toggle("is-active", Number(button.dataset.scale) === parsed));
+      requestDraw();
+      return true;
+    }
+
+    function whitespace(text, index) { while (index < text.length && /\s/.test(text[index])) index++; return index; }
+    function stringEnd(text, start) {
+      if (text[start] !== '"') throw new Error("JSON 字符串格式错误。");
+      for (let index = start + 1; index < text.length; index++) {
+        if (text[index] === "\\") index++;
+        else if (text[index] === '"') return index + 1;
+      }
+      throw new Error("JSON 字符串不完整。");
+    }
+    function valueEnd(text, start) {
+      const first = text[start];
+      if (first === '"') return stringEnd(text, start);
+      if (first === "{" || first === "[") {
+        let depth = 0;
+        for (let index = start; index < text.length; index++) {
+          const char = text[index];
+          if (char === '"') index = stringEnd(text, index) - 1;
+          else if (char === "{" || char === "[") depth++;
+          else if (char === "}" || char === "]") { depth--; if (depth === 0) return index + 1; }
+        }
+        throw new Error("JSON 结构不完整。");
+      }
+      let index = start;
+      while (index < text.length && !/[\s,\]}]/.test(text[index])) index++;
+      return index;
+    }
+    function memberSpan(text, start, expected) {
+      let index = whitespace(text, start);
+      if (text[index] !== "{") throw new Error("预期为 JSON 对象。");
+      index = whitespace(text, index + 1);
+      let found = null;
+      while (text[index] !== "}") {
+        const end = stringEnd(text, index);
+        const key = JSON.parse(text.slice(index, end));
+        index = whitespace(text, end);
+        if (text[index] !== ":") throw new Error("JSON 字段格式错误。");
+        const valueStart = whitespace(text, index + 1), valueFinish = valueEnd(text, valueStart);
+        if (key === expected) {
+          if (found) throw new Error(`字段 ${expected} 重复，无法安全生成文件。`);
+          found = [valueStart, valueFinish];
+        }
+        index = whitespace(text, valueFinish);
+        if (text[index] === ",") index = whitespace(text, index + 1);
+        else if (text[index] !== "}") throw new Error("JSON 对象分隔符错误。");
+      }
+      if (!found) throw new Error(`找不到字段 ${expected}。`);
+      return found;
+    }
+    function arraySpans(text, start) {
+      let index = whitespace(text, start);
+      if (text[index] !== "[") throw new Error("预期为 JSON 数组。");
+      index = whitespace(text, index + 1);
+      const values = [];
+      while (text[index] !== "]") {
+        const end = valueEnd(text, index);
+        values.push([index, end]);
+        index = whitespace(text, end);
+        if (text[index] === ",") index = whitespace(text, index + 1);
+        else if (text[index] !== "]") throw new Error("JSON 数组分隔符错误。");
+      }
+      return values;
+    }
+
+    function makeScaledJSON(text, points, percent) {
+      if (!Number.isFinite(percent)) throw new Error("线性比例误差必须是有限数字。");
+      const stats = measure(points);
+      const center = stats.minIdeal + (stats.maxIdeal - stats.minIdeal) / 2;
+      if (!Number.isFinite(center)) throw new Error("Ideal X 范围过大，无法计算中心。");
+      const targets = new Map(points.map(point => [`${point.row},${point.column}`, point]));
+      const stageStart = memberSpan(text, 0, "StageMap")[0];
+      const errorStart = memberSpan(text, stageStart, "ErrorMatrix")[0];
+      const replacements = [];
+      arraySpans(text, errorStart).forEach(([rowStart], row) => {
+        arraySpans(text, rowStart).forEach(([vectorStart], column) => {
+          const point = targets.get(`${row},${column}`);
+          if (!point) return;
+          const [start, end] = memberSpan(text, vectorStart, "X");
+          const newX = (point.x - center) * percent / 100;
+          if (!Number.isFinite(newX)) throw new Error("比例过大，导致误差超出数值范围。");
+          replacements.push([start, end, JSON.stringify(newX)]);
+        });
+      });
+      if (replacements.length !== points.length) throw new Error("未能定位全部有效点的 X 误差。");
+      let cursor = 0;
+      const parts = [];
+      for (const [start, end, value] of replacements) { parts.push(text.slice(cursor, start), value); cursor = end; }
+      parts.push(text.slice(cursor));
+      return parts.join("").replace(/\r\n|\r|\n/g, "\n").replace(/\n/g, "\r\n").replace(/[\r\n]+$/, "");
+    }
+
+    function generateFile() {
+      if (!state.text) return;
+      const input = $("scale-percent").value;
+      const percent = Number(input);
+      if (input === "" || !Number.isFinite(percent)) { notify("请输入有效的线性比例误差。", true); return; }
+      try {
+        const result = makeScaledJSON(state.text, state.points, percent);
+        const baseName = state.name.replace(/\.json$/i, "").replace(/_x_scale(?:_[^.]*)?$/i, "");
+        const name = `${baseName}_x_scale.json`;
+        const url = URL.createObjectURL(new Blob([result], { type: "application/json;charset=utf-8" }));
+        const link = document.createElement("a"); link.href = url; link.download = name;
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        showData(result, name);
+        notify(`已生成 ${fmt(percent, 6)}% 线性误差文件，并更新图表。`);
+      } catch (error) { notify(error.message || "生成文件失败。", true); }
+    }
+
+    function requestDraw() {
+      cancelAnimationFrame(state.frame);
+      state.frame = requestAnimationFrame(() => { drawMap(); drawTrend(); });
+    }
+    function prepareCanvas(canvas) {
+      const rect = canvas.getBoundingClientRect(), ratio = window.devicePixelRatio || 1;
+      const width = Math.max(1, rect.width), height = Math.max(1, rect.height);
+      canvas.width = Math.round(width * ratio); canvas.height = Math.round(height * ratio);
+      const ctx = canvas.getContext("2d"); ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.clearRect(0, 0, width, height);
+      return { ctx, width, height };
+    }
+    function niceStep(span, target) {
+      const rough = Math.abs(span) / target;
+      if (!Number.isFinite(rough) || rough <= 0) return 1;
+      const base = 10 ** Math.floor(Math.log10(rough)), fraction = rough / base;
+      return (fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10) * base;
+    }
+    function bounds(min, max) {
+      const span = max - min;
+      const pad = span > 0 ? span * .06 : Math.max(Math.abs(min) * .06, 1);
+      return [min - pad, max + pad];
+    }
+    function drawAxes(ctx, box, xBounds, yBounds, xLabel, yLabel) {
+      const { left, top, width, height } = box;
+      const [xmin, xmax] = xBounds, [ymin, ymax] = yBounds;
+      const projectX = x => left + (x - xmin) / (xmax - xmin) * width;
+      const projectY = y => top + height - (y - ymin) / (ymax - ymin) * height;
+      ctx.save(); ctx.font = '10px "Segoe UI", sans-serif'; ctx.fillStyle = "#99aaa7"; ctx.strokeStyle = "#edf3f1"; ctx.lineWidth = 1;
+      const xStep = niceStep(xmax - xmin, Math.max(3, Math.floor(width / 105)));
+      for (let tick = Math.ceil(xmin / xStep) * xStep, count = 0; tick <= xmax + xStep * 1e-8 && count++ < 20; tick += xStep) {
+        const x = projectX(tick); ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, top + height); ctx.stroke();
+        ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(fmt(tick), x, top + height + 9);
+      }
+      const yStep = niceStep(ymax - ymin, Math.max(3, Math.floor(height / 70)));
+      for (let tick = Math.ceil(ymin / yStep) * yStep, count = 0; tick <= ymax + yStep * 1e-8 && count++ < 20; tick += yStep) {
+        const y = projectY(tick); ctx.beginPath(); ctx.moveTo(left, y); ctx.lineTo(left + width, y); ctx.stroke();
+        ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillText(fmt(tick), left - 10, y);
+      }
+      ctx.strokeStyle = "#d8e6e2"; ctx.strokeRect(left, top, width, height);
+      ctx.fillStyle = "#829b95"; ctx.font = '10px "Segoe UI", sans-serif'; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      ctx.fillText(xLabel, left + width / 2, top + height + 39);
+      ctx.save(); ctx.translate(13, top + height / 2); ctx.rotate(-Math.PI / 2); ctx.fillText(yLabel, 0, 0); ctx.restore();
+      ctx.restore();
+      return { x: projectX, y: projectY };
+    }
+    function colorFor(value, extent) {
+      const t = Math.min(1, Math.abs(value) / (extent || 1));
+      const base = [196, 216, 210], target = value < 0 ? [55, 134, 158] : [218, 105, 72];
+      const rgb = base.map((v, index) => Math.round(v + (target[index] - v) * t));
+      return `rgb(${rgb.join(",")})`;
+    }
+    function drawMap() {
+      const canvas = $("map-canvas"), { ctx, width, height } = prepareCanvas(canvas);
+      state.mapPixels = [];
+      if (!state.points.length || width < 100 || height < 100) return;
+      const box = { left: width < 480 ? 62 : 78, top: 24, width: width - (width < 480 ? 79 : 100), height: height - 75 };
+      let xmin = Infinity, xmax = -Infinity, ymin = Infinity, ymax = -Infinity, extent = 0;
+      for (const p of state.points) {
+        const endX = p.x + p.errorX * state.magnification, endY = p.y + p.errorY * state.magnification;
+        xmin = Math.min(xmin, p.x, endX); xmax = Math.max(xmax, p.x, endX);
+        ymin = Math.min(ymin, p.y, endY); ymax = Math.max(ymax, p.y, endY);
+        extent = Math.max(extent, Math.abs(p.errorX));
+      }
+      let xb = bounds(xmin, xmax), yb = bounds(ymin, ymax);
+      const ratio = box.width / box.height, currentRatio = (xb[1] - xb[0]) / (yb[1] - yb[0]);
+      if (currentRatio > ratio) { const center = (yb[0] + yb[1]) / 2, half = (xb[1] - xb[0]) / ratio / 2; yb = [center - half, center + half]; }
+      else { const center = (xb[0] + xb[1]) / 2, half = (yb[1] - yb[0]) * ratio / 2; xb = [center - half, center + half]; }
+      const axis = drawAxes(ctx, box, xb, yb, "Ideal X (μm)", "Ideal Y (μm)");
+      ctx.save(); ctx.beginPath(); ctx.rect(box.left, box.top, box.width, box.height); ctx.clip();
+      for (const point of state.points) {
+        const x = axis.x(point.x), y = axis.y(point.y);
+        const endX = axis.x(point.x + point.errorX * state.magnification), endY = axis.y(point.y + point.errorY * state.magnification);
+        const dx = endX - x, dy = endY - y, length = Math.hypot(dx, dy);
+        ctx.strokeStyle = colorFor(point.errorX, extent); ctx.fillStyle = ctx.strokeStyle; ctx.lineWidth = 1.1;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(endX, endY); ctx.stroke();
+        if (length > 3) {
+          const angle = Math.atan2(dy, dx), size = Math.min(4, Math.max(2, length * .35));
+          ctx.beginPath(); ctx.moveTo(endX, endY); ctx.lineTo(endX - size * Math.cos(angle - .5), endY - size * Math.sin(angle - .5)); ctx.lineTo(endX - size * Math.cos(angle + .5), endY - size * Math.sin(angle + .5)); ctx.closePath(); ctx.fill();
+        }
+        ctx.fillStyle = "#476b69"; ctx.globalAlpha = .68; ctx.beginPath(); ctx.arc(x, y, 1.35, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+        state.mapPixels.push({ x, y, point });
+      }
+      ctx.restore();
+    }
+    function drawTrend() {
+      const canvas = $("trend-canvas"), { ctx, width, height } = prepareCanvas(canvas);
+      if (!state.points.length || width < 100 || height < 100) return;
+      const box = { left: width < 480 ? 62 : 78, top: 19, width: width - (width < 480 ? 79 : 100), height: height - 70 };
+      const stats = measure(state.points), xb = bounds(stats.minIdeal, stats.maxIdeal), yb = bounds(Math.min(0, stats.minX), Math.max(0, stats.maxX));
+      const axis = drawAxes(ctx, box, xb, yb, "Ideal X (μm)", "Error X (μm)");
+      ctx.save(); ctx.beginPath(); ctx.rect(box.left, box.top, box.width, box.height); ctx.clip();
+      ctx.strokeStyle = "#c8d9d4"; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(box.left, axis.y(0)); ctx.lineTo(box.left + box.width, axis.y(0)); ctx.stroke(); ctx.setLineDash([]);
+      const extent = Math.max(Math.abs(stats.minX), Math.abs(stats.maxX));
+      ctx.globalAlpha = .58;
+      for (const p of state.points) { ctx.fillStyle = colorFor(p.errorX, extent); ctx.beginPath(); ctx.arc(axis.x(p.x), axis.y(p.errorX), 2.1, 0, Math.PI * 2); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      if (stats.slope !== null) {
+        const predict = x => stats.meanErrorX + stats.slope * (x - stats.meanX);
+        ctx.strokeStyle = "#19786e"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(axis.x(stats.minIdeal), axis.y(predict(stats.minIdeal))); ctx.lineTo(axis.x(stats.maxIdeal), axis.y(predict(stats.maxIdeal))); ctx.stroke();
+        $("trend-tag").textContent = `拟合比例 ${fmt(stats.slope * 100, 6)}%`;
+      } else $("trend-tag").textContent = "Ideal X 不足以拟合";
+      ctx.restore();
+    }
+
+    $("open-button").addEventListener("click", () => $("file-input").click());
+    $("file-input").addEventListener("change", event => { openFile(event.target.files[0]); event.target.value = ""; });
+    for (const eventName of ["dragenter", "dragover"]) $("dropzone").addEventListener(eventName, event => { event.preventDefault(); $("dropzone").classList.add("is-dragging"); });
+    for (const eventName of ["dragleave", "drop"]) $("dropzone").addEventListener(eventName, event => { event.preventDefault(); $("dropzone").classList.remove("is-dragging"); });
+    $("dropzone").addEventListener("drop", event => openFile(event.dataTransfer.files[0]));
+    $("magnification").addEventListener("input", event => updateMagnification(event.target.value));
+    $("magnification").addEventListener("change", event => { if (!updateMagnification(event.target.value, true)) event.target.value = String(state.magnification); });
+    $("magnification-range").addEventListener("input", event => updateMagnification(event.target.value));
+    document.querySelectorAll(".preset").forEach(button => button.addEventListener("click", () => updateMagnification(button.dataset.scale)));
+    $("generate-button").addEventListener("click", generateFile);
+    $("map-canvas").addEventListener("mousemove", event => {
+      const rect = event.currentTarget.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
+      let best = null, distance = 100;
+      for (const item of state.mapPixels) { const d = (item.x - x) ** 2 + (item.y - y) ** 2; if (d < distance) { distance = d; best = item; } }
+      const tip = $("map-tooltip");
+      if (!best) { tip.style.display = "none"; return; }
+      const p = best.point;
+      tip.textContent = `行 ${p.row + 1} · 列 ${p.column + 1}\nIdeal  ${fmt(p.x)}, ${fmt(p.y)} μm\nError  ${fmt(p.errorX, 4)}, ${fmt(p.errorY, 4)} μm`;
+      tip.style.display = "block";
+      const parent = $("map-wrap").getBoundingClientRect();
+      tip.style.left = `${Math.min(event.clientX - parent.left + 14, parent.width - tip.offsetWidth - 8)}px`;
+      tip.style.top = `${Math.max(4, Math.min(event.clientY - parent.top + 14, parent.height - tip.offsetHeight - 4))}px`;
+    });
+    $("map-canvas").addEventListener("mouseleave", () => { $("map-tooltip").style.display = "none"; });
+    new ResizeObserver(requestDraw).observe($("map-canvas"));
+    window.addEventListener("resize", requestDraw);
+    requestDraw();
+  </script>
+</body>
+</html>
