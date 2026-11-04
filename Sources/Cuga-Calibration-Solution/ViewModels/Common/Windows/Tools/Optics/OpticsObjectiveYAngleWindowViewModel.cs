@@ -206,16 +206,14 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                 {
                     var brightFieldPosition = SetPosition(Cache.HazeBFMachinePosition, CalChipSiteModelEnum.HazeModel);
-                    laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, Cache.HazeLaserLightInformation.Coefficient);
-                    laserViewModel.SetChirpAODWaveProfile(productivityInformation);
 
                     hazeFourierImage = fourierViewModel.GetImage(
                         productivityInformation,
-                        Cache.HazeLaserLightInformation,
                         brightFieldPosition,
                         Cache.ScanLength,
                         Cache.ChannelId,
-                        true);
+                        (false, Cache.HazeLaserLightInformation),
+                        false);
 
                     Cache.Result.HazeImageFilePath = SaveImage(hazeFourierImage);
 
@@ -253,10 +251,10 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
 
                     shinyWaferFourierImage = fourierViewModel.GetImage(
                         productivityInformation,
-                        Cache.ShinyWaferLaserLightInformation,
                         brightFieldPosition,
                         Cache.ScanLength,
                         Cache.ChannelId,
+                        (true, null),
                         true);
 
                     Cache.Result.ShinyWaferImageFilePath = SaveImage(shinyWaferFourierImage);

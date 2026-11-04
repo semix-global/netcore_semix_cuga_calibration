@@ -472,6 +472,7 @@ public abstract partial class AbstractOpticsGrabbingImageWindowViewModel<TCache>
                     isForward: Cache.IsForward).ConfigureAwait(false);
 
                 cancellationTokenSource.CancelAfter(10000);
+                cancellationToken.ThrowIfCancellationRequested();
                 var traceBuffers = await task.ConfigureAwait(false);
 
                 foreach (var darkFieldImage in darkFieldImages)

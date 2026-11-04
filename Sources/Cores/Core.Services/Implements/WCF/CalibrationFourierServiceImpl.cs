@@ -99,18 +99,16 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
 
     public SxExecuteRet<BitmapImage> GetImage(
         ProductivityInformation productivityInformation,
-        LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId,
-        bool isCustomWaveform)
+        int channelId)
     {
         var wcfParam = new SxOpticsParam
         {
             Magnification = productivityInformation.AdaptTo().Mag,
             Speed = productivityInformation.AdaptTo().Speed,
             NIOI = productivityInformation.OpticsIlluminationModeEnum.ToSxNIOIEnum(),
-            LightLevelUnit = laserLightInformation.Level,
+            LightLevelUnit = -1,
             OpenZoos = true
         };
 
@@ -119,7 +117,8 @@ public sealed class CalibrationFourierServiceImpl : BaseService<ICgCalibrationSe
             wcfParam,
             dfPosition.ToSxPointD(),
             Convert.ToInt32(scanLength),
-            isCustomWaveform)
+            isCalitration: true,
+            ledType: 1 /* High-0 Mid-1 Low-2 */)
         );
 
 #pragma warning disable IDE0079

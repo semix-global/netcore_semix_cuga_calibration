@@ -237,8 +237,6 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             OpticsViewModel.SetOpticsConfiguration(Cache.OpticsConfiguration);
 
             Guard.IsBetweenOrEqualTo(Cache.Step0AndStep1MotorAbsoluteValue, Cache.MinMotorAbsoluteValue, Cache.MaxMotorAbsoluteValue);
@@ -478,10 +476,10 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
 
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
                 item.ChannelId,
+                (false, Cache.LaserLightInformation),
                 false);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_{(isEven ? "Even" : "Odd")}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);

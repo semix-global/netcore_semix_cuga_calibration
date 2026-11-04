@@ -13,6 +13,7 @@ namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(FourierViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class FourierViewModel(
+    LaserViewModel laserViewModel,
     ICalibrationFourierService calibrationFourierService) : ViewModelBase
 {
     public bool Connect()
@@ -38,19 +39,30 @@ public sealed class FourierViewModel(
 
     public BitmapImage GetImage(
         ProductivityInformation productivityInformation,
-        LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
         int channelId,
-        bool isCustomWaveform)
+        (bool IsCustom, LaserLightInformation? LaserLightInformation) customPrescanAODWaveform,
+        bool isCustomChirpAODWaveform)
     {
+        if (customPrescanAODWaveform.IsCustom == false)
+        {
+            Guard.IsNotNull(customPrescanAODWaveform.LaserLightInformation);
+
+            laserViewModel.SetPrescanAODWaveProfileByCoefficient(productivityInformation, customPrescanAODWaveform.LaserLightInformation.Coefficient);
+        }
+        else Guard.IsNull(customPrescanAODWaveform.LaserLightInformation);
+
+        if (isCustomChirpAODWaveform == false)
+        {
+            laserViewModel.SetChirpAODWaveProfile(productivityInformation);
+        }
+
         var ret = calibrationFourierService.GetImage(
             productivityInformation,
-            laserLightInformation,
             dfPosition,
             scanLength,
-            channelId,
-            isCustomWaveform);
+            channelId);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

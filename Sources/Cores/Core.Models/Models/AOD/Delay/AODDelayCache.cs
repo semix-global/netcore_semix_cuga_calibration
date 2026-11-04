@@ -51,16 +51,16 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double StartRoughAODDelay { get; set; } = 0;
+    public partial double CenterRoughAODDelay { get; set; } = 150;
 
     [ObservableProperty]
-    public partial double StepRoughAODDelay { get; set; } = 100;
+    public partial double RangeRoughAODDelay { get; set; } = 150;
 
     [ObservableProperty]
-    public partial double StopRoughAODDelay { get; set; } = 3000;
+    public partial double StepRoughAODDelay { get; set; } = 50;
 
     [ObservableProperty]
-    public partial double RangeRefinedAODDelay { get; set; } = 200;
+    public partial double RangeRefinedAODDelay { get; set; } = 60;
 
     [ObservableProperty]
     public partial double StepRefinedAODDelay { get; set; } = 10;
@@ -74,9 +74,9 @@ public sealed partial class AODDelayCacheItem : CalibrationCacheBase<AODDelayCac
         CIBConfiguration = CIBConfiguration.Clone(),
         HazeFindBFMachinePosition = HazeFindBFMachinePosition,
         ImageWidth = ImageWidth,
-        StartRoughAODDelay = StartRoughAODDelay,
+        CenterRoughAODDelay = CenterRoughAODDelay,
+        RangeRoughAODDelay = RangeRoughAODDelay,
         StepRoughAODDelay = StepRoughAODDelay,
-        StopRoughAODDelay = StopRoughAODDelay,
         RangeRefinedAODDelay = RangeRefinedAODDelay,
         StepRefinedAODDelay = StepRefinedAODDelay,
         Id = Id,

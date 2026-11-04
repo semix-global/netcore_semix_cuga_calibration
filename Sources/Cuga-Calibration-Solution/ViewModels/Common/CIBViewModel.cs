@@ -748,6 +748,7 @@ public sealed class CIBViewModel(
             isKeepRawImageCIBProfileModeEnum: isKeepRawImageCIBProfileModeEnum).ConfigureAwait(false);
 
         await cancellationTokenSource.CancelAsync();
+        cancellationToken.ThrowIfCancellationRequested();
 
         var traceBuffers = await traceTask.ConfigureAwait(false);
         var (xDirection, _) = stageViewModel.GetMachineDirection();
