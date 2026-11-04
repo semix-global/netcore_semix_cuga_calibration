@@ -1,46 +1,10 @@
 ﻿using CommunityToolkit.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Core.Algorithm.Models.TemplateMatch;
-using Core.Models;
-using Core.Models.Enums.Stage;
-using Core.Models.Models.CIB.LineCentricity;
-using Core.Models.Models.CIB.XPixelSize;
-using Core.Models.Models.CIB.YPixelSize;
-using Core.Models.Models.Common.Cookies;
-using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Microscope.CalChip;
-using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
-using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using HalconDotNet;
-using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
-using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
-using Net.Utilities.Graphics.Primitives.Enums.Editors;
-using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
-using Net.Utilities.Nlog.Entities.HtmlElements;
-using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.Extensions;
-using Net.Utilities.SourceGenerators.Calibration.Attributes;
-using Net.Utilities.WaferMap.WPF.Primitives;
-using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM.Providers;
-using Net.Utilities.WPF.MVVM.Services;
-using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using Python.Runtime;
-using System.Collections;
-using System.IO;
-using System.Reflection;
-using Constants = Net.Utilities.Models.Constants;
+using Core.Models.Models.Common.StageMap;
 
 namespace Core.Algorithm.Models.StageMap;
 
@@ -48,7 +12,7 @@ public static class StageMapAlgorithm
 {
     private static readonly string ClosedLoopCalibrationPythonScript = AssemblyHelper.GetEmbeddedResource("Assets.Python.closed_loop_calibration.py");
 
-    private static void ProcessFirstMeasurement(StageMap stageMap)
+    public static void ProcessFirstMeasurement(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap stageMap)
     {
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
@@ -63,7 +27,7 @@ public static class StageMapAlgorithm
         stageMap.ApplyPythonErrorMatrix(result);
     }
 
-    private bool ProcessStage2Residuals(IReadOnlyList<StageMap> historyStageMaps, StageMap scanStageMap)
+    public static bool ProcessStage2Residuals(IReadOnlyList<CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap> historyStageMaps, Wcf.Models.Chuck.StageMap scanStageMap)
     {
         Guard.IsNotEmpty(historyStageMaps);
 
@@ -98,7 +62,7 @@ public static class StageMapAlgorithm
         return needMoreMeasurement == false;
     }
 
-    private void CombineCorrectionTables(StageMap residualStageMap)
+    public static void CombineCorrectionTables(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap residualStageMap)
     {
         using var _ = Py.GIL();
         using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
@@ -119,136 +83,7 @@ public static class StageMapAlgorithm
         Cache.StageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
     }
 
-    public PyList ToPythonIdealMatrix() => ToPythonPointMatrix(IdealMatrix);
-
-    public PyList ToPythonErrorMatrix() => ToPythonVectorMatrix(ErrorMatrix);
-
-    public PyList ToPythonIsMatchMatrix() => ToPythonBooleanMatrix(IsMatchMatrix);
-
-    public void ApplyPythonErrorMatrix(PyObject pyValues)
-    {
-        var (yLength, xLength) = ErrorMatrix.GetYXLength();
-
-        var vectorMatrix = ToVectorMatrix(pyValues, yLength, xLength);
-
-        for (var y = 0; y < yLength; y++)
-        {
-            for (var x = 0; x < xLength; x++)
-            {
-                ErrorMatrix[y][x] = vectorMatrix[y][x];
-            }
-        }
-    }
-
-    public void ApplyPythonIsMatchMatrix(PyObject pyValues)
-    {
-        var (yLength, xLength) = ErrorMatrix.GetYXLength();
-
-        var boolMatrix = ToBoolMatrix(pyValues, yLength, xLength);
-
-        for (var y = 0; y < yLength; y++)
-        {
-            for (var x = 0; x < xLength; x++)
-            {
-                IsMatchMatrix[y][x] = boolMatrix[y][x];
-            }
-        }
-    }
-
-    public void SubtractInplace(StageMap other)
-    {
-        var (yLength, xLength) = ErrorMatrix.GetYXLength();
-        var (otherYLength, otherXLength) = other.ErrorMatrix.GetYXLength();
-        Guard.IsEqualTo(yLength, otherYLength);
-        Guard.IsEqualTo(xLength, otherXLength);
-
-        for (var y = 0; y < yLength; y++)
-        {
-            for (var x = 0; x < xLength; x++)
-            {
-                var targetError = ErrorMatrix[y][x];
-                var scanError = other.ErrorMatrix[y][x];
-                ErrorMatrix[y][x] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
-            }
-        }
-    }
-
-    public Vector[][] InterpolateErrors(Point[][] targetPoints, Circle targetCircle)
-    {
-        var (yLength, xLength) = targetPoints.GetYXLength();
-        bool[][] targetMask = [.. targetPoints.Select(row => new bool[row.Length])];
-        for (var y = 0; y < yLength; y++)
-        {
-            for (var x = 0; x < xLength; x++)
-            {
-                targetMask[y][x] = targetCircle.Contains(targetPoints[y][x]);
-            }
-        }
-
-        using var _ = Py.GIL();
-        using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
-        using var interpolate = module.GetAttr("interpolate_residual_table");
-        using var pyResidualTable = ToPythonErrorMatrix();
-        using var pyDesiredPositions = ToPythonIdealMatrix();
-        using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
-        using var pySourceMask = ToPythonIsMatchMatrix();
-        using var pyTargetMask = ToPythonBooleanMatrix(targetMask);
-        using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
-
-        return ToVectorMatrix(result, yLength, xLength);
-    }
-
-    public StageMapErrorDTO AdaptTo(Circle targetCircle)
-    {
-        var (yLength, xLength) = IdealMatrix.GetYXLength();
-
-        var xWidth = (IdealMatrix[0][^1].X - IdealMatrix[0][0].X) / (xLength - 1);
-        var yHeight = (IdealMatrix[^1][0].Y - IdealMatrix[0][0].Y) / (yLength - 1);
-        var startPoint = new Point(IdealMatrix[0][0].X, IdealMatrix[0][0].Y);
-
-        Guard.IsGreaterThan(xWidth, 0d);
-        Guard.IsGreaterThan(yHeight, 0d);
-
-        var points = new Point[yLength][];
-        for (var y = 0; y < yLength; y++)
-        {
-            points[y] = new Point[xLength];
-            for (var x = 0; x < xLength; x++)
-            {
-                points[y][x] = startPoint + new Vector(x * xWidth, y * yHeight);
-            }
-        }
-
-        var errors = InterpolateErrors(points, targetCircle);
-
-        return new StageMapErrorDTO
-        {
-            Zone = 0,
-            BaseX = points[0][0].X,
-            BaseY = points[0][0].Y,
-            XStep = xWidth,
-            YStep = yHeight,
-            Rows =
-            [
-                .. Generate.LinearRangeInt32(0, yLength - 1)
-                    .Select(row => new StageMapErrorRowDTO
-                    {
-                        Id = row,
-                        Cols =
-                        [
-                            .. Generate.LinearRangeInt32(0, xLength - 1)
-                                .Select(column => new StageMapErrorColumnDTO
-                                {
-                                    Id = column,
-                                    Error = errors[row][column]
-                                })
-                        ]
-                    })
-            ]
-        };
-    }
-
-    private static PyList ToPythonPointMatrix(Point[][] matrix)
+    public static PyList ToPythonPointMatrix(Point[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
@@ -276,7 +111,7 @@ public static class StageMapAlgorithm
         return result;
     }
 
-    private static PyList ToPythonVectorMatrix(Vector[][] matrix)
+    public static PyList ToPythonVectorMatrix(Vector[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
@@ -304,7 +139,7 @@ public static class StageMapAlgorithm
         return result;
     }
 
-    private static PyList ToPythonBooleanMatrix(bool[][] matrix)
+    public static PyList ToPythonBooleanMatrix(bool[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
         var result = new PyList();
@@ -325,7 +160,7 @@ public static class StageMapAlgorithm
         return result;
     }
 
-    private static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
+    public static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
 
@@ -363,7 +198,7 @@ public static class StageMapAlgorithm
         return result;
     }
 
-    private static bool[][] ToBoolMatrix(PyObject pyValues, int yLength, int xLength)
+    public static bool[][] ToBoolMatrix(PyObject pyValues, int yLength, int xLength)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
 
@@ -387,5 +222,137 @@ public static class StageMapAlgorithm
         }
 
         return result;
+    }
+
+    extension(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap @this)
+    {
+        public PyList ToPythonIdealMatrix() => ToPythonPointMatrix(@this.IdealMatrix);
+
+        public PyList ToPythonErrorMatrix() => ToPythonVectorMatrix(@this.ErrorMatrix);
+
+        public PyList ToPythonIsMatchMatrix() => ToPythonBooleanMatrix(@this.IsMatchMatrix);
+
+        public void ApplyPythonErrorMatrix(PyObject pyValues)
+        {
+            var (yLength, xLength) = @this.ErrorMatrix.GetYXLength();
+
+            var vectorMatrix = ToVectorMatrix(pyValues, yLength, xLength);
+
+            for (var y = 0; y < yLength; y++)
+            {
+                for (var x = 0; x < xLength; x++)
+                {
+                    @this.ErrorMatrix[y][x] = vectorMatrix[y][x];
+                }
+            }
+        }
+
+        public void ApplyPythonIsMatchMatrix(PyObject pyValues)
+        {
+            var (yLength, xLength) = @this.ErrorMatrix.GetYXLength();
+
+            var boolMatrix = ToBoolMatrix(pyValues, yLength, xLength);
+
+            for (var y = 0; y < yLength; y++)
+            {
+                for (var x = 0; x < xLength; x++)
+                {
+                    @this.IsMatchMatrix[y][x] = boolMatrix[y][x];
+                }
+            }
+        }
+
+        public void SubtractInplace(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap other)
+        {
+            var (yLength, xLength) = @this.ErrorMatrix.GetYXLength();
+            var (otherYLength, otherXLength) = other.ErrorMatrix.GetYXLength();
+            Guard.IsEqualTo(yLength, otherYLength);
+            Guard.IsEqualTo(xLength, otherXLength);
+
+            for (var y = 0; y < yLength; y++)
+            {
+                for (var x = 0; x < xLength; x++)
+                {
+                    var targetError = @this.ErrorMatrix[y][x];
+                    var scanError = other.ErrorMatrix[y][x];
+                    @this.ErrorMatrix[y][x] = new Vector(targetError.X - scanError.X, targetError.Y - scanError.Y);
+                }
+            }
+        }
+
+        public Vector[][] InterpolateErrors(Point[][] targetPoints, Circle targetCircle)
+        {
+            var (yLength, xLength) = targetPoints.GetYXLength();
+            bool[][] targetMask = [.. targetPoints.Select(row => new bool[row.Length])];
+            for (var y = 0; y < yLength; y++)
+            {
+                for (var x = 0; x < xLength; x++)
+                {
+                    targetMask[y][x] = targetCircle.Contains(targetPoints[y][x]);
+                }
+            }
+
+            using var _ = Py.GIL();
+            using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
+            using var interpolate = module.GetAttr("interpolate_residual_table");
+            using var pyResidualTable = @this.ToPythonErrorMatrix();
+            using var pyDesiredPositions = @this.ToPythonIdealMatrix();
+            using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
+            using var pySourceMask = @this.ToPythonIsMatchMatrix();
+            using var pyTargetMask = ToPythonBooleanMatrix(targetMask);
+            using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
+
+            return ToVectorMatrix(result, yLength, xLength);
+        }
+
+        public StageMapErrorDTO AdaptTo(Circle targetCircle)
+        {
+            var (yLength, xLength) = @this.IdealMatrix.GetYXLength();
+
+            var xWidth = (@this.IdealMatrix[0][^1].X - @this.IdealMatrix[0][0].X) / (xLength - 1);
+            var yHeight = (@this.IdealMatrix[^1][0].Y - @this.IdealMatrix[0][0].Y) / (yLength - 1);
+            var startPoint = new Point(@this.IdealMatrix[0][0].X, @this.IdealMatrix[0][0].Y);
+
+            Guard.IsGreaterThan(xWidth, 0d);
+            Guard.IsGreaterThan(yHeight, 0d);
+
+            var points = new Point[yLength][];
+            for (var y = 0; y < yLength; y++)
+            {
+                points[y] = new Point[xLength];
+                for (var x = 0; x < xLength; x++)
+                {
+                    points[y][x] = startPoint + new Vector(x * xWidth, y * yHeight);
+                }
+            }
+
+            var errors = @this.InterpolateErrors(points, targetCircle);
+
+            return new StageMapErrorDTO
+            {
+                Zone = 0,
+                BaseX = points[0][0].X,
+                BaseY = points[0][0].Y,
+                XStep = xWidth,
+                YStep = yHeight,
+                Rows =
+                [
+                    .. Generate.LinearRangeInt32(0, yLength - 1)
+                        .Select(row => new StageMapErrorRowDTO
+                        {
+                            Id = row,
+                            Cols =
+                            [
+                                .. Generate.LinearRangeInt32(0, xLength - 1)
+                                    .Select(column => new StageMapErrorColumnDTO
+                                    {
+                                        Id = column,
+                                        Error = errors[row][column]
+                                    })
+                            ]
+                        })
+                ]
+            };
+        }
     }
 }
