@@ -25,11 +25,9 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
 
     public SxExecuteRet<BitmapImage> GetImage(
         ProductivityInformation productivityInformation,
-        LaserLightInformation laserLightInformation,
         Point dfPosition,
         double scanLength,
-        int channelId,
-        bool isCustomWaveform)
+        int channelId)
     {
         Thread.Sleep(100);
 

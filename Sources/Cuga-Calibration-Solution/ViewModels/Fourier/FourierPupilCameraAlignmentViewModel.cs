@@ -193,8 +193,6 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             OpticsViewModel.SetOpticsConfiguration(Cache.OpticsConfiguration);
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation)
@@ -313,10 +311,10 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
 
                 using var bitmapImage = FourierViewModel.GetImage(
                     Cache.ProductivityInformation,
-                    Cache.LaserLightInformation,
                     hazeBFPosition,
                     Cache.ScanLength,
                     item.ChannelId,
+                    (false, Cache.LaserLightInformation),
                     false);
                 var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                 DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);

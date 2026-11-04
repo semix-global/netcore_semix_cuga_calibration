@@ -245,6 +245,7 @@ public sealed class MicroscopeViewModel(
                         using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                         var task = afViewModel.GetSensorAfErrorTraceBufferListAsync(cancellationTokenSource.Token);
                         cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(1));
+                        cancellationToken.ThrowIfCancellationRequested();
                         currentTraceBuffer = await task.ConfigureAwait(false);
                     }
                     catch (Exception ex)

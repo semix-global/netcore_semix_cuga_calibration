@@ -285,8 +285,6 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             OpticsViewModel.SetOpticsConfiguration(Cache.OpticsConfiguration);
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ProductivityInformation)
@@ -548,10 +546,10 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureViewModel : Ca
 
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.LaserLightInformation,
                 hazeBFPosition,
                 Cache.ScanLength,
                 3,
+                (false, Cache.LaserLightInformation),
                 false);
             var imageFilePath = Path.Combine(detectImageDirectory, "Channel3", $"Step{stepIndex}_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);
