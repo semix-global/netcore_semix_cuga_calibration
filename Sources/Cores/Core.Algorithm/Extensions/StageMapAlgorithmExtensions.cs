@@ -1,14 +1,14 @@
 ﻿using CommunityToolkit.Diagnostics;
+using Core.Models.Models.Common.StageMap;
 using MathNet.Numerics;
 using Net.Utilities.Calibration;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
 using Python.Runtime;
-using Core.Models.Models.Common.StageMap;
 
-namespace Core.Algorithm.Models.StageMap;
+namespace Core.Algorithm.Extensions;
 
-public static class StageMapAlgorithm
+public static class StageMapAlgorithmExtensions
 {
     private static readonly string ClosedLoopCalibrationPythonScript = AssemblyHelper.GetEmbeddedResource("Assets.Python.closed_loop_calibration.py");
 

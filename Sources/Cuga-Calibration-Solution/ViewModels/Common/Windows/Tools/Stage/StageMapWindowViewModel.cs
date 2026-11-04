@@ -41,7 +41,7 @@ using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using System.IO;
-using Core.Algorithm.Models.StageMap;
+using Core.Algorithm.Extensions;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
