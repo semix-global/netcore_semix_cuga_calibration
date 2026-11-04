@@ -5,7 +5,7 @@ using Net.Utilities.Graphics.Primitives.Editors.Getters;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap.Graphics;
 
 public sealed class StageMapDieSelectionGetter(
     CanvasEdit edit,

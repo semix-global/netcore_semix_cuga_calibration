@@ -1,7 +1,7 @@
 ﻿using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap.Graphics;
 
 public sealed class StageMapDieBuilder : WaferMapDieBuilder
 {

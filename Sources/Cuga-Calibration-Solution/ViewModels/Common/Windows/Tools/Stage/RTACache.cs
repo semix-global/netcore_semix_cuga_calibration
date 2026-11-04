@@ -3,6 +3,7 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Common.StageMap.Graphics;
 using Core.Services.Interfaces;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 

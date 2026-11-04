@@ -4,7 +4,7 @@ using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap.Graphics;
 
 public sealed class StageMapDocument : CanvasDocument
 {

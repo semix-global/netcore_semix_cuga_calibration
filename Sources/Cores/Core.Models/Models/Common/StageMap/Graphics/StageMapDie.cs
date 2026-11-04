@@ -8,7 +8,7 @@ using SkiaSharp;
 using FillStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.FillStyle;
 using LineStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.LineStyle;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap.Graphics;
 
 public partial class StageMapDie : AbstractDrawable
 {

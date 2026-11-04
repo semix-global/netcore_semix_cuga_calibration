@@ -5,7 +5,7 @@ using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
 using SkiaSharp;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap.Graphics;
 
 public partial class StageMapWafer : AbstractDrawable
 {
