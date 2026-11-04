@@ -262,8 +262,6 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             }), HtmlLogUniqueId.LoggingHtml());
 
             LaserViewModel.ToggleOpticsMagType(Cache.ProductivityInformation);
-            LaserViewModel.SetPrescanAODWaveProfileByCoefficient(Cache.ProductivityInformation, Cache.Item.LaserLightInformation.Coefficient);
-            LaserViewModel.SetChirpAODWaveProfile(Cache.ProductivityInformation);
             OpticsViewModel.SetOpticsConfiguration(Cache.Item.OpticsConfiguration);
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.Item.MicroscopeLensInformation)
@@ -480,10 +478,10 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
 
             using var bitmapImage = FourierViewModel.GetImage(
                 Cache.ProductivityInformation,
-                Cache.Item.LaserLightInformation,
                 shinyBFPosition,
                 Cache.Item.ScanLength,
                 item.ChannelId,
+                (false, Cache.Item.LaserLightInformation),
                 false);
             var imageFilePath = Path.Combine(detectImageDirectory, $"Channel{item.ChannelId}", $"Step{stepIndex}_Fourier_{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
             DirectoryHelper.CreateFileDirectoryIfNotExists(imageFilePath);

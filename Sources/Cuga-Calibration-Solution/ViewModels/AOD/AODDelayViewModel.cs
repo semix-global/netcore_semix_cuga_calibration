@@ -194,6 +194,45 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 Cache.ProductivityInformation
             }), HtmlLogUniqueId.LoggingHtml());
 
+            var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>(false, cancellationToken: cancellationToken);
+            var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                          && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
+            if (prescanResult is null)
+            {
+                const string comment = "Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Error);
+
+                return false;
+            }
+
+            var chirpCache = ApplicationCookieService.GetOrDefault<ChirpAODWaveformElectrodeDelayCache>(false, cancellationToken: cancellationToken);
+            var chirpResult = chirpCache.Results.SingleOrDefault(t => t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                      && t.GenerateChirpAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
+            if (chirpResult is null)
+            {
+                const string comment = "Warning: Chirp AOD Waveform Param No matched found for current Productivity Information!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Error);
+
+                return false;
+            }
+
+            if (chirpResult.GenerateChirpAODWaveformParam.ZeroSampleCount == 0)
+            {
+                const string comment = "Chirp AOD Waveform Param Zero Sample Count!";
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
+
+                DialogWindowProvider.ShowDialog(comment, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Error);
+
+                return false;
+            }
+
+            CalibratingItem.PrescanAODDelay = prescanResult.GeneratePrescanAODWaveformParam.ZeroSampleCount;
+            Cache.Item.CenterRoughAODDelay = chirpResult.GenerateChirpAODWaveformParam.ZeroSampleCount;
+
             return ApplicationCookie.OpticsMagTypeProductivityInformations.Contains(Cache.ProductivityInformation);
         });
     }
@@ -261,9 +300,9 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.HazeFindBFMachinePosition,
                 Cache.Item.ImageWidth,
-                Cache.Item.StartRoughAODDelay,
+                Cache.Item.CenterRoughAODDelay,
+                Cache.Item.RangeRoughAODDelay,
                 Cache.Item.StepRoughAODDelay,
-                Cache.Item.StopRoughAODDelay,
                 Cache.Item.RangeRefinedAODDelay,
                 Cache.Item.StepRefinedAODDelay
             }), HtmlLogUniqueId.LoggingHtml());
@@ -281,22 +320,11 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
             {
                 Logger.LogHtmlInformation("AOD Delay", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-                var prescanCache = ApplicationCookieService.GetOrDefault<PrescanAODWaveformElectrodeDelayCache>(false, cancellationToken: cancellationToken);
-                var prescanResult = prescanCache.Results.SingleOrDefault(t => t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                                                                              && t.GeneratePrescanAODWaveformParam.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType);
-                if (prescanResult is null)
-                {
-                    const string comment = "Warning: Prescan AOD Waveform Param No matched found for current Productivity Information!";
-                    Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment(comment), HtmlLogUniqueId.LoggingHtml());
-
-                    DialogWindowProvider.ShowDialog(comment, dialogButtonsEnum: DialogButtonsEnum.OK, dialogIconEnum: DialogIconEnum.Error);
-
-                    return false;
-                }
-
-                CalibratingItem.PrescanAODDelay = prescanResult.GeneratePrescanAODWaveformParam.ZeroSampleCount;
-
-                await CatchAODDelayAsync(Generate.LinearRange(Cache.Item.StartRoughAODDelay, Cache.Item.StepRoughAODDelay, Cache.Item.StopRoughAODDelay));
+                var delayTime = Convert.ToInt32(Cache.Item.CenterRoughAODDelay);
+                await CatchAODDelayAsync(Generate.LinearRange(
+                    delayTime - Cache.Item.RangeRoughAODDelay < 0d ? 0d : delayTime - Cache.Item.RangeRoughAODDelay,
+                    Cache.Item.StepRoughAODDelay,
+                    delayTime + Cache.Item.RangeRoughAODDelay));
 
                 Algorithm(CalibratingItem);
                 Guard.IsNotNull(CalibratingItem.MaxItemAODDelay);

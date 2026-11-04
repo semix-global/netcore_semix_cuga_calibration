@@ -385,6 +385,7 @@ public sealed partial class AutoFocusFAFBCompensationViewModel : CalibrationView
                 using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 var task = AfViewModel.GetSensorNscTraceBufferListAsync(startECS, stopECS, Cache.SpeedECSPerSecond, cancellationTokenSource.Token);
                 cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Abs(stopECS - startECS) / Cache.SpeedECSPerSecond + 2));
+                cancellationToken.ThrowIfCancellationRequested();
                 var traceBufferList = await task.ConfigureAwait(false);
 
                 var dtoItem = new AutoFocusFAFBCompensationDTOItem

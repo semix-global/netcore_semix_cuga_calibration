@@ -324,6 +324,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             await Task.Delay(HostEnvironment.IsDevelopment() ? 100 : 3000, cancellationToken);
             StageViewModel.SetMachineAbsoluteStageXyByFixedSpeedAndNotAutoFocus(endPos);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Cache.WaitTime));
+            cancellationToken.ThrowIfCancellationRequested();
             transBuffer = await task.ConfigureAwait(false);
 
             if (repeatCount > 5) return (false, transBuffer);

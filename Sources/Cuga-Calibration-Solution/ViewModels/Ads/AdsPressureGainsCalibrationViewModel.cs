@@ -170,6 +170,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var task = AdsViewModel.GetSensorAllPressureTraceBufferListAsync(cancellationTokenSource.Token);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(3));
+            cancellationToken.ThrowIfCancellationRequested();
             var transBuffer = await task.ConfigureAwait(false);
 
             var pressureValue1 = transBuffer.Average(x => x.PressureValue1);
@@ -252,6 +253,7 @@ public sealed partial class AdsPressureGainsCalibrationViewModel : CalibrationVi
             using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var task = AdsViewModel.GetSensorHeightRollPitchTraceBufferListAsync(cancellationTokenSource.Token);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(HostEnvironment.IsDevelopment() ? 1 : 5));
+            cancellationToken.ThrowIfCancellationRequested();
 
             var transBuffer = await task.ConfigureAwait(false);
             var heightMax = transBuffer.Select(t => t.Height).Max(Math.Abs);
