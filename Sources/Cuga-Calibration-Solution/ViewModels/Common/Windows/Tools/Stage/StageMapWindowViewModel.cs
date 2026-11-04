@@ -39,10 +39,9 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using Python.Runtime;
 using System.Collections;
 using System.IO;
-using System.Reflection;
+using Core.Algorithm.Models.StageMap;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -475,7 +474,7 @@ public sealed partial class StageMapWindowViewModel(
 
         logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        ProcessFirstMeasurement(Cache.StageMap);
+        StageMapAlgorithm.ProcessFirstMeasurement(Cache.StageMap);
         Cache.StageMap.Refresh();
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
@@ -524,7 +523,10 @@ public sealed partial class StageMapWindowViewModel(
 
                 logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
-                isSuccess = ProcessStage2Residuals(historyStageMapList, scanStageMap);
+                isSuccess = StageMapAlgorithm.ProcessStage2Residuals(
+                    historyStageMapList,
+                    scanStageMap,
+                    Cache.StageMapRepeatTimes);
 
                 scanStageMap.Refresh();
 
@@ -535,7 +537,10 @@ public sealed partial class StageMapWindowViewModel(
 
                 if (isSuccess || ++times > Cache.StageMapRepeatTimes - 1)
                 {
-                    CombineCorrectionTables(scanStageMap);
+                    StageMapAlgorithm.CombineCorrectionTables(
+                        Cache.StageMap,
+                        scanStageMap,
+                        Cache.StageMapTemplates.Length);
 
                     Cache.StageMap.Refresh();
 
@@ -583,7 +588,7 @@ public sealed partial class StageMapWindowViewModel(
 
         logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-        ProcessFirstMeasurement(Cache.VerifyStageMap);
+        StageMapAlgorithm.ProcessFirstMeasurement(Cache.VerifyStageMap);
         Cache.VerifyStageMap.Refresh();
 
         logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([

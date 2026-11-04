@@ -89,160 +89,21 @@ public static class StageMapAlgorithm
         initialStageMap.ApplyPythonIsMatchMatrix(pyInterpolationMask);
     }
 
-    public static PyList ToPythonPointMatrix(Point[][] matrix)
-    {
-        var (yLength, xLength) = matrix.GetYXLength();
-        var result = new PyList();
-
-        for (var y = 0; y < yLength; y++)
-        {
-            using var pyRow = new PyList();
-
-            for (var x = 0; x < xLength; x++)
-            {
-                var point = matrix[y][x];
-
-                using var pyPoint = new PyList();
-                using var pyX = point.X.ToPython();
-                using var pyY = point.Y.ToPython();
-
-                pyPoint.Append(pyX);
-                pyPoint.Append(pyY);
-                pyRow.Append(pyPoint);
-            }
-
-            result.Append(pyRow);
-        }
-
-        return result;
-    }
-
-    public static PyList ToPythonVectorMatrix(Vector[][] matrix)
-    {
-        var (yLength, xLength) = matrix.GetYXLength();
-        var result = new PyList();
-
-        for (var y = 0; y < yLength; y++)
-        {
-            using var pyRow = new PyList();
-
-            for (var x = 0; x < xLength; x++)
-            {
-                var vector = matrix[y][x];
-
-                using var pyVector = new PyList();
-                using var pyX = vector.X.ToPython();
-                using var pyY = vector.Y.ToPython();
-
-                pyVector.Append(pyX);
-                pyVector.Append(pyY);
-                pyRow.Append(pyVector);
-            }
-
-            result.Append(pyRow);
-        }
-
-        return result;
-    }
-
-    public static PyList ToPythonBooleanMatrix(bool[][] matrix)
-    {
-        var (yLength, xLength) = matrix.GetYXLength();
-        var result = new PyList();
-
-        for (var y = 0; y < yLength; y++)
-        {
-            using var pyRow = new PyList();
-
-            for (var x = 0; x < xLength; x++)
-            {
-                using var pyValue = matrix[y][x].ToPython();
-                pyRow.Append(pyValue);
-            }
-
-            result.Append(pyRow);
-        }
-
-        return result;
-    }
-
-    public static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
-    {
-        using var pyValueArray = pyValues.InvokeMethod("tolist");
-
-        using var rows = new PyList(pyValueArray);
-        Guard.IsEqualTo(rows.Length(), yLength);
-
-        var result = new Vector[yLength][];
-        for (var y = 0; y < yLength; y++)
-        {
-            using var pyRowObject = Guard.IsNotNullAndReturn(rows[y]);
-            using var pyRow = new PyList(pyRowObject);
-
-            Guard.IsEqualTo(pyRow.Length(), xLength);
-
-            result[y] = new Vector[xLength];
-            for (var x = 0; x < xLength; x++)
-            {
-                using var pyVectorObject = Guard.IsNotNullAndReturn(pyRow[x]);
-                using var pyVector = new PyList(pyVectorObject);
-                Guard.IsEqualTo(pyVector.Length(), 2);
-
-                using var pyX = Guard.IsNotNullAndReturn(pyVector[0]);
-                using var pyY = Guard.IsNotNullAndReturn(pyVector[1]);
-
-                var xValue = pyX.As<double>();
-                var yValue = pyY.As<double>();
-
-                Guard.IsFalse(double.IsInfinity(xValue) || double.IsInfinity(yValue));
-                Guard.IsFalse(double.IsNaN(xValue) || double.IsNaN(yValue));
-
-                result[y][x] = new Vector(xValue, yValue);
-            }
-        }
-
-        return result;
-    }
-
-    public static bool[][] ToBoolMatrix(PyObject pyValues, int yLength, int xLength)
-    {
-        using var pyValueArray = pyValues.InvokeMethod("tolist");
-
-        using var rows = new PyList(pyValueArray);
-        Guard.IsEqualTo(rows.Length(), yLength);
-
-        var result = new bool[yLength][];
-        for (var y = 0; y < yLength; y++)
-        {
-            using var pyRowObject = Guard.IsNotNullAndReturn(rows[y]);
-            using var pyRow = new PyList(pyRowObject);
-
-            Guard.IsEqualTo(pyRow.Length(), xLength);
-
-            result[y] = new bool[xLength];
-            for (var x = 0; x < xLength; x++)
-            {
-                using var pyBool = Guard.IsNotNullAndReturn(pyRow[x]);
-                result[y][x] = pyBool.As<bool>();
-            }
-        }
-
-        return result;
-    }
-
     extension(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap @this)
     {
-        public PyList ToPythonIdealMatrix() => ToPythonPointMatrix(@this.IdealMatrix);
+        #region Apply
 
-        public PyList ToPythonErrorMatrix() => ToPythonVectorMatrix(@this.ErrorMatrix);
+        public PyList ToPythonIdealMatrix() => PythonHelper.ToPythonPointMatrix(@this.IdealMatrix);
 
-        public PyList ToPythonIsMatchMatrix() => ToPythonBooleanMatrix(@this.IsMatchMatrix);
+        public PyList ToPythonErrorMatrix() => PythonHelper.ToPythonVectorMatrix(@this.ErrorMatrix);
+
+        public PyList ToPythonIsMatchMatrix() => PythonHelper.ToPythonBooleanMatrix(@this.IsMatchMatrix);
 
         public void ApplyPythonErrorMatrix(PyObject pyValues)
         {
             var (yLength, xLength) = @this.ErrorMatrix.GetYXLength();
 
-            var vectorMatrix = ToVectorMatrix(pyValues, yLength, xLength);
+            var vectorMatrix = PythonHelper.ToVectorMatrix(pyValues, yLength, xLength);
 
             for (var y = 0; y < yLength; y++)
             {
@@ -257,7 +118,7 @@ public static class StageMapAlgorithm
         {
             var (yLength, xLength) = @this.ErrorMatrix.GetYXLength();
 
-            var boolMatrix = ToBoolMatrix(pyValues, yLength, xLength);
+            var boolMatrix = PythonHelper.ToBoolMatrix(pyValues, yLength, xLength);
 
             for (var y = 0; y < yLength; y++)
             {
@@ -286,6 +147,10 @@ public static class StageMapAlgorithm
             }
         }
 
+        #endregion
+
+        #region 算法
+
         public Vector[][] InterpolateErrors(Point[][] targetPoints, Circle targetCircle)
         {
             var (yLength, xLength) = targetPoints.GetYXLength();
@@ -303,13 +168,17 @@ public static class StageMapAlgorithm
             using var interpolate = module.GetAttr("interpolate_residual_table");
             using var pyResidualTable = @this.ToPythonErrorMatrix();
             using var pyDesiredPositions = @this.ToPythonIdealMatrix();
-            using var pyTargetPositions = ToPythonPointMatrix(targetPoints);
+            using var pyTargetPositions = PythonHelper.ToPythonPointMatrix(targetPoints);
             using var pySourceMask = @this.ToPythonIsMatchMatrix();
-            using var pyTargetMask = ToPythonBooleanMatrix(targetMask);
+            using var pyTargetMask = PythonHelper.ToPythonBooleanMatrix(targetMask);
             using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
 
-            return ToVectorMatrix(result, yLength, xLength);
+            return PythonHelper.ToVectorMatrix(result, yLength, xLength);
         }
+
+        #endregion
+
+        #region Mapper
 
         public StageMapErrorDTO AdaptTo(Circle targetCircle)
         {
@@ -360,5 +229,7 @@ public static class StageMapAlgorithm
                 ]
             };
         }
+
+        #endregion
     }
 }

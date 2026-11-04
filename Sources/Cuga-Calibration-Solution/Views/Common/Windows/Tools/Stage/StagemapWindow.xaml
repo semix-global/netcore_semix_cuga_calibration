@@ -16,6 +16,7 @@
            xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+           xmlns:viewModels1="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Stage;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -245,7 +246,7 @@
                                                         <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                                                         <DataGridTemplateColumn Header="Images">
                                                             <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate DataType="{x:Type viewModels:StageMapTemplate}">
+                                                                <DataTemplate DataType="{x:Type viewModels1:StageMapTemplate}">
                                                                     <view:CanvasView Width="100"
                                                                                      Height="100"
                                                                                      BackgroundColor="#0A0A0A"
@@ -500,7 +501,7 @@
                                      VirtualizingPanel.ScrollUnit="Pixel"
                                      ItemsSource="{Binding Cache.RepeatStageMaps}">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type viewModels:StageMap}">
+                                    <DataTemplate DataType="{x:Type viewModels1:StageMap}">
                                         <Border Height="500"
                                                 Margin="-5,5"
                                                 Style="{StaticResource BorderRegion}">
