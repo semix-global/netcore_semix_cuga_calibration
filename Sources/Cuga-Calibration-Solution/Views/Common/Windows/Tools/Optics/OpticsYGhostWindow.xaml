@@ -153,16 +153,6 @@
                                                  Background="{StaticResource SecondaryRegionBrush}"
                                                  IsReadOnly="True"
                                                  Style="{StaticResource TextBoxExtend}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="Align Value(dB): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.AligndBValue}" />
-                                        <hc:NumericUpDown hc:TitleElement.Title="YUmStandard(um): "
-                                                          hc:TitleElement.TitlePlacement="Left"
-                                                          hc:TitleElement.TitleWidth="160"
-                                                          Style="{StaticResource NumericUpDownExtend}"
-                                                          Value="{Binding Cache.YUmStandard}" />
                                         <hc:NumericUpDown hc:TitleElement.Title="Threshold(dB): "
                                                           hc:TitleElement.TitlePlacement="Left"
                                                           hc:TitleElement.TitleWidth="160"

@@ -20,7 +20,6 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
@@ -199,6 +198,9 @@ public sealed partial class OpticsCrossTalkDTOItem : ObservableObject
     public partial string ImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
+    public partial double[] YProjects { get; set; } = [];
+
+    [ObservableProperty]
     public partial Point[] DBPoints { get; set; } = [];
 
     public object ToHtmlAnonymous(params Rect[] rois) => new
@@ -224,6 +226,10 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
     CalibrationSetting calibrationSetting,
     ILogger<OpticsCrossTalkWindowViewModel> logger) : ViewModelBase
 {
+    private static readonly string RoiSimulatorImageFilePath = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory,
+        @"Assets\Data\CrossTalk\Template\scribe.raw");
+
     public string Name => "Collection Cross Talk";
 
     public IReadOnlyList<string> Steps { get; } =
@@ -314,27 +320,36 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
 
     private async Task DrawROIAsync(bool isQuietRegion, CancellationToken cancellationToken)
     {
-        var darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
-            Cache.ProductivityInformation,
-            StageCoordinateSystemEnum.Bright,
-            Cache.ScribeFindPosition,
-            Cache.ImageWidth,
-            ApplicationCookie.CIBInformations.Single(t => t == calibrationSetting.SettingCommonParam.MainCIBInformation),
-            (false, Cache.CalChipSiteModelEnum),
-            (false, Cache.OpticsConfiguration),
-            (false, new CIBConfiguration
-            {
-                CIBProfileMode = CIBProfileModeEnum.PMTLog,
-                IsAutoGainControl = true,
-                IsL0K = false,
-                IsKeepRawImageCIBProfileModeEnum = true
-            }),
-            (false, Cache.LaserLightInformation),
-            false,
-            cancellationToken);
+        var isDevelopment = hostEnvironment.IsDevelopment();
+        if (isDevelopment) cibViewModel.UseSimulatorImages([RoiSimulatorImageFilePath]);
 
-        if (hostEnvironment.IsDevelopment())
-            darkFieldImageDto = GetMockImages([calibrationSetting.SettingCommonParam.MainCIBInformation])[0];
+        DarkFieldImageDTO darkFieldImageDto;
+        try
+        {
+            darkFieldImageDto = await cibViewModel.GetPMTImageAsync(
+                Cache.ProductivityInformation,
+                StageCoordinateSystemEnum.Bright,
+                Cache.ScribeFindPosition,
+                Cache.ImageWidth,
+                ApplicationCookie.CIBInformations.Single(t => t == calibrationSetting.SettingCommonParam.MainCIBInformation),
+                (false, Cache.CalChipSiteModelEnum),
+                (false, Cache.OpticsConfiguration),
+                (false, new CIBConfiguration
+                {
+                    CIBProfileMode = CIBProfileModeEnum.PMTLog,
+                    IsAutoGainControl = true,
+                    IsL0K = false,
+                    IsKeepRawImageCIBProfileModeEnum = true
+                }),
+                (false, Cache.LaserLightInformation),
+                false,
+                cancellationToken);
+        }
+        finally
+        {
+            if (isDevelopment) cibViewModel.UseSimulatorImages(null);
+        }
+
         using var _ = darkFieldImageDto;
 
         var directory = Path.Combine(ImageDirectory, "ROI", $"{(isQuietRegion ? "Quiet" : "Signal")}");
@@ -397,9 +412,9 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var scribeResults = await ActionAsync(Cache.ScribeFindPosition, cibInformations, cancellationToken, true).ConfigureAwait(false);
-                var topSignalResults = await ActionAsync(Cache.TopSignalFindPosition, cibInformations, cancellationToken, false).ConfigureAwait(false);
-                var bottomSignalResults = await ActionAsync(Cache.BottomSignalFindPosition, cibInformations, cancellationToken, false).ConfigureAwait(false);
+                var scribeResults = await ActionAsync(Cache.ScribeFindPosition, cibInformations, cancellationToken, "scribe").ConfigureAwait(false);
+                var topSignalResults = await ActionAsync(Cache.TopSignalFindPosition, cibInformations, cancellationToken, "top").ConfigureAwait(false);
+                var bottomSignalResults = await ActionAsync(Cache.BottomSignalFindPosition, cibInformations, cancellationToken, "bottom").ConfigureAwait(false);
 
                 OpticsCrossTalkDTO[] items =
                 [
@@ -409,28 +424,27 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                         using var originImage = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = t, IsKeepRawImageCIBProfileModeEnum = false, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = scribeResults[i].RawImageFilePath, Size = size });
                         using var quietImage = originImage.Image.ToROI(Cache.QuietROI);
                         var (quietGrayValue, _) = quietImage.GetIntensity();
-                        var quietProjectPoints = GetYProjectPoints(quietImage);
+                        var quietYProjects = quietImage.GetHorizontalProjects();
                         var maxGrayValue = new[]
                             {
-                                scribeResults[i].DBPoints,
-                                topSignalResults[i].DBPoints,
-                                bottomSignalResults[i].DBPoints,
-                                quietProjectPoints
+                                scribeResults[i].YProjects,
+                                topSignalResults[i].YProjects,
+                                bottomSignalResults[i].YProjects,
+                                quietYProjects
                             }
                             .SelectMany(o => o)
-                            .Select(o => o.Y)
                             .DefaultIfEmpty(double.Epsilon)
                             .Max();
 
-                        scribeResults[i].DBPoints = ToDBPoints(scribeResults[i].DBPoints, maxGrayValue);
-                        topSignalResults[i].DBPoints = ToDBPoints(topSignalResults[i].DBPoints, maxGrayValue);
-                        bottomSignalResults[i].DBPoints = ToDBPoints(bottomSignalResults[i].DBPoints, maxGrayValue);
+                        scribeResults[i].DBPoints = ToDBPoints(scribeResults[i].YProjects, maxGrayValue);
+                        topSignalResults[i].DBPoints = ToDBPoints(topSignalResults[i].YProjects, maxGrayValue);
+                        bottomSignalResults[i].DBPoints = ToDBPoints(bottomSignalResults[i].YProjects, maxGrayValue);
 
                         var dto = new OpticsCrossTalkDTO
                         {
                             CIBInformation = t,
                             QuietGray = quietGrayValue,
-                            QuietDBPoints = ToDBPoints(quietProjectPoints, maxGrayValue),
+                            QuietDBPoints = ToDBPoints(quietYProjects, maxGrayValue),
                             ScribeResult = scribeResults[i],
                             TopSignalResult = topSignalResults[i],
                             BottomSignalResult = bottomSignalResults[i]
@@ -448,7 +462,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
 
                 logger.LogHtmlInformation($"PMT{cibInformations[0].PMTId}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Details = new HtmlContainer([.. items.Select(t => new HtmlTable([t.ToHtmlAnonymous(Cache.QuietROI, Cache.SignalROI)]))])
+                    Details = new HtmlTable([.. items.Select(t => t.ToHtmlAnonymous(Cache.QuietROI, Cache.SignalROI))]),
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
@@ -486,7 +500,8 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                                     o.IsOk
                                 })
                     ])
-                ])
+                ]),
+                Plots = new HtmlContainer([.. Results.Select(o => new HtmlExpand(o.CIBInformation.ToString(), new HtmlContainer([.. o.PlotDataSource.GetAllHtmlPlot2DLinesCharts()])))])
             });
             if (result)
                 logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlBullet, HtmlLogUniqueId.LoggingHtml());
@@ -501,7 +516,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
         Point position,
         CIBInformation[] cibInformations,
         CancellationToken cancellationToken,
-        bool isScribe)
+        string simulatorImageFolderName)
     {
         return await Task.Run(async () =>
         {
@@ -513,20 +528,29 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                 position,
                 microscopeViewModel.GetCurrentMicroscopeLensInformation());
 
-            var darkFieldImages = await cibViewModel.GetPMTImagesAsync(
-                Cache.ProductivityInformation,
-                StageCoordinateSystemEnum.Dark,
-                currentStartPosition,
-                Cache.ImageWidth,
-                [.. cibInformations],
-                (false, Cache.CalChipSiteModelEnum),
-                (false, Cache.OpticsConfiguration),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
-                false,
-                cancellationToken);
+            var isDevelopment = hostEnvironment.IsDevelopment();
+            if (isDevelopment) cibViewModel.UseSimulatorImages(GetSimulatorImageFilePaths(simulatorImageFolderName, cibInformations));
 
-            if (hostEnvironment.IsDevelopment()) darkFieldImages = GetMockImages([.. cibInformations], isScribe); // mock
+            IReadOnlyList<DarkFieldImageDTO> darkFieldImages;
+            try
+            {
+                darkFieldImages = await cibViewModel.GetPMTImagesAsync(
+                    Cache.ProductivityInformation,
+                    StageCoordinateSystemEnum.Dark,
+                    currentStartPosition,
+                    Cache.ImageWidth,
+                    [.. cibInformations],
+                    (false, Cache.CalChipSiteModelEnum),
+                    (false, Cache.OpticsConfiguration),
+                    (false, Cache.CIBConfiguration),
+                    (false, Cache.LaserLightInformation),
+                    false,
+                    cancellationToken);
+            }
+            finally
+            {
+                if (isDevelopment) cibViewModel.UseSimulatorImages(null);
+            }
 
             foreach (var dto in darkFieldImages)
             {
@@ -546,7 +570,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                         SignalGray = signalGrayValue,
                         RawImageFilePath = dto.RawImageFilePath,
                         ImageFilePath = filePath,
-                        DBPoints = GetYProjectPoints(signalImage)
+                        YProjects = signalImage.GetHorizontalProjects()
                     }
                 ];
 
@@ -557,21 +581,15 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
         }, cancellationToken);
     }
 
-    private static Point[] GetYProjectPoints(BitmapImage image)
-    {
-        var yProjects = image.GetHorizontalProjects();
-
-        return [.. yProjects.Select((t, i) => new Point(i, t))];
-    }
-
-    private static Point[] ToDBPoints(Point[] projectPoints, double maxGrayValue)
+    private static Point[] ToDBPoints(double[] yProjects, double maxGrayValue)
     {
         var reference = maxGrayValue <= 0d ? double.Epsilon : maxGrayValue;
 
-        return
+        Point[] dbPoint =
         [
-            .. projectPoints.Select(t => new Point(t.X, 10 * Math.Log10((t.Y <= 0d ? double.Epsilon : t.Y) / reference)))
+            .. yProjects.Select((t, i) => new Point(i, 10 * Math.Log10((t <= 0d ? double.Epsilon : t) / reference)))
         ];
+        return [.. dbPoint.Where(t => double.IsFinite(t.Y))];
     }
 
     [RelayCommand]
@@ -643,28 +661,21 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
         }).ConfigureAwait(false);
     }
 
-    private static IReadOnlyList<DarkFieldImageDTO> GetMockImages(CIBInformation[] cibInformations, bool isScribe = true)
+    // 按 Image 子目录和 CIB 通道匹配模拟图路径
+    private static string[] GetSimulatorImageFilePaths(string folderName, IReadOnlyList<CIBInformation> cibInformations)
     {
-        var mockImageDirectoryPath = Path.Combine(@"Assets\Data\CrossTalk", $"{(isScribe ? "Scribe" : "Signal")}");
+        var directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\CrossTalk\Image", folderName);
 
-        var results = new List<DarkFieldImageDTO>();
-        foreach (var cibInformation in cibInformations)
-        {
-            var searchPattern = $"*CH{cibInformation.ChannelId}_{cibInformation.PMTId}.raw*";
-            var files = Directory.GetFiles(mockImageDirectoryPath, searchPattern);
+        return
+        [
+            .. cibInformations.Select(cibInformation =>
+            {
+                var searchPattern = $"*CH{cibInformation.ChannelId}_{cibInformation.PMTId}.raw*";
+                var files = Directory.GetFiles(directoryPath, searchPattern);
+                if (files.Length == 0) throw new FileNotFoundException(searchPattern);
 
-            if (files.Length == 0)
-                throw new FileNotFoundException($"{searchPattern}");
-
-            // 取第一个匹配的文件
-            var filePath = files[0];
-            var bytes = System.IO.File.ReadAllBytes(filePath);
-
-            var (size, _, _) = RAWImageFactory.GetSize(bytes);
-
-            results = [.. results, new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = cibInformation, Size = size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = filePath, IsKeepRawImageCIBProfileModeEnum = false })];
-        }
-
-        return results;
+                return files[0];
+            })
+        ];
     }
 }
