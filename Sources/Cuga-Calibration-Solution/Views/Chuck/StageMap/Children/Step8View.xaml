@@ -108,11 +108,6 @@
                         <ContentPresenter Content="{Binding CalibratingItem.DFRepeatStageMaps, Mode=OneWay}" ContentTemplate="{StaticResource StageMapRepeatResultsTemplate}" />
                     </Border>
                 </TabItem>
-                <TabItem Header="Download StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding CalibratingItem.DownloadStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
             </TabControl>
         </GroupBox>
     </Grid>

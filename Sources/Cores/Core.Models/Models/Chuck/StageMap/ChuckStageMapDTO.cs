@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Models.Geometries;
 using StageMapResult = Core.Models.Models.Common.StageMap.StageMap;
 
 namespace Core.Models.Models.Chuck.StageMap;
@@ -42,7 +43,19 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     public partial StageMapResult BFVerifyStageMap { get; set; } = new();
 
     [ObservableProperty]
+    public partial Vector BFVerifyMaximumError { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsBFVerified { get; set; }
+
+    [ObservableProperty]
     public partial StageMapResult DFVerifyStageMap { get; set; } = new();
+
+    [ObservableProperty]
+    public partial Vector DFVerifyMaximumError { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsDFVerified { get; set; }
 
     partial void OnDFRepeatStageMapsChanged(StageMapResult[] value)
     {
@@ -61,7 +74,11 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
         DFRepeatStageMaps = [.. DFRepeatStageMaps.Select(x => x.Clone())],
         ExpandStageMap = ExpandStageMap.Clone(),
         BFVerifyStageMap = BFVerifyStageMap.Clone(),
+        BFVerifyMaximumError = BFVerifyMaximumError,
+        IsBFVerified = IsBFVerified,
         DFVerifyStageMap = DFVerifyStageMap.Clone(),
+        DFVerifyMaximumError = DFVerifyMaximumError,
+        IsDFVerified = IsDFVerified,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

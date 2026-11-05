@@ -21,6 +21,12 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     [ObservableProperty]
     public partial ChuckStageMapCacheDFItem ChuckStageMapCacheDFItem { get; set; } = new();
 
+    [ObservableProperty]
+    public partial double BFVerifyThreshold { get; set; }
+
+    [ObservableProperty]
+    public partial double DFVerifyThreshold { get; set; }
+
     [RelayCommand]
     private void RemoveBFStageMapTemplates(IEnumerable? selectedItems)
     {
@@ -50,6 +56,8 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ChuckStageMapCacheBFItem = ChuckStageMapCacheBFItem.Clone(),
         ChuckStageMapCacheDFItem = ChuckStageMapCacheDFItem.Clone(),
+        BFVerifyThreshold = BFVerifyThreshold,
+        DFVerifyThreshold = DFVerifyThreshold,
         Id = Id,
         Expiration = Expiration
     };

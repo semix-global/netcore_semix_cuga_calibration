@@ -50,6 +50,25 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <TextBlock Text="Result"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                        <TextBox Text="{Binding CalibratingItem.IsCalibrated, Mode=OneWay}"
+                                 hc:TitleElement.Title="Calibrated: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.IsVerified, Mode=OneWay}"
+                                 hc:TitleElement.Title="Verified: "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
@@ -93,9 +112,9 @@
                         <ContentPresenter Content="{Binding CalibratingItem.DFRepeatStageMaps, Mode=OneWay}" ContentTemplate="{StaticResource StageMapRepeatResultsTemplate}" />
                     </Border>
                 </TabItem>
-                <TabItem Header="Download StageMap">
+                <TabItem Header="Expand StageMap">
                     <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding CalibratingItem.DownloadStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
+                        <ContentPresenter Content="{Binding CalibratingItem.ExpandStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
                     </Border>
                 </TabItem>
             </TabControl>

@@ -36,6 +36,34 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <TextBlock Text="Param"
+                                   HorizontalAlignment="Center"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <hc:UniformSpacingPanel.IsEnabled>
+                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                    <Binding Path="VerifyCommand.IsRunning" />
+                                </MultiBinding>
+                            </hc:UniformSpacingPanel.IsEnabled>
+                            <hc:NumericUpDown hc:TitleElement.Title="BF Verify Threshold(um): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              DecimalPlaces="6"
+                                              Increment="0.01"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.BFVerifyThreshold}" />
+                            <hc:NumericUpDown hc:TitleElement.Title="DF Verify Threshold(um): "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="190"
+                                              Minimum="0"
+                                              DecimalPlaces="6"
+                                              Increment="0.01"
+                                              Style="{StaticResource NumericUpDownExtend}"
+                                              Value="{Binding Cache.DFVerifyThreshold}" />
+                        </hc:UniformSpacingPanel>
                         <TextBlock Text="Result"
                                    HorizontalAlignment="Center"
                                    FontSize="13"
