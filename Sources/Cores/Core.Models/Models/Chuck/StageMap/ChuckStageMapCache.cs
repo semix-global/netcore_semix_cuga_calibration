@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Collections;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
@@ -18,6 +20,30 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
 
     [ObservableProperty]
     public partial ChuckStageMapCacheDFItem ChuckStageMapCacheDFItem { get; set; } = new();
+
+    [RelayCommand]
+    private void RemoveBFStageMapTemplates(IEnumerable? selectedItems)
+    {
+        if (selectedItems is null) return;
+
+        var stageMapTemplates = ChuckStageMapCacheBFItem.StageMapTemplates.ToList();
+
+        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
+
+        ChuckStageMapCacheBFItem.StageMapTemplates = [.. stageMapTemplates];
+    }
+
+    [RelayCommand]
+    private void RemoveDFStageMapTemplates(IEnumerable? selectedItems)
+    {
+        if (selectedItems is null) return;
+
+        var stageMapTemplates = ChuckStageMapCacheBFItem.StageMapTemplates.ToList();
+
+        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
+
+        ChuckStageMapCacheBFItem.StageMapTemplates = [.. stageMapTemplates];
+    }
 
     public override ChuckStageMapCache Clone() => new()
     {
@@ -39,9 +65,6 @@ public sealed partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<Chuc
     #endregion
 
     [ObservableProperty]
-    public partial int ImageWidth { get; set; } = 1000;
-
-    [ObservableProperty]
     public partial double WaferRadius { get; set; } = 140_000d;
 
     [ObservableProperty]
@@ -53,9 +76,6 @@ public sealed partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<Chuc
     [ObservableProperty]
     public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
 
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
@@ -64,12 +84,10 @@ public sealed partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<Chuc
     public override ChuckStageMapCacheBFItem Clone() => new()
     {
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
-        ImageWidth = ImageWidth,
         WaferRadius = WaferRadius,
         DiePitchWidth = DiePitchWidth,
         DiePitchHeight = DiePitchHeight,
         StageMapTemplates = [.. StageMapTemplates.Select(x => x.Clone())],
-        AlignmentResult = AlignmentResult.Clone(),
         Id = Id,
         Expiration = Expiration
     };
@@ -117,12 +135,6 @@ public sealed partial class ChuckStageMapCacheDFItem : CalibrationCacheBase<Chuc
     [ObservableProperty]
     public partial int StageMapRepeatTimes { get; set; } = 10;
 
-    [ObservableProperty]
-    public partial bool IsDarkFieldAlignment { get; set; }
-
-    [ObservableProperty]
-    public partial AlignmentResultDto AlignmentResult { get; set; } = new();
-
     partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
     {
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
@@ -142,8 +154,6 @@ public sealed partial class ChuckStageMapCacheDFItem : CalibrationCacheBase<Chuc
         DiePitchHeight = DiePitchHeight,
         StageMapTemplates = [.. StageMapTemplates.Select(x => x.Clone())],
         StageMapRepeatTimes = StageMapRepeatTimes,
-        IsDarkFieldAlignment = IsDarkFieldAlignment,
-        AlignmentResult = AlignmentResult.Clone(),
         Id = Id,
         Expiration = Expiration
     };
