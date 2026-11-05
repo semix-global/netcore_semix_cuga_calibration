@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using MathNet.Numerics;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
@@ -9,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Core.Models.Models.Common.StageMap;
 
-public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
+public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>, IAdaptTo<StageMapErrorDTO>
 {
     public Point[][] IdealMatrix { get; set; } = [];
 
@@ -100,4 +101,33 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
             ])
         ]
     };
+
+    public StageMapErrorDTO AdaptTo()
+    {
+        var (yLength, xLength) = IdealMatrix.GetYXLength();
+
+        return new StageMapErrorDTO
+        (
+            0,
+            IdealMatrix[0][0].X,
+            IdealMatrix[0][0].Y,
+            IdealMatrix[0][1].X - IdealMatrix[0][0].X,
+            IdealMatrix[1][0].Y - IdealMatrix[0][0].Y,
+            [
+                .. Generate.LinearRangeInt32(0, yLength - 1)
+                    .Select(row => new StageMapErrorRowDTO
+                    (
+                        row,
+                        [
+                            .. Generate.LinearRangeInt32(0, xLength - 1)
+                                .Select(column => new StageMapErrorColumnDTO
+                                (
+                                    column,
+                                    ErrorMatrix[row][column]
+                                ))
+                        ]
+                    ))
+            ]
+        );
+    }
 }

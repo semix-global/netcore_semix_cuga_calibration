@@ -451,8 +451,8 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
                 Guard.IsInRangeFor(index, stageMapDie.Markers);
 
-                var darkFieldPosition = StageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
-                var brightFieldPosition = darkFieldPosition - CIBViewModel.GetCIBInformationOffset(
+                var darkFieldPositionTemp = StageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+                var darkFieldPosition = darkFieldPositionTemp - CIBViewModel.GetCIBInformationOffset(
                     StageCoordinateSystemEnum.Dark,
                     Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
@@ -462,7 +462,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 StageViewModel.SetBrightFieldAbsoluteStageXy(MicroscopeViewModel.GetMicroscopeLensInformationPosition(
                     Cache.MicroscopeLensInformation,
                     MicroscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    brightFieldPosition), CalChipSiteModelEnum.ChuckModel);
+                    darkFieldPosition), CalChipSiteModelEnum.ChuckModel);
 
                 DialogWindowProvider.ShowDialog("Goto DF Stage Map Document Selected Item Position OK");
             }
@@ -526,7 +526,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsNotEmpty(Cache.ChuckStageMapCacheBFItem.StageMapTemplates);
             Guard.IsEqualTo(Cache.ChuckStageMapCacheBFItem.StageMapTemplates.Length, 1);
             Guard.IsGreaterThan(Cache.ChuckStageMapCacheBFItem.WaferRadius, 0d);
             Guard.IsGreaterThan(Cache.ChuckStageMapCacheBFItem.DiePitchWidth, 0d);
@@ -1105,10 +1104,11 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             var currentHtmlLogUniqueId = Guid.NewGuid();
             var fileName = $"Details_{CalibrationSteps[^2].StepName.Replace(" ", string.Empty)}_{times + 1}";
 
-            if (times == 0) DownloadStageMap(
-                CalibratingItem.DFStageMap,
-                new Circle(StageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheDFItem.WaferRadius),
-                currentHtmlLogUniqueId);
+            if (times == 0)
+                DownloadStageMap(
+                    CalibratingItem.DFStageMap,
+                    new Circle(StageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheDFItem.WaferRadius),
+                    currentHtmlLogUniqueId);
 
             Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), HtmlLogUniqueId.LoggingHtml());
             Logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
@@ -1126,8 +1126,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                     currentHtmlLogUniqueId,
                     cancellationToken,
                     isInterpolateErrors: true,
-                    interpolateStageMap: CalibratingItem.DFStageMap,
-                    interpolateTargetCircle: new Circle(StageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheDFItem.WaferRadius)).ConfigureAwait(false);
+                    interpolateStageMap: CalibratingItem.DFStageMap).ConfigureAwait(false);
 
                 historyStageMapList.Add(scanStageMap.Clone());
 
@@ -1175,10 +1174,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step9Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(() =>
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        Guard.IsNotEmpty(CalibratingItem.BFStageMap.IdealMatrix);
-        Guard.IsNotEmpty(CalibratingItem.DFStageMap.IdealMatrix);
-
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -1263,7 +1258,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             cancellationToken.ThrowIfCancellationRequested();
             Guard.IsTrue(Review.IsCalibrated);
             var isVerifyThresholdValid = Cache.BFVerifyThreshold > 0d && double.IsInfinity(Cache.BFVerifyThreshold) == false
-                                        && Cache.DFVerifyThreshold > 0d && double.IsInfinity(Cache.DFVerifyThreshold) == false;
+                                                                      && Cache.DFVerifyThreshold > 0d && double.IsInfinity(Cache.DFVerifyThreshold) == false;
             if (isVerifyThresholdValid == false)
             {
                 DialogWindowProvider.ShowDialog("Set positive finite BF and DF Verify Thresholds before verification.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -1308,14 +1303,13 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 HtmlLogUniqueId,
                 cancellationToken,
                 isInterpolateErrors: true,
-                interpolateStageMap: Review.ExpandStageMap,
-                interpolateTargetCircle: targetCircle).ConfigureAwait(false);
+                interpolateStageMap: Review.ExpandStageMap).ConfigureAwait(false);
             var darkFieldVerifyResult = VerifyStageMap(Review.DFVerifyStageMap, Cache.DFVerifyThreshold);
             Review.DFVerifyMaximumError = darkFieldVerifyResult.MaximumError;
             Review.IsDFVerified = darkFieldVerifyResult.IsVerified;
 
             cancellationToken.ThrowIfCancellationRequested();
-            Review.IsVerified = Review.IsBFVerified && Review.IsDFVerified;
+            Review.IsVerified = Review is { IsBFVerified: true, IsDFVerified: true };
             Guard.IsTrue(Save(Review, cancellationToken));
 
             Logger.LogHtmlInformation(Review.IsVerified ? "Verify OK" : "Verify Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -1543,8 +1537,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken,
         bool isInterpolateErrors = false,
-        StageMap? interpolateStageMap = null,
-        Circle? interpolateTargetCircle = null)
+        StageMap? interpolateStageMap = null)
     {
         var (xDirection, yDirection) = StageViewModel.GetMachineDirection();
 
@@ -1596,7 +1589,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             if (isInterpolateErrors)
             {
                 var sourceStageMap = Guard.IsNotNullAndReturn(interpolateStageMap);
-                var targetCircle = interpolateTargetCircle ?? new Circle(StageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheDFItem.WaferRadius);
+                var targetCircle = new Circle(StageViewModel.DarkFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheDFItem.WaferRadius);
                 var errors = sourceStageMap.InterpolateErrors(stageMapIdealMatrix, targetCircle);
                 for (var y = 0; y < yLength; y++)
                 {
@@ -1736,11 +1729,11 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         }
     }
 
-    private void DownloadStageMap(StageMap downloadStageMap, Circle targetCircle, Guid htmlLogUniqueId)
+    private void DownloadStageMap(StageMap downloadStageMap, Circle? targetCircle, Guid htmlLogUniqueId)
     {
         StageViewModel.SetEnableStageMap(false);
 
-        var stageMapErrorDTO = downloadStageMap.AdaptTo(targetCircle);
+        var stageMapErrorDTO = targetCircle is not null? downloadStageMap.AdaptTo(targetCircle.Value): downloadStageMap.AdaptTo();
         var xPoint3DList = new List<Point3D>();
         var yPoint3DList = new List<Point3D>();
 
