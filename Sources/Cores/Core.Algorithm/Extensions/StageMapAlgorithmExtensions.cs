@@ -176,30 +176,28 @@ public static class StageMapAlgorithmExtensions
             var errors = @this.InterpolateErrors(points, targetCircle);
 
             return new StageMapErrorDTO
-            {
-                Zone = 0,
-                BaseX = points[0][0].X,
-                BaseY = points[0][0].Y,
-                XStep = xWidth,
-                YStep = yHeight,
-                Rows =
+            (
+                0,
+                points[0][0].X,
+                points[0][0].Y,
+                xWidth,
+                yHeight,
                 [
                     .. Generate.LinearRangeInt32(0, yLength - 1)
                         .Select(row => new StageMapErrorRowDTO
-                        {
-                            Id = row,
-                            Cols =
+                        (
+                            row,
                             [
                                 .. Generate.LinearRangeInt32(0, xLength - 1)
                                     .Select(column => new StageMapErrorColumnDTO
-                                    {
-                                        Id = column,
-                                        Error = errors[row][column]
-                                    })
+                                    (
+                                        column,
+                                        errors[row][column]
+                                    ))
                             ]
-                        })
+                        ))
                 ]
-            };
+            );
         }
 
         #endregion
