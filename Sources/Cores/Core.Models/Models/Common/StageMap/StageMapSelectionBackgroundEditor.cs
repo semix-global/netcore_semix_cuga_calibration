@@ -4,7 +4,7 @@ using Net.Utilities.Graphics.Editors;
 using Net.Utilities.Graphics.Primitives.Enums.Inputs;
 using Net.Utilities.Graphics.Primitives.EventArgs.Inputs;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public sealed class StageMapSelectionBackgroundEditor(CanvasEdit edit) : BackgroundEditor(edit)
 {

@@ -5,7 +5,7 @@ using Net.Utilities.Graphics.Renderings;
 using Net.Utilities.Models.Geometries;
 using SkiaSharp;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public partial class StageMapWafer : AbstractDrawable
 {

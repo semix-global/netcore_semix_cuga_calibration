@@ -15,9 +15,7 @@
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
-           xmlns:graphics="clr-namespace:Core.Models.Models.Common.StageMap.Graphics;assembly=Core.Models"
            xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
-           xmlns:stage="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Stage;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -247,7 +245,7 @@
                                                         <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                                                         <DataGridTemplateColumn Header="Images">
                                                             <DataGridTemplateColumn.CellTemplate>
-                                                                <DataTemplate DataType="{x:Type stage:StageMapTemplate}">
+                                                                <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
                                                                     <view:CanvasView Width="100"
                                                                                      Height="100"
                                                                                      BackgroundColor="#0A0A0A"
@@ -480,7 +478,7 @@
                                              BandIndex="1">
                                         <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
                                             <TextBlock.Text>
-                                                <MultiBinding Converter="{x:Static graphics:StageMapDocumentCursorToStringConverter.Instance}">
+                                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
                                                     <Binding Path="Cache.StageMapDocument.View.Cursor.Point" />
                                                     <Binding Path="Cache.StageMapDocument" />
                                                 </MultiBinding>

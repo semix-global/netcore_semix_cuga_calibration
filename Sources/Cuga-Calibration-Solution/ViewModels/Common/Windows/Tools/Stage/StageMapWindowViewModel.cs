@@ -43,7 +43,6 @@ using System.Collections;
 using System.IO;
 using Core.Algorithm.Extensions;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Common.StageMap.Graphics;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;

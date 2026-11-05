@@ -14,10 +14,10 @@
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
-           xmlns:stage1="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
            xmlns:sys="clr-namespace:System;assembly=mscorlib"
-           xmlns:graphics="clr-namespace:Core.Models.Models.Common.StageMap.Graphics;assembly=Core.Models"
+           xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:RTAWindowViewModel}"
@@ -128,7 +128,7 @@
                                     <ComboBox hc:TitleElement.Title="Cal Chip: "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage1:CalChipSiteModelEnum}}}"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
                                               SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
                                               Style="{StaticResource ComboBoxExtend}">
                                         <ComboBox.ItemTemplate>
@@ -628,7 +628,7 @@
                                              BandIndex="1">
                                         <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
                                             <TextBlock.Text>
-                                                <MultiBinding Converter="{x:Static graphics:StageMapDocumentCursorToStringConverter.Instance}">
+                                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
                                                     <Binding Path="Cache.StageMapDocument.View.Cursor.Point" />
                                                     <Binding Path="Cache.StageMapDocument" />
                                                 </MultiBinding>

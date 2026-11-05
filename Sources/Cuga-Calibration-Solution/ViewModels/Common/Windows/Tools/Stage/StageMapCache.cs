@@ -3,7 +3,6 @@ using Core.Models.Models;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Common.StageMap.Graphics;
 using Core.Models.Models.Setting;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 

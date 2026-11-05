@@ -5,7 +5,7 @@ using Net.Utilities.Graphics.Primitives.Editors.Getters;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public sealed class StageMapDieSelectionGetter(
     CanvasEdit edit,

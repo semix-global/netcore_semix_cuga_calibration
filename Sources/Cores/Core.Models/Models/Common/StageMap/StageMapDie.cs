@@ -8,7 +8,7 @@ using SkiaSharp;
 using FillStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.FillStyle;
 using LineStyle = Net.Utilities.Graphics.Primitives.Medias.Styles.LineStyle;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public partial class StageMapDie : AbstractDrawable
 {

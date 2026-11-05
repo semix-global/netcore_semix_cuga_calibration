@@ -1,7 +1,7 @@
 ﻿using Net.Utilities.Models.Geometries;
 using Net.Utilities.WaferMap.WPF.Primitives.Builders;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public sealed class StageMapDieBuilder : WaferMapDieBuilder
 {

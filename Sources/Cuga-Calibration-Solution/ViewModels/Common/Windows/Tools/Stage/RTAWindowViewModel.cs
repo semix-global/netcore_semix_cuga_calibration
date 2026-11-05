@@ -27,7 +27,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
-using Core.Models.Models.Common.StageMap.Graphics;
+using Core.Models.Models.Common.StageMap;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 

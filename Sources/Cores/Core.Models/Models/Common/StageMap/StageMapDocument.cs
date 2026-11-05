@@ -4,7 +4,7 @@ using Net.Utilities.Graphics.Interfaces;
 using Net.Utilities.Graphics.Primitives.Medias.Layers;
 using Net.Utilities.Graphics.Primitives.ObjectModels;
 
-namespace Core.Models.Models.Common.StageMap.Graphics;
+namespace Core.Models.Models.Common.StageMap;
 
 public sealed class StageMapDocument : CanvasDocument
 {
