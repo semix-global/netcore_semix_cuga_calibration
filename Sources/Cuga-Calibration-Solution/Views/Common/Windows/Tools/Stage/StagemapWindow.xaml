@@ -13,10 +13,10 @@
            xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
            xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
-           xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:viewModels1="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Stage;assembly=Core.Models"
+           xmlns:graphics="clr-namespace:Core.Models.Models.Common.StageMap.Graphics;assembly=Core.Models"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:StageMapWindowViewModel}"
@@ -479,7 +479,7 @@
                                              BandIndex="1">
                                         <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
                                             <TextBlock.Text>
-                                                <MultiBinding Converter="{stage:StageMapDocumentCursorToStringConverter}">
+                                                <MultiBinding Converter="{x:Static graphics:StageMapDocumentCursorToStringConverter.Instance}">
                                                     <Binding Path="Cache.StageMapDocument.View.Cursor.Point" />
                                                     <Binding Path="Cache.StageMapDocument" />
                                                 </MultiBinding>
