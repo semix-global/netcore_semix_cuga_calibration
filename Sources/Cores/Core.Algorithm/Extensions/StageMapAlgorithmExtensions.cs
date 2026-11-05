@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Diagnostics;
 using Core.Models.Models.Common.StageMap;
 using MathNet.Numerics;
 using Net.Utilities.Calibration;
@@ -110,6 +110,73 @@ public static class StageMapAlgorithmExtensions
             using var result = interpolate.Invoke(pyResidualTable, pyDesiredPositions, pyTargetPositions, pySourceMask, pyTargetMask);
 
             return PythonHelper.ToVectorMatrix(result, yLength, xLength);
+        }
+
+        /// <summary>
+        /// 外扩当前暗场标准网格以覆盖全部明场网格点, 并插值明场误差.
+        /// </summary>
+        /// <param name="brightFieldStageMap">用于插值的明场地图.</param>
+        /// <param name="brightFieldTargetCircle">明场目标圆, 限定插值有效区域.</param>
+        /// <param name="darkFieldTargetCircle">构建暗场标准网格时使用的目标圆.</param>
+        public StageMap Expand(StageMap brightFieldStageMap, Circle brightFieldTargetCircle, Circle darkFieldTargetCircle)
+        {
+            var (darkFieldYLength, darkFieldXLength) = @this.IdealMatrix.GetYXLength();
+            Guard.IsGreaterThan(darkFieldYLength, 1);
+            Guard.IsGreaterThan(darkFieldXLength, 1);
+
+            // 使用暗场标准网格的原点, 步长和行列数.
+            var standardStageMap = @this.AdaptTo(darkFieldTargetCircle);
+            var brightFieldPoints = brightFieldStageMap.IdealMatrix.SelectMany(row => row).ToArray();
+            Guard.IsNotEmpty(brightFieldPoints);
+
+            var xStep = standardStageMap.XStep;
+            var yStep = standardStageMap.YStep;
+            var minX = brightFieldPoints.Min(point => point.X);
+            var maxX = brightFieldPoints.Max(point => point.X);
+            var minY = brightFieldPoints.Min(point => point.Y);
+            var maxY = brightFieldPoints.Max(point => point.Y);
+            var endX = standardStageMap.BaseX + (darkFieldXLength - 1) * xStep;
+            var endY = standardStageMap.BaseY + (darkFieldYLength - 1) * yStep;
+
+            // 四个方向仅补足覆盖全部明场网格点所需的整行和整列.
+            var leftColumnCount = checked((int)Math.Max(0d, Math.Ceiling((standardStageMap.BaseX - minX) / xStep)));
+            var rightColumnCount = checked((int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep)));
+            var bottomRowCount = checked((int)Math.Max(0d, Math.Ceiling((standardStageMap.BaseY - minY) / yStep)));
+            var topRowCount = checked((int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep)));
+            var xLength = checked(darkFieldXLength + leftColumnCount + rightColumnCount);
+            var yLength = checked(darkFieldYLength + bottomRowCount + topRowCount);
+            var startPoint = new Point(standardStageMap.BaseX - leftColumnCount * xStep, standardStageMap.BaseY - bottomRowCount * yStep);
+
+            var points = new Point[yLength][];
+            var isInWaferMatrix = new bool[yLength][];
+            var isMatchMatrix = new bool[yLength][];
+            for (var y = 0; y < yLength; y++)
+            {
+                points[y] = new Point[xLength];
+                isInWaferMatrix[y] = new bool[xLength];
+                isMatchMatrix[y] = new bool[xLength];
+                for (var x = 0; x < xLength; x++)
+                {
+                    var point = startPoint + new Vector(x * xStep, y * yStep);
+                    var isInWafer = brightFieldTargetCircle.Contains(point);
+                    points[y][x] = point;
+                    isInWaferMatrix[y][x] = isInWafer;
+                    isMatchMatrix[y][x] = isInWafer;
+                }
+            }
+
+            // 只在明场目标圆内插值, 圆外点保持无效.
+            var errors = brightFieldStageMap.InterpolateErrors(points, brightFieldTargetCircle);
+            var result = new StageMap
+            {
+                IdealMatrix = points,
+                ErrorMatrix = errors,
+                IsInWaferMatrix = isInWaferMatrix,
+                IsMatchMatrix = isMatchMatrix
+            };
+            result.Refresh();
+
+            return result;
         }
 
         private PyList ToPythonIdealMatrix() => PythonHelper.ToPythonPointMatrix(@this.IdealMatrix);
