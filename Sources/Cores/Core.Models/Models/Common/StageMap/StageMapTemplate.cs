@@ -1,9 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
-public sealed partial class StageMapTemplate : ObservableObject
+public sealed partial class StageMapTemplate : ObservableObject, ICloneable<StageMapTemplate>
 {
     [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
@@ -20,4 +21,13 @@ public sealed partial class StageMapTemplate : ObservableObject
 
     [ObservableProperty]
     public partial string TemplateImageFilePath { get; set; } = string.Empty;
+
+    public StageMapTemplate Clone() => new()
+    {
+        DisplayIndex = DisplayIndex,
+        FindBFMachinePosition = FindBFMachinePosition,
+        TemplateROI = TemplateROI,
+        TemplateFilePath = TemplateFilePath,
+        TemplateImageFilePath = TemplateImageFilePath
+    };
 }
