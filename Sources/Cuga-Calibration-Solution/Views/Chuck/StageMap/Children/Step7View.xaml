@@ -1,0 +1,80 @@
+<UserControl x:Class="CugaCalibration.Views.Chuck.StageMap.Children.Step7View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                <hc:Shield Subject="{Binding CalibrationDisplayStepIndex, StringFormat={}Step {0}:}"
+                           Status="{Binding CalibrationStepName}"
+                           Color="{StaticResource InfoBrush}" />
+                <hc:Shield Subject="Microscope: "
+                           Status="{Binding Cache.MicroscopeLensInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Productivity: "
+                           Status="{Binding Cache.ChuckStageMapCacheDFItem.ProductivityInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="Laser Light: "
+                           Status="{Binding Cache.ChuckStageMapCacheDFItem.LaserLightInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+                <hc:Shield Subject="CIB: "
+                           Status="{Binding Cache.ChuckStageMapCacheDFItem.CIBInformation}"
+                           Color="{StaticResource SuccessBrush}" />
+            </hc:UniformSpacingPanel>
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding Step7Command}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}">
+                                <Button.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                        <Binding Path="Step7Command.IsRunning" />
+                                    </MultiBinding>
+                                </Button.IsEnabled>
+                            </Button>
+                            <Button Content="Cancel"
+                                    Command="{Binding Step7CancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
+                    </hc:UniformSpacingPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <GridSplitter Grid.Column="1" Width="5" />
+        <GroupBox Grid.Column="2" Header="History">
+            <Border Style="{StaticResource BorderRegion}">
+                <ContentPresenter Content="{Binding CalibratingItem.DFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
+            </Border>
+        </GroupBox>
+    </Grid>
+</UserControl>

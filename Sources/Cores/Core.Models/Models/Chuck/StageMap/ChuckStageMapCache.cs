@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Models.Common.Alignment;
@@ -38,11 +38,11 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     {
         if (selectedItems is null) return;
 
-        var stageMapTemplates = ChuckStageMapCacheBFItem.StageMapTemplates.ToList();
+        var stageMapTemplates = ChuckStageMapCacheDFItem.StageMapTemplates.ToList();
 
         foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
 
-        ChuckStageMapCacheBFItem.StageMapTemplates = [.. stageMapTemplates];
+        ChuckStageMapCacheDFItem.StageMapTemplates = [.. stageMapTemplates];
     }
 
     public override ChuckStageMapCache Clone() => new()

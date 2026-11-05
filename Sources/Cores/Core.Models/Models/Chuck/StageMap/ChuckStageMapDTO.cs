@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.StageMap;
 using Local.SQL.Cache.Providers.Bases;
@@ -35,6 +35,11 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     [ObservableProperty]
     public partial StageMapResult[] DFRepeatStageMaps { get; set; } = [];
 
+    partial void OnDFRepeatStageMapsChanged(StageMapResult[] value)
+    {
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
+    }
+
     [ObservableProperty]
     public partial StageMapResult DownloadStageMap { get; set; } = new();
 
@@ -43,6 +48,16 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
 
     [ObservableProperty]
     public partial StageMapResult DFVerifyStageMap { get; set; } = new();
+
+    public void Refresh()
+    {
+        BFStageMap.Refresh();
+        DFStageMap.Refresh();
+        foreach (var stageMap in DFRepeatStageMaps) stageMap.Refresh();
+        DownloadStageMap.Refresh();
+        BFVerifyStageMap.Refresh();
+        DFVerifyStageMap.Refresh();
+    }
 
     public override ChuckStageMapDTO Clone() => new()
     {
