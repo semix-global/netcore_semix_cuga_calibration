@@ -35,13 +35,8 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     [ObservableProperty]
     public partial StageMapResult[] DFRepeatStageMaps { get; set; } = [];
 
-    partial void OnDFRepeatStageMapsChanged(StageMapResult[] value)
-    {
-        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
-    }
-
     [ObservableProperty]
-    public partial StageMapResult DownloadStageMap { get; set; } = new();
+    public partial StageMapResult ExpandStageMap { get; set; } = new();
 
     [ObservableProperty]
     public partial StageMapResult BFVerifyStageMap { get; set; } = new();
@@ -49,14 +44,9 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     [ObservableProperty]
     public partial StageMapResult DFVerifyStageMap { get; set; } = new();
 
-    public void Refresh()
+    partial void OnDFRepeatStageMapsChanged(StageMapResult[] value)
     {
-        BFStageMap.Refresh();
-        DFStageMap.Refresh();
-        foreach (var stageMap in DFRepeatStageMaps) stageMap.Refresh();
-        DownloadStageMap.Refresh();
-        BFVerifyStageMap.Refresh();
-        DFVerifyStageMap.Refresh();
+        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
     }
 
     public override ChuckStageMapDTO Clone() => new()
@@ -69,7 +59,7 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
         BFStageMap = BFStageMap.Clone(),
         DFStageMap = DFStageMap.Clone(),
         DFRepeatStageMaps = [.. DFRepeatStageMaps.Select(x => x.Clone())],
-        DownloadStageMap = DownloadStageMap.Clone(),
+        ExpandStageMap = ExpandStageMap.Clone(),
         BFVerifyStageMap = BFVerifyStageMap.Clone(),
         DFVerifyStageMap = DFVerifyStageMap.Clone(),
         IsCalibrated = IsCalibrated,
