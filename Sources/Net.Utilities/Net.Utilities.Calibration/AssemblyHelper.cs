@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using CommunityToolkit.Diagnostics;
+﻿using CommunityToolkit.Diagnostics;
 
 namespace Net.Utilities.Calibration;
 
@@ -7,11 +6,16 @@ public static class AssemblyHelper
 {
     public static string GetEmbeddedResource(string fileName)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = assembly.GetManifestResourceNames().SingleOrDefault(t => t.EndsWith($".{fileName}", StringComparison.OrdinalIgnoreCase));
-        Guard.IsNotNull(resourceName);
+        var temp = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(t => t.IsDynamic == false)
+            .SelectMany(t => t.GetManifestResourceNames()
+                .Where(name => name.EndsWith($".{fileName}", StringComparison.OrdinalIgnoreCase))
+                .Select(name => new { Assembly = t, ResourceName = name }))
+            .SingleOrDefault();
 
-        using var stream = assembly.GetManifestResourceStream(resourceName);
+        Guard.IsNotNull(temp, $"Resource '{fileName}' not found in any loaded assembly.");
+
+        using var stream = temp.Assembly.GetManifestResourceStream(temp.ResourceName);
         Guard.IsNotNull(stream);
 
         using var reader = new StreamReader(stream);
