@@ -1,14 +1,10 @@
-using System.ComponentModel;
 using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Core.Algorithm.Extensions;
 using Core.Algorithm.Models.TemplateMatch;
-using Core.Models.Enums;
 using Core.Models.Enums.Stage;
-using Core.Models.Events;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.StageMap;
@@ -19,7 +15,6 @@ using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
-using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using HalconDotNet;
@@ -45,10 +40,6 @@ namespace CugaCalibration.ViewModels.Chuck;
 [IOCAppService(ServiceType = typeof(ChuckStageMapViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<ChuckStageMapCache>
 {
-    private readonly List<(INotifyPropertyChanged Source, PropertyChangedEventHandler Handler)> _cacheSubscriptions = [];
-    private TemplateMatchSetting _BFTemplateMatchSetting = new();
-    private TemplateMatchSetting _DFTemplateMatchSetting = new();
-
     #region 属性
 
     public override IReadOnlyList<CalibrationItemStep> CalibrationSteps { get; } =
@@ -85,13 +76,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     [ObservableProperty]
     public override partial ChuckStageMapCache Cache { get; set; } = new();
 
-    partial void OnCacheChanged(ChuckStageMapCache value)
-    {
-        _BFTemplateMatchSetting = value.ChuckStageMapCacheBFItem.TemplateMatchSetting.Clone();
-        _DFTemplateMatchSetting = value.ChuckStageMapCacheDFItem.TemplateMatchSetting.Clone();
-        SubscribeCacheChanges();
-    }
-
     [DefaultCache]
     [ObservableProperty]
     public partial ChuckStageMapDTO Calibration { get; set; } = new();
@@ -120,150 +104,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     #endregion 缓存
 
     #endregion 属性
-
-    #region 步骤失效处理
-
-    private void SubscribeCacheChanges()
-    {
-        foreach (var (source, handler) in _cacheSubscriptions) source.PropertyChanged -= handler;
-
-        _cacheSubscriptions.Clear();
-
-        Subscribe(Cache, CacheOnPropertyChanged);
-        Subscribe(Cache.ChuckStageMapCacheBFItem, BFCacheOnPropertyChanged);
-        Subscribe(Cache.ChuckStageMapCacheDFItem, DFCacheOnPropertyChanged);
-        Subscribe(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration, DFCacheOnPropertyChanged);
-        Subscribe(Cache.ChuckStageMapCacheDFItem.CIBConfiguration, DFCacheOnPropertyChanged);
-
-        return;
-
-        void Subscribe(INotifyPropertyChanged source, PropertyChangedEventHandler handler)
-        {
-            source.PropertyChanged += handler;
-            _cacheSubscriptions.Add((source, handler));
-        }
-    }
-
-    private void CacheOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        switch (e.PropertyName)
-        {
-            case nameof(ChuckStageMapCache.MicroscopeLensInformation):
-                Cache.ChuckStageMapCacheBFItem.StageMapTemplates = [];
-                Cache.ChuckStageMapCacheDFItem.StageMapTemplates = [];
-                InvalidateSteps(0);
-                break;
-
-            case nameof(ChuckStageMapCache.ChuckStageMapCacheBFItem):
-                SubscribeCacheChanges();
-                InvalidateBFStageMap();
-                break;
-
-            case nameof(ChuckStageMapCache.ChuckStageMapCacheDFItem):
-                SubscribeCacheChanges();
-                InvalidateDFStageMap();
-                InvalidateSteps(4);
-                break;
-        }
-    }
-
-    private void BFCacheOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (ReferenceEquals(sender, Cache.ChuckStageMapCacheBFItem) == false || e.PropertyName == nameof(ChuckStageMapCacheBFItem.TemplateMatchSetting))
-        {
-            SubscribeCacheChanges();
-            Cache.ChuckStageMapCacheBFItem.StageMapTemplates = [];
-        }
-
-        InvalidateBFStageMap();
-    }
-
-    private void DFCacheOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (ReferenceEquals(sender, Cache.ChuckStageMapCacheDFItem) && e.PropertyName == nameof(ChuckStageMapCacheDFItem.StageMapRepeatTimes))
-        {
-            CalibratingItem.DFRepeatStageMaps = [];
-            CalibratingItem.DownloadStageMap = new StageMap();
-            CalibratingItem.DFVerifyStageMap = new StageMap();
-            InvalidateSteps(8);
-
-            return;
-        }
-
-        var isDFParameter = ReferenceEquals(sender, Cache.ChuckStageMapCacheDFItem.OpticsConfiguration)
-                            || ReferenceEquals(sender, Cache.ChuckStageMapCacheDFItem.CIBConfiguration)
-                            || e.PropertyName is nameof(ChuckStageMapCacheDFItem.ProductivityInformation)
-                                or nameof(ChuckStageMapCacheDFItem.LaserLightInformation)
-                                or nameof(ChuckStageMapCacheDFItem.CIBInformation)
-                                or nameof(ChuckStageMapCacheDFItem.OpticsConfiguration)
-                                or nameof(ChuckStageMapCacheDFItem.CIBConfiguration);
-
-        if (isDFParameter || ReferenceEquals(sender, Cache.ChuckStageMapCacheDFItem) == false
-            || e.PropertyName is nameof(ChuckStageMapCacheDFItem.TemplateMatchSetting)
-                or nameof(ChuckStageMapCacheDFItem.ImageWidth))
-        {
-            SubscribeCacheChanges();
-            Cache.ChuckStageMapCacheDFItem.StageMapTemplates = [];
-        }
-
-        InvalidateDFStageMap();
-
-        if (isDFParameter) InvalidateSteps(4);
-    }
-
-    private void InvalidateBFStageMap()
-    {
-        CalibratingItem.BFStageMapDocument = new StageMapDocument();
-        CalibratingItem.BFStageMap = new StageMap();
-        CalibratingItem.BFVerifyStageMap = new StageMap();
-        InvalidateSteps(2);
-    }
-
-    private void InvalidateDFStageMap()
-    {
-        CalibratingItem.DFStageMapDocument = new StageMapDocument();
-        CalibratingItem.DFStageMap = new StageMap();
-        CalibratingItem.DFRepeatStageMaps = [];
-        CalibratingItem.DownloadStageMap = new StageMap();
-        CalibratingItem.DFVerifyStageMap = new StageMap();
-        InvalidateSteps(6);
-    }
-
-    private void InvalidateSteps(int stepIndex)
-    {
-        foreach (var step in CalibrationSteps.Skip(stepIndex)) step.StepIsNextEnable = false;
-
-        if (ViewEnum == CalibrationItemViewEnum.Calibration && CalibrationStepIndex >= stepIndex)
-            Messenger.Send(ToggleCalibrateEventFactory.UpdateIsNextEnable(false));
-
-        OnPropertyChanged(nameof(CalibrationProgress));
-    }
-
-    private bool IsTemplateMatchSettingCurrent(bool isBrightField)
-    {
-        var setting = isBrightField ? Cache.ChuckStageMapCacheBFItem.TemplateMatchSetting : Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting;
-        var previousSetting = isBrightField ? _BFTemplateMatchSetting : _DFTemplateMatchSetting;
-        var isCurrent = setting.TemplateSize == previousSetting.TemplateSize
-                        && setting.Halcon.TemplateType == previousSetting.Halcon.TemplateType
-                        && setting.AlgoCSharp.Method == previousSetting.AlgoCSharp.Method
-                        && setting.AlgoCSharp.PyramidLevels == previousSetting.AlgoCSharp.PyramidLevels;
-        if (isCurrent) return true;
-
-        if (isBrightField)
-        {
-            _BFTemplateMatchSetting = setting.Clone();
-            Cache.ChuckStageMapCacheBFItem.StageMapTemplates = [];
-        }
-        else
-        {
-            _DFTemplateMatchSetting = setting.Clone();
-            Cache.ChuckStageMapCacheDFItem.StageMapTemplates = [];
-        }
-
-        return false;
-    }
-
-    #endregion 步骤失效处理
 
     #region 控制校准业务
 
@@ -376,7 +216,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 return true;
 
             case 2:
-                return CalibratingItem.BFStageMapDocument.DieModel.Count > 0 && IsTemplateMatchSettingCurrent(true);
+                return true;
 
             case 3:
                 return true;
@@ -395,7 +235,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 return true;
 
             case 6:
-                return CalibratingItem.DFStageMapDocument.DieModel.Count > 0 && IsTemplateMatchSettingCurrent(false);
+                return true;
 
             case 7:
                 return true;
@@ -424,7 +264,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         {
             try
             {
-                _ = IsTemplateMatchSettingCurrent(true);
                 Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
                 var stageMapTemplatePoint = new StageMapTemplate
@@ -476,7 +315,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         {
             try
             {
-                _ = IsTemplateMatchSettingCurrent(false);
                 Guard.IsGreaterThan(Cache.ChuckStageMapCacheDFItem.ImageWidth, 0);
                 Guard.IsEqualTo(Cache.MicroscopeLensInformation, MicroscopeViewModel.GetCurrentMicroscopeLensInformation());
 
@@ -675,7 +513,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
             CalibratingItem.BFAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-            InvalidateBFStageMap();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -694,7 +531,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsTrue(IsTemplateMatchSettingCurrent(true), "Template settings changed. Mark BF templates and generate the StageMap again.");
             Guard.IsNotEmpty(Cache.ChuckStageMapCacheBFItem.StageMapTemplates);
             Guard.IsEqualTo(Cache.ChuckStageMapCacheBFItem.StageMapTemplates.Length, 1);
             Guard.IsGreaterThan(Cache.ChuckStageMapCacheBFItem.WaferRadius, 0d);
@@ -925,7 +761,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
             CalibratingItem.DFAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-            InvalidateDFStageMap();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -971,7 +806,6 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsTrue(IsTemplateMatchSettingCurrent(false), "Template settings changed. Mark DF templates and generate the StageMap again.");
             Guard.IsNotEmpty(Cache.ChuckStageMapCacheDFItem.StageMapTemplates);
             Guard.IsGreaterThan(Cache.ChuckStageMapCacheDFItem.WaferRadius, 0d);
             Guard.IsGreaterThan(Cache.ChuckStageMapCacheDFItem.DiePitchWidth, 0d);
