@@ -42,6 +42,7 @@ using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Collections;
 using System.IO;
 using Core.Algorithm.Extensions;
+using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Common.StageMap.Graphics;
 using Constants = Net.Utilities.Models.Constants;
 

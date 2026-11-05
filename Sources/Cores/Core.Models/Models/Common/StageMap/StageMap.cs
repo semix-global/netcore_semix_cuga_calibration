@@ -7,7 +7,7 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.ScottPlot.Interfaces;
 using Newtonsoft.Json;
 
-namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
+namespace Core.Models.Models.Common.StageMap;
 
 public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>
 {

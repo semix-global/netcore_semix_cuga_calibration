@@ -12,7 +12,7 @@ public static class StageMapAlgorithmExtensions
 {
     private static readonly string ClosedLoopCalibrationPythonScript = AssemblyHelper.GetEmbeddedResource("Assets.Python.closed_loop_calibration.py");
 
-    extension(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap @this)
+    extension(StageMap @this)
     {
         #region 算法
 
@@ -31,7 +31,7 @@ public static class StageMapAlgorithmExtensions
             @this.ApplyPythonErrorMatrix(result);
         }
 
-        public bool CanRepeatAndCalculateErrorMatrix(IReadOnlyList<CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap> historyStageMaps, int stageMapRepeatTimes)
+        public bool CanRepeatAndCalculateErrorMatrix(IReadOnlyList<StageMap> historyStageMaps, int stageMapRepeatTimes)
         {
             Guard.IsNotEmpty(historyStageMaps);
 
@@ -66,7 +66,7 @@ public static class StageMapAlgorithmExtensions
             return needMoreMeasurement == false;
         }
 
-        public void MergeErrorMatrix(CugaCalibration.ViewModels.Common.Windows.Tools.Stage.StageMap residualStageMap, int stageMapTemplateCount)
+        public void MergeErrorMatrix(StageMap residualStageMap, int stageMapTemplateCount)
         {
             using var _ = Py.GIL();
             using var module = PyModule.FromString("closed_loop_calibration", ClosedLoopCalibrationPythonScript);
