@@ -13,20 +13,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
-using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
-using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Core.Algorithm.Extensions;
 using Core.Models.Models.Chuck.StageMap;
-using Core.Models.Models.Common.StageMap;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -169,7 +164,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await StageMapCommands.ScanAsync(HtmlLogUniqueId, cancellationToken, isCanSelected: true);
+        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken, isCanSelected: true);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -179,7 +174,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await StageMapCommands.DFRepeatAsync(Steps[3], HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        return await StageMapCommands.DFRepeatCalibrateAsync(Steps[3], HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]

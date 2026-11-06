@@ -340,7 +340,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
-        await StageMapCommands.ScanAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     });
@@ -491,7 +491,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             })
         }), HtmlLogUniqueId.LoggingHtml());
 
-        await StageMapCommands.ScanAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     });
@@ -534,7 +534,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             })
         }), HtmlLogUniqueId.LoggingHtml());
 
-        return await StageMapCommands.DFRepeatAsync(CalibrationSteps[8].StepName, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        return await StageMapCommands.DFRepeatCalibrateAsync(CalibrationSteps[8].StepName, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
     });
 
     [RelayCommand(IncludeCancelCommand = true)]

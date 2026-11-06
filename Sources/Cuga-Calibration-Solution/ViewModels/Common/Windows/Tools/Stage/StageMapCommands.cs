@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Extensions;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
-using Core.Models.Helper;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
@@ -192,14 +191,14 @@ public sealed partial class StageMapCommands(
                     image.SaveImage(originImageFilePath);
                     stageMapTemplatePoint.OriginImageFilePath = originImageFilePath;
 
-                    var generateTemplateParam = CacheItem.TemplateMatchSetting.ToGenerateParam(
-                        calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum,
-                        reviewViewModel.GetBrightFieldImagePixelSize(),
-                        stageMapTemplatePoint.TemplateFilePath);
-                    Guard.IsTrue(reviewViewModel.TryGenerateTemplate(generateTemplateParam, Guid.Empty));
+                    createDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
+                    createDarkImageTemplateWindowViewModel.TemplateFilePath = stageMapTemplatePoint.TemplateFilePath;
+                    createDarkImageTemplateWindowViewModel.TemplateMatchSetting = CacheItem.TemplateMatchSetting.Clone();
 
-                    stageMapTemplatePoint.TemplateROI = generateTemplateParam.Roi;
-                    stageMapTemplatePoint.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(stageMapTemplatePoint.TemplateFilePath);
+                    Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
+
+                    stageMapTemplatePoint.TemplateROI = createDarkImageTemplateWindowViewModel.Rect;
+                    stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
                 }
 
                 CacheItem.StageMapTemplates = [.. CacheItem.StageMapTemplates, stageMapTemplatePoint];
@@ -375,7 +374,7 @@ public sealed partial class StageMapCommands(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ScanAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isCanSelected = false)
+    public async Task CalibrateAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isCanSelected = false)
     {
         await Task.Run(async () =>
         {
@@ -486,7 +485,7 @@ public sealed partial class StageMapCommands(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task<bool> DFRepeatAsync(string stepName, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    public async Task<bool> DFRepeatCalibrateAsync(string stepName, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         Guard.IsTrue(IsDark, "Step3 only support dark field");
 

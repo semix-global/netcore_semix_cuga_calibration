@@ -57,8 +57,6 @@
                                           hc:TitleElement.TitleWidth="190"
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          DecimalPlaces="0"
-                                          Increment="1"
                                           Value="{Binding Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"

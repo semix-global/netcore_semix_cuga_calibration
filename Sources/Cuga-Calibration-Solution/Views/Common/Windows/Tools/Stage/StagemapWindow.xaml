@@ -302,7 +302,7 @@
                                     <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
                                                       hc:TitleElement.TitlePlacement="Left"
                                                       hc:TitleElement.TitleWidth="190"
-                                                      Minimum="5"
+                                                      Minimum="1"
                                                       Style="{StaticResource NumericUpDownExtend}"
                                                       Value="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes}" />
                                 </hc:UniformSpacingPanel>

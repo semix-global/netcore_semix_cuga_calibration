@@ -19,7 +19,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     public partial ChuckStageMapCacheBFItem ChuckStageMapCacheBFItem { get; set; } = new();
 
     [ObservableProperty]
-    public partial ChuckStageMapCacheDFItem ChuckStageMapCacheDFItem { get; set; } = new();
+    public partial ChuckStageMapCacheDFItem ChuckStageMapCacheDFItem { get; set; } = new() { DiePitchWidth = 5100d };
 
     [ObservableProperty]
     public partial double Threshold { get; set; }
@@ -48,7 +48,7 @@ public partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageM
     public partial double WaferRadius { get; set; } = 140_000d;
 
     [ObservableProperty]
-    public partial double DiePitchWidth { get; set; } = 5100d;
+    public partial double DiePitchWidth { get; set; } = 15300d;
 
     [ObservableProperty]
     public partial double DiePitchHeight { get; set; } = 16600d;
@@ -113,10 +113,10 @@ public sealed partial class ChuckStageMapCacheDFItem : ChuckStageMapCacheBFItem,
     #endregion
 
     [ObservableProperty]
-    public partial int ImageWidth { get; set; } = 1000;
+    public partial int ImageWidth { get; set; } = 3000;
 
     [ObservableProperty]
-    public partial int StageMapRepeatTimes { get; set; } = 10;
+    public partial int StageMapRepeatTimes { get; set; } = 2;
 
     protected override ChuckStageMapCacheBFItem CreateInstance() => new ChuckStageMapCacheDFItem();
 
