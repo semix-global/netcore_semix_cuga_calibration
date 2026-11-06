@@ -623,7 +623,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         await InvokeVerifyAsync(async () =>
         {
-            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
                 BFParam = new HtmlQuote(new
@@ -680,10 +680,48 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             }), HtmlLogUniqueId.LoggingHtml());
 
             StageMapCommands.IsDark = false;
+            Logger.LogHtmlInformation("BF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                StageMapCommands.IsDark
+            }), HtmlLogUniqueId.LoggingHtml());
             await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+            CalibratingItem.BFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { CalibratingItem.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
             StageMapCommands.IsDark = true;
+            Logger.LogHtmlInformation("DF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                StageMapCommands.IsDark
+            }), HtmlLogUniqueId.LoggingHtml());
             await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken, isDownloadStageMap: true).ConfigureAwait(false);
+            CalibratingItem.DFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { CalibratingItem.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
+
+            Review.IsVerified = CalibratingItem.BFVerifyMaxError.Length < Cache.Threshold && CalibratingItem.DFVerifyMaxError.Length < Cache.Threshold;
+            Guard.IsTrue(Save(Review, cancellationToken));
+
+            var htmlQuote = new HtmlQuote(new
+            {
+                CalibratingItem.BFVerifyMaxError,
+                CalibratingItem.DFVerifyMaxError,
+                Review.IsVerified
+            });
+            if (Review.IsVerified)
+            {
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+            }
+            else
+            {
+                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+            }
+
+            DialogWindowProvider.ShowDialog($"""
+                                             Verify : {(Review.IsVerified ? "OK" : "Failed")}
+                                             BF Max Error:{CalibratingItem.BFVerifyMaxError}
+                                             DF Max Error: {CalibratingItem.DFVerifyMaxError}
+                                             """,
+                DialogButtonsEnum.OK,
+                Review.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
 
             return Review.IsVerified;
         }).ConfigureAwait(false);
