@@ -24,6 +24,8 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
+using Net.Utilities.Graphics.Primitives.Enums.Editors;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Enums.Loggings;
@@ -159,7 +161,7 @@ public sealed partial class StageMapCommands(
                             (false, cacheDFItem.CIBConfiguration),
                             (false, cacheDFItem.LaserLightInformation),
                             false,
-                            cancellationToken);
+                            cancellationToken).ConfigureAwait(false);
 
                         using var _ = darkFieldImageDto;
 
@@ -373,10 +375,46 @@ public sealed partial class StageMapCommands(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task GenerateStageMapAsync(StageMapDie[] selectStageMapDies, CancellationToken cancellationToken)
+    public async Task ScanAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isCanSelected = false)
     {
-        await Task.Run(() =>
+        await Task.Run(async () =>
         {
+            stageViewModel.SetEnableStageMap(false);
+
+            StageMapDie[] stageMapDies;
+            using (StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. StageMapDocument.DieModel];
+
+            StageMapDie[] selectStageMapDies;
+            if (isCanSelected)
+            {
+                foreach (var stageMapDie in stageMapDies) stageMapDie.IsInStageMapScan = false;
+
+                if (dialogWindowProvider.TryShowDialog("Yes: Select all dies? No: Manually select dies?",
+                        out var dialogResult,
+                        DialogButtonsEnum.YesNo,
+                        DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes)
+                {
+                    selectStageMapDies = [.. stageMapDies];
+                }
+                else
+                {
+                    var inputResult = await StageMapDieSelectionGetter
+                        .RunAsync<StageMapDieSelectionGetter>(StageMapDocument.Edit, new SelectionInputOptions<StageMapDie>
+                        {
+                            IsMultipleSelection = true,
+                            CancellationToken = cancellationToken
+                        })
+                        .ConfigureAwait(false);
+                    Guard.IsTrue(inputResult.OutputResultModeEnum == OutputResultModeEnum.Ok);
+
+                    selectStageMapDies = [.. inputResult.Output];
+                }
+            }
+            else
+            {
+                selectStageMapDies = [.. stageMapDies];
+            }
+
             StageMap = new StageMap();
 
             foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
@@ -430,10 +468,160 @@ public sealed partial class StageMapCommands(
             }
 
             StageMap.Refresh();
+
+            await ScanStageMapAsync(
+                StageMap,
+                htmlLogUniqueId,
+                cancellationToken).ConfigureAwait(false);
+
+            logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+
+            StageMap.CalculateErrorMatrix();
+            StageMap.Refresh();
+
+            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+            ]), htmlLogUniqueId.LoggingHtml());
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ScanStageMapAsync(
+    public async Task<bool> DFRepeatAsync(string stepName, Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    {
+        Guard.IsTrue(IsDark, "Step3 only support dark field");
+
+        var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+
+        ChuckStageMap.DFRepeatStageMaps = [];
+
+        var circle = new Circle(stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), CacheItem.WaferRadius);
+
+        var historyStageMapList = new List<StageMap>();
+
+        bool isSuccess;
+        var times = 0;
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var currentHtmlLogUniqueId = Guid.NewGuid();
+            var fileName = $"Details_{stepName.Replace(" ", string.Empty)}_{times + 1}";
+
+            if (times == 0)
+            {
+                await DownloadStageMapAsync(
+                    StageMap,
+                    circle,
+                    currentHtmlLogUniqueId,
+                    cancellationToken).ConfigureAwait(false);
+            }
+
+            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), htmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
+            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
+
+            try
+            {
+                var scanStageMap = StageMap.Clone();
+                scanStageMap.Reset();
+
+                ChuckStageMap.DFRepeatStageMaps = [.. ChuckStageMap.DFRepeatStageMaps, scanStageMap];
+
+                await ScanStageMapAsync(
+                    scanStageMap,
+                    currentHtmlLogUniqueId,
+                    cancellationToken,
+                    isInterpolateErrors: true,
+                    interpolateStageMap: StageMap,
+                    interpolateCircle: circle).ConfigureAwait(false);
+
+                historyStageMapList.Add(scanStageMap.Clone());
+
+                logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
+
+                isSuccess = scanStageMap.CanRepeatAndCalculateErrorMatrix(historyStageMapList, Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes);
+
+                scanStageMap.Refresh();
+
+                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                    .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                    .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                ]), currentHtmlLogUniqueId.LoggingHtml());
+
+                if (isSuccess || ++times > Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes - 1)
+                {
+                    StageMap.MergeErrorMatrix(scanStageMap, CacheItem.StageMapTemplates.Length);
+
+                    StageMap.Refresh();
+
+                    if (isSuccess)
+                        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                            .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                            .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                        ]), htmlLogUniqueId.LoggingHtml());
+                    else
+                        logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                            new HtmlComment("More than the number of times."),
+                            .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                            .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+                        ]), htmlLogUniqueId.LoggingHtml());
+
+                    break;
+                }
+            }
+            finally
+            {
+                logger.LogHtmlInformation(currentHtmlLogUniqueId.LoggedEndHtml(fileName));
+            }
+        }
+
+        return isSuccess;
+    }
+
+    public async Task VerifyAsync(StageMap downloadStageMap, Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isDownloadStageMap = false)
+    {
+        var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+        Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+
+        var brightFieldMachinePosition = microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel);
+        var circleCenter = IsDark
+            ? stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(brightFieldMachinePosition))
+            : brightFieldMachinePosition;
+        var circle = new Circle(circleCenter, CacheItem.WaferRadius);
+
+        if (isDownloadStageMap == false)
+        {
+            await DownloadStageMapAsync(
+                downloadStageMap,
+                circle,
+                htmlLogUniqueId,
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        VerifyStageMap = StageMap.Clone();
+        VerifyStageMap.Reset();
+
+        await ScanStageMapAsync(
+            VerifyStageMap,
+            htmlLogUniqueId,
+            cancellationToken,
+            isInterpolateErrors: IsDark,
+            interpolateStageMap: StageMap,
+            interpolateCircle: circle).ConfigureAwait(false);
+
+        logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+
+        VerifyStageMap.CalculateErrorMatrix();
+        VerifyStageMap.Refresh();
+
+        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+            .. VerifyStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+            .. VerifyStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+        ]), htmlLogUniqueId.LoggingHtml());
+    }
+
+    private async Task ScanStageMapAsync(
         StageMap stageMap,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken,
@@ -448,10 +636,12 @@ public sealed partial class StageMapCommands(
                 t.Index,
                 t.Item.FindBFMachinePosition,
                 t.Item.TemplateROI,
-                t.Item.OriginImageFilePath,
                 t.Item.TemplateFilePath,
-                t.Item.TemplateImageFilePath,
-                Image = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                HtmlTab = new HtmlTab(new
+                {
+                    ResultImage = new HtmlImage(t.Item.OriginImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(t.Item.TemplateROI)]),
+                    TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                })
             })
         ]), htmlLogUniqueId.LoggingHtml());
 
@@ -645,7 +835,7 @@ public sealed partial class StageMapCommands(
             {
                 try
                 {
-                    if (writerTask.IsCompleted == false) await linkedCancellationTokenSource.CancelAsync();
+                    if (writerTask.IsCompleted == false) await linkedCancellationTokenSource.CancelAsync().ConfigureAwait(false);
 
                     await writerTask.ConfigureAwait(false);
                 }
@@ -773,7 +963,7 @@ public sealed partial class StageMapCommands(
         }
     }
 
-    public async Task DownloadStageMapAsync(
+    private async Task DownloadStageMapAsync(
         StageMap downloadStageMap,
         Circle? targetCircle,
         Guid htmlLogUniqueId,
@@ -805,7 +995,7 @@ public sealed partial class StageMapCommands(
             stageViewModel.SetStageMap(stageMapErrorDTO);
 
             stageViewModel.SetEnableStageMap(true);
-        }, cancellationToken);
+        }, cancellationToken).ConfigureAwait(false);
     }
 
     private sealed record ScanYResult(int Y, int[] IsInWaferColumnIndexes, (BitmapImage Image, string RawImageFilePath)[] Images);
