@@ -225,16 +225,9 @@ public sealed class StageViewModel(
         return ret.IsSuccess ? (ret.Anything, bitmapMemoryBytes) : throw new CugaException(ret.ErrorMsg);
     }
 
-    public AlignmentSiteDto MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, TemplateMatchSetting templateMatchSetting)
+    public AlignmentSiteDto MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum)
     {
-        var ret = calibrationStageService.MarkAlignSite1(algorithmTemplateSizeEnum, templateMatchSetting.Halcon.TemplateType);
-
-        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
-    }
-
-    public AlignmentSiteDto MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum)
-    {
-        var ret = calibrationStageService.MarkAlignSite1(algorithmTemplateSizeEnum, algorithmTemplateTypeEnum);
+        var ret = calibrationStageService.MarkAlignSite1(algorithmTemplateSizeEnum);
 
         return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
     }

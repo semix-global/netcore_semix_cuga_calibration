@@ -16,11 +16,9 @@ using MathNet.Numerics.Interpolation;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Extensions;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -790,13 +788,11 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
                         var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                         darkFieldImage.Image.SaveImage(imageFilePath);
 
-                        using var hImage = darkFieldImage.Image.ToHImage();
-
                         var itemItemData = new AODUniformityDTOItem.Item
                         {
                             Window = [.. CalibratingItem.Item.Window],
                             PrescanAODWaveformProfiles = prescanAODWaveformProfiles,
-                            ImageHorizontalProjects = hImage.GetHorizontalProjects(),
+                            ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                             RawImageFilePath = darkFieldImage.RawImageFilePath,
                             ImageFilePath = imageFilePath
                         };
@@ -1127,8 +1123,7 @@ public sealed partial class AODUniformityViewModel : CalibrationViewModelBase<AO
         var imageFilePath = Path.Combine(detectImageDirectory, Cache.Item.CIBInformation.ToString(), title, $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
         darkFieldImage.Image.SaveImage(imageFilePath);
 
-        using var hImage = darkFieldImage.Image.ToHImage();
-        windowItem.ImageHorizontalProjects = hImage.GetHorizontalProjects();
+        windowItem.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
         if (isNeedReverse && CalibratingItem.IsReverse) windowItem.ImageHorizontalProjects = [.. windowItem.ImageHorizontalProjects.Reverse()];
 
         windowItem.ImageFilePath = imageFilePath;

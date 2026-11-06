@@ -1,4 +1,5 @@
-#define DfPixelSizeTest
+// 2026-10-24 裁定：弹窗/交互验收默认禁用（另开线程 ShowDialog 会卡住 testhost）；需要人工验收时再恢复下一行 #define
+// #define DfPixelSizeTest
 
 using algocv_sharp;
 using AwesomeAssertions;
@@ -26,6 +27,18 @@ public class DfPixelSizeTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void TestStructSize() => DfPixelSizeEngine.CheckStructSize();
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers", "IDISP017:Prefer using", Justification = "Testing explicit Dispose behavior.")]
+    public void Engine_IsDisposed_ShouldReflectDisposeState()
+    {
+        var engine = new DfPixelSizeEngine(new DfPixelSizeConfig());
+        engine.IsDisposed.Should().BeFalse();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+    }
 
     /// <summary>常规档代表帧（OI-S10 与 algocv_sharp_test 同帧，另取 OI-S90/NI-S40 覆盖不同 S 档与 NI 模式）。</summary>
     [Theory]
@@ -131,17 +144,34 @@ public class DfPixelSizeTest(ITestOutputHelper testOutputHelper)
     /// <summary>每行灰度均值（Y 投影曲线，16 位单通道）。</summary>
     private static double[] ComputeRowMean(AlgoCvImage image)
     {
-        var span = image.ToSpan<ushort>();
         var width = image.Width;
         var height = image.Height;
         var rowMean = new double[height];
 
+        // DfPixelSize 对不同资产可能输出 UInt16 或 Int16 图（见 Process_ShouldReturnValidPairsResult 的 DataType 断言），按实际 DataType 读取
+        if (image.DataType == ImageDataType.Int16)
+        {
+            var span = image.ToSpan<short>();
+            for (var r = 0; r < height; r++)
+            {
+                long sum = 0;
+                var offset = r * width;
+                for (var c = 0; c < width; c++)
+                    sum += span[offset + c];
+
+                rowMean[r] = (double)sum / width;
+            }
+
+            return rowMean;
+        }
+
+        var spanU16 = image.ToSpan<ushort>();
         for (var r = 0; r < height; r++)
         {
             long sum = 0;
             var offset = r * width;
             for (var c = 0; c < width; c++)
-                sum += span[offset + c];
+                sum += spanU16[offset + c];
 
             rowMean[r] = (double)sum / width;
         }

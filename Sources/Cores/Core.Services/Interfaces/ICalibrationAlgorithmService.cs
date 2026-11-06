@@ -1,7 +1,6 @@
-using Core.Models.Enums.Algorithm;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using HalconDotNet;
+using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 
@@ -47,93 +46,7 @@ public partial interface ICalibrationAlgorithmService
     /// <returns>MTF</returns>
     (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect, Guid guid);
 
-    /// <summary>
-    /// Best Focus
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="startECS">开始ECS</param>
-    /// <param name="stopECS">停止ECS</param>
-    /// <param name="algorithmEngineTypeEnum">算法库</param>
-    /// <param name="algorithmBestFocusTypeEnum">bestfocus目标晶圆类型</param>
-    /// <param name="guid">日志Id</param>
-    /// <returns>Best Focus结果</returns>
-    BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum, Guid guid);
-
     #endregion 清晰度
-
-    #region 尺寸
-
-    /// <summary>
-    /// 传入图片获取像素尺寸um
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="standardMaskSquareSize">标准掩膜方块的尺寸um</param>
-    /// <param name="guid">日志Id</param>
-    /// <param name="drawingImage">绘图图片</param>
-    /// <param name="angle">网格水平夹角</param>
-    /// <returns>像素尺寸um</returns>
-    Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out double angle);
-
-    /// <summary>
-    /// 传入暗场图片获取Y像素尺寸um
-    /// </summary>
-    /// <param name="image">暗场图片</param>
-    /// <param name="standardMaskSquareYSize">标准掩膜方块的Y尺寸um</param>
-    /// <param name="guid">日志Id</param>
-    /// <param name="drawingImage">结果可视化图像</param>
-    /// <param name="yProjects"></param>
-    /// <param name="resultIndexes"></param>
-    /// <returns>Y像素尺寸um</returns>
-    double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexes);
-
-    #endregion 尺寸
-
-    #region 模板匹配
-
-    /// <summary>
-    /// 传入图片创建模板并获取图片
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="image">图片</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="rect">尺寸</param>
-    /// <param name="guid">日志Id</param>
-    /// <param name="templateImage">模板图片</param>
-    /// <returns>是否成功</returns>
-    bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, Guid guid, out BitmapImage templateImage);
-
-    /// <summary>
-    /// 读取模板
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="templateId">模板Id</param>
-    /// <returns>是否成功</returns>
-    bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId);
-
-    /// <summary>
-    /// 清除模板
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="templateId">模板</param>
-    /// <returns>是否成功</returns>
-    bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId);
-
-    /// <summary>
-    /// 模板匹配
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="image">图片</param>
-    /// <param name="templateId">模板ID</param>
-    /// <param name="guid">日志Id</param>
-    /// <param name="markPoint">位置px</param>
-    /// <param name="offset">与中心偏移px</param>
-    /// <param name="score">匹配得分</param>
-    /// <param name="angle">匹配角度</param>
-    /// <returns>是否成功</returns>
-    bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, Guid guid, out Point markPoint, out Point offset, out double score, out double angle);
-
-    #endregion 模板匹配
 
     #region 暗场
 

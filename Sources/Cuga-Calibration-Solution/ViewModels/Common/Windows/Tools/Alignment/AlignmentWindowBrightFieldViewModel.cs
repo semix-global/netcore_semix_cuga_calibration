@@ -244,17 +244,13 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum, Cache.AlgorithmTemplateTypeEnum);
+                    var resultLowSite1 = StageViewModel.MarkAlignSite1(Cache.LowSizeEnum);
 
                     Cache.LowSite1 = resultLowSite1;
-                    Cache.LowSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.LowSite1.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     StepList[0].StepIsNextEnable = true;
 
                     Cache.LowSite2.Location = Cache.LowSite1.Location;
-                    Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.LowSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     await NextAsync().ConfigureAwait(false);
 
@@ -272,18 +268,12 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     StageViewModel.SetBrightFieldAbsoluteStageXy(resultLowSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.LowSite2 = resultLowSite2;
-                    Cache.LowSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.LowSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     StepList[1].StepIsNextEnable = true;
 
                     Cache.HighSite1.Location = Cache.LowSite1.Location;
-                    Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.HighSite1.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     Cache.HighSite2.Location = Cache.LowSite2.Location;
-                    Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.HighSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     await NextAsync().ConfigureAwait(false);
 
@@ -297,11 +287,9 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                         return;
                     }
 
-                    var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum, Cache.AlgorithmTemplateTypeEnum);
+                    var resultHighSite1 = StageViewModel.MarkAlignSite1(Cache.HighSizeEnum);
 
                     Cache.HighSite1 = resultHighSite1;
-                    Cache.HighSite1.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.HighSite1.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     StepList[2].StepIsNextEnable = true;
 
@@ -321,8 +309,6 @@ public sealed partial class AlignmentWindowBrightFieldViewModel : ViewModelBase,
                     StageViewModel.SetBrightFieldAbsoluteStageXy(resultHighSite2.Location, Cache.CalChipSiteModelEnum);
 
                     Cache.HighSite2 = resultHighSite2;
-                    Cache.HighSite2.AlgorithmTemplateTypeEnum = Cache.AlgorithmTemplateTypeEnum;
-                    Cache.HighSite2.UpdateTemplateMatchScoreThreshold(_calibrationSetting);
 
                     StepList[3].StepIsNextEnable = true;
 

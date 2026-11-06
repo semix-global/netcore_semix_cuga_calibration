@@ -112,9 +112,6 @@
                                            Style="{StaticResource TextBlockDefaultInfo}" />
                             </StackPanel>
                             <hc:UniformSpacingPanel Spacing="5">
-                                <hc:Shield Subject="Template Type: "
-                                           Status="{Binding Cache.AlgorithmTemplateTypeEnum, Converter={StaticResource EnumDescriptionConverter}}"
-                                           Color="{StaticResource SuccessBrush}" />
                                 <hc:Shield Subject="Lower Mag: "
                                            Status="{Binding Cache.LowMag.LensName}"
                                            Color="{StaticResource InfoBrush}" />

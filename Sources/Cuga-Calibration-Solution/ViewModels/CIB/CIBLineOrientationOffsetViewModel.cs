@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Helper;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -10,6 +11,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.PixelSize;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Net.Utilities.Attributes;
@@ -250,7 +252,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             Cache.Item.BrightTemplateFilePath = $"{TemplateFileDirectory}\\{Cache.Item.MicroscopeLensInformation.LensName}_{Guid.NewGuid()}";
             var brightImageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
             var generateTemplateHigh = ReviewViewModel.TryGenerateTemplate(
-                Cache.Item.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, brightImageSize, Cache.Item.BrightTemplateFilePath),
+                Cache.TemplateMatchSetting.ToGenerateParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, brightImageSize, Cache.Item.BrightTemplateFilePath),
                 HtmlLogUniqueId);
             if (generateTemplateHigh == false) DialogWindowProvider.ShowDialog("Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Warning);
             else Cache.Item.BrightTemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.BrightTemplateFilePath);
@@ -274,7 +276,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
-                TemplateMatchSetting = Cache.Item.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.MicroscopeLensInformation.LensName,
                 Cache.Item.WaferRadius,
                 Cache.Item.DiePitchWidth,
@@ -326,7 +328,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             var filePath = $"{detectImageDirectory}\\Guid({HtmlLogUniqueId}_{Guid.NewGuid()}).jpg";
             darkFieldImageDto.Image.SaveImage(filePath);
 
-            CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.TemplateMatchSetting.Clone();
+            CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.DarkTemplateMatchSetting.Clone();
             CreateDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
             CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
 
@@ -338,15 +340,19 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 return false;
             }
 
+            Cache.DarkTemplateMatchSetting = CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting.Clone();
+
             Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
+                BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(Cache.Item.TemplateFilePath)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
             return true;
@@ -373,7 +379,8 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                 AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                 Cache.Item.XWidthPixel,
                 Cache.PmtInterval,
-                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindPosition,
                 Cache.Item.StartPosition,
                 Cache.Item.EndPosition,
@@ -474,7 +481,8 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
                     Cache.Item.IsDarkFieldAlignment,
                     AlignmentResult = new HtmlQuote(Cache.Item.AlignmentResult.ToHtmlAnonymous()),
                     Cache.Item.XWidthPixel,
-                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                    BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                    DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.Item.FindPosition,
                     Cache.Item.StartPosition,
                     Cache.Item.EndPosition,
@@ -592,7 +600,7 @@ public sealed partial class CIBLineOrientationOffsetViewModel : CalibrationViewM
             var imageDto = isForward ? darkFieldImages[findPosition.Index] : darkFieldImages[^findPosition.Index];
 
             if (CIBViewModel.TryGetMatchPosition(
-                    Cache.Item.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
+                    Cache.DarkTemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
                     lineOrientationOffsetDto.ProductivityInformation,
                     StageCoordinateSystemEnum.Dark,
                     findPosition.Point,

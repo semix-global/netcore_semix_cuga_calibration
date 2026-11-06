@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Setting;
+using Net.Utilities.Calibration;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -30,6 +30,9 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
 
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
+    /// <summary>Y 像素尺寸引擎参数设置（仿模板匹配范式，业务层 Cache 增设），供 YPixelSizeSettingUserControl 绑定</summary>
+    public YPixelSizeSetting YPixelSizeSetting { get; set; } = new();
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBYPixelSizeCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem> Items { get; init; } = [];
 
@@ -44,6 +47,7 @@ public sealed partial class CIBYPixelSizeCache : CalibrationCacheBase<CIBYPixelS
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBYPixelSizeCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBYPixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
+        YPixelSizeSetting = YPixelSizeSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

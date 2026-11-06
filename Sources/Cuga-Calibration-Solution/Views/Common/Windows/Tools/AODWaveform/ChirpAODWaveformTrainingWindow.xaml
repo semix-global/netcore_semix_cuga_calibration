@@ -16,6 +16,7 @@
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+           xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            Width="1500"
            Height="1000"
@@ -232,7 +233,7 @@
                                                              hc:TitleElement.TitleWidth="160"
                                                              hc:TitleElement.Title="Algorithm Engine Type: "
                                                              SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
-                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}">
+                                                             ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type calibrationAlgorithm:AlgorithmEngineTypeEnum}}}">
                                                     <hc:ComboBox.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />

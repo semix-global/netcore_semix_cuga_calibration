@@ -10,18 +10,21 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Engine.Interface;
+using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
+using System.Diagnostics;
 
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
 public sealed class CalibrationStageServiceImpl(
-    CalibrationSetting calibrationSetting) : BaseService<ICgCalibrationService>, ICalibrationStageService
+    CalibrationSetting calibrationSetting,
+    ILogger<CalibrationStageServiceImpl> logger) : BaseService<ICgCalibrationService>, ICalibrationStageService
 {
     private (double XDirection, double YDirection)? _direction;
 
@@ -285,22 +288,17 @@ public sealed class CalibrationStageServiceImpl(
             : SxExecuteRetHelper.CreateSuccess(new Point(sxExecuteRet.Anything.X, sxExecuteRet.Anything.Y));
     }
 
-    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
-        AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum)
+    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum)
     {
-        var sxExecuteRet = Invoke(() => Service!.MarkAlignSite1(
-            algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(),
-            algorithmTemplateTypeEnum.ToAlgorithmTemplateType()));
+        // 协议收口点：底层仅支持 Halcon 匹配，匹配类型在此固定编码（底层替换为 algo 时仅需修改此处）
+        var sxExecuteRet = Invoke(() => Service!.MarkAlignSite1(algorithmTemplateSizeEnum.ToSize().ToSystemDrawingSize(), AlgorithmTemplateTypeEnum.Ncc.ToAlgorithmTemplateType()));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())
             : SxExecuteRetHelper.CreateSuccess(new AlignmentSiteDto().AdaptIn(sxExecuteRet.Anything));
     }
 
-    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(
-        AlignmentSiteDto site
-    )
+    public SxExecuteRet<AlignmentSiteDto> MarkAlignSite2(AlignmentSiteDto site)
     {
         site.UpdateTemplateMatchScoreThreshold(calibrationSetting);
         var sxExecuteRet = Invoke(() => Service!.MarkAlignSite2(site.AdaptTo()));
@@ -319,33 +317,48 @@ public sealed class CalibrationStageServiceImpl(
         MicroscopeLensInformation highMicroscopeLensInformation,
         bool isP2)
     {
-        lowSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
-        lowSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
-        highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
-        highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
+        var timestamp = Stopwatch.GetTimestamp();
 
-        var sxExecuteRet = Invoke(() => isP2
-            ? Service!.CalChipAlignment(
-                lowSite1.AdaptTo(),
-                lowSite2.AdaptTo(),
-                highSite1.AdaptTo(),
-                highSite2.AdaptTo(),
-                Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
-                Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
-                type: C2MAlignType.Mid)
-            : Service!.Alignment(
-                lowSite1.AdaptTo(),
-                lowSite2.AdaptTo(),
-                highSite1.AdaptTo(),
-                highSite2.AdaptTo(),
-                Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
-                Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
-                type: C2MAlignType.Mid)
-        );
+        try
+        {
+            logger.LogTrace("Alignment Starting...");
 
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
-            : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
+            lowSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
+            lowSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
+            highSite1.UpdateTemplateMatchScoreThreshold(calibrationSetting);
+            highSite2.UpdateTemplateMatchScoreThreshold(calibrationSetting);
+
+            var sxExecuteRet = Invoke(() => isP2
+                ? Service!.CalChipAlignmentByCount(
+                    lowSite1.AdaptTo(),
+                    lowSite2.AdaptTo(),
+                    highSite1.AdaptTo(),
+                    highSite2.AdaptTo(),
+                    10,
+                    Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
+                    Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
+                    type: C2MAlignType.Mid)
+                : Service!.AlignmentByCount(
+                    lowSite1.AdaptTo(),
+                    lowSite2.AdaptTo(),
+                    highSite1.AdaptTo(),
+                    highSite2.AdaptTo(),
+                    10,
+                    Convert.ToUInt16(lowMicroscopeLensInformation.AdaptTo().LensCode),
+                    Convert.ToUInt16(highMicroscopeLensInformation.AdaptTo().LensCode),
+                    type: C2MAlignType.Mid)
+            );
+
+            return sxExecuteRet.IsSuccess == false
+                ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentResultDto())
+                : SxExecuteRetHelper.CreateSuccess(new AlignmentResultDto().AdaptIn(sxExecuteRet.Anything));
+        }
+        finally
+        {
+            logger.LogTrace("Alignment Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
+        }
+
+
     }
 
     public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1,

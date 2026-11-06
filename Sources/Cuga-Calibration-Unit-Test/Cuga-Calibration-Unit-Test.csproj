@@ -36,6 +36,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Cuga-Calibration-Solution\Cuga-Calibration-Solution.csproj" />
+        <ProjectReference Include="..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
 </Project>

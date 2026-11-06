@@ -7,7 +7,6 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
-             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:yPixelSize="clr-namespace:Core.Models.Models.CIB.YPixelSize;assembly=Core.Models"
              xmlns:cib="clr-namespace:CugaCalibration.ViewModels.CIB"
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
@@ -45,17 +44,7 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="160"
-                                     hc:TitleElement.Title="Algorithm Engine Type: "
-                                     SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
-                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}">
-                            <hc:ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
-                                </DataTemplate>
-                            </hc:ComboBox.ItemTemplate>
-                        </hc:ComboBox>
+                        <!--  2026-10-24 用户裁定：算法库切换 ComboBox 迁至 Step1View 参数页（与 Y Pixel Size 引擎参数设置同页），此处移除  -->
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

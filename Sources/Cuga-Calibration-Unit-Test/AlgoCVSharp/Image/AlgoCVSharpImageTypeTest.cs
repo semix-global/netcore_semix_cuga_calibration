@@ -61,11 +61,10 @@ public class AlgoCVSharpImageTypeTest
         image.GetValue<double>(1, 1).Should().Be(2.718281828);
     }
 
-    // ImageDataType.Int16 and Int32 share the same underlying value in this version of algocv_sharp,
-    // so the native implementation treats both as 16-bit signed integers.
     [Theory]
     [InlineData(ImageDataType.UInt8, 1)]
     [InlineData(ImageDataType.UInt16, 2)]
+    [InlineData(ImageDataType.Int16, 2)]
     [InlineData(ImageDataType.Int32, 4)]
     [InlineData(ImageDataType.Float, 4)]
     [InlineData(ImageDataType.Double, 8)]
@@ -81,13 +80,28 @@ public class AlgoCVSharpImageTypeTest
         {
             ImageDataType.UInt8 => image.ToSpan<byte>().Length,
             ImageDataType.UInt16 => image.ToSpan<ushort>().Length,
-            ImageDataType.Int32 => image.ToSpan<short>().Length,
+            ImageDataType.Int16 => image.ToSpan<short>().Length,
+            ImageDataType.Int32 => image.ToSpan<int>().Length,
             ImageDataType.Float => image.ToSpan<float>().Length,
             ImageDataType.Double => image.ToSpan<double>().Length,
             _ => throw new ArgumentOutOfRangeException(nameof(dataType), dataType, null)
         };
 
         actualLength.Should().Be(expectedLength);
+    }
+
+    [Fact]
+    public void ToSpanAndGetRow_MismatchedType_ShouldThrowInvalidOperationException()
+    {
+        using var image = new algocv_sharp.Image(3, 3, 1, ImageDataType.UInt8);
+
+        // 类型不匹配契约经公开 API 断言（EnsureElementType 为 ToSpan/GetRow 的私有校验器）;
+        // Span<T> 是 ref struct 不能作泛型返回参数, 显式声明 Action 才能获得 Throw 断言.
+        Action toSpan = () => image.ToSpan<ushort>();
+        Action getRow = () => image.GetRow<ushort>(0);
+
+        toSpan.Should().Throw<InvalidOperationException>();
+        getRow.Should().Throw<InvalidOperationException>();
     }
 
     [Theory]

@@ -48,6 +48,7 @@
         <Project Path="Net.Utilities/Net.Utilities.WPF.Behaviors.Calibration/03. Net.Utilities.WPF.Behaviors.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.WPF.CustomControl.Calibration/04. Net.Utilities.WPF.CustomControl.Calibration.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.OpticsFourierImageViewer.WPF/05. Net.Utilities.OpticsFourierImageViewer.WPF.csproj" />
+        <Project Path="Net.Utilities/Net.Utilities.Algorithms.AlgoCSharp/Net.Utilities.Algorithms.AlgoCSharp.csproj" />
         <Project Path="Net.Utilities/Net.Utilities.SourceGenerators.Calibration/Net.Utilities.SourceGenerators.Calibration.csproj" />
     </Folder>
 

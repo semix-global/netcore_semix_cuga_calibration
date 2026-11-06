@@ -191,7 +191,11 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     [ObservableProperty]
     public partial bool IsDarkFieldAlignment { get; set; }
 
+    /// <summary>明场模板匹配参数, Step1 界面编辑, 用于明场生成 / 匹配</summary>
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
+    /// <summary>暗场模板匹配参数, CreateDarkImageTemplateWindow 确认后写回, 用于暗场匹配</summary>
+    public TemplateMatchSetting DarkTemplateMatchSetting { get; set; } = new();
 
     #region Method
 
@@ -333,6 +337,7 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
         Threshold = Threshold,
         IsDarkFieldAlignment = IsDarkFieldAlignment,
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
+        DarkTemplateMatchSetting = DarkTemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

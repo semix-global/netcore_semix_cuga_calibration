@@ -1,17 +1,12 @@
-using Core.Models.Enums.Algorithm;
-using Core.Models.Extensions;
-using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.MVVM;
@@ -54,103 +49,6 @@ public sealed partial class CalibrationAlgorithmServiceMockImpl(
     public (double MtfX, double MtfY) ModulationTransferFunction(BitmapImage image, Rect roiRect, Guid guid)
     {
         return (Random.Shared.Next(100, 1000), Random.Shared.Next(100, 1000));
-    }
-
-    public BestFocus GetBestFocus(BitmapImage image, double startECS, double stopECS, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, AlgorithmBestFocusTypeEnum algorithmBestFocusTypeEnum, Guid guid)
-    {
-        var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, algorithmBestFocusTypeEnum == AlgorithmBestFocusTypeEnum.DSW065
-            ? @"Assets\Data\20260508_214_0_0_1_short_011375_PMT08-CH2_8.raw"
-            : @"Assets\Data\BestFocus16.3.raw");
-        using var hImage = RAWImageFactory.CreateImage(filePath, true);
-
-        using var linerImage = hImage.ToBitmapImage();
-        return _calibrationAlgorithmServiceImpl.GetBestFocus(linerImage, startECS, stopECS, algorithmEngineTypeEnum, algorithmBestFocusTypeEnum, guid);
-    }
-
-    public Size GetPixelSize(BitmapImage image, Size standardMaskSquareSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out double angle)
-    {
-        var pixelSize = new Size(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
-        drawingImage = image.Copy();
-        angle = Random.Shared.NextDouble();
-
-        return pixelSize;
-    }
-
-    public double GetYPixelSize(BitmapImage image, double standardMaskSquareYSize, Guid guid, AlgorithmEngineTypeEnum algorithmEngineTypeEnum, out BitmapImage drawingImage, out Point[] yProjects, out int[] resultIndexs)
-    {
-        drawingImage = image.Copy();
-
-        yProjects = [.. Enumerable.Range(0, 1064).Select(t => new Point(Random.Shared.Next(), Random.Shared.NextDouble()))];
-        resultIndexs = [.. Enumerable.Range(0, 10).Select(t => Random.Shared.Next())];
-
-        return Random.Shared.NextDouble();
-    }
-
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, string templateFilePath, Rect rect, Guid guid, out BitmapImage templateImage)
-    {
-        if (IsUseMock)
-        {
-            using var hImage = image.ToHImage();
-            using var mockTemplateImage = hImage.ToROI(rect);
-
-            templateFilePath = algorithmTemplateTypeEnum.ToFullFilePath(templateFilePath);
-
-            switch (algorithmTemplateTypeEnum)
-            {
-                case AlgorithmTemplateTypeEnum.Sharpe:
-                    mockTemplateImage.SaveSharpeTemplate(templateFilePath);
-                    break;
-
-                case AlgorithmTemplateTypeEnum.Ncc:
-                    mockTemplateImage.SaveNccTemplate(templateFilePath);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(algorithmTemplateTypeEnum), algorithmTemplateTypeEnum, null);
-            }
-
-            templateImage = mockTemplateImage.ToBitmapImage();
-
-            return true;
-        }
-
-        return _calibrationAlgorithmServiceImpl.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, guid, out templateImage);
-    }
-
-    public bool TryReadTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, out HTuple templateId)
-    {
-        if (IsUseMock)
-        {
-            templateId = HalconFactory.EmptyHTuple;
-
-            return true;
-        }
-
-        return _calibrationAlgorithmServiceImpl.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out templateId);
-    }
-
-    public bool TryCleanTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, HTuple templateId)
-    {
-        if (IsUseMock) return true;
-
-        return _calibrationAlgorithmServiceImpl.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
-    }
-
-    public bool TryTemplateMatchToOffset(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, BitmapImage image, HTuple templateId, Guid guid, out Point markPoint, out Point offsetPoint, out double score, out double angle)
-    {
-        if (IsUseMock)
-        {
-            score = Random.Shared.NextDouble() * 10;
-            angle = Random.Shared.Next(1, 10);
-            offsetPoint = new Point(Random.Shared.Next(1, 10), Random.Shared.Next(1, 10));
-
-            var size = new Size(image.Width, image.Height);
-            markPoint = (Point)(size / 2d) + new Vector(offsetPoint.X, -offsetPoint.Y);
-
-            return true;
-        }
-
-        return _calibrationAlgorithmServiceImpl.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, guid, out markPoint, out offsetPoint, out score, out angle);
     }
 
     public (BitmapImage drawingImage, double CenterChannelLightDiameter, double CenterChannelHorizontalDegree, Point CenterChannelLightCenterPosition, Point ReflectedLightCenterPosition) GetOpticsObjectiveYAngleResult(BitmapImage hazeImage, BitmapImage shinyWaferImage, double rotateAngle, Guid guid)

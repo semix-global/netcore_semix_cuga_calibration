@@ -1,7 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.BestFocus;
 using Core.Models.Enums.Stage;
+using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
@@ -377,7 +379,8 @@ public sealed partial class OpticsSCViewModel : CalibrationViewModelBase<OpticsS
 
                     try
                     {
-                        var bestFocus = CalibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
+                        var bestFocusRet = AlgorithmEngines.BestFocus(Cache.AlgorithmEngineTypeEnum).Excute(darkFieldImage, new BestFocusEngineParam { StartEcs = startECS, StopEcs = stopECS, BestFocusType = Cache.AlgorithmBestFocusTypeEnum }, HtmlLogUniqueId);
+                        var bestFocus = bestFocusRet.Data ?? throw new CugaException(bestFocusRet.ErrorMsg);
                         item.BestFocus = bestFocus;
                         item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 

@@ -4,6 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:enumsUtilities="clr-namespace:Net.Utilities.Models.Enums.Loggings;assembly=Net.Utilities.Models"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
+             xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+             xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -101,6 +103,25 @@
                         </hc:UniformSpacingPanel>
                     </Border>
                 </ScrollViewer>
+            </GroupBox>
+            <GroupBox Margin="5" Header="Default Algorithm Engine">
+                <Border>
+                    <ComboBox Width="360"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              hc:TitleElement.Title="Engine Type: "
+                              hc:TitleElement.TitlePlacement="Left"
+                              hc:TitleElement.TitleWidth="120"
+                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type calibrationAlgorithm:AlgorithmEngineTypeEnum}}}"
+                              SelectedItem="{Binding CalibrationSetting.SettingCommonParam.AlgorithmEngineTypeEnum}"
+                              Style="{StaticResource ComboBoxExtend}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </Border>
             </GroupBox>
         </UniformGrid>
     </Border>

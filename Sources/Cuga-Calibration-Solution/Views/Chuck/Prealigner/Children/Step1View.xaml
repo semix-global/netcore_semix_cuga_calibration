@@ -6,7 +6,8 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:controls="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
+             xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckPrealignerCalibrationViewModel}"
              d:DesignHeight="1000"
              d:DesignWidth="800"
@@ -33,7 +34,18 @@
                                    FontWeight="Bold"
                                    Style="{StaticResource TextBlockDefaultInfo}" />
                     </StackPanel>
-                    <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
+                    <hc:ComboBox HorizontalAlignment="Left"
+                                 hc:TitleElement.TitleWidth="200"
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.Title="Template Size: "
+                                 SelectedItem="{Binding Cache.LowTemplateSizeEnum}"
+                                 ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmTemplateSizeEnum}}}">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
 
                     <StackPanel>
                         <TextBlock Text="Wafer Param"

@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="algocv_sharp" VersionOverride="1.3.0" />
+        <PackageReference Include="algocv_sharp" VersionOverride="1.4.1" />
 
         <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.7-preview2-xuan" />
         <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.7-preview2-xuan" />
@@ -31,6 +31,11 @@
 
         <PackageReference Include="Local.SQL.Cache.Providers" VersionOverride="2.9.7-preview2-xuan" />
         <PackageReference Include="Local.SQL.DB.Providers" VersionOverride="2.9.7-preview2-xuan" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- 分发面引用 algo 实现（Net.Utilities.Calibration 为显示域算子分发面，混引双实现合法；06 不反向引用 00，无循环） -->
+        <ProjectReference Include="..\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
 </Project>

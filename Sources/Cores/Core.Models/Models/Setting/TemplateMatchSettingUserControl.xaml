@@ -4,9 +4,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm"
+             xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:local="clr-namespace:Core.Models.Models.Setting"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -16,7 +18,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <GroupBox Header="Template Match Param">
+    <!--  2026-10-24 用户裁定：参数设置默认折叠（低频修改项，减少界面占用），点击展开  -->
+    <Expander Header="Template Match Param"
+              IsExpanded="False"
+              ExpandDirection="Down">
         <Border Style="{StaticResource BorderRegion}">
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
                 <!--  模板尺寸：两算法库通用  -->
@@ -43,7 +48,7 @@
                         <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="ComboBox">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static algorithm:AlgorithmEngineTypeEnum.HAlgorithm}">
+                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static calibrationAlgorithm:AlgorithmEngineTypeEnum.HAlgorithm}">
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -66,7 +71,7 @@
                         <Style BasedOn="{StaticResource ComboBoxExtend}" TargetType="ComboBox">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static algorithm:AlgorithmEngineTypeEnum.AlgoCSharp}">
+                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static calibrationAlgorithm:AlgorithmEngineTypeEnum.AlgoCSharp}">
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -89,14 +94,19 @@
                         <Style BasedOn="{StaticResource NumericUpDownExtend}" TargetType="hc:NumericUpDown">
                             <Setter Property="Visibility" Value="Collapsed" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static algorithm:AlgorithmEngineTypeEnum.AlgoCSharp}">
+                                <DataTrigger Binding="{Binding Engine, RelativeSource={RelativeSource AncestorType={x:Type local:TemplateMatchSettingUserControl}}}" Value="{x:Static calibrationAlgorithm:AlgorithmEngineTypeEnum.AlgoCSharp}">
                                     <Setter Property="Visibility" Value="Visible" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </hc:NumericUpDown.Style>
                 </hc:NumericUpDown>
+                <Button Content="Restore"
+                        Command="{Binding RestoreCommand}"
+                        CommandParameter="{x:Static models:Constants.False}"
+                        HorizontalAlignment="Left"
+                        Style="{StaticResource ButtonDefault}" />
             </hc:UniformSpacingPanel>
         </Border>
-    </GroupBox>
+    </Expander>
 </UserControl>
