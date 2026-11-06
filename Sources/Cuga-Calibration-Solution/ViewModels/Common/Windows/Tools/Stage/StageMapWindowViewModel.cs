@@ -90,9 +90,11 @@ public sealed partial class StageMapWindowViewModel(
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
             StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;
 
-            StageMapCommands.StageMap.Refresh();
+            Cache.ChuckStageMap.BFStageMap.Refresh();
+            Cache.ChuckStageMap.DFStageMap.Refresh();
             foreach (var cacheRepeatStageMap in Cache.ChuckStageMap.DFRepeatStageMaps) cacheRepeatStageMap.Refresh();
-            StageMapCommands.VerifyStageMap.Refresh();
+            Cache.ChuckStageMap.BFVerifyStageMap.Refresh();
+            Cache.ChuckStageMap.DFVerifyStageMap.Refresh();
         }).ConfigureAwait(true);
     }
 
@@ -310,9 +312,15 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        var brightFieldMachinePosition = MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel);
+        var circleCenter = StageMapCommands.IsDark
+            ? stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(brightFieldMachinePosition))
+            : brightFieldMachinePosition;
+        var circle = new Circle(circleCenter, StageMapCommands.CacheItem.WaferRadius);
+
         await StageMapCommands.DownloadStageMapAsync(
             StageMapCommands.StageMap,
-            new Circle(stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), StageMapCommands.CacheItem.WaferRadius),
+            circle,
             HtmlLogUniqueId,
             cancellationToken).ConfigureAwait(false);
 
@@ -323,9 +331,9 @@ public sealed partial class StageMapWindowViewModel(
             StageMapCommands.VerifyStageMap,
             HtmlLogUniqueId,
             cancellationToken,
-            isInterpolateErrors: true).ConfigureAwait(false);
-
-        logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
+            isInterpolateErrors: StageMapCommands.IsDark,
+            interpolateStageMap: StageMapCommands.StageMap,
+            interpolateCircle: circle).ConfigureAwait(false);
 
         logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 

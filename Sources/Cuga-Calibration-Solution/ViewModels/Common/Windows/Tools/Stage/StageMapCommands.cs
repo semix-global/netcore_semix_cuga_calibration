@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Threading.Channels;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -60,13 +60,15 @@ public sealed partial class StageMapCommands(
     public string TemplateFileDirectory { get; set; } = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Name), nameof(CacheItem), nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap))]
+    [NotifyPropertyChangedFor(nameof(Name), nameof(CacheItem), nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap), nameof(AlignmentResult))]
     public partial bool IsDark { get; set; } = true;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CacheItem))]
     public partial ChuckStageMapCache Cache { get; set; } = new();
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap), nameof(AlignmentResult))]
     public partial ChuckStageMapDTO ChuckStageMap { get; set; } = new();
 
     public string Name => IsDark ? "DFStageMap" : "BFStageMap";
@@ -82,6 +84,8 @@ public sealed partial class StageMapCommands(
         {
             if (IsDark) ChuckStageMap.DFStageMap = value;
             else ChuckStageMap.BFStageMap = value;
+
+            OnPropertyChanged();
         }
     }
 
@@ -92,6 +96,8 @@ public sealed partial class StageMapCommands(
         {
             if (IsDark) ChuckStageMap.DFVerifyStageMap = value;
             else ChuckStageMap.BFVerifyStageMap = value;
+
+            OnPropertyChanged();
         }
     }
 
@@ -102,6 +108,8 @@ public sealed partial class StageMapCommands(
         {
             if (IsDark) ChuckStageMap.DFAlignmentResult = value;
             else ChuckStageMap.BFAlignmentResult = value;
+
+            OnPropertyChanged();
         }
     }
 
