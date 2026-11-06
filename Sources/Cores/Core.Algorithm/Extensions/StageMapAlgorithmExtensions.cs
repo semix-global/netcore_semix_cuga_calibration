@@ -118,63 +118,61 @@ public static class StageMapAlgorithmExtensions
         /// <param name="brightFieldStageMap">用于插值的明场地图.</param>
         /// <param name="brightFieldTargetCircle">明场目标圆, 限定插值有效区域.</param>
         /// <param name="darkFieldTargetCircle">构建暗场标准网格时使用的目标圆.</param>
+        /// <returns>外扩后的暗场地图.</returns>
         public StageMap Expand(StageMap brightFieldStageMap, Circle brightFieldTargetCircle, Circle darkFieldTargetCircle)
         {
             var (darkFieldYLength, darkFieldXLength) = @this.IdealMatrix.GetYXLength();
             Guard.IsGreaterThan(darkFieldYLength, 1);
             Guard.IsGreaterThan(darkFieldXLength, 1);
 
-            // 使用暗场标准网格的原点, 步长和行列数.
-            var standardStageMap = @this.AdaptTo(darkFieldTargetCircle);
+            var (_, baseX, baseY, xStep, yStep, _) = @this.AdaptTo(darkFieldTargetCircle);
+            var endX = baseX + (darkFieldXLength - 1) * xStep;
+            var endY = baseY + (darkFieldYLength - 1) * yStep;
+
             var brightFieldPoints = brightFieldStageMap.IdealMatrix.SelectMany(row => row).ToArray();
             Guard.IsNotEmpty(brightFieldPoints);
-
-            var xStep = standardStageMap.XStep;
-            var yStep = standardStageMap.YStep;
             var minX = brightFieldPoints.Min(point => point.X);
             var maxX = brightFieldPoints.Max(point => point.X);
             var minY = brightFieldPoints.Min(point => point.Y);
             var maxY = brightFieldPoints.Max(point => point.Y);
-            var endX = standardStageMap.BaseX + (darkFieldXLength - 1) * xStep;
-            var endY = standardStageMap.BaseY + (darkFieldYLength - 1) * yStep;
 
             // 四个方向仅补足覆盖全部明场网格点所需的整行和整列.
-            var leftColumnCount = checked((int)Math.Max(0d, Math.Ceiling((standardStageMap.BaseX - minX) / xStep)));
-            var rightColumnCount = checked((int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep)));
-            var bottomRowCount = checked((int)Math.Max(0d, Math.Ceiling((standardStageMap.BaseY - minY) / yStep)));
-            var topRowCount = checked((int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep)));
-            var xLength = checked(darkFieldXLength + leftColumnCount + rightColumnCount);
-            var yLength = checked(darkFieldYLength + bottomRowCount + topRowCount);
-            var startPoint = new Point(standardStageMap.BaseX - leftColumnCount * xStep, standardStageMap.BaseY - bottomRowCount * yStep);
+            var leftColumnCount = (int)Math.Max(0d, Math.Ceiling((baseX - minX) / xStep));
+            var rightColumnCount = (int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep));
+            var bottomRowCount = (int)Math.Max(0d, Math.Ceiling((baseY - minY) / yStep));
+            var topRowCount = (int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep));
 
-            var points = new Point[yLength][];
+            var xLength = darkFieldXLength + leftColumnCount + rightColumnCount;
+            var yLength = darkFieldYLength + bottomRowCount + topRowCount;
+            var startPoint = new Point(baseX - leftColumnCount * xStep, baseY - bottomRowCount * yStep);
+
+            var idealMatrix = new Point[yLength][];
             var isInWaferMatrix = new bool[yLength][];
             var isMatchMatrix = new bool[yLength][];
             for (var y = 0; y < yLength; y++)
             {
-                points[y] = new Point[xLength];
+                idealMatrix[y] = new Point[xLength];
                 isInWaferMatrix[y] = new bool[xLength];
                 isMatchMatrix[y] = new bool[xLength];
                 for (var x = 0; x < xLength; x++)
                 {
                     var point = startPoint + new Vector(x * xStep, y * yStep);
                     var isInWafer = brightFieldTargetCircle.Contains(point);
-                    points[y][x] = point;
+                    idealMatrix[y][x] = point;
                     isInWaferMatrix[y][x] = isInWafer;
                     isMatchMatrix[y][x] = isInWafer;
                 }
             }
 
             // 只在明场目标圆内插值, 圆外点保持无效.
-            var errors = brightFieldStageMap.InterpolateErrors(points, brightFieldTargetCircle);
+            var errors = brightFieldStageMap.InterpolateErrors(idealMatrix, brightFieldTargetCircle);
             var result = new StageMap
             {
-                IdealMatrix = points,
+                IdealMatrix = idealMatrix,
                 ErrorMatrix = errors,
                 IsInWaferMatrix = isInWaferMatrix,
                 IsMatchMatrix = isMatchMatrix
             };
-            result.Refresh();
 
             return result;
         }
