@@ -918,7 +918,7 @@ public sealed partial class StageMapCommands(
                         var offset = matchPoint - CacheItem.StageMapTemplates[templateIdIndex].TemplateROI.Center;
                         matchOffset = new Point(offset.X, -offset.Y);
 
-                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{Name}_{FileHelper.GetFileFullName(CacheItem.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
+                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(CacheItem.StageMapTemplates[templateIdIndex].TemplateFilePath)}{Name}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
                         image.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xPixelSize, yDirection * matchOffset.Y * yPixelSize);

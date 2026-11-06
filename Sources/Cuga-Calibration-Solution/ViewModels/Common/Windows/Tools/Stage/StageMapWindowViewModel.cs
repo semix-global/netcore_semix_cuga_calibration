@@ -169,7 +169,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await StageMapCommands.ScanAsync(HtmlLogUniqueId, cancellationToken);
+        await StageMapCommands.ScanAsync(HtmlLogUniqueId, cancellationToken, isCanSelected: true);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
