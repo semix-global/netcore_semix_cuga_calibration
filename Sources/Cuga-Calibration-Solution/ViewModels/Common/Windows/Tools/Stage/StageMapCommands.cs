@@ -55,15 +55,19 @@ public sealed partial class StageMapCommands(
     ICalibrationAlgorithmService calibrationAlgorithmService,
     ILogger<StageMapCommands> logger) : ObservableObject
 {
-    public bool IsDark { get; set; } = true;
-
     public string ImageFileDirectory { get; set; } = string.Empty;
 
     public string TemplateFileDirectory { get; set; } = string.Empty;
 
-    public ChuckStageMapCache Cache { get; set; } = new();
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Name), nameof(CacheItem), nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap))]
+    public partial bool IsDark { get; set; } = true;
 
-    public ChuckStageMapDTO ChuckStageMap { get; set; } = new();
+    [ObservableProperty]
+    public partial ChuckStageMapCache Cache { get; set; } = new();
+
+    [ObservableProperty]
+    public partial ChuckStageMapDTO ChuckStageMap { get; set; } = new();
 
     public string Name => IsDark ? "DFStageMap" : "BFStageMap";
 

@@ -85,7 +85,6 @@ public sealed partial class StageMapWindowViewModel(
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
 
-            StageMapCommands.IsDark = false;
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
@@ -100,18 +99,25 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
     {
-        var cacheDFItem = (ChuckStageMapCacheDFItem)StageMapCommands.CacheItem;
-
         Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
 
         AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-        AlignmentUserControlViewModel.ProductivityInformation = cacheDFItem.ProductivityInformation;
 
-        if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
-                out var dialogResult,
-                DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-        else StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        if (StageMapCommands.IsDark)
+        {
+            var cacheDFItem = (ChuckStageMapCacheDFItem)StageMapCommands.CacheItem;
+            AlignmentUserControlViewModel.ProductivityInformation = cacheDFItem.ProductivityInformation;
+
+            if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
+                    out var dialogResult,
+                    DialogButtonsEnum.YesNo,
+                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+            else StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        }
+        else
+        {
+            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+        }
 
         await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
 
@@ -211,10 +217,13 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step3Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(3, async () =>
     {
+        Guard.IsTrue(StageMapCommands.IsDark, "Step3 only support dark field");
+
         Cache.ChuckStageMap.DFRepeatStageMaps = [];
-        var historyStageMapList = new List<StageMap>();
 
         var circle = new Circle(stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), StageMapCommands.CacheItem.WaferRadius);
+
+        var historyStageMapList = new List<StageMap>();
 
         bool isSuccess;
         var times = 0;
@@ -268,7 +277,7 @@ public sealed partial class StageMapWindowViewModel(
 
                 if (isSuccess || ++times > Cache.ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapRepeatTimes - 1)
                 {
-                    StageMapCommands.StageMap.MergeErrorMatrix(scanStageMap, Cache.ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapTemplates.Length);
+                    StageMapCommands.StageMap.MergeErrorMatrix(scanStageMap, StageMapCommands.CacheItem.StageMapTemplates.Length);
 
                     StageMapCommands.StageMap.Refresh();
 
