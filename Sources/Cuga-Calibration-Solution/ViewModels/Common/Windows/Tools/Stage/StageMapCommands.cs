@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Threading.Channels;
-using System.Windows.Documents;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,9 +17,7 @@ using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.Views.Common.Windows.Tools.Optics;
 using HalconDotNet;
-using Humanizer;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -49,7 +46,6 @@ public sealed partial class StageMapCommands(
     StageViewModel stageViewModel,
     CIBViewModel cibViewModel,
     ReviewViewModel reviewViewModel,
-    AfViewModel afViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -397,7 +393,7 @@ public sealed partial class StageMapCommands(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task ScanStageMapAsync(
+    public async Task ScanStageMapAsync(
         StageMap stageMap,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken,
@@ -467,6 +463,12 @@ public sealed partial class StageMapCommands(
             }), htmlLogUniqueId.LoggingHtml());
         }
 
+        if (IsDark == false)
+        {
+            stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
+            await microscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
+        }
+
         HTuple[] templateIds = [];
 
         try
@@ -521,6 +523,7 @@ public sealed partial class StageMapCommands(
                 SingleWriter = true,
                 AllowSynchronousContinuations = true
             });
+
             var writerTask = Task.Run(async () =>
             {
                 try
@@ -597,7 +600,7 @@ public sealed partial class StageMapCommands(
             {
                 await foreach (var row in channel.Reader.ReadAllAsync(linkedToken).ConfigureAwait(false))
                 {
-                    await ScanStageMapRowAsync(row).ConfigureAwait(false);
+                    await TemplateMatchAsync(row).ConfigureAwait(false);
                 }
             }
             finally
@@ -629,12 +632,12 @@ public sealed partial class StageMapCommands(
 
             return;
 
-            async Task ScanStageMapRowAsync(ScanYResult yResult)
+            async Task TemplateMatchAsync(ScanYResult yResult)
             {
                 var htmlList = new List<BaseHtmlElement>();
                 var htmlContainer = new HtmlContainer(htmlList);
 
-                var (y, isInWaferColumnIndexes, darkFieldImages) = yResult;
+                var (y, isInWaferColumnIndexes, images) = yResult;
 
                 try
                 {
@@ -651,7 +654,9 @@ public sealed partial class StageMapCommands(
 
                         var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
-                        using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
+                        using var image = IsDark
+                            ? xDirection > 0 ? images[i].Image : images[i].Image.HorizontalFlip()
+                            : images[i].Image;
 
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             CacheItem.TemplateMatchSetting.ToHalconTemplateType(),
@@ -692,7 +697,7 @@ public sealed partial class StageMapCommands(
                                         matchAngle,
                                         templateMatchScoreThreshold,
                                         vector,
-                                        darkFieldImages[i].RawImageFilePath,
+                                        images[i].RawImageFilePath,
                                         HtmlTab = new HtmlTab(new
                                         {
                                             ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(templateROI), new HtmlImageCrossOverlay(matchPoint)])
