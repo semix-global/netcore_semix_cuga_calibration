@@ -1242,9 +1242,9 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         cancellationToken.ThrowIfCancellationRequested();
 
         CalibratingItem.BFVerifyStageMap = new StageMap();
-        CalibratingItem.BFVerifyMaximumError = Vector.Zero;
+        CalibratingItem.BFVerifyMaxError = Vector.Zero;
         CalibratingItem.DFVerifyStageMap = new StageMap();
-        CalibratingItem.DFVerifyMaximumError = Vector.Zero;
+        CalibratingItem.DFVerifyMaxError = Vector.Zero;
         CalibratingItem.IsCalibrated = true;
         CalibratingItem.IsVerified = false;
         Guard.IsTrue(Save(CalibratingItem, cancellationToken));
@@ -1267,11 +1267,10 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
 
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeLensInformation,
-                Cache.VerifyThreshold
+                Cache.MicroscopeLensInformation, VerifyThreshold = Cache.Threshold
             }), HtmlLogUniqueId.LoggingHtml());
 
-            var isVerifyThresholdValid = Cache.VerifyThreshold > 0d && double.IsInfinity(Cache.VerifyThreshold) == false;
+            var isVerifyThresholdValid = Cache.Threshold > 0d && double.IsInfinity(Cache.Threshold) == false;
             if (isVerifyThresholdValid == false)
             {
                 DialogWindowProvider.ShowDialog("Set positive finite Verify Threshold before verification.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -1287,10 +1286,10 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
 
             Review.BFVerifyStageMap = Review.BFStageMap.Clone();
             Review.BFVerifyStageMap.Reset();
-            Review.BFVerifyMaximumError = Vector.Zero;
+            Review.BFVerifyMaxError = Vector.Zero;
             Review.DFVerifyStageMap = Review.DFStageMap.Clone();
             Review.DFVerifyStageMap.Reset();
-            Review.DFVerifyMaximumError = Vector.Zero;
+            Review.DFVerifyMaxError = Vector.Zero;
             Review.IsVerified = false;
             Guard.IsTrue(Save(Review, cancellationToken));
 
@@ -1298,8 +1297,8 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             DownloadStageMap(Review.ExpandStageMap, null, HtmlLogUniqueId);
 
             await ScanBFStageMapAsync(Review.BFVerifyStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
-            var brightFieldVerifyResult = VerifyStageMap(Review.BFVerifyStageMap, Cache.VerifyThreshold);
-            Review.BFVerifyMaximumError = brightFieldVerifyResult.MaximumError;
+            var brightFieldVerifyResult = VerifyStageMap(Review.BFVerifyStageMap, Cache.Threshold);
+            Review.BFVerifyMaxError = brightFieldVerifyResult.MaximumError;
 
             await ScanDFStageMapAsync(
                 Review.DFVerifyStageMap,
@@ -1307,8 +1306,8 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                 cancellationToken,
                 isInterpolateErrors: true,
                 interpolateStageMap: Review.ExpandStageMap).ConfigureAwait(false);
-            var darkFieldVerifyResult = VerifyStageMap(Review.DFVerifyStageMap, Cache.VerifyThreshold);
-            Review.DFVerifyMaximumError = darkFieldVerifyResult.MaximumError;
+            var darkFieldVerifyResult = VerifyStageMap(Review.DFVerifyStageMap, Cache.Threshold);
+            Review.DFVerifyMaxError = darkFieldVerifyResult.MaximumError;
 
             cancellationToken.ThrowIfCancellationRequested();
             Review.IsVerified = brightFieldVerifyResult.IsVerified && darkFieldVerifyResult.IsVerified;
@@ -1316,9 +1315,9 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
 
             Logger.LogHtmlInformation(Review.IsVerified ? "Verify OK" : "Verify Failed", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.VerifyThreshold,
-                Review.BFVerifyMaximumError,
-                Review.DFVerifyMaximumError,
+                VerifyThreshold = Cache.Threshold,
+                BFVerifyMaximumError = Review.BFVerifyMaxError,
+                DFVerifyMaximumError = Review.DFVerifyMaxError,
                 Review.IsVerified
             }), HtmlLogUniqueId.LoggingHtml());
 

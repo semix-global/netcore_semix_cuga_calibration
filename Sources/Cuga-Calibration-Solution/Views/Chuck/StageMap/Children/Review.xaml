@@ -50,7 +50,7 @@
                                           DecimalPlaces="6"
                                           Increment="0.01"
                                           Style="{StaticResource NumericUpDownExtend}"
-                                          Value="{Binding Cache.VerifyThreshold}" />
+                                          Value="{Binding Cache.Threshold}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
@@ -121,28 +121,28 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.BFVerifyMaximumError.X, Mode=OneWay, StringFormat='0.######'}"
+                        <TextBox Text="{Binding Review.BFVerifyMaxError.X, Mode=OneWay, StringFormat='0.######'}"
                                  hc:TitleElement.Title="BF Max |Error| X(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.BFVerifyMaximumError.Y, Mode=OneWay, StringFormat='0.######'}"
+                        <TextBox Text="{Binding Review.BFVerifyMaxError.Y, Mode=OneWay, StringFormat='0.######'}"
                                  hc:TitleElement.Title="BF Max |Error| Y(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.DFVerifyMaximumError.X, Mode=OneWay, StringFormat='0.######'}"
+                        <TextBox Text="{Binding Review.DFVerifyMaxError.X, Mode=OneWay, StringFormat='0.######'}"
                                  hc:TitleElement.Title="DF Max |Error| X(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding Review.DFVerifyMaximumError.Y, Mode=OneWay, StringFormat='0.######'}"
+                        <TextBox Text="{Binding Review.DFVerifyMaxError.Y, Mode=OneWay, StringFormat='0.######'}"
                                  hc:TitleElement.Title="DF Max |Error| Y(um): "
                                  hc:TitleElement.TitlePlacement="Left"
                                  hc:TitleElement.TitleWidth="190"

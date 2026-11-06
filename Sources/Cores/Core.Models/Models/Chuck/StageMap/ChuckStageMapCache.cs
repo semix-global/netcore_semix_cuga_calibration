@@ -1,11 +1,11 @@
 using System.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Local.SQL.Cache.Providers.Bases;
+using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Chuck.StageMap;
 
@@ -22,44 +22,20 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
     public partial ChuckStageMapCacheDFItem ChuckStageMapCacheDFItem { get; set; } = new();
 
     [ObservableProperty]
-    public partial double VerifyThreshold { get; set; }
-
-    [RelayCommand]
-    private void RemoveBFStageMapTemplates(IEnumerable? selectedItems)
-    {
-        if (selectedItems is null) return;
-
-        var stageMapTemplates = ChuckStageMapCacheBFItem.StageMapTemplates.ToList();
-
-        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
-
-        ChuckStageMapCacheBFItem.StageMapTemplates = [.. stageMapTemplates];
-    }
-
-    [RelayCommand]
-    private void RemoveDFStageMapTemplates(IEnumerable? selectedItems)
-    {
-        if (selectedItems is null) return;
-
-        var stageMapTemplates = ChuckStageMapCacheDFItem.StageMapTemplates.ToList();
-
-        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
-
-        ChuckStageMapCacheDFItem.StageMapTemplates = [.. stageMapTemplates];
-    }
+    public partial double Threshold { get; set; }
 
     public override ChuckStageMapCache Clone() => new()
     {
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         ChuckStageMapCacheBFItem = ChuckStageMapCacheBFItem.Clone(),
         ChuckStageMapCacheDFItem = ChuckStageMapCacheDFItem.Clone(),
-        VerifyThreshold = VerifyThreshold,
+        Threshold = Threshold,
         Id = Id,
         Expiration = Expiration
     };
 }
 
-public sealed partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageMapCacheBFItem>
+public partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageMapCacheBFItem>
 {
     #region Common
 
@@ -85,19 +61,37 @@ public sealed partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<Chuc
         foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
     }
 
-    public override ChuckStageMapCacheBFItem Clone() => new()
+    [RelayCommand]
+    private void RemoveStageMapTemplates(IEnumerable? selectedItems)
     {
-        TemplateMatchSetting = TemplateMatchSetting.Clone(),
-        WaferRadius = WaferRadius,
-        DiePitchWidth = DiePitchWidth,
-        DiePitchHeight = DiePitchHeight,
-        StageMapTemplates = [.. StageMapTemplates.Select(x => x.Clone())],
-        Id = Id,
-        Expiration = Expiration
-    };
+        if (selectedItems is null) return;
+
+        var stageMapTemplates = StageMapTemplates.ToList();
+
+        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
+
+        StageMapTemplates = [.. stageMapTemplates];
+    }
+
+    protected virtual ChuckStageMapCacheBFItem CreateInstance() => new();
+
+    public override ChuckStageMapCacheBFItem Clone()
+    {
+        var instance = CreateInstance();
+
+        instance.TemplateMatchSetting = TemplateMatchSetting.Clone();
+        instance.WaferRadius = WaferRadius;
+        instance.DiePitchWidth = DiePitchWidth;
+        instance.DiePitchHeight = DiePitchHeight;
+        instance.StageMapTemplates = [.. StageMapTemplates.Select(x => x.Clone())];
+        instance.Id = Id;
+        instance.Expiration = Expiration;
+
+        return instance;
+    }
 }
 
-public sealed partial class ChuckStageMapCacheDFItem : CalibrationCacheBase<ChuckStageMapCacheDFItem>
+public sealed partial class ChuckStageMapCacheDFItem : ChuckStageMapCacheBFItem, ICloneable<ChuckStageMapCacheDFItem>
 {
     #region Common
 
@@ -116,49 +110,28 @@ public sealed partial class ChuckStageMapCacheDFItem : CalibrationCacheBase<Chuc
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
-    [ObservableProperty]
-    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
-
     #endregion
 
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 1000;
 
     [ObservableProperty]
-    public partial double WaferRadius { get; set; } = 140_000d;
-
-    [ObservableProperty]
-    public partial double DiePitchWidth { get; set; } = 5100d;
-
-    [ObservableProperty]
-    public partial double DiePitchHeight { get; set; } = 16600d;
-
-    [ObservableProperty]
-    public partial StageMapTemplate[] StageMapTemplates { get; set; } = [];
-
-    [ObservableProperty]
     public partial int StageMapRepeatTimes { get; set; } = 10;
 
-    partial void OnStageMapTemplatesChanged(StageMapTemplate[] value)
-    {
-        foreach (var (index, item) in value.Index()) item.DisplayIndex = index + 1;
-    }
+    protected override ChuckStageMapCacheBFItem CreateInstance() => new ChuckStageMapCacheDFItem();
 
-    public override ChuckStageMapCacheDFItem Clone() => new()
+    public new ChuckStageMapCacheDFItem Clone()
     {
-        ProductivityInformation = ProductivityInformation.Clone(),
-        LaserLightInformation = LaserLightInformation.Clone(),
-        CIBInformation = CIBInformation.Clone(),
-        OpticsConfiguration = OpticsConfiguration.Clone(),
-        CIBConfiguration = CIBConfiguration.Clone(),
-        TemplateMatchSetting = TemplateMatchSetting.Clone(),
-        ImageWidth = ImageWidth,
-        WaferRadius = WaferRadius,
-        DiePitchWidth = DiePitchWidth,
-        DiePitchHeight = DiePitchHeight,
-        StageMapTemplates = [.. StageMapTemplates.Select(x => x.Clone())],
-        StageMapRepeatTimes = StageMapRepeatTimes,
-        Id = Id,
-        Expiration = Expiration
-    };
+        var clone = (ChuckStageMapCacheDFItem)base.Clone();
+
+        clone.ProductivityInformation = ProductivityInformation.Clone();
+        clone.LaserLightInformation = LaserLightInformation.Clone();
+        clone.CIBInformation = CIBInformation.Clone();
+        clone.OpticsConfiguration = OpticsConfiguration.Clone();
+        clone.CIBConfiguration = CIBConfiguration.Clone();
+        clone.ImageWidth = ImageWidth;
+        clone.StageMapRepeatTimes = StageMapRepeatTimes;
+
+        return clone;
+    }
 }
