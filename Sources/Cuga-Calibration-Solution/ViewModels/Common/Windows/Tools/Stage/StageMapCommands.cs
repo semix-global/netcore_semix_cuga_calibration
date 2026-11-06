@@ -955,6 +955,8 @@ public sealed partial class StageMapCommands(
                         stageMap.IsMatchMatrix[y][isInWaferColumnIndex] = isSuccess;
                         if (isSuccess) stageMap.ErrorMatrix[y][isInWaferColumnIndex] = vector;
 
+                        stageMap.Refresh();
+
                         return ValueTask.CompletedTask;
                     }).ConfigureAwait(false);
 
