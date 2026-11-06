@@ -1201,22 +1201,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                         var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[y][t]).ToArray();
                         if (points.Length == 0) continue;
 
-                        var images = new BitmapImage[points.Length];
-
-                        var scanDirection = (y & 1) == 0 ? 1 : -1;
-                        for (var i = 0; i < points.Length; i++)
-                        {
-                            var index = scanDirection > 0 ? i : ^(i + 1);
-                            StageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[index], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
-                            AfViewModel.ToggleBrightFieldEnable(true);
-                            await Task.Delay(100, linkedToken).ConfigureAwait(false);
-
-                            images[index] = ReviewViewModel.GetBrightFieldImage();
-                        }
-
-                        Guard.IsEqualTo(points.Length, images.Length);
-
-                        await channel.Writer.WriteAsync(new ChuckStageMapBFScanRow(y, isInWaferColumnIndexes, images), linkedToken).ConfigureAwait(false);
+                     
                     }
                 }
                 catch (Exception ex)

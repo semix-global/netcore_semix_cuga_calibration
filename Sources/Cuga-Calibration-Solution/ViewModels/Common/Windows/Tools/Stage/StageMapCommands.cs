@@ -14,6 +14,7 @@ using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
+using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
@@ -25,6 +26,7 @@ using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
+using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Enums.Loggings;
 using Net.Utilities.Models.Extensions;
@@ -47,6 +49,7 @@ public sealed partial class StageMapCommands(
     StageViewModel stageViewModel,
     CIBViewModel cibViewModel,
     ReviewViewModel reviewViewModel,
+    AfViewModel afViewModel,
     CreateDarkImageTemplateWindowViewModel createDarkImageTemplateWindowViewModel,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
@@ -65,7 +68,7 @@ public sealed partial class StageMapCommands(
 
     public ChuckStageMapDTO ChuckStageMap { get; set; } = new();
 
-    public string Name => $"{(IsDark ? "Dark" : "Bright")} {nameof(StageMapCommands).Humanize(LetterCasing.Title)}";
+    public string Name => IsDark ? "DFStageMap" : "BFStageMap";
 
     public ChuckStageMapCacheBFItem CacheItem => IsDark ? Cache.ChuckStageMapCacheDFItem : Cache.ChuckStageMapCacheBFItem;
 
@@ -401,11 +404,9 @@ public sealed partial class StageMapCommands(
         bool isInterpolateErrors = false,
         StageMap? interpolateStageMap = null)
     {
-        var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
-
         logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, new HtmlTable(
         [
-            .. cacheDFItem.StageMapTemplates.Index().Select(t => new
+            .. CacheItem.StageMapTemplates.Index().Select(t => new
             {
                 t.Index,
                 t.Item.FindBFMachinePosition,
@@ -419,26 +420,52 @@ public sealed partial class StageMapCommands(
 
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
 
-        var xSize = applicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == cacheDFItem.ProductivityInformation);
-        Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
-
-        var ySize = applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == cacheDFItem.ProductivityInformation.OpticsIlluminationModeEnum
-                                                                                                                       && t.ProductivityInformation.OpticsMagType == cacheDFItem.ProductivityInformation.OpticsMagType
-                                                                                                                       && t.PmtId == cacheDFItem.CIBInformation.PMTId);
-        Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
-
         var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
 
-        logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+        double xPixelSize, yPixelSize;
+
+        if (IsDark)
         {
-            ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
-            xDirection,
-            yDirection,
-            xSize.XPixelSize,
-            ySize.YPixelSize,
-            ChuckBFMachinePosition = microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)
-        }), htmlLogUniqueId.LoggingHtml());
+            var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
+
+            var xSize = applicationCookieService.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == cacheDFItem.ProductivityInformation);
+            Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+
+            var ySize = applicationCookieService.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == cacheDFItem.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                                                           && t.ProductivityInformation.OpticsMagType == cacheDFItem.ProductivityInformation.OpticsMagType
+                                                                                                                           && t.PmtId == cacheDFItem.CIBInformation.PMTId);
+            Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+            xPixelSize = xSize.XPixelSize;
+            yPixelSize = ySize.YPixelSize;
+
+            logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
+                xDirection,
+                yDirection,
+                xPixelSize,
+                yPixelSize,
+                ChuckBFMachinePosition = microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)
+            }), htmlLogUniqueId.LoggingHtml());
+        }
+        else
+        {
+            var size = applicationCookieService.GetCalibrations<MicroscopePixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.MicroscopeLensInformation == Cache.MicroscopeLensInformation);
+            Guard.IsTrue(size?.IsOk == true, "Microscope Pixel Size is Empty or not verify.");
+
+            xPixelSize = size.Result.PixelSize.Width;
+            yPixelSize = size.Result.PixelSize.Height;
+
+            logger.LogHtmlInformation("Pixel Size", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            {
+                xDirection,
+                yDirection,
+                xPixelSize,
+                yPixelSize
+            }), htmlLogUniqueId.LoggingHtml());
+        }
 
         HTuple[] templateIds = [];
 
@@ -446,7 +473,7 @@ public sealed partial class StageMapCommands(
         {
             templateIds =
             [
-                .. cacheDFItem.StageMapTemplates
+                .. CacheItem.StageMapTemplates
                     .Select(t =>
                     {
                         calibrationAlgorithmService.TryReadTemplate(CacheItem.TemplateMatchSetting.ToHalconTemplateType(), t.TemplateFilePath, out var templateId);
@@ -488,7 +515,7 @@ public sealed partial class StageMapCommands(
             using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var linkedToken = linkedCancellationTokenSource.Token;
 
-            var channel = Channel.CreateBounded<DFScanYResult>(new BoundedChannelOptions(2)
+            var channel = Channel.CreateBounded<ScanYResult>(new BoundedChannelOptions(2)
             {
                 SingleReader = true,
                 SingleWriter = true,
@@ -511,26 +538,49 @@ public sealed partial class StageMapCommands(
                         var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[y][t]).ToArray();
                         if (points.Length == 0) continue;
 
-                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
-                        DarkFieldImageDTO[] darkFieldImages =
-                        [
-                            .. await cibViewModel.GetPMTImagesAsync(
-                                cacheDFItem.ProductivityInformation,
-                                StageCoordinateSystemEnum.Machine,
-                                points,
-                                cacheDFItem.ImageWidth,
-                                cacheDFItem.CIBInformation,
-                                (true, null),
-                                (false, cacheDFItem.OpticsConfiguration),
-                                (false, cacheDFItem.CIBConfiguration),
-                                (false, cacheDFItem.LaserLightInformation),
-                                false,
-                                linkedToken).ConfigureAwait(false)
-                        ];
+                        if (IsDark)
+                        {
+                            var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
 
-                        Guard.IsEqualTo(points.Length, darkFieldImages.Length);
+                            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
+                            DarkFieldImageDTO[] darkFieldImages =
+                            [
+                                .. await cibViewModel.GetPMTImagesAsync(
+                                    cacheDFItem.ProductivityInformation,
+                                    StageCoordinateSystemEnum.Machine,
+                                    points,
+                                    cacheDFItem.ImageWidth,
+                                    cacheDFItem.CIBInformation,
+                                    (true, null),
+                                    (false, cacheDFItem.OpticsConfiguration),
+                                    (false, cacheDFItem.CIBConfiguration),
+                                    (false, cacheDFItem.LaserLightInformation),
+                                    false,
+                                    linkedToken).ConfigureAwait(false)
+                            ];
 
-                        await channel.Writer.WriteAsync(new DFScanYResult(y, isInWaferColumnIndexes, darkFieldImages), linkedToken).ConfigureAwait(false);
+                            Guard.IsEqualTo(points.Length, darkFieldImages.Length);
+
+                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, [.. darkFieldImages.Select(t => (t.Image, t.RawImageFilePath))]), linkedToken).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            var images = new BitmapImage[points.Length];
+
+                            var scanDirection = (y & 1) == 0 ? 1 : -1;
+                            for (var i = 0; i < points.Length; i++)
+                            {
+                                var index = scanDirection > 0 ? i : ^(i + 1);
+                                stageViewModel.SetMachineAbsoluteStageXy(points[index], CalChipSiteModelEnum.ChuckModel, true);
+                                await Task.Delay(100, linkedToken).ConfigureAwait(false);
+
+                                images[index] = reviewViewModel.GetBrightFieldImage();
+                            }
+
+                            Guard.IsEqualTo(points.Length, images.Length);
+
+                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, [.. images.Select(t => (t, string.Empty))]), linkedToken).ConfigureAwait(false);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -562,9 +612,9 @@ public sealed partial class StageMapCommands(
                 {
                     while (channel.Reader.TryRead(out var row))
                     {
-                        foreach (var darkFieldImage in row.Images)
+                        foreach (var (image, _) in row.Images)
                         {
-                            using var _ = darkFieldImage;
+                            using var _ = image;
                         }
                     }
                 }
@@ -579,7 +629,7 @@ public sealed partial class StageMapCommands(
 
             return;
 
-            async Task ScanStageMapRowAsync(DFScanYResult yResult)
+            async Task ScanStageMapRowAsync(ScanYResult yResult)
             {
                 var htmlList = new List<BaseHtmlElement>();
                 var htmlContainer = new HtmlContainer(htmlList);
@@ -597,14 +647,14 @@ public sealed partial class StageMapCommands(
                         token.ThrowIfCancellationRequested();
 
                         var (i, isInWaferColumnIndex) = item;
-                        var templateIdIndex = xDirection > 0 ? i % cacheDFItem.StageMapTemplates.Length : ^(i % cacheDFItem.StageMapTemplates.Length + 1);
+                        var templateIdIndex = xDirection > 0 ? i % CacheItem.StageMapTemplates.Length : ^(i % CacheItem.StageMapTemplates.Length + 1);
 
-                        var templateROI = cacheDFItem.StageMapTemplates[templateIdIndex].TemplateROI;
+                        var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
                         using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
 
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
-                            cacheDFItem.TemplateMatchSetting.ToHalconTemplateType(),
+                            CacheItem.TemplateMatchSetting.ToHalconTemplateType(),
                             image,
                             templateIds[templateIdIndex],
                             htmlLogUniqueId,
@@ -614,13 +664,13 @@ public sealed partial class StageMapCommands(
                             out var matchAngle);
                         var oldMatchPoint = matchPoint;
                         var oldMatchOffset = matchOffset;
-                        var offset = matchPoint - cacheDFItem.StageMapTemplates[templateIdIndex].TemplateROI.Center;
+                        var offset = matchPoint - CacheItem.StageMapTemplates[templateIdIndex].TemplateROI.Center;
                         matchOffset = new Point(offset.X, -offset.Y);
 
-                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"DF_{FileHelper.GetFileFullName(cacheDFItem.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
+                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{Name}_{FileHelper.GetFileFullName(CacheItem.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
                         image.SaveImage(resultImageFilePath);
 
-                        var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
+                        var vector = new Vector(xDirection * matchOffset.X * xPixelSize, yDirection * matchOffset.Y * yPixelSize);
 
                         htmlList.Add(
                             new HtmlLog(
@@ -666,19 +716,19 @@ public sealed partial class StageMapCommands(
                 }
                 finally
                 {
-                    foreach (var darkFieldImage in yResult.Images)
+                    foreach (var (image, _) in yResult.Images)
                     {
-                        using var _ = darkFieldImage;
+                        using var _ = image;
                     }
                 }
             }
         }
         finally
         {
-            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(cacheDFItem.TemplateMatchSetting.ToHalconTemplateType(), templateId);
+            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(CacheItem.TemplateMatchSetting.ToHalconTemplateType(), templateId);
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
         }
     }
 
-    private sealed record DFScanYResult(int Y, int[] IsInWaferColumnIndexes, DarkFieldImageDTO[] Images);
+    private sealed record ScanYResult(int Y, int[] IsInWaferColumnIndexes, (BitmapImage Image, string RawImageFilePath)[] Images);
 }
