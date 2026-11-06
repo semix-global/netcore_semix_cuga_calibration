@@ -10,6 +10,7 @@ using Core.Models.Helper;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
+using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
@@ -70,7 +71,35 @@ public sealed partial class StageMapCommands(
 
     public StageMapDocument StageMapDocument => IsDark ? ChuckStageMap.DFStageMapDocument : ChuckStageMap.BFStageMapDocument;
 
-    public StageMap StageMap => IsDark ? ChuckStageMap.DFStageMap : ChuckStageMap.BFStageMap;
+    public StageMap StageMap
+    {
+        get => IsDark ? ChuckStageMap.DFStageMap : ChuckStageMap.BFStageMap;
+        set
+        {
+            if (IsDark) ChuckStageMap.DFStageMap = value;
+            else ChuckStageMap.BFStageMap = value;
+        }
+    }
+
+    public StageMap VerifyStageMap
+    {
+        get => IsDark ? ChuckStageMap.DFVerifyStageMap : ChuckStageMap.BFVerifyStageMap;
+        set
+        {
+            if (IsDark) ChuckStageMap.DFVerifyStageMap = value;
+            else ChuckStageMap.BFVerifyStageMap = value;
+        }
+    }
+
+    public AlignmentResultDto AlignmentResult
+    {
+        get => IsDark ? ChuckStageMap.DFAlignmentResult : ChuckStageMap.BFAlignmentResult;
+        set
+        {
+            if (IsDark) ChuckStageMap.DFAlignmentResult = value;
+            else ChuckStageMap.BFAlignmentResult = value;
+        }
+    }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AddStageMapTemplateAsync(CancellationToken cancellationToken)
@@ -336,8 +365,7 @@ public sealed partial class StageMapCommands(
     {
         await Task.Run(() =>
         {
-            if (IsDark) ChuckStageMap.DFStageMap = new StageMap();
-            else ChuckStageMap.BFStageMap = new StageMap();
+            StageMap = new StageMap();
 
             foreach (var stageMapDie in selectStageMapDies) stageMapDie.IsInStageMapScan = true;
 
@@ -398,7 +426,8 @@ public sealed partial class StageMapCommands(
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken,
         bool isInterpolateErrors = false,
-        StageMap? interpolateStageMap = null)
+        StageMap? interpolateStageMap = null,
+        Circle? interpolateCircle = null)
     {
         logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, new HtmlTable(
         [
@@ -499,10 +528,7 @@ public sealed partial class StageMapCommands(
 
             if (isInterpolateErrors)
             {
-                var sourceStageMap = Guard.IsNotNullAndReturn(interpolateStageMap);
-                var errors = sourceStageMap.InterpolateErrors(
-                    stageMapIdealMatrix,
-                    new Circle(stageViewModel.DarkFieldToMachinePosition(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), CacheItem.WaferRadius));
+                var errors = Guard.IsNotNullAndReturn(interpolateStageMap).InterpolateErrors(stageMapIdealMatrix, Guard.IsNotNullAndReturn(interpolateCircle));
 
                 for (var y = 0; y < yLength; y++)
                 {
@@ -733,6 +759,41 @@ public sealed partial class StageMapCommands(
             foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(CacheItem.TemplateMatchSetting.ToHalconTemplateType(), templateId);
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
         }
+    }
+
+    public async Task DownloadStageMapAsync(
+        StageMap downloadStageMap,
+        Circle? targetCircle,
+        Guid htmlLogUniqueId,
+        CancellationToken cancellationToken)
+    {
+        await Task.Run(() =>
+        {
+            stageViewModel.SetEnableStageMap(false);
+
+            var stageMapErrorDTO = targetCircle is not null ? downloadStageMap.AdaptTo(targetCircle.Value) : downloadStageMap.AdaptTo();
+            var xPoint3DList = new List<Point3D>();
+            var yPoint3DList = new List<Point3D>();
+
+            foreach (var (y, row) in stageMapErrorDTO.Ys.Index())
+            {
+                foreach (var (x, col) in row.Xs.Index())
+                {
+                    xPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.X));
+                    yPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.Y));
+                }
+            }
+
+            logger.LogHtmlInformation("Download", HtmlHeaderLevelEnum.Header3, new HtmlContainer(
+            [
+                new HtmlPlot3DChart(xPoint3DList, "X Error", HtmlPlot3DType.Surface),
+                new HtmlPlot3DChart(yPoint3DList, "Y Error", HtmlPlot3DType.Surface)
+            ]), htmlLogUniqueId.LoggingHtml());
+
+            stageViewModel.SetStageMap(stageMapErrorDTO);
+
+            stageViewModel.SetEnableStageMap(true);
+        }, cancellationToken);
     }
 
     private sealed record ScanYResult(int Y, int[] IsInWaferColumnIndexes, (BitmapImage Image, string RawImageFilePath)[] Images);

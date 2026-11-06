@@ -12,7 +12,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
     public partial ChuckStageMapCache ChuckStageMapCache { get; set; } = new();
 
     [ObservableProperty]
-    public partial ChuckStageMapDTO ChuckStageMapDTO { get; set; } = new();
+    public partial ChuckStageMapDTO ChuckStageMap { get; set; } = new();
 
     partial void OnChuckStageMapCacheChanged(ChuckStageMapCache oldValue, ChuckStageMapCache newValue)
     {
@@ -28,9 +28,9 @@ public sealed partial class StageMapCache : CalibrationCacheBase
             switch (e.PropertyName)
             {
                 case nameof(ChuckStageMapCacheDFItem.StageMapTemplates):
-                    using (ChuckStageMapDTO.DFStageMapDocument.View.Sync.EnterScope())
+                    using (ChuckStageMap.DFStageMapDocument.View.Sync.EnterScope())
                     {
-                        ChuckStageMapDTO.DFStageMapDocument.Reset();
+                        ChuckStageMap.DFStageMapDocument.Reset();
                     }
 
                     break;
@@ -38,7 +38,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         }
     }
 
-    partial void OnChuckStageMapDTOChanged(ChuckStageMapDTO oldValue, ChuckStageMapDTO newValue)
+    partial void OnChuckStageMapChanged(ChuckStageMapDTO oldValue, ChuckStageMapDTO newValue)
     {
         oldValue.PropertyChanged -= TemplatesOnPropertyChanged;
 
@@ -51,7 +51,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         {
             switch (e.PropertyName)
             {
-                case nameof(ChuckStageMapDTO.IsDarkFieldAlignment):
+                case nameof(ChuckStageMap.IsDarkFieldAlignment):
                     ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapTemplates = [];
 
                     break;
