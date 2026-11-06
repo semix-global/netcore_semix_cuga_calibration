@@ -754,6 +754,9 @@ public sealed partial class StageMapCommands(
 
             var writerTask = Task.Run(async () =>
             {
+                // 本轮已采到但还未交给 channel 的图, 写入失败(取消/异常)时由 catch 释放
+                (BitmapImage Image, string RawImageFilePath)[]? pendingImages = null;
+
                 try
                 {
                     for (var y = 0; y < yLength; y++)
@@ -792,7 +795,12 @@ public sealed partial class StageMapCommands(
 
                             Guard.IsEqualTo(points.Length, darkFieldImages.Length);
 
-                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, [.. darkFieldImages.Select(t => (t.Image, t.RawImageFilePath))]), linkedToken).ConfigureAwait(false);
+                            var rowImages = darkFieldImages.Select(t => (t.Image, t.RawImageFilePath)).ToArray();
+                            pendingImages = rowImages;
+
+                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, rowImages), linkedToken).ConfigureAwait(false);
+
+                            pendingImages = null;
                         }
                         else
                         {
@@ -810,12 +818,23 @@ public sealed partial class StageMapCommands(
 
                             Guard.IsEqualTo(points.Length, images.Length);
 
-                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, [.. images.Select(t => (t, string.Empty))]), linkedToken).ConfigureAwait(false);
+                            var rowImages = images.Select(t => (t, string.Empty)).ToArray();
+                            pendingImages = rowImages;
+
+                            await channel.Writer.WriteAsync(new ScanYResult(y, isInWaferColumnIndexes, rowImages), linkedToken).ConfigureAwait(false);
+
+                            pendingImages = null;
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    if (pendingImages is not null)
+                        foreach (var (image, _) in pendingImages)
+                        {
+                            using var _ = image;
+                        }
+
                     channel.Writer.TryComplete(ex);
                 }
                 finally
@@ -862,10 +881,10 @@ public sealed partial class StageMapCommands(
 
             async Task TemplateMatchAsync(ScanYResult yResult)
             {
-                var htmlList = new List<BaseHtmlElement>();
-                var htmlContainer = new HtmlContainer(htmlList);
-
                 var (y, isInWaferColumnIndexes, images) = yResult;
+
+                // 按下标预分配，避免在并行体内并发 Add 到 List<T>(非线程安全, 会丢元素/破坏内部数组)
+                var htmlLogs = new HtmlLog[isInWaferColumnIndexes.Length];
 
                 try
                 {
@@ -882,9 +901,8 @@ public sealed partial class StageMapCommands(
 
                         var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
-                        using var image = IsDark
-                            ? xDirection > 0 ? images[i].Image : images[i].Image.HorizontalFlip()
-                            : images[i].Image;
+                        using var flippedImage = IsDark && xDirection <= 0 ? images[i].Image.HorizontalFlip() : null;
+                        var image = flippedImage ?? images[i].Image;
 
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             CacheItem.TemplateMatchSetting.ToHalconTemplateType(),
@@ -905,7 +923,7 @@ public sealed partial class StageMapCommands(
 
                         var vector = new Vector(xDirection * matchOffset.X * xPixelSize, yDirection * matchOffset.Y * yPixelSize);
 
-                        htmlList.Add(
+                        htmlLogs[i] =
                             new HtmlLog(
                                 isSuccess ? LogLevelEnum.Info : LogLevelEnum.Error,
                                 DateTime.Now.ToString(Constants.LongFileDateTimeFormat),
@@ -932,20 +950,20 @@ public sealed partial class StageMapCommands(
                                         })
                                     })
                                 ]
-                            )
-                        );
+                            );
 
                         stageMap.IsMatchMatrix[y][isInWaferColumnIndex] = isSuccess;
                         if (isSuccess) stageMap.ErrorMatrix[y][isInWaferColumnIndex] = vector;
 
-                        stageMap.Refresh();
-
                         return ValueTask.CompletedTask;
                     }).ConfigureAwait(false);
 
+                    // Refresh 会重建 PlotDataSource 并触发 AutoScaleRefresh, 只能在并行结束后做一次
                     stageMap.Refresh();
 
-                    logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, htmlContainer, htmlLogUniqueId.LoggingHtml());
+                    List<BaseHtmlElement> htmlList = [.. htmlLogs];
+
+                    logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer(htmlList), htmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {

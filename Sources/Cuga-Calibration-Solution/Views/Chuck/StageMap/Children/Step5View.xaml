@@ -10,33 +10,6 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <DataTemplate x:Key="AlignmentResultTemplate" DataType="{x:Type alignment:AlignmentResultDto}">
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <TextBox Text="{Binding Degrees, Mode=OneWay, StringFormat='0.##########'}"
-                         hc:TitleElement.Title="Alignment Degrees(°): "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                         hc:TitleElement.Title="Mark Point 1(um): "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                         hc:TitleElement.Title="Mark Point 2(um): "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-            </hc:UniformSpacingPanel>
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -83,7 +56,35 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <ContentPresenter Content="{Binding CalibratingItem.DFAlignmentResult, Mode=OneWay}" ContentTemplate="{StaticResource AlignmentResultTemplate}" />
+                        <ContentPresenter Content="{Binding CalibratingItem.DFAlignmentResult, Mode=OneWay}">
+                            <ContentPresenter.ContentTemplate>
+                                <DataTemplate DataType="{x:Type alignment:AlignmentResultDto}">
+                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                        <TextBox Text="{Binding Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                                 hc:TitleElement.Title="Alignment Degrees(°): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.Title="Mark Point 1(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                        <TextBox Text="{Binding MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                                 hc:TitleElement.Title="Mark Point 2(um): "
+                                                 hc:TitleElement.TitlePlacement="Left"
+                                                 hc:TitleElement.TitleWidth="190"
+                                                 IsReadOnly="True"
+                                                 Background="{StaticResource SecondaryRegionBrush}"
+                                                 Style="{StaticResource TextBoxExtend}" />
+                                    </hc:UniformSpacingPanel>
+                                </DataTemplate>
+                            </ContentPresenter.ContentTemplate>
+                        </ContentPresenter>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">

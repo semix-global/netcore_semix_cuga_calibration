@@ -107,7 +107,7 @@
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="SelectionChanged">
                                     <i:ChangePropertyAction PropertyName="SelectedIndex"
-                                                            TargetName="StageMapHistoryTabs"
+                                                            TargetObject="{Binding ElementName=StageMapHistoryTabs}"
                                                             Value="0" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
@@ -226,20 +226,7 @@
                                         <Button Content="Mark"
                                                 Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}">
-                                            <Button.IsEnabled>
-                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                    <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                </MultiBinding>
-                                            </Button.IsEnabled>
-                                        </Button>
+                                                Style="{StaticResource ButtonPrimary.Loading}" />
                                         <Button Content="Cancel"
                                                 Command="{Binding StageMapCommands.AddStageMapTemplateCancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -248,20 +235,7 @@
                                                 Command="{Binding StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand}"
                                                 CommandParameter="{Binding SelectedItems, ElementName=StageMapTemplatesList}"
                                                 hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                Style="{StaticResource ButtonDanger}">
-                                            <Button.IsEnabled>
-                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                    <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                    <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                </MultiBinding>
-                                            </Button.IsEnabled>
-                                        </Button>
+                                                Style="{StaticResource ButtonDanger}" />
                                     </hc:UniformSpacingPanel>
                                     <ListView x:Name="StageMapTemplatesList"
                                               MaxHeight="360"
@@ -368,20 +342,7 @@
                                     Command="{Binding Step0Command}"
                                     CommandParameter="{x:Static models:Constants.False}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step0CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -393,20 +354,7 @@
                                     Command="{Binding Step1Command}"
                                     CommandParameter="{x:Static models:Constants.False}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step1CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -418,20 +366,7 @@
                                     Command="{Binding Step2Command}"
                                     CommandParameter="{x:Static models:Constants.False}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step2CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -445,20 +380,7 @@
                                     Command="{Binding Step3Command}"
                                     CommandParameter="{x:Static models:Constants.False}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step3CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -470,20 +392,7 @@
                                     Command="{Binding Step4Command}"
                                     CommandParameter="{x:Static models:Constants.False}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                        <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step4CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -530,20 +439,7 @@
                                                             Height="24"
                                                             Margin="3,0"
                                                             Padding="5,3"
-                                                            ContentStringFormat="Goto {0}">
-                                                        <Button.IsEnabled>
-                                                            <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                                                <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                                <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                                            </MultiBinding>
-                                                        </Button.IsEnabled>
-                                                    </Button>
+                                                            ContentStringFormat="Goto {0}" />
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>

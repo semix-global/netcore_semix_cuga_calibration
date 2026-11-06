@@ -59,19 +59,32 @@ public sealed partial class StageMapCache : CalibrationCacheBase
         }
     }
 
-    public object ToHtmlAnonymous() => new
+    public object ToHtmlAnonymous(bool isDark)
     {
-        ChuckStageMapCache.MicroscopeLensInformation,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.TemplateMatchSetting,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.WaferRadius,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchWidth,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchHeight,
-        ProductivityInformation = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.LaserLightInformation,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBInformation,
-        OpticsConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
-        CIBConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.ImageWidth,
-        ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapRepeatTimes
-    };
+        if (isDark)
+            return new
+            {
+                ChuckStageMapCache.MicroscopeLensInformation,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.TemplateMatchSetting,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.WaferRadius,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchWidth,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                ProductivityInformation = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.LaserLightInformation,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBInformation,
+                OpticsConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.ImageWidth,
+                ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapRepeatTimes
+            };
+
+        return new
+        {
+            ChuckStageMapCache.MicroscopeLensInformation,
+            ChuckStageMapCache.ChuckStageMapCacheBFItem.TemplateMatchSetting,
+            ChuckStageMapCache.ChuckStageMapCacheBFItem.WaferRadius,
+            ChuckStageMapCache.ChuckStageMapCacheBFItem.DiePitchWidth,
+            ChuckStageMapCache.ChuckStageMapCacheBFItem.DiePitchHeight
+        };
+    }
 }

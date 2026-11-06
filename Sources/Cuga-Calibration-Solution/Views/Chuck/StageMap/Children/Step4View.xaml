@@ -14,11 +14,6 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <DataTemplate x:Key="StageMapPlotTemplate" DataType="{x:Type stageMap:StageMap}">
-            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -109,7 +104,13 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="BF StageMap">
             <Border Style="{StaticResource BorderRegion}">
-                <ContentPresenter Content="{Binding CalibratingItem.BFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
+                <ContentPresenter Content="{Binding CalibratingItem.BFStageMap, Mode=OneWay}">
+                    <ContentPresenter.ContentTemplate>
+                        <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                        </DataTemplate>
+                    </ContentPresenter.ContentTemplate>
+                </ContentPresenter>
             </Border>
         </GroupBox>
     </Grid>

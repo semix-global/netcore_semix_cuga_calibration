@@ -13,99 +13,6 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <Style x:Key="StageMapListViewItemStyle"
-               BasedOn="{StaticResource ListViewItemBaseStyle.Small}"
-               TargetType="ListViewItem">
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="StageMapColumnHeaderStyle"
-               BasedOn="{StaticResource {x:Type GridViewColumnHeader}}"
-               TargetType="{x:Type GridViewColumnHeader}">
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-        <DataTemplate x:Key="StageMapPlotTemplate" DataType="{x:Type stageMap:StageMap}">
-            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
-        </DataTemplate>
-        <DataTemplate x:Key="StageMapRepeatResultsTemplate">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="150" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <ListView x:Name="RepeatStageMapsList"
-                          ItemsSource="{Binding}"
-                          Style="{StaticResource ListView.Small}"
-                          ItemContainerStyle="{StaticResource StageMapListViewItemStyle}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                          SelectionMode="Single">
-                    <i:Interaction.Behaviors>
-                        <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
-                        <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
-                    </i:Interaction.Behaviors>
-                    <ListView.View>
-                        <GridView ColumnHeaderContainerStyle="{StaticResource StageMapColumnHeaderStyle}">
-                            <GridViewColumn Width="160"
-                                            Header="Repeat"
-                                            DisplayMemberBinding="{Binding DisplayIndex, Mode=OneWay}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-                <GridSplitter Grid.Row="1"
-                              Height="5"
-                              HorizontalAlignment="Stretch" />
-                <ContentPresenter Grid.Row="2"
-                                  Content="{Binding SelectedItem, ElementName=RepeatStageMapsList, Mode=OneWay}"
-                                  ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-            </Grid>
-        </DataTemplate>
-        <DataTemplate x:Key="StageMapResultsTemplate">
-            <TabControl>
-                <i:Interaction.Behaviors>
-                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
-                </i:Interaction.Behaviors>
-                <TabItem Header="BF StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding BFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="DF StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding DFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="DF Repeat StageMaps">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding DFRepeatStageMaps, Mode=OneWay}" ContentTemplate="{StaticResource StageMapRepeatResultsTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Expand StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding ExpandStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="BF Verify StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding BFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="DF Verify StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding DFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                    </Border>
-                </TabItem>
-            </TabControl>
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -257,7 +164,136 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="History">
-            <ContentPresenter Content="{Binding Review, Mode=OneWay}" ContentTemplate="{StaticResource StageMapResultsTemplate}" />
+            <ContentPresenter Content="{Binding Review, Mode=OneWay}">
+                <ContentPresenter.ContentTemplate>
+                    <DataTemplate>
+                        <TabControl>
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                            </i:Interaction.Behaviors>
+                            <TabItem Header="BF StageMap">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding BFStageMap, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="DF StageMap">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding DFStageMap, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="DF Repeat StageMaps">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding DFRepeatStageMaps, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="150" />
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
+                                                    <ListView x:Name="RepeatStageMapsList"
+                                                              ItemsSource="{Binding}"
+                                                              Style="{StaticResource ListView.Small}"
+                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                                              SelectionMode="Single">
+                                                        <i:Interaction.Behaviors>
+                                                            <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+                                                            <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                                                        </i:Interaction.Behaviors>
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
+                                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                <Style.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="True">
+                                                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                                                    </Trigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.View>
+                                                            <GridView>
+                                                                <GridView.ColumnHeaderContainerStyle>
+                                                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                                                    </Style>
+                                                                </GridView.ColumnHeaderContainerStyle>
+                                                                <GridView.Columns>
+                                                                    <GridViewColumn Width="160"
+                                                                                    Header="Repeat"
+                                                                                    DisplayMemberBinding="{Binding DisplayIndex, Mode=OneWay}" />
+                                                                </GridView.Columns>
+                                                            </GridView>
+                                                        </ListView.View>
+                                                    </ListView>
+                                                    <GridSplitter Grid.Row="1"
+                                                                  Height="5"
+                                                                  HorizontalAlignment="Stretch" />
+                                                    <ContentPresenter Grid.Row="2" Content="{Binding SelectedItem, ElementName=RepeatStageMapsList, Mode=OneWay}">
+                                                        <ContentPresenter.ContentTemplate>
+                                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                                            </DataTemplate>
+                                                        </ContentPresenter.ContentTemplate>
+                                                    </ContentPresenter>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="Expand StageMap">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding ExpandStageMap, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="BF Verify StageMap">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding BFVerifyStageMap, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="DF Verify StageMap">
+                                <Border Margin="5" Style="{StaticResource BorderRegion}">
+                                    <ContentPresenter Content="{Binding DFVerifyStageMap, Mode=OneWay}">
+                                        <ContentPresenter.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                                <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+                                            </DataTemplate>
+                                        </ContentPresenter.ContentTemplate>
+                                    </ContentPresenter>
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+                    </DataTemplate>
+                </ContentPresenter.ContentTemplate>
+            </ContentPresenter>
         </GroupBox>
     </Grid>
 </UserControl>

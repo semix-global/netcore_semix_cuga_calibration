@@ -633,9 +633,31 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         await InvokeVerifyAsync(async () =>
         {
+            Guard.IsTrue(Review.IsCalibrated);
+
+            var isVerifyThresholdValid = Cache.Threshold > 0d && double.IsInfinity(Cache.Threshold) == false;
+            if (isVerifyThresholdValid == false)
+            {
+                DialogWindowProvider.ShowDialog("Set positive finite Verify Threshold before verification.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+
+                return false;
+            }
+
+            Guard.IsNotEmpty(Cache.ChuckStageMapCacheBFItem.StageMapTemplates);
+            Guard.IsNotEmpty(Cache.ChuckStageMapCacheDFItem.StageMapTemplates);
+            Guard.IsNotEmpty(Review.BFStageMap.IdealMatrix);
+            Guard.IsNotEmpty(Review.DFStageMap.IdealMatrix);
+            Guard.IsNotEmpty(Review.ExpandStageMap.IdealMatrix);
+
+            Review.BFVerifyMaxError = Vector.Zero;
+            Review.DFVerifyMaxError = Vector.Zero;
+            Review.IsVerified = false;
+            Guard.IsTrue(Save(Review, cancellationToken));
+
             Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
+                Cache.Threshold,
                 BFParam = new HtmlQuote(new
                 {
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheBFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
@@ -694,7 +716,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
-            await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+            await StageMapCommands.VerifyAsync(Review.ExpandStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
             Review.BFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
@@ -703,7 +725,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
-            await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken, isDownloadStageMap: true).ConfigureAwait(false);
+            await StageMapCommands.VerifyAsync(Review.ExpandStageMap, HtmlLogUniqueId, cancellationToken, isDownloadStageMap: true).ConfigureAwait(false);
             Review.DFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 

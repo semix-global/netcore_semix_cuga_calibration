@@ -14,61 +14,6 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <DataTemplate x:Key="DFStageMapDocumentTemplate">
-            <graphicsWPF:WPFCanvasControl Document="{Binding CalibratingItem.DFStageMapDocument, Mode=OneWay}" CursorTextVisibility="Collapsed">
-                <graphicsWPF:WPFCanvasControl.Resources>
-                    <ResourceDictionary>
-                        <ResourceDictionary.MergedDictionaries>
-                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
-                        </ResourceDictionary.MergedDictionaries>
-                    </ResourceDictionary>
-                </graphicsWPF:WPFCanvasControl.Resources>
-                <graphicsWPF:WPFCanvasControl.LeftToolBars>
-                    <ToolBar Margin="3,2"
-                             Padding="3,2"
-                             Background="Transparent"
-                             Band="0"
-                             BandIndex="2">
-                        <ItemsControl ItemsSource="{Binding Cache.ChuckStageMapCacheDFItem.StageMapTemplates}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
-                                    <Button Content="{Binding DisplayIndex, Mode=OneWay}"
-                                            Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}"
-                                            CommandParameter="{Binding}"
-                                            Height="24"
-                                            Margin="3,0"
-                                            Padding="5,3"
-                                            ContentStringFormat="Goto {0}" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ToolBar>
-                </graphicsWPF:WPFCanvasControl.LeftToolBars>
-                <graphicsWPF:WPFCanvasControl.RightToolBars>
-                    <ToolBar Margin="3,2"
-                             Padding="3,2"
-                             Background="Transparent"
-                             Band="0"
-                             BandIndex="1">
-                        <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
-                            <TextBlock.Text>
-                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
-                                    <Binding Path="CalibratingItem.DFStageMapDocument.View.Cursor.Point" />
-                                    <Binding Path="CalibratingItem.DFStageMapDocument" />
-                                </MultiBinding>
-                            </TextBlock.Text>
-                        </TextBlock>
-                    </ToolBar>
-                </graphicsWPF:WPFCanvasControl.RightToolBars>
-            </graphicsWPF:WPFCanvasControl>
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -206,7 +151,63 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="DF StageMap">
             <Border Style="{StaticResource BorderRegion}">
-                <ContentPresenter Content="{Binding ., Mode=OneWay}" ContentTemplate="{StaticResource DFStageMapDocumentTemplate}" />
+                <ContentPresenter Content="{Binding ., Mode=OneWay}">
+                    <ContentPresenter.ContentTemplate>
+                        <DataTemplate DataType="{x:Type viewModels:ChuckStageMapViewModel}">
+                            <graphicsWPF:WPFCanvasControl Document="{Binding CalibratingItem.DFStageMapDocument, Mode=OneWay}" CursorTextVisibility="Collapsed">
+                                <graphicsWPF:WPFCanvasControl.Resources>
+                                    <ResourceDictionary>
+                                        <ResourceDictionary.MergedDictionaries>
+                                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
+                                        </ResourceDictionary.MergedDictionaries>
+                                    </ResourceDictionary>
+                                </graphicsWPF:WPFCanvasControl.Resources>
+                                <graphicsWPF:WPFCanvasControl.LeftToolBars>
+                                    <ToolBar Margin="3,2"
+                                             Padding="3,2"
+                                             Background="Transparent"
+                                             Band="0"
+                                             BandIndex="2">
+                                        <ItemsControl ItemsSource="{Binding Cache.ChuckStageMapCacheDFItem.StageMapTemplates}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
+                                                    <Button Content="{Binding DisplayIndex, Mode=OneWay}"
+                                                            Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}"
+                                                            CommandParameter="{Binding}"
+                                                            Height="24"
+                                                            Margin="3,0"
+                                                            Padding="5,3"
+                                                            ContentStringFormat="Goto {0}" />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ToolBar>
+                                </graphicsWPF:WPFCanvasControl.LeftToolBars>
+                                <graphicsWPF:WPFCanvasControl.RightToolBars>
+                                    <ToolBar Margin="3,2"
+                                             Padding="3,2"
+                                             Background="Transparent"
+                                             Band="0"
+                                             BandIndex="1">
+                                        <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
+                                            <TextBlock.Text>
+                                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
+                                                    <Binding Path="CalibratingItem.DFStageMapDocument.View.Cursor.Point" />
+                                                    <Binding Path="CalibratingItem.DFStageMapDocument" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </ToolBar>
+                                </graphicsWPF:WPFCanvasControl.RightToolBars>
+                            </graphicsWPF:WPFCanvasControl>
+                        </DataTemplate>
+                    </ContentPresenter.ContentTemplate>
+                </ContentPresenter>
             </Border>
         </GroupBox>
     </Grid>
