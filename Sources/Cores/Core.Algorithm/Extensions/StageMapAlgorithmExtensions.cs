@@ -166,6 +166,8 @@ public static class StageMapAlgorithmExtensions
 
             // 先插值明场误差, 再按原暗场标准网格的行列偏移保留暗场有效区域, 包括误差为零的点.
             var errors = brightFieldStageMap.InterpolateErrors(idealMatrix, brightFieldTargetCircle);
+
+            // 保留暗场有效区域的误差, 其余区域保持明场插值误差.
             for (var y = 0; y < darkFieldYLength; y++)
             {
                 var targetY = y + bottomRowCount;

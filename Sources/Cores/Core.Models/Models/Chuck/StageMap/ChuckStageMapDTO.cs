@@ -123,6 +123,7 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
                 ])
             ]
         };
+
         return new CalibrationChuckStageMap
         {
             CgMicroscopeLens = MicroscopeLensInformation != MicroscopeLensInformation.Default ? MicroscopeLensInformation.AdaptTo().LensCode : CgMicroscopeLens.None,
