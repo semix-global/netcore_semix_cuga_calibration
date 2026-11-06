@@ -113,19 +113,19 @@ public static class StageMapAlgorithmExtensions
         }
 
         /// <summary>
-        /// 外扩当前暗场标准网格以覆盖全部明场网格点, 并插值明场误差.
+        /// 外扩当前暗场标准网格以覆盖全部明场网格点, 保留暗场有效区域的误差, 其余区域插值明场误差.
         /// </summary>
-        /// <param name="brightFieldStageMap">用于插值的明场地图.</param>
-        /// <param name="brightFieldTargetCircle">明场目标圆, 限定插值有效区域.</param>
-        /// <param name="darkFieldTargetCircle">构建暗场标准网格时使用的目标圆.</param>
-        /// <returns>外扩后的暗场地图.</returns>
+        /// <param name="brightFieldStageMap">用于外扩区域插值的明场地图.</param>
+        /// <param name="brightFieldTargetCircle">明场目标圆, 限定明场插值的有效区域.</param>
+        /// <param name="darkFieldTargetCircle">暗场目标圆, 用于构建标准网格并限定保留暗场误差的有效区域.</param>
+        /// <returns>外扩后的地图, 重叠区域优先使用暗场误差.</returns>
         public StageMap Expand(StageMap brightFieldStageMap, Circle brightFieldTargetCircle, Circle darkFieldTargetCircle)
         {
             var (darkFieldYLength, darkFieldXLength) = @this.IdealMatrix.GetYXLength();
             Guard.IsGreaterThan(darkFieldYLength, 1);
             Guard.IsGreaterThan(darkFieldXLength, 1);
 
-            var (_, baseX, baseY, xStep, yStep, _) = @this.AdaptTo(darkFieldTargetCircle);
+            var (_, baseX, baseY, xStep, yStep, darkFieldRows) = @this.AdaptTo(darkFieldTargetCircle);
             var endX = baseX + (darkFieldXLength - 1) * xStep;
             var endY = baseY + (darkFieldYLength - 1) * yStep;
 
@@ -144,7 +144,7 @@ public static class StageMapAlgorithmExtensions
 
             var xLength = darkFieldXLength + leftColumnCount + rightColumnCount;
             var yLength = darkFieldYLength + bottomRowCount + topRowCount;
-            var startPoint = new Point(baseX - leftColumnCount * xStep, baseY - bottomRowCount * yStep);
+            var darkFieldStartPoint = new Point(baseX, baseY);
 
             var idealMatrix = new Point[yLength][];
             var isInWaferMatrix = new bool[yLength][];
@@ -156,7 +156,7 @@ public static class StageMapAlgorithmExtensions
                 isMatchMatrix[y] = new bool[xLength];
                 for (var x = 0; x < xLength; x++)
                 {
-                    var point = startPoint + new Vector(x * xStep, y * yStep);
+                    var point = darkFieldStartPoint + new Vector((x - leftColumnCount) * xStep, (y - bottomRowCount) * yStep);
                     var isInWafer = brightFieldTargetCircle.Contains(point);
                     idealMatrix[y][x] = point;
                     isInWaferMatrix[y][x] = isInWafer;
@@ -164,8 +164,22 @@ public static class StageMapAlgorithmExtensions
                 }
             }
 
-            // 只在明场目标圆内插值, 圆外点保持无效.
+            // 先插值明场误差, 再按原暗场标准网格的行列偏移保留暗场有效区域, 包括误差为零的点.
             var errors = brightFieldStageMap.InterpolateErrors(idealMatrix, brightFieldTargetCircle);
+            for (var y = 0; y < darkFieldYLength; y++)
+            {
+                var targetY = y + bottomRowCount;
+                for (var x = 0; x < darkFieldXLength; x++)
+                {
+                    var targetX = x + leftColumnCount;
+                    if (darkFieldTargetCircle.Contains(idealMatrix[targetY][targetX]) == false) continue;
+
+                    errors[targetY][targetX] = darkFieldRows[y].Cols[x].Error;
+                    isInWaferMatrix[targetY][targetX] = true;
+                    isMatchMatrix[targetY][targetX] = true;
+                }
+            }
+
             var result = new StageMap
             {
                 IdealMatrix = idealMatrix,

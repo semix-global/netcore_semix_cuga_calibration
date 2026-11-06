@@ -1294,8 +1294,8 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
             Review.IsVerified = false;
             Guard.IsTrue(Save(Review, cancellationToken));
 
-            var targetCircle = new Circle(StageViewModel.BrightFieldToMachinePosition(Point.Origin), Cache.ChuckStageMapCacheBFItem.WaferRadius);
-            DownloadStageMap(Review.ExpandStageMap, targetCircle, HtmlLogUniqueId);
+            // 外扩结果已是合并后的标准网格, 直接下载以保留明场圆外的暗场误差.
+            DownloadStageMap(Review.ExpandStageMap, null, HtmlLogUniqueId);
 
             await ScanBFStageMapAsync(Review.BFVerifyStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
             var brightFieldVerifyResult = VerifyStageMap(Review.BFVerifyStageMap, Cache.VerifyThreshold);
