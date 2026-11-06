@@ -115,15 +115,15 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>, I
             IdealMatrix[1][0].Y - IdealMatrix[0][0].Y,
             [
                 .. Generate.LinearRangeInt32(0, yLength - 1)
-                    .Select(row => new StageMapErrorRowDTO
+                    .Select(y => new StageMapErrorYDTO
                     (
-                        row,
+                        y,
                         [
                             .. Generate.LinearRangeInt32(0, xLength - 1)
-                                .Select(column => new StageMapErrorColumnDTO
+                                .Select(x => new StageMapErrorXDTO
                                 (
-                                    column,
-                                    ErrorMatrix[row][column]
+                                    x,
+                                    ErrorMatrix[y][x]
                                 ))
                         ]
                     ))

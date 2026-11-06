@@ -12,7 +12,6 @@ using Local.SQL.Cache.Providers.Bases;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Extensions;
 using Net.Utilities.Models.Geometries;
-using Newtonsoft.Json;
 using StageMapResult = Core.Models.Models.Common.StageMap.StageMap;
 
 namespace Core.Models.Models.Chuck.StageMap;
@@ -31,7 +30,7 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     [ObservableProperty]
     public partial AlignmentResultDto BFAlignmentResult { get; set; } = new();
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
     public partial StageMapDocument BFStageMapDocument { get; set; } = new();
 
@@ -48,7 +47,7 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     [ObservableProperty]
     public partial AlignmentResultDto DFAlignmentResult { get; set; } = new();
 
-    [JsonIgnore]
+    [Newtonsoft.Json.JsonIgnore]
     [ObservableProperty]
     public partial StageMapDocument DFStageMapDocument { get; set; } = new();
 

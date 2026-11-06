@@ -90,7 +90,7 @@ public static class StageMapAlgorithmExtensions
         public Vector[][] InterpolateErrors(Point[][] targetPoints, Circle targetCircle)
         {
             var (yLength, xLength) = targetPoints.GetYXLength();
-            bool[][] targetMask = [.. targetPoints.Select(row => new bool[row.Length])];
+            bool[][] targetMask = [.. targetPoints.Select(xs => new bool[xs.Length])];
             for (var y = 0; y < yLength; y++)
             {
                 for (var x = 0; x < xLength; x++)
@@ -129,21 +129,20 @@ public static class StageMapAlgorithmExtensions
             var endX = baseX + (dfXLength - 1) * xStep;
             var endY = baseY + (dfYLength - 1) * yStep;
 
-            var bfIdealPoints = bfStageMap.IdealMatrix.SelectMany(row => row).ToArray();
+            var bfIdealPoints = bfStageMap.IdealMatrix.SelectMany(xs => xs).ToArray();
             Guard.IsNotEmpty(bfIdealPoints);
             var minX = bfIdealPoints.Min(point => point.X);
             var maxX = bfIdealPoints.Max(point => point.X);
             var minY = bfIdealPoints.Min(point => point.Y);
             var maxY = bfIdealPoints.Max(point => point.Y);
 
-            // 四个方向仅补足覆盖全部明场网格点所需的整行和整列.
-            var leftColumnCount = (int)Math.Max(0d, Math.Ceiling((baseX - minX) / xStep));
-            var rightColumnCount = (int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep));
-            var bottomRowCount = (int)Math.Max(0d, Math.Ceiling((baseY - minY) / yStep));
-            var topRowCount = (int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep));
+            var minXCount = (int)Math.Max(0d, Math.Ceiling((baseY - minY) / yStep));
+            var maxXCount = (int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep));
+            var minYCount = (int)Math.Max(0d, Math.Ceiling((baseX - minX) / xStep));
+            var maxYCount = (int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep));
 
-            var xLength = dfXLength + leftColumnCount + rightColumnCount;
-            var yLength = dfYLength + bottomRowCount + topRowCount;
+            var xLength = dfXLength + minYCount + maxYCount;
+            var yLength = dfYLength + minXCount + maxXCount;
             var darkFieldStartPoint = new Point(baseX, baseY);
 
             var idealMatrix = new Point[yLength][];
@@ -156,7 +155,7 @@ public static class StageMapAlgorithmExtensions
                 isMatchMatrix[y] = new bool[xLength];
                 for (var x = 0; x < xLength; x++)
                 {
-                    var point = darkFieldStartPoint + new Vector((x - leftColumnCount) * xStep, (y - bottomRowCount) * yStep);
+                    var point = darkFieldStartPoint + new Vector((x - minYCount) * xStep, (y - minXCount) * yStep);
                     var isInWafer = bfTargetCircle.Contains(point);
                     idealMatrix[y][x] = point;
                     isInWaferMatrix[y][x] = isInWafer;
@@ -170,13 +169,13 @@ public static class StageMapAlgorithmExtensions
             // 保留暗场有效区域的误差, 其余区域保持明场插值误差.
             for (var y = 0; y < dfYLength; y++)
             {
-                var targetY = y + bottomRowCount;
+                var targetY = y + minXCount;
                 for (var x = 0; x < dfXLength; x++)
                 {
-                    var targetX = x + leftColumnCount;
+                    var targetX = x + minYCount;
                     if (dfTargetCircle.Contains(idealMatrix[targetY][targetX]) == false) continue;
 
-                    errors[targetY][targetX] = dfErrors[y].Cols[x].Error;
+                    errors[targetY][targetX] = dfErrors[y].Xs[x].Error;
                     isInWaferMatrix[targetY][targetX] = true;
                     isMatchMatrix[targetY][targetX] = true;
                 }
@@ -237,12 +236,12 @@ public static class StageMapAlgorithmExtensions
         {
             var (yLength, xLength) = @this.IdealMatrix.GetYXLength();
 
-            var xWidth = (@this.IdealMatrix[0][^1].X - @this.IdealMatrix[0][0].X) / (xLength - 1);
-            var yHeight = (@this.IdealMatrix[^1][0].Y - @this.IdealMatrix[0][0].Y) / (yLength - 1);
+            var xStep = (@this.IdealMatrix[0][^1].X - @this.IdealMatrix[0][0].X) / (xLength - 1);
+            var yStep = (@this.IdealMatrix[^1][0].Y - @this.IdealMatrix[0][0].Y) / (yLength - 1);
             var startPoint = new Point(@this.IdealMatrix[0][0].X, @this.IdealMatrix[0][0].Y);
 
-            Guard.IsGreaterThan(xWidth, 0d);
-            Guard.IsGreaterThan(yHeight, 0d);
+            Guard.IsGreaterThan(xStep, 0d);
+            Guard.IsGreaterThan(yStep, 0d);
 
             var points = new Point[yLength][];
             for (var y = 0; y < yLength; y++)
@@ -250,7 +249,7 @@ public static class StageMapAlgorithmExtensions
                 points[y] = new Point[xLength];
                 for (var x = 0; x < xLength; x++)
                 {
-                    points[y][x] = startPoint + new Vector(x * xWidth, y * yHeight);
+                    points[y][x] = startPoint + new Vector(x * xStep, y * yStep);
                 }
             }
 
@@ -261,19 +260,19 @@ public static class StageMapAlgorithmExtensions
                 0,
                 points[0][0].X,
                 points[0][0].Y,
-                xWidth,
-                yHeight,
+                xStep,
+                yStep,
                 [
                     .. Generate.LinearRangeInt32(0, yLength - 1)
-                        .Select(row => new StageMapErrorRowDTO
+                        .Select(y => new StageMapErrorYDTO
                         (
-                            row,
+                            y,
                             [
                                 .. Generate.LinearRangeInt32(0, xLength - 1)
-                                    .Select(column => new StageMapErrorColumnDTO
+                                    .Select(x => new StageMapErrorXDTO
                                     (
-                                        column,
-                                        errors[row][column]
+                                        x,
+                                        errors[y][x]
                                     ))
                             ]
                         ))

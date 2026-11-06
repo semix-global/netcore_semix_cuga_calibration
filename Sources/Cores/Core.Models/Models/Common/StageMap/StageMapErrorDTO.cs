@@ -12,14 +12,14 @@ namespace Core.Models.Models.Common.StageMap;
 /// <param name="BaseY">标准 Y 坐标.</param>
 /// <param name="XStep">X 轴步进.</param>
 /// <param name="YStep">Y 轴步进.</param>
-/// <param name="Rows">矩阵数据.</param>
+/// <param name="Ys">矩阵数据.</param>
 public sealed record StageMapErrorDTO(
     int? Zone,
     double BaseX,
     double BaseY,
     double XStep,
     double YStep,
-    StageMapErrorRowDTO[] Rows) : IAdaptTo<CgErrorMap>
+    StageMapErrorYDTO[] Ys) : IAdaptTo<CgErrorMap>
 {
     public CgErrorMap AdaptTo() => new()
     {
@@ -28,34 +28,34 @@ public sealed record StageMapErrorDTO(
         BaseY = BaseY,
         XStep = XStep,
         YStep = YStep,
-        Rows = [.. Rows.Select(row => row.AdaptTo())]
+        Rows = [.. Ys.Select(row => row.AdaptTo())]
     };
 }
 
 /// <summary>
-/// Cuga ACS ErrorMap 行的传输对象.
+/// Cuga ACS ErrorMap Y的传输对象.
 /// </summary>
-/// <param name="Id">行编号.</param>
-/// <param name="Cols">列数据.</param>
-public sealed record StageMapErrorRowDTO(int Id, StageMapErrorColumnDTO[] Cols) : IAdaptTo<CgErrorMapRow>
+/// <param name="Y">Y编号.</param>
+/// <param name="Xs">列数据.</param>
+public sealed record StageMapErrorYDTO(int Y, StageMapErrorXDTO[] Xs) : IAdaptTo<CgErrorMapRow>
 {
     public CgErrorMapRow AdaptTo() => new()
     {
-        Id = Id,
-        Cols = [.. Cols.Select(column => column.AdaptTo())]
+        Id = Y,
+        Cols = [.. Xs.Select(column => column.AdaptTo())]
     };
 }
 
 /// <summary>
-/// Cuga ACS ErrorMap 列的传输对象.
+/// Cuga ACS ErrorMap X的传输对象.
 /// </summary>
-/// <param name="Id">列编号.</param>
+/// <param name="X">X编号.</param>
 /// <param name="Error">误差向量.</param>
-public sealed record StageMapErrorColumnDTO(int Id, Vector Error) : IAdaptTo<CgErrorMapCol>
+public sealed record StageMapErrorXDTO(int X, Vector Error) : IAdaptTo<CgErrorMapCol>
 {
     public CgErrorMapCol AdaptTo() => new()
     {
-        Id = Id,
+        Id = X,
         Location = new CgPoint(Error.X, Error.Y)
     };
 }

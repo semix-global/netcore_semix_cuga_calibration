@@ -1889,9 +1889,9 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
         var xPoint3DList = new List<Point3D>();
         var yPoint3DList = new List<Point3D>();
 
-        foreach (var (y, row) in stageMapErrorDTO.Rows.Index())
+        foreach (var (y, row) in stageMapErrorDTO.Ys.Index())
         {
-            foreach (var (x, col) in row.Cols.Index())
+            foreach (var (x, col) in row.Xs.Index())
             {
                 xPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.X));
                 yPoint3DList.Add(new Point3D(stageMapErrorDTO.BaseX + x * stageMapErrorDTO.XStep, stageMapErrorDTO.BaseY + y * stageMapErrorDTO.YStep, col.Error.Y));
