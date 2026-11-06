@@ -3,11 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:children="clr-namespace:CugaCalibration.Views.Chuck.StageMap.Children"
-             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
+             xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:controls="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
@@ -52,71 +52,51 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.IsEnabled>
-                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                    <Binding Path="Step6Command.IsRunning" />
-                                    <Binding Path="AddDFStageMapTemplateCommand.IsRunning" />
-                                    <Binding Path="GotoDFStageMapDocumentSelectedItemPositionCommand.IsRunning" />
-                                </MultiBinding>
-                            </hc:UniformSpacingPanel.IsEnabled>
+                        <StackPanel>
                             <TextBlock Text="Param"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                            <Expander Header="Template Match Setting"
-                                      IsExpanded="False"
-                                      ExpandDirection="Down">
-                                <Border Style="{StaticResource BorderRegion}">
-                                    <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}" />
-                                </Border>
-                            </Expander>
-                            <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              DecimalPlaces="0"
-                                              Increment="1"
-                                              Value="{Binding Cache.ChuckStageMapCacheDFItem.ImageWidth}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.ChuckStageMapCacheDFItem.WaferRadius}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.ChuckStageMapCacheDFItem.DiePitchWidth}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="1"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.ChuckStageMapCacheDFItem.DiePitchHeight}" />
-                        </hc:UniformSpacingPanel>
-                        <TextBlock Text="StageMap Template Points"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <Expander Header="Template Match Setting"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}" />
+                            </Border>
+                        </Expander>
+                        <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          DecimalPlaces="0"
+                                          Increment="1"
+                                          Value="{Binding Cache.ChuckStageMapCacheDFItem.ImageWidth}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ChuckStageMapCacheDFItem.WaferRadius}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ChuckStageMapCacheDFItem.DiePitchWidth}" />
+                        <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="1"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.ChuckStageMapCacheDFItem.DiePitchHeight}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                             <Button Content="Mark"
                                     Command="{Binding AddDFStageMapTemplateCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step6Command.IsRunning" />
-                                        <Binding Path="AddDFStageMapTemplateCommand.IsRunning" />
-                                        <Binding Path="GotoDFStageMapDocumentSelectedItemPositionCommand.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding AddDFStageMapTemplateCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -125,57 +105,46 @@
                                     Command="{Binding Cache.RemoveDFStageMapTemplatesCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=DFStageMapTemplatesList}"
                                     hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                    Style="{StaticResource ButtonDanger}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step6Command.IsRunning" />
-                                        <Binding Path="AddDFStageMapTemplateCommand.IsRunning" />
-                                        <Binding Path="GotoDFStageMapDocumentSelectedItemPositionCommand.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonDanger}" />
                         </hc:UniformSpacingPanel>
-                        <ListView x:Name="DFStageMapTemplatesList"
-                                  MaxHeight="280"
-                                  ItemsSource="{Binding Cache.ChuckStageMapCacheDFItem.StageMapTemplates}"
-                                  Style="{StaticResource ListView.Small}"
-                                  ItemContainerStyle="{StaticResource StageMapListViewItemStyle}"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                                  SelectionMode="Extended">
-                            <i:Interaction.Behaviors>
-                                <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
-                                <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
-                            </i:Interaction.Behaviors>
-                            <ListView.View>
-                                <GridView ColumnHeaderContainerStyle="{StaticResource StageMapColumnHeaderStyle}">
-                                    <GridViewColumn Width="55"
-                                                    Header="#"
-                                                    DisplayMemberBinding="{Binding DisplayIndex, Mode=OneWay}" />
-                                    <GridViewColumn Width="250"
-                                                    Header="BF Machine Position(um)"
-                                                    DisplayMemberBinding="{Binding FindBFMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                    <GridViewColumn Width="220"
-                                                    Header="Template ROI(px)"
-                                                    DisplayMemberBinding="{Binding TemplateROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}" />
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                        <DataGrid x:Name="DFStageMapTemplatesList"
+                                  MaxHeight="360"
+                                  hc:DataGridAttach.ShowRowNumber="True"
+                                  RowHeight="110"
+                                  Style="{StaticResource DataGrid.Small}"
+                                  HeadersVisibility="All"
+                                  RowHeaderWidth="60"
+                                  CanUserAddRows="False"
+                                  CanUserSortColumns="False"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  ItemsSource="{Binding Cache.ChuckStageMapCacheDFItem.StageMapTemplates}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                <DataGridTemplateColumn Header="Images">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
+                                            <view:CanvasView Width="100"
+                                                             Height="100"
+                                                             BackgroundColor="#0A0A0A"
+                                                             AxisColor="Red"
+                                                             Interactive="True"
+                                                             ShowAxes="True"
+                                                             ShowCursor="False"
+                                                             ShowGrid="False"
+                                                             BackgroundImage="{Binding TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding Step6Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step6Command.IsRunning" />
-                                        <Binding Path="AddDFStageMapTemplateCommand.IsRunning" />
-                                        <Binding Path="GotoDFStageMapDocumentSelectedItemPositionCommand.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step6CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -186,22 +155,10 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
-            <TabControl>
-                <i:Interaction.Behaviors>
-                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
-                </i:Interaction.Behaviors>
-                <TabItem Header="DF StageMap">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding ., Mode=OneWay}" ContentTemplate="{StaticResource DFStageMapDocumentTemplate}" />
-                    </Border>
-                </TabItem>
-                <TabItem Header="Template">
-                    <Border Margin="5" Style="{StaticResource BorderRegion}">
-                        <ContentPresenter Content="{Binding SelectedItem, ElementName=DFStageMapTemplatesList, Mode=OneWay}" ContentTemplate="{StaticResource StageMapTemplateDetailsTemplate}" />
-                    </Border>
-                </TabItem>
-            </TabControl>
+        <GroupBox Grid.Column="2" Header="DF StageMap">
+            <Border Style="{StaticResource BorderRegion}">
+                <ContentPresenter Content="{Binding ., Mode=OneWay}" ContentTemplate="{StaticResource DFStageMapDocumentTemplate}" />
+            </Border>
         </GroupBox>
     </Grid>
 </UserControl>

@@ -36,39 +36,28 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.IsEnabled>
-                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                    <Binding Path="VerifyCommand.IsRunning" />
-                                </MultiBinding>
-                            </hc:UniformSpacingPanel.IsEnabled>
-                            <hc:NumericUpDown hc:TitleElement.Title="BF Verify Threshold(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="0"
-                                              DecimalPlaces="6"
-                                              Increment="0.01"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.BFVerifyThreshold}" />
-                            <hc:NumericUpDown hc:TitleElement.Title="DF Verify Threshold(um): "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="190"
-                                              Minimum="0"
-                                              DecimalPlaces="6"
-                                              Increment="0.01"
-                                              Style="{StaticResource NumericUpDownExtend}"
-                                              Value="{Binding Cache.DFVerifyThreshold}" />
-                        </hc:UniformSpacingPanel>
-                        <TextBlock Text="Result"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Verify Threshold(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          DecimalPlaces="6"
+                                          Increment="0.01"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.VerifyThreshold}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
                         <TextBox Text="{Binding Review.IsCalibrated, Mode=OneWay}"
                                  hc:TitleElement.Title="Calibrated: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -83,11 +72,27 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <GroupBox Header="BF Alignment">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <ContentPresenter Content="{Binding Review.BFAlignmentResult, Mode=OneWay}" ContentTemplate="{StaticResource AlignmentResultTemplate}" />
-                            </Border>
-                        </GroupBox>
+                        <TextBox Text="{Binding Review.BFAlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                 hc:TitleElement.Title="BF Alignment Degrees(°): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.BFAlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="BF Mark Point 1(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.BFAlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="BF Mark Point 2(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <TextBox Text="{Binding Review.IsDarkFieldAlignment, Mode=OneWay}"
                                  hc:TitleElement.Title="Dark Field Alignment: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -95,24 +100,62 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <GroupBox Header="DF Alignment">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <ContentPresenter Content="{Binding Review.DFAlignmentResult, Mode=OneWay}" ContentTemplate="{StaticResource AlignmentResultTemplate}" />
-                            </Border>
-                        </GroupBox>
+                        <TextBox Text="{Binding Review.DFAlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                 hc:TitleElement.Title="DF Alignment Degrees(°): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.DFAlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="DF Mark Point 1(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.DFAlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="DF Mark Point 2(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.BFVerifyMaximumError.X, Mode=OneWay, StringFormat='0.######'}"
+                                 hc:TitleElement.Title="BF Max |Error| X(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.BFVerifyMaximumError.Y, Mode=OneWay, StringFormat='0.######'}"
+                                 hc:TitleElement.Title="BF Max |Error| Y(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.DFVerifyMaximumError.X, Mode=OneWay, StringFormat='0.######'}"
+                                 hc:TitleElement.Title="DF Max |Error| X(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.DFVerifyMaximumError.Y, Mode=OneWay, StringFormat='0.######'}"
+                                 hc:TitleElement.Title="DF Max |Error| Y(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
-                            <Button Content="Verify"
+                            <Button Content="Action"
                                     Command="{Binding VerifyCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="VerifyCommand.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding VerifyCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"

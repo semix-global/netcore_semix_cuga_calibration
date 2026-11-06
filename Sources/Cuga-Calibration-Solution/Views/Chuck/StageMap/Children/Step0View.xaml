@@ -12,13 +12,6 @@
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="430" />
@@ -39,40 +32,29 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.IsEnabled>
-                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                    <Binding Path="Step0Command.IsRunning" />
-                                </MultiBinding>
-                            </hc:UniformSpacingPanel.IsEnabled>
-                            <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                                <i:Interaction.Behaviors>
-                                    <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                                </i:Interaction.Behaviors>
-                            </ComboBox>
-                        </hc:UniformSpacingPanel>
+                        <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding Step0Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step0Command.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step0CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -83,45 +65,5 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <TextBox Text="{Binding MicroscopeCalChip.IsOk, Mode=OneWay}"
-                             hc:TitleElement.Title="Microscope Cal Chip OK: "
-                             hc:TitleElement.TitlePlacement="Left"
-                             hc:TitleElement.TitleWidth="190"
-                             IsReadOnly="True"
-                             Background="{StaticResource SecondaryRegionBrush}"
-                             Style="{StaticResource TextBoxExtend}" />
-                </hc:UniformSpacingPanel>
-                <ListView Grid.Row="1"
-                          ItemsSource="{Binding MicroscopePixelSizes}"
-                          Style="{StaticResource ListView.Small}"
-                          ItemContainerStyle="{StaticResource StageMapListViewItemStyle}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                    <ListView.View>
-                        <GridView ColumnHeaderContainerStyle="{StaticResource StageMapColumnHeaderStyle}">
-                            <GridViewColumn Width="200"
-                                            Header="Microscope Lens"
-                                            DisplayMemberBinding="{Binding MicroscopeLensInformation, Mode=OneWay}" />
-                            <GridViewColumn Width="200"
-                                            Header="Pixel Size(um/px)"
-                                            DisplayMemberBinding="{Binding Result.PixelSize, Mode=OneWay}" />
-                            <GridViewColumn Width="100"
-                                            Header="Calibrated"
-                                            DisplayMemberBinding="{Binding IsCalibrated, Mode=OneWay}" />
-                            <GridViewColumn Width="100"
-                                            Header="Verified"
-                                            DisplayMemberBinding="{Binding IsVerified, Mode=OneWay}" />
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Grid>
-        </GroupBox>
     </Grid>
 </UserControl>

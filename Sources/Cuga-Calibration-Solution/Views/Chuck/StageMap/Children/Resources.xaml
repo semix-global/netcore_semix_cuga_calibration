@@ -9,7 +9,6 @@
                     xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
                     xmlns:alignment="clr-namespace:Core.Models.Models.Common.Alignment;assembly=Core.Models"
                     xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
-                    xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
                     xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
                     mc:Ignorable="d">
     <Style x:Key="StageMapListViewItemStyle"
@@ -31,7 +30,7 @@
     </Style>
     <DataTemplate x:Key="AlignmentResultTemplate" DataType="{x:Type alignment:AlignmentResultDto}">
         <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-            <TextBox Text="{Binding Degrees, Mode=OneWay}"
+            <TextBox Text="{Binding Degrees, Mode=OneWay, StringFormat='0.##########'}"
                      hc:TitleElement.Title="Alignment Degrees(°): "
                      hc:TitleElement.TitlePlacement="Left"
                      hc:TitleElement.TitleWidth="190"
@@ -91,66 +90,6 @@
                               ContentTemplate="{StaticResource StageMapPlotTemplate}" />
         </Grid>
     </DataTemplate>
-    <DataTemplate x:Key="StageMapTemplateDetailsTemplate" DataType="{x:Type stageMap:StageMapTemplate}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <TextBox Text="{Binding DisplayIndex, Mode=OneWay}"
-                         hc:TitleElement.Title="Template Index: "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding FindBFMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                         hc:TitleElement.Title="BF Machine Position(um): "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding TemplateROI, Mode=OneWay, Converter={StaticResource RectToStringConverter}}"
-                         hc:TitleElement.Title="Template ROI(px): "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}" />
-                <TextBox Text="{Binding TemplateFilePath, Mode=OneWay}"
-                         Height="50"
-                         TextWrapping="Wrap"
-                         hc:TitleElement.Title="Template File Path: "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
-                <TextBox Text="{Binding TemplateImageFilePath, Mode=OneWay}"
-                         Height="50"
-                         TextWrapping="Wrap"
-                         hc:TitleElement.Title="Template Image File Path: "
-                         hc:TitleElement.TitlePlacement="Left"
-                         hc:TitleElement.TitleWidth="190"
-                         IsReadOnly="True"
-                         Background="{StaticResource SecondaryRegionBrush}"
-                         Style="{StaticResource TextBoxExtend}"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
-            </hc:UniformSpacingPanel>
-            <view:CanvasView Grid.Row="1"
-                             Margin="0,5,0,0"
-                             BackgroundColor="#0A0A0A"
-                             AxisColor="Red"
-                             Interactive="True"
-                             ShowAxes="True"
-                             ShowCursor="False"
-                             ShowGrid="False"
-                             BackgroundImage="{Binding TemplateImageFilePath, Mode=OneWay, Converter={StaticResource StringToBitmapSourceConverter}}" />
-        </Grid>
-    </DataTemplate>
     <DataTemplate x:Key="BFStageMapDocumentTemplate">
         <graphicsWPF:WPFCanvasControl Document="{Binding CalibratingItem.BFStageMapDocument, Mode=OneWay}" CursorTextVisibility="Collapsed">
             <graphicsWPF:WPFCanvasControl.Resources>
@@ -180,14 +119,7 @@
                                         Height="24"
                                         Margin="3,0"
                                         Padding="5,3"
-                                        ContentStringFormat="Goto {0}">
-                                    <Button.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                            <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type children:Step2View}}" />
-                                            <Binding Path="DataContext.AddBFStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type children:Step2View}}" />
-                                        </MultiBinding>
-                                    </Button.IsEnabled>
-                                </Button>
+                                        ContentStringFormat="Goto {0}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -240,14 +172,7 @@
                                         Height="24"
                                         Margin="3,0"
                                         Padding="5,3"
-                                        ContentStringFormat="Goto {0}">
-                                    <Button.IsEnabled>
-                                        <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                            <Binding Path="DataContext.Step6Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type children:Step6View}}" />
-                                            <Binding Path="DataContext.AddDFStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type children:Step6View}}" />
-                                        </MultiBinding>
-                                    </Button.IsEnabled>
-                                </Button>
+                                        ContentStringFormat="Goto {0}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -298,60 +223,12 @@
             </TabItem>
             <TabItem Header="BF Verify StageMap">
                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <ContentPresenter Content="{Binding BFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                        <hc:UniformSpacingPanel Grid.Row="1"
-                                                Orientation="Vertical"
-                                                Spacing="2">
-                            <TextBox Text="{Binding BFVerifyMaximumError, Mode=OneWay}"
-                                     hc:TitleElement.Title="Max |Error| X/Y(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="190"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding IsBFVerified, Mode=OneWay}"
-                                     hc:TitleElement.Title="BF Verified: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="190"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                    </Grid>
+                    <ContentPresenter Content="{Binding BFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
                 </Border>
             </TabItem>
             <TabItem Header="DF Verify StageMap">
                 <Border Margin="5" Style="{StaticResource BorderRegion}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <ContentPresenter Content="{Binding DFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
-                        <hc:UniformSpacingPanel Grid.Row="1"
-                                                Orientation="Vertical"
-                                                Spacing="2">
-                            <TextBox Text="{Binding DFVerifyMaximumError, Mode=OneWay}"
-                                     hc:TitleElement.Title="Max |Error| X/Y(um): "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="190"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                            <TextBox Text="{Binding IsDFVerified, Mode=OneWay}"
-                                     hc:TitleElement.Title="DF Verified: "
-                                     hc:TitleElement.TitlePlacement="Left"
-                                     hc:TitleElement.TitleWidth="190"
-                                     IsReadOnly="True"
-                                     Background="{StaticResource SecondaryRegionBrush}"
-                                     Style="{StaticResource TextBoxExtend}" />
-                        </hc:UniformSpacingPanel>
-                    </Grid>
+                    <ContentPresenter Content="{Binding DFVerifyStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
                 </Border>
             </TabItem>
         </TabControl>

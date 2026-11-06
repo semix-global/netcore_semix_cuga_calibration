@@ -46,16 +46,10 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
     public partial Vector BFVerifyMaximumError { get; set; }
 
     [ObservableProperty]
-    public partial bool IsBFVerified { get; set; }
-
-    [ObservableProperty]
     public partial StageMapResult DFVerifyStageMap { get; set; } = new();
 
     [ObservableProperty]
     public partial Vector DFVerifyMaximumError { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsDFVerified { get; set; }
 
     partial void OnDFRepeatStageMapsChanged(StageMapResult[] value)
     {
@@ -75,10 +69,8 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
         ExpandStageMap = ExpandStageMap.Clone(),
         BFVerifyStageMap = BFVerifyStageMap.Clone(),
         BFVerifyMaximumError = BFVerifyMaximumError,
-        IsBFVerified = IsBFVerified,
         DFVerifyStageMap = DFVerifyStageMap.Clone(),
         DFVerifyMaximumError = DFVerifyMaximumError,
-        IsDFVerified = IsDFVerified,
         IsCalibrated = IsCalibrated,
         IsVerified = IsVerified,
         IsRequiredSelfCheck = IsRequiredSelfCheck,

@@ -54,13 +54,7 @@
                             <Button Content="Action"
                                     Command="{Binding Step7Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step7Command.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step7CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -71,7 +65,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
+        <GroupBox Grid.Column="2" Header="DF StageMap">
             <Border Style="{StaticResource BorderRegion}">
                 <ContentPresenter Content="{Binding CalibratingItem.DFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
             </Border>

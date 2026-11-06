@@ -50,11 +50,13 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Result"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
                         <TextBox Text="{Binding CalibratingItem.IsCalibrated, Mode=OneWay}"
                                  hc:TitleElement.Title="Calibrated: "
                                  hc:TitleElement.TitlePlacement="Left"
@@ -75,13 +77,7 @@
                             <Button Content="Action"
                                     Command="{Binding Step9Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step9Command.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step9CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -92,7 +88,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
+        <GroupBox Grid.Column="2" Header="StageMap">
             <TabControl>
                 <i:Interaction.Behaviors>
                     <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />

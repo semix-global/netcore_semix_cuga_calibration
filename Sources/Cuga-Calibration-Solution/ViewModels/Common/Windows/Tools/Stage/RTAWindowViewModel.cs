@@ -153,13 +153,19 @@ public sealed partial class RTAWindowViewModel(
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
                 Guard.IsInRangeFor(index, stageMapDie.Markers);
 
-                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+                var darkFieldPositionTemp = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+                var darkFieldPosition = darkFieldPositionTemp - cibViewModel.GetCIBInformationOffset(
+                    StageCoordinateSystemEnum.Dark,
+                    Cache.ProductivityInformation,
+                    Cache.CIBInformation,
+                    Cache.MicroscopeLensInformation,
+                    isLineCentricityOffset: false);
 
                 var currentCIBLineCentricity = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>().Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.CIBInformation.PMTId);
                 stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
                     currentCIBLineCentricity.MicroscopeLensInformation,
                     microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), Cache.CalChipSiteModelEnum); // todo: 两边导航未撤销生成地图时添加的 CIB 偏移
+                    darkFieldPosition), Cache.CalChipSiteModelEnum);
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }

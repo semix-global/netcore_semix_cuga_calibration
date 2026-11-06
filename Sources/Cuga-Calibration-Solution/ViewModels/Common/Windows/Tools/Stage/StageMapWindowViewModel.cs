@@ -1,9 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Algorithm.Helper;
-using Core.Algorithm.Interfaces;
-using Core.Algorithm.Interfaces.TemplateMatch;
+using System.Threading.Channels;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models;
 using Core.Models.Enums.Stage;
@@ -224,13 +222,19 @@ public sealed partial class StageMapWindowViewModel(
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
                 Guard.IsInRangeFor(index, stageMapDie.Markers);
 
-                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+                var darkFieldPositionTemp = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+                var darkFieldPosition = darkFieldPositionTemp - cibViewModel.GetCIBInformationOffset(
+                    StageCoordinateSystemEnum.Dark,
+                    Cache.ProductivityInformation,
+                    Cache.CIBInformation,
+                    Cache.MicroscopeLensInformation,
+                    isLineCentricityOffset: false);
 
                 var currentCIBLineCentricity = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>().Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.CIBInformation.PMTId);
                 stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
                     currentCIBLineCentricity.MicroscopeLensInformation,
                     microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), CalChipSiteModelEnum.ChuckModel); // todo: 两边导航未撤销生成地图时添加的 CIB 偏移
+                    darkFieldPosition), CalChipSiteModelEnum.ChuckModel);
 
                 dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
             }
@@ -673,143 +677,94 @@ public sealed partial class StageMapWindowViewModel(
                 }
             }
 
-            for (var y = 0; y < yLength; y++)
+            using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var linkedToken = linkedCancellationTokenSource.Token;
+
+            // 容量为 2: Reader 匹配第 y 行时, Writer 可继续采集后续行, 取图与模板匹配流水线并行, 扫描无需等待匹配完成
+            var channel = Channel.CreateBounded<StageMapScanRow>(new BoundedChannelOptions(2) { SingleReader = true, SingleWriter = true, AllowSynchronousContinuations = true });
+
+            // Writer: 移动平台取图, 一行采完塞进 channel
+            var writerTask = Task.Run(async () =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                var isInWaferColumnIndexes = stageMap.IsInWaferMatrix[y]
-                    .Index()
-                    .Where(t => t.Item)
-                    .Select(t => t.Index)
-                    .ToArray();
-
-                var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[y][t]).ToArray();
-                if (points.Length == 0) continue;
-
-                logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, htmlLogUniqueId.LoggingHtml());
-
-                DarkFieldImageDTO[] darkFieldImages = [];
-
                 try
                 {
-                    stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
-                    darkFieldImages =
-                    [
-                        .. await cibViewModel.GetPMTImagesAsync(
-                            Cache.ProductivityInformation,
-                            StageCoordinateSystemEnum.Machine,
-                            points,
-                            Cache.ImageWidth,
-                            Cache.CIBInformation,
-                            (true, null),
-                            (false, Cache.OpticsConfiguration),
-                            (false, Cache.CIBConfiguration),
-                            (false, Cache.LaserLightInformation),
-                            false,
-                            cancellationToken)
-                    ];
-
-                    Guard.IsEqualTo(points.Length, darkFieldImages.Length);
-
-                    var tempY = y;
-                    await Parallel.ForEachAsync(isInWaferColumnIndexes.Index(), new ParallelOptions
+                    for (var y = 0; y < yLength; y++)
                     {
-                        CancellationToken = cancellationToken,
-                        MaxDegreeOfParallelism = Environment.ProcessorCount
-                    }, (item, token) =>
-                    {
-                        token.ThrowIfCancellationRequested();
+                        linkedToken.ThrowIfCancellationRequested();
 
-                        var (i, isInWaferColumnIndex) = item;
-                        var templateIdIndex = xDirection > 0 ? i % Cache.StageMapTemplates.Length : ^(i % Cache.StageMapTemplates.Length + 1);
+                        var isInWaferColumnIndexes = stageMap.IsInWaferMatrix[y]
+                            .Index()
+                            .Where(t => t.Item)
+                            .Select(t => t.Index)
+                            .ToArray();
 
-                        var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
-                        var imageBounds = new Rect(Point.Origin, darkFieldImages[i].Image.Size);
-                        var searchROI = Cache.IsROIMatchEnabled
-                            ? templateROI.Inflate(
-                                templateROI.Width * Cache.ROIMatchWidthScale,
-                                templateROI.Height * Cache.ROIMatchHeightScale).ClampToBounds(imageBounds)
-                            : imageBounds;
+                        var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[y][t]).ToArray();
+                        if (points.Length == 0) continue;
 
-                        using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
-                        using var roiImage = image.ToROI(searchROI);
+                        stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum.ChuckModel);
+                        DarkFieldImageDTO[] darkFieldImages =
+                        [
+                            .. await cibViewModel.GetPMTImagesAsync(
+                                Cache.ProductivityInformation,
+                                StageCoordinateSystemEnum.Machine,
+                                points,
+                                Cache.ImageWidth,
+                                Cache.CIBInformation,
+                                (true, null),
+                                (false, Cache.OpticsConfiguration),
+                                (false, Cache.CIBConfiguration),
+                                (false, Cache.LaserLightInformation),
+                                false,
+                                linkedToken).ConfigureAwait(false)
+                        ];
 
-                        var templateMatchRet = templateModels[templateIdIndex] is { } templateModel
-                            ? templateMatchEngine.Match(roiImage, new MatchTemplateParam { Model = templateModel, ScoreThreshold = templateMatchScoreThreshold }, htmlLogUniqueId)
-                            : null;
-                        var isSuccess = templateMatchRet?.Success ?? false;
-                        var matchPoint = templateMatchRet?.Data?.MarkPoint ?? Point.Origin;
-                        var matchOffset = templateMatchRet?.Data?.Offset ?? Point.Origin;
-                        var matchScore = templateMatchRet?.Data?.Score ?? 0;
-                        var matchAngle = templateMatchRet?.Data?.Angle ?? 0;
-                        var oldMatchPoint = matchPoint;
-                        var oldMatchOffset = matchOffset;
-                        if (Cache.IsROIMatchEnabled)
-                        {
-                            matchPoint += (Vector)searchROI.Point;
-                            var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
-                            matchOffset = new Point(offset.X, -offset.Y);
-                        }
-                        else
-                        {
-                            var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
-                            matchOffset = new Point(offset.X, -offset.Y);
-                        }
+                        Guard.IsEqualTo(points.Length, darkFieldImages.Length);
 
-                        var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
-                        image.SaveImage(resultImageFilePath);
-
-                        var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
-                        var templateImageSize = templateROI.Size;
-                        var centerOffset = templateModels[templateIdIndex]?.CenterOffset ?? Point.Origin;
-                        HtmlImageOverlay[] matchResultOverlays = TemplateMatchHtmlOverlay.CreateMatchResultOverlays(matchPoint, templateImageSize, centerOffset);
-                        HtmlImageOverlay[] resultImageOverlays = Cache.IsROIMatchEnabled
-                            ? [new HtmlImageRectangleOverlay(searchROI), .. matchResultOverlays]
-                            : matchResultOverlays;
-
-                        var htmlBullet = new HtmlBullet(new
-                        {
-                            IdealPoint = stageMap.IdealMatrix[tempY][isInWaferColumnIndex],
-                            templateROI,
-                            imageBounds,
-                            searchROI,
-                            roiImage.Size,
-                            oldMatchPoint,
-                            oldMatchOffset,
-                            matchPoint,
-                            matchOffset,
-                            matchScore,
-                            matchAngle,
-                            templateMatchScoreThreshold,
-                            vector,
-                            darkFieldImages[i].RawImageFilePath,
-                            HtmlTab = new HtmlTab(new
-                            {
-                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: resultImageOverlays),
-                                TemplateImage = new HtmlImage(Cache.StageMapTemplates[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, centerOffset)])
-                            })
-                        });
-
-                        if (isSuccess) logger.LogHtmlInformation($"{isInWaferColumnIndex} Ok", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
-                        else logger.LogHtmlError($"{isInWaferColumnIndex} Error", HtmlHeaderLevelEnum.Header6, htmlBullet, htmlLogUniqueId.LoggingHtml());
-
-                        stageMap.IsMatchMatrix[tempY][isInWaferColumnIndex] = isSuccess;
-                        if (isSuccess) stageMap.ErrorMatrix[tempY][isInWaferColumnIndex] = vector;
-
-                        stageMap.Refresh();
-
-                        return ValueTask.CompletedTask;
-                    }).ConfigureAwait(false);
-
-                    stageMap.Refresh();
+                        await channel.Writer.WriteAsync(new StageMapScanRow(y, isInWaferColumnIndexes, darkFieldImages), linkedToken).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    channel.Writer.TryComplete(ex);
+                    throw;
                 }
                 finally
                 {
-                    foreach (var darkFieldImage in darkFieldImages)
-                    {
-                        using var _ = darkFieldImage;
-                    }
+                    channel.Writer.TryComplete();
                 }
+            }, linkedToken);
+
+            // Reader: 从 channel 读一行, 并行模板匹配, 行结果写矩阵
+            try
+            {
+                await foreach (var row in channel.Reader.ReadAllAsync(linkedToken).ConfigureAwait(false))
+                {
+                    await ScanStageMapRowAsync(
+                        row,
+                        stageMap,
+                        templateIds,
+                        templateMatchScoreThreshold,
+                        xDirection,
+                        yDirection,
+                        xSize.XPixelSize,
+                        ySize.YPixelSize,
+                        htmlLogUniqueId,
+                        linkedToken).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                if (writerTask.IsCompleted == false) linkedCancellationTokenSource.Cancel();
+                try
+                {
+                    await writerTask.ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Writer 的异常已通过 channel 传递给 Reader, 此处避免二次抛出覆盖根因
+                }
+
+                while (channel.Reader.TryRead(out var row)) DisposeImages(row);
             }
 
             stageMap.Refresh();
@@ -820,8 +775,130 @@ public sealed partial class StageMapWindowViewModel(
         }
         finally
         {
-            foreach (var templateModel in templateModels) templateModel?.Dispose();
+            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), templateId);
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
+        }
+    }
+
+    private sealed record StageMapScanRow(int Y, int[] IsInWaferColumnIndexes, DarkFieldImageDTO[] Images);
+
+    private async Task ScanStageMapRowAsync(
+        StageMapScanRow row,
+        StageMap stageMap,
+        HTuple[] templateIds,
+        double templateMatchScoreThreshold,
+        double xDirection,
+        double yDirection,
+        double xPixelSize,
+        double yPixelSize,
+        Guid htmlLogUniqueId,
+        CancellationToken cancellationToken)
+    {
+        var y = row.Y;
+        var isInWaferColumnIndexes = row.IsInWaferColumnIndexes;
+        var darkFieldImages = row.Images;
+
+        try
+        {
+            var rowHtmlBullets = new HtmlBullet[isInWaferColumnIndexes.Length];
+
+            await Parallel.ForEachAsync(isInWaferColumnIndexes.Index(), new ParallelOptions
+            {
+                CancellationToken = cancellationToken,
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            }, (item, token) =>
+            {
+                token.ThrowIfCancellationRequested();
+
+                var (i, isInWaferColumnIndex) = item;
+                var templateIdIndex = xDirection > 0 ? i % Cache.StageMapTemplates.Length : ^(i % Cache.StageMapTemplates.Length + 1);
+
+                var templateROI = Cache.StageMapTemplates[templateIdIndex].TemplateROI;
+                var imageBounds = new Rect(Point.Origin, darkFieldImages[i].Image.Size);
+                var searchROI = Cache.IsROIMatchEnabled
+                    ? templateROI.Inflate(
+                        templateROI.Width * Cache.ROIMatchWidthScale,
+                        templateROI.Height * Cache.ROIMatchHeightScale).ClampToBounds(imageBounds)
+                    : imageBounds;
+
+                using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
+                using var roiImage = image.ToROI(searchROI);
+
+                var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
+                    Cache.TemplateMatchSetting.ToHalconTemplateType(),
+                    roiImage,
+                    templateIds[templateIdIndex],
+                    htmlLogUniqueId,
+                    out var matchPoint,
+                    out var matchOffset,
+                    out var matchScore,
+                    out var matchAngle);
+                var oldMatchPoint = matchPoint;
+                var oldMatchOffset = matchOffset;
+                if (Cache.IsROIMatchEnabled)
+                {
+                    matchPoint += (Vector)searchROI.Point;
+                    var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
+                    matchOffset = new Point(offset.X, -offset.Y);
+                }
+                else
+                {
+                    var offset = matchPoint - Cache.StageMapTemplates[templateIdIndex].TemplateROI.Center;
+                    matchOffset = new Point(offset.X, -offset.Y);
+                }
+
+                var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(Cache.StageMapTemplates[templateIdIndex].TemplateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
+                image.SaveImage(resultImageFilePath);
+
+                var vector = new Vector(xDirection * matchOffset.X * xPixelSize, yDirection * matchOffset.Y * yPixelSize);
+
+                rowHtmlBullets[i] = new HtmlBullet(new
+                {
+                    isInWaferColumnIndex,
+                    isSuccess,
+                    IdealPoint = stageMap.IdealMatrix[y][isInWaferColumnIndex],
+                    templateROI,
+                    imageBounds,
+                    searchROI,
+                    roiImage.Size,
+                    oldMatchPoint,
+                    oldMatchOffset,
+                    matchPoint,
+                    matchOffset,
+                    matchScore,
+                    matchAngle,
+                    templateMatchScoreThreshold,
+                    vector,
+                    darkFieldImages[i].RawImageFilePath,
+                    HtmlTab = new HtmlTab(new
+                    {
+                        ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(searchROI), new HtmlImageRectangleOverlay(templateROI), new HtmlImageCrossOverlay(matchPoint)]),
+                        TemplateImage = new HtmlImage(Cache.StageMapTemplates[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    })
+                });
+
+                stageMap.IsMatchMatrix[y][isInWaferColumnIndex] = isSuccess;
+                if (isSuccess) stageMap.ErrorMatrix[y][isInWaferColumnIndex] = vector;
+
+                return ValueTask.CompletedTask;
+            }).ConfigureAwait(false);
+
+            stageMap.Refresh();
+
+            // 每行一个 HtmlContainer: 流水线并发场景下, 行内列结果作为整体写入, 行间日志不交错
+            logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer([.. rowHtmlBullets]), htmlLogUniqueId.LoggingHtml());
+        }
+        finally
+        {
+            DisposeImages(row);
+        }
+    }
+
+    private static void DisposeImages(StageMapScanRow row)
+    {
+        foreach (var darkFieldImage in row.Images)
+        {
+            using var _ = darkFieldImage;
         }
     }
 

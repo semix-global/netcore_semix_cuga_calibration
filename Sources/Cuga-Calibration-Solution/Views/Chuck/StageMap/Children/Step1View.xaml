@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -40,25 +39,21 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <TextBlock Text="Param"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                        <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <ContentPresenter Content="{Binding CalibratingItem.BFAlignmentResult, Mode=OneWay}" ContentTemplate="{StaticResource AlignmentResultTemplate}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding Step1Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step1Command.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step1CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -69,10 +64,5 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
-            <Border Style="{StaticResource BorderRegion}">
-                <ContentPresenter Content="{Binding CalibratingItem.BFAlignmentResult, Mode=OneWay}" ContentTemplate="{StaticResource AlignmentResultTemplate}" />
-            </Border>
-        </GroupBox>
     </Grid>
 </UserControl>

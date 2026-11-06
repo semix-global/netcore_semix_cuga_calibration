@@ -42,72 +42,61 @@
             <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                            <hc:UniformSpacingPanel.IsEnabled>
-                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                    <Binding Path="Step4Command.IsRunning" />
-                                </MultiBinding>
-                            </hc:UniformSpacingPanel.IsEnabled>
+                        <StackPanel>
                             <TextBlock Text="Param"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
-                            <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}">
-                                <i:Interaction.Behaviors>
-                                    <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                </i:Interaction.Behaviors>
-                            </ComboBox>
-                            <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                                <i:Interaction.Behaviors>
-                                    <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                                </i:Interaction.Behaviors>
-                            </ComboBox>
-                            <ComboBox hc:TitleElement.Title="CIB Information: "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="190"
-                                      Style="{StaticResource ComboBoxExtend}"
-                                      ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                                <i:Interaction.Behaviors>
-                                    <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                                </i:Interaction.Behaviors>
-                            </ComboBox>
-                            <Expander Header="Optics Configuration"
-                                      IsExpanded="False"
-                                      ExpandDirection="Down">
-                                <Border Style="{StaticResource BorderRegion}">
-                                    <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.OpticsConfiguration}" />
-                                </Border>
-                            </Expander>
-                            <Expander Header="CIB Configuration"
-                                      IsExpanded="False"
-                                      ExpandDirection="Down">
-                                <Border Style="{StaticResource BorderRegion}">
-                                    <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.CIBConfiguration}" />
-                                </Border>
-                            </Expander>
-                        </hc:UniformSpacingPanel>
+                        </StackPanel>
+                        <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}">
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <ComboBox hc:TitleElement.Title="CIB Information: "
+                                  hc:TitleElement.TitlePlacement="Left"
+                                  hc:TitleElement.TitleWidth="190"
+                                  Style="{StaticResource ComboBoxExtend}"
+                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}">
+                            <i:Interaction.Behaviors>
+                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ChuckStageMapCacheDFItem.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                            </i:Interaction.Behaviors>
+                        </ComboBox>
+                        <Expander Header="Optics Configuration"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.OpticsConfiguration}" />
+                            </Border>
+                        </Expander>
+                        <Expander Header="CIB Configuration"
+                                  IsExpanded="False"
+                                  ExpandDirection="Down">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.ChuckStageMapCacheDFItem.CIBConfiguration}" />
+                            </Border>
+                        </Expander>
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
                             <Button Content="Action"
                                     Command="{Binding Step4Command}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}">
-                                <Button.IsEnabled>
-                                    <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                        <Binding Path="Step4Command.IsRunning" />
-                                    </MultiBinding>
-                                </Button.IsEnabled>
-                            </Button>
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
                                     Command="{Binding Step4CancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
@@ -118,7 +107,7 @@
             </Border>
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <GroupBox Grid.Column="2" Header="History">
+        <GroupBox Grid.Column="2" Header="BF StageMap">
             <Border Style="{StaticResource BorderRegion}">
                 <ContentPresenter Content="{Binding CalibratingItem.BFStageMap, Mode=OneWay}" ContentTemplate="{StaticResource StageMapPlotTemplate}" />
             </Border>
