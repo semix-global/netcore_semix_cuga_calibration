@@ -275,6 +275,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
+            StageMapCommands.IsDark = false;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
@@ -312,6 +314,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
+        StageMapCommands.IsDark = false;
+
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -414,6 +418,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
+            StageMapCommands.IsDark = true;
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
@@ -457,6 +463,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
+        StageMapCommands.IsDark = true;
+
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -499,6 +507,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
+        StageMapCommands.IsDark = true;
+
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -685,8 +695,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
             await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
-            CalibratingItem.BFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { CalibratingItem.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
+            Review.BFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
             StageMapCommands.IsDark = true;
             Logger.LogHtmlInformation("DF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
@@ -694,16 +704,16 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
             await StageMapCommands.VerifyAsync(CalibratingItem.ExpandStageMap, HtmlLogUniqueId, cancellationToken, isDownloadStageMap: true).ConfigureAwait(false);
-            CalibratingItem.DFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { CalibratingItem.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
+            Review.DFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
-            Review.IsVerified = CalibratingItem.BFVerifyMaxError.Length < Cache.Threshold && CalibratingItem.DFVerifyMaxError.Length < Cache.Threshold;
+            Review.IsVerified = Review.BFVerifyMaxError.Length < Cache.Threshold && Review.DFVerifyMaxError.Length < Cache.Threshold;
             Guard.IsTrue(Save(Review, cancellationToken));
 
             var htmlQuote = new HtmlQuote(new
             {
-                CalibratingItem.BFVerifyMaxError,
-                CalibratingItem.DFVerifyMaxError,
+                Review.BFVerifyMaxError,
+                Review.DFVerifyMaxError,
                 Review.IsVerified
             });
             if (Review.IsVerified)
@@ -717,8 +727,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
 
             DialogWindowProvider.ShowDialog($"""
                                              Verify : {(Review.IsVerified ? "OK" : "Failed")}
-                                             BF Max Error:{CalibratingItem.BFVerifyMaxError}
-                                             DF Max Error: {CalibratingItem.DFVerifyMaxError}
+                                             BF Max Error:{Review.BFVerifyMaxError}
+                                             DF Max Error: {Review.DFVerifyMaxError}
                                              """,
                 DialogButtonsEnum.OK,
                 Review.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);

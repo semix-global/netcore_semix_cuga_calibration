@@ -77,15 +77,15 @@
                                           Value="{Binding Cache.ChuckStageMapCacheBFItem.DiePitchHeight}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                             <Button Content="Mark"
-                                    Command="{Binding AddBFStageMapTemplateCommand}"
+                                    Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"
-                                    Command="{Binding AddBFStageMapTemplateCancelCommand}"
+                                    Command="{Binding StageMapCommands.AddStageMapTemplateCancelCommand}"
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                             <Button Content="Delete"
-                                    Command="{Binding Cache.RemoveBFStageMapTemplatesCommand}"
+                                    Command="{Binding Cache.ChuckStageMapCacheBFItem.RemoveStageMapTemplatesCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=BFStageMapTemplatesList}"
                                     hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                     Style="{StaticResource ButtonDanger}" />

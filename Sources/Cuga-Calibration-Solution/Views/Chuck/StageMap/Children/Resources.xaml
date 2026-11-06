@@ -114,7 +114,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
                                 <Button Content="{Binding DisplayIndex, Mode=OneWay}"
-                                        Command="{Binding DataContext.GotoBFStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}"
+                                        Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}"
                                         CommandParameter="{Binding}"
                                         Height="24"
                                         Margin="3,0"
@@ -167,7 +167,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
                                 <Button Content="{Binding DisplayIndex, Mode=OneWay}"
-                                        Command="{Binding DataContext.GotoDFStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}"
+                                        Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step6View}}}"
                                         CommandParameter="{Binding}"
                                         Height="24"
                                         Margin="3,0"
