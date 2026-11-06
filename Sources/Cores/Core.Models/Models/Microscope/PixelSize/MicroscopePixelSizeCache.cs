@@ -3,6 +3,8 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Pattern;
+using Core.Models.Models.Setting;
+using Net.Utilities.Calibration;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Models.Serializations;
 using System.Collections.Concurrent;
@@ -30,6 +32,9 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<Micr
     [ObservableProperty]
     public partial Size Threshold { get; set; }
 
+    /// <summary>BF 像素尺寸引擎参数设置（仿模板匹配范式，业务层 Cache 增设），供 PixelSizeSettingUserControl 绑定</summary>
+    public PixelSizeSetting PixelSizeSetting { get; set; } = new();
+
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>))]
     public ConcurrentDictionary<MicroscopeLensInformation, MicroscopePixelSizeCacheItem> Items { get; init; } = [];
 
@@ -38,10 +43,12 @@ public sealed partial class MicroscopePixelSizeCache : CalibrationCacheBase<Micr
 
     public override MicroscopePixelSizeCache Clone() => new()
     {
+        AlgorithmEngineTypeEnum = AlgorithmEngineTypeEnum,
         CalChipSiteModelEnum = CalChipSiteModelEnum,
         MicroscopeLensInformation = MicroscopeLensInformation.Clone(),
         AngleThreshold = AngleThreshold,
         Threshold = Threshold,
+        PixelSizeSetting = PixelSizeSetting.Clone(),
         Items = new ConcurrentDictionary<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(Items.Select(t => new KeyValuePair<MicroscopeLensInformation, MicroscopePixelSizeCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         Id = Id,
         Expiration = Expiration

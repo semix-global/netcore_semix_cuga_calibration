@@ -75,9 +75,14 @@ public static class CalibrationConstantsHelper
 
     #region 规则
 
-    public static string TemplatePathToTemplateImagePath(string templateFilePath) => $"{templateFilePath}.jpg";
+    public static string TemplatePathToTemplateImagePath(string templateFilePath) => $"{templateFilePath}.bmp";
 
-    public static string TemplatePathToOriginImagePath(string templateFilePath) => $"{templateFilePath}_Origin.jpg";
+    public static string TemplatePathToOriginImagePath(string templateFilePath) => $"{templateFilePath}_Origin.bmp";
+
+    /// <summary>
+    /// 模板匹配元数据 sidecar 文件路径（自定义模板中心等模板侧静态事实）
+    /// </summary>
+    public static string TemplatePathToTemplateMetaFilePath(string templateFilePath) => $"{templateFilePath}.json";
 
     #endregion 规则
 

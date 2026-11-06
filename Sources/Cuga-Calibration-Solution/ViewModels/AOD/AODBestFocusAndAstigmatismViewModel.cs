@@ -1,8 +1,10 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Models.BestFocus;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
+using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.AOD.BestFocusAndAstigmatism;
 using Core.Models.Models.AOD.Delay;
@@ -794,11 +796,9 @@ public sealed partial class AODBestFocusAndAstigmatismViewModel : CalibrationVie
 
             try
             {
-                var temp = darkFieldRawScanImage.Clone();
-                temp.IsKeepRawImageCIBProfileModeEnum = false;
-                using var image = temp.GetImage();
-
-                item = CalibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
+                using var darkFieldImage = new DarkFieldImageDTO().AdaptIn(darkFieldRawScanImage);
+                var bestFocusRet = AlgorithmEngines.BestFocus(Cache.AlgorithmEngineTypeEnum).Excute(darkFieldImage, new BestFocusEngineParam { StartEcs = startECS, StopEcs = stopECS, BestFocusType = Cache.AlgorithmBestFocusTypeEnum }, HtmlLogUniqueId);
+                item = bestFocusRet.Data ?? throw new CugaException(bestFocusRet.ErrorMsg);
                 item.RawImageFilePath = darkFieldRawScanImage.RawImageFilePath;
             }
             catch (Exception ex)

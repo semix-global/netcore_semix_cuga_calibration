@@ -12,12 +12,6 @@ public partial class AlignmentCacheBase : ObservableCacheBase
     public partial CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     /// <summary>
-    /// 算法匹配类型
-    /// </summary>
-    [ObservableProperty]
-    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; } = AlgorithmTemplateTypeEnum.Ncc;
-
-    /// <summary>
     /// 对准低倍率
     /// </summary>
     [ObservableProperty]

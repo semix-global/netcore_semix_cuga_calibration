@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Setting;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -17,16 +16,17 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
     [ObservableProperty]
     public partial MicroscopeLensInformation HighMicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
+    /// <summary>
+    /// 低倍率模板尺寸(MarkAlignSite1 参数, 匹配引导与模板由底层实现)
+    /// </summary>
     [ObservableProperty]
-    public partial AlgorithmTemplateSizeEnum LowSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
+    public partial AlgorithmTemplateSizeEnum LowTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 
+    /// <summary>
+    /// 高倍率模板尺寸(MarkAlignSite1 参数, 匹配引导与模板由底层实现)
+    /// </summary>
     [ObservableProperty]
-    public partial AlgorithmTemplateSizeEnum HighSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
-
-    [ObservableProperty]
-    public partial double NccTypeTemplateMatchScoreThreshold { get; set; } = 0.8;
-
-    public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+    public partial AlgorithmTemplateSizeEnum HighTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 
     /// <summary>
     /// 低倍率mark点1位置(wafer中间掩模版芯粒左上角)
@@ -51,12 +51,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
     /// </summary>
     [ObservableProperty]
     public partial AlignmentSiteDto HighSite2 { get; set; } = new();
-
-    [ObservableProperty]
-    public partial string LowSiteTemplateFilePath { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial string HighSiteTemplateFilePath { get; set; } = string.Empty;
 
     [Comparison(0.1d, NumberComparisonTypeEnum.GreaterThan, ErrorMessage = "Wafer radius must be greater than 0.1.")]
     public double WaferRadius
@@ -166,15 +160,12 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
     {
         LowMicroscopeLensInformation = LowMicroscopeLensInformation.Clone(),
         HighMicroscopeLensInformation = HighMicroscopeLensInformation.Clone(),
-        LowSizeEnum = LowSizeEnum,
-        HighSizeEnum = HighSizeEnum,
-        NccTypeTemplateMatchScoreThreshold = NccTypeTemplateMatchScoreThreshold,
         LowSite1 = LowSite1.Clone(),
         LowSite2 = LowSite2.Clone(),
         HighSite1 = HighSite1.Clone(),
         HighSite2 = HighSite2.Clone(),
-        LowSiteTemplateFilePath = LowSiteTemplateFilePath,
-        HighSiteTemplateFilePath = HighSiteTemplateFilePath,
+        LowTemplateSizeEnum = LowTemplateSizeEnum,
+        HighTemplateSizeEnum = HighTemplateSizeEnum,
         WaferRadius = WaferRadius,
         DiePitchWidth = DiePitchWidth,
         ReticleDieCountX = ReticleDieCountX,
@@ -203,7 +194,6 @@ public sealed partial class ChuckPrealignerCache : CalibrationCacheBase<ChuckPre
         WaferCenterThumb7 = [.. WaferCenterThumb7],
         WaferCenterThumb8 = [.. WaferCenterThumb8],
         Times = Times,
-        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

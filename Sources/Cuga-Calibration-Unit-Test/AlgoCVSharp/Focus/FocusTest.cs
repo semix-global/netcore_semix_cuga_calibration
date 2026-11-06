@@ -1,11 +1,12 @@
-#define FocusTest
+// 2026-10-24 裁定：弹窗/交互验收默认禁用（另开线程 ShowDialog 会卡住 testhost）；需要人工验收时再恢复下一行 #define
+// #define FocusTest
 
 using algocv_sharp;
 using AwesomeAssertions;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Setting;
 using Core.Services.Implements;
 using Microsoft.Extensions.Logging.Abstractions;
+using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using System.Globalization;
 using System.IO;

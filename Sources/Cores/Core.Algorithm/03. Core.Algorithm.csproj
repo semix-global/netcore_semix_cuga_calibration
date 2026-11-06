@@ -22,6 +22,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Core.Models\02. Core.Models.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
 </Project>

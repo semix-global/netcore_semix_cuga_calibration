@@ -1,4 +1,5 @@
-#define BfPixelSizeTest
+// 2026-10-24 裁定：弹窗/交互验收默认禁用（另开线程 ShowDialog 会卡住 testhost）；需要人工验收时再恢复下一行 #define
+// #define BfPixelSizeTest
 
 using algocv_sharp;
 using AwesomeAssertions;
@@ -27,6 +28,18 @@ public class BfPixelSizeTest(ITestOutputHelper testOutputHelper)
 {
     [Fact]
     public void TestStructSize() => BfPixelSizeEngine.CheckStructSize();
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers", "IDISP017:Prefer using", Justification = "Testing explicit Dispose behavior.")]
+    public void Engine_IsDisposed_ShouldReflectDisposeState()
+    {
+        var engine = new BfPixelSizeEngine(new BfPixelSizeConfig());
+        engine.IsDisposed.Should().BeFalse();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+    }
 
     /// <summary>三张常规档代表帧（与 algocv_sharp_test.DatasetRegression 同帧）。</summary>
     [Theory]
@@ -71,7 +84,7 @@ public class BfPixelSizeTest(ITestOutputHelper testOutputHelper)
 
     /// <summary>
     /// 全倍率用例：倍率-网格尺寸对应 5x-100um / 10x-50um / 50x-25um / 100x-10um / 150x-10um（AlgorithmStandardMaskSquareSizeEnum）。
-    /// 扫描窗按倍率预估（与 GetAlgoCVSharpPixelSize 服务档位一致）：Size100/Size50→400，Size25→500，Size10→600（150x 格距 431px 超默认 400 会直接失败 code=2）。
+    /// 扫描窗按倍率预估（沿原服务实现档位）：Size100/Size50→400，Size25→500，Size10→600（150x 格距 431px 超默认 400 会直接失败 code=2）。
     /// 期望格距为全倍率帧实测值（PixelSizeServiceTest 交叉验证：像素尺寸 = 网格尺寸 / 格距）。
     /// </summary>
     [Theory]

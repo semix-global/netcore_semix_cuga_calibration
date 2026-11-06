@@ -18,6 +18,7 @@
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
            xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
            xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+           xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            Width="1500"
            Height="1000"
@@ -152,7 +153,7 @@
                                                     <ComboBox hc:TitleElement.Title="Algorithm Engine Type: "
                                                               hc:TitleElement.TitlePlacement="Left"
                                                               hc:TitleElement.TitleWidth="160"
-                                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type algorithm:AlgorithmEngineTypeEnum}}}"
+                                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type calibrationAlgorithm:AlgorithmEngineTypeEnum}}}"
                                                               SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
                                                               Style="{StaticResource ComboBoxExtend}">
                                                         <ComboBox.ItemTemplate>

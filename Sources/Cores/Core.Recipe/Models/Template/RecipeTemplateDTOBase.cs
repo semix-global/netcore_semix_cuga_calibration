@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Models.Setting;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Recipe.Models.Template;
@@ -7,23 +8,22 @@ namespace Core.Recipe.Models.Template;
 public partial class RecipeTemplateDTOBase : ObservableObject
 {
     [ObservableProperty]
-    private int _templateId;
+    public partial int TemplateId { get; set; }
 
     [ObservableProperty]
-    private string? _remark;
+    public partial string? Remark { get; set; }
 
     [ObservableProperty]
-    private Point _maskReticlePosition;
+    public partial Point MaskReticlePosition { get; set; }
+    [ObservableProperty]
+    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
-    private AlgorithmTemplateTypeEnum _algorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum.Ncc;
+    public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateImageFilePath = string.Empty;
+    public partial string TemplateFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string _templateFilePath = string.Empty;
-
-    [ObservableProperty]
-    private AlgorithmTemplateSizeEnum _algorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum.Size256;
+    public partial AlgorithmTemplateSizeEnum AlgorithmTemplateSizeEnum { get; set; } = AlgorithmTemplateSizeEnum.Size256;
 }

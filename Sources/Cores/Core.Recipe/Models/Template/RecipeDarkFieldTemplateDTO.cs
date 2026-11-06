@@ -7,22 +7,22 @@ namespace Core.Recipe.Models.Template;
 public sealed partial class RecipeDarkFieldTemplateDTO : RecipeTemplateDTOBase, ICloneable<RecipeDarkFieldTemplateDTO>, IAdaptIn<RecipeDarkFieldTemplateDTO, RecipeDarkFieldTemplateDTO>
 {
     [ObservableProperty]
-    private ProductivityInformation _productivityInformation = ProductivityInformation.Default;
+    public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     [ObservableProperty]
-    private LaserLightInformation _laserLightInformation = LaserLightInformation.Default;
+    public partial LaserLightInformation LaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    private CIBConfiguration _cIBConfiguration = new();
+    public partial CIBConfiguration CIBConfiguration { get; set; } = new();
 
     [ObservableProperty]
-    private CIBInformation _cIBInformation = CIBInformation.Default;
+    public partial CIBInformation CIBInformation { get; set; } = CIBInformation.Default;
 
     [ObservableProperty]
-    private OpticsConfiguration _opticsConfiguration = new();
+    public partial OpticsConfiguration OpticsConfiguration { get; set; } = new();
 
     public RecipeDarkFieldTemplateDTO Clone() => new()
     {
@@ -35,7 +35,7 @@ public sealed partial class RecipeDarkFieldTemplateDTO : RecipeTemplateDTOBase, 
         TemplateId = TemplateId,
         Remark = Remark,
         MaskReticlePosition = MaskReticlePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         TemplateImageFilePath = TemplateImageFilePath,
         TemplateFilePath = TemplateFilePath,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum
@@ -46,7 +46,7 @@ public sealed partial class RecipeDarkFieldTemplateDTO : RecipeTemplateDTOBase, 
         TemplateId = obj.TemplateId;
         Remark = obj.Remark;
         MaskReticlePosition = obj.MaskReticlePosition;
-        AlgorithmTemplateTypeEnum = obj.AlgorithmTemplateTypeEnum;
+        TemplateMatchSetting = obj.TemplateMatchSetting.Clone();
         TemplateImageFilePath = obj.TemplateImageFilePath;
         TemplateFilePath = obj.TemplateFilePath;
         AlgorithmTemplateSizeEnum = obj.AlgorithmTemplateSizeEnum;

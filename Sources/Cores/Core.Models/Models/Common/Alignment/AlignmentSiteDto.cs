@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Extensions;
 using Core.Models.Models.Setting;
 using Net.Utilities.Mapper.Interfaces;
@@ -28,14 +27,15 @@ public sealed partial class AlignmentSiteDto :
     public partial AlignmentTemplateDto? Template { get; set; } = new();
 
     [ObservableProperty]
-    public partial AlgorithmTemplateTypeEnum AlgorithmTemplateTypeEnum { get; set; }
+    public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
     public partial double TemplateMatchScoreThreshold { get; set; } = 0.8;
 
     public void UpdateTemplateMatchScoreThreshold(CalibrationSetting calibrationSetting)
     {
-        TemplateMatchScoreThreshold = AlgorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
+        // alignment 底层固定 Halcon 引擎：阈值按 Halcon 模板类型（Ncc/Sharpe）分发，不随全局引擎切换
+        TemplateMatchScoreThreshold = TemplateMatchSetting.Halcon.TemplateType.ToTemplateMatchScoreThreshold(calibrationSetting);
     }
 
     public AlignmentSiteDto DegreeAngleByXy(double degree)
@@ -51,7 +51,7 @@ public sealed partial class AlignmentSiteDto :
     {
         Location = Location,
         Template = Template?.Clone(),
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         TemplateMatchScoreThreshold = TemplateMatchScoreThreshold
     };
 
@@ -59,7 +59,8 @@ public sealed partial class AlignmentSiteDto :
     {
         Location = Location.ToSxPointD(),
         Template = Template?.AdaptTo(),
-        Algo = AlgorithmTemplateTypeEnum.ToAlgorithmTemplateType(),
+        // 协议收口点：底层仅支持 Halcon 匹配，模板类型经 Halcon 子对象编码（底层替换为 algo 时仅需修改此处）
+        Algo = TemplateMatchSetting.Halcon.TemplateType.ToAlgorithmTemplateType(),
         Threshold = TemplateMatchScoreThreshold
     };
 
@@ -67,7 +68,8 @@ public sealed partial class AlignmentSiteDto :
     {
         Location = obj.Location.ToPoint();
         Template = obj.Template is not null ? new AlignmentTemplateDto().AdaptIn(obj.Template) : null;
-        AlgorithmTemplateTypeEnum = obj.Algo.ToAlgorithmTemplateTypeEnum();
+        // 协议收口点：远端模板类型解码回 Halcon 子对象（底层替换为 algo 时仅需修改此处）
+        TemplateMatchSetting = new TemplateMatchSetting { Halcon = new HalconTemplateMatchSetting { TemplateType = obj.Algo.ToAlgorithmTemplateTypeEnum() } };
         TemplateMatchScoreThreshold = obj.Threshold;
 
         return this;

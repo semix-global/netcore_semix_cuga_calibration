@@ -99,4 +99,18 @@ public static class EnumAlgorithmExtension
     public static Size ToSize(this AlgorithmStandardMaskSquareSizeEnum algorithmStandardMaskSquareSizeEnum) => new(Convert.ToInt32(algorithmStandardMaskSquareSizeEnum), Convert.ToInt32(algorithmStandardMaskSquareSizeEnum));
 
     #endregion StandardMaskSquareSize
+
+    #region PeriodOp
+
+    /// <summary>
+    /// 转为 AlgoCSharp 底层投影算子字符串
+    /// </summary>
+    public static string ToAlgoCvPeriodOp(this AlgorithmPeriodOpEnum periodOp) => periodOp switch
+    {
+        AlgorithmPeriodOpEnum.Std => "std",
+        AlgorithmPeriodOpEnum.Range => "range",
+        _ => "mean"
+    };
+
+    #endregion PeriodOp
 }

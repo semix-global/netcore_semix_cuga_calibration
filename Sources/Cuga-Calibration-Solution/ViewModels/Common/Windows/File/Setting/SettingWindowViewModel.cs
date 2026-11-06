@@ -167,7 +167,7 @@ public sealed partial class SettingWindowViewModel(
 
             if (await SettingRelationCalibrationViewModel.SavingAsync().ConfigureAwait(false) == false)
             {
-                dialogWindowProvider.ShowDialog("Save Disable Calibration Config Failed, Please Check Settings and try again!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                dialogWindowProvider.ShowDialog("Save Calibration Relation Config Failed, Please Check Settings and try again!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
                 return;
             }
 

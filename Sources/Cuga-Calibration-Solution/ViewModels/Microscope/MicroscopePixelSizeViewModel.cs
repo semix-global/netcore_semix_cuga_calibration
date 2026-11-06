@@ -1,8 +1,10 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Interfaces.PixelSize;
+using Core.Algorithm.Models.PixelSize;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
+using Core.Models.Exceptions;
 using Core.Models.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
@@ -330,15 +332,21 @@ public sealed partial class MicroscopePixelSizeViewModel : CalibrationViewModelB
 
             using var image = ReviewViewModel.GetBrightFieldImage();
 
-            var pixelSize = CalibrationAlgorithmService.GetPixelSize(image, Cache.Item.AlgorithmStandardMaskSquareSizeEnum.ToSize(), HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum, out var drawingImage, out var angle);
+            var pixelSizeRet = AlgorithmEngines.PixelSize(Cache.AlgorithmEngineTypeEnum).Excute(
+                image,
+                Cache.PixelSizeSetting.ToPixelSizeEngineParam(Cache.AlgorithmEngineTypeEnum, Cache.Item.AlgorithmStandardMaskSquareSizeEnum),
+                HtmlLogUniqueId);
+            if (pixelSizeRet.Data is null) throw new CugaException(pixelSizeRet.ErrorMsg);
+            var pixelSize = pixelSizeRet.Data.PixelSize;
+            var angle = pixelSizeRet.Data.Angle;
             if (Math.Abs(angle) > Cache.AngleThreshold)
             {
-                LogFailure($"The current horizontal angle exceeds the limit! Angle: {angle}, AngleThreshold: {Cache.AngleThreshold},Repeat Time: {times}/{repeatCount}", HtmlHeaderLevelEnum.Header5, nameof(CalibrationAlgorithmService.GetPixelSize));
+                LogFailure($"The current horizontal angle exceeds the limit! Angle: {angle}, AngleThreshold: {Cache.AngleThreshold},Repeat Time: {times}/{repeatCount}", HtmlHeaderLevelEnum.Header5, nameof(IPixelSizeEngine.Excute));
 
                 return false;
             }
 
-            using var _2 = drawingImage;
+            using var drawingImage = pixelSizeRet.Data.DrawingImage;
             var microscopePixelSizeItem = new MicroscopePixelSizeDTOItem
             {
                 Index = times - 1,

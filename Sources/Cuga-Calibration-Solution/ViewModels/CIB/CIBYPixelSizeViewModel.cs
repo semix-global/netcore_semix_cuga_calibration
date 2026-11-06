@@ -2,9 +2,10 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Models.TemplateMatch;
+using Core.Algorithm.Models.YPixelSize;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
-using Core.Models.Extensions;
+using Core.Models.Exceptions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -479,18 +480,20 @@ public sealed partial class CIBYPixelSizeViewModel : CalibrationViewModelBase<CI
             false,
             cancellationToken);
 
-        var yPixelSize = CalibrationAlgorithmService.GetYPixelSize(darkFieldImage.Image, AlgorithmStandardMaskSquareSizeEnum.Size10.ToSize().Height, HtmlLogUniqueId, Cache.AlgorithmEngineTypeEnum, out var drawImageObj, out var yProjects, out var algoIndexes);
+        var yPixelSizeRet = AlgorithmEngines.YPixelSize(Cache.AlgorithmEngineTypeEnum).Excute(darkFieldImage, Cache.YPixelSizeSetting.ToYPixelSizeEngineParam(Cache.AlgorithmEngineTypeEnum, AlgorithmStandardMaskSquareSizeEnum.Size10), HtmlLogUniqueId);
+        if (yPixelSizeRet.Data is null) throw new CugaException(yPixelSizeRet.ErrorMsg);
+        var yPixelSize = yPixelSizeRet.Data.YPixelSize;
         cibYPixelSizeDTO.YPixelSize = yPixelSize;
-        cibYPixelSizeDTO.YProjects = yProjects;
-        cibYPixelSizeDTO.AlgorithmIndexes = algoIndexes;
+        cibYPixelSizeDTO.YProjects = yPixelSizeRet.Data.YProjects;
+        cibYPixelSizeDTO.AlgorithmIndexes = yPixelSizeRet.Data.ResultIndexes;
 
         cibYPixelSizeDTO.FilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_Guid({HtmlLogUniqueId}).jpg");
         cibYPixelSizeDTO.DrawImageFilePath = Path.Combine(ImageFileDirectory, $"PMTId({cibYPixelSizeDTO.PmtId})_YPixelSize({cibYPixelSizeDTO.YPixelSize:f3})_DrawImage_Guid({HtmlLogUniqueId}).jpg");
         cibYPixelSizeDTO.RawFilePath = darkFieldImage.RawImageFilePath;
 
-        using var _ = drawImageObj;
+        using var _ = yPixelSizeRet.Data.DrawingImage;
         darkFieldImage.Image.SaveImage(cibYPixelSizeDTO.FilePath);
-        drawImageObj.SaveImage(cibYPixelSizeDTO.DrawImageFilePath);
+        yPixelSizeRet.Data.DrawingImage.SaveImage(cibYPixelSizeDTO.DrawImageFilePath);
 
         Logger.LogHtmlInformation($"Get Y Pixel Size Success:PMT ID {cibYPixelSizeDTO.PmtId}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
         {

@@ -113,8 +113,10 @@ public class AlgoCVSharpImageCoreTest
     public void Dispose_ShouldReleaseNativeMemory()
     {
         var image = new algocv_sharp.Image(10, 10, 1, ImageDataType.UInt8);
+        image.IsDisposed.Should().BeFalse();
         image.Dispose();
 
+        image.IsDisposed.Should().BeTrue();
         image.DataPtr.Should().Be(IntPtr.Zero);
         image.IsEmpty.Should().BeTrue();
     }
@@ -129,6 +131,7 @@ public class AlgoCVSharpImageCoreTest
 
         var act = () => image.Dispose();
         act.Should().NotThrow();
+        image.IsDisposed.Should().BeTrue();
     }
 
     [Fact]

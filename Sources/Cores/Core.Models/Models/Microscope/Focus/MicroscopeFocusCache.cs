@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Recipe.Wafer;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Calibration;
 using Net.Utilities.DataAnnotations;
 using Net.Utilities.Models.Enums.Maths;
 using Net.Utilities.Models.Geometries;
@@ -32,7 +33,7 @@ public sealed partial class MicroscopeFocusCache : CalibrationCacheBase<Microsco
     public partial int ParfocalThreshold { get; set; }
 
     [ObservableProperty]
-    public partial Enums.Algorithm.AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = Enums.Algorithm.AlgorithmEngineTypeEnum.HAlgorithm;
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<MicroscopeLensInformation, MicroscopeFocusCacheItem>))]
     public ConcurrentDictionary<MicroscopeLensInformation, MicroscopeFocusCacheItem> Items { get; init; } = [];

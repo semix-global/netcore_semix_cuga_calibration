@@ -1,4 +1,4 @@
-using Core.Models.Enums.Algorithm;
+using Net.Utilities.Calibration;
 using System.Windows;
 using System.Windows.Controls;
 

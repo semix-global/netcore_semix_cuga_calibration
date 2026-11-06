@@ -11,12 +11,10 @@ using Core.Models.Models.Microscope.CalChip;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -374,9 +372,7 @@ public sealed partial class AODAlignmentViewModel : CalibrationViewModelBase<AOD
 
                             item.ImageFilePath = imageFilePath;
                             item.RawImageFilePath = darkFieldImage.RawImageFilePath;
-
-                            using var hImage = darkFieldImage.Image.ToHImage();
-                            item.ImageHorizontalProjects = hImage.GetHorizontalProjects();
+                            item.ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects();
 
                             var peakStatus = AssignPeak(item);
                             channel.Items = [.. channel.Items, item];

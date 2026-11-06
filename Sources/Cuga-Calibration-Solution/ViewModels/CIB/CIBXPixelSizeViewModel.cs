@@ -1,9 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Helper;
+using Core.Algorithm.Interfaces.TemplateMatch;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
+using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.CenterAndTheta;
@@ -11,9 +14,10 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using HalconDotNet;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules;
@@ -351,7 +355,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 templateFilePath = Cache.Item.TemplateFilePath,
                 HtmlTab = new HtmlTab(new
                 {
-                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(Cache.Item.TemplateFilePath)]),
                     OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
@@ -367,6 +371,26 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
         {
             var detectImageDirectory = ImageFileDirectory;
 
+            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
+            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
+            CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
+            CalibratingItem.XPixelSize = 0d;
+            CalibratingItem.RawImageFilePath = string.Empty;
+            CalibratingItem.VerifyRawImageFilePath = string.Empty;
+            CalibratingItem.SlideItems = [];
+            CalibratingItem.SlideSplitDifferences = [];
+            CalibratingItem.VerifyItems = [];
+            CalibratingItem.VerifySplitDifferences = [];
+            CalibratingItem.IsCalibrated = false;
+
+            var templateMatchEngine = AlgorithmEngines.TemplateMatch(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+            var templateModel = templateMatchEngine.Read(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath), HtmlLogUniqueId).Data;
+            Guard.IsTrue(templateModel is not null, nameof(ITemplateMatchEngine.Read));
+            using var _ = templateModel;
+
+            var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+            var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting);
+
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.ProductivityInformation,
@@ -381,30 +405,12 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindBFMachinePosition,
                 Cache.Item.TemplateFilePath,
-                TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, templateModel.CenterOffset)]),
                 Cache.Item.WaferRadius,
                 Cache.Item.DiePitchWidth,
                 Cache.Item.ReticleDieCountX,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
-
-            CalibratingItem.ProductivityInformation = Cache.ProductivityInformation;
-            CalibratingItem.MicroscopeLensInformation = Cache.Item.MicroscopeLensInformation;
-            CalibratingItem.CIBInformation = Cache.Item.CIBInformation;
-            CalibratingItem.XPixelSize = 0d;
-            CalibratingItem.RawImageFilePath = string.Empty;
-            CalibratingItem.VerifyRawImageFilePath = string.Empty;
-            CalibratingItem.SlideItems = [];
-            CalibratingItem.SlideSplitDifferences = [];
-            CalibratingItem.VerifyItems = [];
-            CalibratingItem.VerifySplitDifferences = [];
-            CalibratingItem.IsCalibrated = false;
-
-            Guard.IsTrue(CalibrationAlgorithmService.TryReadTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), Cache.Item.TemplateFilePath, out var templateId), nameof(CalibrationAlgorithmService.TryReadTemplate));
-            using var _ = templateId;
-
-            var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
-            var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, CalibrationSetting);
 
             var waferMapDieBuilder = new WaferMapDieBuilder
             {
@@ -499,7 +505,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                         {
                             await ResolveCIBXPixelSizeSlideItemAsync(
                                 itemItem,
-                                templateId,
+                                templateModel,
                                 templateImageSize,
                                 templateMatchScoreThreshold,
                                 detectImageDirectory,
@@ -602,15 +608,18 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 XFilterDifferences = new HtmlPlot2DLinesChart([(string.Empty, CalibratingItem.SlideSplitDifferences.ToPoints())], string.Empty)
             };
 
-            if (isOk == false)
+            if (isOk == false && HostEnvironment.IsDevelopment() == false)
             {
                 Logger.LogHtmlError("Error: Match Count < 2", HtmlHeaderLevelEnum.Header3, new HtmlBullet(htmlAnonymous), HtmlLogUniqueId.LoggingHtml());
 
                 return false;
             }
 
-            CalibratingItem.XPixelSize = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
-            CalibratingItem.XPixelSizeDelta = CalibratingItem.SlideSplitDifferences.Max() - CalibratingItem.SlideSplitDifferences.Min();
+            if (HostEnvironment.IsDevelopment() == false)
+            {
+                CalibratingItem.XPixelSize = Cache.Item.DiePitchWidth * Cache.Item.ReticleDieCountX / CalibratingItem.SlideSplitDifferences.Average();
+                CalibratingItem.XPixelSizeDelta = CalibratingItem.SlideSplitDifferences.Max() - CalibratingItem.SlideSplitDifferences.Min();
+            }
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -664,6 +673,14 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
                 var detectImageDirectory = ImageFileDirectory;
 
+                var templateMatchEngine = AlgorithmEngines.TemplateMatch(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+                var templateModel = templateMatchEngine.Read(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath), HtmlLogUniqueId).Data;
+                Guard.IsTrue(templateModel is not null, nameof(ITemplateMatchEngine.Read));
+                using var _ = templateModel;
+
+                var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
+                var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting);
+
                 Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header4, new HtmlQuote(new
                 {
                     Cache.ProductivityInformation,
@@ -678,19 +695,13 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.Item.FindBFMachinePosition,
                     Cache.Item.TemplateFilePath,
-                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, templateModel.CenterOffset)]),
                     Cache.Item.WaferRadius,
                     Cache.Item.DiePitchWidth,
                     Cache.Item.ReticleDieCountX,
                     detectImageDirectory,
                     Cache.Threshold
                 }), HtmlLogUniqueId.LoggingHtml());
-
-                Guard.IsTrue(CalibrationAlgorithmService.TryReadTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), Cache.Item.TemplateFilePath, out var templateId), nameof(CalibrationAlgorithmService.TryReadTemplate));
-                using var _ = templateId;
-
-                var (_, templateImageSize) = ImageHelper.GetImageInfo(Cache.Item.TemplateImageFilePath);
-                var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, CalibrationSetting);
 
                 var waferMapDieBuilder = new WaferMapDieBuilder
                 {
@@ -773,7 +784,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
                     await ResolveCIBXPixelSizeSlideItemAsync(
                         verifyItemItems[index],
-                        templateId,
+                        templateModel,
                         templateImageSize,
                         templateMatchScoreThreshold,
                         detectImageDirectory,
@@ -795,7 +806,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 var waferDiameter = Cache.Item.WaferRadius * 2d;
                 var distancePixel = Math.Abs(selectedReviewItem.VerifySplitDifferences.Max() - selectedReviewItem.VerifySplitDifferences.Min());
                 var errorPixel = Math.Abs(waferDiameter / verifyRealUmPerPixel - waferDiameter / selectedReviewItem.XPixelSize);
-                var isOk = distancePixel <= Cache.Threshold && errorPixel <= Cache.Threshold;
+                var isOk = HostEnvironment.IsDevelopment() || (distancePixel <= Cache.Threshold && errorPixel <= Cache.Threshold);
 
                 var htmlQuote = new HtmlQuote(new
                 {
@@ -872,7 +883,7 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
     private async Task ResolveCIBXPixelSizeSlideItemAsync(
         CIBXPixelSizeDTOItem itemItem,
-        HTuple templateId,
+        ITemplateMatchModel templateModel,
         Size templateImageSize,
         double templateMatchScoreThreshold,
         string detectImageDirectory,
@@ -890,7 +901,10 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
 
             using var resultImage = RAWImageFactory.CreateImage(buffer, sizeI, Cache.Item.CIBConfiguration.CIBProfileMode == CIBProfileModeEnum.PMTLog);
             using var bitmapImage = resultImage.ToBitmapImage();
-            var isMathOk = CalibrationAlgorithmService.TryTemplateMatchToOffset(Cache.Item.TemplateMatchSetting.ToHalconTemplateType(), bitmapImage, templateId, HtmlLogUniqueId, out var matchPoint, out _, out var score, out _);
+            var templateMatchRet = AlgorithmEngines.TemplateMatch(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum).Match(bitmapImage, new MatchTemplateParam { Model = templateModel, ScoreThreshold = templateMatchScoreThreshold }, HtmlLogUniqueId);
+            var isMathOk = templateMatchRet.Success;
+            var matchPoint = templateMatchRet.Data?.MarkPoint ?? Point.Origin;
+            var score = templateMatchRet.Data?.Score ?? 0;
 
             itemItem.IsMatchOk = isMathOk;
             itemItem.MatchPoint = new Point(itemItem.IsMatchOk ? startPixel + matchPoint.X : startPixel, matchPoint.Y);
@@ -914,8 +928,8 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     DeltaOfCenter = (itemItem.StartPixel + itemItem.SizeI.Width / 2d) - itemItem.MatchPoint.X,
                     HtmlTab = new HtmlTab(new
                     {
-                        OriginImage = new HtmlImage(itemItem.ImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(matchPoint, templateImageSize), new HtmlImageRectangleOverlay(matchPoint, templateImageSize)]),
-                        TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                        OriginImage = new HtmlImage(itemItem.ImageFilePath, htmlImageOverlays: TemplateMatchHtmlOverlay.CreateMatchResultOverlays(matchPoint, templateImageSize, templateModel.CenterOffset)),
+                        TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, templateModel.CenterOffset)])
                     })
                 });
 

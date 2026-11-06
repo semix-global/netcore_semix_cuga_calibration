@@ -1,7 +1,7 @@
 using algocv_sharp;
 using AwesomeAssertions;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Xunit.Abstractions;
 using AlgoCvImage = algocv_sharp.Image;
@@ -18,8 +18,8 @@ public class BestFocusTransposeArbitrationTest(ITestOutputHelper testOutputHelpe
         using var engineB = new BestFocusEngine(new BestFocusConfig());
         using var resultB = engineB.Process(imageB);
 
-        using var hImage = RAWImageFactory.CreateImage(filePath, true);
-        using var bitmapImage = hImage.ToBitmapImage();
+        using var hImage = RAWImageFactory.CreateImage(filePath, false);
+        using var bitmapImage = hImage.ToBitmapImage(12);
         using var uprightImage = bitmapImage.ToAlgoCVImage();
         using var imageA = algocv_sharp.ImageProc.Transpose(uprightImage);
         using var engineA = new BestFocusEngine(new BestFocusConfig());

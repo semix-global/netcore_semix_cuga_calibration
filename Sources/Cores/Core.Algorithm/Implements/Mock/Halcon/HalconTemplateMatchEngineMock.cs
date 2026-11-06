@@ -1,6 +1,7 @@
 using Core.Algorithm.Helper;
 using Core.Algorithm.Interfaces;
 using Core.Algorithm.Interfaces.TemplateMatch;
+using Core.Algorithm.Models;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Net.Utilities.Algorithms.Halcon.Extensions;
@@ -11,9 +12,13 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Algorithm.Implements.Mock.Halcon;
 
-internal sealed class HalconTemplateMatchModelMock(AlgorithmTemplateTypeEnum templateType) : ITemplateMatchModel
+internal sealed class HalconTemplateMatchModelMock(
+    AlgorithmTemplateTypeEnum templateType,
+    Point centerOffset = default) : ITemplateMatchModel
 {
     public AlgorithmTemplateTypeEnum TemplateType { get; } = templateType;
+
+    public Point CenterOffset { get; } = centerOffset;
 
     public void Dispose()
     {
@@ -24,7 +29,7 @@ public sealed class HalconTemplateMatchEngineMock : ITemplateMatchEngine
 {
     public AlgorithmResultRet<ITemplateMatchModel> Generate(BitmapImage image, GenerateTemplateParam param, Guid guid)
     {
-        if (TemplateMatchEngineParams.TryGet<HalconTemplateMatchParams>(param.EngineParams, out var halconParams, out var engineParamsError) == false)
+        if (EngineParams.TryGet<HalconTemplateMatchParams>(param.EngineParams, out var halconParams, out var engineParamsError) == false)
         {
             return AlgorithmResultRet.CreateError<ITemplateMatchModel>(engineParamsError);
         }
@@ -36,30 +41,34 @@ public sealed class HalconTemplateMatchEngineMock : ITemplateMatchEngine
         roiImage.Save(AlgorithmConstantHelper.TemplatePathToTemplateImagePath(param.TemplateFilePath));
         image.SaveImage(AlgorithmConstantHelper.TemplatePathToTemplateOriginImagePath(param.TemplateFilePath));
 
+        var meta = param.ToTemplateMatchMeta();
+        TemplateMatchMeta.Save(param.TemplateFilePath, meta);
+
 #pragma warning disable IDISP004
-        return AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new HalconTemplateMatchModelMock(halconParams.TemplateType));
+        return AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new HalconTemplateMatchModelMock(halconParams.TemplateType, meta.CenterOffset));
 #pragma warning restore IDISP004
     }
 
     public AlgorithmResultRet<ITemplateMatchModel> Read(ReadTemplateParam param, Guid guid)
     {
-        return TemplateMatchEngineParams.TryGet<HalconTemplateMatchParams>(param.EngineParams, out var halconParams, out var engineParamsError) == false
+        return EngineParams.TryGet<HalconTemplateMatchParams>(param.EngineParams, out var halconParams, out var engineParamsError) == false
             ? AlgorithmResultRet.CreateError<ITemplateMatchModel>(engineParamsError)
-            : AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new HalconTemplateMatchModelMock(halconParams.TemplateType));
+            : AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new HalconTemplateMatchModelMock(halconParams.TemplateType, TemplateMatchMeta.Load(param.TemplateFilePath).CenterOffset));
     }
 
     public AlgorithmResultRet<MatchTemplateResult> Match(BitmapImage image, MatchTemplateParam param, Guid guid)
     {
-        if (param.Model is not HalconTemplateMatchModelMock)
+        if (param.Model is not HalconTemplateMatchModelMock model)
         {
             return AlgorithmResultRet.CreateError<MatchTemplateResult>($"Model must be {nameof(HalconTemplateMatchModelMock)}");
         }
 
-        var markPoint = new Point(image.Width / 2d, image.Height / 2d);
+        var markPoint = new Point(image.Width / 2d, image.Height / 2d) + new TemplateMatchPose(0d).Transform(model.CenterOffset);
+        var offset = markPoint - new Point(image.Width / 2d, image.Height / 2d);
         var result = new MatchTemplateResult
         {
             MarkPoint = markPoint,
-            Offset = Point.Origin,
+            Offset = new Point(offset.X, -offset.Y),
             Score = 1d,
             Angle = 0d
         };

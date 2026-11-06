@@ -1,9 +1,12 @@
-#define BestFocusTest
+// 2026-10-24 裁定：弹窗/交互验收默认禁用（另开线程 ShowDialog 会卡住 testhost）；需要人工验收时再恢复下一行 #define
+// #define BestFocusTest
 
 using AwesomeAssertions;
 using Core.Models.Enums.Algorithm;
+using Core.Models.Enums.CIB;
+using Core.Models.Models.Common.DarkField;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;
 using Xunit.Abstractions;
 using AlgoCvImage = algocv_sharp.Image;
@@ -29,14 +32,17 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
     [InlineData(@"Assets\BestFocus16.3.raw", AlgorithmBestFocusTypeEnum.DSW)]
     public void GetBestFocus_ShouldReturnValidBestFocus(string filePath, AlgorithmBestFocusTypeEnum bestFocusType)
     {
-        // 按生产路径加载 raw 文件并线性化（同 CalibrationAlgorithmServiceMockImpl.GetBestFocus）
-        using var hImage = RAWImageFactory.CreateImage(filePath, true);
-        using var image = hImage.ToBitmapImage();
+        using var darkFieldImage = new DarkFieldImageDTO
+        {
+            RawImageFilePath = filePath,
+            RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
+            IsKeepRawImageCIBProfileModeEnum = false
+        };
 
         const double startEcs = 0d;
         const double stopEcs = 100d;
 
-        var bestFocus = image.ToBestFocus(startEcs, stopEcs, bestFocusType, Guid.NewGuid());
+        var bestFocus = darkFieldImage.ToBestFocus(startEcs, stopEcs, bestFocusType, Guid.NewGuid());
 
         testOutputHelper.WriteLine($"BestXStrehlRatioPoint: ({bestFocus.BestXStrehlRatioPoint.X:0.####}, {bestFocus.BestXStrehlRatioPoint.Y:0.####})");
         testOutputHelper.WriteLine($"BestYStrehlRatioPoint: ({bestFocus.BestYStrehlRatioPoint.X:0.####}, {bestFocus.BestYStrehlRatioPoint.Y:0.####})");
@@ -51,7 +57,7 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
         bestFocus.YStrehlRatioPoints.Should().NotBeEmpty();
         bestFocus.XStrehlRatioPoints.Count.Should().Be(bestFocus.YStrehlRatioPoints.Count);
 
-        // X/YStrehlRatioFitPoints 生产端暂未实现（见 CalibrationAlgorithmServiceImpl.ConvertToBestFocus 注释），不再断言
+        // X/YStrehlRatioFitPoints 生产端暂未实现（见 AlgoCvBestFocusEngine.ConvertToBestFocus 注释），不再断言
 
         bestFocus.XStrehlRatioColumnPoints.Should().NotBeEmpty();
         bestFocus.YStrehlRatioColumnPoints.Should().NotBeEmpty();
@@ -117,7 +123,7 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
     }
 
     /// <summary>
-    /// 校验 1.3.0 原生结构体内存布局与托管侧一致.
+    /// 校验 1.4.1 原生结构体内存布局与托管侧一致.
     /// </summary>
     [Fact]
     public void CheckStructSize_ShouldNotThrow()
@@ -227,22 +233,49 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
     {
         using var image = LoadAlgoCvImage(filePath, false);
         var engine = new BestFocusEngine(new BestFocusConfig());
+        engine.IsDisposed.Should().BeFalse();
         engine.Dispose();
 
+        engine.IsDisposed.Should().BeTrue();
         var act = () => engine.Process(image, XAxis.Col);
 
         act.Should().Throw<ObjectDisposedException>();
     }
 
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers", "IDISP017:Prefer using", Justification = "Testing explicit Dispose behavior.")]
+    public void Engine_IsDisposed_ShouldReflectDisposeState()
+    {
+        var engine = new BestFocusEngine(new BestFocusConfig());
+        engine.IsDisposed.Should().BeFalse();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+        engine.Dispose();
+        engine.IsDisposed.Should().BeTrue();
+    }
+
+    [Fact]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers", "IDISP016:Don't use disposed instance", Justification = "Intentionally verifying double Dispose is safe.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers", "IDISP017:Prefer using", Justification = "Testing explicit Dispose behavior.")]
+    public void Result_Dispose_CalledTwice_ShouldNotThrow()
+    {
+        using var image = LoadAlgoCvImage(@"Assets\BestFocus16.3.raw", false);
+        var result = BestFocusEngine.ProcessDSW163(image, XAxis.Col);
+        result.Dispose();
+
+        var act = () => result.Dispose();
+        act.Should().NotThrow();
+    }
+
     /// <summary>
-    /// 按生产路径加载 raw 并转换为 algocv 图像.
+    /// 按生产路径加载 log 域 RAW 原位深图并转换为 algocv 图像.
     /// </summary>
     /// <param name="filePath">raw 文件路径.</param>
     /// <param name="isRawSource">true 转置为竖图, false 保持正向.</param>
     private static AlgoCvImage LoadAlgoCvImage(string filePath, bool isRawSource)
     {
-        using var hImage = RAWImageFactory.CreateImage(filePath, true);
-        using var bitmapImage = hImage.ToBitmapImage();
+        using var hImage = RAWImageFactory.CreateImage(filePath, false);
+        using var bitmapImage = hImage.ToBitmapImage(12);
 
         var uprightImage = bitmapImage.ToAlgoCVImage();
         if (isRawSource == false)
@@ -308,8 +341,8 @@ public class BestFocusTest(ITestOutputHelper testOutputHelper)
     /// </summary>
     private void DumpImageSize(string filePath)
     {
-        using var hImage = RAWImageFactory.CreateImage(filePath, true);
-        using var bitmapImage = hImage.ToBitmapImage();
+        using var hImage = RAWImageFactory.CreateImage(filePath, false);
+        using var bitmapImage = hImage.ToBitmapImage(12);
         testOutputHelper.WriteLine($"upright image: width={bitmapImage.Width}, height={bitmapImage.Height}");
     }
 

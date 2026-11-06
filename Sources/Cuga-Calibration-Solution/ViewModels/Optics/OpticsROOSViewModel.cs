@@ -14,7 +14,7 @@ using Core.Models.Models.Optics.ROOS;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;
@@ -639,9 +639,7 @@ public sealed partial class OpticsROOSViewModel : CalibrationViewModelBase<Optic
         //mock
         var mockImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Assets\Data\ROOS\Pos_{pos}.raw");
 
-        using var hImage = RAWImageFactory.CreateImage(mockImagePath, false);
-
-        var image = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = Cache.Item.CIBInformation, Size = hImage.GetSize(), IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = mockImagePath, IsKeepRawImageCIBProfileModeEnum = true });
+        var image = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = Cache.Item.CIBInformation, Size = RAWImageFactoryV3.GetSize(mockImagePath).Size, IsForward = true, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = mockImagePath, IsKeepRawImageCIBProfileModeEnum = true });
 
         return image;
     }

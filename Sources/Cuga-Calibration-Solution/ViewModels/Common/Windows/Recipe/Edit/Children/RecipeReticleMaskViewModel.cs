@@ -1,11 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
+using Core.Models.Models.Setting;
 using Core.Recipe.Models;
 using Core.Recipe.Models.Wafer.ReticleMask;
 using CugaCalibration.Core.Services.Interfaces;
@@ -279,7 +279,10 @@ public sealed partial class RecipeReticleMaskViewModel(
             await microscopeViewModel.SwitchMicroscopeLensInformationAsync(maskDto.RecipeBrightFieldTemplateDTO.MicroscopeLensInformation, cancellationToken: CancellationToken.None).ConfigureAwait(false);
             await Task.Delay(3000);
 
-            if (!reviewViewModel.TryGenerateTemplate(AlgorithmTemplateTypeEnum.Ncc, templateFilePath, AlgorithmTemplateSizeEnum.Size256, Guid.NewGuid()))
+            if (reviewViewModel.TryGenerateTemplate(new TemplateMatchSetting
+            {
+                TemplateSize = AlgorithmTemplateSizeEnum.Size256
+            }, templateFilePath, Guid.NewGuid()) == false)
             {
                 dialogWindowProvider.ShowDialog("Generate Template Failed",
                     DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -326,6 +329,7 @@ public sealed partial class RecipeReticleMaskViewModel(
             darkFieldImageDto.Image.SaveImage(templateImageFilePath);
 
             createDarkImageTemplateWindowViewModel.ImageFilePath = templateImageFilePath;
+            createDarkImageTemplateWindowViewModel.TemplateMatchSetting = maskDto.RecipeDarkFieldTemplateDTO.TemplateMatchSetting.Clone();
             createDarkImageTemplateWindowViewModel.TemplateFilePath = templateFilePath;
 
             if (windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == false)
@@ -335,7 +339,7 @@ public sealed partial class RecipeReticleMaskViewModel(
                 return;
             }
 
-            maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateTypeEnum = createDarkImageTemplateWindowViewModel.TemplateMatchSetting.ToHalconTemplateType();
+            maskDto.RecipeDarkFieldTemplateDTO.TemplateMatchSetting = createDarkImageTemplateWindowViewModel.TemplateMatchSetting.Clone();
             maskDto.RecipeDarkFieldTemplateDTO.AlgorithmTemplateSizeEnum = createDarkImageTemplateWindowViewModel.TemplateMatchSetting.TemplateSize;
             maskDto.RecipeDarkFieldTemplateDTO.TemplateFilePath = createDarkImageTemplateWindowViewModel.TemplateFilePath;
             maskDto.RecipeDarkFieldTemplateDTO.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;

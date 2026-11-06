@@ -261,13 +261,13 @@ public sealed class CalibrationStageServiceImpl(CalibrationSetting calibrationSe
     }
 
     public SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
-        AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
+        AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum
     )
     {
+        // 协议收口点：底层仅支持 Halcon 匹配，匹配类型在此固定编码（底层替换为 algo 时仅需修改此处）
         var sxExecuteRet = Invoke(() => Service2?.MarkBFAlignSite1(new SxParamObj<(SxSizeD size, ushort algo)>((
             algorithmTemplateSizeEnum.ToSize().ToSxSizeD(),
-            algorithmTemplateTypeEnum.ToAlgorithmTemplateType()))));
+            AlgorithmTemplateTypeEnum.Ncc.ToAlgorithmTemplateType()))));
 
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, new AlignmentSiteDto())

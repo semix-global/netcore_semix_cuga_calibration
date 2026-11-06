@@ -16,7 +16,11 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
     [ObservableProperty]
     public partial double PmtInterval { get; set; } = 320;
 
+    /// <summary>明场模板匹配参数, Step3 界面编辑, 用于明场生成</summary>
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
+    /// <summary>暗场模板匹配参数, CreateDarkImageTemplateWindow 确认后写回, 用于暗场匹配</summary>
+    public TemplateMatchSetting DarkTemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Item))]
@@ -34,6 +38,7 @@ public sealed partial class CIBLineOrientationOffsetCache : CalibrationCacheBase
         ProductivityInformation = ProductivityInformation.Clone(),
         Items = new ConcurrentDictionary<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineOrientationOffsetCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
+        DarkTemplateMatchSetting = DarkTemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

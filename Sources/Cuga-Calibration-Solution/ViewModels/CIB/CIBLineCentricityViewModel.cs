@@ -1,6 +1,7 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Helper;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
 using Core.Models.Helper;
@@ -14,6 +15,7 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.Core.Services.Interfaces;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics.LinearAlgebra;
@@ -344,15 +346,17 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
 
             CreateDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
             CreateDarkImageTemplateWindowViewModel.TemplateFilePath = Cache.Item.TemplateFilePath;
-            CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.TemplateMatchSetting.Clone();
+            CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting = Cache.DarkTemplateMatchSetting.Clone();
 
             Guard.IsTrue(WindowManagerService.ShowDialog(CreateDarkImageTemplateWindowViewModel) == true, nameof(CreateDarkImageTemplateWindowViewModel));
 
+            Cache.DarkTemplateMatchSetting = CreateDarkImageTemplateWindowViewModel.TemplateMatchSetting.Clone();
             Cache.Item.TemplateImageFilePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(Cache.Item.TemplateFilePath);
 
             Logger.LogHtmlInformation("TemplateImage", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
-                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindBFMachinePosition,
                 BFTemplateFilePath = Cache.Item.BrightTemplateFilePath,
                 DFTemplateFilePath = Cache.Item.TemplateFilePath,
@@ -362,7 +366,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 }),
                 DFHtmlTab = new HtmlTab(new
                 {
-                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                    TemplateImage = new HtmlImage(Cache.Item.TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(Cache.Item.TemplateFilePath)]),
                     OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                 })
             }), HtmlLogUniqueId.LoggingHtml());
@@ -388,7 +392,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                 CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.Item.ImageWidth,
                 Cache.PmtInterval,
-                TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                 Cache.Item.FindBFMachinePosition,
                 detectImageDirectory
             }), HtmlLogUniqueId.LoggingHtml());
@@ -525,7 +530,8 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
                     CIBConfiguration = new HtmlQuote(Cache.Item.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.Item.CIBInformation,
                     Cache.Item.ImageWidth,
-                    TemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                    BrightTemplateMatchSetting = Cache.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
+                    DarkTemplateMatchSetting = Cache.DarkTemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum),
                     Cache.Item.FindBFMachinePosition,
                     detectImageDirectory,
                     Cache.Threshold
@@ -628,7 +634,7 @@ public sealed partial class CIBLineCentricityViewModel(IApplicationCookieService
             cancellationToken);
 
         if (CIBViewModel.TryGetMatchPosition(
-                Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
+                Cache.DarkTemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Cache.Item.TemplateFilePath),
                 Cache.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
                 cibLineCentricityDTO.FindDFMachinePosition,

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
@@ -27,9 +27,12 @@
     <ItemGroup>
         <ProjectReference Include="..\Core.Utilities.WPF\00. Core.Utilities.WPF.csproj" />
         <ProjectReference Include="..\Core.Wcf\01. Core.Wcf.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Calibration\00. Net.Utilities.Calibration.csproj" />
+        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="Core.Services"/>
     </ItemGroup>
+
 </Project>

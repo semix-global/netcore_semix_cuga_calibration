@@ -7,7 +7,7 @@ public sealed class ReadTemplateParam
     /// <summary>
     /// 算法库独有的参数
     /// </summary>
-    public TemplateMatchEngineParams? EngineParams { get; init; }
+    public EngineParams? EngineParams { get; init; }
 
     public object ToHtmlAnonymous() => new
     {

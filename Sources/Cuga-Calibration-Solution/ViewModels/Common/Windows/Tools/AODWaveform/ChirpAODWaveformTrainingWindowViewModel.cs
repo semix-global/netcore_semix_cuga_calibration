@@ -1,12 +1,14 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Models.BestFocus;
 using Core.Models;
 using Core.Models.Enums.Stage;
+using Core.Models.Exceptions;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Cookies;
-using Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics;
@@ -41,7 +43,7 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
     AlignmentUserControlViewModel alignmentUserControlViewModel,
     ICacheProvider cacheProvider,
     IDialogWindowProvider dialogWindowProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
+    IAlgorithmEngines algorithmEngines,
     IOptions<ApplicationSetting> options,
     ApplicationCookie applicationCookie,
     ILogger<ChirpAODWaveformTrainingWindowViewModel> logger) : ViewModelBase
@@ -496,7 +498,8 @@ public sealed partial class ChirpAODWaveformTrainingWindowViewModel(
 
             try
             {
-                var bestFocus = calibrationAlgorithmService.GetBestFocus(darkFieldImage.Image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
+                var bestFocusRet = algorithmEngines.BestFocus(Cache.AlgorithmEngineTypeEnum).Excute(darkFieldImage, new BestFocusEngineParam { StartEcs = startECS, StopEcs = stopECS, BestFocusType = Cache.AlgorithmBestFocusTypeEnum }, HtmlLogUniqueId);
+                var bestFocus = bestFocusRet.Data ?? throw new CugaException(bestFocusRet.ErrorMsg);
                 item.BestFocus = bestFocus;
             }
             finally

@@ -1,19 +1,21 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Models.BestFocus;
 using Core.Models;
 using Core.Models.Enums.CIB;
+using Core.Models.Exceptions;
 using Core.Models.Models.Common.DarkField;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.CalChip;
-using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
@@ -45,7 +47,7 @@ public sealed record TempTraceBuffer(double Trigger, double X, double Ecs, doubl
 [IOCAppService(ServiceType = typeof(OpticsBestFocusWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class OpticsBestFocusWindowViewModel(
     IApplicationCookieService applicationCookieService,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
+    IAlgorithmEngines algorithmEngines,
     IOptions<ApplicationSetting> options) : AbstractOpticsGrabbingImageWindowViewModel<OpticsBestFocusCache>
 {
     [DefaultCache]
@@ -103,11 +105,8 @@ public sealed partial class OpticsBestFocusWindowViewModel(
 
             var tempXs = new List<Temp>();
             var tempYs = new List<Temp>();
-            var temp = darkFieldImage.Clone();
-            temp.IsKeepRawImageCIBProfileModeEnum = false;
-            using var image = temp.GetImage();
-
-            item.BestFocus = calibrationAlgorithmService.GetBestFocus(image, startECS, stopECS, Cache.AlgorithmEngineTypeEnum, Cache.AlgorithmBestFocusTypeEnum, HtmlLogUniqueId);
+            var bestFocusRet = algorithmEngines.BestFocus(Cache.AlgorithmEngineTypeEnum).Excute(darkFieldImage, new BestFocusEngineParam { StartEcs = startECS, StopEcs = stopECS, BestFocusType = Cache.AlgorithmBestFocusTypeEnum }, HtmlLogUniqueId);
+            item.BestFocus = bestFocusRet.Data ?? throw new CugaException(bestFocusRet.ErrorMsg);
             item.BestFocus.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
             var triggerStartIndex = triggerBuffers.Index().First(t => t.Item.Trigger > 0).Index;
@@ -352,7 +351,7 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 var darkFieldRawScanImage = new DarkFieldRawScanImageDTO
                 {
                     CIBInformation = cibInformation,
-                    Size = RAWImageFactory.GetSize(fileName).Size,
+                    Size = RAWImageFactoryV3.GetSize(fileName).Size,
                     RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog,
                     RawImageFilePath = fileName,
                     IsKeepRawImageCIBProfileModeEnum = Cache.CIBConfiguration.IsKeepRawImageCIBProfileModeEnum

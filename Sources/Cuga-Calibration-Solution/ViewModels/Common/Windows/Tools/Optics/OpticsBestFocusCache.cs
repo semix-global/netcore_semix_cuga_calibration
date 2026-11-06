@@ -3,6 +3,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
+using Net.Utilities.Calibration;
 using Net.Utilities.Models.Geometries;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Optics;

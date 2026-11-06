@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using Core.Algorithm.Interfaces;
 using Core.Models;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
@@ -40,6 +41,8 @@ public partial class CalibrationViewModelBase
     public ISynchronizationContextProvider SynchronizationContextProvider { get; } = HostApplication.GetRequiredService<ISynchronizationContextProvider>();
 
     public ICalibrationAlgorithmService CalibrationAlgorithmService { get; } = HostApplication.GetRequiredService<ICalibrationAlgorithmService>();
+
+    public IAlgorithmEngines AlgorithmEngines { get; } = HostApplication.GetRequiredService<IAlgorithmEngines>();
 
     public ICacheProvider CacheProvider { get; } = HostApplication.GetRequiredService<ICacheProvider>();
 

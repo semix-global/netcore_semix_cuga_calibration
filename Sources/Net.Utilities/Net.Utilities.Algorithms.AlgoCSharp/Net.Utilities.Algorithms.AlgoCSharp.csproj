@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net10.0</TargetFrameworks>
+        <AssemblyName>Net.Utilities.Algorithms.AlgoCSharp</AssemblyName>
+        <RootNamespace>$(AssemblyName)</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="algocv_sharp" VersionOverride="1.4.1" />
+
+        <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.6-preview9-xuan" />
+        <PackageReference Include="Net.Utilities.Graphics" VersionOverride="2.9.6-preview9-xuan" />
+    </ItemGroup>
+
+</Project>
