@@ -754,9 +754,7 @@ public sealed partial class StageMapCommands(
 
             var writerTask = Task.Run(async () =>
             {
-                // 本轮已采到但还未交给 channel 的图, 写入失败(取消/异常)时由 catch 释放
                 (BitmapImage Image, string RawImageFilePath)[]? pendingImages = null;
-
                 try
                 {
                     for (var y = 0; y < yLength; y++)
@@ -830,10 +828,12 @@ public sealed partial class StageMapCommands(
                 catch (Exception ex)
                 {
                     if (pendingImages is not null)
+                    {
                         foreach (var (image, _) in pendingImages)
                         {
                             using var _ = image;
                         }
+                    }
 
                     channel.Writer.TryComplete(ex);
                 }
@@ -883,7 +883,6 @@ public sealed partial class StageMapCommands(
             {
                 var (y, isInWaferColumnIndexes, images) = yResult;
 
-                // 按下标预分配，避免在并行体内并发 Add 到 List<T>(非线程安全, 会丢元素/破坏内部数组)
                 var htmlLogs = new HtmlLog[isInWaferColumnIndexes.Length];
 
                 try
@@ -901,8 +900,9 @@ public sealed partial class StageMapCommands(
 
                         var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
-                        using var flippedImage = IsDark && xDirection <= 0 ? images[i].Image.HorizontalFlip() : null;
-                        var image = flippedImage ?? images[i].Image;
+                        using var image = IsDark
+                            ? xDirection > 0 ? images[i].Image : images[i].Image.HorizontalFlip()
+                            : images[i].Image;
 
                         var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
                             CacheItem.TemplateMatchSetting.ToHalconTemplateType(),
@@ -958,12 +958,9 @@ public sealed partial class StageMapCommands(
                         return ValueTask.CompletedTask;
                     }).ConfigureAwait(false);
 
-                    // Refresh 会重建 PlotDataSource 并触发 AutoScaleRefresh, 只能在并行结束后做一次
                     stageMap.Refresh();
 
-                    List<BaseHtmlElement> htmlList = [.. htmlLogs];
-
-                    logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer(htmlList), htmlLogUniqueId.LoggingHtml());
+                    logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer([.. htmlLogs]), htmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {

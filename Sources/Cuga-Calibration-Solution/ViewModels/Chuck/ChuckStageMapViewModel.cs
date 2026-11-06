@@ -275,8 +275,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
-            StageMapCommands.IsDark = false;
-
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
@@ -314,8 +312,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step3Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
-        StageMapCommands.IsDark = false;
-
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -418,8 +414,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
-            StageMapCommands.IsDark = true;
-
             Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
@@ -463,8 +457,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step7Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
-        StageMapCommands.IsDark = true;
-
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -507,8 +499,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     [RelayCommand(IncludeCancelCommand = true)]
     private Task<bool> Step8Async(CancellationToken cancellationToken) => InvokeCalibrateAsync(async () =>
     {
-        StageMapCommands.IsDark = true;
-
         Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             Cache.MicroscopeLensInformation,
@@ -633,26 +623,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         await InvokeVerifyAsync(async () =>
         {
-            Guard.IsTrue(Review.IsCalibrated);
-
-            var isVerifyThresholdValid = Cache.Threshold > 0d && double.IsInfinity(Cache.Threshold) == false;
-            if (isVerifyThresholdValid == false)
-            {
-                DialogWindowProvider.ShowDialog("Set positive finite Verify Threshold before verification.", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                return false;
-            }
-
-            Guard.IsNotEmpty(Cache.ChuckStageMapCacheBFItem.StageMapTemplates);
-            Guard.IsNotEmpty(Cache.ChuckStageMapCacheDFItem.StageMapTemplates);
-            Guard.IsNotEmpty(Review.BFStageMap.IdealMatrix);
-            Guard.IsNotEmpty(Review.DFStageMap.IdealMatrix);
-            Guard.IsNotEmpty(Review.ExpandStageMap.IdealMatrix);
-
-            Review.BFVerifyMaxError = Vector.Zero;
-            Review.DFVerifyMaxError = Vector.Zero;
             Review.IsVerified = false;
-            Guard.IsTrue(Save(Review, cancellationToken));
 
             Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {

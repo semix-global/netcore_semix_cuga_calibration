@@ -23,7 +23,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
         return;
 
-        void TemplatesOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void TemplatesOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -31,6 +31,11 @@ public sealed partial class StageMapCache : CalibrationCacheBase
                     using (ChuckStageMap.DFStageMapDocument.View.Sync.EnterScope())
                     {
                         ChuckStageMap.DFStageMapDocument.Reset();
+                    }
+
+                    using (ChuckStageMap.BFStageMapDocument.View.Sync.EnterScope())
+                    {
+                        ChuckStageMap.BFStageMapDocument.Reset();
                     }
 
                     break;
@@ -47,7 +52,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
 
         return;
 
-        void TemplatesOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        void TemplatesOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
