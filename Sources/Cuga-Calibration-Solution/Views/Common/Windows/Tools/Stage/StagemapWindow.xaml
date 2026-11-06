@@ -52,12 +52,19 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <TextBlock Text="{Binding StageMapCommands.Name, Mode=OneWay}"
-                           HorizontalAlignment="Center"
-                           FontSize="13"
-                           FontWeight="Bold"
-                           Foreground="White"
-                           Style="{StaticResource TextBlockDefault}" />
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock Text="{Binding Name, Mode=OneWay}"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Style="{StaticResource TextBlockDefault}" />
+                    <TextBlock Text="{Binding StageMapCommands.Name, Mode=OneWay}"
+                               Margin="8,0,0,0"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Style="{StaticResource TextBlockDefault}" />
+                </StackPanel>
             </StackPanel>
             <Button Command="{Binding CloseCommand}"
                     HorizontalAlignment="Right"
@@ -106,18 +113,6 @@
                             </i:Interaction.Triggers>
                             <ComboBoxItem Content="Bright Field" Tag="{x:Static models:Constants.False}" />
                             <ComboBoxItem Content="Dark Field" Tag="{x:Static models:Constants.True}" />
-                            <ComboBox.IsEnabled>
-                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
-                                    <Binding Path="DataContext.LoadedCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.Step0Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.Step1Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.Step2Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.Step3Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.Step4Command.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.StageMapCommands.AddStageMapTemplateCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                    <Binding Path="DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" RelativeSource="{RelativeSource AncestorType={x:Type hc:Window}}" />
-                                </MultiBinding>
-                            </ComboBox.IsEnabled>
                         </ComboBox>
                         <ComboBox hc:TitleElement.Title="Microscope Lens: "
                                   hc:TitleElement.TitlePlacement="Left"
