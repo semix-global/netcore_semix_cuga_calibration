@@ -8,16 +8,16 @@
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <DataTemplate x:Key="StageMapPlotTemplate" DataType="{x:Type stageMap:StageMap}">
+            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+        </DataTemplate>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>

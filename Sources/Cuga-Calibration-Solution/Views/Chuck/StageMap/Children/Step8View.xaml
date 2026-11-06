@@ -7,16 +7,67 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
              xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
+        <Style x:Key="StageMapListViewItemStyle"
+               BasedOn="{StaticResource ListViewItemBaseStyle.Small}"
+               TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="StageMapColumnHeaderStyle"
+               BasedOn="{StaticResource {x:Type GridViewColumnHeader}}"
+               TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <DataTemplate x:Key="StageMapPlotTemplate" DataType="{x:Type stageMap:StageMap}">
+            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
+        </DataTemplate>
+        <DataTemplate x:Key="StageMapRepeatResultsTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="150" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ListView x:Name="RepeatStageMapsList"
+                          ItemsSource="{Binding}"
+                          Style="{StaticResource ListView.Small}"
+                          ItemContainerStyle="{StaticResource StageMapListViewItemStyle}"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          SelectionMode="Single">
+                    <i:Interaction.Behaviors>
+                        <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
+                        <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                    </i:Interaction.Behaviors>
+                    <ListView.View>
+                        <GridView ColumnHeaderContainerStyle="{StaticResource StageMapColumnHeaderStyle}">
+                            <GridViewColumn Width="160"
+                                            Header="Repeat"
+                                            DisplayMemberBinding="{Binding DisplayIndex, Mode=OneWay}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <GridSplitter Grid.Row="1"
+                              Height="5"
+                              HorizontalAlignment="Stretch" />
+                <ContentPresenter Grid.Row="2"
+                                  Content="{Binding SelectedItem, ElementName=RepeatStageMapsList, Mode=OneWay}"
+                                  ContentTemplate="{StaticResource StageMapPlotTemplate}" />
+            </Grid>
+        </DataTemplate>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
