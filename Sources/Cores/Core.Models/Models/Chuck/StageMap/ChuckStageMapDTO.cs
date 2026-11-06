@@ -113,8 +113,8 @@ public sealed partial class ChuckStageMapDTO : CalibrationDTOBase<ChuckStageMapD
             IdealBasePoint = (yLength > 0 && xLength > 0 ? ExpandStageMap.IdealMatrix[0][0] : Point.Origin).ToCgPoint(),
             RowNumber = yLength,
             ColumnNumber = xLength,
-            ColumnCellWidth = yLength > 2 && xLength > 2 ? ExpandStageMap.IdealMatrix[0][1].X - ExpandStageMap.IdealMatrix[0][0].X : 0,
-            RowCellHeight = yLength > 2 && xLength > 2 ? ExpandStageMap.IdealMatrix[1][0].Y - ExpandStageMap.IdealMatrix[0][0].Y : 0,
+            ColumnCellWidth = yLength >= 2 && xLength >= 2 ? ExpandStageMap.IdealMatrix[0][1].X - ExpandStageMap.IdealMatrix[0][0].X : 0,
+            RowCellHeight = yLength >= 2 && xLength >= 2 ? ExpandStageMap.IdealMatrix[1][0].Y - ExpandStageMap.IdealMatrix[0][0].Y : 0,
             ErrorMatrix =
             [
                 .. ExpandStageMap.ErrorMatrix.Select<Vector[], CgPoint[]>(t =>
