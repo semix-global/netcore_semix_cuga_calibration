@@ -15,6 +15,9 @@ public sealed partial class StageMapTemplate : ObservableObject, ICloneable<Stag
 
     [ObservableProperty]
     public partial Rect TemplateROI { get; set; }
+    
+    [ObservableProperty]
+    public partial string OriginImageFilePath { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string TemplateFilePath { get; set; } = string.Empty;
@@ -27,6 +30,7 @@ public sealed partial class StageMapTemplate : ObservableObject, ICloneable<Stag
         DisplayIndex = DisplayIndex,
         FindBFMachinePosition = FindBFMachinePosition,
         TemplateROI = TemplateROI,
+        OriginImageFilePath = OriginImageFilePath,
         TemplateFilePath = TemplateFilePath,
         TemplateImageFilePath = TemplateImageFilePath
     };
