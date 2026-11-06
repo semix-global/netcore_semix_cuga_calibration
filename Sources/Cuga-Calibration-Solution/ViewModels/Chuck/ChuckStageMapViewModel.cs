@@ -274,7 +274,7 @@ public sealed partial class ChuckStageMapViewModel : CalibrationViewModelBase<Ch
                     return;
                 }
 
-                stageMapTemplatePoint.TemplateFilePath = Path.Combine(TemplateFileDirectory, Cache.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}.jpg");
+                stageMapTemplatePoint.TemplateFilePath = Path.Combine(TemplateFileDirectory, Cache.MicroscopeLensInformation.ToString(), $"{Guid.NewGuid():N}");
 
                 var imageSize = ReviewViewModel.GetBrightFieldImagePixelSize();
 
