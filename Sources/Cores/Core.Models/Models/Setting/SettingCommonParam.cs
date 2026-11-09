@@ -33,7 +33,7 @@ public sealed partial class SettingCommonParam : ObservableObject, IAdaptIn<Sett
     /// 全局默认算法引擎类型（显示域算子未显式指定引擎时的兜底选择，新校准项的初始值来源）
     /// </summary>
     [ObservableProperty]
-    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.HAlgorithm;
+    public partial AlgorithmEngineTypeEnum AlgorithmEngineTypeEnum { get; set; } = AlgorithmEngineTypeEnum.AlgoCSharp;
 
     /// <summary>
     /// 全局默认引擎联动：属性变更（默认值初始化、Setting 恢复 AdaptIn、Setting 页 UI 修改）时同步写入 Utils 层全局默认，
