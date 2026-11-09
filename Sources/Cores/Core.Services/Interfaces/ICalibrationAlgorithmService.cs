@@ -1,5 +1,3 @@
-using Core.Models.Enums.Algorithm;
-using Core.Models.Models.Common.DarkField;
 using HalconDotNet;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;

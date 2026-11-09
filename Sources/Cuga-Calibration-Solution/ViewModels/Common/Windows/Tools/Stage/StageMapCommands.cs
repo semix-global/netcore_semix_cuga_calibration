@@ -4,8 +4,12 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Extensions;
+using Core.Algorithm.Helper;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Interfaces.TemplateMatch;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Stage;
+using Core.Models.Extensions;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
@@ -15,9 +19,7 @@ using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
-using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
-using HalconDotNet;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
@@ -53,7 +55,7 @@ public sealed partial class StageMapCommands(
     IWindowManagerService windowManagerService,
     CalibrationSetting calibrationSetting,
     IApplicationCookieService applicationCookieService,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
+    IAlgorithmEngines algorithmEngines,
     ILogger<StageMapCommands> logger) : ObservableObject
 {
     public string ImageFileDirectory { get; set; } = string.Empty;
@@ -699,22 +701,25 @@ public sealed partial class StageMapCommands(
             await microscopeViewModel.SwitchMicroscopeLensInformationAsync(Cache.MicroscopeLensInformation, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        HTuple[] templateIds = [];
+        var templateMatchEngine = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+
+        ITemplateMatchModel[] templateMatchModels = [];
 
         try
         {
-            templateIds =
+            templateMatchModels =
             [
                 .. CacheItem.StageMapTemplates
                     .Select(t =>
                     {
-                        calibrationAlgorithmService.TryReadTemplate(CacheItem.TemplateMatchSetting.ToHalconTemplateType(), t.TemplateFilePath, out var templateId);
+                        var result = templateMatchEngine.Read(CacheItem.TemplateMatchSetting.ToReadParam(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, t.TemplateFilePath), htmlLogUniqueId);
+                        Guard.IsTrue(result.Success, result.ErrorMsg);
 
-                        return templateId;
+                        return Guard.IsNotNullAndReturn(result.Data);
                     })
             ];
 
-            var templateMatchScoreThreshold = CacheItem.TemplateMatchSetting.ToTemplateMatchScoreThreshold(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, calibrationSetting);
+            var templateMatchScoreThreshold = CacheItem.TemplateMatchSetting.ToTemplateMatchScoreThreshold(calibrationSetting);
 
             Point[][] stageMapIdealMatrix =
             [
@@ -899,19 +904,28 @@ public sealed partial class StageMapCommands(
 
                         var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
-                        using var image = IsDark
-                            ? xDirection > 0 ? images[i].Image : images[i].Image.HorizontalFlip()
-                            : images[i].Image;
+#pragma warning disable IDE0079
+#pragma warning disable IDISP007
 
-                        var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
-                            CacheItem.TemplateMatchSetting.ToHalconTemplateType(),
-                            image,
-                            templateIds[templateIdIndex],
-                            htmlLogUniqueId,
-                            out var matchPoint,
-                            out var matchOffset,
-                            out var matchScore,
-                            out var matchAngle);
+                        using var originImage = images[i].Image;
+
+#pragma warning restore IDISP007
+#pragma warning restore IDE0079
+
+                        using var image = IsDark
+                            ? xDirection > 0 ? originImage : originImage.HorizontalFlip()
+                            : originImage;
+
+                        var templateMatchRet = templateMatchModels[templateIdIndex] is { } templateModel
+                            ? templateMatchEngine.Match(image, new MatchTemplateParam { Model = templateModel, ScoreThreshold = templateMatchScoreThreshold }, htmlLogUniqueId)
+                            : null;
+
+                        var isSuccess = templateMatchRet?.Success ?? false;
+                        var matchPoint = templateMatchRet?.Data?.MarkPoint ?? Point.Origin;
+                        var matchOffset = templateMatchRet?.Data?.Offset ?? Point.Origin;
+                        var matchScore = templateMatchRet?.Data?.Score ?? 0;
+                        var matchAngle = templateMatchRet?.Data?.Angle ?? 0;
+
                         var oldMatchPoint = matchPoint;
                         var oldMatchOffset = matchOffset;
                         var offset = matchPoint - CacheItem.StageMapTemplates[templateIdIndex].TemplateROI.Center;
@@ -945,7 +959,7 @@ public sealed partial class StageMapCommands(
                                         images[i].RawImageFilePath,
                                         HtmlTab = new HtmlTab(new
                                         {
-                                            ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(templateROI), new HtmlImageCrossOverlay(matchPoint)])
+                                            ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: TemplateMatchHtmlOverlay.CreateMatchResultOverlays(matchPoint, templateROI.Size, templateMatchModels[templateIdIndex].CenterOffset))
                                         })
                                     })
                                 ]
@@ -974,7 +988,7 @@ public sealed partial class StageMapCommands(
         }
         finally
         {
-            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(CacheItem.TemplateMatchSetting.ToHalconTemplateType(), templateId);
+            foreach (var templateMatchModel in templateMatchModels) templateMatchModel.Dispose();
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
         }
     }

@@ -1,7 +1,3 @@
-using Core.Models.Enums.Algorithm;
-using Core.Models.Extensions;
-using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
 using Microsoft.Extensions.Logging;
@@ -16,15 +12,12 @@ using System.IO;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed partial class CalibrationAlgorithmServiceMockImpl(
-    CalibrationSetting calibrationSetting) : ICalibrationAlgorithmService
+public sealed partial class CalibrationAlgorithmServiceMockImpl : ICalibrationAlgorithmService
 {
-    private readonly CalibrationAlgorithmServiceImpl _calibrationAlgorithmServiceImpl = new(HostApplication.GetRequiredService<ILogger<CalibrationAlgorithmServiceImpl>>(), calibrationSetting);
+    private readonly CalibrationAlgorithmServiceImpl _calibrationAlgorithmServiceImpl = new(HostApplication.GetRequiredService<ILogger<CalibrationAlgorithmServiceImpl>>());
 
     private readonly string _hazeImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3HazeTestImg.jpg");
     private readonly string _shinyImagePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\fftCh3ShinyTestImg.jpg");
-
-    public bool IsUseMock { get; set; } = true;
 
     public void InitialAlgorithmEngine()
     {

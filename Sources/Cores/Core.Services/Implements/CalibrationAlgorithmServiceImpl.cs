@@ -2,13 +2,8 @@ using algocv_sharp;
 using CommunityToolkit.Diagnostics;
 using Core.Algorithm.Helper;
 using Core.Models;
-using Core.Models.Enums.Algorithm;
-using Core.Models.Extensions;
-using Core.Models.Models.Common.DarkField;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
-using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.AlgoCSharp;
@@ -29,11 +24,9 @@ using Rect = Net.Utilities.Models.Geometries.Rect;
 namespace Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed partial class CalibrationAlgorithmServiceImpl(
-    ILogger<CalibrationAlgorithmServiceImpl> logger,
-    CalibrationSetting calibrationSetting) : ICalibrationAlgorithmService
+public sealed partial class CalibrationAlgorithmServiceImpl(ILogger<CalibrationAlgorithmServiceImpl> logger) : ICalibrationAlgorithmService
 {
-    private bool _isAlgorithmEngineInitialized = false;
+    private bool _isAlgorithmEngineInitialized;
     private readonly HAlgorithm.Algorithm _algorithm = new();
 
     public void InitialAlgorithmEngine()
@@ -44,8 +37,8 @@ public sealed partial class CalibrationAlgorithmServiceImpl(
         AlgoCv.InitAlgoCv(
             Path.Combine(options.Value.AlgorithmLogDirectory, $"{Constants.DateTimeFormat}"),
             options.Value.AlgorithmLogLevel,
-            0f,
-            0f);
+            logOffset: 0f,
+            logScale: 0f);
         AlgoCv.CheckStructSize();
         _isAlgorithmEngineInitialized = true;
     }
