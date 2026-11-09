@@ -224,13 +224,9 @@ public interface ICalibrationStageService
     /// <summary>
     /// 设置标记点1
     /// </summary>
-    /// <param name="algorithmTemplateSizeEnum">标记的模板尺寸大小</param>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
+    /// <param name="algorithmTemplateSizeEnum">模板尺寸（引擎维度写死：底层仅支持 Halcon Ncc 抓模板，不随全局引擎切换；底层支持 algo 时仅需修改协议层收口点）</param>
     /// <returns>标记点1的坐标和模板</returns>
-    SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(
-        AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum
-    );
+    SxExecuteRet<AlignmentSiteDto> MarkAlignSite1(AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum);
 
     /// <summary>
     /// 设置标记点2

@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Core.Algorithm.Models.TemplateMatch;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace Core.Algorithm.Models.TemplateMatch;
 /// </summary>
 public abstract class TemplateMatchEngineResult
 {
-    public static bool TryGet<T>(TemplateMatchEngineResult? engineResult, out T value, out string errorMsg)
+    public static bool TryGet<T>(TemplateMatchEngineResult? engineResult, [NotNullWhen(true)] out T? value, out string errorMsg)
         where T : TemplateMatchEngineResult
     {
         switch (engineResult)
@@ -15,7 +17,7 @@ public abstract class TemplateMatchEngineResult
                 errorMsg = string.Empty;
                 return true;
             default:
-                value = null!;
+                value = null;
                 errorMsg = engineResult is null
                     ? $"EngineResult is null, expected {typeof(T).Name}"
                     : $"EngineResult must be {typeof(T).Name}";

@@ -1,8 +1,11 @@
 using Core.Algorithm.Interfaces;
+using Core.Algorithm.Interfaces.BestFocus;
+using Core.Algorithm.Interfaces.PixelSize;
 using Core.Algorithm.Interfaces.TemplateMatch;
-using Core.Models.Enums.Algorithm;
+using Core.Algorithm.Interfaces.YPixelSize;
 using Microsoft.Extensions.DependencyInjection;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 
 namespace Core.Algorithm.Implements;
@@ -11,4 +14,10 @@ namespace Core.Algorithm.Implements;
 public sealed class AlgorithmEngines(IServiceProvider serviceProvider) : IAlgorithmEngines
 {
     public ITemplateMatchEngine TemplateMatch(AlgorithmEngineTypeEnum engine) => serviceProvider.GetRequiredKeyedService<ITemplateMatchEngine>(engine);
+
+    public IBestFocusEngine BestFocus(AlgorithmEngineTypeEnum engine) => serviceProvider.GetRequiredKeyedService<IBestFocusEngine>(engine);
+
+    public IYPixelSizeEngine YPixelSize(AlgorithmEngineTypeEnum engine) => serviceProvider.GetRequiredKeyedService<IYPixelSizeEngine>(engine);
+
+    public IPixelSizeEngine PixelSize(AlgorithmEngineTypeEnum engine) => serviceProvider.GetRequiredKeyedService<IPixelSizeEngine>(engine);
 }

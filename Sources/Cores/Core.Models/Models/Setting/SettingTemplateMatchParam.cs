@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Enums.Algorithm;
+using Net.Utilities.Calibration;
 using Net.Utilities.Mapper.Interfaces;
 
 namespace Core.Models.Models.Setting;

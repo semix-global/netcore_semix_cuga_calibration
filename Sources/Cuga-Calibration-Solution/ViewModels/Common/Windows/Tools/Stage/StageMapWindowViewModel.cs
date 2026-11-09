@@ -1,9 +1,13 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Helper;
+using Core.Algorithm.Interfaces;
+using Core.Algorithm.Interfaces.TemplateMatch;
 using Core.Algorithm.Models.TemplateMatch;
 using Core.Models;
 using Core.Models.Enums.Stage;
+using Core.Models.Extensions;
 using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
@@ -14,7 +18,6 @@ using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
-using HalconDotNet;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using MathNet.Numerics;
 using Microsoft.Extensions.Logging;
@@ -59,6 +62,7 @@ public sealed partial class StageMapWindowViewModel(
     IOptions<ApplicationSetting> options,
     ApplicationCookie applicationCookie,
     CalibrationSetting calibrationSetting,
+    IAlgorithmEngines algorithmEngines,
     ILogger<StageMapWindowViewModel> logger) : ViewModelBase
 {
     private static readonly string ClosedLoopCalibrationPythonScript = GetEmbeddedResource("closed_loop_calibration.py");
@@ -632,22 +636,18 @@ public sealed partial class StageMapWindowViewModel(
             ySize.YPixelSize
         }), htmlLogUniqueId.LoggingHtml());
 
-        HTuple[] templateIds = [];
+        var templateMatchEngine = algorithmEngines.TemplateMatch(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+        ITemplateMatchModel?[] templateModels = [];
 
         try
         {
-            templateIds =
+            templateModels =
             [
                 .. Cache.StageMapTemplates
-                    .Select(t =>
-                    {
-                        calibrationAlgorithmService.TryReadTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), t.TemplateFilePath, out var templateId);
-
-                        return templateId;
-                    })
+                    .Select(t => templateMatchEngine.Read(Cache.TemplateMatchSetting.ToReadParam(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, t.TemplateFilePath), htmlLogUniqueId).Data)
             ];
 
-            var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, CalibrationSetting);
+            var templateMatchScoreThreshold = Cache.TemplateMatchSetting.ToTemplateMatchScoreThreshold(CalibrationSetting);
 
             Point[][] stageMapIdealMatrix =
             [
@@ -734,15 +734,14 @@ public sealed partial class StageMapWindowViewModel(
                         using var image = xDirection > 0 ? darkFieldImages[i].Image : darkFieldImages[i].Image.HorizontalFlip();
                         using var roiImage = image.ToROI(searchROI);
 
-                        var isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(
-                            Cache.TemplateMatchSetting.ToHalconTemplateType(),
-                            roiImage,
-                            templateIds[templateIdIndex],
-                            htmlLogUniqueId,
-                            out var matchPoint,
-                            out var matchOffset,
-                            out var matchScore,
-                            out var matchAngle);
+                        var templateMatchRet = templateModels[templateIdIndex] is { } templateModel
+                            ? templateMatchEngine.Match(roiImage, new MatchTemplateParam { Model = templateModel, ScoreThreshold = templateMatchScoreThreshold }, htmlLogUniqueId)
+                            : null;
+                        var isSuccess = templateMatchRet?.Success ?? false;
+                        var matchPoint = templateMatchRet?.Data?.MarkPoint ?? Point.Origin;
+                        var matchOffset = templateMatchRet?.Data?.Offset ?? Point.Origin;
+                        var matchScore = templateMatchRet?.Data?.Score ?? 0;
+                        var matchAngle = templateMatchRet?.Data?.Angle ?? 0;
                         var oldMatchPoint = matchPoint;
                         var oldMatchOffset = matchOffset;
                         if (Cache.IsROIMatchEnabled)
@@ -761,6 +760,12 @@ public sealed partial class StageMapWindowViewModel(
                         image.SaveImage(resultImageFilePath);
 
                         var vector = new Vector(xDirection * matchOffset.X * xSize.XPixelSize, yDirection * matchOffset.Y * ySize.YPixelSize);
+                        var templateImageSize = templateROI.Size;
+                        var centerOffset = templateModels[templateIdIndex]?.CenterOffset ?? Point.Origin;
+                        HtmlImageOverlay[] matchResultOverlays = TemplateMatchHtmlOverlay.CreateMatchResultOverlays(matchPoint, templateImageSize, centerOffset);
+                        HtmlImageOverlay[] resultImageOverlays = Cache.IsROIMatchEnabled
+                            ? [new HtmlImageRectangleOverlay(searchROI), .. matchResultOverlays]
+                            : matchResultOverlays;
 
                         var htmlBullet = new HtmlBullet(new
                         {
@@ -780,8 +785,8 @@ public sealed partial class StageMapWindowViewModel(
                             darkFieldImages[i].RawImageFilePath,
                             HtmlTab = new HtmlTab(new
                             {
-                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(searchROI), new HtmlImageRectangleOverlay(templateROI), new HtmlImageCrossOverlay(matchPoint)]),
-                                TemplateImage = new HtmlImage(Cache.StageMapTemplates[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                                ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: resultImageOverlays),
+                                TemplateImage = new HtmlImage(Cache.StageMapTemplates[templateIdIndex].TemplateImageFilePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, centerOffset)])
                             })
                         });
 
@@ -815,7 +820,7 @@ public sealed partial class StageMapWindowViewModel(
         }
         finally
         {
-            foreach (var templateId in templateIds) calibrationAlgorithmService.TryCleanTemplate(Cache.TemplateMatchSetting.ToHalconTemplateType(), templateId);
+            foreach (var templateModel in templateModels) templateModel?.Dispose();
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
         }
     }

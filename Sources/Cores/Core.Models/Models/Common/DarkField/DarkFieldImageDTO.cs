@@ -4,8 +4,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Algorithms.Halcon;
-using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
@@ -115,7 +114,7 @@ public partial class DarkFieldRawScanImageDTO :
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBInformation cibInformation, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
         Guard.IsNotNull(obj);
-        var (size, _, _) = RAWImageFactory.GetSize(obj.Url);
+        var (size, _, _) = RAWImageFactoryV3.GetSize(obj.Url);
 
         CIBInformation = cibInformation.Clone();
         Size = size;
@@ -131,9 +130,9 @@ public partial class DarkFieldRawScanImageDTO :
 
     public BitmapImage GetImage()
     {
-        using var hImage = RAWImageFactory.CreateImage(RawImageFilePath, IsToLiner);
+        using var algoImage = RAWImageFactoryV3.CreateImage(RawImageFilePath, IsToLiner);
 
-        return hImage.ToBitmapImage(IsToLiner ? 16 : 12);
+        return algoImage.ToBitmapImage(IsToLiner ? 16 : 12);
     }
 
     public object ToHtmlAnonymous() => new

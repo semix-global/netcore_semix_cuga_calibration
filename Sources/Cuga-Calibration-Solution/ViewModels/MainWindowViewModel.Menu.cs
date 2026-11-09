@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Models.Events;
 using Core.Models.Helper;
+using Core.Models.Models.Setting;
 using CugaCalibration.ViewModels.Common.Windows.File.Save;
 using CugaCalibration.ViewModels.Common.Windows.Management.Recipe.Management;
 using CugaCalibration.ViewModels.Common.Windows.Tools;
@@ -93,6 +94,7 @@ public sealed partial class MainWindowViewModel : IRecipient<PopupWindowEvent>
                         if (dialog == false) return;
 
                         createDarkImageTemplateWindowViewModel.ImageFilePath = filePath;
+                        createDarkImageTemplateWindowViewModel.TemplateMatchSetting = new TemplateMatchSetting();
                         createDarkImageTemplateWindowViewModel.TemplateFilePath = $"{FileHelper.GetFileFullName(filePath)}_Template";
                         _windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel);
 

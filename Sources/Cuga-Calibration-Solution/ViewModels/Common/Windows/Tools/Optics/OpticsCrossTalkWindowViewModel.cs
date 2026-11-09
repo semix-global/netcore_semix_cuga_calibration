@@ -16,7 +16,7 @@ using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
@@ -420,7 +420,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
                 [
                     .. cibInformations.Select((t, i) =>
                     {
-                        var (size, _, _) = RAWImageFactory.GetSize(scribeResults[i].RawImageFilePath);
+                        var (size, _, _) = RAWImageFactoryV3.GetSize(scribeResults[i].RawImageFilePath);
                         using var originImage = new DarkFieldImageDTO().AdaptIn(new DarkFieldRawScanImageDTO { CIBInformation = t, IsKeepRawImageCIBProfileModeEnum = false, RawImageCIBProfileModeEnum = CIBProfileModeEnum.PMTLog, RawImageFilePath = scribeResults[i].RawImageFilePath, Size = size });
                         using var quietImage = originImage.Image.ToROI(Cache.QuietROI);
                         var (quietGrayValue, _) = quietImage.GetIntensity();

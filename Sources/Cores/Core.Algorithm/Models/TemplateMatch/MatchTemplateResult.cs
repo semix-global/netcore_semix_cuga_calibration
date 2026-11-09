@@ -12,6 +12,9 @@ public sealed class MatchTemplateResult : IAdaptTo<TemplateMatchSnapshot>
 
     public double Score { get; init; }
 
+    /// <summary>
+    /// 匹配角度（度；中立口径：图像像素坐标系（Y 向下）下屏幕逆时针为正；双引擎统一口径，Halcon 引擎由弧度换算）
+    /// </summary>
     public double Angle { get; init; }
 
     /// <summary>

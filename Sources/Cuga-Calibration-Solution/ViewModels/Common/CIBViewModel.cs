@@ -1,7 +1,7 @@
 using CommunityToolkit.Diagnostics;
+using Core.Algorithm.Helper;
 using Core.Algorithm.Interfaces;
 using Core.Algorithm.Models.TemplateMatch;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.CIB;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
@@ -21,11 +21,9 @@ using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using MathNet.Numerics.Interpolation;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -949,134 +947,6 @@ public sealed class CIBViewModel(
         return ret.IsSuccess ? rtfcResult : throw new CugaException(ret.ErrorMsg);
     }
 
-    [Obsolete]
-    public bool TryGetMatchPosition(
-        ProductivityInformation productivityInformation,
-        StageCoordinateSystemEnum stageCoordinateSystemEnum,
-        Point centerPosition,
-        CIBInformation cibInformation,
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        DarkFieldImageDTO darkFieldImage,
-        string templateFilePath,
-        string saveResultImageFileDirectory,
-        Guid logGuid,
-        out Point resultPosition,
-        out double matchScore,
-        out double matchAngle,
-        out string resultImageFilePath)
-    {
-        var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
-
-        logger.LogHtmlInformation("Template Match", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-        {
-            productivityInformation,
-            stageCoordinateSystemEnum,
-            centerPosition,
-            cibInformation,
-            algorithmTemplateTypeEnum,
-            DarkFieldImage = new HtmlQuote(darkFieldImage.ToHtmlAnonymous()),
-            templateFilePath,
-            saveResultImageFileDirectory,
-            xDirection,
-            yDirection
-        }), logGuid.LoggingHtml());
-
-        resultPosition = Point.Origin;
-        matchScore = 0d;
-        matchAngle = 0d;
-        resultImageFilePath = string.Empty;
-
-        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>()
-            .SingleOrDefault(t => t.ProductivityInformation == productivityInformation);
-        if (xSize?.IsOk != true)
-        {
-            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser X Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
-
-            return false;
-        }
-
-        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>()
-            .SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == productivityInformation.OpticsIlluminationModeEnum
-                                  && t.ProductivityInformation.OpticsMagType == productivityInformation.OpticsMagType
-                                  && t.PmtId == cibInformation.PMTId);
-        if (ySize?.IsOk != true)
-        {
-            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Laser Pixel Size is Empty or not verify."), logGuid.LoggingHtml());
-
-            return false;
-        }
-
-        var readTemplateIsSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
-        using var _1 = templateId;
-
-        if (readTemplateIsSuccess == false)
-        {
-            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Read Template Failed!"), logGuid.LoggingHtml());
-
-            return false;
-        }
-
-        bool isSuccess;
-        bool cleanTemplateIsSuccess;
-        try
-        {
-            var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
-
-            using var hImage = darkFieldImage.Image.ToHImage();
-            using var horizontalFlipHImage = hImage.HorizontalFlip();
-
-            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : horizontalFlipHImage.ToBitmapImage();
-            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, logGuid, out var matchPoint, out var matchOffset, out matchScore, out matchAngle);
-
-            resultImageFilePath = Path.Combine(isSuccess ? saveResultImageFileDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
-            using var temp = hImage.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
-            temp.Save(resultImageFilePath);
-
-            var stageCoordinateSystemMatchOffset = stageCoordinateSystemEnum switch
-            {
-                StageCoordinateSystemEnum.Bright or StageCoordinateSystemEnum.Dark => (Vector)matchOffset,
-                StageCoordinateSystemEnum.Machine => new Vector(xDirection * matchOffset.X, yDirection * matchOffset.Y),
-                _ => ThrowHelper.ThrowArgumentOutOfRangeException<Vector>(nameof(stageCoordinateSystemEnum))
-            };
-
-            var positionOffset = new Vector(stageCoordinateSystemMatchOffset.X * xSize.XPixelSize, stageCoordinateSystemMatchOffset.Y * ySize.YPixelSize);
-            resultPosition = centerPosition + positionOffset;
-
-            var htmlBullet = new HtmlBullet(new
-            {
-                matchPoint,
-                matchOffset,
-                matchScore,
-                matchAngle,
-                templateMatchScoreThreshold,
-                stageCoordinateSystemMatchOffset,
-                positionOffset,
-                resultPosition,
-                HtmlTab = new HtmlTab(new
-                {
-                    ResultImage = new HtmlImage(resultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
-                    TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                })
-            });
-
-            if (isSuccess) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
-            else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, htmlBullet, logGuid.LoggingHtml());
-        }
-        finally
-        {
-            cleanTemplateIsSuccess = calibrationAlgorithmService.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
-        }
-
-        if (cleanTemplateIsSuccess == false)
-        {
-            logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header6, new HtmlComment("Clean Template Failed!"), logGuid.LoggingHtml());
-
-            return false;
-        }
-
-        return isSuccess;
-    }
-
     public void UseSimulatorImages(string[]? simulatorImageFilePaths)
     {
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationCIBServiceMockImpl>(calibrationCIBService);
@@ -1158,10 +1028,8 @@ public sealed class CIBViewModel(
         var model = readResultRet.Data;
         try
         {
-            using var hImage = darkFieldImage.Image.ToHImage();
-            using var horizontalFlipHImage = hImage.HorizontalFlip();
-
-            using var image = darkFieldImage.IsForward ? darkFieldImage.Image : horizontalFlipHImage.ToBitmapImage();
+            using var flippedImage = darkFieldImage.IsForward ? null : darkFieldImage.Image.HorizontalFlip(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
+            var image = flippedImage ?? darkFieldImage.Image;
             var matchResultRet = engine.Match(image, new MatchTemplateParam
             {
                 Model = model,
@@ -1177,8 +1045,12 @@ public sealed class CIBViewModel(
             isSuccess = matchResultRet.Success;
 
             matchSnapshot.ResultImageFilePath = Path.Combine(isSuccess ? saveResultImageDirectory : $"{FileHelper.GetFileFullName(templateFilePath)}_Error", $"Origin_Score({matchScore:0.###},{scoreThreshold:0.###})_Angle{matchAngle:0.###}_({logGuid:N}).jpg");
-            using var temp = hImage.DrawCrossLine(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y));
-            temp.Save(matchSnapshot.ResultImageFilePath);
+            var algorithmEngineType = calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum;
+            var drawPoint = darkFieldImage.IsForward
+                ? matchPoint
+                : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y);
+            using var drawn = darkFieldImage.Image.DrawCrossLine(drawPoint, algorithmEngineType);
+            drawn.SaveImage(matchSnapshot.ResultImageFilePath, algorithmEngineType);
 
             var stageCoordinateSystemMatchOffset = stageCoordinateSystem switch
             {
@@ -1190,6 +1062,12 @@ public sealed class CIBViewModel(
             var positionOffset = new Vector(stageCoordinateSystemMatchOffset.X * xSize.XPixelSize, stageCoordinateSystemMatchOffset.Y * ySize.YPixelSize);
             resultPosition = centerPosition + positionOffset;
 
+            var templateImagePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
+            var (_, templateImageSize) = ImageHelper.GetImageInfo(templateImagePath);
+            HtmlImageOverlay[] resultImageOverlays = isSuccess
+                ? [.. TemplateMatchHtmlOverlay.CreateMatchResultOverlays(drawPoint, templateImageSize, model.CenterOffset), new HtmlImageCrossOverlay(true)]
+                : [new HtmlImageCrossOverlay(true)];
+
             var htmlBullet = new HtmlBullet(new
             {
                 MatchResult = new HtmlQuote(matchResult.ToHtmlAnonymous()),
@@ -1199,8 +1077,8 @@ public sealed class CIBViewModel(
                 resultPosition,
                 HtmlTab = new HtmlTab(new
                 {
-                    ResultImage = new HtmlImage(matchSnapshot.ResultImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(darkFieldImage.IsForward ? matchPoint : new Point(darkFieldImage.Size.Width - 1 - matchPoint.X, matchPoint.Y)), new HtmlImageCrossOverlay(true)]),
-                    TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                    ResultImage = new HtmlImage(matchSnapshot.ResultImageFilePath, htmlImageOverlays: resultImageOverlays),
+                    TemplateImage = new HtmlImage(templateImagePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, model.CenterOffset)])
                 })
             });
 

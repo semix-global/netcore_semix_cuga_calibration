@@ -9,6 +9,7 @@ using Core.Models.Models.Chuck.GlobalScaleError;
 using Core.Models.Models.Microscope.PixelSize;
 using CugaCalibration.Core.Services.Implements;
 using CugaCalibration.Core.Services.Interfaces;
+using CugaCalibration.ViewModels.Common;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Microsoft.Extensions.Hosting;
 using Net.Utilities.Attributes;

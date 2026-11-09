@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.Input;
+using Core.Algorithm.Helper;
 using Core.Algorithm.Interfaces;
 using Core.Algorithm.Models.TemplateMatch;
-using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Exceptions;
 using Core.Models.Extensions;
@@ -94,51 +94,6 @@ public sealed partial class ReviewViewModel(
 
     #region 模板匹配
 
-    /// <summary>
-    /// 生成模板
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="algorithmTemplateSizeEnum">模板尺寸</param>
-    /// <param name="guid"></param>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    public bool TryGenerateTemplate(AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, AlgorithmTemplateSizeEnum algorithmTemplateSizeEnum, Guid guid)
-    {
-        using var image = GetBrightFieldImage();
-
-        var rect = new Rect(image.Width / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, image.Height / 2d - Convert.ToInt32(algorithmTemplateSizeEnum) / 2d, Convert.ToInt32(algorithmTemplateSizeEnum), Convert.ToInt32(algorithmTemplateSizeEnum));
-
-        return TryGenerateTemplate(image, algorithmTemplateTypeEnum, templateFilePath, rect, guid);
-    }
-
-    /// <summary>
-    /// 生成模板
-    /// </summary>
-    /// <param name="image">图片</param>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="templateFilePath">模板路径</param>
-    /// <param name="rect">ROI尺寸</param>
-    /// <param name="guid"></param>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    public bool TryGenerateTemplate(BitmapImage image, AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum, string templateFilePath, Rect rect, Guid guid)
-    {
-        var size = new Size(image.Width, image.Height);
-        if (new Rect(Point.Origin, size).Contains(rect) == false)
-        {
-            logger.LogError("{Name}: Out of Image Area", nameof(ReviewViewModel));
-            return false;
-        }
-
-        var isSuccess = calibrationAlgorithmService.TryGenerateTemplate(algorithmTemplateTypeEnum, image, templateFilePath, rect, guid, out var roiImage);
-        using var _ = roiImage;
-        if (isSuccess == false) throw new AlgorithmException("Generate Template Error");
-
-        roiImage.SaveImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath));
-        return true;
-    }
-
     public bool TryGenerateTemplate(GenerateTemplateParam param, Guid guid)
     {
         using var image = GetBrightFieldImage();
@@ -178,205 +133,16 @@ public sealed partial class ReviewViewModel(
     }
 
     /// <summary>
-    /// 匹配模板: 从旧位置到匹配后位置
+    /// 按 Setting 居中 ROI 生成亮场模板（ReticleMask）
     /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
-    /// <param name="position">匹配旧的位置</param>
-    /// <param name="microscopeLensInformation">匹配的镜头</param>
-    /// <param name="templateFilePath">匹配的模板</param>
-    /// <param name="saveResultImageFileDirectory">匹配后成功的[保存的匹配图片的文件目录]</param>
-    /// <param name="logGuid">记录日志: id</param>
-    /// <param name="logName">记录日志: 名称</param>
-    /// <param name="logResultTitle">记录日志: 匹配后成功的[标题]</param>
-    /// <param name="resultPosition">匹配后成功的[位置]</param>
-    /// <param name="resultScore">匹配后成功的[得分]</param>
-    /// <param name="resultAngle">匹配后成功的[角度]</param>
-    /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
-    /// <param name="originImageFilePath">匹配前原图[保存的原图图片的路径]</param>
-    /// <param name="calChipSiteModelEnum"></param>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    public bool TryGetMatchPosition(
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
-        Point position,
-        MicroscopeLensInformation microscopeLensInformation,
-        string templateFilePath,
-        string? saveResultImageFileDirectory,
-        Guid? logGuid,
-        string? logName,
-        string? logResultTitle,
-        out Point resultPosition,
-        out double resultScore,
-        out double resultAngle,
-        out string resultImageFilePath,
-        out string originImageFilePath,
-        CalChipSiteModelEnum calChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel)
+    public bool TryGenerateTemplate(TemplateMatchSetting setting, string templateFilePath, Guid guid)
     {
-        resultPosition = Point.Origin;
-        resultScore = 0;
-        resultAngle = 0;
-        resultImageFilePath = string.Empty;
-        originImageFilePath = string.Empty;
+        using var image = GetBrightFieldImage();
 
-        var size = microscopePixelSizeHistoryList.SingleOrDefault(t => t.MicroscopeLensInformation == microscopeLensInformation);
-
-        Size pixelSize;
-        if (size is null || size.IsOk == false)
-        {
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlWarning("Warning", HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Microscope Pixel Size is Empty or not verify."), logGuid.Value.LoggingHtml());
-            else logger.LogWarning("{Name}: Microscope Pixel Size is Empty or not verify", nameof(ReviewViewModel));
-
-            var defaultPixelSize = GetDefaultPixelSize();
-            pixelSize = new Size(defaultPixelSize.Width / microscopeLensInformation.ObjectiveMagnification, defaultPixelSize.Height / microscopeLensInformation.ObjectiveMagnification);
-        }
-        else pixelSize = size.Result.PixelSize;
-
-        var isSuccess = calibrationAlgorithmService.TryReadTemplate(algorithmTemplateTypeEnum, templateFilePath, out var templateId);
-        using var _1 = templateId;
-        if (isSuccess == false)
-        {
-            if (logGuid is not null && logName is not null)
-                logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Read Template Failed!"), logGuid.Value.LoggingHtml());
-            else logger.LogError("{Name}: Read Template Failed!", nameof(ReviewViewModel));
-
-            return false;
-        }
-
-        try
-        {
-            var currentMag = microscopeViewModel.GetCurrentMicroscopeLensInformation();
-            if (microscopeLensInformation != currentMag)
-                microscopeViewModel.SwitchMicroscopeLensInformationAsync(microscopeLensInformation, isMoveToMicroscopeCenter: false).GetAwaiter().GetResult();
-            stageViewModel.SetBrightFieldAbsoluteStageXy(position, calChipSiteModelEnum);
-            Thread.Sleep(500);
-
-            using var image = GetBrightFieldImage();
-
-            isSuccess = calibrationAlgorithmService.TryTemplateMatchToOffset(algorithmTemplateTypeEnum, image, templateId, logGuid ?? Guid.NewGuid(), out var resultPoint, out var offset, out resultScore, out resultAngle);
-            if (isSuccess == false)
-            {
-                var templateMatchScoreThreshold = algorithmTemplateTypeEnum.ToTemplateMatchScoreThreshold(calibrationSetting);
-                originImageFilePath = $"{FileHelper.GetFileFullName(templateFilePath)}_Error\\Score({resultScore:f3},{templateMatchScoreThreshold})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()}).jpg";
-                image.SaveImage(originImageFilePath);
-                if (logGuid is not null && logName is not null)
-                    logger.LogHtmlError($"{logName} Error: Try Math Template To Offset Failed.{logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                    {
-                        microscopeLensInformation.LensName,
-                        OriginPosition = position,
-                        Score = resultScore,
-                        TemplateMatchScoreThreshold = templateMatchScoreThreshold,
-                        HtmlTab = new HtmlTab(new
-                        {
-                            TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
-                            OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                        })
-                    }), logGuid.Value.LoggingHtml());
-                else logger.LogError("{Name}: Error: Try Math Template To Offset Failed", nameof(ReviewViewModel));
-
-                return false;
-            }
-
-            var actualOffset = new Point(offset.X * pixelSize.Width, offset.Y * pixelSize.Height);
-            stageViewModel.MoveRelativeStageXy(actualOffset);
-            Thread.Sleep(500);
-            var tempResultPosition = stageViewModel.GetBrightFieldStagePosition();
-
-            if (saveResultImageFileDirectory is not null)
-            {
-                originImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Origin_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
-                image.SaveImage(originImageFilePath);
-
-                resultImageFilePath = $"{saveResultImageFileDirectory}_Score({resultScore:f3})_Angle{resultAngle:f3}_Result_Guid({logGuid ?? Guid.NewGuid()})_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.jpg";
-                SaveCurrentBrightFieldImage(resultImageFilePath);
-            }
-
-            resultPosition = tempResultPosition;
-
-            if (logGuid is not null && logName is not null && logResultTitle is not null)
-                logger.LogHtmlInformation($"Match Template {logResultTitle}", HtmlHeaderLevelEnum.Header5, new HtmlBullet(new
-                {
-                    microscopeLensInformation.LensName,
-                    OriginPosition = position,
-                    ResultPosition = resultPosition,
-                    ResultOffset = actualOffset,
-                    ResultPoint = resultPoint,
-                    ResultScore = resultScore,
-                    ResultAngle = resultAngle,
-                    HtmlTab = new HtmlTab(new
-                    {
-                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(resultPoint)]),
-                        TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
-                    })
-                }), logGuid.Value.LoggingHtml());
-            return true;
-        }
-        finally
-        {
-            var tryCleanTemplate = calibrationAlgorithmService.TryCleanTemplate(algorithmTemplateTypeEnum, templateId);
-            if (tryCleanTemplate == false)
-            {
-                if (logGuid is not null && logName is not null)
-                    logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header5, new HtmlComment($"{logName} Error: Clean Template Failed."), logGuid.Value.LoggingHtml());
-                else logger.LogError("{Name}: Clean Template Failed", nameof(ReviewViewModel));
-            }
-        }
-    }
-
-    /// <summary>
-    /// 记录日志的匹配模板
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
-    /// <param name="position">匹配旧的位置</param>
-    /// <param name="microscopeLensInformation">匹配的镜头</param>
-    /// <param name="templateFilePath">匹配的模板</param>
-    /// <param name="resultPosition">匹配后成功的[位置]</param>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    public bool TryGetMatchPosition(
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
-        Point position,
-        MicroscopeLensInformation microscopeLensInformation,
-        string templateFilePath,
-        out Point resultPosition)
-    {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeLensInformation, templateFilePath, null, null, null, null,
-            out resultPosition, out _, out _, out _, out _);
-    }
-
-    /// <summary>
-    /// 记录日志的匹配模板
-    /// </summary>
-    /// <param name="algorithmTemplateTypeEnum">算法匹配类型</param>
-    /// <param name="microscopePixelSizeHistoryList">显微镜尺寸列表</param>
-    /// <param name="position">匹配的位置</param>
-    /// <param name="microscopeLensInformation">镜头</param>
-    /// <param name="templateFilePath">模板</param>
-    /// <param name="resultPosition">匹配后成功的[位置]</param>
-    /// <param name="resultScore">匹配后成功的[得分]</param>
-    /// <param name="resultAngle">匹配后成功的[角度]</param>
-    /// <param name="resultImageFilePath">匹配后成功的[保存的匹配图片的路径]</param>
-    /// <param name="originImageFilePath">匹配前原图[保存的原图图片的路径]</param>
-    /// <returns>是否成功</returns>
-    [Obsolete]
-    public bool TryGetMatchPosition(
-        AlgorithmTemplateTypeEnum algorithmTemplateTypeEnum,
-        IEnumerable<MicroscopePixelSizeDTO> microscopePixelSizeHistoryList,
-        Point position,
-        MicroscopeLensInformation microscopeLensInformation,
-        string templateFilePath,
-        out Point resultPosition,
-        out double resultScore,
-        out double resultAngle,
-        out string resultImageFilePath,
-        out string originImageFilePath)
-    {
-        return TryGetMatchPosition(algorithmTemplateTypeEnum, microscopePixelSizeHistoryList, position, microscopeLensInformation, templateFilePath, null, null, null, null,
-            out resultPosition, out resultScore, out resultAngle, out resultImageFilePath, out originImageFilePath);
+        return TryGenerateTemplate(image, setting.ToGenerateParam(
+            calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum,
+            new Size(image.Width, image.Height),
+            templateFilePath), guid);
     }
 
     public bool TryGetMatchPosition(
@@ -456,6 +222,8 @@ public sealed partial class ReviewViewModel(
             var resultPoint = matchResult.MarkPoint;
             var offset = matchResult.Offset;
             var isSuccess = matchResultRet.Success;
+            var templateImagePath = CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath);
+            var (_, templateImageSize) = ImageHelper.GetImageInfo(templateImagePath);
 
             if (isSuccess == false)
             {
@@ -470,7 +238,7 @@ public sealed partial class ReviewViewModel(
                         TemplateMatchScoreThreshold = scoreThreshold,
                         HtmlTab = new HtmlTab(new
                         {
-                            TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)]),
+                            TemplateImage = new HtmlImage(templateImagePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, model.CenterOffset)]),
                             OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     }), logGuid.Value.LoggingHtml());
@@ -504,8 +272,8 @@ public sealed partial class ReviewViewModel(
                     Match = new HtmlQuote(matchResult.ToHtmlAnonymous()),
                     HtmlTab = new HtmlTab(new
                     {
-                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(resultPoint)]),
-                        TemplateImage = new HtmlImage(CalibrationConstantsHelper.TemplatePathToTemplateImagePath(templateFilePath), htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                        OriginImage = new HtmlImage(originImageFilePath, htmlImageOverlays: TemplateMatchHtmlOverlay.CreateMatchResultOverlays(resultPoint, templateImageSize, model.CenterOffset)),
+                        TemplateImage = new HtmlImage(templateImagePath, htmlImageOverlays: [TemplateMatchHtmlOverlay.CreateTemplateCenterCross(templateImageSize, model.CenterOffset)])
                     })
                 }), logGuid.Value.LoggingHtml());
             result = true;

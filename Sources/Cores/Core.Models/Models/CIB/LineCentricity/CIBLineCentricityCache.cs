@@ -23,7 +23,11 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
     [ObservableProperty]
     public partial Point Threshold { get; set; }
 
+    /// <summary>明场模板匹配参数, Step3 界面编辑, 用于明场生成 / 匹配</summary>
     public TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
+
+    /// <summary>暗场模板匹配参数, CreateDarkImageTemplateWindow 确认后写回, 用于暗场匹配</summary>
+    public TemplateMatchSetting DarkTemplateMatchSetting { get; set; } = new();
 
     [Newtonsoft.Json.JsonConverter(typeof(DictionaryConverter<ProductivityInformation, CIBLineCentricityCacheItem>))]
     public ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem> Items { get; init; } = [];
@@ -39,6 +43,7 @@ public sealed partial class CIBLineCentricityCache : CalibrationCacheBase<CIBLin
         Threshold = Threshold,
         Items = new ConcurrentDictionary<ProductivityInformation, CIBLineCentricityCacheItem>(Items.Select(t => new KeyValuePair<ProductivityInformation, CIBLineCentricityCacheItem>(t.Key.Clone(), t.Value.Clone()))),
         TemplateMatchSetting = TemplateMatchSetting.Clone(),
+        DarkTemplateMatchSetting = DarkTemplateMatchSetting.Clone(),
         Id = Id,
         Expiration = Expiration
     };

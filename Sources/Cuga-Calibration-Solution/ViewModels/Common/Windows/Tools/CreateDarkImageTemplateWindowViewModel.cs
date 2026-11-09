@@ -19,7 +19,8 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools;
 public sealed partial class CreateDarkImageTemplateWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     ILogger<CreateDarkImageTemplateWindowViewModel> logger,
-    ReviewViewModel reviewViewModel) : ViewModelBase
+    ReviewViewModel reviewViewModel,
+    CalibrationSetting calibrationSetting) : ViewModelBase
 {
     [ObservableProperty]
     public partial Rect Rect { get; set; }
@@ -36,16 +37,45 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
     [ObservableProperty]
     public partial string TemplateImageFilePath { get; set; } = string.Empty;
 
-    public AlgorithmTemplateTypeEnum HalconTemplateType
-    {
-        get => TemplateMatchSetting.ToHalconTemplateType();
-        set => TemplateMatchSetting.Halcon.TemplateType = value;
-    }
+    /// <summary>
+    /// 步骤标题（仿 OpticsBestFocus 窗口的步骤分区）
+    /// </summary>
+    public string[] Steps { get; } = ["Select ROI", "Mark Template Center"];
+
+    /// <summary>
+    /// ROI 是否显示（首次打开不显示，Step 1 Action 后显示）
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsRoiVisible { get; set; }
+
+    /// <summary>
+    /// 自定义模板中心（原图像素坐标；null = 默认 ROI 中心，Step 2 激活后为 ROI 中心）
+    /// </summary>
+    [ObservableProperty]
+    public partial Point? TemplateCenter { get; set; }
+
+    /// <summary>
+    /// 模板中心显示文本（未标记时为默认 ROI 中心）
+    /// </summary>
+    public string TemplateCenterText => TemplateCenter?.ToString() ?? "ROI Center (Default)";
+
+    partial void OnTemplateCenterChanged(Point? value) => OnPropertyChanged(nameof(TemplateCenterText));
 
     partial void OnTemplateMatchSettingChanged(TemplateMatchSetting value)
     {
         Rect = new Rect(Rect.X, Rect.Y, Convert.ToInt32(value.TemplateSize), Convert.ToInt32(value.TemplateSize));
-        OnPropertyChanged(nameof(HalconTemplateType));
+    }
+
+    /// <summary>
+    /// 单例 ViewModel 每次弹窗时清空上次会话的 ROI / 标记点 / 预览, 调用方在 ShowDialog 前写入的路径和 Setting 保留
+    /// </summary>
+    [RelayCommand]
+    private void Loaded()
+    {
+        TemplateCenter = null;
+        IsRoiVisible = false;
+        Rect = default;
+        TemplateImageFilePath = string.Empty;
     }
 
     [RelayCommand]
@@ -74,7 +104,22 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
                     return;
                 }
 
-                if (reviewViewModel.TryGenerateTemplate(image, TemplateMatchSetting.ToHalconTemplateType(), TemplateFilePath, Rect, Guid.NewGuid()) == false)
+                if (TemplateCenter is { } templateCenter)
+                {
+                    if (new Rect(Point.Origin, new Size(image.Width, image.Height)).Contains(templateCenter) == false)
+                    {
+                        dialogWindowProvider.ShowDialog("Error: The Template Center is out of the size of the image", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                        return;
+                    }
+
+                    if (Rect.Contains(templateCenter) == false)
+                    {
+                        dialogWindowProvider.ShowDialog("Error: The Template Center is out of the ROI", DialogButtonsEnum.OK, DialogIconEnum.Error);
+                        return;
+                    }
+                }
+
+                if (reviewViewModel.TryGenerateTemplate(image, TemplateMatchSetting.ToGenerateParam(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, Rect, TemplateCenter, TemplateFilePath), Guid.NewGuid()) == false)
                 {
                     dialogWindowProvider.ShowDialog("Error: Generate Template Failed", DialogButtonsEnum.OK, DialogIconEnum.Error);
                     return;
@@ -92,6 +137,44 @@ public sealed partial class CreateDarkImageTemplateWindowViewModel(
         {
             logger.LogError(ex, "{@Name}: Get Template Failed", nameof(CreateDarkImageTemplateWindowViewModel));
         }
+    }
+
+    /// <summary>
+    /// Step 1：框选 ROI（显示 ROI；首次以图像中心初始化默认模板尺寸，再次点击保留位置仅重置尺寸；清除标记中心）
+    /// </summary>
+    [RelayCommand]
+    private void Step1()
+    {
+        TemplateCenter = null;
+        IsRoiVisible = true;
+
+        var size = Convert.ToInt32(TemplateMatchSetting.TemplateSize);
+        if (Rect.Width > 0 && Rect.Height > 0)
+        {
+            Rect = new Rect(Rect.X, Rect.Y, size, size);
+            return;
+        }
+
+        if (System.IO.File.Exists(ImageFilePath) == false) return;
+
+        using var image = new BitmapImage(ImageFilePath);
+        Rect = new Rect(image.Width / 2 - size / 2, image.Height / 2 - size / 2, size, size);
+    }
+
+    /// <summary>
+    /// Step 2：标记模板中心（在 ROI 中心显示 45° 十字架，拖动十字架标记；十字架显示期间 ROI 锁定不可编辑，回到 Step 1 解锁）
+    /// </summary>
+    [RelayCommand]
+    private void Step2()
+    {
+        if (System.IO.File.Exists(ImageFilePath) == false)
+        {
+            dialogWindowProvider.ShowDialog("Error: Dark Image is Empty", DialogButtonsEnum.OK, DialogIconEnum.Error);
+            return;
+        }
+
+        IsRoiVisible = true;
+        TemplateCenter = Rect.Center;
     }
 
     [RelayCommand]

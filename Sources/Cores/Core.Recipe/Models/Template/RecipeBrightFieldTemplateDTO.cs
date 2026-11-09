@@ -7,7 +7,7 @@ namespace Core.Recipe.Models.Template;
 public sealed partial class RecipeBrightFieldTemplateDTO : RecipeTemplateDTOBase, ICloneable<RecipeBrightFieldTemplateDTO>, IAdaptIn<RecipeBrightFieldTemplateDTO, RecipeBrightFieldTemplateDTO>
 {
     [ObservableProperty]
-    private MicroscopeLensInformation _microscopeLensInformation = MicroscopeLensInformation.Default;
+    public partial MicroscopeLensInformation MicroscopeLensInformation { get; set; } = MicroscopeLensInformation.Default;
 
     public RecipeBrightFieldTemplateDTO Clone() => new()
     {
@@ -15,7 +15,7 @@ public sealed partial class RecipeBrightFieldTemplateDTO : RecipeTemplateDTOBase
         TemplateId = TemplateId,
         Remark = Remark,
         MaskReticlePosition = MaskReticlePosition,
-        AlgorithmTemplateTypeEnum = AlgorithmTemplateTypeEnum,
+        TemplateMatchSetting = TemplateMatchSetting.Clone(),
         TemplateImageFilePath = TemplateImageFilePath,
         TemplateFilePath = TemplateFilePath,
         AlgorithmTemplateSizeEnum = AlgorithmTemplateSizeEnum
@@ -27,7 +27,7 @@ public sealed partial class RecipeBrightFieldTemplateDTO : RecipeTemplateDTOBase
         TemplateId = obj.TemplateId;
         Remark = obj.Remark;
         MaskReticlePosition = obj.MaskReticlePosition;
-        AlgorithmTemplateTypeEnum = obj.AlgorithmTemplateTypeEnum;
+        TemplateMatchSetting = obj.TemplateMatchSetting.Clone();
         TemplateImageFilePath = obj.TemplateImageFilePath;
         TemplateFilePath = obj.TemplateFilePath;
         AlgorithmTemplateSizeEnum = obj.AlgorithmTemplateSizeEnum;

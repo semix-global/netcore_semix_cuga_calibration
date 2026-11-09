@@ -9,11 +9,9 @@ using Core.Models.Models.Common.Status;
 using Core.Models.Models.Microscope.CalChip;
 using CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
 using MathNet.Numerics;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
@@ -381,8 +379,7 @@ public sealed partial class AODDelayViewModel : CalibrationViewModelBase<AODDela
                         itemItem.ImageFilePath = imageFilePath;
                         itemItem.RawImageFilePath = darkFieldImage.RawImageFilePath;
 
-                        using var hImage = darkFieldImage.Image.ToHImage();
-                        itemItem.PMTValue = hImage.GetIntensity().Average;
+                        itemItem.PMTValue = darkFieldImage.Image.GetIntensity().Average;
 
                         CalibratingItem.Items = [.. CalibratingItem.Items.Append(itemItem).OrderBy(t => t.ChirpAODDelay)];
 

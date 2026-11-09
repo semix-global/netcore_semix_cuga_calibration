@@ -11,11 +11,9 @@ using Core.Models.Models.Microscope.CalChip;
 using Humanizer;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
-using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Helpers.Helpers.Structs;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
@@ -347,10 +345,9 @@ public sealed partial class CIBIlluminationProfileViewModel : CalibrationViewMod
                                     var imageFilePath = Path.Combine(detectImageDirectory, itemItem.CIBInformation.ToString(), $"{DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}.jpg");
                                     darkFieldImage.Image.SaveImage(imageFilePath);
 
-                                    using var hImage = darkFieldImage.Image.ToHImage();
                                     var itemItemData = new CIBIlluminationProfileDTOItem.Item
                                     {
-                                        ImageHorizontalProjects = hImage.GetHorizontalProjects(),
+                                        ImageHorizontalProjects = darkFieldImage.Image.GetHorizontalProjects(),
                                         RawImageFilePath = darkFieldImage.RawImageFilePath,
                                         ImageFilePath = imageFilePath
                                     };

@@ -8,6 +8,7 @@
              xmlns:hc="https://handyorg.github.io/handycontrol"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
+             xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:bestFocusAndAstigmatism="clr-namespace:Core.Models.Models.AOD.BestFocusAndAstigmatism;assembly=Core.Models"
              xmlns:ui="clr-namespace:Core.Models.Models.Common.AODWaveform.UI;assembly=Core.Models"
@@ -63,7 +64,7 @@
                                          hc:TitleElement.TitleWidth="220"
                                          hc:TitleElement.Title="Algorithm Engine Type: "
                                          SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
-                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type enumAlgorithm:AlgorithmEngineTypeEnum}}}">
+                                         ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type calibrationAlgorithm:AlgorithmEngineTypeEnum}}}">
                                 <hc:ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />

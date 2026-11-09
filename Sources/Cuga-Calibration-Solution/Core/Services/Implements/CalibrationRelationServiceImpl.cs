@@ -91,37 +91,38 @@ public sealed class CalibrationRelationServiceImpl(
     #region Private
 
     /// <summary>
-    /// 校验数据库存储的数据结构和实时entry结构是否一致，不一致默认清空缓存，提示重新在setting页面中配置
+    /// 校验数据库存储的关系配置是否与当前校准菜单结构一致，不一致则清空缓存并提示重新配置。
+    /// 只对比当前硬件和角色过滤后的菜单，不拿全集 CalibrationViewModelEntries。
     /// </summary>
     private void ValidateRelationConfigConsistency()
     {
         if (_isValidateRelationConfigConsistency) return;
+
         var relationParams = calibrationSetting.SettingCalibrationRelationParams
             .SelectMany(t => t.GetAllChildren())
             .ToList();
 
-        var entries = ApplicationCookie.CalibrationViewModelEntries.Values.ToList();
+        var menuItems = applicationCookie.CalibrationMenu.GetAllChildren();
 
-        if (relationParams.Count != entries.Count)
+        if (relationParams.Count != menuItems.Count)
         {
             ResetCache();
             return;
         }
 
-        var entryTypeNames = new HashSet<string>(entries
-            .Select(e => e.DTOType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)));
+        var menuTypeNames = new HashSet<string>(menuItems
+            .Select(e => e.Entry.DTOType.GetAssemblyQualifiedName(isIncludeVersion: false, isIncludeCulture: false, isIncludePublicKeyToken: false)));
 
         foreach (var param in relationParams)
         {
             var ownDependencyNode = FindConfigInTrees(param.Item.DependencyRelationConfigs, param.SysMenu.Id);
-            var paramTypeName = ownDependencyNode?.Item.AssemblyQualifiedName;
-            if (string.IsNullOrEmpty(paramTypeName))
+            if (ownDependencyNode is null || string.IsNullOrEmpty(ownDependencyNode.Item.AssemblyQualifiedName))
             {
                 ResetCache();
                 return;
             }
 
-            if (entryTypeNames.Contains(paramTypeName!) == false)
+            if (menuTypeNames.Contains(ownDependencyNode.Item.AssemblyQualifiedName) == false)
             {
                 ResetCache();
                 return;
@@ -129,7 +130,6 @@ public sealed class CalibrationRelationServiceImpl(
         }
 
         _isValidateRelationConfigConsistency = true;
-        return;
 
         void ResetCache()
         {

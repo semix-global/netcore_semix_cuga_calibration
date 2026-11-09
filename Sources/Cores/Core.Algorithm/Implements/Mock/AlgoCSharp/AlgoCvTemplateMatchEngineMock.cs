@@ -1,6 +1,7 @@
 using Core.Algorithm.Helper;
 using Core.Algorithm.Interfaces;
 using Core.Algorithm.Interfaces.TemplateMatch;
+using Core.Algorithm.Models;
 using Core.Algorithm.Models.TemplateMatch;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -8,9 +9,13 @@ using Net.Utilities.Models.Geometries;
 
 namespace Core.Algorithm.Implements.Mock.AlgoCSharp;
 
-internal sealed class AlgoCvTemplateMatchModelMock(AlgoCvTemplateMatchParams engineParams) : ITemplateMatchModel
+internal sealed class AlgoCvTemplateMatchModelMock(
+    AlgoCvTemplateMatchParams engineParams,
+    Point centerOffset = default) : ITemplateMatchModel
 {
     public AlgoCvTemplateMatchParams EngineParams { get; } = engineParams;
+
+    public Point CenterOffset { get; } = centerOffset;
 
     public void Dispose()
     {
@@ -21,7 +26,7 @@ public sealed class AlgoCvTemplateMatchEngineMock : ITemplateMatchEngine
 {
     public AlgorithmResultRet<ITemplateMatchModel> Generate(BitmapImage image, GenerateTemplateParam param, Guid guid)
     {
-        if (TemplateMatchEngineParams.TryGet<AlgoCvTemplateMatchParams>(param.EngineParams, out var algoCvParams, out var engineParamsError) == false)
+        if (EngineParams.TryGet<AlgoCvTemplateMatchParams>(param.EngineParams, out var algoCvParams, out var engineParamsError) == false)
         {
             return AlgorithmResultRet.CreateError<ITemplateMatchModel>(engineParamsError);
         }
@@ -30,30 +35,34 @@ public sealed class AlgoCvTemplateMatchEngineMock : ITemplateMatchEngine
         roiImage.SaveImage(AlgorithmConstantHelper.TemplatePathToTemplateImagePath(param.TemplateFilePath));
         image.SaveImage(AlgorithmConstantHelper.TemplatePathToTemplateOriginImagePath(param.TemplateFilePath));
 
+        var meta = param.ToTemplateMatchMeta();
+        TemplateMatchMeta.Save(param.TemplateFilePath, meta);
+
 #pragma warning disable IDISP004
-        return AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new AlgoCvTemplateMatchModelMock(algoCvParams));
+        return AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new AlgoCvTemplateMatchModelMock(algoCvParams, meta.CenterOffset));
 #pragma warning restore IDISP004
     }
 
     public AlgorithmResultRet<ITemplateMatchModel> Read(ReadTemplateParam param, Guid guid)
     {
-        return TemplateMatchEngineParams.TryGet<AlgoCvTemplateMatchParams>(param.EngineParams, out var algoCvParams, out var engineParamsError) == false
+        return EngineParams.TryGet<AlgoCvTemplateMatchParams>(param.EngineParams, out var algoCvParams, out var engineParamsError) == false
             ? AlgorithmResultRet.CreateError<ITemplateMatchModel>(engineParamsError)
-            : AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new AlgoCvTemplateMatchModelMock(algoCvParams));
+            : AlgorithmResultRet.CreateSuccess<ITemplateMatchModel>(new AlgoCvTemplateMatchModelMock(algoCvParams, TemplateMatchMeta.Load(param.TemplateFilePath).CenterOffset));
     }
 
     public AlgorithmResultRet<MatchTemplateResult> Match(BitmapImage image, MatchTemplateParam param, Guid guid)
     {
-        if (param.Model is not AlgoCvTemplateMatchModelMock)
+        if (param.Model is not AlgoCvTemplateMatchModelMock model)
         {
             return AlgorithmResultRet.CreateError<MatchTemplateResult>($"Model must be {nameof(AlgoCvTemplateMatchModelMock)}");
         }
 
-        var markPoint = new Point(image.Width / 2d, image.Height / 2d);
+        var markPoint = new Point(image.Width / 2d, image.Height / 2d) + new TemplateMatchPose(0d).Transform(model.CenterOffset);
+        var offset = markPoint - new Point(image.Width / 2d, image.Height / 2d);
         var result = new MatchTemplateResult
         {
             MarkPoint = markPoint,
-            Offset = Point.Origin,
+            Offset = new Point(offset.X, -offset.Y),
             Score = 1d,
             Angle = 0d
         };

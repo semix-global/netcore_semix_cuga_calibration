@@ -8,6 +8,9 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:pattern="clr-namespace:Core.Models.Models.Common.Pattern;assembly=Core.Models"
+             xmlns:setting="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
+             xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
+             xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              d:DataContext="{d:DesignInstance Type=cib:CIBYPixelSizeViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -71,6 +74,20 @@
                         </ComboBox>
                         <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.Item.OpticsConfiguration}" />
                         <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.Item.CIBConfiguration}" />
+                        <!--  2026-10-24 用户裁定：Y 像素尺寸算法库切换与引擎参数设置放同一页面（自 Step4View 迁入）  -->
+                        <hc:ComboBox hc:TitleElement.TitlePlacement="Left"
+                                     hc:TitleElement.TitleWidth="160"
+                                     hc:TitleElement.Title="Algorithm Engine Type: "
+                                     SelectedItem="{Binding Cache.AlgorithmEngineTypeEnum}"
+                                     ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type calibrationAlgorithm:AlgorithmEngineTypeEnum}}}">
+                            <hc:ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}" />
+                                </DataTemplate>
+                            </hc:ComboBox.ItemTemplate>
+                        </hc:ComboBox>
+                        <!--  Y 像素尺寸引擎参数设置（仿模板匹配范式，默认折叠），引擎取本流程 Cache.AlgorithmEngineTypeEnum  -->
+                        <setting:YPixelSizeSettingUserControl DataContext="{Binding Cache.YPixelSizeSetting}" Engine="{Binding DataContext.Cache.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
