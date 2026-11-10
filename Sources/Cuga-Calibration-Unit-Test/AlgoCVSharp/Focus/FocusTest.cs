@@ -93,9 +93,7 @@ public class FocusTest(ITestOutputHelper testOutputHelper)
     [InlineData("100X")]
     public void GetQuality_HalconVsAlgo_EcsSweep_ShouldOutputBestEcsDifference(string magnification)
     {
-        var service = new CalibrationAlgorithmServiceImpl(
-            NullLogger<CalibrationAlgorithmServiceImpl>.Instance,
-            new CalibrationSetting());
+        var service = new CalibrationAlgorithmServiceImpl(NullLogger<CalibrationAlgorithmServiceImpl>.Instance);
 
         var files = Directory.GetFiles($@"Assets\Focus\{magnification}", "*.jpg");
         files.Length.Should().BeGreaterThan(0);
