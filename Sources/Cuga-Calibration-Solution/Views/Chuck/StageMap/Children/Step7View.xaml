@@ -3,9 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
              xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
@@ -61,15 +62,21 @@
         </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="DF StageMap">
-            <Border Style="{StaticResource BorderRegion}">
-                <ContentPresenter Content="{Binding CalibratingItem.DFStageMap, Mode=OneWay}">
-                    <ContentPresenter.ContentTemplate>
-                        <DataTemplate DataType="{x:Type stageMap:StageMap}">
-                            <v2:PlotControl DataSource="{Binding PlotDataSource, Mode=OneWay}" />
-                        </DataTemplate>
-                    </ContentPresenter.ContentTemplate>
-                </ContentPresenter>
-            </Border>
+            <TabControl>
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
+                <TabItem Header="DF StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.DFStageMap.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="BF StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding CalibratingItem.BFStageMap.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+            </TabControl>
         </GroupBox>
     </Grid>
 </UserControl>

@@ -87,8 +87,10 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         Cache = ApplicationCookieService.GetCache<ChuckStageMapCache>(cancellationToken);
         Calibration = ApplicationCookieService.GetCalibration<ChuckStageMapDTO>(cancellationToken);
 
+        StageMapCommands.Logger = Logger;
         StageMapCommands.ImageFileDirectory = ImageFileDirectory;
         StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
+        StageMapCommands.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
         StageMapCommands.Cache = Cache;
         StageMapCommands.ChuckStageMap = CalibratingItem;
 
@@ -141,6 +143,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 return true;
 
             case 4:
+                StageMapCommands.IsDark = false;
+
                 return true;
 
             case 5:
@@ -177,6 +181,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         switch (CalibrationStepIndex)
         {
             case 0:
+                StageMapCommands.IsDark = false;
                 CalibratingItem = new ChuckStageMapDTO();
                 StageMapCommands.ChuckStageMap = CalibratingItem;
 
@@ -196,6 +201,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 return true;
 
             case 4:
+                StageMapCommands.IsDark = true;
+
                 return true;
 
             case 5:
@@ -235,6 +242,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         {
             Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
 
+            CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation
@@ -261,6 +270,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             {
                 Cache.MicroscopeLensInformation,
                 StageMapCommands.IsDark,
+                AlignmentUserControlViewModel.CalChipSiteModelEnum,
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
                 BFAlignmentResult = new HtmlQuote(CalibratingItem.BFAlignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -303,7 +314,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
-            await StageMapCommands.GenerateStageMapDocumnetAsync(cancellationToken).ConfigureAwait(false);
+            await StageMapCommands.GenerateStageMapDocumentAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
             return true;
         });
@@ -340,7 +351,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
-        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.CalibrateAsync(false, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     });
@@ -358,10 +369,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                     Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                    Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                    Cache.ChuckStageMapCacheDFItem.CIBConfiguration
+                    OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                    CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous())
                 })
             }), HtmlLogUniqueId.LoggingHtml());
+
+            CalibratingItem.DFProductivityInformation = Cache.ChuckStageMapCacheDFItem.ProductivityInformation;
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ChuckStageMapCacheDFItem.ProductivityInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.ChuckStageMapCacheDFItem.LaserLightInformation)
@@ -396,10 +409,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                     Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                    Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                    Cache.ChuckStageMapCacheDFItem.CIBConfiguration
+                    OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                    CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous())
                 }),
                 StageMapCommands.IsDark,
+                AlignmentUserControlViewModel.CalChipSiteModelEnum,
+                AlignmentUserControlViewModel.IsDarkFieldAlignment,
                 DFAlignmentResult = new HtmlQuote(CalibratingItem.DFAlignmentResult.ToHtmlAnonymous())
             }), HtmlLogUniqueId.LoggingHtml());
 
@@ -422,8 +437,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                     Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                    Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                    Cache.ChuckStageMapCacheDFItem.CIBConfiguration,
+                    OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                    CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.ChuckStageMapCacheDFItem.ImageWidth,
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                     Cache.ChuckStageMapCacheDFItem.WaferRadius,
@@ -443,12 +458,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                                 TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                             })
                         })
-                    ]),
-                    StageMapCommands.IsDark
-                })
+                    ])
+                }),
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
-            await StageMapCommands.GenerateStageMapDocumnetAsync(cancellationToken).ConfigureAwait(false);
+            await StageMapCommands.GenerateStageMapDocumentAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
             return true;
         });
@@ -465,8 +480,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                 Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                Cache.ChuckStageMapCacheDFItem.CIBConfiguration,
+                OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.ChuckStageMapCacheDFItem.ImageWidth,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                 Cache.ChuckStageMapCacheDFItem.WaferRadius,
@@ -486,12 +501,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                             TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     })
-                ]),
-                StageMapCommands.IsDark
-            })
+                ])
+            }),
+            StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
-        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.CalibrateAsync(false, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     });
@@ -507,8 +522,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                 Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                Cache.ChuckStageMapCacheDFItem.CIBConfiguration,
+                OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.ChuckStageMapCacheDFItem.ImageWidth,
                 Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
@@ -529,9 +544,9 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                             TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     })
-                ]),
-                StageMapCommands.IsDark
-            })
+                ])
+            }),
+            StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
         return await StageMapCommands.DFRepeatCalibrateAsync(CalibrationSteps[8].StepName, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
@@ -570,8 +585,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                 Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                Cache.ChuckStageMapCacheDFItem.CIBConfiguration,
+                OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
                 Cache.ChuckStageMapCacheDFItem.ImageWidth,
                 Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
@@ -592,9 +607,9 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                             TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
                         })
                     })
-                ]),
-                StageMapCommands.IsDark
-            })
+                ])
+            }),
+            StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -656,8 +671,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.ProductivityInformation,
                     Cache.ChuckStageMapCacheDFItem.LaserLightInformation,
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
-                    Cache.ChuckStageMapCacheDFItem.OpticsConfiguration,
-                    Cache.ChuckStageMapCacheDFItem.CIBConfiguration,
+                    OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
+                    CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
                     Cache.ChuckStageMapCacheDFItem.ImageWidth,
                     Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
@@ -679,16 +694,30 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                             })
                         })
                     ])
-                })
+                }),
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
+
+            Review.ExpandStageMap.Refresh();
+            Logger.LogHtmlInformation("Expand StageMap", HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                .. Review.ExpandStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
+                .. Review.ExpandStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
+            ]), HtmlLogUniqueId.LoggingHtml());
 
             StageMapCommands.IsDark = false;
             Logger.LogHtmlInformation("BF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
-            await StageMapCommands.VerifyAsync(Review.ExpandStageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
-            Review.BFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            await StageMapCommands.VerifyAsync(
+                Review.ExpandStageMap,
+                HtmlLogUniqueId,
+                cancellationToken,
+                isDownloadStageMap: true,
+                isInterpolateErrorsAdaptTo: false).ConfigureAwait(false);
+
+            Guard.IsTrue(StageMapCommands.VerifyStageMap.TryGetMaxMatchedError(out var bfVerifyMaxError), "Bright field verify has no matched points.");
+            Review.BFVerifyMaxError = bfVerifyMaxError;
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
             StageMapCommands.IsDark = true;
@@ -696,8 +725,15 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
-            await StageMapCommands.VerifyAsync(Review.ExpandStageMap, HtmlLogUniqueId, cancellationToken, isDownloadStageMap: true).ConfigureAwait(false);
-            Review.DFVerifyMaxError = Guard.IsNotNullAndReturn(StageMapCommands.VerifyStageMap.ErrorMatrix.MaxBy(t => t.Length)).First();
+            await StageMapCommands.VerifyAsync(
+                Review.ExpandStageMap,
+                HtmlLogUniqueId,
+                cancellationToken,
+                isDownloadStageMap: false,
+                isInterpolateErrorsAdaptTo: false).ConfigureAwait(false);
+
+            Guard.IsTrue(StageMapCommands.VerifyStageMap.TryGetMaxMatchedError(out var dfVerifyMaxError), "Dark field verify has no matched points.");
+            Review.DFVerifyMaxError = dfVerifyMaxError;
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
             Review.IsVerified = Review.BFVerifyMaxError.Length < Cache.Threshold && Review.DFVerifyMaxError.Length < Cache.Threshold;

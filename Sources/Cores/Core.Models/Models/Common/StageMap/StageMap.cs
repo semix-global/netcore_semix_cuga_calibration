@@ -70,6 +70,26 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>, I
         Refresh();
     }
 
+    public bool TryGetMaxMatchedError(out Vector maxError)
+    {
+        var isMatched = false;
+        maxError = Vector.Zero;
+
+        foreach (var (y, row) in ErrorMatrix.Index())
+        {
+            foreach (var (x, error) in row.Index())
+            {
+                if (IsInWaferMatrix[y][x] == false || IsMatchMatrix[y][x] == false) continue;
+                if (isMatched && error.Length <= maxError.Length) continue;
+
+                maxError = error;
+                isMatched = true;
+            }
+        }
+
+        return isMatched;
+    }
+
     public StageMap Clone() => new()
     {
         IdealMatrix =

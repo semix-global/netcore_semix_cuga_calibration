@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -49,9 +50,9 @@ public sealed partial class StageMapWindowViewModel(
 
     public StageMapCommands StageMapCommands { get; } = stageMapCommands;
 
-    public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
-    public string TemplateFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Template", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string TemplateFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Template", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
     public string[] Steps { get; } =
     [
@@ -80,8 +81,10 @@ public sealed partial class StageMapWindowViewModel(
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
 
+            StageMapCommands.Logger = logger;
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
+            StageMapCommands.CalChipSiteModelEnum = MicroscopeCalChip.CalChipSiteModelEnum;
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
             StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;
 
@@ -154,7 +157,7 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
     {
-        await StageMapCommands.GenerateStageMapDocumnetAsync(cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.GenerateStageMapDocumentAsync(cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -164,7 +167,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await StageMapCommands.CalibrateAsync(HtmlLogUniqueId, cancellationToken, isCanSelected: true);
+        await StageMapCommands.CalibrateAsync(true, HtmlLogUniqueId, cancellationToken);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -182,7 +185,12 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await StageMapCommands.VerifyAsync(StageMapCommands.StageMap, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.VerifyAsync(
+            StageMapCommands.StageMap,
+            HtmlLogUniqueId,
+            cancellationToken,
+            isDownloadStageMap: true,
+            isInterpolateErrorsAdaptTo: true).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -192,6 +200,8 @@ public sealed partial class StageMapWindowViewModel(
     {
         try
         {
+            StageMapCommands.AddStageMapTemplateCancelCommand.Execute(null);
+
             Step4CancelCommand.Execute(null);
             Step3CancelCommand.Execute(null);
             Step2CancelCommand.Execute(null);

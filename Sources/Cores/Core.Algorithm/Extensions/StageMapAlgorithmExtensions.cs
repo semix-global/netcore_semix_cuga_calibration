@@ -125,7 +125,7 @@ public static class StageMapAlgorithmExtensions
             Guard.IsGreaterThan(dfYLength, 1);
             Guard.IsGreaterThan(dfXLength, 1);
 
-            var (_, baseX, baseY, xStep, yStep, dfErrors) = @this.AdaptTo(dfTargetCircle);
+            var (_, baseX, baseY, xStep, yStep, dfErrors) = @this.InterpolateErrorsAdaptTo(dfTargetCircle);
             var endX = baseX + (dfXLength - 1) * xStep;
             var endY = baseY + (dfYLength - 1) * yStep;
 
@@ -232,7 +232,7 @@ public static class StageMapAlgorithmExtensions
 
         #region Mapper
 
-        public StageMapErrorDTO AdaptTo(Circle targetCircle)
+        public StageMapErrorDTO InterpolateErrorsAdaptTo(Circle targetCircle)
         {
             var (yLength, xLength) = @this.IdealMatrix.GetYXLength();
 

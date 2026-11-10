@@ -61,7 +61,7 @@ public sealed partial class CIBInformation :
     public override int GetHashCode() => HashCode.Combine(PMTId, ChannelId);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {

@@ -52,19 +52,12 @@
                         <i:CallMethodAction MethodName="DragMove" TargetObject="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
-                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                    <TextBlock Text="{Binding Name, Mode=OneWay}"
-                               FontSize="13"
-                               FontWeight="Bold"
-                               Foreground="White"
-                               Style="{StaticResource TextBlockDefault}" />
-                    <TextBlock Text="{Binding StageMapCommands.Name, Mode=OneWay}"
-                               Margin="8,0,0,0"
-                               FontSize="13"
-                               FontWeight="Bold"
-                               Foreground="White"
-                               Style="{StaticResource TextBlockDefault}" />
-                </StackPanel>
+                <TextBlock Text="{Binding Name}"
+                           HorizontalAlignment="Center"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           Style="{StaticResource TextBlockDefault}" />
             </StackPanel>
             <Button Command="{Binding CloseCommand}"
                     HorizontalAlignment="Right"
@@ -91,313 +84,358 @@
             <Border Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
-                        <StackPanel>
-                            <TextBlock Text="Param"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultInfo}" />
-                        </StackPanel>
-                        <ComboBox hc:TitleElement.Title="Field: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  SelectedValue="{Binding StageMapCommands.IsDark}"
-                                  SelectedValuePath="Tag"
-                                  Style="{StaticResource ComboBoxExtend}">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="SelectionChanged">
-                                    <i:ChangePropertyAction PropertyName="SelectedIndex"
-                                                            TargetObject="{Binding ElementName=StageMapHistoryTabs}"
-                                                            Value="0" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                            <ComboBoxItem Content="Bright Field" Tag="{x:Static models:Constants.False}" />
-                            <ComboBoxItem Content="Dark Field" Tag="{x:Static models:Constants.True}" />
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                            <i:Interaction.Behaviors>
-                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <i:Interaction.Behaviors>
-                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <i:Interaction.Behaviors>
-                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <ComboBox hc:TitleElement.Title="CIB Information: "
-                                  hc:TitleElement.TitlePlacement="Left"
-                                  hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.CIBInformations}"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <i:Interaction.Behaviors>
-                                <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                            </i:Interaction.Behaviors>
-                        </ComboBox>
-                        <Expander Header="Optics Configuration"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <pattern:OpticsConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.OpticsConfiguration}" />
-                            </Border>
-                        </Expander>
-                        <Expander Header="CIB Configuration"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <pattern:CIBConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBConfiguration}" />
-                            </Border>
-                        </Expander>
-                        <Expander Header="Template Match Setting"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <controls:TemplateMatchSettingUserControl DataContext="{Binding StageMapCommands.CacheItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
-                            </Border>
-                        </Expander>
-                        <Expander Header="{Binding Steps[0]}"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down">
+                        <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                    <ComboBox hc:TitleElement.Title="Field: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              SelectedValue="{Binding StageMapCommands.IsDark}"
+                                              SelectedValuePath="Tag"
+                                              Style="{StaticResource ComboBoxExtend}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="SelectionChanged">
+                                                <i:ChangePropertyAction PropertyName="SelectedIndex"
+                                                                        TargetObject="{Binding ElementName=StageMapHistoryTabs}"
+                                                                        Value="0" />
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                        <ComboBoxItem Content="Bright Field" Tag="{x:Static models:Constants.False}" />
+                                        <ComboBoxItem Content="Dark Field" Tag="{x:Static models:Constants.True}" />
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <Expander Header="Optics Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.OpticsConfiguration}" />
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="CIB Configuration"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <pattern:CIBConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBConfiguration}" />
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="Template Match Setting"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <controls:TemplateMatchSettingUserControl DataContext="{Binding StageMapCommands.CacheItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" />
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="{Binding Steps[0]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="{Binding Steps[1]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding StageMapCommands.CacheItem.DiePitchWidth}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding StageMapCommands.CacheItem.DiePitchHeight}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding StageMapCommands.CacheItem.WaferRadius}" />
+                                                <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                  Value="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.ImageWidth}" />
+                                                <StackPanel>
+                                                    <TextBlock Text="StageMap Template Points"
+                                                               HorizontalAlignment="Center"
+                                                               FontSize="13"
+                                                               FontWeight="Bold"
+                                                               Style="{StaticResource TextBlockDefaultInfo}" />
+                                                </StackPanel>
+                                                <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                                                    <Button Content="Mark"
+                                                            Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                            Style="{StaticResource ButtonPrimary.Loading}" />
+                                                    <Button Content="Cancel"
+                                                            Command="{Binding StageMapCommands.AddStageMapTemplateCancelCommand}"
+                                                            hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                            Style="{StaticResource ButtonWarning}" />
+                                                    <Button Content="Delete"
+                                                            Command="{Binding StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand}"
+                                                            CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridTemplatePoints}"
+                                                            hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
+                                                            Style="{StaticResource ButtonDanger}" />
+                                                </hc:UniformSpacingPanel>
+                                                <DataGrid x:Name="DataGridTemplatePoints"
+                                                          MaxHeight="360"
+                                                          hc:DataGridAttach.ShowRowNumber="True"
+                                                          RowHeight="110"
+                                                          Style="{StaticResource DataGrid.Small}"
+                                                          HeadersVisibility="All"
+                                                          RowHeaderWidth="60"
+                                                          CanUserAddRows="False"
+                                                          CanUserSortColumns="False"
+                                                          AutoGenerateColumns="False"
+                                                          IsReadOnly="True"
+                                                          ItemsSource="{Binding StageMapCommands.CacheItem.StageMapTemplates}">
+                                                    <DataGrid.Columns>
+                                                        <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
+                                                        <DataGridTemplateColumn Header="Images">
+                                                            <DataGridTemplateColumn.CellTemplate>
+                                                                <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
+                                                                    <view:CanvasView Width="100"
+                                                                                     Height="100"
+                                                                                     BackgroundColor="#0A0A0A"
+                                                                                     AxisColor="Red"
+                                                                                     Interactive="True"
+                                                                                     ShowAxes="True"
+                                                                                     ShowCursor="False"
+                                                                                     ShowGrid="False"
+                                                                                     BackgroundImage="{Binding TemplateImageFilePath, Converter={StaticResource StringToBitmapSourceConverter}}" />
+                                                                </DataTemplate>
+                                                            </DataGridTemplateColumn.CellTemplate>
+                                                        </DataGridTemplateColumn>
+                                                    </DataGrid.Columns>
+                                                </DataGrid>
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <Expander Header="{Binding Steps[3]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Repeat Times: "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
-                        </Expander>
-                        <Expander Header="{Binding Steps[1]}"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down">
+                        </GroupBox>
+                        <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
-                                                      Minimum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}"
-                                                      Value="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.ImageWidth}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
-                                                      Minimum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding StageMapCommands.CacheItem.WaferRadius}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
-                                                      Minimum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding StageMapCommands.CacheItem.DiePitchWidth}" />
-                                    <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
-                                                      Minimum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding StageMapCommands.CacheItem.DiePitchHeight}" />
-                                    <StackPanel>
-                                        <TextBlock Text="StageMap Template Points"
-                                                   HorizontalAlignment="Center"
-                                                   FontSize="13"
-                                                   FontWeight="Bold"
-                                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                                    </StackPanel>
-                                    <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
-                                        <Button Content="Mark"
-                                                Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
+                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                        <Expander.Header>
+                                            <TextBlock Text="Result" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                        </Expander.Header>
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                                         hc:TitleElement.Title="Alignment Degrees(°): "
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Mark Point1(um): "
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                                         hc:TitleElement.Title="Mark Point2(um): "
+                                                         hc:TitleElement.TitleWidth="200"
+                                                         hc:TitleElement.TitlePlacement="Left"
+                                                         IsReadOnly="True"
+                                                         Background="{StaticResource SecondaryRegionBrush}"
+                                                         Style="{StaticResource TextBoxExtend}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
+                                    <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step0Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
                                                 hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                                Style="{StaticResource ButtonPrimary.Loading}" />
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
                                         <Button Content="Cancel"
-                                                Command="{Binding StageMapCommands.AddStageMapTemplateCancelCommand}"
+                                                Command="{Binding Step0CancelCommand}"
                                                 hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                 Style="{StaticResource ButtonWarning}" />
-                                        <Button Content="Delete"
-                                                Command="{Binding StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand}"
-                                                CommandParameter="{Binding SelectedItems, ElementName=StageMapTemplatesList}"
-                                                hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                                Style="{StaticResource ButtonDanger}" />
                                     </hc:UniformSpacingPanel>
-                                    <ListView x:Name="StageMapTemplatesList"
-                                              MaxHeight="360"
-                                              ItemsSource="{Binding StageMapCommands.CacheItem.StageMapTemplates}"
-                                              SelectionMode="Extended"
-                                              Style="{StaticResource ListView.Small}"
-                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                              ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                        <i:Interaction.Behaviors>
-                                            <itemsControlBehaviors:ListBoxScrollToCurrentBehavior />
-                                        </i:Interaction.Behaviors>
-                                        <ListView.ItemContainerStyle>
-                                            <Style BasedOn="{StaticResource ListViewItemBaseStyle.Small}" TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                <Setter Property="VerticalContentAlignment" Value="Center" />
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsSelected" Value="True">
-                                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-                                        <ListView.View>
-                                            <GridView>
-                                                <GridView.ColumnHeaderContainerStyle>
-                                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
-                                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                                        <Setter Property="VerticalContentAlignment" Value="Center" />
-                                                    </Style>
-                                                </GridView.ColumnHeaderContainerStyle>
-                                                <GridViewColumn Width="45"
-                                                                Header="#"
-                                                                DisplayMemberBinding="{Binding DisplayIndex, Mode=OneWay}" />
-                                                <GridViewColumn Width="220"
-                                                                Header="BF Machine Position(um)"
-                                                                DisplayMemberBinding="{Binding FindBFMachinePosition, Mode=OneWay, Converter={StaticResource PointToStringConverter}}" />
-                                                <GridViewColumn Width="120" Header="Template">
-                                                    <GridViewColumn.CellTemplate>
-                                                        <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
-                                                            <view:CanvasView Width="100"
-                                                                             Height="100"
-                                                                             BackgroundColor="#0A0A0A"
-                                                                             AxisColor="Red"
-                                                                             Interactive="True"
-                                                                             ShowAxes="True"
-                                                                             ShowCursor="False"
-                                                                             ShowGrid="False"
-                                                                             BackgroundImage="{Binding TemplateImageFilePath, Mode=OneWay, Converter={StaticResource StringToBitmapSourceConverter}}" />
-                                                        </DataTemplate>
-                                                    </GridViewColumn.CellTemplate>
-                                                </GridViewColumn>
-                                            </GridView>
-                                        </ListView.View>
-                                    </ListView>
+                                    <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step1Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step1CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Action"
+                                                Command="{Binding Step2Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step2CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[3]}"
+                                                Margin="0"
+                                                Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    <hc:UniformSpacingPanel Spacing="10" Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button Content="Action"
+                                                Command="{Binding Step3Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step3CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
+                                    <hc:Divider Content="{Binding Steps[4]}" Margin="0" />
+                                    <hc:UniformSpacingPanel Spacing="10">
+                                        <Button Content="Verify"
+                                                Command="{Binding Step4Command}"
+                                                CommandParameter="{x:Static models:Constants.False}"
+                                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                                Style="{StaticResource ButtonPrimary.Loading}">
+                                            <Button.IsEnabled>
+                                                <MultiBinding Converter="{StaticResource MultiValueBooleanNegationAnyConverter}">
+                                                    <Binding Path="Step0Command.IsRunning" />
+                                                    <Binding Path="Step1Command.IsRunning" />
+                                                    <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="Step3Command.IsRunning" />
+                                                    <Binding Path="Step4Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
+                                                </MultiBinding>
+                                            </Button.IsEnabled>
+                                        </Button>
+                                        <Button Content="Cancel"
+                                                Command="{Binding Step4CancelCommand}"
+                                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                                Style="{StaticResource ButtonWarning}" />
+                                    </hc:UniformSpacingPanel>
                                 </hc:UniformSpacingPanel>
                             </Border>
-                        </Expander>
-                        <Expander Header="{Binding Steps[3]}"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down"
-                                  Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <hc:NumericUpDown hc:TitleElement.Title="Retry Count: "
-                                                      hc:TitleElement.TitlePlacement="Left"
-                                                      hc:TitleElement.TitleWidth="190"
-                                                      Minimum="1"
-                                                      Style="{StaticResource NumericUpDownExtend}"
-                                                      Value="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes}" />
-                                </hc:UniformSpacingPanel>
-                            </Border>
-                        </Expander>
-                        <StackPanel>
-                            <TextBlock Text="Result"
-                                       HorizontalAlignment="Center"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Style="{StaticResource TextBlockDefaultSuccess}" />
-                        </StackPanel>
-                        <TextBox Text="{Binding StageMapCommands.AlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
-                                 hc:TitleElement.Title="Alignment Degrees(°): "
-                                 hc:TitleElement.TitleWidth="190"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="Mark Point1(um): "
-                                 hc:TitleElement.TitleWidth="190"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                 hc:TitleElement.Title="Mark Point2(um): "
-                                 hc:TitleElement.TitleWidth="190"
-                                 hc:TitleElement.TitlePlacement="Left"
-                                 IsReadOnly="True"
-                                 Background="{StaticResource SecondaryRegionBrush}"
-                                 Style="{StaticResource TextBoxExtend}" />
-                        <hc:Divider Content="{Binding Steps[0]}" Margin="0" />
-                        <hc:UniformSpacingPanel Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step0Command}"
-                                    CommandParameter="{x:Static models:Constants.False}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step0CancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:Divider Content="{Binding Steps[1]}" Margin="0" />
-                        <hc:UniformSpacingPanel Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step1Command}"
-                                    CommandParameter="{x:Static models:Constants.False}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step1CancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:Divider Content="{Binding Steps[2]}" Margin="0" />
-                        <hc:UniformSpacingPanel Spacing="10">
-                            <Button Content="Action"
-                                    Command="{Binding Step2Command}"
-                                    CommandParameter="{x:Static models:Constants.False}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step2CancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:Divider Content="{Binding Steps[3]}"
-                                    Margin="0"
-                                    Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}" />
-                        <hc:UniformSpacingPanel Spacing="10" Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Button Content="Action"
-                                    Command="{Binding Step3Command}"
-                                    CommandParameter="{x:Static models:Constants.False}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step3CancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
-                        <hc:Divider Content="{Binding Steps[4]}" Margin="0" />
-                        <hc:UniformSpacingPanel Spacing="10">
-                            <Button Content="Verify"
-                                    Command="{Binding Step4Command}"
-                                    CommandParameter="{x:Static models:Constants.False}"
-                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                    Style="{StaticResource ButtonPrimary.Loading}" />
-                            <Button Content="Cancel"
-                                    Command="{Binding Step4CancelCommand}"
-                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                    Style="{StaticResource ButtonWarning}" />
-                        </hc:UniformSpacingPanel>
+                        </GroupBox>
                     </hc:UniformSpacingPanel>
                 </ScrollViewer>
             </Border>
@@ -470,33 +508,31 @@
                         </Border>
                     </TabItem>
                     <TabItem Header="{Binding Steps[3]}" Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <ListBox HorizontalContentAlignment="Stretch"
-                                     VirtualizingPanel.ScrollUnit="Pixel"
-                                     ItemsSource="{Binding StageMapCommands.ChuckStageMap.DFRepeatStageMaps}"
-                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Auto">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="{x:Type stageMap:StageMap}">
-                                        <Border Height="500"
-                                                Margin="-5,5"
-                                                Style="{StaticResource BorderRegion}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="*" />
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding DisplayIndex, StringFormat='Repeat {0}'}"
-                                                           HorizontalAlignment="Center"
-                                                           Style="{StaticResource TextBlockSubTitleBold}"
-                                                           Foreground="{StaticResource SuccessBrush}" />
-                                                <v2:PlotControl Grid.Row="1" DataSource="{Binding PlotDataSource}" />
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </Border>
+                        <ListBox Margin="5"
+                                 HorizontalContentAlignment="Stretch"
+                                 VirtualizingPanel.ScrollUnit="Pixel"
+                                 ItemsSource="{Binding StageMapCommands.ChuckStageMap.DFRepeatStageMaps}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                    <Border Height="500"
+                                            Margin="-5,5"
+                                            Style="{StaticResource BorderRegion}">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="*" />
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="{Binding DisplayIndex, StringFormat='Repeat {0}'}"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{StaticResource TextBlockSubTitleBold}"
+                                                       Foreground="{StaticResource SuccessBrush}" />
+                                            <v2:PlotControl Grid.Row="2" DataSource="{Binding PlotDataSource}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </TabItem>
                     <TabItem Header="{Binding Steps[4]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">

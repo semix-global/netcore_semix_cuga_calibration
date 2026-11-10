@@ -44,13 +44,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <Expander Header="Template Match Setting"
-                                  IsExpanded="False"
-                                  ExpandDirection="Down">
-                            <Border Style="{StaticResource BorderRegion}">
-                                <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.ChuckStageMapCacheBFItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}" />
-                            </Border>
-                        </Expander>
+                        <controls:TemplateMatchSettingUserControl DataContext="{Binding Cache.ChuckStageMapCacheBFItem.TemplateMatchSetting}" Engine="{Binding DataContext.CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
@@ -69,7 +63,16 @@
                                           Minimum="1"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.ChuckStageMapCacheBFItem.DiePitchHeight}" />
-                        <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
+                        <StackPanel>
+                            <TextBlock Text="StageMap Template Points"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
                             <Button Content="Mark"
                                     Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
@@ -79,7 +82,7 @@
                                     hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                     Style="{StaticResource ButtonWarning}" />
                             <Button Content="Delete"
-                                    Command="{Binding Cache.ChuckStageMapCacheBFItem.RemoveStageMapTemplatesCommand}"
+                                    Command="{Binding StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand}"
                                     CommandParameter="{Binding SelectedItems, ElementName=BFStageMapTemplatesList}"
                                     hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                     Style="{StaticResource ButtonDanger}" />
@@ -134,63 +137,57 @@
         <GridSplitter Grid.Column="1" Width="5" />
         <GroupBox Grid.Column="2" Header="BF StageMap">
             <Border Style="{StaticResource BorderRegion}">
-                <ContentPresenter Content="{Binding ., Mode=OneWay}">
-                    <ContentPresenter.ContentTemplate>
-                        <DataTemplate DataType="{x:Type viewModels:ChuckStageMapViewModel}">
-                            <graphicsWPF:WPFCanvasControl Document="{Binding CalibratingItem.BFStageMapDocument, Mode=OneWay}" CursorTextVisibility="Collapsed">
-                                <graphicsWPF:WPFCanvasControl.Resources>
-                                    <ResourceDictionary>
-                                        <ResourceDictionary.MergedDictionaries>
-                                            <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
-                                        </ResourceDictionary.MergedDictionaries>
-                                    </ResourceDictionary>
-                                </graphicsWPF:WPFCanvasControl.Resources>
-                                <graphicsWPF:WPFCanvasControl.LeftToolBars>
-                                    <ToolBar Margin="3,2"
-                                             Padding="3,2"
-                                             Background="Transparent"
-                                             Band="0"
-                                             BandIndex="2">
-                                        <ItemsControl ItemsSource="{Binding Cache.ChuckStageMapCacheBFItem.StageMapTemplates}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal" />
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
-                                                    <Button Content="{Binding DisplayIndex, Mode=OneWay}"
-                                                            Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}"
-                                                            CommandParameter="{Binding}"
-                                                            Height="24"
-                                                            Margin="3,0"
-                                                            Padding="5,3"
-                                                            ContentStringFormat="Goto {0}" />
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ToolBar>
-                                </graphicsWPF:WPFCanvasControl.LeftToolBars>
-                                <graphicsWPF:WPFCanvasControl.RightToolBars>
-                                    <ToolBar Margin="3,2"
-                                             Padding="3,2"
-                                             Background="Transparent"
-                                             Band="0"
-                                             BandIndex="1">
-                                        <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
-                                            <TextBlock.Text>
-                                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
-                                                    <Binding Path="CalibratingItem.BFStageMapDocument.View.Cursor.Point" />
-                                                    <Binding Path="CalibratingItem.BFStageMapDocument" />
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </ToolBar>
-                                </graphicsWPF:WPFCanvasControl.RightToolBars>
-                            </graphicsWPF:WPFCanvasControl>
-                        </DataTemplate>
-                    </ContentPresenter.ContentTemplate>
-                </ContentPresenter>
+                <graphicsWPF:WPFCanvasControl Document="{Binding CalibratingItem.BFStageMapDocument, Mode=OneWay}" CursorTextVisibility="Collapsed">
+                    <graphicsWPF:WPFCanvasControl.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.MergedDictionaries>
+                                <ResourceDictionary Source="pack://application:,,,/Net.Utilities.WPF.CustomControl.Themes;component/Themes/ToolBarStyles.xaml" />
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                    </graphicsWPF:WPFCanvasControl.Resources>
+                    <graphicsWPF:WPFCanvasControl.LeftToolBars>
+                        <ToolBar Margin="3,2"
+                                 Padding="3,2"
+                                 Background="Transparent"
+                                 Band="0"
+                                 BandIndex="2">
+                            <ItemsControl ItemsSource="{Binding Cache.ChuckStageMapCacheBFItem.StageMapTemplates}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type stageMap:StageMapTemplate}">
+                                        <Button Content="{Binding DisplayIndex, Mode=OneWay}"
+                                                Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource AncestorType={x:Type children:Step2View}}}"
+                                                CommandParameter="{Binding}"
+                                                Height="24"
+                                                Margin="3,0"
+                                                Padding="5,3"
+                                                ContentStringFormat="Goto {0}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ToolBar>
+                    </graphicsWPF:WPFCanvasControl.LeftToolBars>
+                    <graphicsWPF:WPFCanvasControl.RightToolBars>
+                        <ToolBar Margin="3,2"
+                                 Padding="3,2"
+                                 Background="Transparent"
+                                 Band="0"
+                                 BandIndex="1">
+                            <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
+                                        <Binding Path="CalibratingItem.BFStageMapDocument.View.Cursor.Point" />
+                                        <Binding Path="CalibratingItem.BFStageMapDocument" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </ToolBar>
+                    </graphicsWPF:WPFCanvasControl.RightToolBars>
+                </graphicsWPF:WPFCanvasControl>
             </Border>
         </GroupBox>
     </Grid>

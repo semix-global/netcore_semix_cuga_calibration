@@ -8,6 +8,7 @@
     <singleValue:IntsToStringConverter x:Key="IntsToStringConverter" />
     <singleValue:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter" />
     <singleValue:PointYToStringConverter x:Key="PointYToStringConverter" />
+    <singleValue:VectorToStringConverter x:Key="VectorToStringConverter" />
     <singleValue:PointXToStringConverter x:Key="PointXToStringConverter" />
     <singleValue:RectHeightConverter x:Key="RectHeightConverter" />
     <singleValue:RectToEllipseStringConverter x:Key="RectToEllipseStringConverter" />

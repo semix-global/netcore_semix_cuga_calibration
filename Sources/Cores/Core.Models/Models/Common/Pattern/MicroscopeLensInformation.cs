@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Cookies;
@@ -66,7 +67,7 @@ public sealed partial class MicroscopeLensInformation :
     public override int GetHashCode() => HashCode.Combine(LensCode);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null) => LensName;
 

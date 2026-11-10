@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
@@ -107,7 +108,7 @@ public sealed partial class ProductivityInformation :
     public override int GetHashCode() => HashCode.Combine(OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{OpticsIlluminationModeEnum.ToString()}_{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
 

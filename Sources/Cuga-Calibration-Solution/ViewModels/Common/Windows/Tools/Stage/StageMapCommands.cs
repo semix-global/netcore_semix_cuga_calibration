@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using System.Threading.Channels;
 using CommunityToolkit.Diagnostics;
@@ -58,21 +59,37 @@ public sealed partial class StageMapCommands(
     IAlgorithmEngines algorithmEngines,
     ILogger<StageMapCommands> logger) : ObservableObject
 {
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(
+        nameof(Name),
+        nameof(CacheItem),
+        nameof(StageMapDocument),
+        nameof(StageMap),
+        nameof(VerifyStageMap),
+        nameof(AlignmentResult))]
+    public partial bool IsDark { get; set; } = true;
+
+    public ILogger Logger { get; set; } = logger;
+
     public string ImageFileDirectory { get; set; } = string.Empty;
 
     public string TemplateFileDirectory { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Name), nameof(CacheItem), nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap), nameof(AlignmentResult))]
-    public partial bool IsDark { get; set; } = true;
+    public CalChipSiteModelEnum CalChipSiteModelEnum { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CacheItem))]
     public partial ChuckStageMapCache Cache { get; set; } = new();
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StageMapDocument), nameof(StageMap), nameof(VerifyStageMap), nameof(AlignmentResult))]
+    [NotifyPropertyChangedFor(
+        nameof(StageMapDocument),
+        nameof(StageMap),
+        nameof(VerifyStageMap),
+        nameof(AlignmentResult))]
     public partial ChuckStageMapDTO ChuckStageMap { get; set; } = new();
+
+    #region 明暗场的区分属性
 
     public string Name => IsDark ? "DFStageMap" : "BFStageMap";
 
@@ -116,6 +133,8 @@ public sealed partial class StageMapCommands(
         }
     }
 
+    #endregion
+
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AddStageMapTemplateAsync(CancellationToken cancellationToken)
     {
@@ -147,7 +166,7 @@ public sealed partial class StageMapCommands(
                         bfPosition,
                         Cache.MicroscopeLensInformation);
 
-                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition, CalChipSiteModelEnum.ChuckModel);
+                    stageViewModel.SetDarkFieldAbsoluteStageXyByNotAutoFocus(dfPosition, CalChipSiteModelEnum);
 
                     try
                     {
@@ -166,42 +185,33 @@ public sealed partial class StageMapCommands(
 
                         using var _ = darkFieldImageDto;
 
-                        var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.MicroscopeLensInformation.ToString(), $"DF_{Guid.NewGuid():N}.jpg");
-                        stageMapTemplatePoint.TemplateFilePath = $"{originImageFilePath}_Template";
+                        var originImageFilePath = Path.Combine(TemplateFileDirectory, $"{Cache.MicroscopeLensInformation}_{cacheDFItem.ProductivityInformation}_{cacheDFItem.CIBInformation}", $"DF_{Guid.NewGuid():N}.jpg");
                         darkFieldImageDto.Image.SaveImage(originImageFilePath);
                         stageMapTemplatePoint.OriginImageFilePath = originImageFilePath;
-
-                        createDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
-                        createDarkImageTemplateWindowViewModel.TemplateFilePath = stageMapTemplatePoint.TemplateFilePath;
-                        createDarkImageTemplateWindowViewModel.TemplateMatchSetting = cacheDFItem.TemplateMatchSetting.Clone();
-
-                        Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
-
-                        stageMapTemplatePoint.TemplateROI = createDarkImageTemplateWindowViewModel.Rect;
-                        stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
                     }
                     finally
                     {
-                        stageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition, CalChipSiteModelEnum.ChuckModel);
+                        stageViewModel.SetBrightFieldAbsoluteStageXy(bfPosition, CalChipSiteModelEnum);
                     }
                 }
                 else
                 {
                     var originImageFilePath = Path.Combine(TemplateFileDirectory, Cache.MicroscopeLensInformation.ToString(), $"BF_{Guid.NewGuid():N}.jpg");
-                    stageMapTemplatePoint.TemplateFilePath = $"{originImageFilePath}_Template";
+
                     using var image = reviewViewModel.GetBrightFieldImage();
                     image.SaveImage(originImageFilePath);
                     stageMapTemplatePoint.OriginImageFilePath = originImageFilePath;
-
-                    createDarkImageTemplateWindowViewModel.ImageFilePath = originImageFilePath;
-                    createDarkImageTemplateWindowViewModel.TemplateFilePath = stageMapTemplatePoint.TemplateFilePath;
-                    createDarkImageTemplateWindowViewModel.TemplateMatchSetting = CacheItem.TemplateMatchSetting.Clone();
-
-                    Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
-
-                    stageMapTemplatePoint.TemplateROI = createDarkImageTemplateWindowViewModel.Rect;
-                    stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
                 }
+
+                stageMapTemplatePoint.TemplateFilePath = $"{stageMapTemplatePoint.OriginImageFilePath}_Template";
+                createDarkImageTemplateWindowViewModel.ImageFilePath = stageMapTemplatePoint.OriginImageFilePath;
+                createDarkImageTemplateWindowViewModel.TemplateFilePath = stageMapTemplatePoint.TemplateFilePath;
+                createDarkImageTemplateWindowViewModel.TemplateMatchSetting = CacheItem.TemplateMatchSetting.Clone();
+
+                Guard.IsTrue(windowManagerService.ShowDialog(createDarkImageTemplateWindowViewModel) == true, nameof(createDarkImageTemplateWindowViewModel));
+
+                stageMapTemplatePoint.TemplateROI = createDarkImageTemplateWindowViewModel.Rect;
+                stageMapTemplatePoint.TemplateImageFilePath = createDarkImageTemplateWindowViewModel.TemplateImageFilePath;
 
                 CacheItem.StageMapTemplates = [.. CacheItem.StageMapTemplates, stageMapTemplatePoint];
 
@@ -220,7 +230,7 @@ public sealed partial class StageMapCommands(
                                                  {Name}: Add Template Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "{Name}: Add Template", Name);
+                Logger.LogError(ex, "{Name}: Add Template", Name);
             }
         }, cancellationToken).ConfigureAwait(false);
     }
@@ -245,32 +255,29 @@ public sealed partial class StageMapCommands(
                 var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
                 Guard.IsInRangeFor(index, stageMapDie.Markers);
 
+                Point brightFieldPosition;
                 if (IsDark)
                 {
                     var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
 
-                    var darkFieldPositionTemp = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
-                    var darkFieldPosition = darkFieldPositionTemp - cibViewModel.GetCIBInformationOffset(
+                    var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
+
+                    brightFieldPosition = darkFieldPosition - cibViewModel.GetCIBInformationOffset(
                         StageCoordinateSystemEnum.Dark,
                         cacheDFItem.ProductivityInformation,
                         cacheDFItem.CIBInformation,
                         Cache.MicroscopeLensInformation,
                         isLineCentricityOffset: false);
-
-                    stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
-                        Cache.MicroscopeLensInformation,
-                        microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                        darkFieldPosition), CalChipSiteModelEnum.ChuckModel);
                 }
                 else
                 {
-                    var brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(stageMapDie.Markers[index]);
-
-                    stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
-                        Cache.MicroscopeLensInformation,
-                        microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                        brightFieldPosition), CalChipSiteModelEnum.ChuckModel);
+                    brightFieldPosition = stageViewModel.MachineToBrightFieldPosition(stageMapDie.Markers[index]);
                 }
+
+                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
+                    Cache.MicroscopeLensInformation,
+                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
+                    brightFieldPosition), CalChipSiteModelEnum);
 
                 dialogWindowProvider.ShowDialog($"{Name}: Goto Selected Item Position OK");
             }
@@ -286,15 +293,18 @@ public sealed partial class StageMapCommands(
                                                  {Name}: Goto Selected Item Position Failed
                                                  {ex.Message}
                                                  """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "{Name}: Goto Selected Item Position", Name);
+                Logger.LogError(ex, "{Name}: Goto Selected Item Position", Name);
             }
         }).ConfigureAwait(false);
     }
 
-    public async Task GenerateStageMapDocumnetAsync(CancellationToken cancellationToken)
+    public async Task GenerateStageMapDocumentAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         await Task.Run(() =>
         {
+            var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
+            Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+
             Guard.IsNotEmpty(CacheItem.StageMapTemplates);
             Guard.IsGreaterThan(CacheItem.WaferRadius, 0d);
             Guard.IsGreaterThan(CacheItem.DiePitchWidth, 0d);
@@ -325,16 +335,34 @@ public sealed partial class StageMapCommands(
                 }
             }
 
+            Logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            {
+                CalChipPosition = microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum),
+                Table = new HtmlTable(
+                [
+                    .. CacheItem.StageMapTemplates.Index().Select(t => new
+                    {
+                        t.Index,
+                        t.Item.FindBFMachinePosition,
+                        t.Item.TemplateROI,
+                        t.Item.TemplateFilePath,
+                        HtmlTab = new HtmlTab(new
+                        {
+                            ResultImage = new HtmlImage(t.Item.OriginImageFilePath, htmlImageOverlays: [new HtmlImageRectangleOverlay(t.Item.TemplateROI)]),
+                            TemplateImage = new HtmlImage(t.Item.TemplateImageFilePath, htmlImageOverlays: [new HtmlImageCrossOverlay(true)])
+                        }),
+                        CartesianCoordinatePosition = cartesianCoordinatePositions[t.Index]
+                    })
+                ])
+            }), htmlLogUniqueId.LoggingHtml());
+
             StageMapDocument.RunDesign(() =>
             {
                 StageMapDocument.Reset();
 
                 Func<Point, Point> cartesianCoordinateToMachinePosition = IsDark ? stageViewModel.DarkFieldToMachinePosition : stageViewModel.BrightFieldToMachinePosition;
 
-                var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
-                Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
-
-                var bfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CacheItem.WaferRadius);
+                var bfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(microscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)), CacheItem.WaferRadius);
                 var machineCircle = new Circle(cartesianCoordinateToMachinePosition(bfCircle.Center), bfCircle.Radius);
 
                 StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = machineCircle });
@@ -376,7 +404,7 @@ public sealed partial class StageMapCommands(
         }, cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task CalibrateAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isCanSelected = false)
+    public async Task CalibrateAsync(bool isCanSelected, Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
         await Task.Run(async () =>
         {
@@ -475,12 +503,12 @@ public sealed partial class StageMapCommands(
                 htmlLogUniqueId,
                 cancellationToken).ConfigureAwait(false);
 
-            logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
 
             StageMap.CalculateErrorMatrix();
             StageMap.Refresh();
 
-            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                 .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                 .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
             ]), htmlLogUniqueId.LoggingHtml());
@@ -513,14 +541,15 @@ public sealed partial class StageMapCommands(
             {
                 await DownloadStageMapAsync(
                     StageMap,
-                    circle,
                     currentHtmlLogUniqueId,
-                    cancellationToken).ConfigureAwait(false);
+                    cancellationToken,
+                    isInterpolateErrorsAdaptTo: true,
+                    interpolateCircle: circle).ConfigureAwait(false);
             }
 
-            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), htmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
-            logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, new HtmlComment($"See Above! Same Directory File Name: {fileName}({currentHtmlLogUniqueId:N})"), htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{currentHtmlLogUniqueId:N}", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), currentHtmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation($"{times + 1}", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
             try
             {
@@ -539,13 +568,13 @@ public sealed partial class StageMapCommands(
 
                 historyStageMapList.Add(scanStageMap.Clone());
 
-                logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
+                Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, currentHtmlLogUniqueId.LoggingHtml());
 
                 isSuccess = scanStageMap.CanRepeatAndCalculateErrorMatrix(historyStageMapList, Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes);
 
                 scanStageMap.Refresh();
 
-                logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                     .. scanStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                     .. scanStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
                 ]), currentHtmlLogUniqueId.LoggingHtml());
@@ -557,12 +586,12 @@ public sealed partial class StageMapCommands(
                     StageMap.Refresh();
 
                     if (isSuccess)
-                        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
                             .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                             .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
                         ]), htmlLogUniqueId.LoggingHtml());
                     else
-                        logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
+                        Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlContainer([
                             new HtmlComment("More than the number of times."),
                             .. StageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                             .. StageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
@@ -573,14 +602,19 @@ public sealed partial class StageMapCommands(
             }
             finally
             {
-                logger.LogHtmlInformation(currentHtmlLogUniqueId.LoggedEndHtml(fileName));
+                Logger.LogHtmlInformation(currentHtmlLogUniqueId.LoggedEndHtml(fileName));
             }
         }
 
         return isSuccess;
     }
 
-    public async Task VerifyAsync(StageMap downloadStageMap, Guid htmlLogUniqueId, CancellationToken cancellationToken, bool isDownloadStageMap = false)
+    public async Task VerifyAsync(
+        StageMap downloadStageMap,
+        Guid htmlLogUniqueId,
+        CancellationToken cancellationToken,
+        bool isDownloadStageMap = true,
+        bool isInterpolateErrorsAdaptTo = true)
     {
         var microscopeCalChip = applicationCookieService.GetCalibration<MicroscopeCalChipDTO>(cancellationToken);
         Guard.IsTrue(microscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
@@ -595,9 +629,10 @@ public sealed partial class StageMapCommands(
         {
             await DownloadStageMapAsync(
                 downloadStageMap,
-                circle,
                 htmlLogUniqueId,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                isInterpolateErrorsAdaptTo: isInterpolateErrorsAdaptTo,
+                interpolateCircle: circle).ConfigureAwait(false);
         }
 
         VerifyStageMap = StageMap.Clone();
@@ -608,15 +643,15 @@ public sealed partial class StageMapCommands(
             htmlLogUniqueId,
             cancellationToken,
             isInterpolateErrors: IsDark,
-            interpolateStageMap: StageMap,
+            interpolateStageMap: downloadStageMap,
             interpolateCircle: circle).ConfigureAwait(false);
 
-        logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header3, htmlLogUniqueId.LoggingHtml());
+        Logger.LogHtmlInformation("Algorithm", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
         VerifyStageMap.CalculateErrorMatrix();
         VerifyStageMap.Refresh();
 
-        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+        Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlContainer([
             .. VerifyStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
             .. VerifyStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
         ]), htmlLogUniqueId.LoggingHtml());
@@ -630,7 +665,7 @@ public sealed partial class StageMapCommands(
         StageMap? interpolateStageMap = null,
         Circle? interpolateCircle = null)
     {
-        logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, new HtmlTable(
+        Logger.LogHtmlInformation("Scan StageMap", HtmlHeaderLevelEnum.Header3, new HtmlTable(
         [
             .. CacheItem.StageMapTemplates.Index().Select(t => new
             {
@@ -668,7 +703,7 @@ public sealed partial class StageMapCommands(
             xPixelSize = xSize.XPixelSize;
             yPixelSize = ySize.YPixelSize;
 
-            logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            Logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
                 ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
                 xDirection,
@@ -686,7 +721,7 @@ public sealed partial class StageMapCommands(
             xPixelSize = size.Result.PixelSize.Width;
             yPixelSize = size.Result.PixelSize.Height;
 
-            logger.LogHtmlInformation("Pixel Size", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+            Logger.LogHtmlInformation("Pixel Size", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
             {
                 xDirection,
                 yDirection,
@@ -703,21 +738,19 @@ public sealed partial class StageMapCommands(
 
         var templateMatchEngine = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
 
-        ITemplateMatchModel[] templateMatchModels = [];
+        var templateMatchModels = new ITemplateMatchModel[CacheItem.StageMapTemplates.Length];
 
         try
         {
-            templateMatchModels =
-            [
-                .. CacheItem.StageMapTemplates
-                    .Select(t =>
-                    {
-                        var result = templateMatchEngine.Read(CacheItem.TemplateMatchSetting.ToReadParam(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, t.TemplateFilePath), htmlLogUniqueId);
-                        Guard.IsTrue(result.Success, result.ErrorMsg);
+            foreach (var (index, template) in CacheItem.StageMapTemplates.Index())
+            {
+                var result = templateMatchEngine.Read(
+                    CacheItem.TemplateMatchSetting.ToReadParam(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, template.TemplateFilePath),
+                    htmlLogUniqueId);
+                Guard.IsTrue(result.Success, result.ErrorMsg);
 
-                        return Guard.IsNotNullAndReturn(result.Data);
-                    })
-            ];
+                templateMatchModels[index] = Guard.IsNotNullAndReturn(result.Data);
+            }
 
             var templateMatchScoreThreshold = CacheItem.TemplateMatchSetting.ToTemplateMatchScoreThreshold(calibrationSetting);
 
@@ -730,7 +763,7 @@ public sealed partial class StageMapCommands(
             ];
             var (yLength, xLength) = stageMapIdealMatrix.GetYXLength();
 
-            logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, htmlLogUniqueId.LoggingHtml());
 
             if (isInterpolateErrors)
             {
@@ -749,13 +782,12 @@ public sealed partial class StageMapCommands(
             using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var linkedToken = linkedCancellationTokenSource.Token;
 
-            var channel = Channel.CreateBounded<ScanYResult>(new BoundedChannelOptions(2)
+            var channel = Channel.CreateBounded<ScanYResult>(new BoundedChannelOptions(yLength)
             {
                 SingleReader = true,
                 SingleWriter = true,
-                AllowSynchronousContinuations = true
+                AllowSynchronousContinuations = false
             });
-
             var writerTask = Task.Run(async () =>
             {
                 (BitmapImage Image, string RawImageFilePath)[]? pendingImages = null;
@@ -876,7 +908,7 @@ public sealed partial class StageMapCommands(
 
             stageMap.Refresh();
 
-            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
                 .. stageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                 .. stageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
             ]), htmlLogUniqueId.LoggingHtml());
@@ -916,19 +948,21 @@ public sealed partial class StageMapCommands(
                             ? xDirection > 0 ? originImage : originImage.HorizontalFlip()
                             : originImage;
 
-                        var templateMatchRet = templateMatchModels[templateIdIndex] is { } templateModel
-                            ? templateMatchEngine.Match(image, new MatchTemplateParam { Model = templateModel, ScoreThreshold = templateMatchScoreThreshold }, htmlLogUniqueId)
-                            : null;
+                        var templateMatchRet = templateMatchEngine.Match(
+                            image,
+                            new MatchTemplateParam { Model = templateMatchModels[templateIdIndex], ScoreThreshold = templateMatchScoreThreshold },
+                            htmlLogUniqueId);
 
-                        var isSuccess = templateMatchRet?.Success ?? false;
-                        var matchPoint = templateMatchRet?.Data?.MarkPoint ?? Point.Origin;
-                        var matchOffset = templateMatchRet?.Data?.Offset ?? Point.Origin;
-                        var matchScore = templateMatchRet?.Data?.Score ?? 0;
-                        var matchAngle = templateMatchRet?.Data?.Angle ?? 0;
+                        var isSuccess = templateMatchRet.Success;
+                        var matchPoint = templateMatchRet.Data?.MarkPoint ?? Point.Origin;
+                        var matchOffset = templateMatchRet.Data?.Offset ?? Point.Origin;
+                        var matchScore = templateMatchRet.Data?.Score ?? 0d;
+                        var matchAngle = templateMatchRet.Data?.Angle ?? 0d;
 
                         var oldMatchPoint = matchPoint;
                         var oldMatchOffset = matchOffset;
-                        var offset = matchPoint - CacheItem.StageMapTemplates[templateIdIndex].TemplateROI.Center;
+                        var templateCenter = templateROI.Center + (Vector)templateMatchModels[templateIdIndex].CenterOffset;
+                        var offset = matchPoint - templateCenter;
                         matchOffset = new Point(offset.X, -offset.Y);
 
                         var resultImageFilePath = Path.Combine(isSuccess ? ImageFileDirectory : $"{FileHelper.GetFileFullName(CacheItem.StageMapTemplates[templateIdIndex].TemplateFilePath)}{Name}_Error", $"Origin_Score({matchScore:0.###},{templateMatchScoreThreshold:0.###})_Angle{matchAngle:0.###}_{Guid.NewGuid():N}.jpg");
@@ -939,7 +973,7 @@ public sealed partial class StageMapCommands(
                         htmlLogs[i] =
                             new HtmlLog(
                                 isSuccess ? LogLevelEnum.Info : LogLevelEnum.Error,
-                                DateTime.Now.ToString(Constants.LongFileDateTimeFormat),
+                                DateTime.Now.ToString(Constants.LongFileDateTimeFormat, CultureInfo.InvariantCulture),
                                 CugaCalibrationSolutionAssemblyMetadata.Version,
                                 [
                                     new HtmlBullet(new
@@ -975,7 +1009,7 @@ public sealed partial class StageMapCommands(
 
                     stageMap.Refresh();
 
-                    logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer([.. htmlLogs]), htmlLogUniqueId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header5, new HtmlContainer([.. htmlLogs]), htmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
@@ -995,18 +1029,21 @@ public sealed partial class StageMapCommands(
 
     private async Task DownloadStageMapAsync(
         StageMap downloadStageMap,
-        Circle? targetCircle,
         Guid htmlLogUniqueId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool isInterpolateErrorsAdaptTo = false,
+        Circle? interpolateCircle = null)
     {
         await Task.Run(() =>
         {
             stageViewModel.SetEnableStageMap(false);
 
-            var stageMapErrorDTO = targetCircle is not null ? downloadStageMap.AdaptTo(targetCircle.Value) : downloadStageMap.AdaptTo();
+            var stageMapErrorDTO = isInterpolateErrorsAdaptTo
+                ? downloadStageMap.InterpolateErrorsAdaptTo(Guard.IsNotNullAndReturn(interpolateCircle))
+                : downloadStageMap.AdaptTo();
+
             var xPoint3DList = new List<Point3D>();
             var yPoint3DList = new List<Point3D>();
-
             foreach (var (y, row) in stageMapErrorDTO.Ys.Index())
             {
                 foreach (var (x, col) in row.Xs.Index())
@@ -1016,7 +1053,7 @@ public sealed partial class StageMapCommands(
                 }
             }
 
-            logger.LogHtmlInformation("Download", HtmlHeaderLevelEnum.Header3, new HtmlContainer(
+            Logger.LogHtmlInformation("Download", HtmlHeaderLevelEnum.Header4, new HtmlContainer(
             [
                 new HtmlPlot3DChart(xPoint3DList, "X Error", HtmlPlot3DType.Surface),
                 new HtmlPlot3DChart(yPoint3DList, "Y Error", HtmlPlot3DType.Surface)

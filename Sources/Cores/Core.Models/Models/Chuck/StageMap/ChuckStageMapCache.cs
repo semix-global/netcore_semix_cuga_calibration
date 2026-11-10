@@ -37,12 +37,8 @@ public sealed partial class ChuckStageMapCache : CalibrationCacheBase<ChuckStage
 
 public partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageMapCacheBFItem>
 {
-    #region Common
-
     [ObservableProperty]
     public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
-
-    #endregion
 
     [ObservableProperty]
     public partial double WaferRadius { get; set; } = 140_000d;
@@ -93,8 +89,6 @@ public partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageM
 
 public sealed partial class ChuckStageMapCacheDFItem : ChuckStageMapCacheBFItem, ICloneable<ChuckStageMapCacheDFItem>
 {
-    #region Common
-
     [ObservableProperty]
     public partial ProductivityInformation ProductivityInformation { get; set; } = ProductivityInformation.Default;
 
@@ -109,8 +103,6 @@ public sealed partial class ChuckStageMapCacheDFItem : ChuckStageMapCacheBFItem,
 
     [ObservableProperty]
     public partial CIBConfiguration CIBConfiguration { get; set; } = new();
-
-    #endregion
 
     [ObservableProperty]
     public partial int ImageWidth { get; set; } = 3000;

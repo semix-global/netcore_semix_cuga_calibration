@@ -4,6 +4,12 @@
 
 ## 工作流程
 
+### 修改范围
+
+- 开始修改前先阅读本文件, 已有约定直接遵守.
+- 在保证业务正确性和必要验证的前提下, 尽量减少修改的现有代码和新增代码, 直接完成用户要求.
+- 优先复用已有实现, 仅在确有需要时增加公共逻辑或新代码, 避免无关的重构和格式调整.
+
 ### 编译与构建
 
 - 完成代码编辑后, 默认不要执行编译或构建命令, 因为编译和构建耗时较长.
@@ -134,8 +140,31 @@ partial void OnFitPointsChanged(Point[] value) => RefreshPlot();
 
 - 新建或修改 XAML 文件后, 使用 XAML Styler 对文件进行格式化, 优先使用项目已有的配置.
 
+#### 校准 StepView 页面布局
+
+- 校准 StepView 页面已有的 `GridSplitter` 必须保留, 即使分隔条一侧暂时为空白, 也不要为了精简布局而删除. 同时保留分隔条对应的 `Grid` 行或列定义.
+
+示例:
+
+```xml
+<GridSplitter Grid.Column="1" Width="5" />
+```
+
+#### 控件绑定与模板复用
+
+- `ContentPresenter` 和内联 `DataTemplate` 仅用于包装单个控件并切换绑定上下文时, 直接在控件上绑定完整属性路径, 不增加这两层嵌套.
+- 多处需要相同模板时, 可以通过 `x:Key` 定义并引用共享的 `DataTemplate`, 减少重复代码并支持一处修改统一生效. 控件机制或业务行为确实需要模板时, 保留必要模板.
+- `PlotControl` 的 `DataSource` 绑定不显式写 `Mode=OneWay`.
+
+单个控件直接绑定示例:
+
+```xml
+<v2:PlotControl DataSource="{Binding CalibratingItem.BFStageMap.PlotDataSource}" />
+```
+
 #### 绑定默认值与排列
 
+- 绑定路径不要以 `.` 开头. 当前 `DataContext` 的属性直接写属性名, 例如 `{Binding AlignmentUserControlViewModel}`, 不写 `{Binding .AlignmentUserControlViewModel}`.
 - 同一条绑定同时包含 `Mode` 和 `Converter` 时, `Mode` 写在 `Converter` 前面, 例如 `Mode=OneWay, Converter={StaticResource RectToStringConverter}`.
 - `hc:NumericUpDown` 的 `Value` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
 - `ComboBox` 和 `Selector` 的 `SelectedValue` 默认是 `TwoWay`, 不要显式写 `Mode=TwoWay`.
@@ -244,9 +273,9 @@ partial void OnFitPointsChanged(Point[] value) => RefreshPlot();
 #### TabControl 样式
 
 - TabControl 通过 `i:Interaction.Behaviors` 配置 `SelectorAutoSelectFirstBehavior`.
-- TabItem 直接包含 TabControl 时, 该 TabControl 必须显式设置 `Margin="5"`.
+- TabItem 的直接内容是 `ListBox`, `TabControl`, `GroupBox` 这类已有自身边框的控件时, 不再额外包裹 `Border`. 外边距直接写在该控件上, 显式设置 `Margin="5"`.
 - 页签中的普通页面内容使用 `Border Margin="5" Style="{StaticResource BorderRegion}"` 包裹.
-- 嵌套 TabControl 的外边距与其内部页签内容 Border 的外边距均须保留, 两层都显式设置 `Margin="5"`, 不得因其中一层已有外边距而省略另一层.
+- 嵌套 TabControl 的外边距与其内部页签内容的外边距均须保留, 两层都显式设置 `Margin="5"`, 不得因其中一层已有外边距而省略另一层.
 - 以上外边距约定针对 TabItem 的内容, 不要求其他位置的 TabControl 或 Border 统一添加外边距.
 - `GroupBox` 或 `Border` 中的 `TabControl` 不是 `TabItem` 的直接内容时, 不设置 `Margin="5"`.
 - 页签名称, 内容, 数量, 顺序和页面布局按实际需求确定.
@@ -256,6 +285,14 @@ partial void OnFitPointsChanged(Point[] value) => RefreshPlot();
     <i:Interaction.Behaviors>
         <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
     </i:Interaction.Behaviors>
+    <TabItem Header="List">
+        <ListBox Margin="5" />
+    </TabItem>
+    <TabItem Header="Group">
+        <GroupBox Margin="5" Header="Group">
+            <Grid />
+        </GroupBox>
+    </TabItem>
     <TabItem Header="Tab">
         <Border Margin="5" Style="{StaticResource BorderRegion}">
             <Grid />

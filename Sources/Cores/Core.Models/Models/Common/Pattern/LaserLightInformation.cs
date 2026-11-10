@@ -60,7 +60,7 @@ public sealed partial class LaserLightInformation :
     public override int GetHashCode() => HashCode.Combine(Level, Coefficient);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null)
     {

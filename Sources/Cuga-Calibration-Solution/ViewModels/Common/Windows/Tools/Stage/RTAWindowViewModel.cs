@@ -2,7 +2,6 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.CIB.LineCentricity;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
@@ -26,7 +25,6 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections;
 using Core.Models.Models.Common.StageMap;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -43,7 +41,8 @@ public sealed partial class RTAWindowViewModel(
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
     IHostEnvironment hostEnvironment,
-    ILogger<RTAWindowViewModel> logger) : ViewModelBase
+    ILogger<RTAWindowViewModel> logger,
+    StageMapCommands stageMapCommands) : ViewModelBase
 {
     public string Name { get; } = "RTA";
 
@@ -52,6 +51,8 @@ public sealed partial class RTAWindowViewModel(
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
     public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
+
+    public StageMapCommands StageMapCommands { get; } = stageMapCommands;
 
     public string[] Steps { get; } =
     [
@@ -122,68 +123,18 @@ public sealed partial class RTAWindowViewModel(
     }
 
     [RelayCommand]
-    private void RemoveStageMapTemplates(IEnumerable? selectedItems)
+    private void RemoveStageMapTemplates(System.Collections.IEnumerable? selectedItems)
     {
-        if (selectedItems is null) return;
-
-        var stageMapTemplates = Cache.StageMapTemplates.ToList();
-
-        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
-
-        Cache.StageMapTemplates = [.. stageMapTemplates];
+        ConfigureStageMapCommands();
+        StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand.Execute(selectedItems);
+        Cache.StageMapTemplates = StageMapCommands.CacheItem.StageMapTemplates;
     }
 
     [RelayCommand]
     private async Task GotoStageMapDocumentSelectedItemPositionAsync(StageMapTemplate stageMapTemplate)
     {
-        await Task.Run(() =>
-        {
-            try
-            {
-                var index = Array.IndexOf(Cache.StageMapTemplates, stageMapTemplate);
-
-                var drawable = Cache.StageMapDocument.Edit.SelectedItems.FirstOrDefault();
-                if (drawable is null)
-                {
-                    dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position Warning: Don't Select Die!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                    return;
-                }
-
-                var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
-                Guard.IsInRangeFor(index, stageMapDie.Markers);
-
-                var darkFieldPositionTemp = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
-                var darkFieldPosition = darkFieldPositionTemp - cibViewModel.GetCIBInformationOffset(
-                    StageCoordinateSystemEnum.Dark,
-                    Cache.ProductivityInformation,
-                    Cache.CIBInformation,
-                    Cache.MicroscopeLensInformation,
-                    isLineCentricityOffset: false);
-
-                var currentCIBLineCentricity = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>().Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.CIBInformation.PMTId);
-                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
-                    currentCIBLineCentricity.MicroscopeLensInformation,
-                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), Cache.CalChipSiteModelEnum);
-
-                dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    dialogWindowProvider.ShowDialog($"{Name}: Goto Stage Map Document Selected Item Position Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
-
-                dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Goto Stage Map Document Selected Item Position Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "Goto Stage Map Document Selected Item Position");
-            }
-        }).ConfigureAwait(false);
+        ConfigureStageMapCommands();
+        await StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.ExecuteAsync(stageMapTemplate).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -236,87 +187,12 @@ public sealed partial class RTAWindowViewModel(
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, () =>
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
     {
-        Guard.IsNotEmpty(Cache.StageMapTemplates);
-        Guard.IsGreaterThan(Cache.WaferRadius, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
+        ConfigureStageMapCommands();
+        await StageMapCommands.GenerateStageMapDocumentAsync(cancellationToken, htmlLogUniqueId: HtmlLogUniqueId).ConfigureAwait(false);
 
-        var dfPositions = new Point[Cache.StageMapTemplates.Length];
-
-        foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
-        {
-            var bfPosition = stageViewModel.MachineToBrightFieldPosition(stageMapTemplate.FindBFMachinePosition);
-            var dfPosition = cibViewModel.GetCIBInformationPosition(
-                StageCoordinateSystemEnum.Dark,
-                Cache.ProductivityInformation,
-                Cache.CIBInformation,
-                bfPosition,
-                Cache.MicroscopeLensInformation);
-
-            dfPositions[index] = dfPosition;
-        }
-
-        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            CalChipPosition = MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum),
-            Table = new HtmlTable(
-            [
-                .. Cache.StageMapTemplates.Index().Select(t => new
-                {
-                    t.Index,
-                    t.Item.FindBFMachinePosition,
-                    t.Item.TemplateROI,
-                    t.Item.TemplateFilePath,
-                    t.Item.TemplateImageFilePath,
-                    DFPosition = dfPositions[t.Index]
-                })
-            ])
-        }), HtmlLogUniqueId.LoggingHtml());
-
-        Cache.StageMapDocument.RunDesign(() =>
-        {
-            Cache.StageMapDocument.Reset();
-
-            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.WaferRadius);
-            var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
-
-            Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
-
-            var stageMapReticleBuilder = new StageMapDieBuilder
-            {
-                DiePitchSize = new Size(Cache.DiePitchWidth, Cache.DiePitchHeight),
-                OriginalDiePoint = dfPositions[0]
-            };
-
-            var stageMapDies = stageMapReticleBuilder.BuildDie(dfCircle);
-            Vector[] markers =
-            [
-                .. dfPositions.Select(tt => tt - dfPositions[0])
-            ];
-
-            Cache.StageMapDocument.DieModel.AddRange(stageMapDies.Select(t =>
-            {
-                Point[] points = [.. markers.Select(tt => t.Rect.Point + tt)];
-
-                var resultExtents = new Extents();
-                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMinYMin));
-                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMaxYMax));
-
-                return new StageMapDie
-                {
-                    Index = t.Index,
-                    Row = t.Row,
-                    Col = t.Col,
-                    Rect = (Rect)resultExtents,
-                    IsInWafer = points.All(dfCircle.Contains),
-                    Markers = [.. points.Select(stageViewModel.DarkFieldToMachinePosition)]
-                };
-            }));
-        }, true);
-
-        return Task.FromResult(true);
+        return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
@@ -495,6 +371,24 @@ public sealed partial class RTAWindowViewModel(
         }
 
         CloseView(null);
+    }
+
+    private void ConfigureStageMapCommands()
+    {
+        StageMapCommands.Logger = logger;
+        StageMapCommands.IsDark = true;
+        StageMapCommands.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+        StageMapCommands.Cache.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
+
+        var cacheItem = StageMapCommands.Cache.ChuckStageMapCacheDFItem;
+        cacheItem.WaferRadius = Cache.WaferRadius;
+        cacheItem.DiePitchWidth = Cache.DiePitchWidth;
+        cacheItem.DiePitchHeight = Cache.DiePitchHeight;
+        cacheItem.StageMapTemplates = Cache.StageMapTemplates;
+        cacheItem.ProductivityInformation = Cache.ProductivityInformation;
+        cacheItem.CIBInformation = Cache.CIBInformation;
+
+        StageMapCommands.ChuckStageMap.DFStageMapDocument = Cache.StageMapDocument;
     }
 
     private async Task<bool> InvokeAsync(

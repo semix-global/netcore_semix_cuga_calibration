@@ -42,8 +42,8 @@
                         <ComboBox hc:TitleElement.Title="Microscope Lens: "
                                   hc:TitleElement.TitlePlacement="Left"
                                   hc:TitleElement.TitleWidth="190"
-                                  Style="{StaticResource ComboBoxExtend}"
-                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                  ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}"
+                                  Style="{StaticResource ComboBoxExtend}">
                             <i:Interaction.Behaviors>
                                 <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
                             </i:Interaction.Behaviors>

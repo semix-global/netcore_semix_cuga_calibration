@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:tools="clr-namespace:CugaCalibration.Views.Common.Windows.Tools"
              xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:alignment="clr-namespace:Core.Models.Models.Common.Alignment;assembly=Core.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -43,6 +43,14 @@
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                         <StackPanel>
+                            <TextBlock Text="Param"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                        <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"
                                        FontSize="13"
@@ -56,35 +64,27 @@
                                  IsReadOnly="True"
                                  Background="{StaticResource SecondaryRegionBrush}"
                                  Style="{StaticResource TextBoxExtend}" />
-                        <ContentPresenter Content="{Binding CalibratingItem.DFAlignmentResult, Mode=OneWay}">
-                            <ContentPresenter.ContentTemplate>
-                                <DataTemplate DataType="{x:Type alignment:AlignmentResultDto}">
-                                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                        <TextBox Text="{Binding Degrees, Mode=OneWay, StringFormat='0.##########'}"
-                                                 hc:TitleElement.Title="Alignment Degrees(°): "
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="190"
-                                                 IsReadOnly="True"
-                                                 Background="{StaticResource SecondaryRegionBrush}"
-                                                 Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.Title="Mark Point 1(um): "
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="190"
-                                                 IsReadOnly="True"
-                                                 Background="{StaticResource SecondaryRegionBrush}"
-                                                 Style="{StaticResource TextBoxExtend}" />
-                                        <TextBox Text="{Binding MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
-                                                 hc:TitleElement.Title="Mark Point 2(um): "
-                                                 hc:TitleElement.TitlePlacement="Left"
-                                                 hc:TitleElement.TitleWidth="190"
-                                                 IsReadOnly="True"
-                                                 Background="{StaticResource SecondaryRegionBrush}"
-                                                 Style="{StaticResource TextBoxExtend}" />
-                                    </hc:UniformSpacingPanel>
-                                </DataTemplate>
-                            </ContentPresenter.ContentTemplate>
-                        </ContentPresenter>
+                        <TextBox Text="{Binding CalibratingItem.DFAlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                 hc:TitleElement.Title="Alignment Degrees(°): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.DFAlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Mark Point 1(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding CalibratingItem.DFAlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                 hc:TitleElement.Title="Mark Point 2(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
                         <hc:UniformSpacingPanel HorizontalAlignment="Left"
                                                 VerticalAlignment="Top"
                                                 Spacing="10">
