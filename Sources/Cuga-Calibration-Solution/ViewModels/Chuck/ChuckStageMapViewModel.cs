@@ -7,7 +7,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Models;
 using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.Microscope.CalChip;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -17,7 +16,6 @@ using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
-using Net.Utilities.WPF.MVVM;
 
 namespace CugaCalibration.ViewModels.Chuck;
 
@@ -68,9 +66,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
 
     [ObservableProperty]
     public partial MicroscopeCalChipDTO MicroscopeCalChip { get; set; } = new();
-
-    [ObservableProperty]
-    public partial AlignmentUserControlViewModel AlignmentUserControlViewModel { get; set; } = HostApplication.GetRequiredService<AlignmentUserControlViewModel>();
 
     #endregion 缓存
 
@@ -244,6 +239,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
 
             CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
+            StageMapCommands.IsDark = false;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
@@ -259,24 +255,13 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
-            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-
-            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
-
-            CalibratingItem.BFAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-            StageMapCommands.IsDark = false;
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
-                StageMapCommands.IsDark,
-                AlignmentUserControlViewModel.CalChipSiteModelEnum,
-                AlignmentUserControlViewModel.IsDarkFieldAlignment,
-                BFAlignmentResult = new HtmlQuote(CalibratingItem.BFAlignmentResult.ToHtmlAnonymous())
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
+            await StageMapCommands.AlignmentThenApplyTemplatesAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
             return true;
         });
@@ -376,6 +361,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             }), HtmlLogUniqueId.LoggingHtml());
 
             CalibratingItem.DFProductivityInformation = Cache.ChuckStageMapCacheDFItem.ProductivityInformation;
+            StageMapCommands.IsDark = true;
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ChuckStageMapCacheDFItem.ProductivityInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.ChuckStageMapCacheDFItem.LaserLightInformation)
@@ -388,21 +374,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(async () =>
         {
-            AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-            AlignmentUserControlViewModel.ProductivityInformation = Cache.ChuckStageMapCacheDFItem.ProductivityInformation;
-
-            if (DialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
-                    out var dialogResult,
-                    DialogButtonsEnum.YesNo,
-                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) CalibratingItem.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-            else CalibratingItem.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-
-            await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
-
-            CalibratingItem.DFAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-            StageMapCommands.IsDark = true;
-
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            Logger.LogHtmlInformation("Param", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
                 DFParam = new HtmlQuote(new
@@ -413,13 +385,10 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous())
                 }),
-                StageMapCommands.IsDark,
-                AlignmentUserControlViewModel.CalChipSiteModelEnum,
-                AlignmentUserControlViewModel.IsDarkFieldAlignment,
-                DFAlignmentResult = new HtmlQuote(CalibratingItem.DFAlignmentResult.ToHtmlAnonymous())
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
-            StageViewModel.SetBrightFieldAbsoluteStageXy(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
+            await StageMapCommands.AlignmentThenApplyTemplatesAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
             return true;
         });

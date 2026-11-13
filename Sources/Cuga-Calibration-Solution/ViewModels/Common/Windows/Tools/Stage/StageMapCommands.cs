@@ -691,7 +691,7 @@ public sealed partial class StageMapCommands(
             : brightFieldMachinePosition;
         var circle = new Circle(circleCenter, CacheItem.WaferRadius);
 
-        if (isDownloadStageMap == false)
+        if (isDownloadStageMap)
         {
             await DownloadStageMapAsync(
                 downloadStageMap,

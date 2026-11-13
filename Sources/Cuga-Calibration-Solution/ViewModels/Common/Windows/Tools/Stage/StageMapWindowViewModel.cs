@@ -18,6 +18,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Core.Models.Enums.Stage;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -75,7 +76,7 @@ public sealed partial class StageMapWindowViewModel(
             StageMapCommands.Logger = logger;
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
-            StageMapCommands.CalChipSiteModelEnum = MicroscopeCalChip.CalChipSiteModelEnum;
+            StageMapCommands.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
             StageMapCommands.MicroscopeCalChip = MicroscopeCalChip;
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
             StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;

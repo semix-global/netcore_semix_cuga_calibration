@@ -40,7 +40,7 @@
                                        FontWeight="Bold"
                                        Style="{StaticResource TextBlockDefaultInfo}" />
                         </StackPanel>
-                        <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                        <tools:AlignmentUserControl DataContext="{Binding StageMapCommands.AlignmentUserControlViewModel}" />
                         <StackPanel>
                             <TextBlock Text="Result"
                                        HorizontalAlignment="Center"

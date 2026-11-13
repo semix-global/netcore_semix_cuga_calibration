@@ -88,7 +88,7 @@ public sealed partial class RTAWindowViewModel(
             StageMapCommands.Logger = logger;
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
-            StageMapCommands.CalChipSiteModelEnum = MicroscopeCalChip.CalChipSiteModelEnum;
+            StageMapCommands.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
             StageMapCommands.MicroscopeCalChip = MicroscopeCalChip;
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
             StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;
