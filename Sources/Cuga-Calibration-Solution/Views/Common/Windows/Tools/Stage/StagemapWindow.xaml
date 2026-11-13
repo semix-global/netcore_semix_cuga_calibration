@@ -170,7 +170,7 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                                <tools:AlignmentUserControl DataContext="{Binding StageMapCommands.AlignmentUserControlViewModel}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -214,6 +214,7 @@
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Mark"
                                                             Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
+                                                            CommandParameter="{x:Static models:Constants.True}"
                                                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                             Style="{StaticResource ButtonPrimary.Loading}" />
                                                     <Button Content="Cancel"

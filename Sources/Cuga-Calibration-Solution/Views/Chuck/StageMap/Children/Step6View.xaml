@@ -10,6 +10,7 @@
              xmlns:view="clr-namespace:CanvasViewer.View;assembly=WPF.CanvasViewer"
              xmlns:controls="clr-namespace:Core.Models.Models.Setting;assembly=Core.Models"
              xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
+             xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
              d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
              d:DesignWidth="1920"
              d:DesignHeight="1080"
@@ -92,6 +93,7 @@
                                                 Spacing="10">
                             <Button Content="Mark"
                                     Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
+                                    CommandParameter="{x:Static models:Constants.True}"
                                     hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                     Style="{StaticResource ButtonPrimary.Loading}" />
                             <Button Content="Cancel"

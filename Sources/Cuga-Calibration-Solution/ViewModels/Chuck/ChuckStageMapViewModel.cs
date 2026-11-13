@@ -91,6 +91,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         StageMapCommands.ImageFileDirectory = ImageFileDirectory;
         StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
         StageMapCommands.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
+        StageMapCommands.MicroscopeCalChip = MicroscopeCalChip;
         StageMapCommands.Cache = Cache;
         StageMapCommands.ChuckStageMap = CalibratingItem;
 
@@ -549,7 +550,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             StageMapCommands.IsDark
         }), HtmlLogUniqueId.LoggingHtml());
 
-        return await StageMapCommands.DFRepeatCalibrateAsync(CalibrationSteps[8].StepName, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        return await StageMapCommands.DFRepeatCalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
     });
 
     [RelayCommand(IncludeCancelCommand = true)]

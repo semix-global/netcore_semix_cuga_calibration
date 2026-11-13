@@ -1,20 +1,16 @@
 using System.Globalization;
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
-using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
 using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
@@ -22,15 +18,12 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Core.Models.Models.Chuck.StageMap;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 [IOCAppService(ServiceType = typeof(StageMapWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class StageMapWindowViewModel(
-    StageViewModel stageViewModel,
-    AlignmentUserControlViewModel alignmentUserControlViewModel,
     ICacheProvider cacheProvider,
     IApplicationCookieService applicationCookieCacheProvider,
     IDialogWindowProvider dialogWindowProvider,
@@ -45,8 +38,6 @@ public sealed partial class StageMapWindowViewModel(
     public CalibrationSetting CalibrationSetting { get; } = calibrationSetting;
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
-
-    public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
 
     public StageMapCommands StageMapCommands { get; } = stageMapCommands;
 
@@ -85,6 +76,7 @@ public sealed partial class StageMapWindowViewModel(
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
             StageMapCommands.CalChipSiteModelEnum = MicroscopeCalChip.CalChipSiteModelEnum;
+            StageMapCommands.MicroscopeCalChip = MicroscopeCalChip;
             StageMapCommands.Cache = Cache.ChuckStageMapCache;
             StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;
 
@@ -99,57 +91,7 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
     {
-        Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
-
-        AlignmentUserControlViewModel.CalChipSiteModelEnum = CalChipSiteModelEnum.ChuckModel;
-
-        if (StageMapCommands.IsDark)
-        {
-            var cacheDFItem = (ChuckStageMapCacheDFItem)StageMapCommands.CacheItem;
-            AlignmentUserControlViewModel.ProductivityInformation = cacheDFItem.ProductivityInformation;
-
-            if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
-                    out var dialogResult,
-                    DialogButtonsEnum.YesNo,
-                    DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-            else StageMapCommands.ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-        }
-        else
-        {
-            AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-        }
-
-        await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
-
-        var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-        if (StageMapCommands.AlignmentResult.MarkPoint1 != Point.Origin
-            && StageMapCommands.AlignmentResult.MarkPoint2 != Point.Origin
-            && StageMapCommands.CacheItem.StageMapTemplates.Length > 0)
-        {
-            var oldMarkPoint1 = StageMapCommands.AlignmentResult.MarkPoint1;
-            var oldMarkPoint2 = StageMapCommands.AlignmentResult.MarkPoint2;
-
-            var newMarkPoint1 = newAlignmentResult.MarkPoint1;
-            var newMarkPoint2 = newAlignmentResult.MarkPoint2;
-
-            var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
-
-            foreach (var stageMapTemplate in StageMapCommands.CacheItem.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
-
-            using var scope = StageMapCommands.StageMapDocument.View.Sync.EnterScope();
-            StageMapCommands.StageMapDocument.Reset();
-        }
-
-        StageMapCommands.AlignmentResult = newAlignmentResult;
-
-        stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel)), CalChipSiteModelEnum.ChuckModel);
-
-        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            AlignmentUserControlViewModel.CalChipSiteModelEnum,
-            AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(StageMapCommands.AlignmentResult)
-        }), HtmlLogUniqueId.LoggingHtml());
+        await StageMapCommands.AlignmentThenApplyTemplatesAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -157,7 +99,7 @@ public sealed partial class StageMapWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
     {
-        await StageMapCommands.GenerateStageMapDocumentAsync(cancellationToken).ConfigureAwait(false);
+        await StageMapCommands.GenerateStageMapDocumentAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -167,7 +109,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await StageMapCommands.CalibrateAsync(true, HtmlLogUniqueId, cancellationToken);
+        await StageMapCommands.CalibrateAsync(true, HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
@@ -177,7 +119,7 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return await StageMapCommands.DFRepeatCalibrateAsync(Steps[3], HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
+        return await StageMapCommands.DFRepeatCalibrateAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
