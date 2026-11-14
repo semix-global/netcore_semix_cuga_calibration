@@ -10,7 +10,6 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
@@ -44,10 +43,10 @@ public sealed partial class ProductivityInformation :
     public partial int StageSpeedType { get; private set; } = -1;
 
     [ObservableProperty]
-    public partial double XPixelSize { get; set; } = -1;
+    public partial double OriginXPixelSize { get; set; } = -1;
 
     [ObservableProperty]
-    public partial double YPixelSize { get; private set; } = -1;
+    public partial double OriginYPixelSize { get; private set; } = -1;
 
     [ObservableProperty]
     public partial int YPixels { get; private set; } = -1;
@@ -137,8 +136,8 @@ public sealed partial class ProductivityInformation :
         out OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         out int opticsMagType,
         out int stageSpeedType,
-        out double xPixelSize,
-        out double yPixelSize,
+        out double originXPixelSize,
+        out double originYPixelSize,
         out int yPixels,
         out double originYPixels,
         out double originYPixelsStartIndex,
@@ -150,8 +149,8 @@ public sealed partial class ProductivityInformation :
                 opticsIlluminationModeEnum,
                 opticsMagType,
                 stageSpeedType,
-                xPixelSize,
-                yPixelSize,
+                originXPixelSize,
+                originYPixelSize,
                 yPixels,
                 originYPixels,
                 originYPixelsStartIndex,
@@ -163,8 +162,8 @@ public sealed partial class ProductivityInformation :
                 OpticsIlluminationModeEnum,
                 OpticsMagType,
                 StageSpeedType,
-                XPixelSize,
-                YPixelSize,
+                OriginXPixelSize,
+                OriginYPixelSize,
                 YPixels,
                 OriginYPixels,
                 OriginYPixelsStartIndex,
@@ -223,7 +222,7 @@ public sealed partial class ProductivityInformation :
 #endif
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
-        YPixelSize = yPixelSize;
+        OriginYPixelSize = yPixelSize;
 
         OriginYPixels = Convert.ToInt32(yPixel);
 
@@ -240,7 +239,7 @@ public sealed partial class ProductivityInformation :
 
         SampleRate = hz;
         XSpeedValue = xSpeedValue;
-        XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
+        OriginXPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
         return this;
     }
@@ -251,8 +250,8 @@ public sealed partial class ProductivityInformation :
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
-        XPixelSize = XPixelSize,
-        YPixelSize = YPixelSize,
+        OriginXPixelSize = OriginXPixelSize,
+        OriginYPixelSize = OriginYPixelSize,
         YPixels = YPixels,
         OriginYPixels = OriginYPixels,
         OriginYPixelsStartIndex = OriginYPixelsStartIndex,
@@ -269,8 +268,8 @@ public sealed partial class ProductivityInformation :
         OpticsIlluminationModeEnum,
         OpticsMagType,
         StageSpeedType,
-        XPixelSize,
-        YPixelSize,
+        OriginXPixelSize,
+        OriginYPixelSize,
         YPixels,
         OriginYPixels,
         OriginYPixelsStartIndex,

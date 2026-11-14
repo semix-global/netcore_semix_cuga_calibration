@@ -75,14 +75,16 @@ public sealed partial class StageMap : ObservableObject, ICloneable<StageMap>, I
         var isMatched = false;
         maxError = Vector.Zero;
 
-        foreach (var (y, row) in ErrorMatrix.Index())
+        var (yLength, xLength) = ErrorMatrix.GetYXLength();
+
+        for (var y = 0; y < yLength; y++)
         {
-            foreach (var (x, error) in row.Index())
+            for (var x = 0; x < xLength; x++)
             {
                 if (IsInWaferMatrix[y][x] == false || IsMatchMatrix[y][x] == false) continue;
-                if (isMatched && error.Length <= maxError.Length) continue;
+                if (isMatched && ErrorMatrix[y][x].Length <= maxError.Length) continue;
 
-                maxError = error;
+                maxError = ErrorMatrix[y][x];
                 isMatched = true;
             }
         }
