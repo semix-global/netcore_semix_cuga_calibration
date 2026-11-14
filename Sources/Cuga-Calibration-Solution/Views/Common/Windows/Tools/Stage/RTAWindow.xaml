@@ -105,7 +105,11 @@
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"
                                               Style="{StaticResource ComboBoxExtend}"
-                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}" />
+                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
                                     <ComboBox hc:TitleElement.Title="Productivity Information: "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"

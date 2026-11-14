@@ -84,7 +84,7 @@ public sealed partial class RTAWindowViewModel(
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
 
-            StageMapCommands.IsDark = false;
+            StageMapCommands.IsDark = true;
             StageMapCommands.Logger = logger;
             StageMapCommands.ImageFileDirectory = ImageFileDirectory;
             StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
