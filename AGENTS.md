@@ -68,6 +68,12 @@
 - 仅用于保存方法或委托最终返回结果的 `bool` 局部变量, 允许命名为 `result`, 并在对应逻辑末尾使用 `return result`. 过程中的判断和状态变量, 以及参数仍须遵循 `is` 前缀规则.
 - 没有派生类且不承担继承扩展用途的具体类添加 `sealed`, 包括私有嵌套类, 例如 `private sealed class PrivateSetterContractResolver`. 抽象类保留继承能力, 静态类不重复添加 `sealed`.
 
+#### 二维数组, 矩阵和图像的坐标命名
+
+- 处理 `T[][]`, `T[,]`, 矩阵或图像时, 行数表示纵向长度, 统一命名为 `yLength`. 列数表示横向长度, 统一命名为 `xLength`. 例如 `var (yLength, xLength) = ErrorMatrix.GetYXLength();`.
+- 纵向索引用 `y`, 横向索引用 `x`. 禁止用 `row`, `col` 或其派生名称表示长度或索引, 例如 `rowCount`, `colCount`, `rowIndex` 和 `colIndex`.
+- 按行遍历时, 外层用 `y`, 内层用 `x`, 通过 `array[y][x]`, `array[y, x]` 或 `matrix[y, x]` 访问元素. 调用图像 API 时按其坐标参数顺序传入 `x` 和 `y`.
+
 #### 字面量与表达式
 
 - `double` 类型的整数形式字面量优先使用 `d` 后缀, 例如写 `2d`, 不要写 `2.0`.
@@ -81,7 +87,7 @@
 #### 方法调用与可选参数
 
 - 无需显式设置的可选参数直接省略, 使用其声明的默认值.
-- 显式传入可选参数时, 必须使用参数名称, 即使实参值等于默认值也遵守此规则, 例如 `bgrImage.GetValue<byte>(col, row, channel: 2)`.
+- 显式传入可选参数时, 必须使用参数名称, 即使实参值等于默认值也遵守此规则, 例如 `bgrImage.GetValue<byte>(x, y, channel: 2)`.
 - 参数是否可选以实际选用的重载声明为准. 必填参数不因后面存在可选参数而统一改为具名参数, 按现有调用约定和可读性处理.
 
 #### 参数校验与异常
