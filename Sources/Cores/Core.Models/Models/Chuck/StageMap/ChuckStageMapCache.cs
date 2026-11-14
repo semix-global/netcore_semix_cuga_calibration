@@ -41,7 +41,7 @@ public partial class ChuckStageMapCacheBFItem : CalibrationCacheBase<ChuckStageM
     public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 
     [ObservableProperty]
-    public partial double WaferRadius { get; set; } = 140_000d;
+    public partial double WaferRadius { get; set; } = 150_000d;
 
     [ObservableProperty]
     public partial double DiePitchWidth { get; set; } = 15300d;

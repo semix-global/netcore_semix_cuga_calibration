@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Threading.Channels;
@@ -879,6 +880,8 @@ public sealed partial class StageMapCommands(
                 laserViewModel.SetChirpAODWaveProfile(cacheDFItem.ProductivityInformation);
             }
 
+            var startTimestamp = Stopwatch.GetTimestamp();
+
             var writerTask = Task.Run(async () =>
             {
                 (BitmapImage Image, string RawImageFilePath)[]? pendingImages = null;
@@ -915,7 +918,8 @@ public sealed partial class StageMapCommands(
                                     (true, null),
                                     (true, null),
                                     true,
-                                    linkedToken).ConfigureAwait(false)
+                                    linkedToken,
+                                    isKeepRawImageCIBProfileModeEnum: cacheDFItem.CIBConfiguration.IsKeepRawImageCIBProfileModeEnum).ConfigureAwait(false)
                             ];
 
                             Guard.IsEqualTo(points.Length, darkFieldImages.Length);
@@ -966,10 +970,16 @@ public sealed partial class StageMapCommands(
                 }
                 finally
                 {
+                    logger.LogHtmlInformation("Scan Get Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    {
+                        ElapsedMilliseconds = Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds
+                    }), htmlLogUniqueId.LoggingHtml());
+
                     channel.Writer.TryComplete();
                 }
             }, linkedToken);
 
+            var templateMatchStartTimestamp = Stopwatch.GetTimestamp();
             try
             {
                 await foreach (var row in channel.Reader.ReadAllAsync(linkedToken).ConfigureAwait(false))
@@ -979,6 +989,11 @@ public sealed partial class StageMapCommands(
             }
             finally
             {
+                logger.LogHtmlInformation("Template Match Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                {
+                    ElapsedMilliseconds = Stopwatch.GetElapsedTime(templateMatchStartTimestamp).TotalMilliseconds
+                }), htmlLogUniqueId.LoggingHtml());
+
                 try
                 {
                     if (writerTask.IsCompleted == false) await linkedCancellationTokenSource.CancelAsync().ConfigureAwait(false);
@@ -1000,6 +1015,10 @@ public sealed partial class StageMapCommands(
             stageMap.Refresh();
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlContainer([
+                new HtmlBullet(new
+                {
+                    ElapsedMilliseconds = Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds
+                }),
                 .. stageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
                 .. stageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
             ]), htmlLogUniqueId.LoggingHtml());
@@ -1008,6 +1027,8 @@ public sealed partial class StageMapCommands(
 
             async Task TemplateMatchAsync(ScanYResult yResult)
             {
+                var rowsStartTimestamp = Stopwatch.GetTimestamp();
+
                 var (y, isInWaferColumnIndexes, images) = yResult;
 
                 var htmlLogs = new HtmlLog[isInWaferColumnIndexes.Length];
@@ -1034,6 +1055,8 @@ public sealed partial class StageMapCommands(
 
 #pragma warning restore IDISP007
 #pragma warning restore IDE0079
+
+                        var matchStartTimestamp = Stopwatch.GetTimestamp();
 
                         using var image = IsDark
                             ? xDirection > 0 ? originImage : originImage.HorizontalFlip()
@@ -1069,6 +1092,7 @@ public sealed partial class StageMapCommands(
                                 [
                                     new HtmlBullet(new
                                     {
+                                        ElapsedMilliseconds = Stopwatch.GetElapsedTime(matchStartTimestamp).TotalMilliseconds,
                                         isInWaferColumnIndex = isSuccess ? $"{isInWaferColumnIndex} Ok" : $"{isInWaferColumnIndex} Error",
                                         IdealPoint = stageMap.IdealMatrix[y][isInWaferColumnIndex],
                                         templateROI,
@@ -1100,7 +1124,17 @@ public sealed partial class StageMapCommands(
 
                     stageMap.Refresh();
 
-                    Logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header2, new HtmlContainer([.. htmlLogs]), scanHtmlLogUniqueId.LoggingHtml());
+                    var htmlContainer = new HtmlContainer([
+                        new HtmlBullet(new
+                        {
+                            ElapsedMilliseconds = Stopwatch.GetElapsedTime(rowsStartTimestamp).TotalMilliseconds
+                        }),
+                        .. htmlLogs
+                    ]);
+
+                    var isOk = isInWaferColumnIndexes.All(t => stageMap.IsMatchMatrix[y][t]);
+                    if (isOk) Logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header2, htmlContainer, scanHtmlLogUniqueId.LoggingHtml());
+                    else Logger.LogHtmlWarning($"{y + 1} row", HtmlHeaderLevelEnum.Header2, htmlContainer, scanHtmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
