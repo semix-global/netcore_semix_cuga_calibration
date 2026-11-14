@@ -206,7 +206,7 @@ public sealed partial class RTAWindowViewModel(
                 (false, cacheDFItem.CIBConfiguration),
                 (false, cacheDFItem.LaserLightInformation),
                 false,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
             var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
@@ -236,7 +236,7 @@ public sealed partial class RTAWindowViewModel(
                 (false, cacheDFItem.LaserLightInformation),
                 false,
                 cancellationToken,
-                isForward: false);
+                isForward: false).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
             var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
