@@ -724,6 +724,7 @@ public sealed partial class StageMapCommands(
             VerifyStageMap,
             htmlLogUniqueId,
             cancellationToken,
+            isCalibrate: false,
             isInterpolateErrors: IsDark,
             interpolateStageMap: downloadStageMap,
             interpolateCircle: circle).ConfigureAwait(false);
@@ -743,6 +744,7 @@ public sealed partial class StageMapCommands(
         StageMap stageMap,
         Guid htmlLogUniqueId,
         CancellationToken cancellationToken,
+        bool isCalibrate = true,
         bool isInterpolateErrors = false,
         StageMap? interpolateStageMap = null,
         Circle? interpolateCircle = null)
@@ -765,6 +767,7 @@ public sealed partial class StageMapCommands(
 
         var (xDirection, yDirection) = stageViewModel.GetMachineDirection();
         Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
+        var xScanDirection = isCalibrate ? 1 : -1;
 
         double xPixelSize, yPixelSize;
 
@@ -788,6 +791,8 @@ public sealed partial class StageMapCommands(
                 ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
                 xDirection,
                 yDirection,
+                xScanDirection,
+                isCalibrate,
                 xPixelSize,
                 yPixelSize,
                 ChuckBFMachinePosition = MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)
@@ -805,6 +810,8 @@ public sealed partial class StageMapCommands(
             {
                 xDirection,
                 yDirection,
+                xScanDirection,
+                isCalibrate,
                 xPixelSize,
                 yPixelSize
             }), htmlLogUniqueId.LoggingHtml());
@@ -898,6 +905,8 @@ public sealed partial class StageMapCommands(
                             .Where(t => t.Item)
                             .Select(t => t.Index)
                             .ToArray();
+
+                        if (isCalibrate == false) Array.Reverse(isInWaferColumnIndexes);
 
                         var points = isInWaferColumnIndexes.Select(t => stageMapIdealMatrix[y][t]).ToArray();
                         if (points.Length == 0) continue;
@@ -1061,7 +1070,7 @@ public sealed partial class StageMapCommands(
                         var matchStartTimestamp = Stopwatch.GetTimestamp();
 
                         using var image = IsDark
-                            ? xDirection > 0 ? originImage : originImage.HorizontalFlip()
+                            ? xDirection * xScanDirection > 0 ? originImage : originImage.HorizontalFlip()
                             : originImage;
 
                         var templateMatchRet = templateMatchEngine.Match(
