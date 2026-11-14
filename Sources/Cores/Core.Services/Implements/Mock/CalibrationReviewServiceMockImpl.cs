@@ -2,13 +2,13 @@ using Core.Models.Helper;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Enums.Files;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 using System.IO;
+using Net.Utilities.Graphics.Algorithms.Halcon;
 
 namespace Core.Services.Implements.Mock;
 
@@ -33,6 +33,7 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
 #pragma warning disable IDISP001
 
         var bitmapImage = CreateImage();
+
         return SxExecuteRetHelper.CreateSuccess(bitmapImage);
 
 #pragma warning restore IDISP001
@@ -59,14 +60,14 @@ public sealed class CalibrationReviewServiceMockImpl : ICalibrationReviewService
         return SxExecuteRetHelper.CreateSuccess(new Size(image.Width, image.Height));
     }
 
-    public SxExecuteRet<Size> GetDefaultPixelSize()
-    {
-        return SxExecuteRetHelper.CreateSuccess(new Size(3.45, 3.45));
-    }
+    public SxExecuteRet<Size> GetDefaultPixelSize() => SxExecuteRetHelper.CreateSuccess(new Size(3.45, 3.45));
+
     private BitmapImage CreateImage()
     {
         var filePath = SimulatorImageFilePath ?? string.Empty;
 
-        return File.Exists(filePath) ? BitmapHelper.OpenImage(filePath) : BitmapImage.Random(Width, Height, 10);
+        return File.Exists(filePath)
+            ? BitmapHelper.OpenImage(filePath)
+            : BitmapImage.Random(Width, Height, 10);
     }
 }
