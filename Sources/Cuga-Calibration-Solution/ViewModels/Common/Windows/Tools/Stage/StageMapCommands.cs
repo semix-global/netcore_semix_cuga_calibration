@@ -179,6 +179,8 @@ public sealed partial class StageMapCommands(
                     {
                         var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
 
+                        Guard.IsTrue(cacheDFItem.CIBInformation.PMTId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId, "PMT Id Not Match!"); // 不允许偏执(StageMap只看中心光斑, 副作用, 如果swath规划不是按照8号规划可能出现Y方向的一些问题)
+
                         Guard.IsGreaterThan(cacheDFItem.ImageWidth, 0);
 
                         var bfPosition = stageViewModel.MachineToBrightFieldPosition(stageMapTemplatePoint.FindBFMachinePosition);
