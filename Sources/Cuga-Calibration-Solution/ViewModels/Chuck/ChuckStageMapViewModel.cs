@@ -586,7 +586,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
 
         CalibratingItem.ExpandStageMap = CalibratingItem.DFStageMap.Expand(
             CalibratingItem.BFStageMap,
-            new Circle(StageViewModel.BrightFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), Cache.ChuckStageMapCacheBFItem.WaferRadius),
+            new Circle(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel), Cache.ChuckStageMapCacheBFItem.WaferRadius),
             new Circle(StageViewModel.DarkFieldToMachinePosition(StageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum.ChuckModel))), Cache.ChuckStageMapCacheDFItem.WaferRadius));
         CalibratingItem.ExpandStageMap.Refresh();
 
@@ -674,11 +674,14 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 .. Review.ExpandStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
             ]), HtmlLogUniqueId.LoggingHtml());
 
+            #region BF
+
             StageMapCommands.IsDark = false;
             Logger.LogHtmlInformation("BF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
+
             await StageMapCommands.VerifyAsync(
                 Review.ExpandStageMap,
                 HtmlLogUniqueId,
@@ -690,11 +693,16 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             Review.BFVerifyMaxError = bfVerifyMaxError;
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
 
+            #endregion
+
+            #region DF
+
             StageMapCommands.IsDark = true;
             Logger.LogHtmlInformation("DF", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
+
             await StageMapCommands.VerifyAsync(
                 Review.ExpandStageMap,
                 HtmlLogUniqueId,
@@ -705,6 +713,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             Guard.IsTrue(StageMapCommands.VerifyStageMap.TryGetMaxMatchedError(out var dfVerifyMaxError), "Dark field verify has no matched points.");
             Review.DFVerifyMaxError = dfVerifyMaxError;
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
+
+            #endregion
 
             Review.IsVerified = Review.BFVerifyMaxError.Length < Cache.Threshold && Review.DFVerifyMaxError.Length < Cache.Threshold;
             Guard.IsTrue(Save(Review, cancellationToken));
