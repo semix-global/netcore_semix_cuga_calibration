@@ -382,7 +382,7 @@ public sealed partial class StageMapCommands(
 
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)), CalChipSiteModelEnum);
 
-            logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
+            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 AlignmentUserControlViewModel.CalChipSiteModelEnum,
                 AlignmentUserControlViewModel.IsDarkFieldAlignment,
@@ -972,7 +972,7 @@ public sealed partial class StageMapCommands(
                 }
                 finally
                 {
-                    logger.LogHtmlInformation("Scan Get Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                    Logger.LogHtmlInformation("Scan Get Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                     {
                         ElapsedMilliseconds = Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds
                     }), htmlLogUniqueId.LoggingHtml());
@@ -991,7 +991,7 @@ public sealed partial class StageMapCommands(
             }
             finally
             {
-                logger.LogHtmlInformation("Template Match Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
+                Logger.LogHtmlInformation("Template Match Images", HtmlHeaderLevelEnum.Header4, new HtmlBullet(new
                 {
                     ElapsedMilliseconds = Stopwatch.GetElapsedTime(templateMatchStartTimestamp).TotalMilliseconds
                 }), htmlLogUniqueId.LoggingHtml());
