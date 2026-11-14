@@ -890,7 +890,7 @@ public sealed partial class StageMapCommands(
                         {
                             var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
 
-                            stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(points[0], calChipSiteModelEnum: CalChipSiteModelEnum);
+                            stageViewModel.SetMachineAbsoluteStageXy(points[0], CalChipSiteModelEnum, false);
                             DarkFieldImageDTO[] darkFieldImages =
                             [
                                 .. await cibViewModel.GetPMTImagesAsync(
