@@ -136,13 +136,13 @@ public static class StageMapAlgorithmExtensions
             var minY = bfIdealPoints.Min(point => point.Y);
             var maxY = bfIdealPoints.Max(point => point.Y);
 
-            var minXCount = (int)Math.Max(0d, Math.Ceiling((baseY - minY) / yStep));
-            var maxXCount = (int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep));
-            var minYCount = (int)Math.Max(0d, Math.Ceiling((baseX - minX) / xStep));
-            var maxYCount = (int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep));
+            var minXCount = (int)Math.Max(0d, Math.Ceiling((baseX - minX) / xStep));
+            var maxXCount = (int)Math.Max(0d, Math.Ceiling((maxX - endX) / xStep));
+            var minYCount = (int)Math.Max(0d, Math.Ceiling((baseY - minY) / yStep));
+            var maxYCount = (int)Math.Max(0d, Math.Ceiling((maxY - endY) / yStep));
 
-            var xLength = dfXLength + minYCount + maxYCount;
-            var yLength = dfYLength + minXCount + maxXCount;
+            var xLength = dfXLength + minXCount + maxXCount;
+            var yLength = dfYLength + minYCount + maxYCount;
             var darkFieldStartPoint = new Point(baseX, baseY);
 
             var idealMatrix = new Point[yLength][];
@@ -155,7 +155,7 @@ public static class StageMapAlgorithmExtensions
                 isMatchMatrix[y] = new bool[xLength];
                 for (var x = 0; x < xLength; x++)
                 {
-                    var point = darkFieldStartPoint + new Vector((x - minYCount) * xStep, (y - minXCount) * yStep);
+                    var point = darkFieldStartPoint + new Vector((x - minXCount) * xStep, (y - minYCount) * yStep);
                     var isInWafer = bfTargetCircle.Contains(point);
                     idealMatrix[y][x] = point;
                     isInWaferMatrix[y][x] = isInWafer;
@@ -169,10 +169,10 @@ public static class StageMapAlgorithmExtensions
             // 保留暗场有效区域的误差, 其余区域保持明场插值误差.
             for (var y = 0; y < dfYLength; y++)
             {
-                var targetY = y + minXCount;
+                var targetY = y + minYCount;
                 for (var x = 0; x < dfXLength; x++)
                 {
-                    var targetX = x + minYCount;
+                    var targetX = x + minXCount;
                     if (dfTargetCircle.Contains(idealMatrix[targetY][targetX]) == false) continue;
 
                     errors[targetY][targetX] = dfErrors[y].Xs[x].Error;

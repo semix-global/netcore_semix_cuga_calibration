@@ -179,6 +179,12 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="1"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding StageMapCommands.CacheItem.WaferRadius}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Width(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
@@ -191,12 +197,6 @@
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
                                                                   Value="{Binding StageMapCommands.CacheItem.DiePitchHeight}" />
-                                                <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
-                                                                  hc:TitleElement.TitlePlacement="Left"
-                                                                  hc:TitleElement.TitleWidth="200"
-                                                                  Minimum="1"
-                                                                  Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding StageMapCommands.CacheItem.WaferRadius}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Image Width(px): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"

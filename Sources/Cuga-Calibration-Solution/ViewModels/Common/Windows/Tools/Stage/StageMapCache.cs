@@ -77,12 +77,12 @@ public sealed partial class StageMapCache : CalibrationCacheBase
                     ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBInformation,
                     OpticsConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(ChuckStageMapCache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                    ChuckStageMapCache.ChuckStageMapCacheDFItem.ImageWidth,
-                    ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
-                    ChuckStageMapCache.ChuckStageMapCacheBFItem.TemplateMatchSetting,
+                    ChuckStageMapCache.ChuckStageMapCacheDFItem.TemplateMatchSetting,
                     ChuckStageMapCache.ChuckStageMapCacheDFItem.WaferRadius,
                     ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchWidth,
                     ChuckStageMapCache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                    ChuckStageMapCache.ChuckStageMapCacheDFItem.ImageWidth,
+                    ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                     Table = new HtmlTable(
                     [
                         .. ChuckStageMapCache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -98,13 +98,13 @@ public sealed partial class StageMapCache : CalibrationCacheBase
                             })
                         })
                     ])
-                })
+                }),
+                ChuckStageMapCache.Threshold
             };
 
         return new
         {
             ChuckStageMapCache.MicroscopeLensInformation,
-            ChuckStageMapCache.Threshold,
             BFParam = new HtmlQuote(new
             {
                 ChuckStageMapCache.ChuckStageMapCacheBFItem.TemplateMatchSetting,
@@ -126,7 +126,8 @@ public sealed partial class StageMapCache : CalibrationCacheBase
                         })
                     })
                 ])
-            })
+            }),
+            ChuckStageMapCache.Threshold
         };
     }
 }

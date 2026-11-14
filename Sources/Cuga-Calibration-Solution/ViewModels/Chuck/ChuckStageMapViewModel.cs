@@ -178,7 +178,11 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         {
             case 0:
                 StageMapCommands.IsDark = false;
-                CalibratingItem = new ChuckStageMapDTO();
+
+                CalibratingItem = new ChuckStageMapDTO
+                {
+                    MicroscopeLensInformation = Cache.MicroscopeLensInformation
+                };
                 StageMapCommands.ChuckStageMap = CalibratingItem;
 
                 return true;
@@ -236,7 +240,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(() =>
         {
-            CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
             StageMapCommands.IsDark = false;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
@@ -409,11 +412,11 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
                     OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                    Cache.ChuckStageMapCacheDFItem.ImageWidth,
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                     Cache.ChuckStageMapCacheDFItem.WaferRadius,
                     Cache.ChuckStageMapCacheDFItem.DiePitchWidth,
                     Cache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                    Cache.ChuckStageMapCacheDFItem.ImageWidth,
                     Table = new HtmlTable(
                     [
                         .. Cache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -452,11 +455,11 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.ChuckStageMapCacheDFItem.ImageWidth,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                 Cache.ChuckStageMapCacheDFItem.WaferRadius,
                 Cache.ChuckStageMapCacheDFItem.DiePitchWidth,
                 Cache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                Cache.ChuckStageMapCacheDFItem.ImageWidth,
                 Table = new HtmlTable(
                 [
                     .. Cache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -494,12 +497,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.ChuckStageMapCacheDFItem.ImageWidth,
-                Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                 Cache.ChuckStageMapCacheDFItem.WaferRadius,
                 Cache.ChuckStageMapCacheDFItem.DiePitchWidth,
                 Cache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                Cache.ChuckStageMapCacheDFItem.ImageWidth,
+                Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 Table = new HtmlTable(
                 [
                     .. Cache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -557,12 +560,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Cache.ChuckStageMapCacheDFItem.CIBInformation,
                 OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                 CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                Cache.ChuckStageMapCacheDFItem.ImageWidth,
-                Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                 Cache.ChuckStageMapCacheDFItem.WaferRadius,
                 Cache.ChuckStageMapCacheDFItem.DiePitchWidth,
                 Cache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                Cache.ChuckStageMapCacheDFItem.ImageWidth,
+                Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                 Table = new HtmlTable(
                 [
                     .. Cache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -613,7 +616,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
                 Cache.MicroscopeLensInformation,
-                Cache.Threshold,
                 BFParam = new HtmlQuote(new
                 {
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheBFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
@@ -643,12 +645,12 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
                     OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous()),
-                    Cache.ChuckStageMapCacheDFItem.ImageWidth,
-                    Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                     TemplateMatchSetting = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.TemplateMatchSetting.ToHtmlAnonymous(CalibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum)),
                     Cache.ChuckStageMapCacheDFItem.WaferRadius,
                     Cache.ChuckStageMapCacheDFItem.DiePitchWidth,
                     Cache.ChuckStageMapCacheDFItem.DiePitchHeight,
+                    Cache.ChuckStageMapCacheDFItem.ImageWidth,
+                    Cache.ChuckStageMapCacheDFItem.StageMapRepeatTimes,
                     Table = new HtmlTable(
                     [
                         .. Cache.ChuckStageMapCacheDFItem.StageMapTemplates.Index().Select(t => new
@@ -665,6 +667,7 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                         })
                     ])
                 }),
+                Cache.Threshold,
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 

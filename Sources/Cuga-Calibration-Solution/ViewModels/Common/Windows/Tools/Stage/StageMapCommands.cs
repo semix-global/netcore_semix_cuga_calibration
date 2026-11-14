@@ -161,7 +161,7 @@ public sealed partial class StageMapCommands(
 
                 if (isCreateTemplate == true)
                 {
-                    if (CacheItem.StageMapTemplates.Length > 0 && stageMapTemplatePoint.FindBFMachinePosition.Y - CacheItem.StageMapTemplates[0].FindBFMachinePosition.Y != 0) // 选择的点Y必须相同： (之前计算与第一个点的差不准, 因为是明场下相减不是暗场, 实际上应该是两个暗场模版中心位置的差)
+                    if (CacheItem.StageMapTemplates.Length > 0 && stageMapTemplatePoint.FindBFMachinePosition.Y - CacheItem.StageMapTemplates[0].FindBFMachinePosition.Y != 0) // 选择的点Y必须相同
                     {
                         dialogWindowProvider.ShowDialog($"{Name}: Add Template Warning: Y Position Must Be Same!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
@@ -403,6 +403,8 @@ public sealed partial class StageMapCommands(
                 {
                     var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
 
+                    Guard.IsTrue(cacheDFItem.CIBInformation.PMTId == calibrationSetting.SettingCommonParam.MainCIBInformation.PMTId, "PMT Id Not Match!"); // 不允许偏执(StageMap只看中心光斑, 副作用, 如果swath规划不是按照8号规划可能出现Y方向的一些问题)
+
                     var dfPosition = cibViewModel.GetCIBInformationPosition(
                         StageCoordinateSystemEnum.Dark,
                         cacheDFItem.ProductivityInformation,
@@ -445,8 +447,8 @@ public sealed partial class StageMapCommands(
 
                 Func<Point, Point> cartesianCoordinateToMachinePosition = IsDark ? stageViewModel.DarkFieldToMachinePosition : stageViewModel.BrightFieldToMachinePosition;
 
-                var bfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)), CacheItem.WaferRadius);
-                var machineCircle = new Circle(cartesianCoordinateToMachinePosition(bfCircle.Center), bfCircle.Radius);
+                var cartesianCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)), CacheItem.WaferRadius);
+                var machineCircle = new Circle(cartesianCoordinateToMachinePosition(cartesianCircle.Center), cartesianCircle.Radius);
 
                 StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = machineCircle });
 
@@ -456,7 +458,7 @@ public sealed partial class StageMapCommands(
                     OriginalDiePoint = cartesianCoordinatePositions[0]
                 };
 
-                var cartesianCoordinateStageMapDies = stageMapReticleBuilder.BuildDie(bfCircle);
+                var cartesianCoordinateStageMapDies = stageMapReticleBuilder.BuildDie(cartesianCircle);
                 Vector[] markers =
                 [
                     .. cartesianCoordinatePositions.Select(tt => tt - cartesianCoordinatePositions[0])
@@ -476,7 +478,7 @@ public sealed partial class StageMapCommands(
                         Row = t.Row,
                         Col = t.Col,
                         Rect = (Rect)resultExtents,
-                        IsInWafer = points.All(bfCircle.Contains),
+                        IsInWafer = points.All(cartesianCircle.Contains),
                         Markers = [.. points.Select(cartesianCoordinateToMachinePosition)]
                     };
                 }));
@@ -546,6 +548,9 @@ public sealed partial class StageMapCommands(
             Guard.IsGreaterThan(yLength, 2);
             Guard.IsGreaterThan(xLength, 2);
 
+            var stageMapDieByIndex = selectStageMapDies.ToDictionary(t => t.Index);
+            Guard.IsTrue(stageMapDieByIndex.Count == yLength * xLength, "Selected dies must form a complete rectangle.");
+
             StageMap.IdealMatrix = [.. Generate.LinearRangeInt32(0, yLength - 1).Select(_ => new Point[xLength * CacheItem.StageMapTemplates.Length])];
             StageMap.ErrorMatrix = [.. Generate.LinearRangeInt32(0, yLength - 1).Select(_ => new Vector[xLength * CacheItem.StageMapTemplates.Length])];
             StageMap.IsInWaferMatrix = [.. Generate.LinearRangeInt32(0, yLength - 1).Select(_ => new bool[xLength * CacheItem.StageMapTemplates.Length])];
@@ -562,7 +567,7 @@ public sealed partial class StageMapCommands(
                     var stageMapIndexX = xDirection > 0 ? minX + x : maxX - x;
                     var stageMapIndexY = yDirection > 0 ? minY + y : maxY - y;
 
-                    var stageMapDie = selectStageMapDies.Single(t => t.Index == new WaferMapDieIndex(stageMapIndexX, stageMapIndexY));
+                    var stageMapDie = stageMapDieByIndex[new WaferMapDieIndex(stageMapIndexX, stageMapIndexY)];
 
                     for (var markerIndex = 0; markerIndex < CacheItem.StageMapTemplates.Length; markerIndex++)
                     {
@@ -600,7 +605,7 @@ public sealed partial class StageMapCommands(
 
     public async Task<bool> DFRepeatCalibrateAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken)
     {
-        Guard.IsTrue(IsDark, "Step3 only support dark field");
+        Guard.IsTrue(IsDark, "Repeat scan only supports dark field.");
         Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
 
         ChuckStageMap.DFRepeatStageMaps = [];
@@ -1012,7 +1017,7 @@ public sealed partial class StageMapCommands(
                         token.ThrowIfCancellationRequested();
 
                         var (i, isInWaferColumnIndex) = item;
-                        var templateIdIndex = xDirection > 0 ? i % CacheItem.StageMapTemplates.Length : ^(i % CacheItem.StageMapTemplates.Length + 1);
+                        var templateIdIndex = xDirection > 0 ? isInWaferColumnIndex % CacheItem.StageMapTemplates.Length : ^(isInWaferColumnIndex % CacheItem.StageMapTemplates.Length + 1);
 
                         var templateROI = CacheItem.StageMapTemplates[templateIdIndex].TemplateROI;
 
