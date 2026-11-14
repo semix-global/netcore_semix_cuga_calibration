@@ -7,11 +7,8 @@
 $ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 # install dvc
-uv tool install dvc
+uv tool install "dvc[ssh]"
 ```
-
->   1.   安装putty以及winscp
->   2.   配置putty和winscp ssh连接
 
 # 2. init
 
@@ -36,8 +33,20 @@ $ git push
 # 添加大文件
 $ dvc add data/raw.bin
 
+# 添加文件夹, 主要使用这个
+$ dvc add .\Simulator\Common\Windows\Tools\Stage\RTAWindowViewModel\
+$ git add ./
+$ git commit -m"***"
+$ git push
+
 # 上传数据
 $ dvc push
+
+# 拉取所有
+$ dvc pull
+
+# 拉取单个
+$ dvc pull .\Simulator\Common\Windows\Tools\Stage\RTAWindowViewModel.dvc
 
 # 查看上传状态
 $ dvc status -c
