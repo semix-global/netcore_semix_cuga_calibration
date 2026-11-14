@@ -52,6 +52,8 @@ public sealed partial class StageMapCommands(
     StageViewModel stageViewModel,
     ReviewViewModel reviewViewModel,
     CIBViewModel cibViewModel,
+    OpticsViewModel opticsViewModel,
+    LaserViewModel laserViewModel,
     IDialogWindowProvider dialogWindowProvider,
     IWindowManagerService windowManagerService,
     CalibrationSetting calibrationSetting,
@@ -855,6 +857,17 @@ public sealed partial class StageMapCommands(
                 SingleWriter = true,
                 AllowSynchronousContinuations = false
             });
+
+            if (IsDark)
+            {
+                var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
+
+                opticsViewModel.SetOpticsConfiguration(cacheDFItem.OpticsConfiguration);
+                cibViewModel.SetCIBConfiguration([cacheDFItem.CIBInformation], cacheDFItem.CIBConfiguration);
+                laserViewModel.SetPrescanAODWaveProfileByCoefficient(cacheDFItem.ProductivityInformation, cacheDFItem.LaserLightInformation.Coefficient);
+                laserViewModel.SetChirpAODWaveProfile(cacheDFItem.ProductivityInformation);
+            }
+
             var writerTask = Task.Run(async () =>
             {
                 (BitmapImage Image, string RawImageFilePath)[]? pendingImages = null;
@@ -887,10 +900,10 @@ public sealed partial class StageMapCommands(
                                     cacheDFItem.ImageWidth,
                                     cacheDFItem.CIBInformation,
                                     (true, null),
-                                    (false, cacheDFItem.OpticsConfiguration),
-                                    (false, cacheDFItem.CIBConfiguration),
-                                    (false, cacheDFItem.LaserLightInformation),
-                                    false,
+                                    (true, null),
+                                    (true, null),
+                                    (true, null),
+                                    true,
                                     linkedToken).ConfigureAwait(false)
                             ];
 
