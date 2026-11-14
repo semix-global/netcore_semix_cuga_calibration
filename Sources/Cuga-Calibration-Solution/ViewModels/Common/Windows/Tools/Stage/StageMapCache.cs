@@ -126,7 +126,7 @@ public sealed partial class StageMapCache : CalibrationCacheBase
                         })
                     })
                 ])
-            }),
+            })
         };
     }
 }

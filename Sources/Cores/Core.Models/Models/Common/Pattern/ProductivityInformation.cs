@@ -195,8 +195,8 @@ public sealed partial class ProductivityInformation :
 #if NET
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
 #endif
-        double yPixelSize,
-        double yPixel,
+        double originYPixelSize,
+        double originYPixels,
         int pxStartPoint,
         int pxEndPoint,
         double hz,
@@ -222,9 +222,9 @@ public sealed partial class ProductivityInformation :
 #endif
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
-        OriginYPixelSize = yPixelSize;
+        OriginYPixelSize = originYPixelSize;
 
-        OriginYPixels = Convert.ToInt32(yPixel);
+        OriginYPixels = Convert.ToInt32(originYPixels);
 
         Guard.IsGreaterThanOrEqualTo(pxStartPoint, 0, $"{OpticsIlluminationModeEnum}, {Name}");
         Guard.IsGreaterThan(pxEndPoint, pxStartPoint, $"{OpticsIlluminationModeEnum}, {Name}");

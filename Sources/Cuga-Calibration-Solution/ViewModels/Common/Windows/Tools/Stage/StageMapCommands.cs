@@ -802,8 +802,8 @@ public sealed partial class StageMapCommands(
 
         var templateMatchEngine = algorithmEngines.TemplateMatch(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum);
 
-        var scanLogId = Guid.NewGuid();
-        var scanLogFileName = $"Details_{Name}_Rows({scanLogId:N})";
+        var scanHtmlLogUniqueId = Guid.NewGuid();
+        var scanHtmlLogFileName = $"Details_{Name}_Rows({scanHtmlLogUniqueId:N})";
 
         var templateMatchModels = new ITemplateMatchModel[CacheItem.StageMapTemplates.Length];
         try
@@ -812,7 +812,7 @@ public sealed partial class StageMapCommands(
             {
                 var result = templateMatchEngine.Read(
                     CacheItem.TemplateMatchSetting.ToReadParam(calibrationSetting.SettingTemplateMatchParam.AlgorithmEngineTypeEnum, template.TemplateFilePath),
-                    scanLogId);
+                    scanHtmlLogUniqueId);
                 Guard.IsTrue(result.Success, result.ErrorMsg);
 
                 templateMatchModels[index] = Guard.IsNotNullAndReturn(result.Data);
@@ -829,8 +829,8 @@ public sealed partial class StageMapCommands(
             ];
             var (yLength, xLength) = stageMapIdealMatrix.GetYXLength();
 
-            Logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, new HtmlComment($"Detail file prefix: {scanLogFileName}"), htmlLogUniqueId.LoggingHtml());
-            Logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), scanLogId.LoggingHtml());
+            Logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header4, new HtmlComment($"Detail file prefix: {scanHtmlLogFileName}"), htmlLogUniqueId.LoggingHtml());
+            Logger.LogHtmlInformation("rows", HtmlHeaderLevelEnum.Header1, new HtmlComment(Name), scanHtmlLogUniqueId.LoggingHtml());
 
             if (isInterpolateErrors)
             {
@@ -1018,7 +1018,7 @@ public sealed partial class StageMapCommands(
                         var templateMatchRet = templateMatchEngine.Match(
                             image,
                             new MatchTemplateParam { Model = templateMatchModels[templateIdIndex], ScoreThreshold = templateMatchScoreThreshold },
-                            scanLogId);
+                            scanHtmlLogUniqueId);
 
                         var isSuccess = templateMatchRet.Success;
                         var matchPoint = templateMatchRet.Data?.MarkPoint ?? Point.Origin;
@@ -1076,7 +1076,7 @@ public sealed partial class StageMapCommands(
 
                     stageMap.Refresh();
 
-                    Logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header2, new HtmlContainer([.. htmlLogs]), scanLogId.LoggingHtml());
+                    Logger.LogHtmlInformation($"{y + 1} row", HtmlHeaderLevelEnum.Header2, new HtmlContainer([.. htmlLogs]), scanHtmlLogUniqueId.LoggingHtml());
                 }
                 finally
                 {
@@ -1089,7 +1089,7 @@ public sealed partial class StageMapCommands(
         }
         finally
         {
-            Logger.LogHtmlInformation(scanLogId.LoggedEndHtml(fileName: scanLogFileName));
+            Logger.LogHtmlInformation(scanHtmlLogUniqueId.LoggedEndHtml(fileName: scanHtmlLogFileName));
 
             foreach (var templateMatchModel in templateMatchModels) templateMatchModel.Dispose();
             stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(CalChipSiteModelEnum)), CalChipSiteModelEnum);

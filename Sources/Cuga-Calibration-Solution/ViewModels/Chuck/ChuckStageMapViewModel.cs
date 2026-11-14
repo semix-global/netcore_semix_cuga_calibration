@@ -236,14 +236,13 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(() =>
         {
-            Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
-
             CalibratingItem.MicroscopeLensInformation = Cache.MicroscopeLensInformation;
             StageMapCommands.IsDark = false;
 
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
-                Cache.MicroscopeLensInformation
+                Cache.MicroscopeLensInformation,
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
             return ApplicationCookie.MicroscopeLensInformations.Contains(Cache.MicroscopeLensInformation);
@@ -347,6 +346,9 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
     {
         return InvokeCalibrateAsync(() =>
         {
+            CalibratingItem.DFProductivityInformation = Cache.ChuckStageMapCacheDFItem.ProductivityInformation;
+            StageMapCommands.IsDark = true;
+
             Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlQuote(new
             {
                 Cache.MicroscopeLensInformation,
@@ -357,11 +359,9 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                     Cache.ChuckStageMapCacheDFItem.CIBInformation,
                     OpticsConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.OpticsConfiguration.ToHtmlAnonymous()),
                     CIBConfiguration = new HtmlQuote(Cache.ChuckStageMapCacheDFItem.CIBConfiguration.ToHtmlAnonymous())
-                })
+                }),
+                StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
-
-            CalibratingItem.DFProductivityInformation = Cache.ChuckStageMapCacheDFItem.ProductivityInformation;
-            StageMapCommands.IsDark = true;
 
             return ApplicationCookie.ProductivityInformations.Contains(Cache.ChuckStageMapCacheDFItem.ProductivityInformation)
                    && ApplicationCookie.LaserLightInformations.Contains(Cache.ChuckStageMapCacheDFItem.LaserLightInformation)
