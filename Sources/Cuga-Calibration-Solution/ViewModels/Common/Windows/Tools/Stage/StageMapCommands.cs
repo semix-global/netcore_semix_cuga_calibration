@@ -161,11 +161,17 @@ public sealed partial class StageMapCommands(
 
                 if (isCreateTemplate == true)
                 {
-                    if (CacheItem.StageMapTemplates.Length > 0 && stageMapTemplatePoint.FindBFMachinePosition.Y - CacheItem.StageMapTemplates[0].FindBFMachinePosition.Y != 0) // 选择的点Y必须相同
+                    if (CacheItem.StageMapTemplates.Length > 0)
                     {
-                        dialogWindowProvider.ShowDialog($"{Name}: Add Template Warning: Y Position Must Be Same!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
+                        if (Math.Abs(stageMapTemplatePoint.FindBFMachinePosition.Y - CacheItem.StageMapTemplates[0].FindBFMachinePosition.Y) > 1e-2) // 选择的点Y必须相同, 10nm可以接受
+                        {
+                            dialogWindowProvider.ShowDialog($"{Name}: Add Template Warning: Y Position Must Be Same!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
 
-                        return;
+                            return;
+                        }
+
+                        stageMapTemplatePoint.FindBFMachinePosition = stageMapTemplatePoint.FindBFMachinePosition.WithY(CacheItem.StageMapTemplates[0].FindBFMachinePosition.Y);
+                        stageViewModel.SetMachineAbsoluteStageXy(stageMapTemplatePoint.FindBFMachinePosition, CalChipSiteModelEnum, true);
                     }
 
                     if (IsDark)
