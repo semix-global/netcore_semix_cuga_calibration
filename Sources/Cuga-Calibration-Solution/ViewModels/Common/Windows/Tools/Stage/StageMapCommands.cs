@@ -333,7 +333,10 @@ public sealed partial class StageMapCommands(
         }).ConfigureAwait(false);
     }
 
-    public async Task AlignmentThenApplyTemplatesAsync(Guid htmlLogUniqueId, CancellationToken cancellationToken)
+    public async Task AlignmentThenApplyTemplatesAsync(
+        Guid htmlLogUniqueId,
+        CancellationToken cancellationToken,
+        bool isCalibrate = true)
     {
         await Task.Run(async () =>
         {
@@ -345,12 +348,15 @@ public sealed partial class StageMapCommands(
             {
                 var cacheDFItem = (ChuckStageMapCacheDFItem)CacheItem;
                 AlignmentUserControlViewModel.ProductivityInformation = cacheDFItem.ProductivityInformation;
-
-                if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
-                        out var dialogResult,
-                        DialogButtonsEnum.YesNo,
-                        DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-                else ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+                if (isCalibrate)
+                {
+                    if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
+                            out var dialogResult,
+                            DialogButtonsEnum.YesNo,
+                            DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
+                    else ChuckStageMap.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
+                }
+                else AlignmentUserControlViewModel.IsDarkFieldAlignment = ChuckStageMap.IsDarkFieldAlignment;
             }
             else
             {
@@ -373,6 +379,16 @@ public sealed partial class StageMapCommands(
                 var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
 
                 foreach (var stageMapTemplate in CacheItem.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
+
+                var (yLength, xLength) = VerifyStageMap.IdealMatrix.GetYXLength();
+
+                for (var y = 0; y < yLength; y++)
+                {
+                    for (var x = 0; x < xLength; x++)
+                    {
+                        VerifyStageMap.IdealMatrix[y][x] += offset;
+                    }
+                }
 
                 using var scope = StageMapDocument.View.Sync.EnterScope();
                 StageMapDocument.Reset();
@@ -595,6 +611,9 @@ public sealed partial class StageMapCommands(
 
             StageMap.Refresh();
 
+            VerifyStageMap = StageMap.Clone();
+            VerifyStageMap.Refresh();
+
             await ScanStageMapAsync(
                 StageMap,
                 htmlLogUniqueId,
@@ -717,7 +736,6 @@ public sealed partial class StageMapCommands(
                 interpolateCircle: circle).ConfigureAwait(false);
         }
 
-        VerifyStageMap = StageMap.Clone();
         VerifyStageMap.Reset();
 
         await ScanStageMapAsync(

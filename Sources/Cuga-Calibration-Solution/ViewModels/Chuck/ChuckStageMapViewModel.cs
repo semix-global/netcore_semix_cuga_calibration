@@ -685,6 +685,11 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
 
+            await StageMapCommands.AlignmentThenApplyTemplatesAsync(
+                HtmlLogUniqueId,
+                cancellationToken,
+                isCalibrate: false).ConfigureAwait(false);
+
             await StageMapCommands.VerifyAsync(
                 Review.ExpandStageMap,
                 HtmlLogUniqueId,
@@ -705,6 +710,11 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
             {
                 StageMapCommands.IsDark
             }), HtmlLogUniqueId.LoggingHtml());
+
+            await StageMapCommands.AlignmentThenApplyTemplatesAsync(
+                HtmlLogUniqueId,
+                cancellationToken,
+                isCalibrate: false).ConfigureAwait(false);
 
             await StageMapCommands.VerifyAsync(
                 Review.ExpandStageMap,
