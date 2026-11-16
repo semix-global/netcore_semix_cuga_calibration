@@ -394,9 +394,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     }
                 }
 
-            OuterLoop:
-
-                foreach (var step1Rod in Step1Rods)
+            OuterLoop: foreach (var step1Rod in Step1Rods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -458,9 +456,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
 
             async Task Step2Async()
             {
-            InnerLoop:
-
-                foreach (var step1Rod in Step1Rods)
+            InnerLoop: foreach (var step1Rod in Step1Rods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
@@ -537,9 +533,7 @@ public partial class FourierSideChannelFlexibleApertureDTOItem
                     }
                 }
 
-            OuterLoop:
-
-                foreach (var step2Rod in Step2Rods)
+            OuterLoop: foreach (var step2Rod in Step2Rods)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 

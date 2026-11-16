@@ -1,7 +1,6 @@
 <UserControl x:Class="CugaCalibration.Views.Microscope.Focus.Children.Step2View"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:coreModels="clr-namespace:Core.Models.Models.Microscope.Focus;assembly=Core.Models"

@@ -160,5 +160,4 @@ public sealed class AlgoCvBestFocusEngine(ILogger<AlgoCvBestFocusEngine> logger)
     }
 
     #endregion
-
 }

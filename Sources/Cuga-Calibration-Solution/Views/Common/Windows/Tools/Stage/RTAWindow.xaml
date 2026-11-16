@@ -11,13 +11,13 @@
            xmlns:models="clr-namespace:Net.Utilities.Models;assembly=Net.Utilities.Models"
            xmlns:graphicsWPF="clr-namespace:Net.Utilities.Graphics.WPF;assembly=Net.Utilities.Graphics.WPF"
            xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
-           xmlns:stage="clr-namespace:CugaCalibration.Views.Common.Windows.Tools.Stage"
            xmlns:attachedHelper="clr-namespace:Net.Utilities.WPF.HandyControl.AttachedHelper;assembly=Net.Utilities.WPF.HandyControl"
            xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+           xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
-           xmlns:stage1="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
-           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
+           xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:sys="clr-namespace:System;assembly=mscorlib"
+           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:RTAWindowViewModel}"
@@ -89,46 +89,10 @@
                         <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <ComboBox hc:TitleElement.Title="Productivity Information: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
-                                              Style="{StaticResource ComboBoxExtend}">
-                                        <i:Interaction.Behaviors>
-                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              Style="{StaticResource ComboBoxExtend}"
-                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
-                                        <i:Interaction.Behaviors>
-                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              Style="{StaticResource ComboBoxExtend}"
-                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}">
-                                        <i:Interaction.Behaviors>
-                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
-                                    <ComboBox hc:TitleElement.Title="CIB Information: "
-                                              hc:TitleElement.TitlePlacement="Left"
-                                              hc:TitleElement.TitleWidth="200"
-                                              Style="{StaticResource ComboBoxExtend}"
-                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}">
-                                        <i:Interaction.Behaviors>
-                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding Cache.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
-                                        </i:Interaction.Behaviors>
-                                    </ComboBox>
                                     <ComboBox hc:TitleElement.Title="Cal Chip: "
                                               hc:TitleElement.TitlePlacement="Left"
                                               hc:TitleElement.TitleWidth="200"
-                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage1:CalChipSiteModelEnum}}}"
+                                              ItemsSource="{Binding Source={extensions:EnumBindingSource EnumType={x:Type stage:CalChipSiteModelEnum}}}"
                                               SelectedItem="{Binding Cache.CalChipSiteModelEnum}"
                                               Style="{StaticResource ComboBoxExtend}">
                                         <ComboBox.ItemTemplate>
@@ -137,18 +101,59 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Microscope Lens: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.MicroscopeLensInformations}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.MicroscopeLensInformation}" FallbackSelectItem="{x:Static pattern:MicroscopeLensInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Productivity Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              ItemsSource="{Binding ApplicationCookie.OpticsMagTypeProductivityInformations}"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.ProductivityInformation}" FallbackSelectItem="{x:Static pattern:ProductivityInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="Laser Light Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.LaserLightInformations}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.LaserLightInformation}" FallbackSelectItem="{x:Static pattern:LaserLightInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
+                                    <ComboBox hc:TitleElement.Title="CIB Information: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              ItemsSource="{Binding ApplicationCookie.CIBInformations}"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <i:Interaction.Behaviors>
+                                            <itemsControlBehaviors:ComboBoxSelectedItemBehavior BindableSelectedItem="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBInformation}" FallbackSelectItem="{x:Static pattern:CIBInformation.Default}" />
+                                        </i:Interaction.Behaviors>
+                                    </ComboBox>
                                     <Expander Header="Optics Configuration"
                                               IsExpanded="False"
-                                              ExpandDirection="Down">
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding Cache.OpticsConfiguration}" />
+                                            <pattern:OpticsConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.OpticsConfiguration}" />
                                         </Border>
                                     </Expander>
                                     <Expander Header="CIB Configuration"
                                               IsExpanded="False"
-                                              ExpandDirection="Down">
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
                                         <Border Style="{StaticResource BorderRegion}">
-                                            <pattern:CIBConfigurationUserControl DataContext="{Binding Cache.CIBConfiguration}" />
+                                            <pattern:CIBConfigurationUserControl DataContext="{Binding StageMapCommands.Cache.ChuckStageMapCacheDFItem.CIBConfiguration}" />
                                         </Border>
                                     </Expander>
                                     <Expander Header="{Binding Steps[0]}"
@@ -156,7 +161,7 @@
                                               ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <tools:AlignmentUserControl DataContext="{Binding AlignmentUserControlViewModel}" />
+                                                <tools:AlignmentUserControl DataContext="{Binding StageMapCommands.AlignmentUserControlViewModel}" />
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
@@ -170,19 +175,19 @@
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.DiePitchWidth}" />
+                                                                  Value="{Binding StageMapCommands.CacheItem.DiePitchWidth}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Die Pitch Height(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.DiePitchHeight}" />
+                                                                  Value="{Binding StageMapCommands.CacheItem.DiePitchHeight}" />
                                                 <hc:NumericUpDown hc:TitleElement.Title="Wafer Radius(um): "
                                                                   hc:TitleElement.TitlePlacement="Left"
                                                                   hc:TitleElement.TitleWidth="200"
                                                                   Minimum="1"
                                                                   Style="{StaticResource NumericUpDownExtend}"
-                                                                  Value="{Binding Cache.WaferRadius}" />
+                                                                  Value="{Binding StageMapCommands.CacheItem.WaferRadius}" />
                                                 <StackPanel>
                                                     <TextBlock Text="StageMap Template Points"
                                                                HorizontalAlignment="Center"
@@ -192,16 +197,16 @@
                                                 </StackPanel>
                                                 <hc:UniformSpacingPanel HorizontalAlignment="Left" Spacing="10">
                                                     <Button Content="Mark"
-                                                            Command="{Binding AddStageMapTemplateCommand}"
+                                                            Command="{Binding StageMapCommands.AddStageMapTemplateCommand}"
                                                             CommandParameter="{x:Static models:Constants.False}"
                                                             hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
                                                             Style="{StaticResource ButtonPrimary.Loading}" />
                                                     <Button Content="Cancel"
-                                                            Command="{Binding AddStageMapTemplateCancelCommand}"
+                                                            Command="{Binding StageMapCommands.AddStageMapTemplateCancelCommand}"
                                                             hc:IconElement.Geometry="{StaticResource CloseGeometry}"
                                                             Style="{StaticResource ButtonWarning}" />
                                                     <Button Content="Delete"
-                                                            Command="{Binding RemoveStageMapTemplatesCommand}"
+                                                            Command="{Binding StageMapCommands.CacheItem.RemoveStageMapTemplatesCommand}"
                                                             CommandParameter="{Binding Path=SelectedItems, ElementName=DataGridTemplatePoints}"
                                                             hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
                                                             Style="{StaticResource ButtonDanger}" />
@@ -217,7 +222,7 @@
                                                           CanUserSortColumns="False"
                                                           AutoGenerateColumns="False"
                                                           IsReadOnly="True"
-                                                          ItemsSource="{Binding Cache.StageMapTemplates}">
+                                                          ItemsSource="{Binding StageMapCommands.CacheItem.StageMapTemplates}">
                                                     <DataGrid.Columns>
                                                         <DataGridTextColumn Header="BF Machine Position(um)" Binding="{Binding FindBFMachinePosition, Converter={StaticResource PointToStringConverter}}" />
                                                     </DataGrid.Columns>
@@ -489,23 +494,23 @@
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                <TextBox Text="{Binding Cache.AlignmentResult.Degrees, StringFormat='0.##########'}"
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
                                                          hc:TitleElement.Title="Alignment Degrees(°): "
-                                                         hc:TitleElement.TitleWidth="150"
+                                                         hc:TitleElement.TitleWidth="200"
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          IsReadOnly="True"
                                                          Background="{StaticResource SecondaryRegionBrush}"
                                                          Style="{StaticResource TextBoxExtend}" />
-                                                <TextBox Text="{Binding Cache.AlignmentResult.MarkPoint1, Converter={StaticResource PointToStringConverter}}"
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                                          hc:TitleElement.Title="Mark Point1(um): "
-                                                         hc:TitleElement.TitleWidth="150"
+                                                         hc:TitleElement.TitleWidth="200"
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          IsReadOnly="True"
                                                          Background="{StaticResource SecondaryRegionBrush}"
                                                          Style="{StaticResource TextBoxExtend}" />
-                                                <TextBox Text="{Binding Cache.AlignmentResult.MarkPoint2, Converter={StaticResource PointToStringConverter}}"
+                                                <TextBox Text="{Binding StageMapCommands.AlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
                                                          hc:TitleElement.Title="Mark Point2(um): "
-                                                         hc:TitleElement.TitleWidth="150"
+                                                         hc:TitleElement.TitleWidth="200"
                                                          hc:TitleElement.TitlePlacement="Left"
                                                          IsReadOnly="True"
                                                          Background="{StaticResource SecondaryRegionBrush}"
@@ -525,6 +530,8 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -545,6 +552,8 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -565,6 +574,8 @@
                                                     <Binding Path="Step0Command.IsRunning" />
                                                     <Binding Path="Step1Command.IsRunning" />
                                                     <Binding Path="Step2Command.IsRunning" />
+                                                    <Binding Path="StageMapCommands.AddStageMapTemplateCommand.IsRunning" />
+                                                    <Binding Path="StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand.IsRunning" />
                                                 </MultiBinding>
                                             </Button.IsEnabled>
                                         </Button>
@@ -584,9 +595,12 @@
                       Padding="5"
                       Header="History">
                 <TabControl>
+                    <i:Interaction.Behaviors>
+                        <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                    </i:Interaction.Behaviors>
                     <TabItem Header="{Binding Steps[1]}">
                         <Border Margin="5" Style="{StaticResource BorderRegion}">
-                            <graphicsWPF:WPFCanvasControl Document="{Binding Cache.StageMapDocument}" CursorTextVisibility="Collapsed">
+                            <graphicsWPF:WPFCanvasControl Document="{Binding StageMapCommands.StageMapDocument}" CursorTextVisibility="Collapsed">
                                 <graphicsWPF:WPFCanvasControl.Resources>
                                     <ResourceDictionary>
                                         <ResourceDictionary.MergedDictionaries>
@@ -600,7 +614,7 @@
                                              Background="Transparent"
                                              Band="0"
                                              BandIndex="2">
-                                        <ItemsControl ItemsSource="{Binding Cache.StageMapTemplates}">
+                                        <ItemsControl ItemsSource="{Binding StageMapCommands.CacheItem.StageMapTemplates}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <StackPanel Orientation="Horizontal" />
@@ -609,7 +623,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Button Content="{Binding DisplayIndex}"
-                                                            Command="{Binding DataContext.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
+                                                            Command="{Binding DataContext.StageMapCommands.GotoStageMapDocumentSelectedItemPositionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=hc:Window}}"
                                                             CommandParameter="{Binding}"
                                                             Height="24"
                                                             Margin="3,0"
@@ -628,9 +642,9 @@
                                              BandIndex="1">
                                         <TextBlock d:Text="0, 0 | (0.0, 0.0)" Style="{StaticResource ToolBarTextBlock}">
                                             <TextBlock.Text>
-                                                <MultiBinding Converter="{stage:StageMapDocumentCursorToStringConverter}">
-                                                    <Binding Path="Cache.StageMapDocument.View.Cursor.Point" />
-                                                    <Binding Path="Cache.StageMapDocument" />
+                                                <MultiBinding Converter="{x:Static stageMap:StageMapDocumentCursorToStringConverter.Instance}">
+                                                    <Binding Path="StageMapCommands.StageMapDocument.View.Cursor.Point" />
+                                                    <Binding Path="StageMapCommands.StageMapDocument" />
                                                 </MultiBinding>
                                             </TextBlock.Text>
                                         </TextBlock>

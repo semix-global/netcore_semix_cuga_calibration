@@ -15,6 +15,7 @@ public partial class RecipeTemplateDTOBase : ObservableObject
 
     [ObservableProperty]
     public partial Point MaskReticlePosition { get; set; }
+
     [ObservableProperty]
     public partial TemplateMatchSetting TemplateMatchSetting { get; set; } = new();
 

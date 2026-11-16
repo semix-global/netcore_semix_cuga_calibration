@@ -5,7 +5,6 @@ using Core.Models.Extensions;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.Basic;
@@ -22,7 +21,7 @@ using System.Diagnostics;
 namespace Core.Services.Implements.WCF;
 
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed class CalibrationStageServiceImpl(
+public sealed partial class CalibrationStageServiceImpl(
     CalibrationSetting calibrationSetting,
     ILogger<CalibrationStageServiceImpl> logger) : BaseService<ICgCalibrationService>, ICalibrationStageService
 {
@@ -357,8 +356,6 @@ public sealed class CalibrationStageServiceImpl(
         {
             logger.LogTrace("Alignment Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
-
-
     }
 
     public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1,
@@ -489,40 +486,6 @@ public sealed class CalibrationStageServiceImpl(
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError<double>(sxExecuteRet.Msg, 0)
             : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableStageMap(bool enable)
-    {
-        var sxExecuteRet = Invoke(() => Service!.ErrorMapSwich(enable));
-        if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-
-        if (enable == false)
-        {
-            sxExecuteRet = Invoke(() => Service!.CloseErrorMap());
-            if (sxExecuteRet.IsSuccess == false) return SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false);
-        }
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto)
-    {
-        var sxExecuteRet = Invoke(() => Service!.ExecErrorMap(stageMapDto.AdaptTo().ToCgErrorMap()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
-    {
-        var sxExecuteRet = Invoke(() => Service!.ExecErrorMap(stageMapError.AdaptTo()));
-
-        return sxExecuteRet.IsSuccess == false
-            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
-            : SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)

@@ -1,24 +1,26 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Enums.Stage;
-using Core.Models.Models.CIB.LineCentricity;
+using Core.Models.Models.Chuck.StageMap;
 using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
-using CugaCalibration.ViewModels.Common.Windows.Tools.Alignment;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
-using Net.Utilities.Models.Geometries;
+using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
@@ -26,23 +28,24 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using System.Collections;
+using System.Globalization;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
 [IOCAppService(ServiceType = typeof(RTAWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RTAWindowViewModel(
-    CIBViewModel cibViewModel,
-    MicroscopeViewModel microscopeViewModel,
     StageViewModel stageViewModel,
-    AlignmentUserControlViewModel alignmentUserControlViewModel,
+    CIBViewModel cibViewModel,
     ICacheProvider cacheProvider,
     IApplicationCookieService applicationCookieCacheProvider,
-    ICalibrationAlgorithmService calibrationAlgorithmService,
     IDialogWindowProvider dialogWindowProvider,
+    IOptions<ApplicationSetting> options,
     ApplicationCookie applicationCookie,
-    IHostEnvironment hostEnvironment,
-    ILogger<RTAWindowViewModel> logger) : ViewModelBase
+    StageMapCommands stageMapCommands,
+    ILogger<RTAWindowViewModel> logger,
+    ICalibrationAlgorithmService calibrationAlgorithmService,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     public string Name { get; } = "RTA";
 
@@ -50,7 +53,11 @@ public sealed partial class RTAWindowViewModel(
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
-    public AlignmentUserControlViewModel AlignmentUserControlViewModel { get; } = alignmentUserControlViewModel;
+    public StageMapCommands StageMapCommands { get; } = stageMapCommands;
+
+    public string ImageFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Images", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
+
+    public string TemplateFileDirectory => Path.Combine(options.Value.AppHomeDirectory, "Template", nameof(StageMapWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
     public string[] Steps { get; } =
     [
@@ -76,269 +83,65 @@ public sealed partial class RTAWindowViewModel(
             Cache = cacheProvider.GetOrDefault<RTACache>();
 
             MicroscopeCalChip = applicationCookieCacheProvider.GetCalibration<MicroscopeCalChipDTO>();
+
+            StageMapCommands.IsDark = true;
+            StageMapCommands.Logger = logger;
+            StageMapCommands.ImageFileDirectory = ImageFileDirectory;
+            StageMapCommands.TemplateFileDirectory = TemplateFileDirectory;
+            StageMapCommands.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
+            StageMapCommands.MicroscopeCalChip = MicroscopeCalChip;
+            StageMapCommands.Cache = Cache.ChuckStageMapCache;
+            StageMapCommands.ChuckStageMap = Cache.ChuckStageMap;
         }).ConfigureAwait(true);
-    }
-
-    [RelayCommand(IncludeCancelCommand = true)]
-    private async Task AddStageMapTemplateAsync(CancellationToken cancellationToken)
-    {
-        await Task.Run(() =>
-        {
-            try
-            {
-                Guard.IsEqualTo(Cache.MicroscopeLensInformation, microscopeViewModel.GetCurrentMicroscopeLensInformation());
-
-                var stageMapTemplatePoint = new StageMapTemplate
-                {
-                    FindBFMachinePosition = stageViewModel.GetMachineStagePosition()
-                };
-
-                // 只能一个点
-                if (Cache.StageMapTemplates.Length > 0)
-                {
-                    dialogWindowProvider.ShowDialog("Add Stage Map Template Warning: Only One Point!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                    return;
-                }
-
-                Cache.StageMapTemplates = [.. Cache.StageMapTemplates, stageMapTemplatePoint];
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    dialogWindowProvider.ShowDialog($"{Name}: Add Stage Map Template Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
-
-                dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Add Stage Map Template Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "Add Stage Map Template");
-            }
-        }, cancellationToken).ConfigureAwait(false);
-    }
-
-    [RelayCommand]
-    private void RemoveStageMapTemplates(IEnumerable? selectedItems)
-    {
-        if (selectedItems is null) return;
-
-        var stageMapTemplates = Cache.StageMapTemplates.ToList();
-
-        foreach (StageMapTemplate selectedItem in selectedItems) stageMapTemplates.Remove(selectedItem);
-
-        Cache.StageMapTemplates = [.. stageMapTemplates];
-    }
-
-    [RelayCommand]
-    private async Task GotoStageMapDocumentSelectedItemPositionAsync(StageMapTemplate stageMapTemplate)
-    {
-        await Task.Run(() =>
-        {
-            try
-            {
-                var index = Array.IndexOf(Cache.StageMapTemplates, stageMapTemplate);
-
-                var drawable = Cache.StageMapDocument.Edit.SelectedItems.FirstOrDefault();
-                if (drawable is null)
-                {
-                    dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position Warning: Don't Select Die!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-
-                    return;
-                }
-
-                var stageMapDie = Guard.IsNotNullAndAssignableToTypeAndReturn<StageMapDie>(drawable);
-                var darkFieldPosition = stageViewModel.MachineToDarkFieldPosition(stageMapDie.Markers[index]);
-
-                var currentCIBLineCentricity = applicationCookieCacheProvider.GetCalibrations<CIBLineCentricityDTO>().Single(t => t.ProductivityInformation == Cache.ProductivityInformation && t.PmtId == Cache.CIBInformation.PMTId);
-                stageViewModel.SetBrightFieldAbsoluteStageXy(microscopeViewModel.GetMicroscopeLensInformationPosition(
-                    currentCIBLineCentricity.MicroscopeLensInformation,
-                    microscopeViewModel.GetCurrentMicroscopeLensInformation(),
-                    darkFieldPosition), Cache.CalChipSiteModelEnum); // todo: 两边导航未撤销生成地图时添加的 CIB 偏移
-
-                dialogWindowProvider.ShowDialog("Goto Stage Map Document Selected Item Position OK");
-            }
-            catch (Exception ex)
-            {
-                if (ex is OperationCanceledException)
-                {
-                    dialogWindowProvider.ShowDialog($"{Name}: Goto Stage Map Document Selected Item Position Canceled", DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                    return;
-                }
-
-                dialogWindowProvider.ShowDialog($"""
-                                                 {Name}: Goto Stage Map Document Selected Item Position Failed
-                                                 {ex.Message}
-                                                 """, DialogButtonsEnum.OK, DialogIconEnum.Warning);
-                logger.LogError(ex, "Goto Stage Map Document Selected Item Position");
-            }
-        }).ConfigureAwait(false);
     }
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step0Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(0, async () =>
     {
-        Guard.IsTrue(MicroscopeCalChip.IsOk, "Microscope Cal Chip is Empty or not verify.");
-
-        AlignmentUserControlViewModel.CalChipSiteModelEnum = Cache.CalChipSiteModelEnum;
-        AlignmentUserControlViewModel.ProductivityInformation = Cache.ProductivityInformation;
-
-        if (dialogWindowProvider.TryShowDialog("Yes: use dark field alignment? No: to use bright field alignment?",
-                out var dialogResult,
-                DialogButtonsEnum.YesNo,
-                DialogIconEnum.Question) == true && dialogResult == DialogResultEnum.Yes) Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = true;
-        else Cache.IsDarkFieldAlignment = AlignmentUserControlViewModel.IsDarkFieldAlignment = false;
-
-        await AlignmentUserControlViewModel.AlignmentAsync(cancellationToken).ConfigureAwait(false);
-
-        var newAlignmentResult = AlignmentUserControlViewModel.AlignmentResult;
-        if (Cache.AlignmentResult.MarkPoint1 != Point.Origin
-            && Cache.AlignmentResult.MarkPoint2 != Point.Origin
-            && Cache.StageMapTemplates.Length > 0)
-        {
-            var oldMarkPoint1 = Cache.AlignmentResult.MarkPoint1;
-            var oldMarkPoint2 = Cache.AlignmentResult.MarkPoint2;
-
-            var newMarkPoint1 = newAlignmentResult.MarkPoint1;
-            var newMarkPoint2 = newAlignmentResult.MarkPoint2;
-
-            var offset = (newMarkPoint1 - oldMarkPoint1 + (newMarkPoint2 - oldMarkPoint2)) / 2d;
-
-            foreach (var stageMapTemplate in Cache.StageMapTemplates) stageMapTemplate.FindBFMachinePosition += offset;
-
-            using var scope = Cache.StageMapDocument.View.Sync.EnterScope();
-            Cache.StageMapDocument.Reset();
-        }
-
-        Cache.AlignmentResult = newAlignmentResult;
-
-        stageViewModel.SetBrightFieldAbsoluteStageXy(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.CalChipSiteModelEnum);
-
-        logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            AlignmentUserControlViewModel.CalChipSiteModelEnum,
-            AlignmentUserControlViewModel.IsDarkFieldAlignment,
-            AlignmentResult = new HtmlQuote(Cache.AlignmentResult)
-        }), HtmlLogUniqueId.LoggingHtml());
+        await StageMapCommands.AlignmentThenApplyTemplatesAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
         return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
-    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, () =>
+    private async Task<bool> Step1Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(1, async () =>
     {
-        Guard.IsNotEmpty(Cache.StageMapTemplates);
-        Guard.IsGreaterThan(Cache.WaferRadius, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchWidth, 0d);
-        Guard.IsGreaterThan(Cache.DiePitchHeight, 0d);
+        await StageMapCommands.GenerateStageMapDocumentAsync(HtmlLogUniqueId, cancellationToken).ConfigureAwait(false);
 
-        var dfPositions = new Point[Cache.StageMapTemplates.Length];
-
-        foreach (var (index, stageMapTemplate) in Cache.StageMapTemplates.Index())
-        {
-            var bfPosition = stageViewModel.MachineToBrightFieldPosition(stageMapTemplate.FindBFMachinePosition);
-            var dfPosition = cibViewModel.GetCIBInformationPosition(
-                StageCoordinateSystemEnum.Dark,
-                Cache.ProductivityInformation,
-                Cache.CIBInformation,
-                bfPosition,
-                Cache.MicroscopeLensInformation);
-
-            dfPositions[index] = dfPosition;
-        }
-
-        logger.LogHtmlInformation("Templates", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
-        {
-            CalChipPosition = MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum),
-            Table = new HtmlTable(
-            [
-                .. Cache.StageMapTemplates.Index().Select(t => new
-                {
-                    t.Index,
-                    t.Item.FindBFMachinePosition,
-                    t.Item.TemplateROI,
-                    t.Item.TemplateFilePath,
-                    t.Item.TemplateImageFilePath,
-                    DFPosition = dfPositions[t.Index]
-                })
-            ])
-        }), HtmlLogUniqueId.LoggingHtml());
-
-        Cache.StageMapDocument.RunDesign(() =>
-        {
-            Cache.StageMapDocument.Reset();
-
-            var dfCircle = new Circle(stageViewModel.MachineToBrightFieldPosition(MicroscopeCalChip.GetBFMachinePosition(Cache.CalChipSiteModelEnum)), Cache.WaferRadius);
-            var dfMachineCircle = new Circle(stageViewModel.DarkFieldToMachinePosition(dfCircle.Center), dfCircle.Radius);
-
-            Cache.StageMapDocument.WaferModel.Add(new StageMapWafer { Circle = dfMachineCircle });
-
-            var stageMapReticleBuilder = new StageMapDieBuilder
-            {
-                DiePitchSize = new Size(Cache.DiePitchWidth, Cache.DiePitchHeight),
-                OriginalDiePoint = dfPositions[0]
-            };
-
-            var stageMapDies = stageMapReticleBuilder.BuildDie(dfCircle);
-            Vector[] markers =
-            [
-                .. dfPositions.Select(tt => tt - dfPositions[0])
-            ];
-
-            Cache.StageMapDocument.DieModel.AddRange(stageMapDies.Select(t =>
-            {
-                Point[] points = [.. markers.Select(tt => t.Rect.Point + tt)];
-
-                var resultExtents = new Extents();
-                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMinYMin));
-                resultExtents.Add(stageViewModel.DarkFieldToMachinePosition(t.Rect.XMaxYMax));
-
-                return new StageMapDie
-                {
-                    Index = t.Index,
-                    Row = t.Row,
-                    Col = t.Col,
-                    Rect = (Rect)resultExtents,
-                    IsInWafer = points.All(dfCircle.Contains),
-                    Markers = [.. points.Select(stageViewModel.DarkFieldToMachinePosition)]
-                };
-            }));
-        }, true);
-
-        return Task.FromResult(true);
+        return true;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task<bool> Step2Async(bool isSilent, CancellationToken cancellationToken) => await InvokeAsync(2, async () =>
     {
-        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == Cache.ProductivityInformation);
+        var cacheDFItem = (ChuckStageMapCacheDFItem)StageMapCommands.CacheItem;
+
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == cacheDFItem.ProductivityInformation);
         Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
 
-        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == Cache.ProductivityInformation.OpticsIlluminationModeEnum
-                                                                                                                             && t.ProductivityInformation.OpticsMagType == Cache.ProductivityInformation.OpticsMagType
-                                                                                                                             && t.PmtId == Cache.CIBInformation.PMTId);
+        var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == cacheDFItem.ProductivityInformation.OpticsIlluminationModeEnum
+                                                                                                                             && t.ProductivityInformation.OpticsMagType == cacheDFItem.ProductivityInformation.OpticsMagType
+                                                                                                                             && t.PmtId == cacheDFItem.CIBInformation.PMTId);
         Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
 
         logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
-            ProductivityInformation = new HtmlQuote(Cache.ProductivityInformation.ToHtmlAnonymous()),
+            ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
             xSize.XPixelSize,
             ySize.YPixelSize
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Cache.RTAScanResult = new RTAScanResult(Cache.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
+        Cache.RTAScanResult = new RTAScanResult(cacheDFItem.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
 
         dialogWindowProvider.ShowDialog("Please Select Dies to Scan");
 
         StageMapDie[] stageMapDies;
-        using (Cache.StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. Cache.StageMapDocument.DieModel];
+        using (StageMapCommands.StageMapDocument.View.Sync.EnterScope()) stageMapDies = [.. StageMapCommands.StageMapDocument.DieModel];
 
         foreach (var stageMapDie in stageMapDies) stageMapDie.IsInStageMapScan = false;
 
         var inputResult = await StageMapDieSelectionGetter
-            .RunAsync<StageMapDieSelectionGetter>(Cache.StageMapDocument.Edit, new SelectionInputOptions<StageMapDie>
+            .RunAsync<StageMapDieSelectionGetter>(StageMapCommands.StageMapDocument.Edit, new SelectionInputOptions<StageMapDie>
             {
                 IsMultipleSelection = true,
                 CancellationToken = cancellationToken
@@ -393,17 +196,17 @@ public sealed partial class RTAWindowViewModel(
             cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             forwardDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
-                Cache.ProductivityInformation,
+                cacheDFItem.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
-                Cache.CIBInformation,
+                cacheDFItem.CIBInformation,
                 (true, null),
-                (false, Cache.OpticsConfiguration),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
+                (false, cacheDFItem.OpticsConfiguration),
+                (false, cacheDFItem.CIBConfiguration),
+                (false, cacheDFItem.LaserLightInformation),
                 false,
-                cancellationToken);
+                cancellationToken).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
             var forwardRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(
@@ -422,18 +225,18 @@ public sealed partial class RTAWindowViewModel(
             cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
             reverseDarkFieldRawScanImage = await cibViewModel.GetPMTImageAsync(
-                Cache.ProductivityInformation,
+                cacheDFItem.ProductivityInformation,
                 StageCoordinateSystemEnum.Machine,
                 startPosition,
                 endPosition,
-                Cache.CIBInformation,
+                cacheDFItem.CIBInformation,
                 (true, null),
-                (false, Cache.OpticsConfiguration),
-                (false, Cache.CIBConfiguration),
-                (false, Cache.LaserLightInformation),
+                (false, cacheDFItem.OpticsConfiguration),
+                (false, cacheDFItem.CIBConfiguration),
+                (false, cacheDFItem.LaserLightInformation),
                 false,
                 cancellationToken,
-                isForward: false);
+                isForward: false).ConfigureAwait(false);
 
             cancellationToken.ThrowIfCancellationRequested();
             var reverseRTAScanSamples = calibrationAlgorithmService.GetRTAScanSamples(

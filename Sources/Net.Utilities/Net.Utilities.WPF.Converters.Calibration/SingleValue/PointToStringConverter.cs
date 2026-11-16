@@ -13,7 +13,7 @@ public sealed class PointYToStringConverter : AbstractSingletonConverterBase<Poi
         return value switch
         {
             null => DependencyProperty.UnsetValue,
-            Point pt when parameter is string format => pt.Y.ToString(format),
+            Point pt when parameter is string format => pt.Y.ToString(format, culture),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };
     }
@@ -28,7 +28,7 @@ public sealed class PointXToStringConverter : AbstractSingletonConverterBase<Poi
         return value switch
         {
             null => DependencyProperty.UnsetValue,
-            Point pt when parameter is string format => pt.X.ToString(format),
+            Point pt when parameter is string format => pt.X.ToString(format, culture),
             _ => ThrowHelper.ThrowNotSupportedException<object>()
         };
     }

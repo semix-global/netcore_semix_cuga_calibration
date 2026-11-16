@@ -3,7 +3,6 @@ using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 
@@ -35,7 +34,6 @@ public static class UtilitiesSizeExtension
     #endregion System.Drawing.Size
 
 #if NET
-
     #region SxSizeD
 
     public static Size ToSize(this SxSizeD sxSizeD) => new((int)sxSizeD.Width, (int)sxSizeD.Height);

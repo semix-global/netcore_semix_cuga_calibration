@@ -66,6 +66,18 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Update="Interfaces\ICalibrationStageService.*.cs">
+            <DependentUpon>ICalibrationStageService.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\WCF\CalibrationStageServiceImpl.*.cs">
+            <DependentUpon>CalibrationStageServiceImpl.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\GRPC\CalibrationStageServiceImpl.*.cs">
+            <DependentUpon>CalibrationStageServiceImpl.cs</DependentUpon>
+        </Compile>
+        <Compile Update="Implements\Mock\CalibrationStageServiceMockImpl.*.cs">
+            <DependentUpon>CalibrationStageServiceMockImpl.cs</DependentUpon>
+        </Compile>
         <Compile Update="Interfaces\ICalibrationAlgorithmService.*.cs">
             <DependentUpon>ICalibrationAlgorithmService.cs</DependentUpon>
         </Compile>

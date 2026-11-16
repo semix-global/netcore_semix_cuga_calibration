@@ -47,7 +47,6 @@ public sealed class HalconBestFocusEngine(ILogger<HalconBestFocusEngine> logger)
 
     private BestFocus ExcuteHAlgorithm(HImage hImage)
     {
-
         #region 算法调用
 
         _algorithm.STLR_kla(
@@ -146,5 +145,4 @@ public sealed class HalconBestFocusEngine(ILogger<HalconBestFocusEngine> logger)
 
         return bestFocus;
     }
-
 }

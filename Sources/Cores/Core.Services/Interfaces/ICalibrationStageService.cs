@@ -2,13 +2,12 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.StageMap;
 using Net.Utilities.Models.Geometries;
 using Semix.CoreLib;
 
 namespace Core.Services.Interfaces;
 
-public interface ICalibrationStageService
+public partial interface ICalibrationStageService
 {
     /// <summary>
     /// 连接
@@ -347,27 +346,6 @@ public interface ICalibrationStageService
     SxExecuteRet<double> GetGantryOffset();
 
     #endregion
-
-    /// <summary>
-    /// 补偿矩阵开关
-    /// </summary>
-    /// <param name="enable">是否启用</param>
-    /// <returns>启用是否成功</returns>
-    SxExecuteRet<bool> ToggleEnableStageMap(bool enable);
-
-    /// <summary>
-    /// 设置StageMap
-    /// </summary>
-    /// <param name="stageMapDto">stage map</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto);
-
-    /// <summary>
-    /// 使用 Cuga ACS ErrorMap 结构设置 StageMap。
-    /// </summary>
-    /// <param name="stageMapError">Cuga ACS ErrorMap</param>
-    /// <returns>是否成功</returns>
-    SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError);
 
     /// <summary>
     /// 设置明场中心的机械位置

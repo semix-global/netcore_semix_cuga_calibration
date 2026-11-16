@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="Core.Services"/>
+        <InternalsVisibleTo Include="Core.Services" />
     </ItemGroup>
 
 </Project>
