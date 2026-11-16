@@ -3,7 +3,6 @@
 
 using algocv_sharp;
 using AwesomeAssertions;
-using Core.Models.Models.Setting;
 using Core.Services.Implements;
 using Microsoft.Extensions.Logging.Abstractions;
 using Net.Utilities.Calibration;

@@ -1,7 +1,3 @@
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Threading.Channels;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -43,6 +39,10 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
 using SourceGenerator.AssemblyMetadata;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Threading.Channels;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;

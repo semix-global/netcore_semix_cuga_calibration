@@ -1,7 +1,7 @@
-﻿using System.Globalization;
-using System.Windows;
 using CommunityToolkit.Diagnostics;
 using Net.Utilities.WPF.Converters.MultiValue;
+using System.Globalization;
+using System.Windows;
 using Point = Net.Utilities.Models.Geometries.Point;
 
 namespace Core.Models.Models.Common.StageMap;

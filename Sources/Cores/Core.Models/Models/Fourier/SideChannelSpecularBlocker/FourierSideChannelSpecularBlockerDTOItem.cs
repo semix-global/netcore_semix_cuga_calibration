@@ -234,9 +234,7 @@ public sealed partial class FourierSideChannelSpecularBlockerDTOItem : Observabl
                 }
             }
 
-        OuterLoop:
-
-            foreach (var rod in Rods)
+        OuterLoop: foreach (var rod in Rods)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

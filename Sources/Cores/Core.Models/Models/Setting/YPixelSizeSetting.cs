@@ -17,7 +17,6 @@ public sealed partial class YPixelSizeSetting : ObservableObject
     public AlgoCSharpYPixelSizeSetting AlgoCSharp { get; set; } = new();
 
     /// <summary>Halcon 算法库当前无可开放参数，待后续引擎扩展时增设子对象</summary>
-
     public YPixelSizeSetting() => Restore(true);
 
     /// <summary>按属性声明顺序写回默认值；isSilent 为 false 时弹 Restored Ok</summary>

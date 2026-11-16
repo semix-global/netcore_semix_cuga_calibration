@@ -1,4 +1,3 @@
-using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Models.Common.Cookies;
@@ -8,6 +7,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 

@@ -153,5 +153,4 @@ public sealed class HalconTemplateMatchEngine(ILogger<HalconTemplateMatchEngine>
             throw;
         }
     }
-
 }

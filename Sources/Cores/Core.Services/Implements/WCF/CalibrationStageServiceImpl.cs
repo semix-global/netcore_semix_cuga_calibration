@@ -356,8 +356,6 @@ public sealed partial class CalibrationStageServiceImpl(
         {
             logger.LogTrace("Alignment Stopped: {TotalMilliseconds}ms", Stopwatch.GetElapsedTime(timestamp).TotalMilliseconds);
         }
-
-
     }
 
     public SxExecuteRet<AlignmentResultDto> AlignmentVerify(AlignmentSiteDto lowSite1,

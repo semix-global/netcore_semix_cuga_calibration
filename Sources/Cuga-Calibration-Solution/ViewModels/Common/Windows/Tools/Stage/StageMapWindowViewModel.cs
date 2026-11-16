@@ -1,7 +1,7 @@
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models;
+using Core.Models.Enums.Stage;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Models.Models.Setting;
@@ -17,8 +17,8 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
+using System.Globalization;
 using System.IO;
-using Core.Models.Enums.Stage;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;

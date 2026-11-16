@@ -40,5 +40,4 @@ public class PixelSizeServiceTest(ITestOutputHelper testOutputHelper)
         ret.Data.ResultIndexes.Should().NotBeEmpty();
         ret.Data.ResultIndexes.Should().OnlyContain(t => t >= 0 && t < drawingImage.Size.Height);
     }
-
 }

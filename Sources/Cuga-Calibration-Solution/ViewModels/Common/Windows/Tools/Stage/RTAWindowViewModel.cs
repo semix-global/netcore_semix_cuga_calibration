@@ -1,5 +1,3 @@
-using System.Globalization;
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,16 +8,19 @@ using Core.Models.Models.CIB.XPixelSize;
 using Core.Models.Models.CIB.YPixelSize;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.DarkField;
+using Core.Models.Models.Common.StageMap;
 using Core.Models.Models.Microscope.CalChip;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using Local.SQL.Cache.Providers.Services.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Editors.Getters.Options;
 using Net.Utilities.Graphics.Primitives.Enums.Editors;
+using Net.Utilities.Models;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.ScottPlot.Extensions;
@@ -27,9 +28,8 @@ using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using Core.Models.Models.Common.StageMap;
-using Microsoft.Extensions.Options;
-using Net.Utilities.Models;
+using System.Globalization;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 
