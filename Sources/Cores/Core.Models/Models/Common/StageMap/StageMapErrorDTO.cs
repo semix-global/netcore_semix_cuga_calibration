@@ -1,102 +1,61 @@
-using Cuga.Data.DataStruct.Stage;
+﻿using Cuga.Data.DataStruct.Stage;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.StageMap;
 
 /// <summary>
-/// Cuga ACS ErrorMap 的传输对象
+/// Cuga ACS ErrorMap 的传输对象.
 /// </summary>
-public sealed class StageMapErrorDTO : ICloneable<StageMapErrorDTO>, IAdaptTo<CgErrorMap>
+/// <param name="Zone">区域编码.</param>
+/// <param name="BaseX">标准 X 坐标.</param>
+/// <param name="BaseY">标准 Y 坐标.</param>
+/// <param name="XStep">X 轴步进.</param>
+/// <param name="YStep">Y 轴步进.</param>
+/// <param name="Ys">矩阵数据.</param>
+public sealed record StageMapErrorDTO(
+    int? Zone,
+    double BaseX,
+    double BaseY,
+    double XStep,
+    double YStep,
+    StageMapErrorYDTO[] Ys) : IAdaptTo<CgErrorMap>
 {
-    /// <summary>
-    /// 区域编码
-    /// </summary>
-    public int? Zone { get; set; } = 0;
-
-    /// <summary>
-    /// 标准 X 坐标
-    /// </summary>
-    public double BaseX { get; set; }
-
-    /// <summary>
-    /// X 轴步进
-    /// </summary>
-    public double XStep { get; set; }
-
-    /// <summary>
-    /// 标准 Y 坐标
-    /// </summary>
-    public double BaseY { get; set; }
-
-    /// <summary>
-    /// Y 轴步进
-    /// </summary>
-    public double YStep { get; set; }
-
-    /// <summary>
-    /// 矩阵数据
-    /// </summary>
-    public StageMapErrorRowDTO[] Rows { get; set; } = [];
-
-    public StageMapErrorDTO Clone() => new()
-    {
-        Zone = Zone,
-        BaseX = BaseX,
-        XStep = XStep,
-        BaseY = BaseY,
-        YStep = YStep,
-        Rows = [.. Rows.Select(t => t.Clone())]
-    };
-
     public CgErrorMap AdaptTo() => new()
     {
         Zone = Zone,
         BaseX = BaseX,
-        XStep = XStep,
         BaseY = BaseY,
+        XStep = XStep,
         YStep = YStep,
-        Rows = [.. Rows.Select(t => t.AdaptTo())]
+        Rows = [.. Ys.Select(row => row.AdaptTo())]
     };
 }
 
 /// <summary>
-/// Cuga ACS ErrorMap 行的传输对象
+/// Cuga ACS ErrorMap Y的传输对象.
 /// </summary>
-public sealed class StageMapErrorRowDTO : ICloneable<StageMapErrorRowDTO>, IAdaptTo<CgErrorMapRow>
+/// <param name="Y">Y编号.</param>
+/// <param name="Xs">列数据.</param>
+public sealed record StageMapErrorYDTO(int Y, StageMapErrorXDTO[] Xs) : IAdaptTo<CgErrorMapRow>
 {
-    public int Id { get; set; }
-
-    public StageMapErrorColumnDTO[] Cols { get; set; } = [];
-
-    public StageMapErrorRowDTO Clone() => new()
-    {
-        Id = Id,
-        Cols = [.. Cols.Select(t => t.Clone())]
-    };
-
     public CgErrorMapRow AdaptTo() => new()
     {
-        Id = Id,
-        Cols = [.. Cols.Select(t => t.AdaptTo())]
+        Id = Y,
+        Cols = [.. Xs.Select(column => column.AdaptTo())]
     };
 }
 
-public sealed class StageMapErrorColumnDTO : ICloneable<StageMapErrorColumnDTO>, IAdaptTo<CgErrorMapCol>
+/// <summary>
+/// Cuga ACS ErrorMap X的传输对象.
+/// </summary>
+/// <param name="X">X编号.</param>
+/// <param name="Error">误差向量.</param>
+public sealed record StageMapErrorXDTO(int X, Vector Error) : IAdaptTo<CgErrorMapCol>
 {
-    public int Id { get; set; }
-
-    public Vector Error { get; set; } = Vector.Zero;
-
-    public StageMapErrorColumnDTO Clone() => new()
-    {
-        Id = Id,
-        Error = Error
-    };
-
     public CgErrorMapCol AdaptTo() => new()
     {
-        Id = Id,
+        Id = X,
         Location = new CgPoint(Error.X, Error.Y)
     };
 }

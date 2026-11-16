@@ -73,5 +73,4 @@ public sealed class HalconYPixelSizeEngine(ILogger<HalconYPixelSizeEngine> logge
             throw;
         }
     }
-
 }

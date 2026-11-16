@@ -20,7 +20,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Calibration;
-using Net.Utilities.Graphics.Algorithms.Halcon;
 using System.IO;
 using Xunit.Abstractions;
 using AlgoImage = algocv_sharp.Image;
@@ -775,7 +774,6 @@ public sealed class AlgoCVSharpTemplateMatchTest(ITestOutputHelper output) : IDi
     #endregion
 
 #if TemplateMatchInteractive
-
     #region Display
 
     private Rect SelectRoi(string imageFilePath)

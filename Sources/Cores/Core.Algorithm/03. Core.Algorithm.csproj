@@ -25,4 +25,9 @@
         <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Remove="Assets\Python\*.*" />
+        <EmbeddedResource Include="Assets\Python\*.*" />
+    </ItemGroup>
+
 </Project>

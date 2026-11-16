@@ -1,4 +1,3 @@
-using Core.Models.Models.Common.StageMap;
 using HalconDotNet;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -93,38 +92,6 @@ public partial interface ICalibrationAlgorithmService
         Point secondBottomLeftPosition,
         Point secondBottomRightPosition,
         Point firstBottomRightPosition);
-
-    /// <summary>
-    /// 计算Chuck StageMap error矩阵
-    /// </summary>
-    /// <param name="stageMapDto">StageMap</param>
-    /// <param name="isXOnlyGantryError">X是否只包含gantry误差</param>
-    /// <param name="guid"></param>
-    /// <param name="calculateContainRowMinCount">算法行数包含最少行数</param>
-    /// <param name="calculateContainColumnMinCount">算法列数包含最少列数</param>
-    /// <param name="alignmentThreshold">对准精度</param>
-    /// <param name="gantryThreshold">正交精度</param>
-    /// <param name="scaleThreshold">比例精度</param>
-    /// <param name="diameter">chuck直径</param>
-    /// <returns>是否成功</returns>
-    bool CalculateChuckStageMapError(StageMapDto stageMapDto,
-        bool isXOnlyGantryError,
-        Guid guid,
-        int calculateContainRowMinCount,
-        int calculateContainColumnMinCount,
-        double alignmentThreshold,
-        double gantryThreshold,
-        double scaleThreshold,
-        double diameter);
-
-    /// <summary>
-    /// 扩展基StageMapDto, 并合并StageMap(将其包含在基里面)
-    /// </summary>
-    /// <param name="baseStageMap">需要扩展基的StageMapDto</param>
-    /// <param name="mergeStageMap">需要合并的StageMapDto</param>
-    /// <param name="htmlLogUniqueId"></param>
-    /// <returns>扩展后的StageMapDto</returns>
-    StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId);
 
     #endregion Chuck
 

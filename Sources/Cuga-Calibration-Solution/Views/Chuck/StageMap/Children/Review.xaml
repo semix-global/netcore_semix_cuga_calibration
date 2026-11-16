@@ -3,100 +3,207 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
-             xmlns:children="clr-namespace:CugaCalibration.Views.Chuck.StageMap.Children"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapCalibrationViewModel}"
-             d:DesignHeight="700"
-             d:DesignWidth="1500"
+             xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Chuck"
+             xmlns:itemsControlBehaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
+             xmlns:stageMap="clr-namespace:Core.Models.Models.Common.StageMap;assembly=Core.Models"
+             xmlns:v2="clr-namespace:Net.Utilities.ScottPlot.WPF.V2;assembly=Net.Utilities.ScottPlot.WPF.V2"
+             d:DataContext="{d:DesignInstance Type=viewModels:ChuckStageMapViewModel}"
+             d:DesignWidth="1920"
+             d:DesignHeight="1080"
              mc:Ignorable="d">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="430" />
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <!--#region Left-->
-        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="3">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                <hc:Shield Subject="Chuck Stage Map Step: "
-                           Status="Review"
+                <hc:Shield Subject="Review: "
+                           Status="Verify"
                            Color="{StaticResource InfoBrush}" />
             </hc:UniformSpacingPanel>
-            <Border Style="{StaticResource BorderRegion}" Effect="{StaticResource EffectShadow1}">
-                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                    <StackPanel>
-                        <TextBlock Text="Verify"
-                                   HorizontalAlignment="Center"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Style="{StaticResource TextBlockDefaultInfo}" />
-                    </StackPanel>
-                    <TextBox Text="{Binding Cache.RowNumber}"
-                             hc:TitleElement.Title="Row Number: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <TextBox Text="{Binding Cache.ColumnNumber}"
-                             hc:TitleElement.Title="Column Number: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.TitlePlacement="Left"
-                             IsReadOnly="True"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Alignment Threshold(um): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="180"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.VerifyAlignmentThreshold}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Gantry Threshold(um): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="180"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.VerifyGantryThreshold}" />
-                    <hc:NumericUpDown hc:TitleElement.Title="Scale Threshold(um): "
-                                      hc:TitleElement.TitlePlacement="Left"
-                                      hc:TitleElement.TitleWidth="180"
-                                      Minimum="0"
-                                      Style="{StaticResource NumericUpDownExtend}"
-                                      Value="{Binding Cache.VerifyScaleThreshold}" />
-                    <TextBox Text="{Binding Cache.Threshold, Converter={StaticResource PointToStringConverter}}"
-                             hc:TitleElement.Title="Threshold: "
-                             hc:TitleElement.TitleWidth="180"
-                             hc:TitleElement.TitlePlacement="Left"
-                             Style="{StaticResource TextBoxExtend}" />
-                    <hc:UniformSpacingPanel HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"
-                                            Spacing="10">
-                        <Button Content="Action"
-                                Command="{Binding VerifyActionCommand}"
-                                hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
-                                Style="{StaticResource ButtonPrimary.Loading}" />
-                        <Button Content="Cancel"
-                                Command="{Binding VerifyActionCancelCommand}"
-                                hc:IconElement.Geometry="{StaticResource CloseGeometry}"
-                                Style="{StaticResource ButtonWarning}" />
+            <Border Grid.Row="2" Style="{StaticResource BorderRegion}">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                        <StackPanel>
+                            <TextBlock Text="Verify"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultInfo}" />
+                        </StackPanel>
+                        <hc:NumericUpDown hc:TitleElement.Title="Threshold(um): "
+                                          hc:TitleElement.TitlePlacement="Left"
+                                          hc:TitleElement.TitleWidth="190"
+                                          Minimum="0"
+                                          DecimalPlaces="3"
+                                          Style="{StaticResource NumericUpDownExtend}"
+                                          Value="{Binding Cache.Threshold}" />
+                        <StackPanel>
+                            <TextBlock Text="Result"
+                                       HorizontalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Style="{StaticResource TextBlockDefaultSuccess}" />
+                        </StackPanel>
+                        <TextBox Text="{Binding Review.BFVerifyMaxError, Mode=OneWay, Converter={StaticResource VectorToStringConverter}, ConverterParameter='0.######'}"
+                                 hc:TitleElement.Title="BF Max Error(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <TextBox Text="{Binding Review.DFVerifyMaxError, Mode=OneWay, Converter={StaticResource VectorToStringConverter}, ConverterParameter='0.######'}"
+                                 hc:TitleElement.Title="DF Max Error(um): "
+                                 hc:TitleElement.TitlePlacement="Left"
+                                 hc:TitleElement.TitleWidth="190"
+                                 IsReadOnly="True"
+                                 Background="{StaticResource SecondaryRegionBrush}"
+                                 Style="{StaticResource TextBoxExtend}" />
+                        <hc:UniformSpacingPanel HorizontalAlignment="Left"
+                                                VerticalAlignment="Top"
+                                                Spacing="10">
+                            <Button Content="Action"
+                                    Command="{Binding VerifyCommand}"
+                                    hc:IconElement.Geometry="{StaticResource DownloadGeometry}"
+                                    Style="{StaticResource ButtonPrimary.Loading}" />
+                            <Button Content="Cancel"
+                                    Command="{Binding VerifyCancelCommand}"
+                                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                                    Style="{StaticResource ButtonWarning}" />
+                        </hc:UniformSpacingPanel>
                     </hc:UniformSpacingPanel>
-                </hc:UniformSpacingPanel>
+                </ScrollViewer>
             </Border>
-        </hc:UniformSpacingPanel>
-        <!--#endregion-->
+        </Grid>
         <GridSplitter Grid.Column="1" Width="5" />
-        <!--#region Right-->
-        <TabControl Grid.Column="2">
-            <TabItem Header="Verify Error Map">
-                <children:DarkFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}"
-                                           IsEnabled="{Binding Step3CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                           ChildName="ReviewVerify" />
-            </TabItem>
-            <TabItem Header="Calibration Error Map">
-                <children:DarkFieldMapView Width="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight}"
-                                           IsEnabled="{Binding Step3CalibrateActionCommand.IsRunning, Converter={StaticResource BoolNegationConverter}}"
-                                           ChildName="ReviewCalibration" />
-            </TabItem>
-        </TabControl>
-        <!--#endregion-->
+        <GroupBox Grid.Column="2" Header="History">
+            <TabControl DataContext="{Binding Review, Mode=OneWay}">
+                <i:Interaction.Behaviors>
+                    <itemsControlBehaviors:SelectorAutoSelectFirstBehavior />
+                </i:Interaction.Behaviors>
+                <TabItem Header="BF Verify StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding BFVerifyStageMap.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="DF Verify StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding DFVerifyStageMap.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Expand StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <v2:PlotControl DataSource="{Binding ExpandStageMap.PlotDataSource}" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="DF StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <DockPanel>
+                            <hc:UniformSpacingPanel DockPanel.Dock="Top"
+                                                    Orientation="Vertical"
+                                                    Spacing="2">
+                                <TextBox Text="{Binding IsDarkFieldAlignment, Mode=OneWay}"
+                                         hc:TitleElement.Title="Dark Field Alignment: "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding DFAlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                         hc:TitleElement.Title="Alignment Degrees(°): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding DFAlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                         hc:TitleElement.Title="Mark Point 1(um): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding DFAlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                         hc:TitleElement.Title="Mark Point 2(um): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                            </hc:UniformSpacingPanel>
+                            <v2:PlotControl DataSource="{Binding DFStageMap.PlotDataSource}" />
+                        </DockPanel>
+                    </Border>
+                </TabItem>
+                <TabItem Header="DF Repeat StageMaps">
+                    <ListBox Margin="5"
+                             HorizontalContentAlignment="Stretch"
+                             VirtualizingPanel.ScrollUnit="Pixel"
+                             ItemsSource="{Binding DFRepeatStageMaps}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type stageMap:StageMap}">
+                                <Border Height="500"
+                                        Margin="-5,5"
+                                        Style="{StaticResource BorderRegion}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="{Binding DisplayIndex, StringFormat='Repeat {0}'}"
+                                                   HorizontalAlignment="Center"
+                                                   Style="{StaticResource TextBlockSubTitleBold}"
+                                                   Foreground="{StaticResource SuccessBrush}" />
+                                        <v2:PlotControl Grid.Row="2" DataSource="{Binding PlotDataSource}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </TabItem>
+                <TabItem Header="BF StageMap">
+                    <Border Margin="5" Style="{StaticResource BorderRegion}">
+                        <DockPanel>
+                            <hc:UniformSpacingPanel DockPanel.Dock="Top"
+                                                    Orientation="Vertical"
+                                                    Spacing="2">
+                                <TextBox Text="{Binding BFAlignmentResult.Degrees, Mode=OneWay, StringFormat='0.##########'}"
+                                         hc:TitleElement.Title="Alignment Degrees(°): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding BFAlignmentResult.MarkPoint1, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                         hc:TitleElement.Title="Mark Point 1(um): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                                <TextBox Text="{Binding BFAlignmentResult.MarkPoint2, Mode=OneWay, Converter={StaticResource PointToStringConverter}}"
+                                         hc:TitleElement.Title="Mark Point 2(um): "
+                                         hc:TitleElement.TitlePlacement="Left"
+                                         hc:TitleElement.TitleWidth="190"
+                                         IsReadOnly="True"
+                                         Background="{StaticResource SecondaryRegionBrush}"
+                                         Style="{StaticResource TextBoxExtend}" />
+                            </hc:UniformSpacingPanel>
+                            <v2:PlotControl DataSource="{Binding BFStageMap.PlotDataSource}" />
+                        </DockPanel>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </GroupBox>
     </Grid>
 </UserControl>

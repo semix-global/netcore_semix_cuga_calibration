@@ -151,5 +151,4 @@ public sealed class AlgoCvTemplateMatchEngine(ILogger<AlgoCvTemplateMatchEngine>
         TemplateMatchMethodEnum.TmCcoeff => TemplateMatchMethod.TmCcoeff,
         _ => TemplateMatchMethod.TmCcoeffNormed
     };
-
 }

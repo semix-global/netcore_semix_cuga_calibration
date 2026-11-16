@@ -7,6 +7,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 
@@ -66,7 +67,7 @@ public sealed partial class MicroscopeLensInformation :
     public override int GetHashCode() => HashCode.Combine(LensCode);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null) => LensName;
 

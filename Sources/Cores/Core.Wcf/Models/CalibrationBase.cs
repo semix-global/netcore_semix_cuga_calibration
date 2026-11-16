@@ -18,7 +18,7 @@ public class CalibrationBase
     /// <summary>
     /// Cuga初始化是否需要自检此项校准结果是否Ok
     /// </summary>
-    public bool IsRequiredCalibrate { get; set; } = false;
+    public bool IsRequiredCalibrate { get; set; }
 
     /// <summary>
     /// 校准结果版本号

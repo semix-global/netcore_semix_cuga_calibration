@@ -25,7 +25,6 @@
         <PackageReference Include="R3" />
         <PackageReference Include="System.Data.SQLite.Core" />
         <PackageReference Include="FreeSql.Provider.Sqlite" />
-        <PackageReference Include="pythonnet" />
         <PackageReference Include="SourceGenerator.InjectHostDI">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -138,9 +137,6 @@
         <Content Include="NLog.config">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-
-        <None Remove="Assets\Python\*.*" />
-        <EmbeddedResource Include="Assets\Python\*.*" />
 
         <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />

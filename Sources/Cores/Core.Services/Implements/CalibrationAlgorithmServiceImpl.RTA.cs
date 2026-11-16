@@ -10,6 +10,7 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace Core.Services.Implements;
 
@@ -71,7 +72,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
 
                 yAlignmentAngles.Add(Math.Atan(slope));
                 yAlignmentFitLines.Add(($"Row {y}: Origin", points));
-                yAlignmentFitLines.Add(($"Row {y}: {PolynomialCurve.ToString1(slope, intercept, rSquared, "0.##########")}", [.. points.Index().Select(t => new Point(t.Item.X, predicted[t.Index]))]));
+                yAlignmentFitLines.Add(($"Row {y}: {PolynomialCurve.ToString1(slope, intercept, rSquared, "0.##########", CultureInfo.InvariantCulture)}", [.. points.Index().Select(t => new Point(t.Item.X, predicted[t.Index]))]));
             }
 
             Guard.IsTrue(yAlignmentAngles.Count > 0);
@@ -132,12 +133,12 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 XFitPlot = new HtmlPlot2DLinesChart(
                 [
                     ("Origin", [.. xSpacingPoints]),
-                    ($"Fit {PolynomialCurve.ToString1(xSpacing, xSpacingIntercept, xSpacingRSquared, "0.##########")}", [.. xSpacingPoints.Index().Select(t => new Point(t.Item.X, xSpacingPredicted[t.Index]))])
+                    ($"Fit {PolynomialCurve.ToString1(xSpacing, xSpacingIntercept, xSpacingRSquared, "0.##########", CultureInfo.InvariantCulture)}", [.. xSpacingPoints.Index().Select(t => new Point(t.Item.X, xSpacingPredicted[t.Index]))])
                 ], "X: index - Y: px"),
                 YFitPlot = new HtmlPlot2DLinesChart(
                 [
                     ("Origin", [.. ySpacingPoints]),
-                    ($"Fit {PolynomialCurve.ToString1(ySpacing, ySpacingIntercept, ySpacingRSquared, "0.##########")}", [.. ySpacingPoints.Index().Select(t => new Point(t.Item.X, ySpacingPredicted[t.Index]))])
+                    ($"Fit {PolynomialCurve.ToString1(ySpacing, ySpacingIntercept, ySpacingRSquared, "0.##########", CultureInfo.InvariantCulture)}", [.. ySpacingPoints.Index().Select(t => new Point(t.Item.X, ySpacingPredicted[t.Index]))])
                 ], "X: index - Y: px")
             }), htmlLogUniqueId.LoggingHtml());
 
@@ -224,7 +225,7 @@ public sealed partial class CalibrationAlgorithmServiceImpl
                 FitPlot = new HtmlPlot2DLinesChart(
                 [
                     ("Origin", [.. xScalePoints]),
-                    ($"Fit {PolynomialCurve.ToString1(xScaleSlope, xScaleIntercept, xScaleRSquared, "0.##########")}", [.. xScalePoints.Index().Select(t => new Point(t.Item.X, xScalePredicted[t.Index]))])
+                    ($"Fit {PolynomialCurve.ToString1(xScaleSlope, xScaleIntercept, xScaleRSquared, "0.##########", CultureInfo.InvariantCulture)}", [.. xScalePoints.Index().Select(t => new Point(t.Item.X, xScalePredicted[t.Index]))])
                 ], "X: px - Y: px")
             }), htmlLogUniqueId.LoggingHtml());
 

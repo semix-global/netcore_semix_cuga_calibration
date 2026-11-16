@@ -3,7 +3,6 @@
 
 using algocv_sharp;
 using AwesomeAssertions;
-using Core.Models.Models.Setting;
 using Core.Services.Implements;
 using Microsoft.Extensions.Logging.Abstractions;
 using Net.Utilities.Calibration;
@@ -93,10 +92,7 @@ public class FocusTest(ITestOutputHelper testOutputHelper)
     [InlineData("100X")]
     public void GetQuality_HalconVsAlgo_EcsSweep_ShouldOutputBestEcsDifference(string magnification)
     {
-        var service = new CalibrationAlgorithmServiceImpl(
-            NullLogger<CalibrationAlgorithmServiceImpl>.Instance,
-            new CalibrationSetting(),
-            new AffineTransformation(NullLogger<AffineTransformation>.Instance));
+        var service = new CalibrationAlgorithmServiceImpl(NullLogger<CalibrationAlgorithmServiceImpl>.Instance);
 
         var files = Directory.GetFiles($@"Assets\Focus\{magnification}", "*.jpg");
         files.Length.Should().BeGreaterThan(0);

@@ -462,7 +462,7 @@ public sealed partial class OpticsCrossTalkWindowViewModel(
 
                 logger.LogHtmlInformation($"PMT{cibInformations[0].PMTId}", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
                 {
-                    Details = new HtmlTable([.. items.Select(t => t.ToHtmlAnonymous(Cache.QuietROI, Cache.SignalROI))]),
+                    Details = new HtmlTable([.. items.Select(t => t.ToHtmlAnonymous(Cache.QuietROI, Cache.SignalROI))])
                 }), HtmlLogUniqueId.LoggingHtml());
             }
 
