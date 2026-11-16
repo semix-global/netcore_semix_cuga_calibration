@@ -16,6 +16,8 @@
     <ItemGroup>
         <PackageReference Include="algocv_sharp" VersionOverride="1.4.1" />
 
+        <PackageReference Include="pythonnet" />
+
         <PackageReference Include="Net.Utilities.Mapper" VersionOverride="2.9.7-preview2-xuan" />
         <PackageReference Include="Net.Utilities.Models" VersionOverride="2.9.7-preview2-xuan" />
         <PackageReference Include="Net.Utilities.DataAnnotations" VersionOverride="2.9.7-preview2-xuan" />

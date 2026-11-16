@@ -1,3 +1,4 @@
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Core.Algorithm.Helper;
 using Core.Algorithm.Interfaces;
@@ -10,6 +11,7 @@ using Core.Models.Models.Common.Algorithm.TemplateMatch;
 using Core.Models.Models.Common.Pattern;
 using Core.Models.Models.Microscope.PixelSize;
 using Core.Models.Models.Setting;
+using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -90,6 +92,13 @@ public sealed partial class ReviewViewModel(
     {
         var quality = calibrationAlgorithmService.GetQuality(image, guid, algorithmEngineTypeEnum);
         return quality;
+    }
+
+    public void UseSimulatorImage(string? simulatorImageFilePath)
+    {
+        var mock = Guard.IsAssignableToTypeAndReturn<CalibrationReviewServiceMockImpl>(calibrationReviewService);
+
+        mock.SimulatorImageFilePath = simulatorImageFilePath;
     }
 
     #region 模板匹配

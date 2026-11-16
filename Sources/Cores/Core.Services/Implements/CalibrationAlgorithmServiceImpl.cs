@@ -2,11 +2,8 @@ using algocv_sharp;
 using CommunityToolkit.Diagnostics;
 using Core.Algorithm.Helper;
 using Core.Models;
-using Core.Models.Models.Common.StageMap;
-using Core.Models.Models.Setting;
 using Core.Services.Interfaces;
 using HalconDotNet;
-using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Algorithms.AlgoCSharp;
@@ -27,12 +24,9 @@ using Rect = Net.Utilities.Models.Geometries.Rect;
 namespace Core.Services.Implements;
 
 [IOCAppService(ServiceType = typeof(ICalibrationAlgorithmService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Production | IOCEnvironmentEnum.Staging)]
-public sealed partial class CalibrationAlgorithmServiceImpl(
-    ILogger<CalibrationAlgorithmServiceImpl> logger,
-    CalibrationSetting calibrationSetting,
-    AffineTransformation affineTransformation) : ICalibrationAlgorithmService
+public sealed partial class CalibrationAlgorithmServiceImpl(ILogger<CalibrationAlgorithmServiceImpl> logger) : ICalibrationAlgorithmService
 {
-    private bool _isAlgorithmEngineInitialized = false;
+    private bool _isAlgorithmEngineInitialized;
     private readonly HAlgorithm.Algorithm _algorithm = new();
 
     public void InitialAlgorithmEngine()
@@ -43,8 +37,8 @@ public sealed partial class CalibrationAlgorithmServiceImpl(
         AlgoCv.InitAlgoCv(
             Path.Combine(options.Value.AlgorithmLogDirectory, $"{Constants.DateTimeFormat}"),
             options.Value.AlgorithmLogLevel,
-            0f,
-            0f);
+            logOffset: 0f,
+            logScale: 0f);
         AlgoCv.CheckStructSize();
         _isAlgorithmEngineInitialized = true;
     }
@@ -209,60 +203,6 @@ public sealed partial class CalibrationAlgorithmServiceImpl(
         var centerY = yHTuple.D;
 
         return new Point(centerX, centerY);
-    }
-
-    public bool CalculateChuckStageMapError(
-        StageMapDto stageMapDto,
-        bool isXOnlyGantryError,
-        Guid guid,
-        int calculateContainRowMinCount,
-        int calculateContainColumnMinCount,
-        double alignmentThreshold,
-        double gantryThreshold,
-        double scaleThreshold,
-        double diameter)
-    {
-        var (idealXArray, idealYArray) = stageMapDto.GetIdealArray();
-        var (realXArray, realYArray, isInWaferArray, templateMathIsOkArray) = stageMapDto.GetRealArray();
-
-        var idealXMatrix = Matrix<double>.Build.DenseOfArray(idealXArray);
-        var idealYMatrix = Matrix<double>.Build.DenseOfArray(idealYArray);
-        var realXMatrix = Matrix<double>.Build.DenseOfArray(realXArray);
-        var realYMatrix = Matrix<double>.Build.DenseOfArray(realYArray);
-        var isInWaferMatrix = Matrix<double>.Build.DenseOfArray(isInWaferArray);
-        var templateMathIsOkMatrix = Matrix<double>.Build.DenseOfArray(templateMathIsOkArray);
-
-        var (isSuccess, errorXMatrix, errorYMatrix) = affineTransformation.CalculateMatrixError(
-            idealXMatrix,
-            idealYMatrix,
-            realXMatrix,
-            realYMatrix,
-            isInWaferMatrix,
-            templateMathIsOkMatrix,
-            isXOnlyGantryError,
-            guid,
-            calculateContainRowMinCount: calculateContainRowMinCount,
-            calculateContainColumnMinCount: calculateContainColumnMinCount,
-            diameter: diameter,
-            alignmentThreshold: alignmentThreshold,
-            gantryThreshold: gantryThreshold,
-            scaleThreshold: scaleThreshold
-        );
-
-        for (var row = 0; row < stageMapDto.RowNumber; row++)
-        {
-            for (var column = 0; column < stageMapDto.ColumnNumber; column++)
-            {
-                stageMapDto.ErrorMatrix[row][column] = new Point(errorXMatrix[row, column], errorYMatrix[row, column]);
-            }
-        }
-
-        return isSuccess;
-    }
-
-    public StageMapDto ExpandStageMapDto(StageMapDto baseStageMap, StageMapDto mergeStageMap, Guid htmlLogUniqueId)
-    {
-        return affineTransformation.ExpandStageMapDto(baseStageMap, mergeStageMap, htmlLogUniqueId);
     }
 
     public double[] GetImageGrayYProjectionsPixels(BitmapImage image, Guid guid)

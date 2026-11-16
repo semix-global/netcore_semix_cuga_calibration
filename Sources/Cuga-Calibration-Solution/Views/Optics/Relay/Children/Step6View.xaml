@@ -9,7 +9,6 @@
              xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
              xmlns:relay="clr-namespace:Core.Models.Models.Optics.Relay;assembly=Core.Models"
              xmlns:enumAlgorithm="clr-namespace:Core.Models.Enums.Optics;assembly=Core.Models"
-             xmlns:algorithm="clr-namespace:Core.Models.Enums.Algorithm;assembly=Core.Models"
              xmlns:calibrationAlgorithm="clr-namespace:Net.Utilities.Calibration;assembly=Net.Utilities.Calibration"
              xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
              xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"

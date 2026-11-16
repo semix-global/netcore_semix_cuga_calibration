@@ -175,9 +175,7 @@ public sealed partial class V0FourierCenterChannelFlexibleApertureDTOItem : Obse
 
         async Task Step0Async()
         {
-        InnerLoop:
-
-            switch (CenterChannelMotionKindEnum)
+        InnerLoop: switch (CenterChannelMotionKindEnum)
             {
                 case CenterChannelMotionKindEnum.XAperture or CenterChannelMotionKindEnum.YAperture:
                     var diameter = (int)Math.Round(Math.Min(_step0BitmapImageDrawable.BitmapImage.Width / 2d, _step0BitmapImageDrawable.BitmapImage.Height / 2d));

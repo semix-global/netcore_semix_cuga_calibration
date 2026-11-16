@@ -1,0 +1,5 @@
+[core]
+    remote = cuga_calibration
+    autostage = true
+['remote "cuga_calibration"']
+    url = ssh://root@192.168.60.201/data1/dvc_repo_cuga_calibration

@@ -29,8 +29,6 @@ public sealed class CalibrationFourierServiceMockImpl : ICalibrationFourierServi
         double scanLength,
         int channelId)
     {
-        Thread.Sleep(100);
-
         var filePath = SimulatorImageFilePath ?? string.Empty;
 
 #pragma warning disable IDE0079

@@ -5,13 +5,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
 using Net.Utilities.Algorithms.AlgoCSharp;
+using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Semix.WcfTransfer.DTO;
 #endif
@@ -114,7 +114,7 @@ public partial class DarkFieldRawScanImageDTO :
     public DarkFieldRawScanImageDTO AdaptIn(M2CImgSysCollectImgDTO obj, CIBInformation cibInformation, bool isForward, CIBProfileModeEnum rawCIBProfileModeEnum, bool isKeepRawImageCIBProfileModeEnum)
     {
         Guard.IsNotNull(obj);
-        var (size, _, _) = RAWImageFactoryV3.GetSize(obj.Url);
+        var (size, _, _) = RAWImageFactory.GetSize(obj.Url);
 
         CIBInformation = cibInformation.Clone();
         Size = size;

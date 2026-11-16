@@ -158,5 +158,4 @@ public sealed class AlgoCvYPixelSizeEngine(ILogger<AlgoCvYPixelSizeEngine> logge
             }
         }
     }
-
 }

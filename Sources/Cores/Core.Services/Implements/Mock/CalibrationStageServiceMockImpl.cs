@@ -3,7 +3,6 @@ using Core.Models.Enums.Stage;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Alignment;
 using Core.Models.Models.Common.Pattern;
-using Core.Models.Models.Common.StageMap;
 using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
@@ -14,7 +13,7 @@ using System.IO;
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationStageService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
-public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
+public sealed partial class CalibrationStageServiceMockImpl : ICalibrationStageService
 {
     private static readonly (double XDirection, double YDirection) XYDirection = (-1, 1);
     private static readonly Point BrightFieldStagePosition = new(88661.791, -1263.795);
@@ -372,27 +371,6 @@ public sealed class CalibrationStageServiceMockImpl : ICalibrationStageService
         Thread.Sleep(100);
 
         return SxExecuteRetHelper.CreateSuccess(_gantryOffset);
-    }
-
-    public SxExecuteRet<bool> ToggleEnableStageMap(bool enable)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetStageMap(StageMapDto stageMapDto)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
-    }
-
-    public SxExecuteRet<bool> SetStageMap(StageMapErrorDTO stageMapError)
-    {
-        Thread.Sleep(100);
-
-        return SxExecuteRetHelper.CreateSuccess(true);
     }
 
     public SxExecuteRet<bool> SetBrightFieldCenterMachinePositionValue(Point position)

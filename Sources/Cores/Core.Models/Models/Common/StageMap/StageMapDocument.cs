@@ -1,0 +1,37 @@
+using Net.Utilities.Graphics;
+using Net.Utilities.Graphics.Editors;
+using Net.Utilities.Graphics.Interfaces;
+using Net.Utilities.Graphics.Primitives.Medias.Layers;
+using Net.Utilities.Graphics.Primitives.ObjectModels;
+
+namespace Core.Models.Models.Common.StageMap;
+
+public sealed class StageMapDocument : CanvasDocument
+{
+    public readonly ILayer WaferLayer = new ImmutableLayer("Wafer", 200);
+    public readonly ILayer DieLayer = new ImmutableLayer("Die", 100);
+
+    public Model<StageMapWafer> WaferModel { get; }
+
+    public Model<StageMapDie> DieModel { get; }
+
+    public StageMapDocument()
+    {
+        WaferModel = ModelStorages.GetOrAddLayer<StageMapWafer>(WaferLayer);
+        DieModel = ModelStorages.GetOrAddLayer<StageMapDie>(DieLayer);
+
+        BackgroundEditor.GetOrAdd<StageMapSelectionBackgroundEditor>(Edit);
+    }
+
+    public void Reset()
+    {
+        WaferModel.Clear();
+        DieModel.Clear();
+
+        foreach (var item in Edit.SelectedItems) item.IsSelected = false;
+
+        Edit.SelectedItems.Clear();
+
+        Transients.Clear();
+    }
+}

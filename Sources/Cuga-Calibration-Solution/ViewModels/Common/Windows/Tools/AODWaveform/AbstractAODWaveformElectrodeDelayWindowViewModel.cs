@@ -4,6 +4,7 @@ using Core.Models.Models.Common.AODWaveform.Generates;
 using MathNet.Numerics;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Logging;
+using Net.Utilities.Calibration;
 using Net.Utilities.Helpers.Extensions;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Helpers.Helpers.Structs;
@@ -15,7 +16,6 @@ using Net.Utilities.WPF.Enums;
 using Python.Runtime;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.AODWaveform;
@@ -802,16 +802,5 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
 public static class AODWaveformElectrodeDelayWindowViewModelShared
 {
-    public static readonly string PhaseOptimizerPythonScript = GetEmbeddedResource("CugaCalibration.Assets.Python.phase_optimizer.py");
-
-    private static string GetEmbeddedResource(string resourceName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream is null) ThrowHelper.ThrowArgumentException($"Resource '{resourceName}' not found in assembly '{assembly.FullName}'.");
-
-        using var reader = new StreamReader(stream);
-        return reader.ReadToEnd();
-    }
+    public static readonly string PhaseOptimizerPythonScript = AssemblyHelper.GetEmbeddedResource("Assets.Python.phase_optimizer.py");
 }

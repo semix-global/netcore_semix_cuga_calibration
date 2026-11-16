@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
@@ -9,7 +10,6 @@ using Newtonsoft.Json.Linq;
 
 #if NET
 using Semix.GRPC.DTO;
-
 #else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
@@ -43,10 +43,10 @@ public sealed partial class ProductivityInformation :
     public partial int StageSpeedType { get; private set; } = -1;
 
     [ObservableProperty]
-    public partial double XPixelSize { get; set; } = -1;
+    public partial double OriginXPixelSize { get; set; } = -1;
 
     [ObservableProperty]
-    public partial double YPixelSize { get; private set; } = -1;
+    public partial double OriginYPixelSize { get; private set; } = -1;
 
     [ObservableProperty]
     public partial int YPixels { get; private set; } = -1;
@@ -107,7 +107,7 @@ public sealed partial class ProductivityInformation :
     public override int GetHashCode() => HashCode.Combine(OpticsIlluminationModeEnum, OpticsMagType, StageSpeedType);
     // ReSharper restore NonReadonlyMemberInGetHashCode
 
-    public override string ToString() => ToString(null);
+    public override string ToString() => ToString(null, CultureInfo.InvariantCulture);
 
     public string ToString(string? format, IFormatProvider? formatProvider = null) => $"{OpticsIlluminationModeEnum.ToString()}_{Name}({((SxMAGEnum)OpticsMagType).ToString()[0]}-{((SxSpeedEnum)StageSpeedType).ToString()[0]})";
 
@@ -136,8 +136,8 @@ public sealed partial class ProductivityInformation :
         out OpticsIlluminationModeEnum opticsIlluminationModeEnum,
         out int opticsMagType,
         out int stageSpeedType,
-        out double xPixelSize,
-        out double yPixelSize,
+        out double originXPixelSize,
+        out double originYPixelSize,
         out int yPixels,
         out double originYPixels,
         out double originYPixelsStartIndex,
@@ -149,8 +149,8 @@ public sealed partial class ProductivityInformation :
                 opticsIlluminationModeEnum,
                 opticsMagType,
                 stageSpeedType,
-                xPixelSize,
-                yPixelSize,
+                originXPixelSize,
+                originYPixelSize,
                 yPixels,
                 originYPixels,
                 originYPixelsStartIndex,
@@ -162,8 +162,8 @@ public sealed partial class ProductivityInformation :
                 OpticsIlluminationModeEnum,
                 OpticsMagType,
                 StageSpeedType,
-                XPixelSize,
-                YPixelSize,
+                OriginXPixelSize,
+                OriginYPixelSize,
                 YPixels,
                 OriginYPixels,
                 OriginYPixelsStartIndex,
@@ -195,8 +195,8 @@ public sealed partial class ProductivityInformation :
 #if NET
         OpticsIlluminationModeEnum opticsIlluminationModeEnum,
 #endif
-        double yPixelSize,
-        double yPixel,
+        double originYPixelSize,
+        double originYPixels,
         int pxStartPoint,
         int pxEndPoint,
         double hz,
@@ -222,9 +222,9 @@ public sealed partial class ProductivityInformation :
 #endif
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
-        YPixelSize = yPixelSize;
+        OriginYPixelSize = originYPixelSize;
 
-        OriginYPixels = Convert.ToInt32(yPixel);
+        OriginYPixels = Convert.ToInt32(originYPixels);
 
         Guard.IsGreaterThanOrEqualTo(pxStartPoint, 0, $"{OpticsIlluminationModeEnum}, {Name}");
         Guard.IsGreaterThan(pxEndPoint, pxStartPoint, $"{OpticsIlluminationModeEnum}, {Name}");
@@ -239,7 +239,7 @@ public sealed partial class ProductivityInformation :
 
         SampleRate = hz;
         XSpeedValue = xSpeedValue;
-        XPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
+        OriginXPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
         return this;
     }
@@ -250,8 +250,8 @@ public sealed partial class ProductivityInformation :
         OpticsIlluminationModeEnum = OpticsIlluminationModeEnum,
         OpticsMagType = OpticsMagType,
         StageSpeedType = StageSpeedType,
-        XPixelSize = XPixelSize,
-        YPixelSize = YPixelSize,
+        OriginXPixelSize = OriginXPixelSize,
+        OriginYPixelSize = OriginYPixelSize,
         YPixels = YPixels,
         OriginYPixels = OriginYPixels,
         OriginYPixelsStartIndex = OriginYPixelsStartIndex,
@@ -268,8 +268,8 @@ public sealed partial class ProductivityInformation :
         OpticsIlluminationModeEnum,
         OpticsMagType,
         StageSpeedType,
-        XPixelSize,
-        YPixelSize,
+        OriginXPixelSize,
+        OriginYPixelSize,
         YPixels,
         OriginYPixels,
         OriginYPixelsStartIndex,
