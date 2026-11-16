@@ -73,6 +73,8 @@ $ dvc list . --dvc-only --tree
                         └── RTAWindowViewModel
                             ├── 20261029_13_0_0_1_short_1873008_PMT08-CH3_8.raw
                             └── 20261029_17_0_0_1_short_1873008_PMT08-CH3_8.raw
+$ dvc list . --dvc-only --recursive
+
 # 查看某一个文件夹 DVC 管理的文件和目录
 $ dvc list . .\Simulator\B3\ --dvc-only --tree
 ./Simulator/B3/
@@ -82,6 +84,7 @@ $ dvc list . .\Simulator\B3\ --dvc-only --tree
             └── Stage
                 └── RTAWindowViewModel
                     ├── 20261029_13_0_0_1_short_1873008_PMT08-CH3_8.raw
-                    └── 20261029_17_0_0_1_short_1873008_PMT08-CH3_8.raw 
+                    └── 20261029_17_0_0_1_short_1873008_PMT08-CH3_8.raw
+$ dvc list . .\Simulator\B3\ --dvc-only --recursive
 ```
 
