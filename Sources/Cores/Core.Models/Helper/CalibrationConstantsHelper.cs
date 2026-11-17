@@ -1,25 +1,10 @@
-using Core.Models.Enums.Optics;
-using Core.Models.Enums.Stage;
-
 namespace Core.Models.Helper;
 
 public static class CalibrationConstantsHelper
 {
-    public const string Save = nameof(Save);
-
     public const string Export = nameof(Export);
 
     public const string Import = nameof(Import);
-
-    /// <summary>
-    /// 校准明场StageY轴长度
-    /// </summary>
-    public const double CalibrationGantryHLength = 1130000;
-
-    /// <summary>
-    /// 校准暗场采集PmtId集合
-    /// </summary>
-    public static readonly int[] PmtIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
     /// <summary>
     /// 主校准暗场采集PmtId
@@ -27,64 +12,32 @@ public static class CalibrationConstantsHelper
     public const int MainPmtId = 8;
 
     /// <summary>
-    /// 校准暗场采集通道Id集合
-    /// </summary>
-    public static readonly int[] ChannelIds = [1, 2, 3];
-
-    /// <summary>
-    /// 主校准暗场采集通道Id
-    /// </summary>
-    public const int MainChannelId = 3;
-
-    /// <summary>
-    /// 主校准暗场采集宽度
-    /// </summary>
-    public const int MainXWidthPixel = 800;
-
-    /// <summary>
-    /// 主校准暗场入射方式
-    /// </summary>
-    public const OpticsIlluminationModeEnum MainOpticsIlluminationModeEnum = OpticsIlluminationModeEnum.OI;
-
-    /// <summary>
-    /// 主校准暗场采集坐标系系统
-    /// </summary>
-    public const StageCoordinateSystemEnum MainStageCoordinateSystemEnum = StageCoordinateSystemEnum.Bright;
-
-    /// <summary>
-    /// 校准步长
-    /// </summary>
-    public static readonly double[] StageSteps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
-
-    /// <summary>
-    /// 校准步长
-    /// </summary>
-    public static readonly double[] StageThetaSteps = [-1, -0.5, -0.2, -0.1, -0.05, 0.05, 0.1, 0.2, 0.5, 1];
-
-    /// <summary>
-    /// 平移台监控间隔
-    /// </summary>
-    public const int MonitorMilliseconds = 500;
-
-    /// <summary>
     /// 配方数据库注入的key
     /// </summary>
     public const string RecipeDbKey = "Recipe";
 
-    #region 方法
-
     #region 规则
 
+    /// <summary>
+    /// 将模板文件路径转换为对应的模板图像文件路径
+    /// </summary>
+    /// <param name="templateFilePath">模板文件路径</param>
+    /// <returns>追加 .bmp 扩展名后的模板图像文件路径</returns>
     public static string TemplatePathToTemplateImagePath(string templateFilePath) => $"{templateFilePath}.bmp";
 
+    /// <summary>
+    /// 将模板文件路径转换为对应的原始图像文件路径
+    /// </summary>
+    /// <param name="templateFilePath">模板文件路径</param>
+    /// <returns>追加 _Origin.bmp 后缀后的原始图像文件路径</returns>
     public static string TemplatePathToOriginImagePath(string templateFilePath) => $"{templateFilePath}_Origin.bmp";
 
     /// <summary>
-    /// 模板匹配元数据 sidecar 文件路径（自定义模板中心等模板侧静态事实）
+    /// 将模板文件路径转换为对应的模板匹配元数据文件路径
     /// </summary>
+    /// <param name="templateFilePath">模板文件路径</param>
+    /// <returns>追加 .json 扩展名后的模板匹配元数据文件路径</returns>
     public static string TemplatePathToTemplateMetaFilePath(string templateFilePath) => $"{templateFilePath}.json";
 
     #endregion 规则
-
-    #endregion 方法
 }

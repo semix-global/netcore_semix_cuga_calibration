@@ -1,6 +1,6 @@
 using algocv_sharp;
 
-namespace Net.Utilities.Algorithms.AlgoCSharp;
+namespace Net.Utilities.Calibration;
 
 /// <summary>
 /// algo Image 域内操作扩展（与 Halcon 侧 HImage 扩展对应的包装层）。

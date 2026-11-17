@@ -4,7 +4,6 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
            xmlns:hc="https://handyorg.github.io/handycontrol"
            xmlns:generates="clr-namespace:Core.Models.Models.Common.AODWaveform.UI.Generates;assembly=Core.Models"
@@ -232,7 +231,7 @@
                                               hc:TitleElement.TitleWidth="300"
                                               SelectedItem="{Binding Cache.ChannelId}"
                                               Style="{StaticResource ComboBoxExtend}"
-                                              ItemsSource="{x:Static helper:CalibrationConstantsHelper.ChannelIds}" />
+                                              ItemsSource="{Binding ApplicationCookie.CIBInformationChannelIds}" />
                                     <hc:NumericUpDown Margin="7,0,0,0"
                                                       hc:TitleElement.Title="Rotate Angle(°): "
                                                       hc:TitleElement.TitlePlacement="Left"

@@ -1,11 +1,5 @@
 using Core.Models.Enums.EFEM;
-
-#if NET
-using Semix.GRPC.DTO;
-#else
 using Semix.WcfTransfer.DTO;
-
-#endif
 
 namespace Core.Models.Extensions;
 

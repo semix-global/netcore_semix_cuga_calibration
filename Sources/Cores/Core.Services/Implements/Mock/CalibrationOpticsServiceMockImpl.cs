@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Helper;
@@ -7,13 +6,8 @@ using Core.Services.Interfaces;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Semix.CoreLib;
-
-#if NET
-using Semix.GRPC.DTO;
-
-#else
 using Semix.WcfTransfer.DTO;
-#endif
+using System.Collections.Concurrent;
 
 namespace Core.Services.Implements.Mock;
 
@@ -50,16 +44,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S5",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.327,
                 508,
                 0,
@@ -71,16 +60,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S10",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.Low,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.327,
                 508,
                 0,
@@ -92,16 +76,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S25",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.1635,
                 1008,
                 0,
@@ -113,16 +92,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S40",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.1635,
                 1008,
                 0,
@@ -134,16 +108,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S55",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.High,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.11286,
                 1500,
                 0,
@@ -155,16 +124,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S90",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.OI,
-#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Low,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.OI,
-#endif
                 0.11286,
                 1800,
                 30,
@@ -176,16 +140,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S40",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.NI,
-#endif
                     Mag = SxMAGEnum.Mid,
                     Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.NI,
-#endif
                 0.144,
                 1160,
                 0,
@@ -197,16 +156,11 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                 new C2MProductivityInfo
                 {
                     Name = "S90",
-#if NETFRAMEWORK
                     NIOI = SxNIOIEnum.NI,
-#endif
                     Mag = SxMAGEnum.High,
                     Speed = SxSpeedEnum.Mid,
                     IsUsed = true
                 },
-#if NET
-                OpticsIlluminationModeEnum.NI,
-#endif
                 0.096,
                 1720,
                 0,

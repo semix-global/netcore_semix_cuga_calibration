@@ -14,7 +14,6 @@ using Core.Models.Models.Optics.ROOS;
 using MathNet.Numerics;
 using MathNet.Numerics.LinearAlgebra;
 using Microsoft.Extensions.Hosting;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon.Extensions;
 using Net.Utilities.Algorithms.Modules.CurveFitting;
 using Net.Utilities.Attributes;

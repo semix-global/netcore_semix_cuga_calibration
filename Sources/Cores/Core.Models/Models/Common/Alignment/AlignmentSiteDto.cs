@@ -3,13 +3,7 @@ using Core.Models.Extensions;
 using Core.Models.Models.Setting;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-
-#if NET
-using Semix.GRPC.DTO;
-#else
 using Semix.WcfTransfer.DTO;
-
-#endif
 
 namespace Core.Models.Models.Common.Alignment;
 

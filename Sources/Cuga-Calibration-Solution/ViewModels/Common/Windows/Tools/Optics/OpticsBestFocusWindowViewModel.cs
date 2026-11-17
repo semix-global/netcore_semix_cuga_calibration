@@ -15,8 +15,8 @@ using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
 using Microsoft.Extensions.Options;
 using MiniExcelLibs;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Attributes;
+using Net.Utilities.Calibration;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Helpers.Files;
 using Net.Utilities.Models.Geometries;
@@ -245,9 +245,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 FindBFPosition = bfPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-#if NET
-            await
-#endif
             using var _ = cancellationToken.Register(() =>
             {
                 if (GetPMTImagesByXZSyncCommand.CanBeCanceled) GetPMTImagesByXZSyncCommand.Cancel();
@@ -293,9 +290,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
-#if NET
-        await
-#endif
         using var _ = cancellationToken.Register(() =>
         {
             if (Step0Command.CanBeCanceled) Step0Command.Cancel();

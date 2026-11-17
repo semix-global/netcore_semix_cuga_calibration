@@ -7,7 +7,6 @@ using Core.Algorithm.Models.TemplateMatch;
 using Core.Models.Enums.Algorithm;
 using Core.Models.Helper;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;

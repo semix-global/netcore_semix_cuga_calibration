@@ -12,7 +12,6 @@ using Core.Models.Models.Common.DarkField;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Primitives.Enums.Medias.Imaging;
 using Xunit.Abstractions;

@@ -28,9 +28,7 @@ public static class SxExecuteRetHelper
         return new SxExecuteRet
         {
             Success = true,
-#if NETFRAMEWORK
             Anything = new object()
-#endif
         };
     }
 
@@ -39,9 +37,7 @@ public static class SxExecuteRetHelper
         return new SxExecuteRet
         {
             Success = true,
-#if NETFRAMEWORK
             Anything = new object()
-#endif
         };
     }
 
