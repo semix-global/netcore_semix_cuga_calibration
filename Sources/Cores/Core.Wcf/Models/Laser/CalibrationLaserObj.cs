@@ -1,10 +1,10 @@
 using Cuga.Data.DataStruct.DTO.Swath;
 using Cuga.Data.DataStruct.Microscope.Enums;
 using Cuga.Data.DataStruct.Optics;
+using Cuga.Data.DataStruct.PMT;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
-using Cuga.Data.DataStruct.PMT;
 
 namespace Core.Wcf.Models.Laser;
 

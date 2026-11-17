@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
@@ -12,7 +13,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
-using Core.Models.Extensions;
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 

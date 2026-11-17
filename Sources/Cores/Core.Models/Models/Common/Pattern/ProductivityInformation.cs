@@ -1,14 +1,14 @@
-using System.Globalization;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using Core.Models.Models.Common.Cookies;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
+using System.Globalization;
 
 namespace Core.Models.Models.Common.Pattern;
 

@@ -4,7 +4,7 @@ using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Models.Geometries;
 
-namespace Net.Utilities.Algorithms.AlgoCSharp;
+namespace Net.Utilities.Calibration;
 
 /// <summary>
 /// BitmapImage 显示域算子的 AlgoCSharp 实现（algolib 现成方法的薄封装）。
