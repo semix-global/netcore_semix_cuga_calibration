@@ -79,7 +79,7 @@
                         <hc:NumericUpDown hc:TitleElement.Title="Scan Length(um): "
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:TitleElement.TitleWidth="190"
-                                          Minimum="1"
+                                          Minimum="0.001"
                                           Style="{StaticResource NumericUpDownExtend}"
                                           Value="{Binding Cache.ScanLength}" />
                         <hc:NumericUpDown hc:TitleElement.Title="Step0/Step1 Motor: "
