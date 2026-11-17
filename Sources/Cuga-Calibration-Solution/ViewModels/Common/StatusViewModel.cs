@@ -33,7 +33,6 @@ public sealed partial class StatusViewModel(
 
     private CancellationTokenSource? _cancellationTokenSource;
 
-    private long _frameCount;
     public int IsSwitchMicroscopeLensInformationRunning;
 
     [ObservableProperty]
@@ -119,7 +118,7 @@ public sealed partial class StatusViewModel(
                     {
                         BitmapMemoryByteArray = reviewViewModel.GetBrightFieldImageMemoryByteArray();
 
-                        _frameCount++;
+                        Fps = 1d / (MonitorMilliseconds / 1000d);
                     }
                     catch (Exception ex)
                     {
@@ -130,32 +129,12 @@ public sealed partial class StatusViewModel(
                 }
                 catch (Exception ex)
                 {
+                    Fps = 0d;
+
                     if (ex is OperationCanceledException) return;
 
                     IsEnable = false;
                     logger.LogWarning(ex, "Get Status Failed");
-                }
-            }
-        }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-
-        _ = Task.Factory.StartNew(() =>
-        {
-            while (true)
-            {
-                try
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    Thread.Sleep(MonitorMilliseconds);
-
-                    Fps = _frameCount / (MonitorMilliseconds / 1000d);
-                    _frameCount = 0;
-                }
-                catch (Exception ex)
-                {
-                    if (ex is OperationCanceledException) return;
-
-                    logger.LogWarning(ex, "Update FPS Failed");
                 }
             }
         }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
