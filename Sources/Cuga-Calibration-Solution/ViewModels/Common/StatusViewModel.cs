@@ -32,6 +32,7 @@ public sealed partial class StatusViewModel(
     private readonly ManualResetEventSlim _manualResetEvent = new(false);
 
     private CancellationTokenSource? _cancellationTokenSource;
+    private IDisposable? _disposable;
 
     public int IsSwitchMicroscopeLensInformationRunning;
 
@@ -83,13 +84,15 @@ public sealed partial class StatusViewModel(
     public void Monitor(bool isEnable)
     {
         RefreshToken();
+        _disposable?.Dispose();
+
         if (isEnable == false) return;
 
         IsEnable = true;
 
         var token = _cancellationTokenSource.Token;
 
-        _ = Task.Factory.StartNew(() =>
+        _disposable = Task.Factory.StartNew(() =>
         {
             while (true)
             {
@@ -196,6 +199,7 @@ public sealed partial class StatusViewModel(
     public void Dispose()
     {
         CancelToken();
+        _disposable?.Dispose();
 
         _manualResetEvent.Dispose();
     }
