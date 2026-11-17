@@ -2,13 +2,7 @@ using Core.Models.Enums.Algorithm;
 using Core.Models.Models.Setting;
 using Cuga.Data.DataStruct.Basic;
 using Net.Utilities.Models.Geometries;
-
-#if NET
-using Semix.GRPC.DTO.Basic;
-#else
 using Semix.WcfTransfer.DTO.Basic;
-
-#endif
 
 namespace Core.Models.Extensions;
 

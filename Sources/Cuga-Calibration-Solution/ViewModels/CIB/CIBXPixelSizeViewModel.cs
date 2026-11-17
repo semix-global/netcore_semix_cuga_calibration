@@ -451,9 +451,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                 CalibratingItem.RawImageFilePath
             }), HtmlLogUniqueId.LoggingHtml());
 
-#if NET
-            await
-#endif
             using var fileSteam = File.OpenRead(CalibratingItem.RawImageFilePath);
             using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 
@@ -742,9 +739,6 @@ public sealed partial class CIBXPixelSizeViewModel : CalibrationViewModelBase<CI
                     imageCount
                 }), HtmlLogUniqueId.LoggingHtml());
 
-#if NET
-                await
-#endif
                 using var fileSteam = File.OpenRead(selectedReviewItem.VerifyRawImageFilePath);
                 using var binaryReader = new BinaryReader(fileSteam, Encoding.UTF8, true);
 

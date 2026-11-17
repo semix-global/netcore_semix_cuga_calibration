@@ -4,11 +4,7 @@ using Cuga.Data.DataStruct.Optics;
 using Cuga.Data.DataStruct.Stage;
 using System;
 using System.Collections.Generic;
-
-#if NETFRAMEWORK
 using Cuga.Data.DataStruct.PMT;
-
-#endif
 
 namespace Core.Wcf.Models.Laser;
 
@@ -502,18 +498,10 @@ public sealed class CalibrationLaserXYAstigmatismItem : CalibrationBase
 [Serializable]
 public class CalibrationPrescanAODWaveformResult
 {
-#if NETFRAMEWORK
     /// <summary>
     /// 电极Id
     /// </summary>
     public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
-
-#else
-    /// <summary>
-    /// 电极Id
-    /// </summary>
-    public int OpticsAODElectrodeEnum { get; set; }
-#endif
 
     /// <summary>
     /// 波形文件路径
@@ -527,18 +515,10 @@ public class CalibrationPrescanAODWaveformResult
 [Serializable]
 public sealed class CalibrationChirpAODWaveformResult
 {
-#if NETFRAMEWORK
     /// <summary>
     /// 电极Id
     /// </summary>
     public CgAwgElectrodeEnum OpticsAODElectrodeEnum { get; set; }
-
-#else
-    /// <summary>
-    /// 电极Id
-    /// </summary>
-    public int OpticsAODElectrodeEnum { get; set; }
-#endif
 
     public string FilePath { get; set; }
 }

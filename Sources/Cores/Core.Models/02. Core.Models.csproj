@@ -7,12 +7,7 @@
         <RootNamespace>Core.Models</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
-        <PackageReference Include="Semix.CoreLib" />
-        <PackageReference Include="Semix.GRPC.DTO" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <ItemGroup>
         <Reference Include="Semix.CoreLib">
             <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>

@@ -245,9 +245,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
                 FindBFPosition = bfPosition
             }), HtmlLogUniqueId.LoggingHtml());
 
-#if NET
-            await
-#endif
             using var _ = cancellationToken.Register(() =>
             {
                 if (GetPMTImagesByXZSyncCommand.CanBeCanceled) GetPMTImagesByXZSyncCommand.Cancel();
@@ -293,9 +290,6 @@ public sealed partial class OpticsBestFocusWindowViewModel(
     [RelayCommand(IncludeCancelCommand = true)]
     private async Task AllAsync(CancellationToken cancellationToken)
     {
-#if NET
-        await
-#endif
         using var _ = cancellationToken.Register(() =>
         {
             if (Step0Command.CanBeCanceled) Step0Command.Cancel();

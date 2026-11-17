@@ -1139,9 +1139,7 @@ public sealed class AlgoCVSharpTemplateMatchTest(ITestOutputHelper output) : IDi
             {
                 _exitHooksRegistered = true;
                 AppDomain.CurrentDomain.ProcessExit += (_, _) => ShutdownStaDispatcher();
-#if NETFRAMEWORK
                 AppDomain.CurrentDomain.DomainUnload += (_, _) => ShutdownStaDispatcher();
-#endif
             }
         }
     }

@@ -1,18 +1,11 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Stage;
 using Cuga.Data.DataStruct.DTO.Swath;
-
-#if NET
-using Cuga.Data.DataStruct.Basic;
-using Semix.GRPC.DTO;
-using Semix.GRPC.DTO.Basic;
-#else
 using Core.Models.Enums.ADS;
 using Cuga.Data.DataStruct.ADS;
 using Cuga.Data.DataStruct.Stage;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
-#endif
 
 namespace Core.Models.Extensions;
 
@@ -22,17 +15,6 @@ public static class EnumStageExtension
 
     extension(CalChipSiteModelEnum @this)
     {
-#if NET
-        public CgCalChipEnum ToCgCalChipEnum() => @this switch
-        {
-            CalChipSiteModelEnum.ChuckModel => CgCalChipEnum.None,
-            CalChipSiteModelEnum.UndefinedModel => CgCalChipEnum.SHAPE,
-            CalChipSiteModelEnum.DswModel => CgCalChipEnum.DSW,
-            CalChipSiteModelEnum.ShinyWaferModel => CgCalChipEnum.SHINY,
-            CalChipSiteModelEnum.HazeModel => CgCalChipEnum.HAZE,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipEnum>(nameof(@this))
-        };
-#else
         public CgCalChipType ToCgCalChipType() => @this switch
         {
             CalChipSiteModelEnum.ChuckModel => CgCalChipType.None,
@@ -42,10 +24,8 @@ public static class EnumStageExtension
             CalChipSiteModelEnum.HazeModel => CgCalChipType.Haze,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgCalChipType>(nameof(@this))
         };
-#endif
     }
 
-#if NETFRAMEWORK
     extension(int @this)
     {
         public CalChipSiteModelEnum ToCalChipModelEnum() => @this switch
@@ -58,8 +38,6 @@ public static class EnumStageExtension
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CalChipSiteModelEnum>(nameof(@this))
         };
     }
-
-#endif
 
     #endregion CalChipMode
 
@@ -79,22 +57,6 @@ public static class EnumStageExtension
             StageDirectionTypeEnum.DownRight => ESxMotionDirection.RIGHT_DOWN,
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<ESxMotionDirection>(nameof(@this))
         };
-
-#if NET
-        public CgMotionDir ToCgMotionDir() => @this switch
-        {
-            StageDirectionTypeEnum.UpLeft => CgMotionDir.LEFT_UP,
-            StageDirectionTypeEnum.Up => CgMotionDir.Up,
-            StageDirectionTypeEnum.UpRight => CgMotionDir.RIGHT_Up,
-            StageDirectionTypeEnum.Left => CgMotionDir.LEFT,
-            StageDirectionTypeEnum.Right => CgMotionDir.RIGHT,
-            StageDirectionTypeEnum.DownLeft => CgMotionDir.LEFT_Down,
-            StageDirectionTypeEnum.Down => CgMotionDir.Down,
-            StageDirectionTypeEnum.DownRight => CgMotionDir.RIGHT_Down,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgMotionDir>(nameof(@this))
-        };
-
-#endif
     }
 
     extension(ESxMotionDirection @this)
@@ -113,37 +75,13 @@ public static class EnumStageExtension
         };
     }
 
-#if NET
-    extension(CgMotionDir @this)
-    {
-        public StageDirectionTypeEnum ToStageDirectionTypeEnum() => @this switch
-        {
-            CgMotionDir.LEFT_UP => StageDirectionTypeEnum.UpLeft,
-            CgMotionDir.Up => StageDirectionTypeEnum.Up,
-            CgMotionDir.RIGHT_Up => StageDirectionTypeEnum.UpRight,
-            CgMotionDir.LEFT => StageDirectionTypeEnum.Left,
-            CgMotionDir.RIGHT => StageDirectionTypeEnum.Right,
-            CgMotionDir.LEFT_Down => StageDirectionTypeEnum.DownLeft,
-            CgMotionDir.Down => StageDirectionTypeEnum.Down,
-            CgMotionDir.RIGHT_Down => StageDirectionTypeEnum.DownRight,
-            _ => ThrowHelper.ThrowArgumentOutOfRangeException<StageDirectionTypeEnum>(nameof(@this))
-        };
-    }
-
-#endif
-
     #endregion DirectionType
 
     #region Speed
 
     extension(CgSpeedLevelType)
     {
-        public static CgSpeedLevelType ErrorCgSpeedLevelType =>
-#if NET
-            (CgSpeedLevelType)(ushort.MaxValue);
-#else
-            CgSpeedLevelType.None;
-#endif
+        public static CgSpeedLevelType ErrorCgSpeedLevelType => CgSpeedLevelType.None;
     }
 
     extension(SxSpeedEnum @this)
@@ -183,7 +121,6 @@ public static class EnumStageExtension
 
     #region Register
 
-#if NETFRAMEWORK
     public static CgADSTraceBufferReg ToCgADSTraceBufferRegEnum(this AdsTracebufferRegEnum adsTracebufferRegEnum) => adsTracebufferRegEnum switch
     {
         AdsTracebufferRegEnum.Z_ECS0 => CgADSTraceBufferReg.Z_ECS0,
@@ -204,8 +141,6 @@ public static class EnumStageExtension
 
         _ => throw new ArgumentOutOfRangeException(nameof(adsTracebufferRegEnum), adsTracebufferRegEnum, null)
     };
-
-#endif
 
     #endregion Register
 }

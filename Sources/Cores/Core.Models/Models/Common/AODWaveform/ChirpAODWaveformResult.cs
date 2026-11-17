@@ -1,9 +1,6 @@
 using Core.Wcf.Models.Laser;
 using Net.Utilities.Mapper.Interfaces;
-
-#if NETFRAMEWORK
 using Core.Models.Extensions;
-#endif
 
 namespace Core.Models.Models.Common.AODWaveform;
 
@@ -23,11 +20,7 @@ public sealed class ChirpAODWaveformResult :
 
     CalibrationChirpAODWaveformResult IAdaptTo<CalibrationChirpAODWaveformResult>.AdaptTo() => new()
     {
-#if NETFRAMEWORK
         OpticsAODElectrodeEnum = OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum(),
-#else
-        OpticsAODElectrodeEnum = (int)OpticsAODElectrodeEnum,
-#endif
         FilePath = FilePath
     };
 

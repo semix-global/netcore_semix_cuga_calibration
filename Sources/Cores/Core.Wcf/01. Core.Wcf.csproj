@@ -14,11 +14,7 @@
         <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-        <PackageReference Include="Cuga.Interface" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <ItemGroup>
         <Reference Include="Cuga.Data.DataStruct">
             <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Cuga.Data.DataStruct.dll</HintPath>
         </Reference>

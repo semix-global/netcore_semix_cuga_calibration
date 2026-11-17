@@ -1,16 +1,9 @@
 using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Cuga.Data.DataStruct.Optics;
-
-#if NET
-using Semix.GRPC.DTO;
-using Semix.GRPC.DTO.Basic;
-#else
 using Cuga.Data.DataStruct.PMT;
 using Semix.WcfTransfer.DTO;
 using Semix.WcfTransfer.DTO.Basic;
-
-#endif
 
 namespace Core.Models.Extensions;
 
@@ -35,12 +28,7 @@ public static class EnumOpticsExtension
 
     extension(CgMagTypeEnum)
     {
-        public static CgMagTypeEnum ErrorCgMagTypeEnum =>
-#if NET
-            CgMagTypeEnum.Null;
-#else
-            CgMagTypeEnum.None;
-#endif
+        public static CgMagTypeEnum ErrorCgMagTypeEnum => CgMagTypeEnum.None;
     }
 
     extension(CgMagTypeEnum @this)
@@ -121,9 +109,7 @@ public static class EnumOpticsExtension
             CgNDFTypeEnum.N => OpticsCollectorPolarizationModeEnum.N,
             CgNDFTypeEnum.P => OpticsCollectorPolarizationModeEnum.P,
             CgNDFTypeEnum.S => OpticsCollectorPolarizationModeEnum.S,
-#if NET48
             CgNDFTypeEnum.None => OpticsCollectorPolarizationModeEnum.N,
-#endif
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<OpticsCollectorPolarizationModeEnum>(nameof(@this))
         };
     }
@@ -135,9 +121,7 @@ public static class EnumOpticsExtension
             OpticsCollectorPolarizationModeEnum.N => CgNDFTypeEnum.N,
             OpticsCollectorPolarizationModeEnum.P => CgNDFTypeEnum.P,
             OpticsCollectorPolarizationModeEnum.S => CgNDFTypeEnum.S,
-#if NET48
             OpticsCollectorPolarizationModeEnum.None => CgNDFTypeEnum.N,
-#endif
             _ => ThrowHelper.ThrowArgumentOutOfRangeException<CgNDFTypeEnum>(nameof(@this))
         };
     }
@@ -227,8 +211,6 @@ public static class EnumOpticsExtension
 
     #endregion
 
-#if NETFRAMEWORK
-
     #region OpticsAODTypeEnum
 
     extension(OpticsAODTypeEnum @this)
@@ -288,6 +270,4 @@ public static class EnumOpticsExtension
     }
 
     #endregion OpticsAODElectrodeEnum
-
-#endif
 }

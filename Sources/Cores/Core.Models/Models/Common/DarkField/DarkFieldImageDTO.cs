@@ -9,12 +9,7 @@ using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-
-#if NET
-using Semix.GRPC.DTO;
-#else
 using Semix.WcfTransfer.DTO;
-#endif
 
 namespace Core.Models.Models.Common.DarkField;
 

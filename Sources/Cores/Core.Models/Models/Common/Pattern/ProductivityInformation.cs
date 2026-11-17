@@ -7,14 +7,8 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.WPF.MVVM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-#if NET
-using Semix.GRPC.DTO;
-#else
 using Core.Models.Extensions;
 using Semix.WcfTransfer.DTO;
-
-#endif
 
 namespace Core.Models.Models.Common.Pattern;
 
@@ -178,10 +172,7 @@ public sealed partial class ProductivityInformation :
     public C2MProductivityInfo AdaptTo() => new()
     {
         Name = Name,
-#if NETFRAMEWORK
         NIOI = OpticsIlluminationModeEnum.ToSxNIOIEnum(),
-
-#endif
         Mag = Enum.IsDefined(typeof(SxMAGEnum), OpticsMagType)
             ? (SxMAGEnum)OpticsMagType
             : ThrowHelper.ThrowArgumentOutOfRangeException<SxMAGEnum>(nameof(OpticsMagType)),
@@ -192,9 +183,6 @@ public sealed partial class ProductivityInformation :
 
     internal ProductivityInformation AdaptIn(
         C2MProductivityInfo obj,
-#if NET
-        OpticsIlluminationModeEnum opticsIlluminationModeEnum,
-#endif
         double originYPixelSize,
         double originYPixels,
         int pxStartPoint,
@@ -215,11 +203,7 @@ public sealed partial class ProductivityInformation :
          */
 
         Name = obj.Name;
-#if NET
-        OpticsIlluminationModeEnum = opticsIlluminationModeEnum;
-#else
         OpticsIlluminationModeEnum = obj.NIOI.ToOpticsIlluminationModeEnum();
-#endif
         OpticsMagType = (int)obj.Mag;
         StageSpeedType = (int)obj.Speed;
         OriginYPixelSize = originYPixelSize;

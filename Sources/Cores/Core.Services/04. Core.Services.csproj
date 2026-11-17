@@ -20,15 +20,7 @@
         </Reference>
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
-        <PackageReference Include="Grpc.Net.Client" />
-        <PackageReference Include="Semix.CoreLib.Grpc" />
-        <PackageReference Include="Cuga.Interface" />
-        <PackageReference Include="protobuf-net" />
-        <PackageReference Include="protobuf-net.Grpc" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <ItemGroup>
         <Reference Include="System.ServiceModel" />
         <Reference Include="Semix.WcfTransfer.Interfaces">
             <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.WcfTransfer.Interfaces.dll</HintPath>
@@ -55,24 +47,11 @@
         <ProjectReference Include="..\Core.Algorithm\03. Core.Algorithm.csproj" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
-        <Compile Remove="Implements\Wcf\*.cs" />
-        <None Include="Implements\Wcf\*.cs" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-        <Compile Remove="Implements\Grpc\*.cs" />
-        <None Include="Implements\Grpc\*.cs" />
-    </ItemGroup>
-
     <ItemGroup>
         <Compile Update="Interfaces\ICalibrationStageService.*.cs">
             <DependentUpon>ICalibrationStageService.cs</DependentUpon>
         </Compile>
         <Compile Update="Implements\WCF\CalibrationStageServiceImpl.*.cs">
-            <DependentUpon>CalibrationStageServiceImpl.cs</DependentUpon>
-        </Compile>
-        <Compile Update="Implements\GRPC\CalibrationStageServiceImpl.*.cs">
             <DependentUpon>CalibrationStageServiceImpl.cs</DependentUpon>
         </Compile>
         <Compile Update="Implements\Mock\CalibrationStageServiceMockImpl.*.cs">
