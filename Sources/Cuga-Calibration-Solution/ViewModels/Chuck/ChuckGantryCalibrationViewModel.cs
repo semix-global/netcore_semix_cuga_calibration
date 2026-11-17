@@ -27,6 +27,11 @@ namespace CugaCalibration.ViewModels.Chuck;
 [IOCAppService(ServiceType = typeof(ChuckGantryCalibrationViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewModelBase<ChuckGantryCache>
 {
+    /// <summary>
+    /// 校准明场StageY轴长度
+    /// </summary>
+    public const double CalibrationGantryHLength = 1130000;
+
     private readonly ControllerGuard<double> _gantryGuard;
 
     public ChuckGantryCalibrationViewModel()
@@ -402,7 +407,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
                 {
                     FilePath1 = detectImageDirectory,
                     FilePath2 = detectImageDirectory,
-                    H = CalibrationConstantsHelper.CalibrationGantryHLength
+                    H = CalibrationGantryHLength
                 };
 
                 MatchTemplate(chuckGantryObjDto);
@@ -505,7 +510,7 @@ public sealed partial class ChuckGantryCalibrationViewModel : CalibrationViewMod
             {
                 FilePath1 = detectImageDirectory,
                 FilePath2 = detectImageDirectory,
-                H = CalibrationConstantsHelper.CalibrationGantryHLength
+                H = CalibrationGantryHLength
             };
 
             MatchTemplate(chuckGantryObjDto);

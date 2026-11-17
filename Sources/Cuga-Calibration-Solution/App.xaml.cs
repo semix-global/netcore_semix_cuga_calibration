@@ -50,16 +50,7 @@ public sealed partial class App
 
         try
         {
-            var pythonDllFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
-            var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
-            Guard.IsTrue(File.Exists(pythonDllFilePath));
-            Guard.IsTrue(Directory.Exists(pythonHome));
-
-            Runtime.PythonDLL = pythonDllFilePath;
-            PythonEngine.PythonHome = pythonHome;
-
-            PythonEngine.Initialize();
-            _ = PythonEngine.BeginAllowThreads();
+            PythonHelper.Initialize();
 
             var app = new App();
 

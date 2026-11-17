@@ -1,6 +1,5 @@
-#if NET48
-
 // ReSharper disable once CheckNamespace
+
 namespace System;
 
 public static class DoubleExtensions
@@ -13,5 +12,3 @@ public static class DoubleExtensions
         }
     }
 }
-
-#endif

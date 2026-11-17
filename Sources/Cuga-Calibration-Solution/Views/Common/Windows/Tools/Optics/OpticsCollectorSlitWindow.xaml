@@ -4,7 +4,6 @@
            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
            xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-           xmlns:helper="clr-namespace:Core.Models.Helper;assembly=Core.Models"
            xmlns:viewModels="clr-namespace:CugaCalibration.ViewModels.Common.Windows.Tools.Optics"
            xmlns:behaviors="clr-namespace:Net.Utilities.WPF.Behaviors.ItemsControlBehaviors;assembly=Net.Utilities.WPF.Behaviors"
            xmlns:hc="https://handyorg.github.io/handycontrol"
@@ -98,7 +97,7 @@
                                                   hc:TitleElement.Title="PMT ID: "
                                                   SelectedItem="{Binding Cache.PmtId}"
                                                   Style="{StaticResource ComboBoxExtend}"
-                                                  ItemsSource="{x:Static helper:CalibrationConstantsHelper.PmtIds}" />
+                                                  ItemsSource="{Binding ApplicationCookie.CIBInformationPMTIds}" />
                                         <ComboBox hc:TitleElement.Title="Capture Mode: "
                                                   hc:TitleElement.TitlePlacement="Left"
                                                   hc:TitleElement.TitleWidth="200"

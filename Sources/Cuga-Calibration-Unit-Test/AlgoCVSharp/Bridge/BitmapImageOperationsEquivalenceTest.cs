@@ -1,7 +1,6 @@
 using algocv_sharp;
 using AwesomeAssertions;
 using HalconDotNet;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon;
 using Net.Utilities.Calibration;
 using Net.Utilities.Graphics.Algorithms.Halcon;

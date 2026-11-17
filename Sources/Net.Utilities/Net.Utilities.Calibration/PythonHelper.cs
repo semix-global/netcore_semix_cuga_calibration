@@ -7,6 +7,22 @@ namespace Net.Utilities.Calibration;
 
 public static class PythonHelper
 {
+    public static void Initialize()
+    {
+        var pythonDllFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"Programs\Python\Python314\python314.dll");
+        var pythonHome = Path.GetDirectoryName(pythonDllFilePath);
+        Guard.IsTrue(File.Exists(pythonDllFilePath));
+        Guard.IsTrue(Directory.Exists(pythonHome));
+
+        Runtime.PythonDLL = pythonDllFilePath;
+        PythonEngine.PythonHome = pythonHome;
+
+        PythonEngine.Initialize();
+        _ = PythonEngine.BeginAllowThreads();
+    }
+
+    #region To Python
+
     public static PyList ToPythonPointMatrix(Point[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
@@ -84,6 +100,10 @@ public static class PythonHelper
         return result;
     }
 
+    #endregion
+
+    #region To .Net
+
     public static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
     {
         using var pyValueArray = pyValues.InvokeMethod("tolist");
@@ -147,4 +167,21 @@ public static class PythonHelper
 
         return result;
     }
+
+    public static double[] ToDoubles(PyObject pyValues)
+    {
+        using var values = new PyList(pyValues);
+        var result = new double[values.Length()];
+
+        for (var index = 0; index < result.Length; index++)
+        {
+            using var value = Guard.IsNotNullAndReturn(values[index]);
+
+            result[index] = value.As<double>();
+        }
+
+        return result;
+    }
+
+    #endregion
 }
