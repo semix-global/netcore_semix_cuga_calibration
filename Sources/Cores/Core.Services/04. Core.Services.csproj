@@ -43,7 +43,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core.Models\02. Core.Models.csproj" />
         <ProjectReference Include="..\Core.Algorithm\03. Core.Algorithm.csproj" />
     </ItemGroup>
 
