@@ -19,6 +19,9 @@ public sealed partial class StageWindowViewModel(
     IMessenger messenger,
     ILogger<StageWindowViewModel> logger) : PopupWindowViewModelBase(messenger, logger)
 {
+    public static readonly double[] StageSteps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000];
+    public static readonly double[] StageThetaSteps = [-1, -0.5, -0.2, -0.1, -0.05, 0.05, 0.1, 0.2, 0.5, 1];
+
     [ObservableProperty]
     public partial StatusViewModel StatusViewModel { get; set; } = statusViewModel;
 

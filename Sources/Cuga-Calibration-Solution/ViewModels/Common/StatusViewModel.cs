@@ -1,7 +1,7 @@
+using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,6 @@ using Net.Utilities.Models.Geometries;
 using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
-using R3;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -28,11 +27,14 @@ public sealed partial class StatusViewModel(
     IDialogWindowProvider dialogWindowProvider,
     ILogger<StatusViewModel> logger) : ViewModelBase, IDisposable
 {
+    public const int MonitorMilliseconds = 500;
+
     private readonly ManualResetEventSlim _manualResetEvent = new(false);
+
+    private CancellationTokenSource? _cancellationTokenSource;
+
     private long _frameCount;
     public int IsSwitchMicroscopeLensInformationRunning;
-    private IDisposable? _disposable0;
-    private IDisposable? _disposable1;
 
     [ObservableProperty]
     public partial Point BrightFieldPosition { get; set; }
@@ -58,29 +60,53 @@ public sealed partial class StatusViewModel(
     [ObservableProperty]
     public partial bool IsEnable { get; private set; }
 
+    private void CancelToken()
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = null;
+    }
+
+    [MemberNotNull(nameof(_cancellationTokenSource))]
+    private void RefreshToken()
+    {
+        CancelToken();
+
+#pragma warning disable IDE0079
+#pragma warning disable IDISP003
+
+        _cancellationTokenSource = new CancellationTokenSource();
+
+#pragma warning restore IDISP003
+#pragma warning restore IDE0079
+    }
+
     public void Monitor(bool isEnable)
     {
-        _disposable0?.Dispose();
-        _disposable1?.Dispose();
-
+        RefreshToken();
         if (isEnable == false) return;
 
         IsEnable = true;
 
-#pragma warning disable IDISP003
+        var token = _cancellationTokenSource.Token;
 
-        _disposable0 = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorMilliseconds))
-            .Subscribe(_ =>
+        _ = Task.Factory.StartNew(async () =>
+        {
+            while (true)
             {
                 try
                 {
+                    token.ThrowIfCancellationRequested();
+
+                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
+
                     if (IsEnable == false)
                     {
                         _manualResetEvent.Reset();
 
                         if (dialogWindowProvider.TryShowDialog("The current cache of cuga has expired. Please refresh the cookie and restart the current calibration item!", out var _, DialogButtonsEnum.OK, DialogIconEnum.Error) != true) return;
 
-                        _manualResetEvent.Wait();
+                        _manualResetEvent.Wait(token);
                     }
 
                     BrightFieldPosition = stageViewModel.GetBrightFieldStagePosition();
@@ -98,25 +124,46 @@ public sealed partial class StatusViewModel(
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Get Status Failed!");
+                        logger.LogWarning(ex, "Get Status Failed");
                     }
 
                     IsEnable = applicationCookie.CIBInformations.SequenceEqual(cibViewModel.GetCIBInformations());
                 }
                 catch (Exception ex)
                 {
+                    if (ex is OperationCanceledException) return;
+
                     IsEnable = false;
-                    logger.LogWarning(ex, "Get Status Failed!");
+                    logger.LogWarning(ex, "Get Status Failed");
                 }
-            });
+            }
+        }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        _disposable1 = Observable.Interval(TimeSpan.FromMilliseconds(CalibrationConstantsHelper.MonitorMilliseconds)).Subscribe(_ =>
+        _ = Task.Factory.StartNew(async () =>
         {
-            Fps = _frameCount / (CalibrationConstantsHelper.MonitorMilliseconds / 1000d);
-            _frameCount = 0;
-        });
+            while (true)
+            {
+                try
+                {
+                    token.ThrowIfCancellationRequested();
 
-#pragma warning restore IDISP003
+                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
+
+                    token.ThrowIfCancellationRequested();
+
+                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
+
+                    Fps = _frameCount / (MonitorMilliseconds / 1000d);
+                    _frameCount = 0;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is OperationCanceledException) return;
+
+                    logger.LogWarning(ex, "Get Status Failed");
+                }
+            }
+        }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
     }
 
     [RelayCommand]
@@ -174,8 +221,8 @@ public sealed partial class StatusViewModel(
 
     public void Dispose()
     {
+        CancelToken();
+
         _manualResetEvent.Dispose();
-        _disposable0?.Dispose();
-        _disposable1?.Dispose();
     }
 }
