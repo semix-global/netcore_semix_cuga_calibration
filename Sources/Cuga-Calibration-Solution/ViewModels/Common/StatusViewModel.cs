@@ -90,7 +90,7 @@ public sealed partial class StatusViewModel(
 
         var token = _cancellationTokenSource.Token;
 
-        _ = Task.Factory.StartNew(async () =>
+        _ = Task.Factory.StartNew(() =>
         {
             while (true)
             {
@@ -98,7 +98,7 @@ public sealed partial class StatusViewModel(
                 {
                     token.ThrowIfCancellationRequested();
 
-                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
+                    Thread.Sleep(MonitorMilliseconds);
 
                     if (IsEnable == false)
                     {
@@ -139,7 +139,7 @@ public sealed partial class StatusViewModel(
             }
         }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        _ = Task.Factory.StartNew(async () =>
+        _ = Task.Factory.StartNew(() =>
         {
             while (true)
             {
@@ -147,7 +147,7 @@ public sealed partial class StatusViewModel(
                 {
                     token.ThrowIfCancellationRequested();
 
-                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
+                    Thread.Sleep(MonitorMilliseconds);
 
                     Fps = _frameCount / (MonitorMilliseconds / 1000d);
                     _frameCount = 0;
