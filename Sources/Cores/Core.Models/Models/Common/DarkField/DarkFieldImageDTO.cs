@@ -1,20 +1,16 @@
-using System.Globalization;
-using System.IO;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Models.Enums.CIB;
 using Core.Models.Models.Common.Pattern;
-using Net.Utilities.Algorithms.AlgoCSharp;
 using Net.Utilities.Algorithms.Halcon;
+using Net.Utilities.Calibration;
+using Net.Utilities.Graphics.Extensions;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
 using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
-
-#if NET
-using Semix.GRPC.DTO;
-#else
 using Semix.WcfTransfer.DTO;
-#endif
+using System.Globalization;
+using System.IO;
 
 namespace Core.Models.Models.Common.DarkField;
 
@@ -159,7 +155,7 @@ public sealed class DarkFieldImageDTO :
 
     [System.Text.Json.Serialization.JsonIgnore]
     [Newtonsoft.Json.JsonIgnore]
-    public BitmapImage Image { get; private set; } = Net.Utilities.Calibration.BitmapImageExtensions.Empty;
+    public BitmapImage Image { get; private set; } = BitmapImage.Empty;
 
     protected override DarkFieldRawScanImageDTO CreateInstance() => new DarkFieldImageDTO();
 

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Core.Models.Helper;
 using Core.Models.Models.Common.AODWaveform;
 using Core.Models.Models.Common.AODWaveform.Generates;
 using Core.Models.Models.Common.Pattern;
@@ -44,7 +43,7 @@ public sealed partial class OpticsObjectiveYAngleCache : ObservableCacheBase
     public partial LaserLightInformation ShinyWaferLaserLightInformation { get; set; } = LaserLightInformation.Default;
 
     [ObservableProperty]
-    public partial int ChannelId { get; set; } = CalibrationConstantsHelper.MainChannelId;
+    public partial int ChannelId { get; set; }
 
     [ObservableProperty]
     public partial double RotateAngle { get; set; } = 0d;

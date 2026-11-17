@@ -2,6 +2,7 @@ using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Core.Models.Enums.Optics;
+using Core.Models.Extensions;
 using MiniExcelLibs;
 using Net.Utilities.Algorithms.Modules;
 using Net.Utilities.Mapper.Interfaces;
@@ -12,10 +13,6 @@ using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using System.Collections;
 using System.ComponentModel;
-
-#if NETFRAMEWORK
-using Core.Models.Extensions;
-#endif
 
 namespace Core.Models.Models.Common.AODWaveform.Generates;
 
@@ -150,11 +147,7 @@ public sealed partial class GenerateAODWaveformElectrodeConfiguration :
     }
 
     public AODWaveformGenerator1.ElectrodeConfiguration AdaptTo() => new(
-#if NETFRAMEWORK
         OpticsAODElectrodeEnum.ToCgAwgElectrodeEnum().ToString(),
-#else
-        OpticsAODElectrodeEnum.ToString(),
-#endif
         Delay,
         Amplitude,
         IsGenerateAODWaveformZero)

@@ -1,18 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net48;net10.0-windows10.0.19041</TargetFrameworks>
+        <TargetFramework>net48</TargetFramework>
         <UseWPF>true</UseWPF>
         <AssemblyName>Core.Models</AssemblyName>
         <RootNamespace>Core.Models</RootNamespace>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041'">
-        <PackageReference Include="Semix.CoreLib" />
-        <PackageReference Include="Semix.GRPC.DTO" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <ItemGroup>
         <Reference Include="Semix.CoreLib">
             <HintPath>$(RepositoryDirectory)\Dependencies\Semix.Cuga.Runtime2.0\Semix.CoreLib.dll</HintPath>
         </Reference>
@@ -27,8 +22,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Core.Utilities.WPF\00. Core.Utilities.WPF.csproj" />
         <ProjectReference Include="..\Core.Wcf\01. Core.Wcf.csproj" />
-        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Calibration\00. Net.Utilities.Calibration.csproj" />
-        <ProjectReference Include="..\..\Net.Utilities\Net.Utilities.Algorithms.AlgoCSharp\Net.Utilities.Algorithms.AlgoCSharp.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 using algocv_sharp;
 using Net.Utilities.Models.Geometries;
 
-namespace Net.Utilities.Algorithms.AlgoCSharp;
+namespace Net.Utilities.Calibration;
 
 /// <summary>
 /// 12bit PMT raw 图工厂（algo api 底座）。
