@@ -15,6 +15,7 @@ using Net.Utilities.ScottPlot.Extensions;
 using Net.Utilities.WPF.Enums;
 using Python.Runtime;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using Constants = Net.Utilities.Models.Constants;
 
@@ -288,7 +289,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
 
                 if (System.IO.File.Exists(PhaseOptimizerStateFilePath))
                 {
-                    var backupFilePath = $"{PhaseOptimizerStateFilePath}_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}";
+                    var backupFilePath = $"{PhaseOptimizerStateFilePath}_{DateTime.Now.ToString(Constants.LongFileDateTimeFormat, CultureInfo.InvariantCulture)}";
                     System.IO.File.Move(PhaseOptimizerStateFilePath, backupFilePath);
                 }
 
@@ -717,7 +718,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             using var pyDone = Guard.IsNotNullAndReturn(result["done"]);
             using var pyDelays = Guard.IsNotNullAndReturn(result["x_phase"]);
             using var pyNormalParameters = Guard.IsNotNullAndReturn(result["x_normal"]);
-            Guard.IsEqualTo(ToDoubles(pyNormalParameters).Length, 4);
+            Guard.IsEqualTo(PythonHelper.ToDoubles(pyNormalParameters).Length, 4);
 
             using var pyFrequencies = new PyList();
             foreach (var frequency in Cache.AODWaveformElectrodeDelayFrequencies)
@@ -730,7 +731,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
             using var pyAmplitudeArray = amplitudeCurve.Invoke(pyNormalParameters, pyFrequencies);
             using var pyAmplitudes = pyAmplitudeArray.InvokeMethod("tolist");
 
-            var normalizedDelays = ToDoubles(pyDelays);
+            var normalizedDelays = PythonHelper.ToDoubles(pyDelays);
             Guard.IsEqualTo(normalizedDelays.Length, delayCount);
 
             double[] delays =
@@ -742,7 +743,7 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
                     return param.MinDelay + value * (param.MaxDelay - param.MinDelay);
                 })
             ];
-            var amplitudes = ToDoubles(pyAmplitudes);
+            var amplitudes = PythonHelper.ToDoubles(pyAmplitudes);
             Guard.IsEqualTo(amplitudes.Length, Cache.AODWaveformElectrodeDelayFrequencies.Length);
 
             return (pyDone.As<bool>(), delays, amplitudes);
@@ -779,21 +780,6 @@ public abstract partial class AbstractAODWaveformElectrodeDelayWindowViewModel<T
         var score = result.As<double>();
 
         return score;
-    }
-
-    private static double[] ToDoubles(PyObject pyValues)
-    {
-        using var values = new PyList(pyValues);
-        var result = new double[values.Length()];
-
-        for (var index = 0; index < result.Length; index++)
-        {
-            using var value = Guard.IsNotNullAndReturn(values[index]);
-
-            result[index] = value.As<double>();
-        }
-
-        return result;
     }
 }
 
