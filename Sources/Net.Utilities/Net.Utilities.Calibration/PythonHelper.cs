@@ -21,6 +21,8 @@ public static class PythonHelper
         _ = PythonEngine.BeginAllowThreads();
     }
 
+    #region To Python
+
     public static PyList ToPythonPointMatrix(Point[][] matrix)
     {
         var (yLength, xLength) = matrix.GetYXLength();
@@ -97,6 +99,10 @@ public static class PythonHelper
 
         return result;
     }
+
+    #endregion
+
+    #region To .Net
 
     public static Vector[][] ToVectorMatrix(PyObject pyValues, int yLength, int xLength)
     {
@@ -176,4 +182,6 @@ public static class PythonHelper
 
         return result;
     }
+
+    #endregion
 }

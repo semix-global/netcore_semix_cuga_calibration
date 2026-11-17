@@ -104,7 +104,7 @@ public sealed partial class StatusViewModel(
                     {
                         _manualResetEvent.Reset();
 
-                        if (dialogWindowProvider.TryShowDialog("The current cache of cuga has expired. Please refresh the cookie and restart the current calibration item!", out var _, DialogButtonsEnum.OK, DialogIconEnum.Error) != true) return;
+                        dialogWindowProvider.ShowDialog("The current cache of cuga has expired. Please refresh the cookie and restart the current calibration item!", DialogButtonsEnum.OK, DialogIconEnum.Error);
 
                         _manualResetEvent.Wait(token);
                     }
@@ -145,10 +145,6 @@ public sealed partial class StatusViewModel(
             {
                 try
                 {
-                    token.ThrowIfCancellationRequested();
-
-                    await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
-
                     token.ThrowIfCancellationRequested();
 
                     await Task.Delay(MonitorMilliseconds, token).ConfigureAwait(false);
