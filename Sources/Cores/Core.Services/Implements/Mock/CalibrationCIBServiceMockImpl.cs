@@ -228,8 +228,6 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         for (var i = 0; i < results.Length; i++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var cibInformation = cibInformations[i];
 
             var filePath = filePaths.ElementAtOrDefault(i) ?? _mockImageFilePath;
@@ -266,8 +264,6 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         for (var i = 0; i < results.Length; i++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var filePath = filePaths.ElementAtOrDefault(i) ?? _mockImageFilePath;
 
             var (size, _, _) = RAWImageFactory.GetSize(filePath);
@@ -303,8 +299,6 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         for (var i = 0; i < results.Length; i++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var cibInformation = cibInformations[i];
 
             var filePath = filePaths.ElementAtOrDefault(i) ?? _mockImageFilePath;
@@ -342,8 +336,6 @@ public sealed class CalibrationCIBServiceMockImpl : ICalibrationCIBService
 
         for (var i = 0; i < results.Length; i++)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             var cibInformation = cibInformations[i];
 
             var filePath = filePaths.ElementAtOrDefault(i) ?? _xzSyncMockImageFilePath;
