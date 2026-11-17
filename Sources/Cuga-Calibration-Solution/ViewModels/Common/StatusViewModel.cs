@@ -120,7 +120,6 @@ public sealed partial class StatusViewModel(
                         BitmapMemoryByteArray = reviewViewModel.GetBrightFieldImageMemoryByteArray();
 
                         _frameCount++;
-                        GC.Collect();
                     }
                     catch (Exception ex)
                     {
@@ -156,7 +155,7 @@ public sealed partial class StatusViewModel(
                 {
                     if (ex is OperationCanceledException) return;
 
-                    logger.LogWarning(ex, "Get Status Failed");
+                    logger.LogWarning(ex, "Update FPS Failed");
                 }
             }
         }, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
