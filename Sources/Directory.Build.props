@@ -23,7 +23,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.2026.1117-preview.1</Version>
+        <Version>2.2026.1117-preview.0</Version>
         <AssemblyVersion>2.2026.1117.0</AssemblyVersion>
         <FileVersion>2.2026.1117.0</FileVersion>
         <InformationalVersion>2.2026.1117-preview.1</InformationalVersion>
