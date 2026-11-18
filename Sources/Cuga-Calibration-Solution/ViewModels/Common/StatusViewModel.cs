@@ -11,6 +11,10 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using Core.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -25,6 +29,8 @@ public sealed partial class StatusViewModel(
     CIBViewModel cibViewModel,
     ApplicationCookie applicationCookie,
     IDialogWindowProvider dialogWindowProvider,
+    IHostEnvironment hostEnvironment,
+    IOptions<ApplicationSetting> options,
     ILogger<StatusViewModel> logger) : ViewModelBase, IDisposable
 {
     public const int MonitorMilliseconds = 500;
@@ -170,6 +176,16 @@ public sealed partial class StatusViewModel(
             applicationCookie.CIBInformations = [.. cibInformations.Select(t => t.Clone())];
             applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
             applicationCookie.PMTInterval = pmtInterval;
+
+            if (hostEnvironment.IsDevelopment())
+            {
+                applicationCookie.SimulatorDirectoryInformations =
+                [
+                    .. Directory.EnumerateDirectories(options.Value.SimulatorDirectory, "*", SearchOption.TopDirectoryOnly)
+                        .Select(t => new DirectoryInfo(t))
+                        .Select(t => new ApplicationCookie.SimulatorDirectoryInformation(t.Name, t.FullName))
+                ];
+            }
 
             if (new Version(applicationCookie.DeviceCUGAVersion) < new Version(ApplicationCookie.ApplicationCUGAVersion))
             {

@@ -249,6 +249,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     [ObservableProperty]
     public partial double PMTInterval { get; set; }
 
+    /// <summary>
+    /// 仿真器的目录文件夹
+    /// </summary>
+    [ObservableProperty]
+    public partial SimulatorDirectoryInformation[] SimulatorDirectoryInformations { get; set; } = [];
+
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
         OpticsIlluminationModeEnum.OI => OIProductivityInformations,
@@ -262,4 +268,6 @@ public sealed partial class ApplicationCookie : ObservableObject
         OpticsIlluminationModeEnum.NI => NIOpticsMagTypeProductivityInformations,
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
     };
+
+    public record struct SimulatorDirectoryInformation(string Name, string DirectoryPath);
 }

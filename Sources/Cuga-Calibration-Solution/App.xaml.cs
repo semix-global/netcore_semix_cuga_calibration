@@ -1,4 +1,3 @@
-using CommunityToolkit.Diagnostics;
 using Core.Models;
 using Core.Models.Helper;
 using Core.Models.Models.Common.Cookies;
@@ -26,7 +25,6 @@ using NLog.Extensions.Logging;
 using Python.Runtime;
 using SourceGenerator.AssemblyMetadata;
 using System.Globalization;
-using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -63,8 +61,8 @@ public sealed partial class App
                     services
                         .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
                         .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationSolutionAssemblyMetadata.Version, app, context.HostingEnvironment)
-                        .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
-                        .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                        .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.DBDataSource, context.HostingEnvironment)
+                        .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.CacheDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                         .AddNetUtilitiesCalibrationService(context.HostingEnvironment)
                         .AddRecipeService(context.HostingEnvironment)
                         .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
