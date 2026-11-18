@@ -276,15 +276,31 @@
                                             </hc:UniformSpacingPanel>
                                         </Border>
                                     </Expander>
+                                    <Expander Header="{Binding Steps[4]}"
+                                              IsExpanded="False"
+                                              ExpandDirection="Down"
+                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Border Style="{StaticResource BorderRegion}">
+                                            <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                                <hc:NumericUpDown hc:TitleElement.Title="Threshold(um): "
+                                                                  hc:TitleElement.TitlePlacement="Left"
+                                                                  hc:TitleElement.TitleWidth="200"
+                                                                  Minimum="0"
+                                                                  DecimalPlaces="3"
+                                                                  Style="{StaticResource NumericUpDownExtend}"
+                                                                  Value="{Binding Cache.ChuckStageMapCache.Threshold}" />
+                                            </hc:UniformSpacingPanel>
+                                        </Border>
+                                    </Expander>
                                 </hc:UniformSpacingPanel>
                             </Border>
                         </GroupBox>
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                    <Expander IsExpanded="True" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="Result" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                            <TextBlock Text="{Binding Steps[0], StringFormat='{}{0} Result'}" Style="{StaticResource TextBlockDefaultSuccess}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">

@@ -19,6 +19,7 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Globalization;
 using System.IO;
+using Net.Utilities.Models.Geometries;
 using Constants = Net.Utilities.Models.Constants;
 
 namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
@@ -128,6 +129,9 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        Cache.ChuckStageMap.IsVerified = false;
+        StageMapCommands.VerifyMaxError = Vector.Zero;
+
         await StageMapCommands.VerifyAsync(
             StageMapCommands.StageMap,
             HtmlLogUniqueId,
@@ -135,7 +139,25 @@ public sealed partial class StageMapWindowViewModel(
             isDownloadStageMap: true,
             isInterpolateErrorsAdaptTo: true).ConfigureAwait(false);
 
-        return true;
+        Cache.ChuckStageMap.IsVerified = StageMapCommands.VerifyMaxError.Length < Cache.ChuckStageMapCache.Threshold;
+
+        var htmlQuote = new HtmlQuote(new
+        {
+            StageMapCommands.VerifyMaxError,
+            Cache.ChuckStageMap.IsVerified
+        });
+
+        if (Cache.ChuckStageMap.IsVerified) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+
+        dialogWindowProvider.ShowDialog($"""
+                                         Verify : {(Cache.ChuckStageMap.IsVerified ? "OK" : "Failed")}
+                                         {StageMapCommands.Name} Max Error:{StageMapCommands.VerifyMaxError}
+                                         """,
+            DialogButtonsEnum.OK,
+            Cache.ChuckStageMap.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+        return Cache.ChuckStageMap.IsVerified;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]

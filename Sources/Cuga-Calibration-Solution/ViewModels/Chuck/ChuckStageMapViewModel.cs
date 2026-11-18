@@ -612,6 +612,8 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
         await InvokeVerifyAsync(async () =>
         {
             Review.IsVerified = false;
+            Review.BFVerifyMaxError = Vector.Zero;
+            Review.DFVerifyMaxError = Vector.Zero;
 
             Logger.LogHtmlInformation("Verify", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
             {
@@ -697,10 +699,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 isDownloadStageMap: true,
                 isInterpolateErrorsAdaptTo: false).ConfigureAwait(false);
 
-            Guard.IsTrue(StageMapCommands.VerifyStageMap.TryGetMaxMatchedError(out var bfVerifyMaxError), "Bright field verify has no matched points.");
-            Review.BFVerifyMaxError = bfVerifyMaxError;
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.BFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
-
             #endregion
 
             #region DF
@@ -723,10 +721,6 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 isDownloadStageMap: false,
                 isInterpolateErrorsAdaptTo: false).ConfigureAwait(false);
 
-            Guard.IsTrue(StageMapCommands.VerifyStageMap.TryGetMaxMatchedError(out var dfVerifyMaxError), "Dark field verify has no matched points.");
-            Review.DFVerifyMaxError = dfVerifyMaxError;
-            Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header4, new HtmlQuote(new { Review.DFVerifyMaxError }), HtmlLogUniqueId.LoggingHtml());
-
             #endregion
 
             Review.IsVerified = Review.BFVerifyMaxError.Length < Cache.Threshold && Review.DFVerifyMaxError.Length < Cache.Threshold;
@@ -738,14 +732,9 @@ public sealed partial class ChuckStageMapViewModel(StageMapCommands stageMapComm
                 Review.DFVerifyMaxError,
                 Review.IsVerified
             });
-            if (Review.IsVerified)
-            {
-                Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-            }
-            else
-            {
-                Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
-            }
+
+            if (Review.IsVerified) Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+            else Logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
 
             DialogWindowProvider.ShowDialog($"""
                                              Verify : {(Review.IsVerified ? "OK" : "Failed")}

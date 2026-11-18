@@ -488,9 +488,9 @@
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                    <Expander IsExpanded="True" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="Result" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                            <TextBlock Text="{Binding Steps[0], StringFormat='{}{0} Result'}" Style="{StaticResource TextBlockDefaultSuccess}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
