@@ -49,7 +49,6 @@
                                  Width="275"
                                  hc:TitleElement.TitleWidth="90"
                                  hc:TitleElement.Title="Speed List: "
-                                 hc:InfoElement.Necessary="True"
                                  hc:TitleElement.TitlePlacement="Left"
                                  Style="{StaticResource TextBoxExtend}" />
 
@@ -57,7 +56,6 @@
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
                                           hc:TitleElement.Title="Max X: "
-                                          hc:InfoElement.Necessary="True"
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input x value"
                                           hc:InfoElement.ShowClearButton="True"
@@ -69,7 +67,6 @@
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
                                           hc:TitleElement.Title="Min X: "
-                                          hc:InfoElement.Necessary="True"
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input x value"
                                           hc:InfoElement.ShowClearButton="True"
@@ -81,7 +78,6 @@
                                           Width="275"
                                           hc:TitleElement.TitleWidth="90"
                                           hc:TitleElement.Title="Threshold: "
-                                          hc:InfoElement.Necessary="True"
                                           hc:TitleElement.TitlePlacement="Left"
                                           hc:InfoElement.Placeholder="Input Find Focus Offset"
                                           hc:InfoElement.ShowClearButton="True"

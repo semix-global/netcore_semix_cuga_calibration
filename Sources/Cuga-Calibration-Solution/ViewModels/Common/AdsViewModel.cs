@@ -103,5 +103,12 @@ public sealed class AdsViewModel(
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
     }
 
+    public double GetMaxVelParam(bool isAxisX)
+    {
+        var ret = calibrationAdsService.GetMaxVelParam(isAxisX);
+
+        return ret.IsSuccess ? ret.Anything : throw new CugaException(ret.ErrorMsg);
+    }
+
     #endregion 服务
 }

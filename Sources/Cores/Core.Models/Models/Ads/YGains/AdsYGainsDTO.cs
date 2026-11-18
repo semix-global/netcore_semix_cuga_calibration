@@ -8,6 +8,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
 
 namespace Core.Models.Models.Ads.YGains;
@@ -128,12 +129,13 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
             var plot = new[] { y1, y2, y3 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2, yPredicted3 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("Y1", plot[0]);
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("Y2", plot[1]);
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("Y3", plot[2]);
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("SmoothY1: " + PolynomialCurve.ToString2(Y1P0, Y1P1, Y1P2, rSquared1, "0.########"), smooth[0]);
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("SmoothY2: " + PolynomialCurve.ToString2(Y2P0, Y2P1, Y2P2, rSquared2, "0.########"), smooth[1]);
-            Y1Y2Y3PlotDataSource.GetOrAddScatterLine("SmoothY3: " + PolynomialCurve.ToString2(Y3P0, Y3P1, Y3P2, rSquared3, "0.########"), smooth[2]);
+            var scatterLines = Y1Y2Y3PlotDataSource.GetOrAddScatterLines(6);
+            scatterLines.ElementAtOrDefault(0)?.Update("Y1", plot[0], Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update("Y2", plot[1], Constants.Category10.GetColor(1));
+            scatterLines.ElementAtOrDefault(2)?.Update("Y3", plot[2], Constants.Category10.GetColor(2));
+            scatterLines.ElementAtOrDefault(3)?.Update("SmoothY1: " + PolynomialCurve.ToString2(Y1P0, Y1P1, Y1P2, rSquared1, "0.########"), smooth[0], Constants.Category10.GetColor(3));
+            scatterLines.ElementAtOrDefault(4)?.Update("SmoothY2: " + PolynomialCurve.ToString2(Y2P0, Y2P1, Y2P2, rSquared2, "0.########"), smooth[1], Constants.Category10.GetColor(4));
+            scatterLines.ElementAtOrDefault(5)?.Update("SmoothY3: " + PolynomialCurve.ToString2(Y3P0, Y3P1, Y3P2, rSquared3, "0.########"), smooth[2], Constants.Category10.GetColor(5));
         }
         finally
         {
@@ -159,12 +161,13 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
             var plot = new[] { y1, y2, y3 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2, yPredicted3 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("Y4", plot[0]);
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("Y5", plot[1]);
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("Y6", plot[2]);
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("SmoothY4: " + PolynomialCurve.ToString2(Y4P0, Y4P1, Y4P2, rSquared1, "0.########"), smooth[0]);
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("SmoothY5: " + PolynomialCurve.ToString2(Y5P0, Y5P1, Y5P2, rSquared2, "0.########"), smooth[1]);
-            Y4Y5Y6PlotDataSource.GetOrAddScatterLine("SmoothY6: " + PolynomialCurve.ToString2(Y6P0, Y6P1, Y6P2, rSquared3, "0.########"), smooth[2]);
+            var scatterLines = Y4Y5Y6PlotDataSource.GetOrAddScatterLines(6);
+            scatterLines.ElementAtOrDefault(0)?.Update("Y4", plot[0], Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update("Y5", plot[1], Constants.Category10.GetColor(1));
+            scatterLines.ElementAtOrDefault(2)?.Update("Y6", plot[2], Constants.Category10.GetColor(2));
+            scatterLines.ElementAtOrDefault(3)?.Update("SmoothY4: " + PolynomialCurve.ToString2(Y4P0, Y4P1, Y4P2, rSquared1, "0.########"), smooth[0], Constants.Category10.GetColor(3));
+            scatterLines.ElementAtOrDefault(4)?.Update("SmoothY5: " + PolynomialCurve.ToString2(Y5P0, Y5P1, Y5P2, rSquared2, "0.########"), smooth[1], Constants.Category10.GetColor(4));
+            scatterLines.ElementAtOrDefault(5)?.Update("SmoothY6: " + PolynomialCurve.ToString2(Y6P0, Y6P1, Y6P2, rSquared3, "0.########"), smooth[2], Constants.Category10.GetColor(5));
         }
         finally
         {
@@ -250,6 +253,12 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
         public partial int Y3OrY6 { get; set; }
 
         [ObservableProperty]
+        public partial int SpeedStartIndex { get; set; }
+
+        [ObservableProperty]
+        public partial int SpeedEndIndex { get; set; }
+
+        [ObservableProperty]
         public partial Point[] PlotZ1OrZ4 { get; set; } = [];
 
         [ObservableProperty]
@@ -326,15 +335,25 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
             var (index1, index2, index3) = IsPositive ? ("1", "2", "3") : ("4", "5", "6");
             try
             {
-                ZPlotDataSource.GetOrAddScatterLine($"Z{index1}", PlotZ1OrZ4);
-                ZPlotDataSource.GetOrAddScatterLine($"Z{index2}", PlotZ2OrZ5);
-                ZPlotDataSource.GetOrAddScatterLine($"Z{index3}", PlotZ3OrZ6);
+                var scatterLines = ZPlotDataSource.GetOrAddScatterLines(7);
+                var xLines = ZPlotDataSource.GetOrAddXLines(2);
 
-                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ4], 501));
-                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ5], 501));
-                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index3}", Filter.MovMean([.. PlotZ3OrZ6], 501));
+                scatterLines.ElementAtOrDefault(0)?.Update($"Z{index1}", PlotZ1OrZ4, Constants.Category10.GetColor(0));
+                scatterLines.ElementAtOrDefault(1)?.Update($"Z{index2}", PlotZ2OrZ5, Constants.Category10.GetColor(1));
+                scatterLines.ElementAtOrDefault(2)?.Update($"Z{index3}", PlotZ3OrZ6, Constants.Category10.GetColor(2));
+                scatterLines.ElementAtOrDefault(3)?.Update($"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ4], 501), Constants.Category10.GetColor(3));
+                scatterLines.ElementAtOrDefault(4)?.Update($"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ5], 501), Constants.Category10.GetColor(4));
+                scatterLines.ElementAtOrDefault(5)?.Update($"Smooth{index3}", Filter.MovMean([.. PlotZ3OrZ6], 501), Constants.Category10.GetColor(5));
+                var speedLine = scatterLines.ElementAtOrDefault(6);
 
-                ZPlotDataSource.GetOrAddScatterLine("Speed", Speeds);
+                if (speedLine is not null)
+                {
+                    speedLine.Update("Speed", Speeds, Constants.Category10.GetColor(6));
+                    speedLine.IsVisible = false;
+                }
+
+                xLines.ElementAtOrDefault(0)?.Update("StartIndex", SpeedStartIndex, Constants.Category10.GetColor(7));
+                xLines.ElementAtOrDefault(1)?.Update("EndIndex", SpeedEndIndex, Constants.Category10.GetColor(7));
             }
             finally
             {
@@ -346,9 +365,15 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
         {
             try
             {
-                HrpPlotDataSource.GetOrAddScatterLine("Height", PlotH);
-                HrpPlotDataSource.GetOrAddScatterLine("Roll", PlotR);
-                HrpPlotDataSource.GetOrAddScatterLine("Pitch", PlotP);
+                var scatterLines = HrpPlotDataSource.GetOrAddScatterLines(3);
+                var xLines = HrpPlotDataSource.GetOrAddXLines(2);
+
+                scatterLines.ElementAtOrDefault(0)?.Update("Height", PlotH, Constants.Category10.GetColor(0));
+                scatterLines.ElementAtOrDefault(1)?.Update("Roll", PlotR, Constants.Category10.GetColor(1));
+                scatterLines.ElementAtOrDefault(2)?.Update("Pitch", PlotP, Constants.Category10.GetColor(2));
+
+                xLines.ElementAtOrDefault(0)?.Update("StartIndex", SpeedStartIndex, Constants.Category10.GetColor(3));
+                xLines.ElementAtOrDefault(1)?.Update("EndIndex", SpeedEndIndex, Constants.Category10.GetColor(3));
             }
             finally
             {
@@ -363,6 +388,8 @@ public sealed partial class AdsYGainsDTO : CalibrationDTOBase<AdsYGainsDTO>, IAd
             Y1OrY4 = Y1OrY4,
             Y2OrY5 = Y2OrY5,
             Y3OrY6 = Y3OrY6,
+            SpeedStartIndex = SpeedStartIndex,
+            SpeedEndIndex = SpeedEndIndex,
             PlotZ1OrZ4 = [.. PlotZ1OrZ4],
             PlotZ2OrZ5 = [.. PlotZ2OrZ5],
             PlotZ3OrZ6 = [.. PlotZ3OrZ6],

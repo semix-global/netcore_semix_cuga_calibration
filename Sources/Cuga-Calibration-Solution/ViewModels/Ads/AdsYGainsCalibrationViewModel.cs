@@ -7,14 +7,18 @@ using Core.Models.Models.Ads.YGains;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniExcelLibs;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
+using System.IO;
 using static Core.Models.Models.Ads.YGains.AdsYGainsDTO;
 
 namespace CugaCalibration.ViewModels.Ads;
@@ -123,6 +127,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             try
             {
                 Calibrating.CalibrateItems = [];
+
+                var speedUpperLimit = AdsViewModel.GetMaxVelParam(false) / 1000d;
+                Logger.LogHtmlInformation($"CUGASpeedUpperLimit(mm/s)", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { speedUpperLimit }), HtmlLogUniqueId.LoggingHtml());
+                Guard.IsLessThanOrEqualTo(Cache.YSpeeds.Max(), speedUpperLimit);
+
                 foreach (var speedValue in Cache.YSpeeds)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -166,7 +175,6 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             {
                 AdsViewModel.SetSensorYSpeedFeedForwardValue(true, (iniY1, iniY2, iniY3));
                 AdsViewModel.SetSensorYSpeedFeedForwardValue(false, (iniY4, iniY5, iniY6));
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml());
             }
         });
     }
@@ -324,7 +332,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             cancellationToken.ThrowIfCancellationRequested();
             transBuffer = await task.ConfigureAwait(false);
 
-            if (repeatCount > 5) return (false, transBuffer);
+            if (repeatCount > 5)
+            {
+                SaveTraceBuffer(transBuffer, "GetTraceBuffeAsync RepeatCount > 5");
+
+                return (false, transBuffer);
+            }
 
             var buffers = new[] { transBuffer.Z_ECS0, transBuffer.Z_ECS1, transBuffer.Z_ECS2, transBuffer.Height, transBuffer.Roll, transBuffer.Pitch };
             if (buffers.Any(b => b.Count == 0)) return await GetTraceBuffeAsync(item, cancellationToken, repeatCount + 1);
@@ -337,7 +350,13 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, transBuffer);
+
+            if (repeatCount > 5)
+            {
+                SaveTraceBuffer(transBuffer, "GetTraceBuffeAsync RepeatCount > 5");
+
+                return (false, transBuffer);
+            }
 
             Logger.LogError(ex, "GetZ1Z2Z3CurveAsync Error!");
             return await GetTraceBuffeAsync(item, cancellationToken, repeatCount + 1).ConfigureAwait(false);
@@ -463,7 +482,7 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
                 case (false, _): max = xSelector(current); break;
             }
 
-            lastZ = currentZ;
+            if (isSame) lastZ = currentZ;
 
             if (Math.Abs(max - min) <= 1) converged = true;
         }
@@ -477,10 +496,12 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         var speedChangedList = transBuffer.Y_Speed.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / item.SpeedYValue, 2) > 0.5).ToList();
 
-        if (speedChangedList.Count == 0) return;
+        if (speedChangedList.Count == 0) SaveTraceBuffer(transBuffer, $"Y speed does not reach half of the target speed {item.SpeedYValue}.");
 
-        var ySpeedStartIndex = Convert.ToInt32(speedChangedList[0].X);
-        var ySpeedEndIndex = Convert.ToInt32(speedChangedList[^1].X);
+        var ySpeedStartIndex = HostEnvironment.IsDevelopment() ? 100 : Convert.ToInt32(speedChangedList[0].X);
+        var ySpeedEndIndex = HostEnvironment.IsDevelopment() ? 4900 : Convert.ToInt32(speedChangedList[^1].X);
+
+        if (ySpeedStartIndex == 0) SaveTraceBuffer(transBuffer, "ySpeedStartIndex = 0");
 
         var listZ1 = transBuffer.Z_ECS0.Take(ySpeedEndIndex).ToList();
         var listZ2 = transBuffer.Z_ECS1.Take(ySpeedEndIndex).ToList();
@@ -488,9 +509,11 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
 
         GetOpeningDirection(item, listZ1, listZ2, listZ3, ySpeedStartIndex);
 
-        item.PlotH = transBuffer.Height.Skip(ySpeedStartIndex).Take(ySpeedEndIndex - ySpeedStartIndex).ToPoints();
-        item.PlotR = transBuffer.Roll.Skip(ySpeedStartIndex).Take(ySpeedEndIndex - ySpeedStartIndex).ToPoints();
-        item.PlotP = transBuffer.Pitch.Skip(ySpeedStartIndex).Take(ySpeedEndIndex - ySpeedStartIndex).ToPoints();
+        item.SpeedStartIndex = ySpeedStartIndex;
+        item.SpeedEndIndex = ySpeedEndIndex;
+        item.PlotH = transBuffer.Height.ToPoints();
+        item.PlotR = transBuffer.Roll.ToPoints();
+        item.PlotP = transBuffer.Pitch.ToPoints();
         item.PlotZ1OrZ4 = transBuffer.Z_ECS0.ToPoints();
         item.PlotZ2OrZ5 = transBuffer.Z_ECS1.ToPoints();
         item.PlotZ3OrZ6 = transBuffer.Z_ECS2.ToPoints();
@@ -539,9 +562,29 @@ public sealed partial class AdsYGainsCalibrationViewModel : CalibrationViewModel
             HeightMax = item.H,
             RollMax = item.R,
             PitchMax = item.P,
+            item.SpeedStartIndex,
+            item.SpeedEndIndex,
             PlotZ = item.ZPlotDataSource.GetHtmlPlot2DLinesChart(0),
             PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0)
         }), HtmlLogUniqueId.LoggingHtml());
+    }
+
+    private void SaveTraceBuffer((List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed) transBuffer, string message)
+    {
+        var filePath = Path.Combine(AppHomeDirectory, "TraceBuffer", nameof(AdsYGainsCalibrationViewModel), $"{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.xlsx");
+        DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
+        MiniExcel.SaveAs(filePath, Enumerable.Range(0, transBuffer.Y_Speed.Count).Select(index => new
+        {
+            Z_ECS0 = transBuffer.Z_ECS0[index],
+            Z_ECS1 = transBuffer.Z_ECS1[index],
+            Z_ECS2 = transBuffer.Z_ECS2[index],
+            Height = transBuffer.Height[index],
+            Roll = transBuffer.Roll[index],
+            Pitch = transBuffer.Pitch[index],
+            Y_Speed = transBuffer.Y_Speed[index]
+        }));
+
+        ThrowHelper.ThrowInvalidOperationException(message);
     }
 
     private void LogYTable(string title, HtmlHeaderLevelEnum headerLevel, AdsYGainsDTOItem[] list)

@@ -46,16 +46,6 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
     FourierViewModel fourierViewModel,
     ILogger<OpticsObjectiveYAngleWindowViewModel> logger) : ViewModelBase
 {
-    #region 仿真器
-
-    private static readonly string[] SimulatorImageFilePaths =
-    [
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "Haze.jpg"),
-        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "ShinyWafer.jpg")
-    ];
-
-    #endregion 仿真器
-
     public string Name => "Optics Y Angle";
 
     public string AODWaveformDirectoryPath => Path.Combine(options.Value.AppHomeDirectory, nameof(AODWaveform), nameof(OpticsObjectiveYAngleWindowViewModel), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
@@ -202,7 +192,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 var productivityInformation = Cache.HazeProductivityInformation;
                 laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(SimulatorImageFilePaths[0]);
+                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "Haze.jpg"));
 
                 {
                     var brightFieldPosition = SetPosition(Cache.HazeBFMachinePosition, CalChipSiteModelEnum.HazeModel);
@@ -226,7 +216,7 @@ public sealed partial class OpticsObjectiveYAngleWindowViewModel(
                 productivityInformation = Cache.ShinyWaferProductivityInformation;
                 laserViewModel.ToggleOpticsMagType(productivityInformation);
 
-                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(SimulatorImageFilePaths[1]);
+                if (HostEnvironment.IsDevelopment()) fourierViewModel.UseSimulatorImage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"Assets\Data\YAngle", "ShinyWafer.jpg"));
 
                 {
                     cancellationToken.ThrowIfCancellationRequested();

@@ -12,7 +12,7 @@ public sealed partial class AdsXGainsCache : CalibrationCacheBase<AdsXGainsCache
     public partial Point EndPosition { get; set; }
 
     [ObservableProperty]
-    public partial double[] XSpeeds { get; set; } = [50, 65, 85, 110, 143, 186, 242, 315, 400];
+    public partial double[] XSpeeds { get; set; } = [50, 65, 85, 110, 143, 186, 242, 315, 350];
 
     [ObservableProperty]
     public partial int FindMaxX { get; set; } = 100;

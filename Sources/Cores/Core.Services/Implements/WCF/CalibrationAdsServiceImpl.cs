@@ -5,6 +5,7 @@ using Core.Services.Interfaces;
 using Cuga.Data.DataStruct.ADS;
 using Cuga.Data.DataStruct.Basic;
 using Cuga.Data.DataStruct.Board;
+using Cuga.Data.DataStruct.Stage;
 using Cuga.Engine.Interface;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
@@ -266,5 +267,14 @@ public sealed class CalibrationAdsServiceImpl : BaseService<ICgCalibrationServic
         return sxExecuteRet.IsSuccess == false
             ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, false)
             : SxExecuteRetHelper.CreateSuccess(true);
+    }
+
+    public SxExecuteRet<double> GetMaxVelParam(bool isAxisX)
+    {
+        var sxExecuteRet = Invoke(() => Service!.GetMaxVelParam(isAxisX ? CgAxisEnum.X : CgAxisEnum.Y1));
+
+        return sxExecuteRet.IsSuccess == false
+            ? SxExecuteRetHelper.CreateError(sxExecuteRet.Msg, 0d)
+            : SxExecuteRetHelper.CreateSuccess(sxExecuteRet.Anything);
     }
 }
