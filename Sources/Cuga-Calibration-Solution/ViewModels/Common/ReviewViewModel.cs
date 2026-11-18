@@ -28,6 +28,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -41,8 +42,8 @@ public sealed partial class ReviewViewModel(
     IApplicationCookieService applicationCookieCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IAlgorithmEngines algorithmEngines,
-    CalibrationSetting calibrationSetting)
-    : ViewModelBase
+    CalibrationSetting calibrationSetting,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     #region 服务
 
@@ -96,6 +97,8 @@ public sealed partial class ReviewViewModel(
 
     public void UseSimulatorImage(string? simulatorImageFilePath)
     {
+        Guard.IsTrue(hostEnvironment.IsDevelopment(), "Simulator images can only be used in development environment.");
+
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationReviewServiceMockImpl>(calibrationReviewService);
 
         mock.SimulatorImageFilePath = simulatorImageFilePath;

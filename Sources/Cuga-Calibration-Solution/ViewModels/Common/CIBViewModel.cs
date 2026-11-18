@@ -30,6 +30,7 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
+using Microsoft.Extensions.Hosting;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -46,7 +47,8 @@ public sealed class CIBViewModel(
     OpticsViewModel opticsViewModel,
     LaserViewModel laserViewModel,
     CalibrationSetting calibrationSetting,
-    ApplicationCookie applicationCookie) : ViewModelBase
+    ApplicationCookie applicationCookie,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     public bool Connect()
     {
@@ -949,6 +951,8 @@ public sealed class CIBViewModel(
 
     public void UseSimulatorImages(string[]? simulatorImageFilePaths)
     {
+        Guard.IsTrue(hostEnvironment.IsDevelopment(), "Simulator images can only be used in development environment.");
+
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationCIBServiceMockImpl>(calibrationCIBService);
 
         mock.SimulatorImageFilePaths = simulatorImageFilePaths;

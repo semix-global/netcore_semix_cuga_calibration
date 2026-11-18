@@ -187,7 +187,7 @@ public sealed partial class ProductivityInformation :
         double originYPixels,
         int pxStartPoint,
         int pxEndPoint,
-        double hz,
+        double sampleRate,
         double xSpeedValue)
     {
         /*
@@ -221,7 +221,7 @@ public sealed partial class ProductivityInformation :
         Guard.IsEqualTo(OriginYPixelsEndIndex - OriginYPixelsStartIndex + 1, YPixels, $"{OpticsIlluminationModeEnum}, {Name}");
         Guard.IsGreaterThanOrEqualTo(OriginYPixels, YPixels, $"{OpticsIlluminationModeEnum}, {Name}");
 
-        SampleRate = hz;
+        SampleRate = sampleRate;
         XSpeedValue = xSpeedValue;
         OriginXPixelSize /*um/px*/ = XSpeedValue /* um/s */ / 1_000d / SampleRate /* KHz */;
 
@@ -249,9 +249,9 @@ public sealed partial class ProductivityInformation :
     public object ToHtmlAnonymous() => new
     {
         Name,
-        OpticsIlluminationModeEnum,
-        OpticsMagType,
-        StageSpeedType,
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.ToString(),
+        OpticsMagType = ((SxMAGEnum)OpticsMagType).ToString(),
+        StageSpeedType = ((SxSpeedEnum)StageSpeedType).ToString(),
         OriginXPixelSize,
         OriginYPixelSize,
         YPixels,
