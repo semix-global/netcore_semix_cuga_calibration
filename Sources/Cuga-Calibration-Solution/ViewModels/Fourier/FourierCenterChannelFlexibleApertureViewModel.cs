@@ -590,8 +590,8 @@ public sealed partial class FourierCenterChannelFlexibleApertureViewModel : Cali
             if (HostEnvironment.IsDevelopment())
             {
                 FourierViewModel.UseSimulatorImage(Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    @"Assets\Data\Fourier",
+                    SimulatorDirectoryInformation.DirectoryPath,
+                    nameof(Fourier),
                     nameof(FourierCenterChannelFlexibleApertureViewModel),
                     $"Channel3_{item.CenterChannelMotionKindEnum}_{item.DefaultAngleMotorAbsoluteValue:0.###}_Step{stepIndex}.jpg"));
             }

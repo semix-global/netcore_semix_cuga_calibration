@@ -28,6 +28,23 @@
                                   Style="{StaticResource LoadingCircleLarge}" />
             </Grid>
             <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsWelcomeToVisibilityConverter}}">
+                <GroupBox Width="500"
+                          Margin="10"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Header="Simulator"
+                          Visibility="{Binding IsDevelopment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Border Style="{StaticResource BorderRegion}">
+                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                            <ComboBox hc:TitleElement.Title="Simulator Directory: "
+                                      hc:TitleElement.TitlePlacement="Left"
+                                      hc:TitleElement.TitleWidth="200"
+                                      Style="{StaticResource ComboBoxExtend}"
+                                      SelectedItem="{Binding SimulatorDirectoryInformation}"
+                                      ItemsSource="{Binding ApplicationCookie.SimulatorDirectoryInformations}" />
+                        </hc:UniformSpacingPanel>
+                    </Border>
+                </GroupBox>
                 <TextBlock Text="Welcome to calibration!" Style="{StaticResource TextBlockLargeBold}" />
             </Grid>
             <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsCalibrationToVisibilityConverter}}">
