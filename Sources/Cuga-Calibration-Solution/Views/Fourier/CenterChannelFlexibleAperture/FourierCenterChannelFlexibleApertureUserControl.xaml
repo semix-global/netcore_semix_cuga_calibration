@@ -28,8 +28,7 @@
                                   Style="{StaticResource LoadingCircleLarge}" />
             </Grid>
             <Grid Visibility="{Binding ViewEnum, Converter={StaticResource CalibrationItemViewEnumIsWelcomeToVisibilityConverter}}">
-                <GroupBox Width="500"
-                          Margin="10"
+                <GroupBox Width="430"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Top"
                           Header="Simulator"
