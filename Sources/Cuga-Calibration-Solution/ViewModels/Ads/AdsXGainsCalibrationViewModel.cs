@@ -7,14 +7,18 @@ using Core.Models.Models.Ads.XGains;
 using MathNet.Numerics.Statistics;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MiniExcelLibs;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Helpers.Extensions;
+using Net.Utilities.Helpers.Helpers.Files;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
 using Net.Utilities.WPF.Enums;
+using System.IO;
 using static Core.Models.Models.Ads.XGains.AdsXGainsDTO;
 
 namespace CugaCalibration.ViewModels.Ads;
@@ -124,6 +128,10 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             try
             {
                 Calibrating.CalibrateItems = [];
+                var speedUpperLimit = AdsViewModel.GetMaxVelParam(true) / 1000d;
+                Logger.LogHtmlInformation($"CUGASpeedUpperLimit(mm/s)", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new { speedUpperLimit }), HtmlLogUniqueId.LoggingHtml());
+                Guard.IsLessThanOrEqualTo(Cache.XSpeeds.Max(), speedUpperLimit);
+
                 foreach (var speedValue in Cache.XSpeeds)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -172,7 +180,6 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             {
                 AdsViewModel.SetSensorXSpeedFeedForwardValue(true, (iniX1, iniX2));
                 AdsViewModel.SetSensorXSpeedFeedForwardValue(false, (iniX3, iniX4));
-                Logger.LogHtmlInformation(HtmlLogUniqueId.LoggingPeekHtml());
             }
         });
     }
@@ -327,7 +334,12 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             cancellationToken.ThrowIfCancellationRequested();
             transBuffer = await task.ConfigureAwait(false);
 
-            if (repeatCount > 5) return (false, transBuffer);
+            if (repeatCount > 5)
+            {
+                SaveTraceBuffer(transBuffer, $"GetTraceBuffeAsync RepeatCount > 5");
+
+                return (false, transBuffer);
+            }
 
             var buffers = new[] { transBuffer.Z_ECS0, transBuffer.Z_ECS1, transBuffer.Height, transBuffer.Roll, transBuffer.Pitch };
             if (buffers.Any(b => b.Count == 0)) return await GetTraceBuffeAsync(item, cancellationToken, repeatCount + 1);
@@ -340,7 +352,13 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
         catch (Exception ex)
         {
             if (ex is OperationCanceledException) throw;
-            if (repeatCount > 5) return (false, transBuffer);
+
+            if (repeatCount > 5)
+            {
+                SaveTraceBuffer(transBuffer, $"GetTraceBuffeAsync RepeatCount > 5");
+
+                return (false, transBuffer);
+            }
 
             Logger.LogError(ex, "GetZ1Z2CurveAsync Error!");
             return await GetTraceBuffeAsync(item, cancellationToken, repeatCount + 1).ConfigureAwait(false);
@@ -459,7 +477,7 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 case (false, _): max = xSelector(current); break;
             }
 
-            lastZ = currentZ;
+            if (isSame) lastZ = currentZ;
 
             if (Math.Abs(max - min) <= 1) converged = true;
         }
@@ -473,19 +491,23 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
 
         var speedChangedList = transBuffer.X_Speed.ToPoints().Where(t => Math.Round(Math.Abs(t.Y) / item.SpeedXValue, 2) > 0.5).ToList();
 
-        if (speedChangedList.Count == 0) return;
+        if (speedChangedList.Count == 0) SaveTraceBuffer(transBuffer, $"X speed does not reach half of the target speed {item.SpeedXValue}.");
 
-        var xSpeedStartIndex = Convert.ToInt32(speedChangedList[0].X);
-        var xSpeedEndIndex = Convert.ToInt32(speedChangedList[^1].X);
+        var xSpeedStartIndex = HostEnvironment.IsDevelopment() ? 100 : Convert.ToInt32(speedChangedList[0].X);
+        var xSpeedEndIndex = HostEnvironment.IsDevelopment() ? 4900 : Convert.ToInt32(speedChangedList[^1].X);
+
+        if (xSpeedStartIndex == 0) SaveTraceBuffer(transBuffer, "xSpeedStartIndex = 0");
 
         var listZ1 = transBuffer.Z_ECS0.Take(xSpeedEndIndex).ToList();
         var listZ2 = transBuffer.Z_ECS1.Take(xSpeedEndIndex).ToList();
 
         GetOpeningDirection(item, listZ1, listZ2, xSpeedStartIndex);
 
-        item.PlotH = transBuffer.Height.Skip(xSpeedStartIndex).Take(xSpeedEndIndex - xSpeedStartIndex).ToPoints();
-        item.PlotR = transBuffer.Roll.Skip(xSpeedStartIndex).Take(xSpeedEndIndex - xSpeedStartIndex).ToPoints();
-        item.PlotP = transBuffer.Pitch.Skip(xSpeedStartIndex).Take(xSpeedEndIndex - xSpeedStartIndex).ToPoints();
+        item.SpeedStartIndex = xSpeedStartIndex;
+        item.SpeedEndIndex = xSpeedEndIndex;
+        item.PlotH = transBuffer.Height.ToPoints();
+        item.PlotR = transBuffer.Roll.ToPoints();
+        item.PlotP = transBuffer.Pitch.ToPoints();
         item.PlotZ1OrZ3 = transBuffer.Z_ECS0.ToPoints();
         item.PlotZ2OrZ4 = transBuffer.Z_ECS1.ToPoints();
         item.Speeds = transBuffer.X_Speed.ToPoints();
@@ -529,6 +551,8 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
             HeightMax = item.H,
             RollMax = item.R,
             PitchMax = item.P,
+            item.SpeedStartIndex,
+            item.SpeedEndIndex,
             PlotZ = item.ZPlotDataSource.GetHtmlPlot2DLinesChart(0),
             PlotHRP = item.HrpPlotDataSource.GetHtmlPlot2DLinesChart(0)
         }), HtmlLogUniqueId.LoggingHtml());
@@ -546,6 +570,24 @@ public sealed partial class AdsXGainsCalibrationViewModel : CalibrationViewModel
                 return new { item.SpeedXValue, x1OrX3, x2OrX4, item.H, item.R, item.P };
             }).ToList())
         }), HtmlLogUniqueId.LoggingHtml());
+    }
+
+    private void SaveTraceBuffer((List<double> Z_ECS0, List<double> Z_ECS1, List<double> Z_ECS2, List<double> Height, List<double> Roll, List<double> Pitch, List<double> X_Speed, List<double> Y_Speed) transBuffer, string message)
+    {
+        var filePath = Path.Combine(AppHomeDirectory, "TraceBuffer", nameof(AdsXGainsCalibrationViewModel), $"{DateTime.Now.ToString(Constants.LongFileDateTimeFormat)}.xlsx");
+        DirectoryHelper.CreateFileDirectoryIfNotExists(filePath);
+        MiniExcel.SaveAs(filePath, Enumerable.Range(0, transBuffer.X_Speed.Count).Select(index => new
+        {
+            Z_ECS0 = transBuffer.Z_ECS0[index],
+            Z_ECS1 = transBuffer.Z_ECS1[index],
+            Z_ECS2 = transBuffer.Z_ECS2[index],
+            Height = transBuffer.Height[index],
+            Roll = transBuffer.Roll[index],
+            Pitch = transBuffer.Pitch[index],
+            X_Speed = transBuffer.X_Speed[index]
+        }));
+
+        ThrowHelper.ThrowInvalidOperationException(message);
     }
 
     private void LogHrpPoint3DChart(AdsXGainsDTOItem[] list, bool isPositive)

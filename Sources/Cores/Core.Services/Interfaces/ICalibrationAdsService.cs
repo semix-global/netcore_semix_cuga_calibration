@@ -90,4 +90,11 @@ public interface ICalibrationAdsService
     /// <param name="isEnabled">true:On, false:Off</param>
     /// <returns></returns>
     SxExecuteRet<bool> SetAdsXyEnabled(bool isEnabled);
+
+    /// <summary>
+    /// 读取X/Y最大速度
+    /// </summary>
+    /// <param name="isAxisX">是否X轴</param>
+    /// <returns></returns>
+    SxExecuteRet<double> GetMaxVelParam(bool isAxisX);
 }

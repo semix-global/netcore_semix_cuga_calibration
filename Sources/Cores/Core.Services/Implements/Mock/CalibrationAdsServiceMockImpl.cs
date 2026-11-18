@@ -112,4 +112,11 @@ public sealed class CalibrationAdsServiceMockImpl : ICalibrationAdsService
 
         return SxExecuteRetHelper.CreateSuccess(true);
     }
+
+    public SxExecuteRet<double> GetMaxVelParam(bool isAxisX)
+    {
+        Thread.Sleep(100);
+
+        return SxExecuteRetHelper.CreateSuccess(481250.004);
+    }
 }
