@@ -8,6 +8,7 @@ using Net.Utilities.Mapper.Interfaces;
 using Net.Utilities.Models.Geometries;
 using Net.Utilities.ScottPlot;
 using Net.Utilities.ScottPlot.Extensions;
+using Net.Utilities.ScottPlot.Helper;
 using Net.Utilities.ScottPlot.Interfaces;
 
 namespace Core.Models.Models.Ads.XGains;
@@ -108,10 +109,11 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var plot = new[] { y1, y2 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            X1X2PlotDataSource.GetOrAddScatterLine("X1", plot[0]);
-            X1X2PlotDataSource.GetOrAddScatterLine("X2", plot[1]);
-            X1X2PlotDataSource.GetOrAddScatterLine("SmoothX1: " + PolynomialCurve.ToString2(X1P0, X1P1, X1P2, rSquared1, "0.########"), smooth[0]);
-            X1X2PlotDataSource.GetOrAddScatterLine("SmoothX2: " + PolynomialCurve.ToString2(X2P0, X2P1, X2P2, rSquared2, "0.########"), smooth[1]);
+            var scatterLines = X1X2PlotDataSource.GetOrAddScatterLines(4);
+            scatterLines.ElementAtOrDefault(0)?.Update("X1", plot[0], Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update("X2", plot[1], Constants.Category10.GetColor(1));
+            scatterLines.ElementAtOrDefault(2)?.Update("SmoothX1: " + PolynomialCurve.ToString2(X1P0, X1P1, X1P2, rSquared1, "0.########"), smooth[0], Constants.Category10.GetColor(2));
+            scatterLines.ElementAtOrDefault(3)?.Update("SmoothX2: " + PolynomialCurve.ToString2(X2P0, X2P1, X2P2, rSquared2, "0.########"), smooth[1], Constants.Category10.GetColor(3));
         }
         finally
         {
@@ -135,10 +137,11 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var plot = new[] { y1, y2 }.Select(y => ToPoints(speeds, y)).ToArray();
             var smooth = new[] { yPredicted1, yPredicted2 }.Select(y => ToPoints(speeds, y)).ToArray();
 
-            X3X4PlotDataSource.GetOrAddScatterLine("X3", plot[0]);
-            X3X4PlotDataSource.GetOrAddScatterLine("X4", plot[1]);
-            X3X4PlotDataSource.GetOrAddScatterLine("SmoothX3: " + PolynomialCurve.ToString2(X3P0, X3P1, X3P2, rSquared1, "0.########"), smooth[0]);
-            X3X4PlotDataSource.GetOrAddScatterLine("SmoothX4: " + PolynomialCurve.ToString2(X4P0, X4P1, X4P2, rSquared2, "0.########"), smooth[1]);
+            var scatterLines = X3X4PlotDataSource.GetOrAddScatterLines(4);
+            scatterLines.ElementAtOrDefault(0)?.Update("X3", plot[0], Constants.Category10.GetColor(0));
+            scatterLines.ElementAtOrDefault(1)?.Update("X4", plot[1], Constants.Category10.GetColor(1));
+            scatterLines.ElementAtOrDefault(2)?.Update("SmoothX3: " + PolynomialCurve.ToString2(X3P0, X3P1, X3P2, rSquared1, "0.########"), smooth[0], Constants.Category10.GetColor(2));
+            scatterLines.ElementAtOrDefault(3)?.Update("SmoothX4: " + PolynomialCurve.ToString2(X4P0, X4P1, X4P2, rSquared2, "0.########"), smooth[1], Constants.Category10.GetColor(3));
         }
         finally
         {
@@ -209,6 +212,12 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
         public partial int X2OrX4 { get; set; }
 
         [ObservableProperty]
+        public partial int SpeedStartIndex { get; set; }
+
+        [ObservableProperty]
+        public partial int SpeedEndIndex { get; set; }
+
+        [ObservableProperty]
         public partial Point[] PlotZ1OrZ3 { get; set; } = [];
 
         [ObservableProperty]
@@ -276,13 +285,23 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             var (index1, index2) = IsPositive ? ("1", "2") : ("3", "4");
             try
             {
-                ZPlotDataSource.GetOrAddScatterLine($"Z{index1}", PlotZ1OrZ3);
-                ZPlotDataSource.GetOrAddScatterLine($"Z{index2}", PlotZ2OrZ4);
+                var scatterLines = ZPlotDataSource.GetOrAddScatterLines(5);
+                var xLines = ZPlotDataSource.GetOrAddXLines(2);
 
-                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ3], 501));
-                ZPlotDataSource.GetOrAddScatterLine($"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ4], 501));
+                scatterLines.ElementAtOrDefault(0)?.Update($"Z{index1}", PlotZ1OrZ3, Constants.Category10.GetColor(0));
+                scatterLines.ElementAtOrDefault(1)?.Update($"Z{index2}", PlotZ2OrZ4, Constants.Category10.GetColor(1));
+                scatterLines.ElementAtOrDefault(2)?.Update($"Smooth{index1}", Filter.MovMean([.. PlotZ1OrZ3], 501), Constants.Category10.GetColor(2));
+                scatterLines.ElementAtOrDefault(3)?.Update($"Smooth{index2}", Filter.MovMean([.. PlotZ2OrZ4], 501), Constants.Category10.GetColor(3));
+                var speedLine = scatterLines.ElementAtOrDefault(4);
 
-                ZPlotDataSource.GetOrAddScatterLine("Speed", Speeds);
+                if (speedLine is not null)
+                {
+                    speedLine.Update("Speed", Speeds, Constants.Category10.GetColor(4));
+                    speedLine.IsVisible = false;
+                }
+
+                xLines.ElementAtOrDefault(0)?.Update("StartIndex", SpeedStartIndex, Constants.Category10.GetColor(5));
+                xLines.ElementAtOrDefault(1)?.Update("EndIndex", SpeedEndIndex, Constants.Category10.GetColor(5));
             }
             finally
             {
@@ -294,9 +313,15 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
         {
             try
             {
-                HrpPlotDataSource.GetOrAddScatterLine("Height", PlotH);
-                HrpPlotDataSource.GetOrAddScatterLine("Roll", PlotR);
-                HrpPlotDataSource.GetOrAddScatterLine("Pitch", PlotP);
+                var scatterLines = HrpPlotDataSource.GetOrAddScatterLines(3);
+                var xLines = HrpPlotDataSource.GetOrAddXLines(2);
+
+                scatterLines.ElementAtOrDefault(0)?.Update("Height", PlotH, Constants.Category10.GetColor(0));
+                scatterLines.ElementAtOrDefault(1)?.Update("Roll", PlotR, Constants.Category10.GetColor(1));
+                scatterLines.ElementAtOrDefault(2)?.Update("Pitch", PlotP, Constants.Category10.GetColor(2));
+
+                xLines.ElementAtOrDefault(0)?.Update("StartIndex", SpeedStartIndex, Constants.Category10.GetColor(3));
+                xLines.ElementAtOrDefault(1)?.Update("EndIndex", SpeedEndIndex, Constants.Category10.GetColor(3));
             }
             finally
             {
@@ -310,6 +335,8 @@ public sealed partial class AdsXGainsDTO : CalibrationDTOBase<AdsXGainsDTO>, IAd
             IsPositive = IsPositive,
             X1OrX3 = X1OrX3,
             X2OrX4 = X2OrX4,
+            SpeedStartIndex = SpeedStartIndex,
+            SpeedEndIndex = SpeedEndIndex,
             PlotZ1OrZ3 = [.. PlotZ1OrZ3],
             PlotZ2OrZ4 = [.. PlotZ2OrZ4],
             Speeds = [.. Speeds],
