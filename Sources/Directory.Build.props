@@ -23,10 +23,10 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>2.2026.1117-preview.0</Version>
-        <AssemblyVersion>2.2026.1117.0</AssemblyVersion>
-        <FileVersion>2.2026.1117.0</FileVersion>
-        <InformationalVersion>2.2026.1117-preview.1</InformationalVersion>
+        <Version>2.2026.1119-preview.1</Version>
+        <AssemblyVersion>2.2026.1119.1</AssemblyVersion>
+        <FileVersion>2.2026.1119.1</FileVersion>
+        <InformationalVersion>2.2026.1119-preview.1</InformationalVersion>
     </PropertyGroup>
 
 </Project>

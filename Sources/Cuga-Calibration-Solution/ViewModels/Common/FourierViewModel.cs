@@ -3,6 +3,7 @@ using Core.Models.Exceptions;
 using Core.Models.Models.Common.Pattern;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Graphics.Primitives.Medias.Imaging;
@@ -14,7 +15,8 @@ namespace CugaCalibration.ViewModels.Common;
 [IOCAppService(ServiceType = typeof(FourierViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class FourierViewModel(
     LaserViewModel laserViewModel,
-    ICalibrationFourierService calibrationFourierService) : ViewModelBase
+    ICalibrationFourierService calibrationFourierService,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     public bool Connect()
     {
@@ -111,6 +113,8 @@ public sealed class FourierViewModel(
 
     public void UseSimulatorImage(string? simulatorImageFilePath)
     {
+        Guard.IsTrue(hostEnvironment.IsDevelopment(), "Simulator images can only be used in development environment.");
+
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationFourierServiceMockImpl>(calibrationFourierService);
 
         mock.SimulatorImageFilePath = simulatorImageFilePath;

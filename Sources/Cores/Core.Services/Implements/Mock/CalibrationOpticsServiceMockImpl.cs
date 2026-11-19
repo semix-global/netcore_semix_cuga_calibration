@@ -8,13 +8,14 @@ using Net.Utilities.Enums;
 using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.Collections.Concurrent;
+using System.IO;
 
 namespace Core.Services.Implements.Mock;
 
 [IOCAppService(ServiceType = typeof(ICalibrationOpticsService), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton, IOCEnvironmentEnum = IOCEnvironmentEnum.Development)]
 public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 {
-    private static readonly Random Random = new();
+    public string? SimulatorProductivityInformationsFilePath { get; set; }
 
     private double _currentDOEMotorValue;
     private double _currentRelayMotorValue;
@@ -36,139 +37,159 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 
     public SxExecuteRet<IReadOnlyList<ProductivityInformation>> GetProductivityInformations()
     {
-        Thread.Sleep(100);
-
-        var productivityInformations = new[]
-        {
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S5",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.Low,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                0.327,
-                508,
-                0,
-                508,
-                408,
-                445000
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S10",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.Low,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                0.327,
-                508,
-                0,
-                508,
-                408,
-                222500
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S25",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                0.1635,
-                1008,
-                0,
-                1008,
-                290,
-                175900
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S40",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                0.1635,
-                1008,
-                0,
-                1008,
-                290,
-                88060
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S55",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.High,
-                    IsUsed = true
-                },
-                0.11286,
-                1500,
-                0,
-                1500,
-                210,
-                87240
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-                    NIOI = SxNIOIEnum.OI,
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Low,
-                    IsUsed = true
-                },
-                0.11286,
-                1800,
-                30,
-                1590,
-                210,
-                43600
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S40",
-                    NIOI = SxNIOIEnum.NI,
-                    Mag = SxMAGEnum.Mid,
-                    Speed = SxSpeedEnum.Mid,
-                    IsUsed = true
-                },
-                0.144,
-                1160,
-                0,
-                1160,
-                200,
-                40000
-            ),
-            ProductivityInformation.Default.Clone().AdaptIn(
-                new C2MProductivityInfo
-                {
-                    Name = "S90",
-                    NIOI = SxNIOIEnum.NI,
-                    Mag = SxMAGEnum.High,
-                    Speed = SxSpeedEnum.Mid,
-                    IsUsed = true
-                },
-                0.096,
-                1720,
-                0,
-                1720,
-                200,
-                26880
-            )
-        };
+        ProductivityInformation[] productivityInformations = SimulatorProductivityInformationsFilePath is null
+            ?
+            [
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S5",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.Low,
+                        Speed = SxSpeedEnum.High,
+                        IsUsed = true
+                    },
+                    0.327,
+                    508,
+                    0,
+                    508,
+                    408,
+                    445000
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S10",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.Low,
+                        Speed = SxSpeedEnum.Low,
+                        IsUsed = true
+                    },
+                    0.327,
+                    508,
+                    0,
+                    508,
+                    408,
+                    222500
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S25",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.Mid,
+                        Speed = SxSpeedEnum.High,
+                        IsUsed = true
+                    },
+                    0.1635,
+                    1008,
+                    0,
+                    1008,
+                    290,
+                    175900
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S40",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.Mid,
+                        Speed = SxSpeedEnum.Low,
+                        IsUsed = true
+                    },
+                    0.1635,
+                    1008,
+                    0,
+                    1008,
+                    290,
+                    88060
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S55",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.High,
+                        Speed = SxSpeedEnum.High,
+                        IsUsed = true
+                    },
+                    0.11286,
+                    1500,
+                    0,
+                    1500,
+                    210,
+                    87240
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S90",
+                        NIOI = SxNIOIEnum.OI,
+                        Mag = SxMAGEnum.High,
+                        Speed = SxSpeedEnum.Low,
+                        IsUsed = true
+                    },
+                    0.11286,
+                    1800,
+                    30,
+                    1590,
+                    210,
+                    43600
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S40",
+                        NIOI = SxNIOIEnum.NI,
+                        Mag = SxMAGEnum.Mid,
+                        Speed = SxSpeedEnum.Mid,
+                        IsUsed = true
+                    },
+                    0.144,
+                    1160,
+                    0,
+                    1160,
+                    200,
+                    40000
+                ),
+                ProductivityInformation.Default.Clone().AdaptIn(
+                    new C2MProductivityInfo
+                    {
+                        Name = "S90",
+                        NIOI = SxNIOIEnum.NI,
+                        Mag = SxMAGEnum.High,
+                        Speed = SxSpeedEnum.Mid,
+                        IsUsed = true
+                    },
+                    0.096,
+                    1720,
+                    0,
+                    1720,
+                    200,
+                    26880
+                )
+            ]
+            :
+            [
+                .. Newtonsoft.Json.Linq.JArray.Parse(File.ReadAllText(SimulatorProductivityInformationsFilePath))
+                    .Select(t =>
+                        ProductivityInformation.Default.Clone().AdaptIn(
+                            new C2MProductivityInfo
+                            {
+                                Name = t.Value<string>(nameof(ProductivityInformation.Name)),
+                                NIOI = Enum.Parse<SxNIOIEnum>(t.Value<string>(nameof(ProductivityInformation.OpticsIlluminationModeEnum))),
+                                Mag = Enum.Parse<SxMAGEnum>(t.Value<string>(nameof(ProductivityInformation.OpticsMagType))),
+                                Speed = Enum.Parse<SxSpeedEnum>(t.Value<string>(nameof(ProductivityInformation.StageSpeedType))),
+                                IsUsed = true
+                            },
+                            t.Value<double>(nameof(ProductivityInformation.OriginYPixelSize)),
+                            t.Value<int>(nameof(ProductivityInformation.OriginYPixels)),
+                            t.Value<int>(nameof(ProductivityInformation.OriginYPixelsStartIndex)),
+                            t.Value<int>(nameof(ProductivityInformation.OriginYPixelsEndIndex)) + 1,
+                            t.Value<double>(nameof(ProductivityInformation.SampleRate)),
+                            t.Value<double>(nameof(ProductivityInformation.XSpeedValue))
+                        ))
+            ];
         Guard.IsTrue(productivityInformations.DistinctBy(t => t).Count() == productivityInformations.Length, "Productivity Information is not unique");
 
         return SxExecuteRetHelper.CreateSuccess<IReadOnlyList<ProductivityInformation>>([.. productivityInformations.OrderBy(t => t)]);
@@ -347,7 +368,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
 
     public SxExecuteRet<double> GetROOSMotorAbsoluteValue()
     {
-        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Next(0, 20)));
+        return SxExecuteRetHelper.CreateSuccess(Convert.ToDouble(Random.Shared.Next(0, 20)));
     }
 
     public SxExecuteRet<bool> SetROOSMotorAbsoluteValue(double value)

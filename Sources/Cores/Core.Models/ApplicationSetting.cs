@@ -5,78 +5,43 @@ namespace Core.Models;
 
 public sealed record ApplicationSetting : BaseApplicationSetting, ICacheConfiguration
 {
-    /// <summary>
-    /// 软件脚本的主路径
-    /// </summary>
-    public string ScriptDirectory { get; init; } = string.Empty;
+    #region DB
 
-    /// <summary>
-    /// Sqlite数据库链接字符串
-    /// </summary>
-    public string SqlDbDataSource { get; init; } = string.Empty;
+    public string DBDataSource { get; init; } = string.Empty;
 
-    /// <summary>
-    /// LiteDB数据库链接字符串
-    /// </summary>
-    public string NosqlDbDataSource { get; init; } = string.Empty;
+    #endregion
 
-    /// <summary>
-    /// 配方LiteDB数据库主路径
-    /// </summary>
-    public string NosqlDbDataSourceDirectory { get; init; } = string.Empty;
+    #region Cache
 
-    /// <summary>
-    /// 默认配方名称
-    /// </summary>
-    public string DefaultRecipeName { get; init; } = string.Empty;
+    public string CacheDataSource { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 配方数据库名称
-    /// </summary>
-    public string RecipeDBName { get; init; } = string.Empty;
+    public string RecipeCacheDirectory { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 缓存最大存档天数
-    /// </summary>
     public int CacheMaxArchiveDays { get; init; }
 
-    /// <summary>
-    /// 移除过期缓存时，保留的缓存数量
-    /// </summary>
     public int RemoveExpirationCacheKeepCount { get; init; }
 
-    /// <summary>
-    /// 校准菜单名称
-    /// </summary>
+    #endregion
+
+    #region 菜单
+
     public string CalibrationMenuName { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 标题栏菜单名称
-    /// </summary>
     public string TitleMenuName { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 管理菜单名称
-    /// </summary>
     public string ManagementMenuName { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 校准软件更新说明文档名称
-    /// </summary>
-    public string UpdateDocumentPath { get; init; } = string.Empty;
+    #endregion
 
-    /// <summary>
-    /// 文档根目录路径
-    /// </summary>
+    #region 路径
+
     public string DocumentDirectory { get; init; } = string.Empty;
 
-    /// <summary>
-    /// 算法日志根目录路径
-    /// </summary>
+    public string SimulatorDirectory { get; init; } = string.Empty;
+
     public string AlgorithmLogDirectory { get; init; } = string.Empty;
 
-    /// <summary>
-    /// AlgoCv 日志等级（0=Trace, 1=Debug, 2=Info, 3=Warn, 4=Error, 5=Fatal）
-    /// </summary>
+    #endregion
+
     public int AlgorithmLogLevel { get; init; } = 2;
 }

@@ -32,5 +32,5 @@ public class SysRecipeInformationDtoFactory(IOptions<ApplicationSetting> options
         return cloned;
     }
 
-    private string BuildConnectionString(string recipeName) => SQLiteHelper.GetConnectionString(Path.Combine(_settings.NosqlDbDataSourceDirectory, recipeName, _settings.RecipeDBName));
+    private string BuildConnectionString(string recipeName) => SQLiteHelper.GetConnectionString(Path.Combine(_settings.RecipeCacheDirectory, recipeName, "cache.db"));
 }

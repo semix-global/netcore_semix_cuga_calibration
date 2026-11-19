@@ -96,12 +96,7 @@ public sealed partial class ApplicationAboutWindowViewModel : ViewModelBase
     {
         try
         {
-            // todo: hanqi markdown 编译到程序集
-            var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            var index = baseDirectory.IndexOf(ApplicationInfo.VersionInfo.Metadata.ProjectName, StringComparison.Ordinal);
-            var projDirectory = string.Concat(baseDirectory.Take(index));
-            var solutionDirectory = Path.GetFullPath(Path.Combine(projDirectory, @"..\"));
-            var documentPath = Path.Combine(solutionDirectory, _options.Value.UpdateDocumentPath);
+            var documentPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "README.md");
 
             using var _ = Process.Start(new ProcessStartInfo
             {

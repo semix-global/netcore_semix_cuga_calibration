@@ -18,6 +18,8 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 
 namespace CugaCalibration.ViewModels;
@@ -26,9 +28,9 @@ public partial class CalibrationViewModelBase
 {
     #region IOC
 
-    public ILogger<CalibrationViewModelBase> Logger { get; }
+    public ILogger<CalibrationViewModelBase> Logger { get; private set; }
 
-    public CalibrationViewModelEntry Entry { get; }
+    public CalibrationViewModelEntry Entry { get; private set; }
 
     public IMessenger Messenger { get; } = HostApplication.GetRequiredService<IMessenger>();
 
@@ -102,15 +104,15 @@ public partial class CalibrationViewModelBase
 
     public CalibrationRecipeDTO CalibrationRecipeDto => RecipeCookie.CalibrationRecipeDto;
 
-    public string ImageFileDirectory => Path.Combine(AppHomeDirectory, "Images", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ImageFileDirectory => Path.Combine(AppHomeDirectory, "Images", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
-    public string TemplateFileDirectory => Path.Combine(AppHomeDirectory, "Template", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string TemplateFileDirectory => Path.Combine(AppHomeDirectory, "Template", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
-    public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string CsvFileDirectory => Path.Combine(AppHomeDirectory, "Csv", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
-    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string AODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
-    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat));
+    public string ResultAODWaveformDirectoryPath => Path.Combine(AppHomeDirectory, "Result", "AODWaveform", GetType().Name, DirectoryHelper.RemoveInvalidDirectoryName(CalibrateDirectoryName), DateTime.Now.ToString(Constants.ShortFileDateTimeFormat, CultureInfo.InvariantCulture));
 
     public string CalibrateHtmlLogFileName => string.IsNullOrWhiteSpace(CalibrateFileName) ? "Calibrate" : $"Calibrate-{FileHelper.RemoveInvalidFileName(CalibrateFileName)}";
 
@@ -120,7 +122,8 @@ public partial class CalibrationViewModelBase
 
     #endregion
 
-    protected CalibrationViewModelBase()
+    [MemberNotNull(nameof(Logger), nameof(Entry))]
+    private void InitializeReadOnly()
     {
         Logger = (ILogger<CalibrationViewModelBase>)HostApplication.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
         Entry = ApplicationCookie.CalibrationViewModelEntries[GetType()];

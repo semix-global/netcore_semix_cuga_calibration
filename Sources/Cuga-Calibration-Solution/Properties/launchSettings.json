@@ -3,7 +3,8 @@
     "Cuga-Calibration-Solution(dev)": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
+        "DOTNET_ENVIRONMENT": "Development",
+        "ApplicationSetting__SimulatorDirectory": "$(RepositoryDirectory)\\Simulator"
       }
     },
     "Cuga-Calibration-Solution(prod)": {

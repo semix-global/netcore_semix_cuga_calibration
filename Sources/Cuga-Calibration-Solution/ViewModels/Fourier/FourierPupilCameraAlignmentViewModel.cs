@@ -303,8 +303,8 @@ public sealed partial class FourierPupilCameraAlignmentViewModel : CalibrationVi
                 if (HostEnvironment.IsDevelopment())
                 {
                     FourierViewModel.UseSimulatorImage(Path.Combine(
-                        AppDomain.CurrentDomain.BaseDirectory,
-                        @"Assets\Data\Fourier",
+                        SimulatorDirectoryInformation.DirectoryPath,
+                        nameof(Fourier),
                         nameof(FourierPupilCameraAlignmentViewModel),
                         $"Channel{item.ChannelId}.jpg"));
                 }

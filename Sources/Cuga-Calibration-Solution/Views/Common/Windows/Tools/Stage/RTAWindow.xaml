@@ -17,7 +17,6 @@
            xmlns:extensions="clr-namespace:Net.Utilities.WPF.NLogViewer.Extensions;assembly=Net.Utilities.WPF.NLogViewer"
            xmlns:stage="clr-namespace:Core.Models.Enums.Stage;assembly=Core.Models"
            xmlns:sys="clr-namespace:System;assembly=mscorlib"
-           xmlns:cmd="clr-namespace:Net.Utilities.WPF.Commands.Calibration;assembly=Net.Utilities.WPF.Commands.Calibration"
            Width="1500"
            Height="1000"
            d:DataContext="{d:DesignInstance Type=viewModels:RTAWindowViewModel}"
@@ -86,6 +85,18 @@
             <Border Style="{StaticResource BorderRegion}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                     <hc:UniformSpacingPanel Orientation="Vertical" Spacing="5">
+                        <GroupBox Header="Simulator" Visibility="{Binding IsDevelopment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border Style="{StaticResource BorderRegion}">
+                                <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
+                                    <ComboBox hc:TitleElement.Title="Simulator Directory: "
+                                              hc:TitleElement.TitlePlacement="Left"
+                                              hc:TitleElement.TitleWidth="200"
+                                              Style="{StaticResource ComboBoxExtend}"
+                                              SelectedItem="{Binding SimulatorDirectoryInformation}"
+                                              ItemsSource="{Binding ApplicationCookie.SimulatorDirectoryInformations}" />
+                                </hc:UniformSpacingPanel>
+                            </Border>
+                        </GroupBox>
                         <GroupBox Header="Params">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
@@ -424,51 +435,6 @@
                                                         </hc:UniformSpacingPanel>
                                                     </Border>
                                                 </Expander>
-                                                <Expander Header="Simulator Images"
-                                                          IsExpanded="False"
-                                                          ExpandDirection="Down"
-                                                          Visibility="{Binding IsDevelopment, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <Border Style="{StaticResource BorderRegion}">
-                                                        <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                                            <TextBox x:Name="ForwardSimulatorImageFilePathTextBox"
-                                                                     Text="{Binding Cache.ForwardSimulatorImageFilePath}"
-                                                                     Height="50"
-                                                                     TextWrapping="Wrap"
-                                                                     hc:TitleElement.Title="Forward RAW Image: "
-                                                                     hc:TitleElement.TitlePlacement="Left"
-                                                                     hc:TitleElement.TitleWidth="190"
-                                                                     Background="{StaticResource SecondaryRegionBrush}"
-                                                                     IsReadOnly="True"
-                                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                                     Style="{StaticResource TextBoxExtend}" />
-                                                            <Button Content="Select File"
-                                                                    Command="{x:Static cmd:Commands.SelectFileCommand}"
-                                                                    hc:IconElement.Geometry="{StaticResource DragHorizontalGeometry}">
-                                                                <Button.CommandParameter>
-                                                                    <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ForwardSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
-                                                                </Button.CommandParameter>
-                                                            </Button>
-                                                            <TextBox x:Name="ReverseSimulatorImageFilePathTextBox"
-                                                                     Text="{Binding Cache.ReverseSimulatorImageFilePath}"
-                                                                     Height="50"
-                                                                     TextWrapping="Wrap"
-                                                                     hc:TitleElement.Title="Reverse RAW Image: "
-                                                                     hc:TitleElement.TitlePlacement="Left"
-                                                                     hc:TitleElement.TitleWidth="190"
-                                                                     Background="{StaticResource SecondaryRegionBrush}"
-                                                                     IsReadOnly="True"
-                                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                                     Style="{StaticResource TextBoxExtend}" />
-                                                            <Button Content="Select File"
-                                                                    Command="{x:Static cmd:Commands.SelectFileCommand}"
-                                                                    hc:IconElement.Geometry="{StaticResource DragHorizontalGeometry}">
-                                                                <Button.CommandParameter>
-                                                                    <cmd:SelectFileCommandParameter TextBox="{Binding ElementName=ReverseSimulatorImageFilePathTextBox, Mode=OneWay}" FileExtension=".raw" />
-                                                                </Button.CommandParameter>
-                                                            </Button>
-                                                        </hc:UniformSpacingPanel>
-                                                    </Border>
-                                                </Expander>
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="Remove Linear: "
                                                                Width="230"
@@ -488,9 +454,9 @@
                         <GroupBox Header="Actions">
                             <Border Style="{StaticResource BorderRegion}">
                                 <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
-                                    <Expander IsExpanded="False" ExpandDirection="Down">
+                                    <Expander IsExpanded="True" ExpandDirection="Down">
                                         <Expander.Header>
-                                            <TextBlock Text="Result" Style="{StaticResource TextBlockDefaultSuccess}" />
+                                            <TextBlock Text="{Binding Steps[0], StringFormat='{}{0} Result'}" Style="{StaticResource TextBlockDefaultSuccess}" />
                                         </Expander.Header>
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
