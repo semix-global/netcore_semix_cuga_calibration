@@ -9,7 +9,6 @@ using Semix.CoreLib;
 using Semix.WcfTransfer.DTO;
 using System.Collections.Concurrent;
 using System.IO;
-using Core.Models.Extensions;
 
 namespace Core.Services.Implements.Mock;
 

@@ -14,6 +14,7 @@ using Core.Models.Models.Setting;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
@@ -28,7 +29,6 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Microsoft.Extensions.Hosting;
 
 namespace CugaCalibration.ViewModels.Common;
 

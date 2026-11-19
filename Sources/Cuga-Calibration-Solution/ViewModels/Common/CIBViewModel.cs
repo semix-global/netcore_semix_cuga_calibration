@@ -20,6 +20,7 @@ using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
 using MathNet.Numerics.Interpolation;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
@@ -30,7 +31,6 @@ using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.IO;
-using Microsoft.Extensions.Hosting;
 
 namespace CugaCalibration.ViewModels.Common;
 

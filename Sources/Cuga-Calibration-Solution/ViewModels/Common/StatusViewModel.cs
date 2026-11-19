@@ -1,9 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -12,9 +15,6 @@ using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Core.Models;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace CugaCalibration.ViewModels.Common;
 

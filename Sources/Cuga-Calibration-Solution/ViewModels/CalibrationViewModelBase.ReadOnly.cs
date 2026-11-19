@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using CommunityToolkit.Mvvm.Messaging;
 using Core.Algorithm.Interfaces;
 using Core.Models;
@@ -20,6 +18,8 @@ using Net.Utilities.Models;
 using Net.Utilities.WPF.MVVM;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.Services;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 
 namespace CugaCalibration.ViewModels;
