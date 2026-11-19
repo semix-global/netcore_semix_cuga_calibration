@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Stage;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Cookies;
@@ -269,7 +270,7 @@ public sealed partial class ApplicationCookie : ObservableObject
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
     };
 
-    public readonly record struct SimulatorDirectoryInformation(string Name, string DirectoryPath)
+    public readonly record struct SimulatorDirectoryInformation(string Name = Constants.EmptyString, string DirectoryPath = Constants.EmptyString)
     {
         public override string ToString() => Name;
     };

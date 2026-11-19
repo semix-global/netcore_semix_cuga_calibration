@@ -72,8 +72,7 @@ public sealed partial class StatusViewModel(
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
 
-        _disposable?.Wait();
-        _disposable?.Dispose();
+        if (_disposable?.Wait(1000) == true) _disposable?.Dispose();
         _disposable = null;
     }
 

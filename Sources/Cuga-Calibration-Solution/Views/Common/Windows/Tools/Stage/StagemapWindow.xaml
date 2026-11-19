@@ -278,8 +278,7 @@
                                     </Expander>
                                     <Expander Header="{Binding Steps[4]}"
                                               IsExpanded="False"
-                                              ExpandDirection="Down"
-                                              Visibility="{Binding StageMapCommands.IsDark, Converter={StaticResource BoolToVisibilityConverter}}">
+                                              ExpandDirection="Down">
                                         <Border Style="{StaticResource BorderRegion}">
                                             <hc:UniformSpacingPanel Orientation="Vertical" Spacing="2">
                                                 <hc:NumericUpDown hc:TitleElement.Title="Threshold(um): "

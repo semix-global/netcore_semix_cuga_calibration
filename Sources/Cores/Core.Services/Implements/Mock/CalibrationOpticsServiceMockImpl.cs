@@ -187,7 +187,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                             t.Value<int>(nameof(ProductivityInformation.OriginYPixels)),
                             t.Value<int>(nameof(ProductivityInformation.OriginYPixelsStartIndex)),
                             t.Value<int>(nameof(ProductivityInformation.OriginYPixelsEndIndex)) + 1,
-                            t.Value<int>(nameof(ProductivityInformation.SampleRate)),
+                            t.Value<double>(nameof(ProductivityInformation.SampleRate)),
                             t.Value<double>(nameof(ProductivityInformation.XSpeedValue))
                         ))
             ];

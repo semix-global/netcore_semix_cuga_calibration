@@ -354,6 +354,12 @@ public sealed partial class RTAWindowViewModel(
             logger.LogError(ex, "Failed to save cache");
         }
 
+        if (hostEnvironment.IsDevelopment())
+        {
+            opticsViewModel.UseSimulatorProductivityInformations(null);
+            cibViewModel.UseSimulatorImages(null);
+        }
+
         CloseView(null);
     }
 
