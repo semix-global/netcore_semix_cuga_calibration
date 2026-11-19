@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Version;
 using Core.Models.Models.Setting;
 using Core.Recipe.Models;
+using Core.Recipe.Services.Interfaces.Factory;
 using Core.Wcf.Models;
 using Core.Wcf.Models.Ads;
 using Core.Wcf.Models.Chuck;
@@ -54,6 +55,7 @@ public class CalibrationCacheProviderServiceImpl(
     IDialogWindowProvider dialogWindowProvider,
     ApplicationCookie applicationCookie,
     IApplicationCookieService applicationCookieService,
+    ISysRecipeInformationDtoFactory sysRecipeInformationDtoFactory,
     RecipeCookie recipeCookie,
     CalibrationSetting calibrationSetting) : ICalibrationCacheProvider
 {
@@ -422,7 +424,7 @@ public class CalibrationCacheProviderServiceImpl(
                                 {
                                     RecipeDbName = recipeName,
                                     DescribeInformation = $"Imported on {DateTimeHelper.DateTime2String(DateTime.Now, Constants.LongFileDateTimeFormat)}",
-                                    RecipeNosqlRecipeDbDataSource = SQLiteHelper.GetConnectionString(Path.Combine(options.Value.NosqlDbDataSourceDirectory, recipeName, options.Value.RecipeDBName))
+                                    RecipeNosqlRecipeDbDataSource = sysRecipeInformationDtoFactory.Create(recipeName).RecipeNosqlRecipeDbDataSource
                                 };
 
                                 await sysRecipeInformationService.CreatAsync(recipe, cancellationToken);

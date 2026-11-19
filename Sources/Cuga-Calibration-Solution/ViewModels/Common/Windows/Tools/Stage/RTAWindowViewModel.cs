@@ -36,6 +36,7 @@ namespace CugaCalibration.ViewModels.Common.Windows.Tools.Stage;
 [IOCAppService(ServiceType = typeof(RTAWindowViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed partial class RTAWindowViewModel(
     StageViewModel stageViewModel,
+    OpticsViewModel opticsViewModel,
     CIBViewModel cibViewModel,
     ICacheProvider cacheProvider,
     IApplicationCookieService applicationCookieCacheProvider,
@@ -50,6 +51,9 @@ public sealed partial class RTAWindowViewModel(
     public string Name { get; } = "RTA";
 
     public bool IsDevelopment { get; } = hostEnvironment.IsDevelopment();
+
+    [ObservableProperty]
+    public partial ApplicationCookie.SimulatorDirectoryInformation SimulatorDirectoryInformation { get; set; } = new();
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 
@@ -116,22 +120,60 @@ public sealed partial class RTAWindowViewModel(
     {
         var cacheDFItem = (ChuckStageMapCacheDFItem)StageMapCommands.CacheItem;
 
-        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == cacheDFItem.ProductivityInformation);
-        Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+        if (hostEnvironment.IsDevelopment())
+        {
+            opticsViewModel.UseSimulatorProductivityInformations(Path.Combine(
+                SimulatorDirectoryInformation.DirectoryPath,
+                nameof(Common),
+                nameof(Windows),
+                nameof(Tools),
+                nameof(Stage),
+                nameof(RTAWindowViewModel),
+                $"{nameof(ApplicationCookie.ProductivityInformations)}.json"));
 
+            cacheDFItem.ProductivityInformation = ApplicationCookie.ProductivityInformations[0];
+        }
+
+        var xSize = applicationCookieCacheProvider.GetCalibrations<CIBXPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation == cacheDFItem.ProductivityInformation);
         var ySize = applicationCookieCacheProvider.GetCalibrations<CIBYPixelSizeDTO>(cancellationToken).SingleOrDefault(t => t.ProductivityInformation.OpticsIlluminationModeEnum == cacheDFItem.ProductivityInformation.OpticsIlluminationModeEnum
                                                                                                                              && t.ProductivityInformation.OpticsMagType == cacheDFItem.ProductivityInformation.OpticsMagType
                                                                                                                              && t.PmtId == cacheDFItem.CIBInformation.PMTId);
-        Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+        double xPixelSize, yPixelSize;
+        if (hostEnvironment.IsDevelopment())
+        {
+            var jObject = Newtonsoft.Json.Linq.JObject.Parse(await System.IO.File.ReadAllTextAsync(Path.Combine(
+                SimulatorDirectoryInformation.DirectoryPath,
+                nameof(Common),
+                nameof(Windows),
+                nameof(Tools),
+                nameof(Stage),
+                nameof(RTAWindowViewModel),
+                "PixelSize.json"), cancellationToken));
+
+            xPixelSize = jObject.Value<double>(nameof(xPixelSize));
+            yPixelSize = jObject.Value<double>(nameof(yPixelSize));
+
+            if (xSize?.IsOk != true) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser X Pixel Size is Empty or not verify."), HtmlLogUniqueId.LoggingHtml());
+            if (ySize?.IsOk != true) logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, new HtmlComment("Laser Y Pixel Size is Empty or not verify."), HtmlLogUniqueId.LoggingHtml());
+        }
+        else
+        {
+            Guard.IsTrue(xSize?.IsOk == true, "Laser X Pixel Size is Empty or not verify.");
+            Guard.IsTrue(ySize?.IsOk == true, "Laser Y Pixel Size is Empty or not verify.");
+
+            xPixelSize = xSize.XPixelSize;
+            yPixelSize = ySize.YPixelSize;
+        }
 
         logger.LogHtmlInformation("Productivity Information", HtmlHeaderLevelEnum.Header3, new HtmlBullet(new
         {
             ProductivityInformation = new HtmlQuote(cacheDFItem.ProductivityInformation.ToHtmlAnonymous()),
-            xSize.XPixelSize,
-            ySize.YPixelSize
+            xPixelSize,
+            yPixelSize
         }), HtmlLogUniqueId.LoggingHtml());
 
-        Cache.RTAScanResult = new RTAScanResult(cacheDFItem.ProductivityInformation, xSize.XPixelSize, ySize.YPixelSize);
+        Cache.RTAScanResult = new RTAScanResult(cacheDFItem.ProductivityInformation, xPixelSize, yPixelSize);
 
         dialogWindowProvider.ShowDialog("Please Select Dies to Scan");
 
@@ -191,7 +233,19 @@ public sealed partial class RTAWindowViewModel(
         {
             logger.LogHtmlInformation("Forward", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ForwardSimulatorImageFilePath) ? null : [Cache.ForwardSimulatorImageFilePath]);
+            if (IsDevelopment)
+            {
+                cibViewModel.UseSimulatorImages([
+                    Path.Combine(
+                        SimulatorDirectoryInformation.DirectoryPath,
+                        nameof(Common),
+                        nameof(Windows),
+                        nameof(Tools),
+                        nameof(Stage),
+                        nameof(RTAWindowViewModel),
+                        "Forward.raw")
+                ]);
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(startPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
@@ -220,7 +274,19 @@ public sealed partial class RTAWindowViewModel(
 
             logger.LogHtmlInformation("Reverse", HtmlHeaderLevelEnum.Header3, HtmlLogUniqueId.LoggingHtml());
 
-            if (IsDevelopment) cibViewModel.UseSimulatorImages(string.IsNullOrWhiteSpace(Cache.ReverseSimulatorImageFilePath) ? null : [Cache.ReverseSimulatorImageFilePath]);
+            if (IsDevelopment)
+            {
+                cibViewModel.UseSimulatorImages([
+                    Path.Combine(
+                        SimulatorDirectoryInformation.DirectoryPath,
+                        nameof(Common),
+                        nameof(Windows),
+                        nameof(Tools),
+                        nameof(Stage),
+                        nameof(RTAWindowViewModel),
+                        "Reverse.raw")
+                ]);
+            }
 
             cancellationToken.ThrowIfCancellationRequested();
             stageViewModel.SetMachineAbsoluteStageXyByNotAutoFocus(endPosition, calChipSiteModelEnum: Cache.CalChipSiteModelEnum);
@@ -286,6 +352,12 @@ public sealed partial class RTAWindowViewModel(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save cache");
+        }
+
+        if (hostEnvironment.IsDevelopment())
+        {
+            opticsViewModel.UseSimulatorProductivityInformations(null);
+            cibViewModel.UseSimulatorImages(null);
         }
 
         CloseView(null);

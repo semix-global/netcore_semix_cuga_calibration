@@ -71,9 +71,10 @@ public sealed partial class StageMapCommands(
         nameof(Name),
         nameof(CacheItem),
         nameof(StageMapDocument),
+        nameof(AlignmentResult),
         nameof(StageMap),
         nameof(VerifyStageMap),
-        nameof(AlignmentResult))]
+        nameof(VerifyMaxError))]
     public partial bool IsDark { get; set; } = true;
 
     public ILogger Logger { get; set; } = logger;
@@ -93,9 +94,10 @@ public sealed partial class StageMapCommands(
     [ObservableProperty]
     [NotifyPropertyChangedFor(
         nameof(StageMapDocument),
+        nameof(AlignmentResult),
         nameof(StageMap),
         nameof(VerifyStageMap),
-        nameof(AlignmentResult))]
+        nameof(VerifyMaxError))]
     public partial ChuckStageMapDTO ChuckStageMap { get; set; } = new();
 
     #region 明暗场的区分属性
@@ -105,6 +107,18 @@ public sealed partial class StageMapCommands(
     public ChuckStageMapCacheBFItem CacheItem => IsDark ? Cache.ChuckStageMapCacheDFItem : Cache.ChuckStageMapCacheBFItem;
 
     public StageMapDocument StageMapDocument => IsDark ? ChuckStageMap.DFStageMapDocument : ChuckStageMap.BFStageMapDocument;
+
+    public AlignmentResultDto AlignmentResult
+    {
+        get => IsDark ? ChuckStageMap.DFAlignmentResult : ChuckStageMap.BFAlignmentResult;
+        set
+        {
+            if (IsDark) ChuckStageMap.DFAlignmentResult = value;
+            else ChuckStageMap.BFAlignmentResult = value;
+
+            OnPropertyChanged();
+        }
+    }
 
     public StageMap StageMap
     {
@@ -130,13 +144,13 @@ public sealed partial class StageMapCommands(
         }
     }
 
-    public AlignmentResultDto AlignmentResult
+    public Vector VerifyMaxError
     {
-        get => IsDark ? ChuckStageMap.DFAlignmentResult : ChuckStageMap.BFAlignmentResult;
+        get => IsDark ? ChuckStageMap.DFVerifyMaxError : ChuckStageMap.BFVerifyMaxError;
         set
         {
-            if (IsDark) ChuckStageMap.DFAlignmentResult = value;
-            else ChuckStageMap.BFAlignmentResult = value;
+            if (IsDark) ChuckStageMap.DFVerifyMaxError = value;
+            else ChuckStageMap.BFVerifyMaxError = value;
 
             OnPropertyChanged();
         }
@@ -752,7 +766,11 @@ public sealed partial class StageMapCommands(
         VerifyStageMap.CalculateErrorMatrix();
         VerifyStageMap.Refresh();
 
+        Guard.IsTrue(VerifyStageMap.TryGetMaxMatchedError(out var verifyMaxError), $"{Name} verify has no matched points.");
+        VerifyMaxError = verifyMaxError;
+
         Logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header5, new HtmlContainer([
+            new HtmlBullet(new { VerifyMaxError }),
             .. VerifyStageMap.PlotDataSource.GetAllHtmlVectorFieldCharts(),
             .. VerifyStageMap.PlotDataSource.GetAllHtmlPlot3DCharts()
         ]), htmlLogUniqueId.LoggingHtml());

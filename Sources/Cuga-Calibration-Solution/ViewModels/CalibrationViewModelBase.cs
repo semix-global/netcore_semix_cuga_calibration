@@ -27,6 +27,12 @@ public partial class CalibrationViewModelBase : ViewModelBase
 
     public Guid HtmlLogUniqueId { get; set; }
 
+    protected CalibrationViewModelBase()
+    {
+        InitializeReadOnly();
+        InitializeSimulator();
+    }
+
     #region 公开
 
     private bool _isLoaded;

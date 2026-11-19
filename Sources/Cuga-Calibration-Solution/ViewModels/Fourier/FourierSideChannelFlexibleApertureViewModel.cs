@@ -468,8 +468,8 @@ public sealed partial class FourierSideChannelFlexibleApertureViewModel : Calibr
             if (HostEnvironment.IsDevelopment())
             {
                 FourierViewModel.UseSimulatorImage(Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    @"Assets\Data\Fourier",
+                    SimulatorDirectoryInformation.DirectoryPath,
+                    nameof(Fourier),
                     nameof(FourierSideChannelFlexibleApertureViewModel),
                     $"Channel{item.ChannelId}_{(isEven ? "Even" : "Odd")}_Step{stepIndex}.jpg"));
             }

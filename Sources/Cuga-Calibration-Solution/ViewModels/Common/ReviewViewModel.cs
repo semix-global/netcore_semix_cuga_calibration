@@ -14,6 +14,7 @@ using Core.Models.Models.Setting;
 using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
 using CugaCalibration.Core.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Net.Utilities.Attributes;
 using Net.Utilities.Calibration;
@@ -41,8 +42,8 @@ public sealed partial class ReviewViewModel(
     IApplicationCookieService applicationCookieCacheProvider,
     ICalibrationAlgorithmService calibrationAlgorithmService,
     IAlgorithmEngines algorithmEngines,
-    CalibrationSetting calibrationSetting)
-    : ViewModelBase
+    CalibrationSetting calibrationSetting,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     #region 服务
 
@@ -96,6 +97,8 @@ public sealed partial class ReviewViewModel(
 
     public void UseSimulatorImage(string? simulatorImageFilePath)
     {
+        Guard.IsTrue(hostEnvironment.IsDevelopment(), "Simulator images can only be used in development environment.");
+
         var mock = Guard.IsAssignableToTypeAndReturn<CalibrationReviewServiceMockImpl>(calibrationReviewService);
 
         mock.SimulatorImageFilePath = simulatorImageFilePath;

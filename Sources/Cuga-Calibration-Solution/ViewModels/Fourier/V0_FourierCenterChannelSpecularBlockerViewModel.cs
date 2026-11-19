@@ -478,8 +478,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
             if (HostEnvironment.IsDevelopment())
             {
                 FourierViewModel.UseSimulatorImage(Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    @"Assets\Data\Fourier",
+                    SimulatorDirectoryInformation.DirectoryPath,
+                    nameof(Fourier),
                     nameof(V0FourierCenterChannelSpecularBlockerViewModel),
                     $"Channel3_Step{stepIndex}.jpg"));
             }
@@ -604,8 +604,8 @@ public sealed partial class V0FourierCenterChannelSpecularBlockerViewModel : Cal
                     CIBViewModel.UseSimulatorImages(
                     [
                         Path.Combine(
-                            AppDomain.CurrentDomain.BaseDirectory,
-                            @"Assets\Data\Fourier",
+                            SimulatorDirectoryInformation.DirectoryPath,
+                            nameof(Fourier),
                             nameof(V0FourierCenterChannelSpecularBlockerViewModel),
                             $"Channel3_Verify_Step{stepIndex}_CIB.raw")
                     ]);

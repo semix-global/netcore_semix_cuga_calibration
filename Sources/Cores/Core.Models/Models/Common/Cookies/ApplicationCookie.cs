@@ -6,6 +6,7 @@ using Core.Models.Models.Common.Pattern;
 using Cuga.Data.DataStruct.Stage;
 using Local.SQL.DB.Providers.Models.Entities.DTO;
 using Net.Utilities.Helpers.Helpers.Structs;
+using Net.Utilities.Models;
 using Net.Utilities.Models.Geometries;
 
 namespace Core.Models.Models.Common.Cookies;
@@ -249,6 +250,12 @@ public sealed partial class ApplicationCookie : ObservableObject
     [ObservableProperty]
     public partial double PMTInterval { get; set; }
 
+    /// <summary>
+    /// 仿真器的目录文件夹
+    /// </summary>
+    [ObservableProperty]
+    public partial SimulatorDirectoryInformation[] SimulatorDirectoryInformations { get; set; } = [];
+
     public IReadOnlyList<ProductivityInformation> GetProductivityInformations(OpticsIlluminationModeEnum opticsIlluminationModeEnum) => opticsIlluminationModeEnum switch
     {
         OpticsIlluminationModeEnum.OI => OIProductivityInformations,
@@ -261,5 +268,14 @@ public sealed partial class ApplicationCookie : ObservableObject
         OpticsIlluminationModeEnum.OI => OIOpticsMagTypeProductivityInformations,
         OpticsIlluminationModeEnum.NI => NIOpticsMagTypeProductivityInformations,
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
+    };
+
+    public readonly record struct SimulatorDirectoryInformation(string Name, string DirectoryPath)
+    {
+        public SimulatorDirectoryInformation() : this(Constants.EmptyString, Constants.EmptyString)
+        {
+        }
+
+        public override string ToString() => Name;
     };
 }
