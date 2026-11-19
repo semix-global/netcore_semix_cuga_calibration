@@ -1,9 +1,12 @@
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Models;
 using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.Models.Geometries;
@@ -11,6 +14,7 @@ using Net.Utilities.WPF.Enums;
 using Net.Utilities.WPF.MVVM.Providers;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace CugaCalibration.ViewModels.Common;
 
@@ -25,6 +29,8 @@ public sealed partial class StatusViewModel(
     CIBViewModel cibViewModel,
     ApplicationCookie applicationCookie,
     IDialogWindowProvider dialogWindowProvider,
+    IHostEnvironment hostEnvironment,
+    IOptions<ApplicationSetting> options,
     ILogger<StatusViewModel> logger) : ViewModelBase, IDisposable
 {
     public const int MonitorMilliseconds = 500;
@@ -32,7 +38,7 @@ public sealed partial class StatusViewModel(
     private readonly ManualResetEventSlim _manualResetEvent = new(false);
 
     private CancellationTokenSource? _cancellationTokenSource;
-    private IDisposable? _disposable;
+    private Task? _disposable;
 
     public int IsSwitchMicroscopeLensInformationRunning;
 
@@ -65,6 +71,9 @@ public sealed partial class StatusViewModel(
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
+
+        if (_disposable?.Wait(1000) == true) _disposable?.Dispose();
+        _disposable = null;
     }
 
     [MemberNotNull(nameof(_cancellationTokenSource))]
@@ -84,7 +93,6 @@ public sealed partial class StatusViewModel(
     public void Monitor(bool isEnable)
     {
         RefreshToken();
-        _disposable?.Dispose();
 
         if (isEnable == false) return;
 
@@ -168,6 +176,16 @@ public sealed partial class StatusViewModel(
             applicationCookie.HardwareStateConfig = configViewModel.GetHardwareConfigs();
             applicationCookie.PMTInterval = pmtInterval;
 
+            if (hostEnvironment.IsDevelopment())
+            {
+                applicationCookie.SimulatorDirectoryInformations =
+                [
+                    .. Directory.EnumerateDirectories(options.Value.SimulatorDirectory, "*", SearchOption.TopDirectoryOnly)
+                        .Select(t => new DirectoryInfo(t))
+                        .Select(t => new ApplicationCookie.SimulatorDirectoryInformation(t.Name, t.FullName))
+                ];
+            }
+
             if (new Version(applicationCookie.DeviceCUGAVersion) < new Version(ApplicationCookie.ApplicationCUGAVersion))
             {
                 dialogWindowProvider.ShowDialog($"Refresh Cookie Failed: The current CUGA version: {applicationCookie.DeviceCUGAVersion} < The CUGA version of the application: {ApplicationCookie.ApplicationCUGAVersion}. Please update the device CUGA version!", DialogButtonsEnum.OK, DialogIconEnum.Warning);
@@ -199,7 +217,6 @@ public sealed partial class StatusViewModel(
     public void Dispose()
     {
         CancelToken();
-        _disposable?.Dispose();
 
         _manualResetEvent.Dispose();
     }

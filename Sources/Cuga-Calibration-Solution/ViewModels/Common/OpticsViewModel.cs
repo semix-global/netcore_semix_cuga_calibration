@@ -1,7 +1,11 @@
+using CommunityToolkit.Diagnostics;
 using Core.Models.Enums.Optics;
 using Core.Models.Exceptions;
+using Core.Models.Models.Common.Cookies;
 using Core.Models.Models.Common.Pattern;
+using Core.Services.Implements.Mock;
 using Core.Services.Interfaces;
+using Microsoft.Extensions.Hosting;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
 using Net.Utilities.WPF.MVVM.ViewModels.Bases;
@@ -10,7 +14,9 @@ namespace CugaCalibration.ViewModels.Common;
 
 [IOCAppService(ServiceType = typeof(OpticsViewModel), IOCLifetimeEnum = IOCLifeTimeEnum.Singleton)]
 public sealed class OpticsViewModel(
-    ICalibrationOpticsService calibrationOpticsService) : ViewModelBase
+    ICalibrationOpticsService calibrationOpticsService,
+    ApplicationCookie applicationCookie,
+    IHostEnvironment hostEnvironment) : ViewModelBase
 {
     public bool Connect()
     {
@@ -212,5 +218,20 @@ public sealed class OpticsViewModel(
         var ret = calibrationOpticsService.SetROOSMotorAbsoluteValue(value);
 
         if (ret.IsSuccess == false) throw new CugaException(ret.ErrorMsg);
+    }
+
+    public void UseSimulatorProductivityInformations(string? simulatorProductivityInformationsFilePath)
+    {
+        Guard.IsTrue(hostEnvironment.IsDevelopment(), "Simulator images can only be used in development environment.");
+
+        var mock = Guard.IsAssignableToTypeAndReturn<CalibrationOpticsServiceMockImpl>(calibrationOpticsService);
+
+        mock.SimulatorProductivityInformationsFilePath = simulatorProductivityInformationsFilePath;
+
+        var productivityInformations = GetProductivityInformations();
+
+        applicationCookie.ProductivityInformations = [.. productivityInformations.Select(t => t.Clone())];
+
+        Guard.IsNotEmpty(applicationCookie.ProductivityInformations);
     }
 }

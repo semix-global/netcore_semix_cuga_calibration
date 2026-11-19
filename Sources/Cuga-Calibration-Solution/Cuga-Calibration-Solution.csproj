@@ -128,6 +128,10 @@
 
         <None Remove="Assets\Images\*.*" />
         <Resource Include="Assets\Images\*.*" />
+        <Content Include="$(RepositoryDirectory)\README.md">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
     </ItemGroup>
 
 </Project>

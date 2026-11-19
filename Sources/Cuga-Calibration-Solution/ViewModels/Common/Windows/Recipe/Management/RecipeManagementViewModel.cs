@@ -123,7 +123,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
         {
             try
             {
-                var defaultSysRecipeInformationDto = _sysRecipeInformationDtoFactory.Create(_options.Value.DefaultRecipeName + Guid.NewGuid());
+                var defaultSysRecipeInformationDto = _sysRecipeInformationDtoFactory.Create($"Default_{Guid.NewGuid()}");
 
                 SelectRecipeInfoDto = await _sysRecipeInformationService
                     .CreatAsync(defaultSysRecipeInformationDto, _cancellationTokenSource.Token)
@@ -208,7 +208,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                     return;
 
                 await _sysRecipeInformationService
-                    .ImportAsync(directoryPath, _options.Value.NosqlDbDataSourceDirectory, _cancellationTokenSource.Token)
+                    .ImportAsync(directoryPath, _options.Value.RecipeCacheDirectory, _cancellationTokenSource.Token)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -234,7 +234,7 @@ public partial class RecipeManagementViewModel : ViewModelBase, IRecipient<Value
                 var sourceDirectoryPath = SQLiteHelper.GetDatabaseDirectoryPath(selectedItem.RecipeNosqlRecipeDbDataSource);
 
                 await _sysRecipeInformationService
-                    .ImportAsync(sourceDirectoryPath, _options.Value.NosqlDbDataSourceDirectory, _cancellationTokenSource.Token)
+                    .ImportAsync(sourceDirectoryPath, _options.Value.RecipeCacheDirectory, _cancellationTokenSource.Token)
                     .ConfigureAwait(false);
             }
             catch (Exception ex)

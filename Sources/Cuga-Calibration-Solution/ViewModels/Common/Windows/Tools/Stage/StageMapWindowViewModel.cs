@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Net.Utilities.Attributes;
 using Net.Utilities.Enums;
+using Net.Utilities.Models.Geometries;
 using Net.Utilities.Nlog.Entities.HtmlElements;
 using Net.Utilities.Nlog.Extensions;
 using Net.Utilities.SourceGenerators.Calibration.Attributes;
@@ -128,6 +129,9 @@ public sealed partial class StageMapWindowViewModel(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        Cache.ChuckStageMap.IsVerified = false;
+        StageMapCommands.VerifyMaxError = Vector.Zero;
+
         await StageMapCommands.VerifyAsync(
             StageMapCommands.StageMap,
             HtmlLogUniqueId,
@@ -135,7 +139,25 @@ public sealed partial class StageMapWindowViewModel(
             isDownloadStageMap: true,
             isInterpolateErrorsAdaptTo: true).ConfigureAwait(false);
 
-        return true;
+        Cache.ChuckStageMap.IsVerified = StageMapCommands.VerifyMaxError.Length < Cache.ChuckStageMapCache.Threshold;
+
+        var htmlQuote = new HtmlQuote(new
+        {
+            StageMapCommands.VerifyMaxError,
+            Cache.ChuckStageMap.IsVerified
+        });
+
+        if (Cache.ChuckStageMap.IsVerified) logger.LogHtmlHeaderIsOk(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+        else logger.LogHtmlHeaderIsError(HtmlHeaderLevelEnum.Header3, htmlQuote, HtmlLogUniqueId.LoggingHtml());
+
+        dialogWindowProvider.ShowDialog($"""
+                                         Verify : {(Cache.ChuckStageMap.IsVerified ? "OK" : "Failed")}
+                                         {StageMapCommands.Name} Max Error:{StageMapCommands.VerifyMaxError}
+                                         """,
+            DialogButtonsEnum.OK,
+            Cache.ChuckStageMap.IsVerified ? DialogIconEnum.Information : DialogIconEnum.Warning);
+
+        return Cache.ChuckStageMap.IsVerified;
     }, isSilent, cancellationToken).ConfigureAwait(false);
 
     [RelayCommand]

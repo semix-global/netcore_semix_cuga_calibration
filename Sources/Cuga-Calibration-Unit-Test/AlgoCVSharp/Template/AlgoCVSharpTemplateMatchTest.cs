@@ -36,6 +36,22 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using CommunityToolkit.Diagnostics;
+using Core.Models;
+using Core.Recipe.Services;
+using Core.Services;
+using CugaCalibration.Core;
+using CugaCalibration.ViewModels.Common.Windows.Tools;
+using Local.SQL.Cache.Providers;
+using Local.SQL.Cache.Providers.Services.Interfaces;
+using Local.SQL.DB.Providers;
+using Microsoft.Extensions.Options;
+using Net.Utilities.Algorithms.Halcon.Extensions;
+using Net.Utilities.Graphics.Algorithms.Halcon;
+using Net.Utilities.Models;
+using Net.Utilities.WPF.MVVM;
+using Net.Utilities.WPF.MVVM.Services;
+using SourceGenerator.AssemblyMetadata;
 #endif
 
 namespace CugaCalibrationUnitTest.AlgoCVSharp.Template;
@@ -990,8 +1006,8 @@ public sealed class AlgoCVSharpTemplateMatchTest(ITestOutputHelper output) : IDi
                 services
                     .Configure<ApplicationSetting>(context.Configuration.GetSection(BaseApplicationSetting.AppSetting))
                     .AddMvvmService(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, CugaCalibrationUnitTestAssemblyMetadata.Version, application, context.HostingEnvironment)
-                    .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.SqlDbDataSource, context.HostingEnvironment)
-                    .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.NosqlDbDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
+                    .AddSqlDbContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.DBDataSource, context.HostingEnvironment)
+                    .AddCacheContext(sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value.CacheDataSource, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)
                     .AddNetUtilitiesCalibrationService(context.HostingEnvironment)
                     .AddRecipeService(context.HostingEnvironment)
                     .AddKeyedCacheContext(CalibrationConstantsHelper.RecipeDbKey, sp => sp.GetRequiredService<IOptions<ApplicationSetting>>().Value, context.HostingEnvironment)

@@ -470,8 +470,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
             if (HostEnvironment.IsDevelopment())
             {
                 FourierViewModel.UseSimulatorImage(Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    @"Assets\Data\Fourier",
+                    SimulatorDirectoryInformation.DirectoryPath,
+                    nameof(Fourier),
                     nameof(FourierSideChannelSpecularBlockerViewModel),
                     $"Channel{item.ChannelId}_Step{stepIndex}.jpg"));
             }
@@ -597,8 +597,8 @@ public sealed partial class FourierSideChannelSpecularBlockerViewModel : Calibra
                     CIBViewModel.UseSimulatorImages(
                     [
                         .. items.Select(item => Path.Combine(
-                            AppDomain.CurrentDomain.BaseDirectory,
-                            @"Assets\Data\Fourier",
+                            SimulatorDirectoryInformation.DirectoryPath,
+                            nameof(Fourier),
                             nameof(FourierSideChannelSpecularBlockerViewModel),
                             $"Channel{item.ChannelId}_Verify_Step{stepIndex}_CIB.raw"))
                     ]);
