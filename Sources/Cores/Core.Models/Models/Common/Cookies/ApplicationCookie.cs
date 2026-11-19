@@ -270,8 +270,12 @@ public sealed partial class ApplicationCookie : ObservableObject
         _ => ThrowHelper.ThrowNotSupportedException<IReadOnlyList<ProductivityInformation>>(nameof(opticsIlluminationModeEnum))
     };
 
-    public readonly record struct SimulatorDirectoryInformation(string Name = Constants.EmptyString, string DirectoryPath = Constants.EmptyString)
+    public readonly record struct SimulatorDirectoryInformation(string Name, string DirectoryPath)
     {
+        public SimulatorDirectoryInformation() : this(Constants.EmptyString, Constants.EmptyString)
+        {
+        }
+
         public override string ToString() => Name;
     };
 }

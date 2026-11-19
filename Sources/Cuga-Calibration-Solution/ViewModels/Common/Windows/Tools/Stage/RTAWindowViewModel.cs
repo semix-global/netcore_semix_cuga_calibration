@@ -53,7 +53,7 @@ public sealed partial class RTAWindowViewModel(
     public bool IsDevelopment { get; } = hostEnvironment.IsDevelopment();
 
     [ObservableProperty]
-    public partial ApplicationCookie.SimulatorDirectoryInformation SimulatorDirectoryInformation { get; set; }
+    public partial ApplicationCookie.SimulatorDirectoryInformation SimulatorDirectoryInformation { get; set; } = new();
 
     public ApplicationCookie ApplicationCookie { get; } = applicationCookie;
 

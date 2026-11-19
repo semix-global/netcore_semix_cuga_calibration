@@ -9,11 +9,11 @@ public partial class CalibrationViewModelBase
     public bool IsDevelopment { get; private set; }
 
     [ObservableProperty]
-    public partial ApplicationCookie.SimulatorDirectoryInformation SimulatorDirectoryInformation { get; set; }
+    public partial ApplicationCookie.SimulatorDirectoryInformation SimulatorDirectoryInformation { get; set; } = new();
 
     private void InitializeSimulator()
     {
         IsDevelopment = HostEnvironment.IsDevelopment();
-        if (IsDevelopment) SimulatorDirectoryInformation = ApplicationCookie.SimulatorDirectoryInformations[0];
+        if (IsDevelopment && ApplicationCookie.SimulatorDirectoryInformations.Length > 0) SimulatorDirectoryInformation = ApplicationCookie.SimulatorDirectoryInformations[0];
     }
 }
