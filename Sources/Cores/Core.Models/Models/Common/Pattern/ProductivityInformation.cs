@@ -249,7 +249,7 @@ public sealed partial class ProductivityInformation :
     public object ToHtmlAnonymous() => new
     {
         Name,
-        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.ToString(),
+        OpticsIlluminationModeEnum = OpticsIlluminationModeEnum.ToSxNIOIEnum().ToString(),
         OpticsMagType = ((SxMAGEnum)OpticsMagType).ToString(),
         StageSpeedType = ((SxSpeedEnum)StageSpeedType).ToString(),
         OriginXPixelSize,

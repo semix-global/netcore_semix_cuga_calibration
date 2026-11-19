@@ -178,7 +178,7 @@ public sealed class CalibrationOpticsServiceMockImpl : ICalibrationOpticsService
                             new C2MProductivityInfo
                             {
                                 Name = t.Value<string>(nameof(ProductivityInformation.Name)),
-                                NIOI = Enum.Parse<OpticsIlluminationModeEnum>(t.Value<string>(nameof(ProductivityInformation.OpticsIlluminationModeEnum))).ToSxNIOIEnum(),
+                                NIOI = Enum.Parse<SxNIOIEnum>(t.Value<string>(nameof(ProductivityInformation.OpticsIlluminationModeEnum))),
                                 Mag = Enum.Parse<SxMAGEnum>(t.Value<string>(nameof(ProductivityInformation.OpticsMagType))),
                                 Speed = Enum.Parse<SxSpeedEnum>(t.Value<string>(nameof(ProductivityInformation.StageSpeedType))),
                                 IsUsed = true
